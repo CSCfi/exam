@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.ExamRoom;
@@ -33,8 +32,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-import org.joda.time.base.AbstractInterval;
 import util.config.ConfigReader;
 
 public class DateTimeHandlerImpl implements DateTimeHandler {
@@ -58,8 +55,8 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
         // create a sub-list that excludes interval which does not overlap with
         // searchInterval
         List<Interval> subReservedList = removeNonOverlappingIntervals(reserved, searchInterval);
-        DateTime subEarliestStart = subReservedList.get(0).getStart();
-        DateTime subLatestEnd = subReservedList.get(subReservedList.size() - 1).getEnd();
+        DateTime subEarliestStart = subReservedList.getFirst().getStart();
+        DateTime subLatestEnd = subReservedList.getLast().getEnd();
 
         // in case the searchInterval is wider than the union of the existing
         // include searchInterval.start => earliestExisting.start
@@ -79,7 +76,7 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
 
     private List<Interval> getExistingIntervalGaps(List<Interval> reserved) {
         List<Interval> gaps = new ArrayList<>();
-        Interval current = reserved.get(0);
+        Interval current = reserved.getFirst();
         for (int i = 1; i < reserved.size(); i++) {
             Interval next = reserved.get(i);
             Interval gap = current.gap(next);
@@ -92,12 +89,12 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     }
 
     private List<Interval> removeNonOverlappingIntervals(List<Interval> reserved, Interval searchInterval) {
-        return reserved.stream().filter(interval -> interval.overlaps(searchInterval)).collect(Collectors.toList());
+        return reserved.stream().filter(interval -> interval.overlaps(searchInterval)).toList();
     }
 
     private boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
-        DateTime earliestStart = reserved.get(0).getStart();
-        DateTime latestStop = reserved.get(reserved.size() - 1).getEnd();
+        DateTime earliestStart = reserved.getFirst().getStart();
+        DateTime latestStop = reserved.getLast().getEnd();
         return (!searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop));
     }
 
@@ -117,13 +114,25 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
                 DateTime end = new DateTime(ewh.getEndDate()).plusMillis(ewh.getEndDateTimezoneOffset());
                 Interval exception = new Interval(start, end);
                 Interval wholeDay = date.toInterval();
+                // exception covers this day fully
                 if (exception.contains(wholeDay) || exception.equals(wholeDay)) {
                     exceptions.clear();
                     exceptions.add(wholeDay);
-                    break;
-                }
-                if (exception.overlaps(wholeDay)) {
-                    exceptions.add(new Interval(exception.getStart(), exception.getEnd()));
+                } else if (exception.overlaps(wholeDay)) {
+                    // exception starts this day but ends on a later day
+                    if (start.toLocalDate().equals(date) && end.toLocalDate().isAfter(date)) {
+                        exceptions.add(new Interval(exception.getStart(), wholeDay.getEnd()));
+                    }
+                    // exception ends this day but starts on an earlier day
+                    else if (start.toLocalDate().isBefore(date) && end.toLocalDate().equals(date)) {
+                        exceptions.add(new Interval(wholeDay.getStart(), exception.getEnd()));
+                    }
+                    // exception starts and ends this day
+                    else {
+                        exceptions.add(
+                            new Interval(exception.getStart().withDate(date), exception.getEnd().withDate(date))
+                        );
+                    }
                 }
             }
         }
@@ -131,14 +140,16 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     }
 
     @Override
-    public List<Interval> mergeSlots(List<Interval> slots) {
-        if (slots.size() <= 1) {
-            return slots;
+    public List<Interval> mergeSlots(List<Interval> intervals) {
+        if (intervals.size() <= 1) {
+            return intervals;
         }
-        slots.sort(Comparator.comparing(AbstractInterval::getStart));
+        // make sure the list is mutable, otherwise sorting fails
+        var slots = new ArrayList<>(intervals);
+        slots.sort(Comparator.comparing(Interval::getStart));
         boolean isMerged = false;
         List<Interval> merged = new ArrayList<>();
-        merged.add(slots.get(0));
+        merged.add(slots.getFirst());
         for (int i = 1; i < slots.size(); ++i) {
             Interval first = slots.get(i - 1);
             Interval second = slots.get(i);
@@ -257,6 +268,11 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     }
 
     @Override
+    public int getTimezoneOffset(DateTime date) {
+        return configReader.getDefaultTimeZone().getOffset(date);
+    }
+
+    @Override
     public List<OpeningHours> getWorkingHoursForDate(LocalDate date, ExamRoom room) {
         List<OpeningHours> workingHours = getDefaultWorkingHours(date, room);
         List<Interval> extensionEvents = mergeSlots(
@@ -268,24 +284,11 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
         List<OpeningHours> availableHours = new ArrayList<>();
         if (!extensionEvents.isEmpty()) {
             List<Interval> unifiedIntervals = mergeSlots(
-                Stream
-                    .concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream())
-                    .collect(Collectors.toList())
+                Stream.concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream()).toList()
             );
-            int tzOffset;
-            if (workingHours.isEmpty()) {
-                LocalTime lt = LocalTime.now().withHourOfDay(java.time.LocalTime.NOON.getHour());
-                tzOffset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(date.toDateTime(lt));
-            } else {
-                tzOffset = workingHours.get(0).getTimezoneOffset();
-            }
+            int offset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now().withDayOfYear(1));
             workingHours.clear();
-            workingHours.addAll(
-                unifiedIntervals
-                    .stream()
-                    .map(interval -> new OpeningHours(interval, tzOffset))
-                    .collect(Collectors.toList())
-            );
+            workingHours.addAll(unifiedIntervals.stream().map(interval -> new OpeningHours(interval, offset)).toList());
         }
         if (!restrictionEvents.isEmpty()) {
             for (OpeningHours hours : workingHours) {

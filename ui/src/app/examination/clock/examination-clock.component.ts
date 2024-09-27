@@ -12,95 +12,110 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { AsyncPipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { Duration } from 'luxon';
+import { Observable, Subject, filter, interval, map, startWith, switchMap, take, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'xm-examination-clock',
     template: `<div class="floating-clock">
-        <div class="header-wrapper">
-            <span *ngIf="showRemainingTime" class="exam-clock-text">
-                <span class="sitnet-white">{{ 'sitnet_exam_time_left' | translate }}: </span>
-            </span>
-            <span class="exam-clock">
-                <span
-                    role="region"
-                    *ngIf="showRemainingTime"
-                    [ngClass]="remainingTime <= alarmThreshold ? 'sitnet-text-alarm' : ''"
-                    [attr.aria-live]="remainingTime <= alarmThreshold ? 'polite' : 'off'"
-                >
-                    {{ formatRemainingTime() }}
-                </span>
-                <span *ngIf="!showRemainingTime" class="clock-hide text-muted">
-                    {{ 'sitnet_clock_hidden' | translate }}
-                </span>
-            </span>
-            <button (click)="showRemainingTime = !showRemainingTime" class="border-none background-none">
-                <img
-                    src="/assets/images/icon_clock.svg"
-                    alt="{{ 'sitnet_show_hide_clock' | translate }}"
-                    onerror="this.onerror=null;this.src='/assets/images/icon_clock.png';"
-                />
-            </button>
+        <div class="row">
+            <div class="header-wrapper col-12">
+                <div class="row align-items-start p-2">
+                    @if (showRemainingTime()) {
+                        <div class="col-5">
+                            <span class="text-white">{{ 'i18n_exam_time_left' | translate }}: </span>
+                        </div>
+                    } @else {
+                        <div class="col-5 clock-hide text-muted">
+                            {{ 'i18n_clock_hidden' | translate }}
+                        </div>
+                    }
+                    <div class="col-5">
+                        @if (showRemainingTime()) {
+                            <span
+                                class="exam-clock"
+                                role="region"
+                                [ngClass]="(isTimeScarce$ | async) ? 'text-warning' : ''"
+                                >{{ remainingTime$ | async }}</span
+                            >
+                        }
+                        @if (ariaLiveTime) {
+                            <span class="exam-clock skip" role="region" [attr.aria-live]="'polite'">{{
+                                ('i18n_examination_time_warning' | translate) + ': ' + ariaLiveTime
+                            }}</span>
+                        }
+                    </div>
+                    <div class="col-2">
+                        <button
+                            (click)="showRemainingTime.set(!showRemainingTime())"
+                            class="border-none background-none"
+                        >
+                            <img src="/assets/images/icon_clock.svg" alt="{{ 'i18n_show_hide_clock' | translate }}" />
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div> `,
+    </div>`,
+    standalone: true,
+    imports: [NgClass, AsyncPipe, TranslateModule],
+    styleUrl: './examination-clock.component.scss',
 })
 export class ExaminationClockComponent implements OnInit, OnDestroy {
     @Input() examHash = '';
     @Output() timedOut = new EventEmitter<void>();
-    syncInterval = 15;
-    secondsSinceSync = this.syncInterval + 1;
-    alarmThreshold = 300;
-    remainingTime = this.alarmThreshold + 1;
-    showRemainingTime = true;
-    pollerId = 0;
+
+    showRemainingTime = signal(false);
+    remainingTime$?: Observable<string>;
+    isTimeScarce$?: Observable<boolean>;
+    ariaLiveTime?: string;
+
+    private syncInterval = 60;
+    private alarmThreshold = 300;
+    private clock = new Subject<number>();
+    private ngUnsubscribe = new Subject();
 
     constructor(private http: HttpClient) {}
 
     ngOnInit() {
-        this.checkRemainingTime();
+        const sync$ = this.http.get<number>(`/app/time/${this.examHash}`);
+        interval(this.syncInterval * 1000)
+            .pipe(
+                takeUntil(this.ngUnsubscribe),
+                startWith(0),
+                switchMap(() =>
+                    sync$.pipe(
+                        switchMap((t) =>
+                            interval(1000).pipe(
+                                map((n) => Math.max(0, t - n)),
+                                take(this.syncInterval),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+            .subscribe(this.clock);
+
+        this.remainingTime$ = this.clock.pipe(map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss')));
+        this.clock
+            .pipe(
+                filter((t) => t % (60 * 30) === 0 || [1, 5, 10].some((n) => t === 60 * n)),
+                map((t) => Duration.fromObject({ seconds: t }).toFormat('hh:mm:ss')),
+            )
+            .subscribe((time) => (this.ariaLiveTime = time));
+        this.isTimeScarce$ = this.clock.pipe(map((n) => n <= this.alarmThreshold));
+        this.clock.subscribe((n) => {
+            if (n === 0) this.timedOut.emit();
+        });
+        this.showRemainingTime.set(true);
     }
 
     ngOnDestroy() {
-        if (this.pollerId) {
-            window.clearTimeout(this.pollerId);
-        }
+        this.ngUnsubscribe.next(undefined);
+        this.ngUnsubscribe.complete();
     }
-
-    formatRemainingTime = (): string => {
-        if (!this.remainingTime) {
-            return '';
-        }
-        const hours = Math.floor(this.remainingTime / 60 / 60);
-        const minutes = Math.floor(this.remainingTime / 60) % 60;
-        const seconds = this.remainingTime % 60;
-        return `${hours}:${this.zeroPad(minutes)}:${this.zeroPad(seconds)}`;
-    };
-
-    private checkRemainingTime = () => {
-        this.secondsSinceSync++;
-        if (this.secondsSinceSync > this.syncInterval) {
-            // Sync time with backend
-            this.secondsSinceSync = 0;
-            this.setRemainingTime();
-        } else if (this.remainingTime !== undefined) {
-            // Decrease seconds
-            this.remainingTime--;
-        }
-        if (this.remainingTime !== undefined && this.remainingTime <= 0) {
-            this.notifyTimeout();
-        }
-
-        this.pollerId = window.setTimeout(this.checkRemainingTime, 1000);
-    };
-
-    private setRemainingTime = () =>
-        this.http.get<number>('/app/time/' + this.examHash).subscribe((resp) => (this.remainingTime = resp));
-
-    private notifyTimeout = () => {
-        window.clearTimeout(this.pollerId);
-        this.timedOut.emit();
-    };
-
-    private zeroPad = (n: number): string => ('0' + n).slice(-2);
 }

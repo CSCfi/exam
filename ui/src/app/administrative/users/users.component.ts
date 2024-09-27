@@ -1,11 +1,23 @@
+import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
 import type { Permission } from './users.service';
 import { PermissionType, UserManagementService } from './users.service';
 
@@ -32,6 +44,31 @@ interface UserWithOptions extends User {
 @Component({
     templateUrl: './users.component.html',
     selector: 'xm-users',
+    standalone: true,
+    imports: [
+        FormsModule,
+        NgbPopover,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        NgClass,
+        PaginatorComponent,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
+    styles: [
+        `
+            .flex-wrap-gap {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+        `,
+    ],
 })
 export class UsersComponent implements OnInit, OnDestroy {
     users: UserWithOptions[] = [];
@@ -42,9 +79,9 @@ export class UsersComponent implements OnInit, OnDestroy {
     textChanged = new Subject<string>();
     ngUnsubscribe = new Subject();
     roles: RoleOption[] = [
-        { type: 'ADMIN', name: 'sitnet_admin', icon: 'bi-gear' },
-        { type: 'TEACHER', name: 'sitnet_teacher', icon: 'bi-person-fill' },
-        { type: 'STUDENT', name: 'sitnet_student', icon: 'bi-person' },
+        { type: 'ADMIN', name: 'i18n_admin', icon: 'bi-gear' },
+        { type: 'TEACHER', name: 'i18n_teacher', icon: 'bi-person' },
+        { type: 'STUDENT', name: 'i18n_student', icon: 'bi-mortarboard' },
     ];
     permissions: PermissionOption[] = [];
     loader = { loading: false };
@@ -74,8 +111,15 @@ export class UsersComponent implements OnInit, OnDestroy {
                 if (p.type === PermissionType.CAN_INSPECT_LANGUAGE) {
                     return {
                         ...p,
-                        name: 'sitnet_can_inspect_language',
-                        icon: 'bi-pencil',
+                        name: 'i18n_can_inspect_language',
+                        icon: 'bi-alphabet',
+                    };
+                }
+                if (p.type === PermissionType.CAN_CREATE_BYOD_EXAM) {
+                    return {
+                        ...p,
+                        name: 'i18n_can_create_byod_exam',
+                        icon: 'bi-house-gear',
                     };
                 }
 

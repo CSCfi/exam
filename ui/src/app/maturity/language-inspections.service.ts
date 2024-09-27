@@ -20,7 +20,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { InspectionStatementDialogComponent } from './dialogs/inspection-statement-dialog.component';
 import type { LanguageInspection } from './maturity.model';
 
@@ -54,7 +54,7 @@ export class LanguageInspectionService {
 
     assignInspection = (inspection: LanguageInspection) =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_confirm_assign_inspection'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_confirm_assign_inspection'))
             .subscribe({
                 next: () => {
                     this.http.put(`/app/inspection/${inspection.id}`, {}).subscribe({

@@ -14,11 +14,12 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { SessionService } from '../session.service';
+import { SessionService } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-logout',
     template: '<div></div>',
+    standalone: true,
 })
 export class LogoutComponent implements OnInit {
     constructor(private Session: SessionService) {}

@@ -1,54 +1,55 @@
-<div class="section-border">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="review-list-title pb-4">
-                {{ 'sitnet_section_title' | translate }} {{ index }}
+<div class="row">
+    <div class="col-md-12">
+        <div class="xm-paragraph-title pb-3">
+            <span cdkDragHandle class="me-2">
+                <i
+                    class="bi bi-arrows-vertical"
+                    ngbPopover="{{ 'i18n_move_section' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    placement="top-left"
+                    triggers="mouseenter:mouseleave"
+                ></i>
+            </span>
+            <span (mousedown)="$event.stopPropagation()">
+                {{ 'i18n_section_title' | translate }} {{ index }}
                 <sup
-                    ngbPopover="{{ 'sitnet_exam_section_order_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_section_order_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                     class="me-4"
                 >
-                    <img
-                        src="/assets/images/icon_tooltip.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                    />
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                 </sup>
                 <!-- settings -->
-                <div class="float-end exam-section-settings" ngbDropdown>
+                <div class="float-end" ngbDropdown>
                     <button class="btn btn-outline-dark" ngbDropdownToggle>
-                        {{ 'sitnet_edit' | translate }}
+                        {{ 'i18n_edit' | translate }}
                     </button>
                     <div ngbDropdownMenu>
                         <button ngbDropdownItem (click)="clearAllQuestions()">
-                            {{ 'sitnet_exam_clear' | translate }}
+                            {{ 'i18n_exam_clear' | translate }}
                         </button>
                         <button ngbDropdownItem (click)="removeSection()">
-                            {{ 'sitnet_exam_remove' | translate }}
+                            {{ 'i18n_exam_remove' | translate }}
                         </button>
                     </div>
                 </div>
-                <ng-content></ng-content>
-            </div>
+            </span>
         </div>
     </div>
-
+</div>
+<div (mousedown)="$event.stopPropagation()">
     <div class="row mt-4">
         <div class="col-md-12">
             <form>
                 <label for="sectionName_{{ section.id }}" class="form-label">
-                    {{ 'sitnet_section_name' | translate }}
+                    {{ 'i18n_section_name' | translate }}
                     <sup
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_exam_section_name_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_exam_section_name_description' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
-                        <img
-                            src="/assets/images/icon_tooltip.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                        />
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
                     </sup>
                 </label>
                 <input
@@ -56,23 +57,20 @@
                     name="sectionName"
                     type="text"
                     required
-                    class="form-control mb-3"
+                    class="form-control mb-3 w-50"
+                    maxlength="255"
                     [(ngModel)]="section.name"
                     (change)="renameSection()"
                 />
 
                 <label for="sectionDescription_{{ section.id }}" class="form-label">
-                    {{ 'sitnet_section_description' | translate }}
+                    {{ 'i18n_section_description' | translate }}
                     <sup
-                        ngbPopover="{{ 'sitnet_exam_section_description_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_exam_section_description_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
-                        <img
-                            src="/assets/images/icon_tooltip.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                        />
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
                     </sup>
                 </label>
                 <textarea
@@ -89,29 +87,31 @@
                 <!-- Section material resources-->
                 <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
                 <!-- exam-material-selector [section]="section" [allMaterials]="materials"
-                    (changed)="materialsChanged($event)"></exam-material-selector -->
-                <div class="form-check mb-3" *ngIf="!collaborative && canBeOptional">
-                    <input
-                        id="sectionOptionality_{{ section.id }}"
-                        class="form-check-input"
-                        name="optional"
-                        type="checkbox"
-                        name="optionalSection"
-                        value="On"
-                        [(ngModel)]="section.optional"
-                        (change)="renameSection()"
-                    />
-                    <label for="sectionOptionality_{{ section.id }}" class="form-check-label">
-                        {{ 'sitnet_optional_section' | translate }}
-                        <sup
-                            ngbPopover="{{ 'sitnet_optional_section_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        >
-                            <img src="/assets/images/icon_tooltip.svg" alt="" />
-                        </sup>
-                    </label>
-                </div>
+        (changed)="materialsChanged($event)"></exam-material-selector -->
+                @if (!collaborative && canBeOptional) {
+                    <div class="form-check mb-3">
+                        <input
+                            id="sectionOptionality_{{ section.id }}"
+                            class="form-check-input"
+                            name="optional"
+                            type="checkbox"
+                            name="optionalSection"
+                            value="On"
+                            [(ngModel)]="section.optional"
+                            (change)="renameSection()"
+                        />
+                        <label for="sectionOptionality_{{ section.id }}" class="form-check-label">
+                            {{ 'i18n_optional_section' | translate }}
+                            <sup
+                                ngbPopover="{{ 'i18n_optional_section_description' | translate }}"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                            >
+                                <img src="/assets/images/icon_tooltip.svg" alt="" />
+                            </sup>
+                        </label>
+                    </div>
+                }
                 <div class="form-check">
                     <input
                         id="sectionRandomized_{{ section.id }}"
@@ -123,134 +123,134 @@
                         (change)="toggleLottery()"
                     />
                     <label for="sectionRandomized_{{ section.id }}" class="form-check-label">
-                        {{ 'sitnet_randomize_questions' | translate }}
+                        {{ 'i18n_randomize_questions' | translate }}
                     </label>
                     <sup
-                        ngbPopover="{{ 'sitnet_exam_section_randomize_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_exam_section_randomize_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
-                        class="marl5"
+                        class="ms-1"
                     >
-                        <img
-                            src="/assets/images/icon_tooltip.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                        />
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
                     </sup>
-                    <span class="text text-danger ms-2" *ngIf="!questionPointsMatch()">{{
-                        'sitnet_error_lottery_points_not_match' | translate
-                    }}</span>
+                    @if (!questionPointsMatch()) {
+                        <span class="text text-danger ms-2">{{
+                            'i18n_error_lottery_points_not_match' | translate
+                        }}</span>
+                    }
                 </div>
-                <div class="row" *ngIf="section.lotteryOn">
-                    <div class="col-auto">
-                        <label class="col-form-label" for="sectionLotteryCount_{{ section.id }}">
-                            {{ 'sitnet_lottery_questions' | translate }} [1...{{
-                                section.sectionQuestions.length
-                            }}]</label
-                        >
+                @if (section.lotteryOn) {
+                    <div class="row">
+                        <div class="col-auto">
+                            <label class="col-form-label" for="sectionLotteryCount_{{ section.id }}">
+                                {{ 'i18n_lottery_questions' | translate }} [1...{{
+                                    section.sectionQuestions.length
+                                }}]</label
+                            >
+                        </div>
+                        <div class="col-1">
+                            <input
+                                id="sectionLotteryCount_{{ section.id }}"
+                                class="form-control"
+                                type="number"
+                                lang="en"
+                                name="lotteryItemCount"
+                                [min]="1"
+                                [max]="section.sectionQuestions.length"
+                                [(ngModel)]="section.lotteryItemCount"
+                                (change)="updateLotteryCount()"
+                            />
+                        </div>
                     </div>
-                    <div class="col-1">
-                        <input
-                            id="sectionLotteryCount_{{ section.id }}"
-                            class="form-control"
-                            type="number"
-                            lang="en"
-                            name="lotteryItemCount"
-                            [min]="1"
-                            [max]="section.sectionQuestions.length"
-                            [(ngModel)]="section.lotteryItemCount"
-                            (change)="updateLotteryCount()"
-                        />
-                    </div>
-                </div>
+                }
             </form>
         </div>
     </div>
 
-    <div class="row mt-4" *ngIf="getSectionTotalScore() > 0">
-        <div class="col-md-12 exam-basic-title">
-            <strong>{{ 'sitnet_section_max_score' | translate }}: {{ getSectionTotalScore() }}</strong>
+    @if (getSectionTotalScore() > 0) {
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <strong>{{ 'i18n_section_max_score' | translate }}: {{ getSectionTotalScore() }}</strong>
+            </div>
         </div>
-    </div>
-    <div class="row mt-3" *ngIf="getAmountOfSelectionEvaluatedQuestions() > 0">
-        <div class="col-md-3 exam-basic-title">
-            {{ 'sitnet_evaluation_select' | translate }}
-            <sup
-                ngbPopover="{{ 'sitnet_evaluation_select_amount_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-            >
-                <img
-                    src="/assets/images/icon_tooltip.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                />
-            </sup>
+    }
+    @if (getAmountOfSelectionEvaluatedQuestions() > 0) {
+        <div class="row mt-3">
+            <div class="col-md-3">
+                {{ 'i18n_evaluation_select' | translate }}
+                <sup
+                    ngbPopover="{{ 'i18n_evaluation_select_amount_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                </sup>
+            </div>
+            <div class="col-md-9">
+                {{ getAmountOfSelectionEvaluatedQuestions() }}
+            </div>
         </div>
-        <div class="col-md-9">
-            {{ getAmountOfSelectionEvaluatedQuestions() }}
-        </div>
-    </div>
+    }
 
     <div class="row mt-4 mb-4">
         <div class="col-md-12">
-            <div class="review-list-title">
-                {{ 'sitnet_exam_questions' | translate }}
+            <div class="xm-paragraph-title">
+                {{ 'i18n_exam_questions' | translate }}
                 <a
                     class="pointer"
-                    ngbPopover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_show' | translate }} / {{ 'i18n_hide' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                     (click)="section.expanded = !section.expanded; expandSection()"
                 >
-                    <img
-                        *ngIf="!section.expanded"
-                        src="/assets/images/icon_list_show_right.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                    />
-                    <img
-                        *ngIf="section.expanded"
-                        src="/assets/images/icon_list_show_down.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                    />
+                    @if (!section.expanded) {
+                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                    }
+                    @if (section.expanded) {
+                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                    }
                 </a>
             </div>
         </div>
     </div>
 
-    <div class="row ms-2 me-2" [ngbCollapse]="!section.expanded">
+    <div class="row" [ngbCollapse]="!section.expanded">
         <div class="col-md-12 mt-2">
-            <div id="exam" cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="sortable no-padding mb-2">
-                <div *ngFor="let sectionQuestion of section.sectionQuestions" cdkDrag cdkDragLockAxis="y" class="mb-4">
-                    <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
-                    <div class="drag-preview" *cdkDragPreview [innerHtml]="sectionQuestion.question.question"></div>
-                    <xm-section-question
-                        class="section-question"
-                        [section]="section"
-                        [examId]="examId"
-                        [sectionQuestion]="sectionQuestion"
-                        [collaborative]="collaborative"
-                        [lotteryOn]="section.lotteryOn"
-                        (removed)="removeQuestion($event)"
-                        (updated)="updateQuestion($event)"
-                    >
-                    </xm-section-question>
-                </div>
+            <div cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="p-0 mb-2">
+                @for (
+                    sectionQuestion of section.sectionQuestions | orderBy: 'sequenceNumber';
+                    track sectionQuestion.sequenceNumber
+                ) {
+                    <div cdkDrag cdkDragLockAxis="y" class="mb-4">
+                        <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
+                        <div class="drag-preview" *cdkDragPreview [innerHtml]="sectionQuestion.question.question"></div>
+                        <xm-section-question
+                            class="section-question"
+                            [section]="section"
+                            [examId]="examId"
+                            [sectionQuestion]="sectionQuestion"
+                            [collaborative]="collaborative"
+                            [lotteryOn]="section.lotteryOn"
+                            (removed)="removeQuestion($event)"
+                            (updated)="updateQuestion($event)"
+                            (copied)="copyQuestion($event)"
+                        >
+                        </xm-section-question>
+                    </div>
+                }
             </div>
-
-            <div *ngIf="!collaborative" class="review-attachment-button exam-questions-buttons mt-3">
-                <a class="pointer" (click)="openLibrary()">
-                    <i class="bi-plus"></i>&nbsp;{{ 'sitnet_add_from_library' | translate }}
-                </a>
-            </div>
-
-            <div class="review-attachment-button exam-questions-buttons ms-3 mt-3">
-                <a class="pointer" (click)="addNewQuestion()">
-                    <i class="bi-plus"></i>&nbsp;{{ 'sitnet_exam_new_question' | translate }}
-                </a>
-            </div>
+        </div>
+    </div>
+    <div class="row my-3">
+        <div class="col-12">
+            @if (!collaborative) {
+                <button class="btn btn-success" (click)="openLibrary()">
+                    <i class="bi-plus"></i>&nbsp;{{ 'i18n_add_from_library' | translate }}
+                </button>
+            }
+            <button class="btn btn-success ms-2" (click)="addNewQuestion()">
+                <i class="bi-plus"></i>&nbsp;{{ 'i18n_exam_new_question' | translate }}
+            </button>
         </div>
     </div>
 </div>

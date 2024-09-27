@@ -14,11 +14,10 @@
  */
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { format, roundToNearestMinutes } from 'date-fns';
-import { DateTime } from 'luxon';
+import { DateTime, WeekdayNumbers } from 'luxon';
 import { range } from 'ramda';
 
-export enum REPEAT_OPTIONS {
+export enum REPEAT_OPTION {
     once = 'ONCE',
     daily_weekly = 'DAILY_WEEKLY',
     monthly = 'MONTHLY',
@@ -44,8 +43,7 @@ export class DateTimeService {
         return '';
     }
 
-    getDuration = (timestamp: string) =>
-        format(roundToNearestMinutes(DateTime.fromISO(timestamp, { zone: 'UTC' }).toJSDate()), 'HH:mm');
+    getDuration = (timestamp: string) => DateTime.fromISO(timestamp, { zone: 'UTC' }).toFormat('HH:mm');
 
     formatInTimeZone = (date: Date, tz: string) => DateTime.fromJSDate(date, { zone: tz }).toISO();
 
@@ -58,7 +56,7 @@ export class DateTimeService {
     getLocalizedDateForMonth = (ordinal: number, locale: string): DateTime =>
         DateTime.now().set({ month: ordinal }).setLocale(locale);
 
-    getLocalizedDateForDay = (ordinal: number, locale: string): DateTime =>
+    getLocalizedDateForDay = (ordinal: WeekdayNumbers, locale: string): DateTime =>
         DateTime.now().set({ weekday: ordinal }).setLocale(locale);
 
     getWeekdayNames(long = false): string[] {

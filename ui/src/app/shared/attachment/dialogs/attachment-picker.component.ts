@@ -12,10 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import type { OnInit } from '@angular/core';
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { FileService } from '../../file/file.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { FileService } from 'src/app/shared/file/file.service';
 
 export interface FileResult {
     $value: { attachmentFile: File };
@@ -33,16 +35,17 @@ export interface FileResult {
 
 @Component({
     selector: 'xm-attachment-selector',
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
+    standalone: true,
+    imports: [TranslateModule],
+    template: `
         <div class="modal-header">
-            <h2>{{ title | translate }}</h2>
+            <h2 class="xm-modal-title">{{ title | translate }}</h2>
         </div>
-
         <div class="modal-body">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-3">
                     <label for="file-select" class="btn btn-success btn-file" aria-hidden="true"
-                        >{{ 'sitnet_choose' | translate }}
+                        >{{ 'i18n_choose' | translate }}
                     </label>
                     <input
                         id="file-select"
@@ -52,33 +55,34 @@ export interface FileResult {
                         autofocus
                         #file
                         (change)="onFilesAdded()"
-                        attr.aria-label="{{ 'sitnet_choose_file' | translate }}"
+                        attr.aria-label="{{ 'i18n_choose_file' | translate }}"
                     />
                 </div>
-                <div class="col-md-9 attachment-file">
+                <div class="col-9 attachment-file">
                     {{ fileObject?.name }}
                 </div>
             </div>
-            <div class="row top-padding-2">
-                <div class="col-md-12" *ngIf="isTeacherModal">
-                    {{ 'sitnet_check_file_accessible' | translate }}
-                </div>
+            <div class="row pt-2">
+                @if (isTeacherModal) {
+                    <div class="col-12">
+                        {{ 'i18n_check_file_accessible' | translate }}
+                    </div>
+                }
             </div>
             <div class="row">
-                <div class="col-md-12">
-                    {{ 'sitnet_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.
-                </div>
+                <div class="col-12">{{ 'i18n_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.</div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary float-start" (click)="activeModal.dismiss()">
-                {{ 'sitnet_button_cancel' | translate }}
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success " (click)="confirmed()" [disabled]="!fileObject">
+                {{ 'i18n_button_save' | translate }}
             </button>
-            <button class="btn btn btn-success float-end" (click)="confirmed()" [disabled]="!fileObject">
-                {{ 'sitnet_button_save' | translate }}
+            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
-    </div> `,
+    `,
+    styleUrls: ['./attachment-picker.component.scss'],
 })
 export class AttachmentSelectorComponent implements OnInit {
     @ViewChild('file', { static: false }) file!: ElementRef;
@@ -87,7 +91,10 @@ export class AttachmentSelectorComponent implements OnInit {
     fileObject!: File;
     maxFileSize = 0;
 
-    constructor(public activeModal: NgbActiveModal, private Files: FileService) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private Files: FileService,
+    ) {}
 
     ngOnInit() {
         this.Files.getMaxFilesize().then((data) => (this.maxFileSize = data.filesize));

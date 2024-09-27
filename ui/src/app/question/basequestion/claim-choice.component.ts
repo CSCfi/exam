@@ -12,48 +12,52 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
-import { QuestionDraft, QuestionService } from '../question.service';
+import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import type { MultipleChoiceOption, Question } from 'src/app/exam/exam.model';
+import { QuestionDraft, QuestionService } from 'src/app/question/question.service';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-claim-choice-editor',
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
-        <div>
-            <div class="col-md-9 col-md-offset-3">
-                <p>{{ 'sitnet_claim_choice_question_instruction' | translate }}</p>
-                <p>{{ 'sitnet_claim_choice_options_description' | translate }}</p>
-                <ul>
-                    <li>{{ 'sitnet_claim_choice_correct_points_description' | translate }}</li>
-                    <li>{{ 'sitnet_claim_choice_incorrect_points_description' | translate }}</li>
-                    <li>{{ 'sitnet_claim_choice_skip_option_description' | translate }}</li>
-                </ul>
-                <br />
-                <span>
-                    <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
-                    <small *ngIf="showWarning">{{ 'sitnet_shared_question_property_info' | translate }}</small>
-                </span>
-            </div>
-            <div class="col-md-9 col-md-offset-3 margin-10 padl0 padr0 claim-choice-option-labels">
-                <div class="claim-choice-option-label">
-                    <span class="question-option-title">{{ 'sitnet_question_options' | translate | uppercase }}</span>
+        <div ngModelGroup="claimChoice" name="claimChoice">
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    <p>{{ 'i18n_claim_choice_question_instruction' | translate }}</p>
+                    <p>{{ 'i18n_claim_choice_options_description' | translate }}</p>
+                    <ul>
+                        <li>{{ 'i18n_claim_choice_correct_points_description' | translate }}</li>
+                        <li>{{ 'i18n_claim_choice_incorrect_points_description' | translate }}</li>
+                        <li>{{ 'i18n_claim_choice_skip_option_description' | translate }}</li>
+                    </ul>
+                    <br />
+                    @if (showWarning) {
+                        <div class="edit-warning-container">
+                            <i class="bi-exclamation-circle text-danger me-2"></i>
+                            <small>{{ 'i18n_shared_question_property_info' | translate }}</small>
+                        </div>
+                    }
                 </div>
-                <div class="claim-choice-option-label points">
+            </div>
+            <div class="row ms-2 w-50 px-3 pb-2">
+                <div class="col-9">
+                    <span class="question-option-title">{{ 'i18n_question_options' | translate | uppercase }}</span>
+                </div>
+                <div class="col ms-1">
                     <span class="question-option-title">
-                        {{ 'sitnet_word_points' | translate | uppercase }}
+                        {{ 'i18n_word_points' | translate | uppercase }}
                     </span>
                 </div>
             </div>
-            <div class="col-md-9 col-md-offset-3 margin-10 padl0 padr0">
-                <div
-                    class="form-horizontal question-editor-claim-choice-option"
-                    [ngClass]="returnOptionClass(opt)"
-                    *ngFor="let opt of question.options"
-                >
-                    <div class="claim-choice-option-inputs">
+            @for (opt of question.options; track opt.id) {
+                <div class="row ms-2 w-50 question-editor-claim-choice-option" [ngClass]="getOptionClass(opt)">
+                    <div class="col-9">
                         <textarea
-                            id="optionText"
+                            name="{{ opt.claimChoiceType }}-question"
                             [(ngModel)]="opt.option"
                             type="text"
                             rows="1"
@@ -62,9 +66,10 @@ import { QuestionDraft, QuestionService } from '../question.service';
                             (change)="updateOptionTypes()"
                             [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
                         ></textarea>
+                    </div>
+                    <div class="col">
                         <input
-                            id="optionScore"
-                            name="maxScore"
+                            name="{{ opt.claimChoiceType }}-score"
                             class="question-option-input points"
                             type="number"
                             lang="en"
@@ -75,22 +80,29 @@ import { QuestionDraft, QuestionService } from '../question.service';
                             [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
                         />
                     </div>
-                    <div class="claim-choice-option-description">
-                        {{ returnOptionDescriptionTranslation(opt) | translate }}
+                    <div class="claim-choice-option-description m-2">
+                        {{ getOptionDescriptionTranslation(opt) | translate }}
                     </div>
                 </div>
-            </div>
+            }
+        </div>
+        <div class="row">
             <div class="col-md-9 col-md-offset-3 claim-choice-warning-wrapper">
-                <div class="claim-choice-warning" *ngIf="missingOptions.length > 0">
-                    <i class="bi-exclamation-triangle" style="color:#E8172F;"></i>
-                    <span style="color:#E8172F;">
-                        {{ 'sitnet_claim_choice_missing_options_warning' | translate }}
-                        <span>{{ displayMissingOptions() }}</span>
-                    </span>
-                </div>
+                @if (missingOptions.length > 0) {
+                    <div class="claim-choice-warning">
+                        <i class="bi-exclamation-triangle" style="color:#E8172F;"></i>
+                        <span style="color:#E8172F;">
+                            {{ 'i18n_claim_choice_missing_options_warning' | translate }}
+                            <span>{{ displayMissingOptions() }}</span>
+                        </span>
+                    </div>
+                }
             </div>
         </div>
     `,
+    styleUrls: ['../question.shared.scss'],
+    standalone: true,
+    imports: [FormsModule, NgClass, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
 })
 export class ClaimChoiceEditorComponent implements OnInit {
     @Input() option!: MultipleChoiceOption;
@@ -102,26 +114,29 @@ export class ClaimChoiceEditorComponent implements OnInit {
 
     defaultOptions = {
         correct: {
-            option: this.translate.instant('sitnet_claim_choice_default_correct'),
+            option: this.translate.instant('i18n_claim_choice_default_correct'),
             defaultScore: 1,
             correctOption: true,
             claimChoiceType: 'CorrectOption',
         },
         wrong: {
-            option: this.translate.instant('sitnet_claim_choice_default_incorrect'),
+            option: this.translate.instant('i18n_claim_choice_default_incorrect'),
             defaultScore: -1,
             correctOption: false,
             claimChoiceType: 'IncorrectOption',
         },
         skip: {
-            option: this.translate.instant('sitnet_question_claim_skip'),
+            option: this.translate.instant('i18n_question_claim_skip'),
             defaultScore: 0,
             correctOption: false,
             claimChoiceType: 'SkipOption',
         },
     };
 
-    constructor(private translate: TranslateService, private Question: QuestionService) {}
+    constructor(
+        private translate: TranslateService,
+        private Question: QuestionService,
+    ) {}
 
     ngOnInit() {
         const { state, question } = this.question;
@@ -132,11 +147,11 @@ export class ClaimChoiceEditorComponent implements OnInit {
 
     displayMissingOptions = () => this.missingOptions.map(this.translate.instant).join();
 
-    returnOptionDescriptionTranslation = (option: MultipleChoiceOption): string =>
-        this.Question.returnOptionDescriptionTranslation(option.claimChoiceType as string);
+    getOptionDescriptionTranslation = (option: MultipleChoiceOption): string =>
+        this.Question.determineOptionDescriptionTranslation(option.claimChoiceType as string);
 
-    returnOptionClass = (option: MultipleChoiceOption) =>
-        this.Question.returnClaimChoiceOptionClass(option.claimChoiceType as string);
+    getOptionClass = (option: MultipleChoiceOption) =>
+        this.Question.determineClaimChoiceOptionClass(option.claimChoiceType as string);
 
     updateOptionTypes = () => {
         this.question.options.forEach((opt, index) => {

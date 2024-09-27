@@ -33,7 +33,7 @@ PUT           /app/exams/:eid/course/:cid                              controlle
 GET           /app/exams/:id/preview                                   controllers.ExamController.getExamPreview(id: Long, request: Request)
 GET           /app/reviewerexams                                       controllers.ExamController.getTeachersExams(request: Request)
 
-GET           /app/examsearch                                          controllers.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList], request: Request)
+GET           /app/examsearch                                          controllers.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList], owner: java.util.Optional[LongList], request: Request)
 
 PUT           /app/exam/:eid/software/:sid                             controllers.ExamController.updateExamSoftware(eid: Long, sid: Long, request: Request)
 
@@ -65,6 +65,7 @@ POST          /app/exam/:eid/examinationevents                          controll
 PUT           /app/exam/:eid/examinationevents/:eecid                   controllers.ExaminationEventController.updateExaminationEvent(eid: Long, eecid: Long, request: Request)
 DELETE        /app/exam/:eid/examinationevents/:eecid                   controllers.ExaminationEventController.removeExaminationEvent(eid: Long, eecid: Long)
 GET           /app/examinationevents                                    controllers.ExaminationEventController.listExaminationEvents(start: java.util.Optional[String], end: java.util.Optional[String])
+GET           /app/examinationevents/conflicting                        controllers.ExaminationEventController.listOverlappingExaminationEvents(start: String, duration: Int)
 
 ############### Question review interface ###############
 GET           /app/exam/:id/questions                                  controllers.QuestionReviewController.getEssays(id: Long, ids: java.util.Optional[LongList], request: Request)
@@ -121,6 +122,7 @@ DELETE        /app/exams/:eid/sections/:sid/questions/:qid             controlle
 PUT           /app/exams/:eid/sections/:sid/reorder                    controllers.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long, request: Request)
 PUT           /app/exams/:eid/reorder                                  controllers.ExamSectionController.reorderSections(eid: Long, request: Request)
 GET           /app/exams/question/:id/distribution                     controllers.ExamSectionController.getQuestionDistribution(id: Long)
+GET           /app/sections                                            controllers.ExamSectionController.listSections(filter: java.util.Optional[String], courseIds: java.util.Optional[LongList], examIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList], ownerIds: java.util.Optional[LongList], request: Request)
 
 ############### Section material interface ###############
 GET           /app/materials                                           controllers.ExamMaterialController.listMaterials(request: Request)
@@ -143,7 +145,7 @@ PUT           /app/review/examquestion/:id/score                       controlle
 PUT           /app/review/examquestion/:id/score/force                 controllers.ReviewController.forceScoreExamQuestion(id: Long, request: Request)
 PUT           /app/review/:eid/comment                                 controllers.ReviewController.updateComment(eid: Long, request: Request)
 PUT           /app/review/:eid/comment/:cid/feedbackstatus             controllers.ReviewController.setCommentStatusRead(eid: Long, cid: Long, request: Request)
-GET           /app/noshows/:eid                                        controllers.ReviewController.listNoShows(eid: Long, request: Request)
+GET           /app/noshows/:eid                                        controllers.ReviewController.listNoShows(eid: Long, collaborative: java.util.Optional[java.lang.Boolean], request: Request)
 PUT           /app/reviews/archive                                     controllers.ReviewController.archiveExams(request: Request)
 GET           /app/review/:eid                                         controllers.ReviewController.getExamReview(eid: Long, request: Request)
 GET           /app/review/:id/locked                                   controllers.ReviewController.hasLockedAssessments(id: Long)
@@ -151,8 +153,8 @@ GET           /app/examparticipations/:eid                             controlle
 GET           /app/usernoshows/:eid                                    controllers.ReviewController.listNoShowsForExamAndUser(eid: Long, request: Request)
 POST          /app/email/inspection/:eid                               controllers.ReviewController.sendInspectionMessage(eid: Long, request: Request)
 POST          /app/review/:id/inspection                               controllers.ReviewController.addInspectionComment(id: Long, request: Request)
-POST          /app/gradeimport                                         controllers.ReviewController.importGrades(request: Request)
-GET           /app/exam/:eid/attachments                               controllers.ReviewController.getArchivedAttachments(eid: Long, start: java.util.Optional[String], end: java.util.Optional[String])
+POST          /app/gradeimport                                         controllers.ReviewDocumentsController.importGrades
+GET           /app/exam/:eid/attachments                               controllers.ReviewDocumentsController.getArchivedAttachments(eid: Long, start: Option[String], end: Option[String])
 
 ############### Language inspection interface ###############
 GET           /app/inspections                                         controllers.LanguageInspectionController.listInspections(month: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
@@ -180,12 +182,12 @@ DELETE        /app/enrolments/configs/:eecid                           controlle
 
 ############### Courses interface ###############
 GET           /app/courses                                             controllers.CourseController.getCourses(filter: Option[String], q: Option[String])
-GET           /app/courses/user                                        controllers.CourseController.listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]])
+GET           /app/courses/user                                        controllers.CourseController.listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]], ownerIds: Option[List[Long]])
 GET           /app/courses/:id                                         controllers.CourseController.getCourse(id: Long)
 
 ############### Question interface ###############
 
-GET           /app/questions                                           controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long], section: java.util.List[java.lang.Long], request: Request)
+GET           /app/questions                                           controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long], section: java.util.List[java.lang.Long], owner: java.util.List[java.lang.Long], request: Request)
 GET           /app/questions/:id                                       controllers.QuestionController.getQuestion(id: Long, request: Request)
 PUT           /app/questions/:id                                       controllers.QuestionController.updateQuestion(id: Long, request: Request)
 
@@ -195,6 +197,8 @@ DELETE        /app/questions/:id                                       controlle
 POST          /app/questions/owner/:uid                                controllers.QuestionController.addOwner(uid: Long, request: Request)
 POST          /app/questions/export                                    controllers.QuestionController.exportQuestions(request: Request)
 POST          /app/questions/import                                    controllers.QuestionController.importQuestions(request: Request)
+GET           /app/questions/:id/preview/exam                          controllers.QuestionController.getExamSectionQuestionPreview(id: Long, request: Request)
+GET           /app/questions/:id/preview/library                       controllers.QuestionController.getQuestionPreview(id: Long, request: Request)
 
 ############### Reservation interface ###############
 
@@ -237,16 +241,16 @@ GET           /app/machines                                            controlle
 GET           /app/machines/:id                                        controllers.ExamMachineController.getExamMachine(id: Long)
 GET           /app/machines/:id/reservations                           controllers.ExamMachineController.getExamMachineReservationsFromNow(id: Long)
 PUT           /app/machines/:id                                        controllers.ExamMachineController.updateExamMachine(id: Long, request: Request)
-POST          /app/machines/:id                                        controllers.ExamMachineController.insertExamMachine(id: Long, request: Request)
+POST          /app/machines/:id                                        controllers.ExamMachineController.insertExamMachine(id: Long)
 DELETE        /app/machines/:id                                        controllers.ExamMachineController.removeExamMachine(id: Long)
 
 POST          /app/machine/:mid/software/:sid                          controllers.ExamMachineController.updateMachineSoftware(mid: Long, sid: Long)
 PUT           /app/software_machine/:mid                               controllers.ExamMachineController.resetMachineSoftware(mid: Long)
 
-GET           /app/softwares                                           controllers.ExamMachineController.getSoftwares
+GET           /app/softwares                                           controllers.ExamMachineController.listSoftware
 GET           /app/softwares/:id                                       controllers.ExamMachineController.getSoftware(id: Long)
 DELETE        /app/softwares/:id                                       controllers.ExamMachineController.removeSoftware(id: Long)
-POST          /app/softwares/:name                                     controllers.ExamMachineController.addSoftware(name: String, request: Request)
+POST          /app/softwares/:name                                     controllers.ExamMachineController.addSoftware(name: String)
 PUT           /app/softwares/:id/:name                                 controllers.ExamMachineController.updateSoftware(id: Long, name: String)
 
 ############## Attachment ############################
@@ -406,7 +410,8 @@ GET           /app/availability/:roomId/:date                          controlle
 GET           /app/languages                                           controllers.LanguageController.getSupportedLanguages
 
 ################# Tag interface ##################
-GET           /app/tags                                                controllers.TagController.listTags(filter: java.util.Optional[String], examIds: java.util.Optional[LongList], courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], request: Request)
+GET           /app/tags                                                controllers.TagController.listTags(filter: java.util.Optional[String], courseIds: java.util.Optional[LongList], examIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], owner: java.util.Optional[LongList], request: Request)
+POST          /app/tags/questions                                      controllers.TagController.addTagToQuestions(request: Request)
 
 ################# General Settings interface ##################
 
@@ -419,7 +424,6 @@ PUT           /app/settings/deadline                                   controlle
 GET           /app/settings/reservationWindow                          controllers.SettingsController.getReservationWindowSize
 PUT           /app/settings/reservationWindow                          controllers.SettingsController.setReservationWindowSize(request: Request)
 GET           /app/settings/hostname                                   controllers.SettingsController.getHostname
-GET           /app/settings/maxDate                                    controllers.SettingsController.getExamMaxDate
 GET           /app/settings/durations                                  controllers.SettingsController.getExamDurations
 GET           /app/settings/maxDuration                                controllers.SettingsController.getExamMaxDuration
 GET           /app/settings/minDuration                                controllers.SettingsController.getExamMinDuration
@@ -434,6 +438,7 @@ GET           /app/settings/appVersion                                 controlle
 GET           /app/settings/maturityInstructions                       controllers.SettingsController.getMaturityInstructions(lang: String, ref: java.util.Optional[String])
 GET           /app/settings/examinationQuitLink                        controllers.SettingsController.getExaminationQuitLink
 GET           /app/settings/coursecodeprefix                           controllers.SettingsController.getCourseCodePrefix
+GET           /app/settings/byodmaxparticipants                        controllers.SettingsController.getByodMaxParticipants
 
 
 ################# Statistics interface ##################
@@ -458,8 +463,8 @@ POST          /app/reports/questionreport/:id                          controlle
 
 ################# Maintenance period interface ##################
 GET           /app/maintenance                                         controllers.MaintenancePeriodController.listMaintenancePeriods
-POST          /app/maintenance                                         controllers.MaintenancePeriodController.createMaintenancePeriod(request: Request)
-PUT           /app/maintenance/:id                                     controllers.MaintenancePeriodController.updateMaintenancePeriod(id: Long, request: Request)
+POST          /app/maintenance                                         controllers.MaintenancePeriodController.createMaintenancePeriod
+PUT           /app/maintenance/:id                                     controllers.MaintenancePeriodController.updateMaintenancePeriod(id: Long)
 DELETE        /app/maintenance/:id                                     controllers.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
 
 #######################################################

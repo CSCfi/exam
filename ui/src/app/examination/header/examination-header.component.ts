@@ -12,67 +12,45 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { SessionService } from '../../session/session.service';
-import type { Examination } from '../examination.model';
+import { ExaminationClockComponent } from 'src/app/examination/clock/examination-clock.component';
+import type { Examination } from 'src/app/examination/examination.model';
+import { SessionService } from 'src/app/session/session.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
     selector: 'xm-examination-header',
     template: `<div class="row">
-        <div class="padr0 padl0 hidden-mobile">
+        <div class="pe-0 ps-0">
             <div class="exam-header">
                 <div class="exam-header-img-wrap">
-                    <img
-                        src="/assets/images//exam-logo-mobile.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/exam-logo-mobile.png'"
-                    />
+                    <img src="/assets/images/exam-logo-mobile.svg" alt="" />
                 </div>
                 <div class="exam-header-title divider"></div>
-                <div class="exam-header-title width-100 marl20 marr20">
+                <div class="exam-header-title w-100 ms-4 me-2">
                     {{ exam.course?.name }}
-                    <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code>
+                    @if (exam.course) {
+                        <xm-course-code [course]="exam.course"></xm-course-code>
+                    }
                 </div>
                 <div class="language-selector">
-                    <button class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
-                    <button class="green_button marl10" (click)="switchLanguage('sv')">SV</button>
-                    <button class="green_button marl10" (click)="switchLanguage('en')">EN</button>
+                    <button class="btn btn-success ms-1" (click)="switchLanguage('fi')">FI</button>
+                    <button class="btn btn-success ms-1" (click)="switchLanguage('sv')">SV</button>
+                    <button class="btn btn-success ms-1" (click)="switchLanguage('en')">EN</button>
                     <div class="divider-free"></div>
                 </div>
-                <xm-examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (timedOut)="notifyTimeout()">
-                </xm-examination-clock>
+                @if (!isPreview) {
+                    <xm-examination-clock [examHash]="exam.hash" (timedOut)="notifyTimeout()"> </xm-examination-clock>
+                }
             </div>
         </div>
-        <div class="padr0 padl0 visible-mobile">
-            <xm-examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (timedOut)="notifyTimeout()">
-            </xm-examination-clock>
-            <div class="exam-mobile-header padt40">
-                <div class="row">
-                    <h1 class="exam-header-title col marl20 marr20">
-                        {{ exam.course?.name }}
-                        <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code>
-                    </h1>
-                </div>
-                <div class="exam-header-title mobile-divider row"></div>
-                <div class="row">
-                    <div class="exam-header-img-wrap col">
-                        <img
-                            src="/assets/images//exam-logo-mobile.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/exam-logo-mobile.png'"
-                        />
-                    </div>
-                    <div class="language-selector col">
-                        <button class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
-                        <button class="green_button marl10" (click)="switchLanguage('sv')">SV</button>
-                        <button class="green_button marl10" (click)="switchLanguage('en')">EN</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> `,
+    </div>`,
+    standalone: true,
+    imports: [CourseCodeComponent, ExaminationClockComponent],
+    styleUrls: ['../examination.shared.scss', './examination-header.component.scss'],
 })
-export class ExaminationHeaderComponent {
+export class ExaminationPageHeaderComponent {
     @Input() exam!: Examination;
     @Input() isPreview = false;
     @Output() timedOut = new EventEmitter<void>();

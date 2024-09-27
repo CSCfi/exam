@@ -16,36 +16,42 @@
 package controllers
 
 import impl.ExternalCourseHandler
-import io.ebean.Ebean
+import io.ebean.DB
 import models.{Course, Role, User}
 import org.joda.time.DateTime
+import play.api.mvc.*
+import security.scala.Auth.{authorized, AuthenticatedAction}
+import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
+import util.config.ConfigReader
+import util.scala.{DbApiHelper, JavaApiHelper}
 
 import javax.inject.Inject
-import play.api.mvc.{Action, AnyContent, InjectedController, Result}
-import security.Authenticator
-import util.config.ConfigReader
-import util.scala.JavaJsonResultProducer
-
-import scala.compat.java8.FutureConverters._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
+import scala.jdk.FutureConverters.*
 
-class CourseController @Inject()(externalApi: ExternalCourseHandler, configReader: ConfigReader)
-    extends InjectedController
-    with Authenticator
-    with JavaJsonResultProducer {
+class CourseController @Inject() (
+    externalApi: ExternalCourseHandler,
+    configReader: ConfigReader,
+    authenticated: AuthenticatedAction,
+    audited: AuditedAction,
+    implicit val ec: AuthExecutionContext
+) extends InjectedController
+    with JavaApiHelper
+    with DbApiHelper:
 
-  def listCourses(filterType: Option[String],
-                  criteria: Option[String],
-                  user: User): Future[Result] = {
-    (filterType, criteria) match {
+  private def listCourses(
+      filterType: Option[String],
+      criteria: Option[String],
+      user: User
+  ): Future[Result] =
+    (filterType, criteria) match
       case (Some("code"), Some(c)) =>
-        externalApi.getCoursesByCode(user, c).toScala.map(_.asScala.toResult(OK))
+        externalApi.getCoursesByCode(user, c).asScala.map(_.asScala.toResult(Results.Ok))
       case (Some("name"), Some(x)) if x.length >= 2 =>
         Future {
-          Ebean
-            .find(classOf[Course])
+          DB.find(classOf[Course])
             .where
             .disjunction()
             .isNull("endDate")
@@ -53,73 +59,59 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, configReade
             .endJunction()
             .ilike("name", s"%$x%")
             .orderBy("code")
-            .findList
-            .asScala
+            .list
             .filter(c =>
               c.getStartDate == null || configReader
                 .getCourseValidityDate(new DateTime(c.getStartDate))
-                .isBeforeNow)
-        }.map(_.toResult(OK))
+                .isBeforeNow
+            )
+        }.map(_.toResult(Results.Ok))
       case (Some("name"), Some(_)) =>
         throw new IllegalArgumentException("Too short criteria")
       case _ =>
         Future {
-          Ebean.find(classOf[Course]).where.isNotNull("name").orderBy("code").findList
-        }.map(_.asScala.toResult(OK))
-    }
-  }
+          DB.find(classOf[Course]).where.isNotNull("name").orderBy("code").list
+        }.map(_.toResult(Results.Ok))
 
-  def getUserCourses(user: User,
-                     examIds: Option[List[Long]],
-                     sectionIds: Option[List[Long]],
-                     tagIds: Option[List[Long]]): Result = {
-    var query = Ebean.find(classOf[Course]).where.isNotNull("name")
-    if (!user.hasRole(Role.Name.ADMIN)) {
+  private def getUserCourses(
+      user: User,
+      examIds: Option[List[Long]],
+      sectionIds: Option[List[Long]],
+      tagIds: Option[List[Long]],
+      ownerIds: Option[List[Long]]
+  ): Result =
+    var query = DB.find(classOf[Course]).where.isNotNull("name")
+    if !user.hasRole(Role.Name.ADMIN) then
       query = query
         .eq("exams.examOwners", user)
-    }
-    if (examIds.getOrElse(Nil).nonEmpty) {
-      query = query.in("exams.id", examIds.get.asJava)
-    }
-    if (sectionIds.getOrElse(Nil).nonEmpty) {
-      query = query.in("exams.examSections.id", sectionIds.get.asJava)
-    }
-    if (tagIds.getOrElse(Nil).nonEmpty) {
-      query =
-        query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
-    }
-    query.orderBy("name desc").findList.asScala.toResult(OK)
-  }
+    if examIds.getOrElse(Nil).nonEmpty then query = query.in("exams.id", examIds.get.asJava)
+    if sectionIds.getOrElse(Nil).nonEmpty then query = query.in("exams.examSections.id", sectionIds.get.asJava)
+    if tagIds.getOrElse(Nil).nonEmpty then
+      query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
+
+    if (ownerIds.getOrElse(Nil).nonEmpty)
+      query = query.in("exams.examOwners.id", ownerIds.get.asJava)
+    query.orderBy("name desc").findList.asScala.toResult(Results.Ok)
 
   // Actions ->
-
   def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] =
-    Action.async { request =>
-      getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
-        case Some(user) =>
-          listCourses(filterType, criteria, user)
-        case _ =>
-          Future.successful(forbid())
-      }
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).andThen(audited).async { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      listCourses(filterType, criteria, user)
     }
 
-  def getCourse(id: Long): Action[AnyContent] = Action { request =>
-    getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
-      case Some(_) =>
-        Ebean.find(classOf[Course], id).toResult(OK)
-      case _ => forbid()
+  def getCourse(id: Long): Action[AnyContent] =
+    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { _ =>
+      DB.find(classOf[Course], id).toResult(Results.Ok)
     }
-  }
 
-  def listUsersCourses(examIds: Option[List[Long]],
-                       sectionIds: Option[List[Long]],
-                       tagIds: Option[List[Long]]): Action[AnyContent] = Action { request =>
-    getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
-      case Some(user) =>
-        getUserCourses(user, examIds, sectionIds, tagIds)
-      case _ =>
-        forbid()
+  def listUsersCourses(
+      examIds: Option[List[Long]],
+      sectionIds: Option[List[Long]],
+      tagIds: Option[List[Long]],
+      ownerIds: Option[List[Long]]
+  ): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      getUserCourses(user, examIds, sectionIds, tagIds, ownerIds)
     }
-  }
-
-}

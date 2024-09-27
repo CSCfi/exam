@@ -21,7 +21,7 @@ import biweekly.ICalendar;
 import biweekly.component.VEvent;
 import biweekly.property.Summary;
 import com.google.common.collect.Sets;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.vavr.Tuple2;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -61,8 +61,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
-import play.Logger;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import util.config.ByodConfigHandler;
@@ -78,7 +79,7 @@ class EmailComposerImpl implements EmailComposer {
     private static final DateTimeFormatter TF = DateTimeFormat.forPattern("HH:mm");
     private static final int MINUTES_IN_HOUR = 60;
 
-    private static final Logger.ALogger logger = Logger.of(EmailComposerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(EmailComposerImpl.class);
 
     private final String hostName;
     private final DateTimeZone timeZone;
@@ -234,7 +235,7 @@ class EmailComposerImpl implements EmailComposer {
             // Nothing useful to send
             return;
         }
-        logger.info("Sending weekly report to: " + teacher.getEmail());
+        logger.info("Sending weekly report to: {}", teacher.getEmail());
         String templatePath = getTemplatesRoot() + "weeklySummary/weeklySummary.html";
         String inspectionTemplatePath = getTemplatesRoot() + "weeklySummary/inspectionInfoSimple.html";
         String template = fileHandler.read(templatePath);
@@ -347,6 +348,10 @@ class EmailComposerImpl implements EmailComposer {
 
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
             // Attach a SEB config file
+            String quitPassword = byodConfigHandler.getPlaintextPassword(
+                config.getEncryptedQuitPassword(),
+                config.getQuitPasswordSalt()
+            );
             String fileName = exam.getName().replace(" ", "-");
             File file;
             try {
@@ -355,7 +360,8 @@ class EmailComposerImpl implements EmailComposer {
                 byte[] data = byodConfigHandler.getExamConfig(
                     config.getHash(),
                     config.getEncryptedSettingsPassword(),
-                    config.getSettingsPasswordSalt()
+                    config.getSettingsPasswordSalt(),
+                    quitPassword
                 );
                 fos.write(data);
                 fos.close();
@@ -543,7 +549,7 @@ class EmailComposerImpl implements EmailComposer {
         String address,
         String... placeInfo
     ) {
-        List<String> info = Stream.of(placeInfo).filter(s -> s != null && !s.isEmpty()).collect(Collectors.toList());
+        List<String> info = Stream.of(placeInfo).filter(s -> s != null && !s.isEmpty()).toList();
         ICalendar iCal = new ICalendar();
         iCal.setVersion(ICalVersion.V2_0);
         VEvent event = new VEvent();
@@ -574,7 +580,7 @@ class EmailComposerImpl implements EmailComposer {
 
         Map<String, String> values = new HashMap<>();
 
-        List<Exam> exams = Ebean
+        List<Exam> exams = DB
             .find(Exam.class)
             .where()
             .eq("parent.id", exam.getId())
@@ -830,29 +836,20 @@ class EmailComposerImpl implements EmailComposer {
             String.format("%s (%s)", exam.getName(), exam.getCourse().getCode().split("_")[0])
         );
         String teacherName = messaging.get(lang, "email.template.participant.notification.teacher", getTeachers(exam));
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
         String events = exam
             .getExaminationEventConfigurations()
             .stream()
-            .map(c -> c.getExaminationEvent().getStart())
+            .map(c -> new DateTime(c.getExaminationEvent().getStart(), timeZone))
             .sorted()
-            .map(dtf::print)
+            .map(DTF::print)
             .collect(Collectors.joining(", "));
         String examPeriod = isAquarium
             ? messaging.get(
                 lang,
                 "email.template.participant.notification.exam.period",
-                String.format(
-                    "%s - %s",
-                    DF.print(new DateTime(exam.getExamActiveStartDate())),
-                    DF.print(new DateTime(exam.getExamActiveEndDate()))
-                )
+                String.format("%s - %s", DF.print(exam.getPeriodStart()), DF.print(exam.getPeriodEnd()))
             )
-            : messaging.get(
-                lang,
-                "email.template.participant.notification.exam.event",
-                String.format("%s (%s)", events, timeZone)
-            );
+            : messaging.get(lang, "email.template.participant.notification.exam.event", events);
         String examDuration = messaging.get(
             lang,
             "email.template.participant.notification.exam.duration",
@@ -1011,8 +1008,8 @@ class EmailComposerImpl implements EmailComposer {
             "email.template.participant.notification.exam.period",
             String.format(
                 "%s - %s",
-                DF.print(new DateTime(exam.getExamActiveStartDate())),
-                DF.print(new DateTime(exam.getExamActiveEndDate()))
+                DF.print(new DateTime(exam.getPeriodStart())),
+                DF.print(new DateTime(exam.getPeriodEnd()))
             )
         );
         String examDuration = String.format(
@@ -1051,13 +1048,13 @@ class EmailComposerImpl implements EmailComposer {
                 return false;
             })
             .sorted()
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private String createEnrolmentBlock(User teacher, Lang lang) {
         String enrolmentTemplatePath = getTemplatesRoot() + "weeklySummary/enrollmentInfo.html";
         String enrolmentTemplate = fileHandler.read(enrolmentTemplatePath);
-        List<Exam> exams = Ebean
+        List<Exam> exams = DB
             .find(Exam.class)
             .fetch("course")
             .fetch("examEnrolments")
@@ -1070,7 +1067,7 @@ class EmailComposerImpl implements EmailComposer {
             .endJunction()
             .isNotNull("course")
             .eq("state", Exam.State.PUBLISHED)
-            .gt("examActiveEndDate", new Date())
+            .gt("periodEnd", new Date())
             .findList();
 
         return exams
@@ -1091,7 +1088,7 @@ class EmailComposerImpl implements EmailComposer {
                             noEnrolments
                         );
                 } else {
-                    ExamEnrolment first = t._2.get(0);
+                    ExamEnrolment first = t._2.getFirst();
                     DateTime date = first.getReservation() != null
                         ? adjustDST(first.getReservation().getStartAt())
                         : new DateTime(
@@ -1111,7 +1108,7 @@ class EmailComposerImpl implements EmailComposer {
 
     // return exams in review state where teacher is either owner or inspector
     private static List<ExamParticipation> getReviews(User teacher) {
-        return Ebean
+        return DB
             .find(ExamParticipation.class)
             .fetch("exam.course")
             .where()

@@ -13,44 +13,31 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-r-inspection-comment',
+    standalone: true,
+    imports: [FormsModule, TranslateModule],
     template: `
-        <div id="sitnet-dialog" role="dialog" aria-modal="true">
-            <div class="student-message-dialog-wrapper-padding">
-                <div class="student-enroll-dialog-wrap">
-                    <div class="student-enroll-title">{{ 'sitnet_inspection_comment_title' | translate }}</div>
-                </div>
-                <div>
-                    <form role="form" id="infoForm" name="infoForm" novalidate>
-                        <label for="infoForm" class="student-enroll-dialog-subtitle">{{
-                            'sitnet_inspection_comment_description' | translate
-                        }}</label>
-                        <textarea
-                            rows="10"
-                            name="message"
-                            class="student-message-dialog-textarea"
-                            [(ngModel)]="data.comment"
-                            autofocus
-                        >
-                        </textarea>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <div class="student-message-dialog-button-save">
-                        <button class="btn btn-sm btn-primary" [disabled]="!data.comment" (click)="ok()">
-                            {{ 'sitnet_add' | translate }}
-                        </button>
-                    </div>
-                    <div class="student-message-dialog-button-cancel">
-                        <button class="btn btn-sm btn-danger float-start" (click)="cancel()">
-                            {{ 'sitnet_button_cancel' | translate }}
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div class="modal-header">
+            <h1 class="xm-modal-title">{{ 'i18n_inspection_comment_title' | translate }}</h1>
+        </div>
+        <div class="modal-body">
+            <form role="form" id="infoForm" name="infoForm" novalidate>
+                <label for="infoForm">{{ 'i18n_inspection_comment_description' | translate }}</label>
+                <textarea rows="10" name="message" class="w-100" [(ngModel)]="data.comment" autofocus> </textarea>
+            </form>
+        </div>
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success" [disabled]="!data.comment" (click)="ok()">
+                {{ 'i18n_add' | translate }}
+            </button>
+            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
         </div>
     `,
 })

@@ -1,6 +1,6 @@
 package util.file;
 
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,8 +17,9 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import models.Attachment;
 import models.api.AttachmentContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
-import play.Logger;
 import play.libs.Files;
 import play.mvc.Http;
 import util.config.ConfigReader;
@@ -26,7 +27,7 @@ import util.config.ConfigReader;
 public class FileHandlerImpl implements FileHandler {
 
     private static final int KB = 1024;
-    private static final Logger.ALogger logger = Logger.of(FileHandlerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(FileHandlerImpl.class);
 
     private final Environment environment;
     private final ConfigReader configReader;
@@ -111,10 +112,10 @@ public class FileHandlerImpl implements FileHandler {
         Path path = FileSystems.getDefault().getPath(filePath);
         try {
             if (!java.nio.file.Files.deleteIfExists(path)) {
-                logger.error("Could not delete " + path + " because it does not exist.");
+                logger.error("Could not delete {} because it does not exist.", path);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("IO Exception occurred", e);
         }
     }
 
@@ -127,7 +128,7 @@ public class FileHandlerImpl implements FileHandler {
             container.save();
             a.delete();
             // Remove the file from disk if no references to it are found
-            boolean removeFromDisk = Ebean.find(Attachment.class).where().eq("filePath", filePath).findList().isEmpty();
+            boolean removeFromDisk = DB.find(Attachment.class).where().eq("filePath", filePath).findList().isEmpty();
             if (removeFromDisk) {
                 removeAttachmentFile(a.getFilePath());
             }

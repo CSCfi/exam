@@ -12,60 +12,57 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { FileService } from '../../../shared/file/file.service';
-import { Option } from '../../../shared/select/dropdown-select.component';
+import { FileService } from 'src/app/shared/file/file.service';
+import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
 
 @Component({
     template: `
-        <div class="top-row">
-            <h4 class="col-md-12">
-                {{ 'sitnet_get_all_enrolments_reservations_and_cancelations' | translate }}
-            </h4>
+        <div class="row">
+            <strong class="col-md-12">
+                {{ 'i18n_get_all_enrolments_reservations_and_cancelations' | translate }}
+            </strong>
         </div>
-        <div class="bottom-row d-flex justify-content-between">
-            <div class="col-lg-10 mb-4">
-                <label for="enrolment">{{ 'sitnet_select_exam' | translate }}</label>
+        <div class="row mb-2 align-items-end">
+            <div class="col-10">
+                <label for="enrolment">{{ 'i18n_select_exam' | translate }}</label>
                 <xm-dropdown-select
                     id="enrolment"
-                    *ngIf="examNames"
                     [options]="examNames"
                     (optionSelected)="enrolmentSelected($event)"
-                    placeholder="{{ 'sitnet_select' | translate }}"
+                    placeholder="{{ 'i18n_select' | translate }}"
                 ></xm-dropdown-select>
             </div>
-            <div class="col-lg-2 mb-2">
-                <label for="link"></label>
-                <div id="link">
-                    <a
-                        (click)="getExamEnrolments()"
-                        class="print-btn"
-                        download
-                        triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_download' | translate }}"
-                    >
-                        <i class="bi-file-earmark-excel font-6"></i>
-                    </a>
-                </div>
+            <div class="col-2">
+                <button class="btn btn-success btn-sm float-end" (click)="getExamEnrolments()">
+                    <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
+                </button>
             </div>
         </div>
     `,
     selector: 'xm-enrolments-report',
+    standalone: true,
+    imports: [DropdownSelectComponent, NgbPopover, TranslateModule],
 })
 export class EnrolmentsReportComponent {
     @Input() examNames: Option<string, number>[] = [];
     enrolment?: number;
 
-    constructor(private translate: TranslateService, private toast: ToastrService, private files: FileService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private files: FileService,
+    ) {}
 
     getExamEnrolments = () => {
         if (this.enrolment) {
             this.files.download(`/app/statistics/examenrollments/${this.enrolment}`, 'exam_enrolments.xlsx');
         } else {
-            this.toast.error(this.translate.instant('sitnet_choose_exam'));
+            this.toast.error(this.translate.instant('i18n_choose_exam'));
         }
     };
 

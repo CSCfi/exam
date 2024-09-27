@@ -15,7 +15,6 @@
 
 package controllers.iop.transfer.impl;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,12 +28,13 @@ import controllers.iop.transfer.api.ExternalExamAPI;
 import impl.AutoEvaluationHandler;
 import impl.EmailComposer;
 import impl.NoShowHandler;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import io.ebean.text.json.EJson;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,9 +68,11 @@ import models.questions.Question;
 import models.sections.ExamSection;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import play.Logger;
 import play.db.ebean.Transactional;
 import play.libs.Json;
 import play.libs.ws.WSClient;
@@ -80,6 +82,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
+import scala.jdk.javaapi.CollectionConverters;
 import util.AppUtil;
 import util.config.ConfigReader;
 import util.json.JsonDeserializer;
@@ -110,7 +113,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @Inject
     private ConfigReader configReader;
 
-    private static final Logger.ALogger logger = Logger.of(ExternalExamController.class);
+    private final Logger logger = LoggerFactory.getLogger(ExternalExamController.class);
 
     private Exam createCopy(Exam src, Exam parent, User user) {
         Exam clone = new Exam();
@@ -184,7 +187,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (ee == null) {
             return wrapAsPromise(badRequest());
         }
-        Exam parent = Ebean.find(Exam.class).where().eq("hash", ee.getExternalRef()).findOne();
+        Exam parent = DB.find(Exam.class).where().eq("hash", ee.getExternalRef()).findOne();
         if (parent == null && enrolment.getCollaborativeExam() == null) {
             return wrapAsPromise(notFound());
         }
@@ -236,7 +239,12 @@ public class ExternalExamController extends BaseController implements ExternalEx
             .scheduler()
             .scheduleOnce(
                 Duration.create(1, TimeUnit.SECONDS),
-                () -> AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer),
+                () ->
+                    AppUtil.notifyPrivateExamEnded(
+                        CollectionConverters.asScala(recipients).toSet(),
+                        exam,
+                        emailComposer
+                    ),
                 actor.dispatcher()
             );
     }
@@ -298,7 +306,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .allOf(futures.toArray(new CompletableFuture[0]))
                 .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
                 .exceptionally(t -> {
-                    logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
+                    logger.error(String.format("Could not provide enrolment [id=%s]", enrolment.getId()), t);
                     return internalServerError();
                 });
         }
@@ -329,7 +337,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             Exam document = JsonDeserializer.deserialize(Exam.class, root);
             // Set references so that:
             // - external ref is the reference we got from outside. Must not be changed.
-            // - local ref is an UUID X. It is used locally for referencing the exam
+            // - local ref is a UUID X. It is used locally for referencing the exam
             // - content's hash is set to X in order to simplify things with frontend
 
             String externalRef = document.getHash();
@@ -401,6 +409,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             enrolment.setExternalExam(ee);
             enrolment.setReservation(reservation);
             enrolment.setUser(user);
+            enrolment.setRandomDelay();
             enrolment.save();
             return enrolment;
         };
@@ -408,7 +417,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
     }
 
     private static Query<ExamEnrolment> createQuery() {
-        Query<ExamEnrolment> query = Ebean.find(ExamEnrolment.class);
+        Query<ExamEnrolment> query = DB.find(ExamEnrolment.class);
         PathProperties props = ExaminationController.getPath(true);
         props.apply(query);
         return query;
@@ -428,6 +437,6 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     private URL parseUrl(Object... args) throws MalformedURLException {
         final String path = args.length < 1 ? "/api/enrolments/%s" : String.format("/api/enrolments/%s", args);
-        return new URL(configReader.getIopHost() + path);
+        return URI.create(configReader.getIopHost() + path).toURL();
     }
 }

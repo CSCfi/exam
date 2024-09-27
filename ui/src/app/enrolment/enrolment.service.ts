@@ -20,13 +20,17 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, from, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { CollaborativeParticipation } from '../exam/collaborative/collaborative-exam.service';
-import type { CollaborativeExam, Exam, ExaminationEventConfiguration, ExamParticipation } from '../exam/exam.model';
-import type { ExamRoom } from '../reservation/reservation.model';
-import type { User } from '../session/session.service';
-import { SessionService } from '../session/session.service';
-import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
-import { isObject } from '../shared/miscellaneous/helpers';
+import { CollaborativeParticipation } from 'src/app/exam/collaborative/collaborative-exam.service';
+import type {
+    CollaborativeExam,
+    Exam,
+    ExaminationEventConfiguration,
+    ExamParticipation,
+} from 'src/app/exam/exam.model';
+import type { ExamRoom } from 'src/app/reservation/reservation.model';
+import type { User } from 'src/app/session/session.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { isObject } from 'src/app/shared/miscellaneous/helpers';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/add-enrolment-information-dialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/select-examination-event-dialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/show-instructions-dialog.component';
@@ -46,23 +50,21 @@ export class EnrolmentService {
         private ngbModal: NgbModal,
         private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
-        private Session: SessionService,
     ) {}
 
     removeExaminationEvent = (enrolment: ExamEnrolment) => {
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_are_you_sure'),
         ).subscribe({
             next: () =>
                 this.http.delete(`/app/enrolments/${enrolment.id}/examination`).subscribe({
                     next: () => {
-                        this.toast.info(this.translate.instant('sitnet_examination_event_removed'));
+                        this.toast.info(this.translate.instant('i18n_examination_event_removed'));
                         delete enrolment.examinationEventConfiguration;
                     },
                     error: (err) => this.toast.error(err),
                 }),
-            error: (err) => this.toast.error(err),
         });
     };
 
@@ -80,11 +82,10 @@ export class EnrolmentService {
             ? `/app/iop/reservations/external/${externalRef}`
             : `/app/calendar/reservation/${enrolment.reservation.id}`;
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_are_you_sure'),
         ).subscribe({
             next: () => this.http.delete(url).subscribe({ next: successFn, error: errorFn }),
-            error: (err) => this.toast.error(err),
         });
     }
 
@@ -96,8 +97,8 @@ export class EnrolmentService {
             .pipe(
                 tap((enrolment) => {
                     this.toast.success(
-                        this.translate.instant('sitnet_remember_exam_machine_reservation'),
-                        this.translate.instant('sitnet_you_have_enrolled_to_exam'),
+                        this.translate.instant('i18n_remember_exam_machine_reservation'),
+                        this.translate.instant('i18n_you_have_enrolled_to_exam'),
                     );
                     if (exam.implementation !== 'AQUARIUM' && exam.examinationEventConfigurations.length > 0) {
                         this.selectExaminationEvent(exam, enrolment, '/dashboard');
@@ -116,7 +117,7 @@ export class EnrolmentService {
             switchMap((resp) =>
                 resp.length == 0
                     ? this.enroll(exam, collaborative)
-                    : throwError(() => new Error(this.translate.instant('sitnet_already_enrolled'))),
+                    : throwError(() => new Error(this.translate.instant('i18n_already_enrolled'))),
             ),
             catchError((err) => {
                 this.toast.error(err);
@@ -128,7 +129,7 @@ export class EnrolmentService {
         const data = { uid: student.id, email: student.email };
         return this.http
             .post<ExamEnrolment>(`/app/enrolments/student/${exam.id}`, data)
-            .pipe(tap(() => this.toast.success(this.translate.instant('sitnet_student_enrolled_to_exam'))));
+            .pipe(tap(() => this.toast.success(this.translate.instant('i18n_student_enrolled_to_exam'))));
     };
 
     getEnrolmentInfo$ = (code: string, id: number): Observable<EnrolmentInfo> =>
@@ -187,7 +188,7 @@ export class EnrolmentService {
         this.http.get<CollaborativeParticipation[]>('/app/iop/student/finishedExams');
 
     searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
-        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
+        const paramStr = searchTerm ? `?filter=${encodeURIComponent(searchTerm)}` : '';
         const path = `/app/iop/enrolment${paramStr}`;
         return this.http.get<CollaborativeExam[]>(path);
     };
@@ -203,7 +204,7 @@ export class EnrolmentService {
         modalRef.result.then((information: string) => {
             this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe({
                 next: () => {
-                    this.toast.success(this.translate.instant('sitnet_saved'));
+                    this.toast.success(this.translate.instant('i18n_saved'));
                     enrolment.information = information;
                 },
                 error: (err) => this.toast.error(err),
@@ -243,7 +244,7 @@ export class EnrolmentService {
             keyboard: false,
         });
         modalRef.componentInstance.instructions = enrolment.exam.enrollInstruction;
-        modalRef.componentInstance.title = 'sitnet_instructions';
+        modalRef.componentInstance.title = 'i18n_instructions';
         modalRef.result.catch((err) => this.toast.error(err));
     };
 
@@ -254,7 +255,7 @@ export class EnrolmentService {
                 keyboard: false,
             });
             modalRef.componentInstance.instructions = instructions;
-            modalRef.componentInstance.title = 'sitnet_maturity_instructions';
+            modalRef.componentInstance.title = 'i18n_maturity_instructions';
             modalRef.result.catch((err) => this.toast.error(err));
         });
     };
@@ -305,7 +306,6 @@ export class EnrolmentService {
                     error: (err) => this.toast.error(err),
                 });
             },
-            error: (err) => this.toast.error(err),
         });
     };
 

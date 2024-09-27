@@ -1,18 +1,20 @@
-import { Component, Inject, Input } from '@angular/core';
-import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
-import type { Course } from '../../exam/exam.model';
+import { Component, Input } from '@angular/core';
+import type { Course } from 'src/app/exam/exam.model';
 import { CourseCodeService } from './course-code.service';
 
 @Component({
     selector: 'xm-course-code',
-    template: ` <span *ngIf="course.code">{{ formatCode() }}</span> `,
+    template: `
+        @if (course.code) {
+            <span>{{ formatCode() }}</span>
+        }
+    `,
+    standalone: true,
+    imports: [],
 })
 export class CourseCodeComponent {
     @Input() course!: Course;
-    constructor(
-        @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
-        private CodeService: CourseCodeService,
-    ) {}
+    constructor(private CodeService: CourseCodeService) {}
 
     formatCode = () => this.CodeService.formatCode(this.course.code);
 }

@@ -19,19 +19,16 @@ package controllers.iop.collaboration.api;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 
-import akka.stream.IOResult;
-import akka.stream.javadsl.FileIO;
-import akka.stream.javadsl.Source;
-import akka.util.ByteString;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.BaseAttachmentInterface;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.vavr.control.Either;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.Set;
@@ -47,6 +44,10 @@ import models.api.AttachmentContainer;
 import models.questions.EssayAnswer;
 import models.sections.ExamSectionQuestion;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pekko.stream.IOResult;
+import org.apache.pekko.stream.javadsl.FileIO;
+import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.util.ByteString;
 import play.libs.Files;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -101,12 +102,8 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         Http.MultipartFormData.FilePart<Files.TemporaryFile> file
     ) {
         Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.getRef().path());
-        Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart = new Http.MultipartFormData.FilePart<>(
-            "file",
-            file.getFilename(),
-            file.getContentType(),
-            source
-        );
+        Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
+            new Http.MultipartFormData.FilePart<>("file", file.getFilename(), file.getContentType(), source);
         return Source.from(Set.of(filePart));
     }
 
@@ -422,9 +419,9 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         String id2 = id == null ? "" : id;
         urlString = String.format(urlString, id2);
         try {
-            return Optional.of(new URL(urlString));
+            return Optional.of(URI.create(urlString).toURL());
         } catch (MalformedURLException e) {
-            logger().error("Malformed URL {}", e);
+            logger().error("Malformed URL", e);
             return Optional.empty();
         }
     }
@@ -478,7 +475,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         a.setFileName(json.get("displayName").asText());
         container.setAttachment(a);
         if (setExam(externalExam, exam, user)) {
-            final String body = Ebean.json().toJson(a);
+            final String body = DB.json().toJson(a);
             return CompletableFuture.completedFuture(Results.created(body).as("application/json"));
         }
         return CompletableFuture.completedFuture(Results.internalServerError());

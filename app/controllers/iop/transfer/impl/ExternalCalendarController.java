@@ -24,9 +24,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.CalendarController;
 import exceptions.NotFoundException;
 import impl.CalendarHandler;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +40,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
@@ -86,26 +86,30 @@ public class ExternalCalendarController extends CalendarController {
             configReader.getIopHost() +
             String.format("/api/organisations/%s/facilities/%s/slots", orgRef, facilityRef) +
             String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration);
-        return new URL(url);
+        return URI.create(url).toURL();
     }
 
     private URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
-        return new URL(
-            configReader.getIopHost() +
-            String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
-        );
+        return URI
+            .create(
+                configReader.getIopHost() +
+                String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
+            )
+            .toURL();
     }
 
     private URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
-        return new URL(
-            configReader.getIopHost() +
-            String.format(
-                "/api/organisations/%s/facilities/%s/reservations/%s/force",
-                orgRef,
-                facilityRef,
-                reservationRef
+        return URI
+            .create(
+                configReader.getIopHost() +
+                String.format(
+                    "/api/organisations/%s/facilities/%s/reservations/%s/force",
+                    orgRef,
+                    facilityRef,
+                    reservationRef
+                )
             )
-        );
+            .toURL();
     }
 
     // Actions invoked by central IOP server
@@ -122,7 +126,7 @@ public class ExternalCalendarController extends CalendarController {
         if (start.isBeforeNow() || end.isBefore(start)) {
             return badRequest("invalid dates");
         }
-        ExamRoom room = Ebean.find(ExamRoom.class).where().eq("externalRef", roomRef).findOne();
+        ExamRoom room = DB.find(ExamRoom.class).where().eq("externalRef", roomRef).findOne();
         if (room == null) {
             return notFound("room not found");
         }
@@ -134,7 +138,7 @@ public class ExternalCalendarController extends CalendarController {
             Collections.emptyList()
         );
         if (machine.isEmpty()) {
-            return forbidden("sitnet_no_machines_available");
+            return forbidden("i18n_no_machines_available");
         }
         // We are good to go :)
         Reservation reservation = new Reservation();
@@ -152,7 +156,7 @@ public class ExternalCalendarController extends CalendarController {
     // Initiated by originator of reservation (the student)
     @SubjectNotPresent
     public Result acknowledgeReservationRemoval(String ref) {
-        Reservation reservation = Ebean
+        Reservation reservation = DB
             .find(Reservation.class)
             .fetch("machine")
             .fetch("machine.room")
@@ -165,7 +169,7 @@ public class ExternalCalendarController extends CalendarController {
         // TODO: might need additional checks
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return forbidden("sitnet_reservation_in_effect");
+            return forbidden("i18n_reservation_in_effect");
         }
         if (reservation.getEnrolment() != null) {
             reservation.getEnrolment().delete(); // cascades to reservation
@@ -178,7 +182,7 @@ public class ExternalCalendarController extends CalendarController {
     // Initiated by administrator of organisation where reservation takes place
     @SubjectNotPresent
     public Result acknowledgeReservationRevocation(String ref) {
-        ExamEnrolment enrolment = Ebean
+        ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.externalReservation")
@@ -194,7 +198,7 @@ public class ExternalCalendarController extends CalendarController {
         Reservation reservation = enrolment.getReservation();
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return forbidden("sitnet_reservation_in_effect");
+            return forbidden("i18n_reservation_in_effect");
         }
         enrolment.setReservation(null);
         enrolment.update();
@@ -211,7 +215,7 @@ public class ExternalCalendarController extends CalendarController {
         Optional<Integer> duration
     ) {
         if (roomId.isPresent() && date.isPresent() && start.isPresent() && end.isPresent() && duration.isPresent()) {
-            ExamRoom room = Ebean.find(ExamRoom.class).where().eq("externalRef", roomId.get()).findOne();
+            ExamRoom room = DB.find(ExamRoom.class).where().eq("externalRef", roomId.get()).findOne();
             if (room == null) {
                 return forbidden(String.format("No room with ref: (%s)", roomId.get()));
             }
@@ -223,7 +227,7 @@ public class ExternalCalendarController extends CalendarController {
                 } catch (NotFoundException e) {
                     return notFound();
                 }
-                List<ExamMachine> machines = Ebean
+                List<ExamMachine> machines = DB
                     .find(ExamMachine.class)
                     .where()
                     .eq("room.id", room.getId())
@@ -231,7 +235,7 @@ public class ExternalCalendarController extends CalendarController {
                     .ne("archived", true)
                     .findList();
                 // Maintenance periods
-                List<Interval> periods = Ebean
+                List<Interval> periods = DB
                     .find(MaintenancePeriod.class)
                     .where()
                     .gt("endsAt", searchDate.toDate())
@@ -243,7 +247,7 @@ public class ExternalCalendarController extends CalendarController {
                             calendarHandler.normalizeMaintenanceTime(p.getEndsAt())
                         )
                     )
-                    .collect(Collectors.toList());
+                    .toList();
                 LocalDate endOfSearch = getEndSearchDate(end.get(), searchDate);
                 while (!searchDate.isAfter(endOfSearch)) {
                     Set<CalendarHandler.TimeSlot> timeSlots = getExamSlots(
@@ -284,7 +288,7 @@ public class ExternalCalendarController extends CalendarController {
 
         //TODO: See if this offset thing works as intended
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        Optional<ExamEnrolment> oe = Ebean
+        Optional<ExamEnrolment> oe = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("exam.examSections")
@@ -299,14 +303,14 @@ public class ExternalCalendarController extends CalendarController {
             .endOr()
             .findOneOrEmpty();
         if (oe.isEmpty()) {
-            return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
+            return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
         }
         ExamEnrolment enrolment = oe.get();
         Optional<Result> error = checkEnrolment(enrolment, user, sectionIds);
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }
-        // Lets do this
+        // Let's do this
         URL url = parseUrl(orgRef, roomRef);
         String homeOrgRef = configReader.getHomeOrganisationRef();
         ObjectNode body = Json.newObject();
@@ -352,14 +356,14 @@ public class ExternalCalendarController extends CalendarController {
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservationRemoval(String ref, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findOne();
+        Reservation reservation = DB.find(Reservation.class).where().eq("externalRef", ref).findOne();
         return externalReservationHandler.removeReservation(reservation, user, "");
     }
 
     @Restrict(@Group("ADMIN"))
     public CompletionStage<Result> requestReservationRevocation(String ref, Http.Request request)
         throws MalformedURLException {
-        Optional<Reservation> or = Ebean
+        Optional<Reservation> or = DB
             .find(Reservation.class)
             .where()
             .isNotNull("machine")
@@ -373,7 +377,7 @@ public class ExternalCalendarController extends CalendarController {
         Reservation reservation = or.get();
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return CompletableFuture.completedFuture(forbidden("sitnet_reservation_in_effect"));
+            return CompletableFuture.completedFuture(forbidden("i18n_reservation_in_effect"));
         }
         String roomRef = reservation.getMachine().getRoom().getExternalRef();
         URL url = parseUrl(configReader.getHomeOrganisationRef(), roomRef, reservation.getExternalRef());
@@ -408,7 +412,7 @@ public class ExternalCalendarController extends CalendarController {
             ExamEnrolment ee = getEnrolment(examId, user);
             // For now do not allow making an external reservation for collaborative exam
             if (ee == null || ee.getCollaborativeExam() != null) {
-                return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
+                return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
             }
             Exam exam = ee.getExam();
 
@@ -419,8 +423,8 @@ public class ExternalCalendarController extends CalendarController {
                 return wrapAsPromise(notFound());
             }
             // Ready to shoot
-            String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveStartDate()));
-            String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveEndDate()));
+            String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart()));
+            String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd()));
             Integer duration = exam.getDuration();
             URL url = parseUrl(org.get(), roomRef, date.get(), start, end, duration);
             WSRequest wsRequest = wsClient.url(url.toString().split("\\?")[0]).setQueryString(url.getQuery());
@@ -452,7 +456,7 @@ public class ExternalCalendarController extends CalendarController {
             .gatherSuitableSlots(room, date, examDuration)
             .stream()
             .filter(slot -> maintenances.stream().noneMatch(p -> p.overlaps(slot)))
-            .collect(Collectors.toList());
+            .toList();
         // Check machine availability for each slot
         for (Interval slot : examSlots) {
             // Check machine availability
@@ -484,7 +488,7 @@ public class ExternalCalendarController extends CalendarController {
             .parse(startDate, ISODateTimeFormat.dateTimeParser())
             .plusMillis(offset)
             .toLocalDate();
-        LocalDate searchDate = day.equals("") ? now : LocalDate.parse(day, ISODateTimeFormat.dateParser());
+        LocalDate searchDate = day.isEmpty() ? now : LocalDate.parse(day, ISODateTimeFormat.dateParser());
         searchDate = searchDate.withDayOfWeek(1);
         if (searchDate.isBefore(now)) {
             searchDate = now;

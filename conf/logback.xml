@@ -1,36 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  ~ Copyright (C) 2009-2015 Typesafe Inc. <http://www.typesafe.com>
-  -->
-<!-- The default logback configuration that Play uses if no other configuration is provided -->
+   Copyright (C) from 2022 The Play Framework Contributors <https://github.com/playframework>, 2011-2021 Lightbend Inc. <https://www.lightbend.com>
+-->
+
+
 <configuration>
+    <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
+    <import class="ch.qos.logback.classic.AsyncAppender"/>
+    <import class="ch.qos.logback.core.ConsoleAppender"/>
+    <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
+    <import class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"/>
 
-    <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel"/>
-
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="FILE" class="RollingFileAppender">
         <!-- HOX! Make sure exam's user has write permissions for this directory -->
         <file>/var/log/exam/application.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="TimeBasedRollingPolicy">
             <!-- Daily rollover with compression -->
             <fileNamePattern>/var/log/exam/application-log-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-            <!-- keep 90 days worth of history -->
-            <maxHistory>90</maxHistory>
+            <!-- keep 180 days worth of history -->
+            <maxHistory>180</maxHistory>
         </rollingPolicy>
-        <encoder>
-            <pattern>%date [%-5level] from %logger{15} in %thread - %message%n%xException{10}</pattern>
+        <encoder class="PatternLayoutEncoder">
+            <pattern>%date{yyyy-MM-dd HH:mm:ss ZZZZ} [%-5level] %logger{15} - %message%n%xException{10}</pattern>
         </encoder>
     </appender>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%date %coloredLevel %logger{15} - %message%n%xException{10}</pattern>
+    <appender name="STDOUT" class="ConsoleAppender">
+        <encoder class="PatternLayoutEncoder">
+            <pattern>%date{yyyy-MM-dd HH:mm:ss ZZZZ} %highlight(%-5level) %logger{15} - %message%n%xException{10}</pattern>
         </encoder>
     </appender>
 
-    <appender name="ASYNCFILE" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="ASYNCFILE" class="AsyncAppender">
         <appender-ref ref="FILE"/>
     </appender>
 
-    <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="ASYNCSTDOUT" class="AsyncAppender">
         <!-- increases the default queue size -->
         <queueSize>512</queueSize>
         <!-- don't discard messages -->
@@ -51,16 +56,12 @@
     <logger name="repository" level="DEBUG" />
     <logger name="models" level="DEBUG" />
 
-    <!-- logger name="backend" level="DEBUG"/ -->
-
     <!-- SQL logging, disabled by default. Enable by setting level to TRACE -->
     <logger name="io.ebean.SQL" level="OFF"/>
 
-    <root level="WARN">
+    <root level="warn">
         <appender-ref ref="ASYNCFILE"/>
         <appender-ref ref="ASYNCSTDOUT"/>
     </root>
-
-    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
 
 </configuration>

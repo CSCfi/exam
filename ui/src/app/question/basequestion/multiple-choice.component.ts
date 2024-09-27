@@ -12,77 +12,108 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
-import { QuestionDraft, QuestionService } from '../question.service';
+import type { MultipleChoiceOption, Question } from 'src/app/exam/exam.model';
+import { QuestionDraft, QuestionService } from 'src/app/question/question.service';
+import { MultipleChoiceOptionEditorComponent } from './multiple-choice-option.component';
+import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple-choice-option.component';
 
 @Component({
     selector: 'xm-multiple-choice-editor',
     template: `
-        <div class="row mt-2" *ngIf="question.type === 'WeightedMultipleChoiceQuestion'">
-            <div class="col-md-6">
-                <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
-                <br /><span>
-                    <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
-                    <small class="ps-2" *ngIf="showWarning">{{
-                        'sitnet_shared_question_property_info' | translate
-                    }}</small>
-                </span>
-            </div>
-            <div class="col-md-6 question-option-title">
-                {{ 'sitnet_word_points' | translate | uppercase }}
-            </div>
-        </div>
-        <div class="row mt-2" *ngIf="question.type === 'MultipleChoiceQuestion'">
-            <div class="col-md-6">
-                <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
-                <br /><span>
-                    <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
-                    <small *ngIf="showWarning">{{ 'sitnet_shared_question_property_info' | translate }}</small>
-                </span>
-            </div>
-            <div class="col-md-6">
-                <div class="question-option-title make-inline">
-                    {{ 'sitnet_multiplechoice_question_correct' | translate | uppercase }}
+        @if (question.type === 'WeightedMultipleChoiceQuestion') {
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
+                    <br /><span>
+                        @if (showWarning) {
+                            <div class="edit-warning-container">
+                                <i class="bi-exclamation-circle text-danger"></i>
+                                <small class="ps-2">{{
+                                    'i18n_shared_question_property_info_multi_choice' | translate
+                                }}</small>
+                            </div>
+                        }
+                    </span>
+                </div>
+                <div class="col-md-6 question-option-title">
+                    {{ 'i18n_word_points' | translate | uppercase }}
                 </div>
             </div>
-        </div>
-        <div class="row" id="question-editor" *ngFor="let option of question.options; let i = index">
-            <div class="col-md-12">
-                <xm-mc-option-editor
-                    *ngIf="question.type === 'MultipleChoiceQuestion'"
-                    [option]="option"
-                    [question]="question"
-                    [index]="i"
-                    [allowRemoval]="!lotteryOn && allowOptionRemoval"
-                >
-                </xm-mc-option-editor>
-                <xm-wmc-option-editor
-                    *ngIf="question.type === 'WeightedMultipleChoiceQuestion'"
-                    [option]="option"
-                    [index]="i"
-                    [question]="question"
-                    [lotteryOn]="lotteryOn"
-                ></xm-wmc-option-editor>
+        }
+        @if (question.type === 'MultipleChoiceQuestion') {
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
+                    <br /><span>
+                        @if (showWarning) {
+                            <div class="edit-warning-container">
+                                <i class="bi-exclamation-circle text-danger"></i>
+                                <small class="ps-2">{{
+                                    'i18n_shared_question_property_info_multi_choice' | translate
+                                }}</small>
+                            </div>
+                        }
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    <div class="question-option-title make-inline">
+                        {{ 'i18n_multiplechoice_question_correct' | translate | uppercase }}
+                    </div>
+                </div>
             </div>
-        </div>
-        <div *ngIf="question.type === 'WeightedMultipleChoiceQuestion'" class="row mt-3">
-            <div class="col-md-12 question-option-title">
-                {{ 'sitnet_max_score' | translate | uppercase }}:
-                {{ calculateDefaultMaxPoints() }}
+        }
+        @for (option of question.options; track option.id; let i = $index) {
+            <div class="row">
+                <div class="col-md-12">
+                    @if (question.type === 'MultipleChoiceQuestion') {
+                        <xm-mc-option-editor
+                            [option]="option"
+                            [question]="question"
+                            [index]="i"
+                            [allowRemoval]="!lotteryOn && allowOptionRemoval"
+                        >
+                        </xm-mc-option-editor>
+                    }
+                    @if (question.type === 'WeightedMultipleChoiceQuestion') {
+                        <xm-wmc-option-editor
+                            [option]="option"
+                            [index]="i"
+                            [question]="question"
+                            [lotteryOn]="lotteryOn"
+                        ></xm-wmc-option-editor>
+                    }
+                </div>
             </div>
-        </div>
+        }
+        @if (question.type === 'WeightedMultipleChoiceQuestion') {
+            <div class="row mt-3">
+                <div class="col-md-12 question-option-title">
+                    {{ 'i18n_max_score' | translate | uppercase }}:
+                    {{ calculateDefaultMaxPoints() }}
+                </div>
+            </div>
+        }
         <div class="row mt-3">
             <div class="col-md-12">
                 <a (click)="addNewOption()" class="attachment-link pointer">
                     <i class="bi-plus"></i>
-                    {{ 'sitnet_question_add_new_option' | translate }}
+                    {{ 'i18n_question_add_new_option' | translate }}
                 </a>
             </div>
         </div>
     `,
+    styleUrls: ['../question.shared.scss'],
+    standalone: true,
+    imports: [
+        MultipleChoiceOptionEditorComponent,
+        WeightedMultipleChoiceOptionEditorComponent,
+        UpperCasePipe,
+        TranslateModule,
+    ],
 })
 export class MultipleChoiceEditorComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;
@@ -90,7 +121,11 @@ export class MultipleChoiceEditorComponent implements OnInit {
     @Input() lotteryOn = false;
     @Input() allowOptionRemoval = false;
 
-    constructor(private translate: TranslateService, private toast: ToastrService, private Question: QuestionService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Question: QuestionService,
+    ) {}
 
     ngOnInit() {
         if (this.question.type === 'WeightedMultipleChoiceQuestion') {
@@ -99,7 +134,7 @@ export class MultipleChoiceEditorComponent implements OnInit {
     }
     addNewOption = () => {
         if (this.lotteryOn) {
-            this.toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('i18n_action_disabled_lottery_on'));
             return;
         }
         const option: MultipleChoiceOption = {

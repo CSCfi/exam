@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,26 +37,24 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testGetActiveExams() {
         // Setup
-        List<Exam> activeExams = Ebean
+        List<Exam> activeExams = DB
             .find(Exam.class)
             .where()
             .eq("creator.id", userId)
             .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)
             .findList();
-        activeExams.forEach(
-            e -> {
-                e.getExamOwners().add(e.getCreator());
-                e.update();
-            }
-        );
+        activeExams.forEach(e -> {
+            e.getExamOwners().add(e.getCreator());
+            e.update();
+        });
         Set<Long> ids = new HashSet<>();
         for (Exam e : activeExams) {
-            e.setExamActiveStartDate(DateTime.now());
-            e.setExamActiveEndDate(DateTime.now().plusWeeks(1));
+            e.setPeriodStart(DateTime.now());
+            e.setPeriodEnd(DateTime.now().plusWeeks(1));
             e.update();
             ids.add(e.getId());
         }
-        String[] expectedPaths = { "id", "name", "course.code", "examActiveStartDate", "examActiveEndDate" };
+        String[] expectedPaths = { "id", "name", "course.code", "periodStart", "periodEnd" };
 
         // Execute
         Result result = get("/app/reviewerexams");
@@ -69,8 +67,8 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertPathsExist(node, jsonPaths(expectedPaths, exams.size()));
         for (JsonNode n : exams) {
             Exam e = deserialize(Exam.class, n);
-            assertThat(e.getExamActiveEndDate().isAfterNow());
-            assertThat(e.getExamActiveStartDate().isBeforeNow());
+            assertThat(e.getPeriodEnd().isAfterNow());
+            assertThat(e.getPeriodStart().isBeforeNow());
             assertThat(ids.contains(e.getId()));
         }
     }
@@ -92,7 +90,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testCreateDraftExam() {
         // Setup
-        int originalRowCount = Ebean.find(Exam.class).findCount();
+        int originalRowCount = DB.find(Exam.class).findCount();
 
         // Execute
         Result result = request(
@@ -105,7 +103,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         Long id = node.get("id").asLong();
-        Exam draft = Ebean.find(Exam.class, id);
+        Exam draft = DB.find(Exam.class, id);
         assertThat(draft).isNotNull();
         assertThat(draft.getName()).isNull();
         assertThat(draft.getCreator().getId()).isEqualTo(userId);
@@ -118,9 +116,8 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(draft.getExamLanguages().size()).isEqualTo(1);
         assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");
         assertThat(draft.getExamType().getId()).isEqualTo(2);
-        assertThat(draft.getExpanded()).isTrue();
         assertThat(draft.isAnonymous()).isTrue();
-        int rowCount = Ebean.find(Exam.class).findCount();
+        int rowCount = DB.find(Exam.class).findCount();
         assertThat(rowCount).isEqualTo(originalRowCount + 1);
     }
 
@@ -129,7 +126,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     public void testGetExam() throws Exception {
         // Setup
         long id = 1L;
-        Exam expected = Ebean.find(Exam.class, id);
+        Exam expected = DB.find(Exam.class, id);
         // Execute
         Result result = get("/app/exams/" + id);
 
@@ -152,8 +149,8 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(expected.getCustomCredit()).isEqualTo(returned.getCustomCredit());
         assertThat(expected.getDuration()).isEqualTo(returned.getDuration());
         assertThat(expected.getEnrollInstruction()).isEqualTo(returned.getEnrollInstruction());
-        assertThat(expected.getExamActiveEndDate()).isEqualTo(returned.getExamActiveEndDate());
-        assertThat(expected.getExamActiveStartDate()).isEqualTo(returned.getExamActiveStartDate());
+        assertThat(expected.getPeriodEnd()).isEqualTo(returned.getPeriodEnd());
+        assertThat(expected.getPeriodStart()).isEqualTo(returned.getPeriodStart());
     }
 
     @Test
@@ -161,7 +158,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     public void testGetStudentExamNotAllowed() {
         // Setup
         long id = 1L;
-        Exam expected = Ebean.find(Exam.class, id);
+        Exam expected = DB.find(Exam.class, id);
         expected.setState(Exam.State.STUDENT_STARTED);
         expected.update();
 
@@ -175,8 +172,8 @@ public class ExamControllerTest extends IntegrationTestCase {
     public void testExamTypeUpdate() throws Exception {
         // Setup
         final long id = 1L;
-        Exam exam = Ebean.find(Exam.class, id);
-        ExamType examType = Ebean.find(ExamType.class, 1L);
+        Exam exam = DB.find(Exam.class, id);
+        ExamType examType = DB.find(ExamType.class, 1L);
         exam.setExamType(examType);
         exam.save();
 
@@ -223,8 +220,8 @@ public class ExamControllerTest extends IntegrationTestCase {
             "instruction",
             "enrollInstruction",
             "shared",
-            "examActiveStartDate",
-            "examActiveEndDate",
+            "periodStart",
+            "periodEnd",
             "duration",
             "gradeScale",
             "gradeScale.description",
@@ -234,7 +231,6 @@ public class ExamControllerTest extends IntegrationTestCase {
             "state",
             "examFeedback",
             "creditType",
-            "expanded",
             "attachment",
         };
     }

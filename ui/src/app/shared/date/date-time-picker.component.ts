@@ -12,7 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbTimepicker } from '@ng-bootstrap/ng-bootstrap';
+import { DatePickerComponent } from './date-picker.component';
 
 @Component({
     selector: 'xm-date-time-picker',
@@ -22,6 +26,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
                 <xm-date-picker
                     [disabled]="disabled"
                     [initialDate]="initialTime"
+                    [readonly]="readonly"
                     (updated)="onDateUpdate($event)"
                     [minDate]="minDate"
                     [maxDate]="maxDate"
@@ -39,21 +44,24 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
             </div>
         </div>
     `,
+    styleUrls: ['./date-time-picker.component.scss'],
+    standalone: true,
+    imports: [NgClass, DatePickerComponent, NgbTimepicker, FormsModule],
 })
 export class DateTimePickerComponent implements OnInit, OnChanges {
     @Input() initialTime: Date | null = null;
     @Input() hourStep = 0;
     @Input() minuteStep = 0;
     @Input() disabled = false;
-    @Input() examMaxDate?: string;
+    @Input() readonly = false;
+    @Input() minDate = new Date().toISOString();
+    @Input() maxDate?: string;
     @Input() disableDate?: boolean = false;
     @Input() disableTime?: boolean = false;
     @Output() updated = new EventEmitter<{ date: Date }>();
 
     date: Date = new Date();
     time!: { hour: number; minute: number; second: number; millisecond?: number };
-    maxDate?: string;
-    minDate?: string;
 
     ngOnInit() {
         const now = new Date();
@@ -62,11 +70,8 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
         if (this.initialTime) {
             this.setDateTime(this.initialTime);
         }
-        this.minDate = now.toISOString();
-        if (this.examMaxDate) {
-            this.maxDate = new Date(now.getTime() + new Date(this.examMaxDate).getTime()).toISOString();
-        }
     }
+
     ngOnChanges() {
         const now = new Date();
         this.time = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() };

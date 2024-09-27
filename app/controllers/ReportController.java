@@ -17,11 +17,13 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,7 +64,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result listDepartments() {
-        List<Course> courses = Ebean.find(Course.class).where().isNotNull("department").findList();
+        List<Course> courses = DB.find(Course.class).where().isNotNull("department").findList();
         Set<String> departments = courses.stream().map(Course::getDepartment).collect(Collectors.toSet());
         ObjectNode node = Json.newObject();
         ArrayNode arrayNode = node.putArray("departments");
@@ -96,11 +98,13 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamParticipations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        List<ExamEnrolment> enrolments = Ebean
-            .find(ExamEnrolment.class)
-            .fetch("exam", "id, created")
-            .fetch("externalExam", "id, started")
-            .where()
+        PathProperties pp = PathProperties.parse(
+            "noShow, exam(created, course(department)), " +
+            "externalExam(started), reservation(machine(room(id, name, outOfService)))"
+        );
+        ExpressionList<ExamEnrolment> el = DB.find(ExamEnrolment.class).where();
+        el.apply(pp);
+        List<ExamEnrolment> enrolments = el
             .or()
             .ne("exam.state", Exam.State.PUBLISHED)
             .isNotNull("externalExam.started")
@@ -110,18 +114,21 @@ public class ReportController extends BaseController {
             .findList()
             .stream()
             .filter(ee -> applyEnrolmentFilter(ee, dept, start, end))
-            .collect(Collectors.toList());
-        Map<String, List<ExamEnrolment>> roomMap = new HashMap<>();
+            .toList();
+        Map<String, List<Participation>> roomMap = new HashMap<>();
         for (ExamEnrolment enrolment : enrolments) {
             ExamRoom room = enrolment.getReservation().getMachine().getRoom();
             String key = String.format("%d___%s", room.getId(), room.getName());
             if (!roomMap.containsKey(key)) {
                 roomMap.put(key, new ArrayList<>());
             }
-            roomMap.get(key).add(enrolment);
+            DateTime examStart = enrolment.getExternalExam() != null
+                ? enrolment.getExternalExam().getStarted()
+                : enrolment.getExam().getCreated();
+            roomMap.get(key).add(new Participation(examStart));
         }
         // Fill in the rooms that have no associated participations
-        List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().eq("outOfService", false).findList();
+        List<ExamRoom> rooms = DB.find(ExamRoom.class).where().eq("outOfService", false).findList();
         for (ExamRoom room : rooms) {
             String key = String.format("%d___%s", room.getId(), room.getName());
             if (!roomMap.containsKey(key)) {
@@ -129,11 +136,24 @@ public class ReportController extends BaseController {
                 roomMap.put(key, new ArrayList<>());
             }
         }
-        return ok(roomMap);
+        return ok(Json.toJson(roomMap));
     }
 
     // DTO for minimizing output from this API
-    private class ExamInfo {
+    private static class Participation {
+
+        String date;
+
+        Participation(DateTime date) {
+            this.date = ISODateTimeFormat.dateTime().print(date);
+        }
+
+        public String getDate() {
+            return date;
+        }
+    }
+
+    private static class ExamInfo {
 
         String name;
         Integer participations;
@@ -153,7 +173,7 @@ public class ReportController extends BaseController {
     }
 
     private boolean applyExamFilter(Exam e, Optional<String> start, Optional<String> end) {
-        Boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && e.getExamParticipation() != null;
+        boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && e.getExamParticipation() != null;
         DateTime created = e.getCreated();
         if (start.isPresent()) {
             DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
@@ -173,7 +193,7 @@ public class ReportController extends BaseController {
         Optional<String> end
     ) {
         DateTime created = ee.getExam() != null ? ee.getExam().getCreated() : ee.getExternalExam().getStarted();
-        Boolean result = true;
+        boolean result = true;
         if (dept.isPresent()) {
             if (ee.getExternalExam() != null) {
                 return false;
@@ -195,7 +215,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getPublishedExams(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Exam> query = Ebean
+        ExpressionList<Exam> query = DB
             .find(Exam.class)
             .fetch("course", "code")
             .where()
@@ -220,7 +240,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Reservation> query = Ebean.find(Reservation.class).where();
+        ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class).where();
         query =
             applyFilters(
                 query,
@@ -230,24 +250,47 @@ public class ReportController extends BaseController {
                 start.orElse(null),
                 end.orElse(null)
             );
-        return ok(query.findList());
+        Set<ExamEnrolment> enrolments = query.findSet();
+        long noShows = enrolments.stream().filter(ExamEnrolment::isNoShow).count();
+        long appearances = enrolments.size() - noShows;
+        return ok(Json.newObject().put("noShows", noShows).put("appearances", appearances));
     }
 
     @Restrict({ @Group("ADMIN") })
     public Result getResponses(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Exam> query = Ebean.find(Exam.class).where().isNotNull("parent").isNotNull("course");
+        ExpressionList<Exam> query = DB.find(Exam.class).where().isNotNull("parent").isNotNull("course");
         query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Set<Exam> exams = query.findSet();
-        List<ExamInfo> infos = new ArrayList<>();
-        for (Exam exam : exams
+        long aborted = exams.stream().filter(e -> e.getState() == Exam.State.ABORTED).count();
+        long assessed = exams
             .stream()
-            .filter(e -> e.getState().ordinal() > Exam.State.PUBLISHED.ordinal())
-            .collect(Collectors.toList())) {
-            ExamInfo info = new ExamInfo();
-            info.state = exam.getState().toString();
-            infos.add(info);
-        }
-        return ok(Json.toJson(infos));
+            .filter(e ->
+                e.hasState(
+                    Exam.State.GRADED,
+                    Exam.State.GRADED_LOGGED,
+                    Exam.State.ARCHIVED,
+                    Exam.State.REJECTED,
+                    Exam.State.DELETED
+                )
+            )
+            .count();
+        long unAssessed = exams
+            .stream()
+            .filter(e ->
+                e.hasState(
+                    Exam.State.INITIALIZED,
+                    Exam.State.STUDENT_STARTED,
+                    Exam.State.REVIEW,
+                    Exam.State.REVIEW_STARTED
+                )
+            )
+            .count();
+        JsonNode node = Json
+            .newObject()
+            .put("aborted", aborted)
+            .put("assessed", assessed)
+            .put("unAssessed", unAssessed);
+        return ok(node);
     }
 
     @With(ExamRecordSanitizer.class)
@@ -257,8 +300,8 @@ public class ReportController extends BaseController {
         ByteArrayOutputStream bos;
         try {
             bos = excelBuilder.buildScoreExcel(examId, childIds);
-        } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_csv_file");
+        } catch (IOException | RuntimeException e) {
+            return internalServerError("i18n_error_creating_csv_file");
         }
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()))
             .withHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"")

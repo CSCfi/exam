@@ -12,17 +12,21 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
-import type { WorkingHour } from '../rooms/room.service';
-import { RoomService } from '../rooms/room.service';
+import type { WorkingHour } from 'src/app/facility/rooms/room.service';
+import { RoomService } from 'src/app/facility/rooms/room.service';
 
 @Component({
     selector: 'xm-starting-time',
-    template: `<div class="row">
+    template: ` <div class="row">
             <div class="col-md-12 header-text">
-                <strong>{{ 'sitnet_exam_starting_hours' | translate }}:</strong>
+                <strong>{{ 'i18n_exam_starting_hours' | translate }}:</strong>
             </div>
         </div>
         <div class="row">
@@ -30,7 +34,7 @@ import { RoomService } from '../rooms/room.service';
                 <form>
                     <div class="row">
                         <label class="col-6 col-form-label" for="hourOffset"
-                            >{{ 'sitnet_minutes_on_the_hour' | translate }}:</label
+                            >{{ 'i18n_minutes_on_the_hour' | translate }}:</label
                         >
                         <div class="col-2">
                             <input
@@ -43,6 +47,7 @@ import { RoomService } from '../rooms/room.service';
                                 [max]="59"
                                 [(ngModel)]="examStartingHourOffset"
                                 (change)="setStartingHourOffset()"
+                                (click)="unsavedProgress = true"
                             />
                         </div>
                     </div>
@@ -51,32 +56,44 @@ import { RoomService } from '../rooms/room.service';
         </div>
         <div class="row mt-2">
             <div class="col-12">
-                <span
-                    *ngFor="let hour of examStartingHours"
-                    class="badge pointer"
-                    [ngClass]="hour.selected ? 'bg-success' : 'bg-secondary'"
-                    (click)="hour.selected = !hour.selected"
-                    style="margin: 0.2em"
-                    >{{ hour.startingHour }}</span
-                >
+                @for (hour of examStartingHours; track hour) {
+                    <span
+                        class="badge pointer"
+                        [ngClass]="hour.selected ? 'bg-success' : 'bg-secondary'"
+                        (click)="hour.selected = !hour.selected; unsavedProgress = true"
+                        style="margin: 0.2em"
+                        >{{ hour.startingHour }}</span
+                    >
+                }
             </div>
         </div>
         <div class="row mt-2">
             <div class="col-6">
                 <button
                     class="btn btn-sm btn-outline-dark"
-                    (click)="updateStartingHours()"
+                    (click)="updateStartingHours(); unsavedProgress = false"
                     [disabled]="!anyStartingHoursSelected()"
                 >
-                    {{ 'sitnet_save' | translate }}
+                    {{ 'i18n_save' | translate }}
                 </button>
+                <i
+                    class="bi-exclamation-triangle-fill text-warning ms-3"
+                    triggers="mouseenter:mouseleave"
+                    ngbPopover="{{ 'i18n_unsaved_changes' | translate }}"
+                    [hidden]="!unsavedProgress"
+                ></i>
             </div>
             <div class="col-6">
-                <a class="pointer float-end" (click)="toggleAllExamStartingHours()">{{
-                    'sitnet_add_remove_all' | translate
-                }}</a>
+                <button
+                    class="btn btn-outline-dark float-end"
+                    (click)="toggleAllExamStartingHours(); unsavedProgress = true"
+                >
+                    {{ 'i18n_add_remove_all' | translate }}
+                </button>
             </div>
-        </div> `,
+        </div>`,
+    standalone: true,
+    imports: [FormsModule, NgClass, TranslateModule, NgbPopover],
 })
 export class StartingTimeComponent implements OnInit {
     @Input() roomIds: number[] = [];
@@ -84,6 +101,7 @@ export class StartingTimeComponent implements OnInit {
 
     examStartingHours: WorkingHour[] = [];
     examStartingHourOffset = 0;
+    unsavedProgress = false;
 
     constructor(private Room: RoomService) {}
 

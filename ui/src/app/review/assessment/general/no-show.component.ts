@@ -12,15 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import { TranslateModule } from '@ngx-translate/core';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-r-no-show',
-    template: ` <div class="col-md-2 general-info-title">{{ started | date : 'dd.MM.yyyy' }}</div>
-        <div class="col-md-10 general-info-content" [ngStyle]="{ color: '#F35D6C' }">
-            {{ 'sitnet_exam_status_no_show' | translate }}
+    template: ` <div class="col-md-2 ">{{ started | date: 'dd.MM.yyyy' }}</div>
+        <div class="col-md-10 text-danger">
+            {{ 'i18n_exam_status_no_show' | translate }}
         </div>`,
+    standalone: true,
+    imports: [DatePipe, TranslateModule],
 })
 export class NoShowComponent implements OnInit {
     @Input() enrolment!: ExamEnrolment;

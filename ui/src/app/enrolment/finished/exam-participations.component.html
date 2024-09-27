@@ -1,51 +1,55 @@
-<div id="dashboard" class="ms-2 me-2 mt-2">
+@if (collaborative) {
+    <xm-page-header text="i18n_collaborative_exam_responses" />
+} @else {
+    <xm-page-header text="i18n_exam_responses" />
+}
+<xm-page-content [content]="content" />
+<ng-template #content>
     <!-- Finished exams list -->
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-title-wrap">
-                <h1 class="student-enroll-title" [hidden]="collaborative">{{ 'sitnet_exam_responses' | translate }}</h1>
-                <h1 class="student-enroll-title" [hidden]="!collaborative">
-                    {{ 'sitnet_collaborative_exam_responses' | translate }}
-                </h1>
-            </div>
-        </div>
-        <div class="row ms-2 me-2 mt-1">
-            <div class="col-md-12">
-                <div class="row mt-1 align-items-center" role="note">
-                    <div class="col-auto p-1">
-                        <img class="nopad" src="/assets/images/icon_info.png" class="padr10" alt="" />
-                    </div>
-                    <div class="col" [hidden]="collaborative">
-                        {{ 'sitnet_exam_response_search_description' | translate }}
-                    </div>
-                    <div class="col" [hidden]="!collaborative">
-                        {{ 'sitnet_collaborative_exam_response_search_description' | translate }}
-                    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="row align-items-center" role="note">
+                <div class="col-auto">
+                    <img src="/assets/images/icon_info.png" class="pe-1" alt="" />
+                </div>
+                <div class="col" [hidden]="collaborative">
+                    {{ 'i18n_exam_response_search_description' | translate }}
+                </div>
+                <div class="col" [hidden]="!collaborative">
+                    {{ 'i18n_collaborative_exam_response_search_description' | translate }}
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="detail-row mt-2">
-        <div class="col-6">
-            <div class="form-group input-group search">
+    <div class="row my-3">
+        <div class="col-4">
+            <div class="input-group">
                 <input
-                    xmAutoFocus
-                    aria-label="search"
+                    [attr.aria-label]="'i18n_search' | translate"
+                    [attr.aria-description]="'i18n_type_to_start_search' | translate"
                     [(ngModel)]="filter.text"
                     type="text"
                     (ngModelChange)="search($event)"
-                    class="form-control hgt40"
-                    placeholder="{{ 'sitnet_search' | translate }}"
+                    class="form-control"
+                    placeholder="{{ 'i18n_search' | translate }}"
                 />
                 <div class="input-group-append search">
                     <img alt="" src="/assets/images/icon_search.png" width="49" height="40" />
                 </div>
             </div>
         </div>
-        <div class="col-6" ngbDropdown>
-            <button class="float-end btn btn-outline-dark" type="button" ngbDropdownToggle aria-expanded="true">
-                {{ 'sitnet_set_ordering' | translate }}
+        @if (searchDone) {
+            <div class="row my-2">
+                <div class="col-12" aria-live="polite">
+                    {{ 'i18n_student_exam_search_result' | translate }} {{ participations.length }}
+                    {{ 'i18n_student_exam_search_result_continues' | translate }}
+                </div>
+            </div>
+        }
+        <div class="col-8" ngbDropdown>
+            <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
+                {{ 'i18n_set_ordering' | translate }}
             </button>
             <div ngbDropdownMenu role="menu">
                 <button
@@ -53,51 +57,55 @@
                     role="presentation"
                     (click)="filter.ordering = 'exam.name'; filter.reverse = false"
                 >
-                    {{ 'sitnet_exam_name_ascending' | translate }}
+                    {{ 'i18n_exam_name_ascending' | translate }}
                 </button>
                 <button
                     ngbDropdownItem
                     role="presentation"
                     (click)="filter.ordering = 'exam.name'; filter.reverse = true"
                 >
-                    {{ 'sitnet_exam_name_descending' | translate }}
+                    {{ 'i18n_exam_name_descending' | translate }}
                 </button>
                 <button ngbDropdownItem role="presentation" (click)="filter.ordering = 'ended'; filter.reverse = false">
-                    {{ 'sitnet_exam_participation_descending' | translate }}
+                    {{ 'i18n_exam_participation_descending' | translate }}
                 </button>
                 <button ngbDropdownItem role="presentation" (click)="filter.ordering = 'ended'; filter.reverse = true">
-                    {{ 'sitnet_exam_participation_ascending' | translate }}
+                    {{ 'i18n_exam_participation_ascending' | translate }}
                 </button>
             </div>
         </div>
     </div>
 
     <!-- List of finished exams -->
-    <div
-        class="row mart10"
-        *ngFor="
-            let participation of participations
-                | orderBy : filter.ordering : filter.reverse
-                | slice : currentPage * pageSize : currentPage * pageSize + pageSize
-        "
-    >
-        <div class="col-md-12">
-            <xm-exam-participation
-                [participation]="participation"
-                [collaborative]="collaborative"
-            ></xm-exam-participation>
+    @for (
+        participation of participations
+            | orderBy: filter.ordering : filter.reverse
+            | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
+        track participation
+    ) {
+        <div class="row mb-3">
+            <div class="col-12">
+                <xm-exam-participation
+                    [participation]="participation"
+                    [collaborative]="collaborative"
+                ></xm-exam-participation>
+            </div>
         </div>
-    </div>
+    }
 
-    <div class="row mt-2" *ngIf="participations">
-        <div class="col-md-12" *ngIf="participations.length > pageSize">
-            <xm-paginator
-                [items]="participations"
-                (pageSelected)="pageSelected($event)"
-                [pageSize]="pageSize"
-                [currentPage]="currentPage"
-            >
-            </xm-paginator>
+    @if (participations) {
+        <div class="row mt-2">
+            @if (participations.length > pageSize) {
+                <div class="col-md-12">
+                    <xm-paginator
+                        [items]="participations"
+                        (pageSelected)="pageSelected($event)"
+                        [pageSize]="pageSize"
+                        [currentPage]="currentPage"
+                    >
+                    </xm-paginator>
+                </div>
+            }
         </div>
-    </div>
-</div>
+    }
+</ng-template>

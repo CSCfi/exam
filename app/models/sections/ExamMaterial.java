@@ -15,9 +15,9 @@
 
 package models.sections;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import java.util.Set;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
 import models.User;
 import models.base.OwnedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -70,9 +70,7 @@ public final class ExamMaterial extends OwnedModel {
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof ExamMaterial)) return false;
-
-        ExamMaterial that = (ExamMaterial) o;
+        if (!(o instanceof ExamMaterial that)) return false;
 
         return new EqualsBuilder().append(id, that.id).isEquals();
     }

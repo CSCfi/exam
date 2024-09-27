@@ -12,41 +12,47 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import type { ExamSectionQuestion, ExamSectionQuestionOption } from '../../../exam/exam.model';
-import { QuestionService } from '../../../question/question.service';
+import { TranslateModule } from '@ngx-translate/core';
+import type { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/exam/exam.model';
+import { QuestionService } from 'src/app/question/question.service';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-claim-choice-answer',
-    template: `<div *ngIf="reviewExpanded">
-        <div class="padl15 marb10" *ngFor="let option of sectionQuestion.options | orderBy : 'option.id'">
-            <div [ngClass]="getSelectedOptionClass(option)">
-                <div class="make-inline float-start">
-                    <img
-                        *ngIf="determineClaimOptionType(option) === 'CorrectOption'"
-                        src="/assets/images/icon_correct_answer_radio.png"
-                        alt=""
-                    />
-                    <img
-                        *ngIf="determineClaimOptionType(option) === 'IncorrectOption'"
-                        src="/assets/images/icon_wrong_answer_radio.png"
-                        alt=""
-                    />
-                    <img
-                        *ngIf="determineClaimOptionType(option) === 'SkipOption'"
-                        src="/assets/images/icon_correct_answer_radio_grey.png"
-                        alt=""
-                    />
+    template: `@if (reviewExpanded) {
+        <div>
+            @for (option of sectionQuestion.options | orderBy: 'option.id'; track option) {
+                <div class="ps-2 mb-2">
+                    <div [ngClass]="getSelectedOptionClass(option)">
+                        <div class="make-inline float-start">
+                            @switch (determineClaimOptionType(option)) {
+                                @case ('CorrectOption') {
+                                    <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
+                                }
+                                @case ('IncorrectOption') {
+                                    <img src="/assets/images/icon_wrong_answer_radio.png" alt="" />
+                                }
+                                @case ('SkipOption') {
+                                    <img src="/assets/images/icon_correct_answer_radio_grey.png" alt="" />
+                                }
+                            }
+                        </div>
+                        <div class="make-inline w-75 my-1 ms-3">
+                            <span class="exam-question-option-text" [innerHtml]="option.option.option"></span>
+                        </div>
+                        <div class="make-inline float-end answer-score-text">
+                            <span> {{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [innerHtml]="option.option.option"></span>
-                </div>
-                <div class="make-inline float-end answer-score-text">
-                    <span> {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
-                </div>
-            </div>
+            }
         </div>
-    </div> `,
+    }`,
+    standalone: true,
+    imports: [NgClass, TranslateModule, OrderByPipe],
+    styleUrl: './multi-choice-answers.shared.scss',
 })
 export class ClaimChoiceAnswerComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

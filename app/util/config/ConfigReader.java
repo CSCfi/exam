@@ -10,7 +10,6 @@ public interface ConfigReader {
     DateTimeZone getDefaultTimeZone();
     String getHostName();
     Integer getMaxFileSize();
-    String getExamMaxDate();
     List<Integer> getExamDurations();
     Integer getExamMaxDuration();
     Integer getExamMinDuration();
@@ -33,9 +32,9 @@ public interface ConfigReader {
     String getQuitExaminationLink();
     String getExaminationAdminPassword();
     String getSettingsPasswordEncryptionKey();
-    String getQuitPassword();
     String getHomeOrganisationRef();
     Integer getMaxByodExaminationParticipantCount();
+    boolean isByodExamCreationPermissionGrantedForNewUsers();
     String getCourseCodePrefix();
     String getIopHost();
     boolean isApiKeyUsed();
@@ -50,6 +49,7 @@ public interface ConfigReader {
     String getCsrfCookie();
     boolean isMultiStudentIdEnabled();
     String getMultiStudentOrganisations();
+    List<String> getSupportedLanguages();
 
     boolean hasPath(String path);
     String getString(String path);

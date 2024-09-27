@@ -12,31 +12,53 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { ControlContainer, NgForm } from '@angular/forms';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
-import type { ExamSectionQuestion, ReverseQuestion, Tag } from '../../exam/exam.model';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import type { QuestionDraft } from '../question.service';
-import { QuestionService } from '../question.service';
+import type { ExamSectionQuestion, ReverseQuestion, Tag } from 'src/app/exam/exam.model';
+import type { QuestionDraft } from 'src/app/question/question.service';
+import { QuestionService } from 'src/app/question/question.service';
+import { TagPickerComponent } from 'src/app/question/tags/tag-picker.component';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
+import { ClaimChoiceEditorComponent } from './claim-choice.component';
+import { EssayEditorComponent } from './essay.component';
+import { MultipleChoiceEditorComponent } from './multiple-choice.component';
 
 @Component({
     selector: 'xm-question-body',
     templateUrl: './question-body.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [
+        FormsModule,
+        NgbPopover,
+        NgClass,
+        CKEditorComponent,
+        EssayEditorComponent,
+        MultipleChoiceEditorComponent,
+        ClaimChoiceEditorComponent,
+        NgbTypeahead,
+        TagPickerComponent,
+        TranslateModule,
+    ],
+    styleUrls: ['../question.shared.scss'],
+    styles: '.initial-width { width: initial !important; }',
 })
 export class QuestionBodyComponent implements OnInit {
     @Input() question!: ReverseQuestion | QuestionDraft;
     @Input() currentOwners: User[] = [];
     @Input() lotteryOn = false;
     @Input() examId = 0;
-    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() sectionQuestion?: ExamSectionQuestion;
     @Input() collaborative = false;
 
     isInPublishedExam = false;
@@ -46,6 +68,7 @@ export class QuestionBodyComponent implements OnInit {
     newOwnerTemplate?: User;
     newType = '';
     questionTypes: { type: string; name: string }[] = [];
+    hideRestExams = true;
 
     constructor(
         private http: HttpClient,
@@ -57,11 +80,11 @@ export class QuestionBodyComponent implements OnInit {
 
     ngOnInit() {
         this.questionTypes = [
-            { type: 'essay', name: 'sitnet_toolbar_essay_question' },
-            { type: 'cloze', name: 'sitnet_toolbar_cloze_test_question' },
-            { type: 'multichoice', name: 'sitnet_toolbar_multiplechoice_question' },
-            { type: 'weighted', name: 'sitnet_toolbar_weighted_multiplechoice_question' },
-            { type: 'claim', name: 'sitnet_toolbar_claim_choice_question' },
+            { type: 'essay', name: 'i18n_toolbar_essay_question' },
+            { type: 'cloze', name: 'i18n_toolbar_cloze_test_question' },
+            { type: 'multichoice', name: 'i18n_toolbar_multiplechoice_question' },
+            { type: 'weighted', name: 'i18n_toolbar_weighted_multiplechoice_question' },
+            { type: 'claim', name: 'i18n_toolbar_claim_choice_question' },
         ];
 
         this.init();
@@ -74,6 +97,8 @@ export class QuestionBodyComponent implements OnInit {
     };
 
     showWarning = () => this.examNames.length > 1;
+
+    sortByString = (prop: string[]): string[] => prop.sort();
 
     listQuestionOwners$ = (filter$: Observable<string>): Observable<User[]> =>
         filter$.pipe(
@@ -128,7 +153,7 @@ export class QuestionBodyComponent implements OnInit {
         });
 
     downloadQuestionAttachment = () => {
-        if (this.question.attachment && this.question.attachment.externalId) {
+        if (this.question.attachment && this.question.attachment.externalId && this.sectionQuestion) {
             this.Attachment.downloadCollaborativeQuestionAttachment(this.examId, this.sectionQuestion);
             return;
         }
@@ -143,8 +168,9 @@ export class QuestionBodyComponent implements OnInit {
 
     getFileSize = () => {
         if (this.question.attachment) {
-            this.Attachment.getFileSize(this.question.attachment.size);
+            return `(${this.Attachment.getFileSize(this.question.attachment.size)})`;
         }
+        return '';
     };
 
     hasUploadedAttachment = () => {
@@ -178,7 +204,7 @@ export class QuestionBodyComponent implements OnInit {
         });
         const sectionNames = sections.map((s) => s.name);
         // remove duplicates
-        this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
+        this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort();
         this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
     };
 }

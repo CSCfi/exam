@@ -12,14 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { ActiveEnrolmentComponent } from 'src/app/enrolment/active/active-enrolment.component';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import type { DashboardEnrolment } from './student-dashboard.service';
 import { StudentDashboardService } from './student-dashboard.service';
 
 @Component({
     selector: 'xm-student-dashboard',
     templateUrl: './student-dashboard.component.html',
+    standalone: true,
+    imports: [ActiveEnrolmentComponent, TranslateModule, OrderByPipe, PageHeaderComponent, PageContentComponent],
 })
 export class StudentDashboardComponent implements OnInit {
     userEnrolments: DashboardEnrolment[] = [];

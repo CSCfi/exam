@@ -19,11 +19,10 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 import models.Exam;
 import models.ExamRecord;
 import models.User;
@@ -241,7 +240,6 @@ public class ExamScore extends GeneratedIdentityModel {
         this.institutionName = institutionName;
     }
 
-    @Transient
     public static String[] getHeaders() {
         return new String[] {
             "id",
@@ -273,7 +271,6 @@ public class ExamScore extends GeneratedIdentityModel {
         };
     }
 
-    @Transient
     public List<Tuple2<String, CellType>> asCells(User student, User teacher, Exam exam) {
         List<Tuple2<String, CellType>> cells = new ArrayList<>();
         cells.add(Tuple.of(Long.toString(getId()), CellType.STRING));
@@ -305,7 +302,6 @@ public class ExamScore extends GeneratedIdentityModel {
         return cells;
     }
 
-    @Transient
     public String[] asArray(User student, User teacher, Exam exam) {
         return asCells(student, teacher, exam).stream().map(t -> t._1).toArray(String[]::new);
     }

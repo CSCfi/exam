@@ -19,6 +19,18 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.ebean.annotation.EnumValue;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -33,18 +45,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
 import models.questions.Question;
@@ -181,12 +181,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     // Exam valid/enrollable from
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
-    private DateTime examActiveStartDate;
+    @Column(name = "exam_active_start_date")
+    private DateTime periodStart;
 
     // Exam valid/enrollable until
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
-    private DateTime examActiveEndDate;
+    @Column(name = "exam_active_end_date")
+    private DateTime periodEnd;
 
     // Exam duration (minutes)
     private Integer duration;
@@ -238,10 +240,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL)
     private Set<InspectionComment> inspectionComments;
-
-    // In UI, section has been expanded
-    @Column(columnDefinition = "boolean default false")
-    private boolean expanded;
 
     @OneToOne(cascade = CascadeType.ALL)
     private Attachment attachment;
@@ -319,23 +317,21 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     public Double getTotalScore() {
-        Double totalScore = toFixed(
-            examSections.stream().map(ExamSection::getTotalScore).reduce(0.0, (sum, x) -> sum += x)
-        );
+        double totalScore = toFixed(examSections.stream().map(ExamSection::getTotalScore).reduce(0.0, Double::sum));
 
         return Math.max(totalScore, 0.0);
     }
 
     public Double getMaxScore() {
-        return toFixed(examSections.stream().map(ExamSection::getMaxScore).reduce(0.0, (sum, x) -> sum += x));
+        return toFixed(examSections.stream().map(ExamSection::getMaxScore).reduce(0.0, Double::sum));
     }
 
     private int getApprovedAnswerCount() {
-        return examSections.stream().map(ExamSection::getApprovedCount).reduce(0, (sum, x) -> sum += x);
+        return examSections.stream().map(ExamSection::getApprovedCount).reduce(0, Integer::sum);
     }
 
     private int getRejectedAnswerCount() {
-        return examSections.stream().map(ExamSection::getRejectedCount).reduce(0, (sum, x) -> sum += x);
+        return examSections.stream().map(ExamSection::getRejectedCount).reduce(0, Integer::sum);
     }
 
     // These are dumb, required to be explicitly set by EBean
@@ -385,14 +381,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setGradedTime(DateTime gradedTime) {
         this.gradedTime = gradedTime;
-    }
-
-    public boolean getExpanded() {
-        return expanded;
-    }
-
-    public void setExpanded(boolean expanded) {
-        this.expanded = expanded;
     }
 
     public String getName() {
@@ -725,20 +713,20 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return createCopy(user, false, true, Collections.emptySet());
     }
 
-    public DateTime getExamActiveStartDate() {
-        return examActiveStartDate;
+    public DateTime getPeriodStart() {
+        return periodStart;
     }
 
-    public void setExamActiveStartDate(DateTime examActiveStartDate) {
-        this.examActiveStartDate = examActiveStartDate;
+    public void setPeriodStart(DateTime periodStart) {
+        this.periodStart = periodStart;
     }
 
-    public DateTime getExamActiveEndDate() {
-        return examActiveEndDate;
+    public DateTime getPeriodEnd() {
+        return periodEnd;
     }
 
-    public void setExamActiveEndDate(DateTime examActiveEndDate) {
-        this.examActiveEndDate = examActiveEndDate;
+    public void setPeriodEnd(DateTime periodEnd) {
+        this.periodEnd = periodEnd;
     }
 
     public void setAttachment(Attachment attachment) {
@@ -829,39 +817,32 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.implementation = implementation;
     }
 
-    @Transient
     private boolean isCreatedBy(User user) {
         return creator != null && creator.equals(user);
     }
 
-    @Transient
     private boolean isInspectedBy(User user, boolean applyToChildOnly) {
         Exam examToCheck = parent == null || applyToChildOnly ? this : parent;
         return examToCheck.examInspections.stream().anyMatch(ei -> ei.getUser().equals(user));
     }
 
-    @Transient
     private boolean isOwnedBy(User user) {
         Exam examToCheck = parent == null ? this : parent;
         return examToCheck.examOwners.stream().anyMatch(owner -> owner.equals(user));
     }
 
-    @Transient
     public boolean isOwnedOrCreatedBy(User user) {
         return isCreatedBy(user) || isOwnedBy(user);
     }
 
-    @Transient
     public boolean isInspectedOrCreatedOrOwnedBy(User user) {
         return isInspectedBy(user, false) || isOwnedBy(user) || isCreatedBy(user);
     }
 
-    @Transient
     public boolean isChildInspectedOrCreatedOrOwnedBy(User user) {
         return isInspectedBy(user, true) || isOwnedBy(user) || isCreatedBy(user);
     }
 
-    @Transient
     public boolean isViewableForLanguageInspector(User user) {
         return (
             executionType.getType().equals(ExamExecutionType.Type.MATURITY.toString()) &&
@@ -871,22 +852,22 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         );
     }
 
-    @Transient
     public boolean isPrivate() {
         return !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString()) && !isPrintout();
     }
 
-    @Transient
     public boolean isPrintout() {
         return executionType.getType().equals(ExamExecutionType.Type.PRINTOUT.toString());
     }
 
-    @Transient
+    public boolean isUnsupervised() {
+        return !executionType.getType().equals(Implementation.AQUARIUM.toString());
+    }
+
     public boolean hasState(State... states) {
         return Arrays.asList(states).contains(state);
     }
 
-    @Transient
     public void setDerivedMaxScores() {
         examSections
             .stream()
@@ -905,40 +886,15 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof Exam)) {
+        if (!(other instanceof Exam otherExam)) {
             return false;
         }
-        Exam otherExam = (Exam) other;
         return new EqualsBuilder().append(id, otherExam.id).build();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(id).build();
-    }
-
-    @Override
-    public String toString() {
-        return (
-            "Exam{" +
-            "course=" +
-            course +
-            ", id='" +
-            id +
-            '\'' +
-            ", name='" +
-            name +
-            '\'' +
-            ", examType=" +
-            examType +
-            ", hash='" +
-            hash +
-            '\'' +
-            ", state='" +
-            state +
-            '\'' +
-            '}'
-        );
     }
 
     @Override

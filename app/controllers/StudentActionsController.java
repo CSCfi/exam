@@ -19,7 +19,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.iop.collaboration.impl.CollaborationController;
 import impl.ExternalCourseHandler;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Model;
@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
@@ -47,7 +46,7 @@ import models.User;
 import org.joda.time.DateTime;
 import play.i18n.MessagesApi;
 import play.libs.Json;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.EnrolmentRepository;
@@ -64,7 +63,7 @@ import util.file.FileHandler;
 public class StudentActionsController extends CollaborationController {
 
     private final boolean permCheckActive;
-    private final HttpExecutionContext ec;
+    private final ClassLoaderExecutionContext ec;
     private final ExternalCourseHandler externalCourseHandler;
     private final EnrolmentRepository enrolmentRepository;
     private final ByodConfigHandler byodConfigHandler;
@@ -75,7 +74,7 @@ public class StudentActionsController extends CollaborationController {
 
     @Inject
     public StudentActionsController(
-        HttpExecutionContext ec,
+        ClassLoaderExecutionContext ec,
         ExternalCourseHandler courseHandler,
         EnrolmentRepository enrolmentRepository,
         ConfigReader configReader,
@@ -96,7 +95,7 @@ public class StudentActionsController extends CollaborationController {
 
     @Authenticated
     public Result getExamFeedback(Long id, Http.Request request) {
-        Exam exam = Ebean
+        Exam exam = DB
             .find(Exam.class)
             .fetch("creator", "firstName, lastName, email")
             .fetch("course", "code, name, credits")
@@ -127,14 +126,14 @@ public class StudentActionsController extends CollaborationController {
             .endJunction()
             .findOne();
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         return ok(exam);
     }
 
     @Authenticated
     public Result getExamScore(Long eid, Http.Request request) {
-        Exam exam = Ebean
+        Exam exam = DB
             .find(Exam.class)
             .fetch("examSections.sectionQuestions.question")
             .where()
@@ -151,7 +150,7 @@ public class StudentActionsController extends CollaborationController {
             .endJunction()
             .findOne();
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         exam.setMaxScore();
         exam.setApprovedAnswerCount();
@@ -163,7 +162,7 @@ public class StudentActionsController extends CollaborationController {
 
     @Authenticated
     public Result getExamScoreReport(Long eid, Http.Request request) {
-        Exam exam = Ebean
+        Exam exam = DB
             .find(Exam.class)
             .fetch("examParticipation.user")
             .fetch("examSections.sectionQuestions.question")
@@ -183,7 +182,7 @@ public class StudentActionsController extends CollaborationController {
             .findOne();
 
         if (exam == null || exam.getExamParticipation() == null || exam.getExamParticipation().getUser() == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
 
         User student = exam.getExamParticipation().getUser();
@@ -191,7 +190,7 @@ public class StudentActionsController extends CollaborationController {
         try {
             bos = excelBuilder.buildStudentReport(exam, student, messagesApi);
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_excel_file");
+            return internalServerError("i18n_error_creating_excel_file");
         }
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()))
             .withHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"")
@@ -199,7 +198,7 @@ public class StudentActionsController extends CollaborationController {
     }
 
     private Set<ExamEnrolment> getNoShows(User user, String filter) {
-        ExpressionList<ExamEnrolment> noShows = Ebean
+        ExpressionList<ExamEnrolment> noShows = DB
             .find(ExamEnrolment.class)
             .fetch("exam", "id, state, name")
             .fetch("exam.course", "code, name")
@@ -229,7 +228,7 @@ public class StudentActionsController extends CollaborationController {
     @Authenticated
     public Result getFinishedExams(Optional<String> filter, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<ExamParticipation> query = Ebean
+        ExpressionList<ExamParticipation> query = DB
             .find(ExamParticipation.class)
             .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous, gradeless")
             .fetch("exam.creator", "id")
@@ -265,14 +264,14 @@ public class StudentActionsController extends CollaborationController {
 
     @Authenticated
     public CompletionStage<Result> getEnrolment(Long eid, Http.Request request) throws IOException {
-        ExamEnrolment enrolment = Ebean
+        ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .fetch("exam")
             .fetch("externalExam")
             .fetch("collaborativeExam")
             .fetch("exam.course", "name, code")
-            .fetch("exam.examOwners", "firstName, lastName", new FetchConfig().query())
-            .fetch("exam.examInspections", new FetchConfig().query())
+            .fetch("exam.examOwners", "firstName, lastName", FetchConfig.ofQuery())
+            .fetch("exam.examInspections", FetchConfig.ofQuery())
             .fetch("exam.examInspections.user", "firstName, lastName")
             .fetch("user", "id")
             .fetch("reservation", "startAt, endAt")
@@ -301,7 +300,7 @@ public class StudentActionsController extends CollaborationController {
             return downloadExam(enrolment.getCollaborativeExam())
                 .thenComposeAsync(result -> {
                     if (result.isPresent()) {
-                        // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+                        // A bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
                         // Works in this particular use case
                         Exam exam = result.get();
                         enrolment.setExam(exam);
@@ -312,7 +311,7 @@ public class StudentActionsController extends CollaborationController {
                 });
         }
         if (enrolment.getExternalExam() != null) {
-            // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+            // A bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
             // Works in this particular use case
             Exam exam = enrolment.getExternalExam().deserialize();
             enrolment.setExternalExam(null);
@@ -330,13 +329,13 @@ public class StudentActionsController extends CollaborationController {
     @Authenticated
     public Result getExamConfigFile(Long enrolmentId, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Optional<ExamEnrolment> oee = Ebean
+        Optional<ExamEnrolment> oee = DB
             .find(ExamEnrolment.class)
             .where()
             .idEq(enrolmentId)
             .eq("user", user)
             .eq("exam.implementation", Exam.Implementation.CLIENT_AUTH)
-            .eq("exam.state", Exam.State.PUBLISHED)
+            .in("exam.state", Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED)
             .isNotNull("examinationEventConfiguration")
             .findOneOrEmpty();
         if (oee.isEmpty()) {
@@ -345,6 +344,10 @@ public class StudentActionsController extends CollaborationController {
             String examName = oee.get().getExam().getName();
             ExaminationEventConfiguration eec = oee.get().getExaminationEventConfiguration();
             String fileName = examName.replace(" ", "-");
+            String quitPassword = byodConfigHandler.getPlaintextPassword(
+                eec.getEncryptedQuitPassword(),
+                eec.getQuitPasswordSalt()
+            );
             File file;
             try {
                 file = File.createTempFile(fileName, ".seb");
@@ -352,7 +355,8 @@ public class StudentActionsController extends CollaborationController {
                 byte[] data = byodConfigHandler.getExamConfig(
                     eec.getHash(),
                     eec.getEncryptedSettingsPassword(),
-                    eec.getSettingsPasswordSalt()
+                    eec.getSettingsPasswordSalt(),
+                    quitPassword
                 );
                 fos.write(data);
                 fos.close();
@@ -368,7 +372,7 @@ public class StudentActionsController extends CollaborationController {
 
     @Authenticated
     public Result getExamInfo(Long eid, Http.Request request) {
-        Exam exam = Ebean
+        Exam exam = DB
             .find(Exam.class)
             .fetch("course", "code, name")
             .fetch("examSections")
@@ -379,7 +383,7 @@ public class StudentActionsController extends CollaborationController {
             .eq("examEnrolments.user", request.attrs().get(Attrs.AUTHENTICATED_USER))
             .findOne();
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
 
         return ok(exam);
@@ -404,19 +408,19 @@ public class StudentActionsController extends CollaborationController {
     }
 
     private Result listExams(String filter, Collection<String> courseCodes) {
-        ExpressionList<Exam> query = Ebean
+        ExpressionList<Exam> query = DB
             .find(Exam.class)
-            .select("id, name, duration, examActiveStartDate, examActiveEndDate, enrollInstruction, implementation")
+            .select("id, name, duration, periodStart, periodEnd, enrollInstruction, implementation")
             .fetch("course", "code, name")
             .fetch("examOwners", "firstName, lastName")
             .fetch("examInspections.user", "firstName, lastName")
-            .fetch("examLanguages", "code, name", new FetchConfig().query())
+            .fetch("examLanguages", "code, name", FetchConfig.ofQuery())
             .fetch("creator", "firstName, lastName")
             .fetch("examinationEventConfigurations.examinationEvent")
             .where()
             .eq("state", Exam.State.PUBLISHED)
             .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
-            .gt("examActiveEndDate", DateTime.now().toDate());
+            .gt("periodEnd", DateTime.now().toDate());
         if (!courseCodes.isEmpty()) {
             query.in("course.code", courseCodes);
         }
@@ -444,7 +448,7 @@ public class StudentActionsController extends CollaborationController {
                     .map(ExaminationEventConfiguration::getExaminationEvent)
                     .anyMatch(ee -> ee.getStart().isAfter(DateTime.now()))
             )
-            .collect(Collectors.toList());
+            .toList();
         return ok(exams);
     }
 }

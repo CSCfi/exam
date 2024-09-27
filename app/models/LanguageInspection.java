@@ -15,12 +15,12 @@
 
 package models;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import models.base.OwnedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -97,9 +97,7 @@ public class LanguageInspection extends OwnedModel {
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof LanguageInspection)) return false;
-
-        LanguageInspection that = (LanguageInspection) o;
+        if (!(o instanceof LanguageInspection that)) return false;
 
         return new EqualsBuilder().append(id, that.id).isEquals();
     }

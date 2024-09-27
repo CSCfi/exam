@@ -1,22 +1,18 @@
-<div id="dashboard">
-    <!-- Enrolled exams list -->
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-enroll-dialog-wrap ms-4">
-                <h1 class="student-enroll-title">{{ 'sitnet_user_enrolled_exams_title' | translate }}</h1>
+<xm-page-header text="i18n_user_enrolled_exams_title" />
+<xm-page-content [content]="content"></xm-page-content>
+<ng-template #content>
+    @for (enrolment of userEnrolments | orderBy: 'startAtAggregate'; track enrolment) {
+        <div class="row mb-2">
+            <div class="col-12">
+                <xm-active-enrolment [enrolment]="enrolment" (removed)="enrolmentRemoved($event)"></xm-active-enrolment>
             </div>
         </div>
-    </div>
-
-    <div class="top-row">
-        <div class="col-md-12" *ngFor="let enrolment of userEnrolments | orderBy : 'startAtAggregate'">
-            <xm-active-enrolment [enrolment]="enrolment" (removed)="enrolmentRemoved($event)"></xm-active-enrolment>
+    } @empty {
+        <div class="row">
+            <div class="col-12" role="note">
+                <img src="/assets/images/icon_info.png" alt="" />&nbsp;
+                {{ 'i18n_no_enrolments' | translate }}
+            </div>
         </div>
-        <div *ngIf="userEnrolments?.length === 0" style="padding-left: 30px">
-            <span class="form-group" role="note">
-                <img class="nopad" src="/assets/images/icon_info.png" alt="" />&nbsp;
-                <span>{{ 'sitnet_no_enrolments' | translate }}</span>
-            </span>
-        </div>
-    </div>
-</div>
+    }
+</ng-template>

@@ -13,15 +13,41 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { CollaborativeParticipation } from '../../exam/collaborative/collaborative-exam.service';
-import { EnrolmentService } from '../enrolment.service';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { CollaborativeParticipation } from 'src/app/exam/collaborative/collaborative-exam.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({
     selector: 'xm-collaborative-exam-participations',
     templateUrl: './exam-participations.component.html',
+    standalone: true,
+    imports: [
+        FormsModule,
+        AutoFocusDirective,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        ExamParticipationComponent,
+        PaginatorComponent,
+        SlicePipe,
+        TranslateModule,
+        OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class CollaborativeParticipationsComponent implements OnInit, AfterViewInit {
     collaborative = true;
@@ -30,6 +56,7 @@ export class CollaborativeParticipationsComponent implements OnInit, AfterViewIn
     pageSize = 10;
     currentPage = 0;
     filter = { ordering: 'ended', reverse: true, text: '' };
+    searchDone = false;
 
     constructor(
         private changeDetector: ChangeDetectorRef,

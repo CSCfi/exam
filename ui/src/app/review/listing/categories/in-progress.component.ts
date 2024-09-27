@@ -12,21 +12,50 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe, NgClass, NgStyle, SlicePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgbCollapse, NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { noop } from 'rxjs';
-import type { Exam } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
-import { SessionService } from '../../../session/session.service';
-import { FileService } from '../../../shared/file/file.service';
-import type { Review } from '../../review.model';
-import { ArchiveDownloadComponent } from '../dialogs/archive-download.component';
-import type { ReviewListView } from '../review-list.service';
-import { ReviewListService } from '../review-list.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { ArchiveDownloadComponent } from 'src/app/review/listing/dialogs/archive-download.component';
+import type { ReviewListView } from 'src/app/review/listing/review-list.service';
+import { ReviewListService } from 'src/app/review/listing/review-list.service';
+import type { Review } from 'src/app/review/review.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
+import { FileService } from 'src/app/shared/file/file.service';
+import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-rl-in-progress',
     templateUrl: './in-progress.component.html',
+    standalone: true,
+    imports: [
+        NgbPopover,
+        FormsModule,
+        RouterLink,
+        TableSortComponent,
+        NgClass,
+        NgStyle,
+        PaginatorComponent,
+        LowerCasePipe,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+        PageFillPipe,
+        DiffInDaysPipe,
+        OrderByPipe,
+        NgbCollapse,
+    ],
 })
 export class InProgressReviewsComponent implements OnInit {
     @Input() exam!: Exam;
@@ -66,8 +95,8 @@ export class InProgressReviewsComponent implements OnInit {
                 backdrop: 'static',
                 keyboard: true,
             })
-            .result.then((params) =>
-                this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
+            .result.then((params: { $value: { start: string; end: string } }) =>
+                this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params.$value),
             )
             .catch(noop);
 }

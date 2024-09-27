@@ -12,43 +12,54 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { Component, Input, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import type { Exam } from '../../../exam/exam.model';
-import { AssessmentService } from '../../assessment/assessment.service';
+import { TranslateModule } from '@ngx-translate/core';
+import type { Exam } from 'src/app/exam/exam.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 
 @Component({
     selector: 'xm-speed-review-feedback',
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-details-title-wrap mart20">
-            <div class="student-enroll-title">{{ 'sitnet_give_feedback' | translate }}</div>
+    standalone: true,
+    imports: [FormsModule, TranslateModule, CKEditorComponent],
+    template: `
+        <div class="modal-header">
+            <div class="xm-modal-title">{{ 'i18n_give_feedback' | translate }}</div>
         </div>
-        <div class="modal-body marl20">
+        <div class="modal-body ms-2">
             <div class="row">
-                <div class="col-md-12 padl0" *ngIf="exam.examFeedback !== null">
-                    <xm-ckeditor
-                        rows="10"
-                        #ck="ngModel"
-                        [(ngModel)]="exam.examFeedback.comment"
-                        autofocus
-                    ></xm-ckeditor>
-                </div>
+                @if (exam.examFeedback !== null) {
+                    <div class="col-md-12 ps-0">
+                        <xm-ckeditor
+                            rows="10"
+                            #ck="ngModel"
+                            [(ngModel)]="exam.examFeedback.comment"
+                            autofocus
+                        ></xm-ckeditor>
+                    </div>
+                }
             </div>
         </div>
-        <div class="modal-footer d-flex justify-content-between">
-            <button class="btn btn btn-success float-start" (click)="ok()">
-                {{ 'sitnet_save' | translate }}
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn btn-success" (click)="ok()">
+                {{ 'i18n_save' | translate }}
             </button>
-            <button class="btn btn-primary float-end" (click)="cancel()">
-                {{ 'sitnet_button_cancel' | translate }}
+            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
-    </div> `,
+    `,
 })
 export class SpeedReviewFeedbackComponent implements OnInit {
     @Input() exam!: Exam;
 
-    constructor(private modal: NgbActiveModal, private Assessment: AssessmentService) {}
+    constructor(
+        private modal: NgbActiveModal,
+        private Assessment: AssessmentService,
+    ) {}
 
     ngOnInit() {
         if (!this.exam.examFeedback) {

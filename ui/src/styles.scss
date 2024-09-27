@@ -1,10 +1,214 @@
 /* You can add global styles to this file, and also import other style files */
-@import "./assets/styles/main";
-/* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
-/* Importing Ngx-Toastr SCSS file. */
 @import 'ngx-toastr/toastr';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+/* fonts */
+@font-face {
+    font-family: Arimo;
+    font-style: normal;
+    font-weight: 400;
+    src:
+        url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff2') format('woff2'),
+        url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff') format('woff');
+}
+* {
+    font-family: Arimo, Helvetica-Neue, Helvetica;
+}
+/* fullcalendar overrides, need to be defined here because of view encapsulation */
+.fc .fc-col-header-cell-cushion {
+    color: black;
+    text-decoration: none;
+}
+.fc-timegrid-event-harness-inset .fc-timegrid-event {
+    cursor: pointer;
+}
+/* cloze test styles, need to be defined here because of view encapsulation */
+@mixin xm-cloze-test($bc, $bgc) {
+    margin-right: 3px;
+    padding-right: 3px;
+    border-radius: 3px;
+    min-width: 30px;
+    display: inline-block;
+    box-shadow: 4px 4px 9px 0px rgba(0, 0, 0, 0.75);
+    border: 1px solid $bc;
+    background: $bgc;
+}
+.cloze-correct {
+    @include xm-cloze-test(green, #ccffcc);
+}
+.cloze-incorrect {
+    @include xm-cloze-test(red, #feeeef);
+}
+.cloze-neutral {
+    @include xm-cloze-test(gray, white);
+}
+/* overrides for bootstrap nav tab titles */
+.nav-tabs {
+    .nav-link.active {
+        font-weight: bold;
+    }
+    a {
+        color: #555555;
+    }
+}
+/* bootstrap dropdown toggle without caret */
+.xm-no-caret {
+    .dropdown-toggle::after {
+        display: none;
+    }
+}
+/* extra extra large bootstrap modal */
+.xm-xxl-modal .modal-dialog {
+    min-width: 80vw;
+}
+/* form validation overrides */
+form .ng-invalid {
+    border: 1px solid red;
+}
+form .exclude {
+    border: 0 !important;
+}
+/* dropdown menu that scrolls */
+.xm-scrollable-menu {
+    height: auto;
+    max-height: 400px;
+    overflow-y: scroll;
+}
+/* to highlight ck-editor (cloze test) content marked with this class */
+.marker {
+    background-color: yellow;
+}
+/* modal title */
+.xm-modal-title {
+    font-size: 1.5rem;
+}
+/* paragraph title */
+.xm-paragraph-title {
+    font-size: 1.5rem;
+    color: #2c2c2c;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid #b1b1b1;
+}
+/* basically the list item box that's green, grey or red on the left side */
+.xm-study-item-container {
+    border-radius: 4px;
+    border: 2px solid #ededed;
+    border-left: #238635 4px solid;
+    @media (max-width: 920px) {
+        padding: 5px;
+        margin-bottom: 5px;
+    }
+    padding: 30px;
+}
+.xm-study-item-container--warning {
+    @extend .xm-study-item-container;
+    border-left: red 4px solid;
+}
+.xm-study-item-container--inactive {
+    @extend .xm-study-item-container;
+    border-left: #b1b1b1 4px solid;
+}
+.xm-study-item-container--unseen {
+    @extend .xm-study-item-container;
+    border-color: #238635;
+}
+/* standard buttons that change colors on focus */
+@mixin xm-button($bgc1, $border, $color1, $bgc2, $color2: white) {
+    border: 1px solid $border;
+    background-color: $bgc1;
+    color: $color1;
+    padding: 10px 20px;
+    line-height: 1.5;
+    border-radius: 3px;
+    text-decoration: none;
+    &:disabled {
+        opacity: 0.3;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+    &:active,
+    &:hover {
+        background-color: $bgc2;
+        color: $color2;
+    }
+}
 
+/* Standard bordered box */
+.xm-bordered-area {
+    border: 1px solid #c3c3c3;
+    border-radius: 4px;
+}
+/* Generic table styling */
+.xm-data-table {
+    font-size: 14px;
+    th {
+        border: 0;
+        font-weight: bold;
+        text-transform: uppercase;
+        white-space: nowrap;
 
-
+        &.with-space {
+            white-space: normal;
+        }
+        &.with-top {
+            vertical-align: top;
+        }
+    }
+    td > a {
+        color: #267b99;
+        font-weight: bold;
+    }
+}
+/* commonly used link styling, let's see if it's needed for long */
+.xm-link {
+    color: #266b99;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+/* numeric input */
+.xm-numeric-input {
+    max-width: 7em;
+}
+/* dumb utilities */
+.pointer {
+    cursor: pointer;
+}
+.make-inline {
+    display: inline-block !important;
+}
+.border-none {
+    border: none !important;
+}
+.background-none {
+    background: none;
+}
+/* Accessibility */
+.skip {
+  left: -9999px;
+  display: flex;
+  position: absolute;
+  top: auto;
+  z-index: -999;
+  margin: 5px;
+  white-space: nowrap;
+  background-color: black;
+  border: #e7e7e7;
+  color: white;
+}
+.skip:focus,
+.skip:active {
+        left: auto;
+        z-index: 999;
+}
+.important-clear-focus:focus, .btn:focus{
+    box-shadow:
+        0px 0px 0px 1.5px rgb(255, 255, 255),
+        0px 0px 0px 4px rgb(68, 120, 247) !important;
+    -webkit-box-shadow:
+        0px 0px 0px 1.5px rgb(255, 255, 255),
+        0px 0px 0px 4px rgb(68, 120, 247) !important;
+    -moz-box-shadow:
+        0px 0px 0px 1.5px rgb(255, 255, 255),
+        0px 0px 0px 4px rgb(68, 120, 247) !important;
+}

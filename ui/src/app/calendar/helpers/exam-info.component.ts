@@ -1,52 +1,63 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { DatePipe } from '@angular/common';
+import { Component, Input, OnInit, computed, signal } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { DateTimeService } from '../../shared/date/date.service';
-import type { ExamInfo } from '../calendar.service';
+import type { ExamInfo } from 'src/app/calendar/calendar.service';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
     selector: 'xm-calendar-exam-info',
     template: `
-        <div class="row student-enrolment-wrapper details-view">
+        <div class="row xm-study-item-container m-2 details-view">
             <div class="col-md-12">
-                <div class="row">
-                    <span class="col-md-12">
-                        <h2 class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</h2>
-                        <span class="calendar-phase-icon float-end">
-                            <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
-                        </span>
-                    </span>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="calendar-phase-title">1. {{ 'i18n_calendar_phase_1' | translate }}</h2>
+                    </div>
+                    <div class="col-md-4">
+                        <img
+                            class="calendar-phase-icon float-end arrow_icon"
+                            src="/assets/images/icon-phase.png"
+                            alt=""
+                        />
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
                         <div class="calendar-titles">
                             <span class="calendar-course-title">{{ examInfo.name }}</span>
-                            <span *ngIf="examInfo.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
+                            @if (examInfo.anonymous) {
+                                <span>({{ 'i18n_anonymous_review' | translate }})</span>
+                            }
                         </div>
                     </div>
                 </div>
-                <div class="row mart10">
+                <div class="row mt-2">
                     <div class="col-md-12">
                         <div class="row">
-                            <div class="col-6 col-sm-6 col-md-4 col-lg-4">{{ 'sitnet_course_name' | translate }}:</div>
+                            <div class="col-6 col-sm-6 col-md-4 col-lg-4">{{ 'i18n_course_name' | translate }}:</div>
                             <div class="col-6 col-sm-6 col-md-4 col-lg-4">
-                                <div *ngIf="!collaborative">
-                                    <xm-course-code [course]="examInfo.course"></xm-course-code>
-                                    {{ examInfo.course.name }}
-                                </div>
+                                @if (!collaborative) {
+                                    <div>
+                                        <xm-course-code [course]="examInfo.course"></xm-course-code>
+                                        {{ examInfo.course.name }}
+                                    </div>
+                                }
                             </div>
                             <div class="clearfix visible-xs"></div>
                             <div class="clearfix visible-sm"></div>
                             <div class=" mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
-                                {{ 'sitnet_exam_validity' | translate }}:
+                                {{ 'i18n_exam_validity' | translate }}:
                             </div>
                             <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
-                                {{ examInfo.examActiveStartDate | date : 'dd.MM.yyyy' }} -
-                                {{ examInfo.examActiveEndDate | date : 'dd.MM.yyyy' }}
+                                {{ examInfo.periodStart | date: 'dd.MM.yyyy' }} -
+                                {{ examInfo.periodEnd | date: 'dd.MM.yyyy' }}
                             </div>
                             <div class="clearfix visible-md"></div>
-                            <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-6">
-                                {{ 'sitnet_exam_duration' | translate }}:
+                            <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
+                                {{ 'i18n_exam_duration' | translate }}:
                             </div>
                             <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
                                 {{ printExamDuration(examInfo) }}
@@ -54,51 +65,59 @@ import type { ExamInfo } from '../calendar.service';
                         </div>
                     </div>
                 </div>
-                <div class="row mart10">
+                <div class="row mt-2">
                     <div class="col-md-12">
-                        <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
-                            {{ 'sitnet_calendar_instructions' | translate }}:
+                        <span class="" [hidden]="examInfo.executionType?.type === 'MATURITY'">
+                            {{ 'i18n_calendar_instructions' | translate }}:
                             <span [xmMathJax]="examInfo.enrollInstruction"></span>
                         </span>
                     </div>
                 </div>
-                <div class="row mart10">
+                <div class="row mt-2">
                     <div class="col-md-12">
-                        <span *ngIf="showReservationWindowInfo()" class="infolink" role="note">
-                            <img class="arrow_icon padr10" src="/assets/images/icon_info.png" alt="" />
-                            {{ getReservationWindowDescription() }}
-                        </span>
+                        @if (showReservationWindowDescription()) {
+                            <span class="xm-info-link" role="note">
+                                <img class="arrow_icon pe-1" src="/assets/images/icon_info.png" alt="" />
+                                {{ reservationWindowDescription() }}
+                            </span>
+                        }
                     </div>
                 </div>
             </div>
         </div>
     `,
+    styleUrls: ['../calendar.component.scss'],
+    standalone: true,
+    imports: [CourseCodeComponent, MathJaxDirective, DatePipe, TranslateModule],
 })
 export class CalendarExamInfoComponent implements OnInit {
     @Input() examInfo!: ExamInfo;
     @Input() reservationWindowSize = 0;
     @Input() collaborative = false;
 
-    reservationWindowEndDate = new Date();
+    reservationWindowEndDate = signal(new Date());
+    reservationWindowDescription = computed(() => {
+        const text = this.translate
+            .instant('i18n_description_reservation_window')
+            .replace('{}', this.reservationWindowSize.toString());
+        return `${text} (${DateTime.fromJSDate(this.reservationWindowEndDate()).toFormat('dd.MM.yyyy')})`;
+    });
+    showReservationWindowDescription = computed(
+        () =>
+            !!this.reservationWindowEndDate &&
+            DateTime.fromISO(this.examInfo.periodEnd as string).toJSDate() > this.reservationWindowEndDate(),
+    );
 
-    constructor(private translate: TranslateService, private DateTimeService: DateTimeService) {}
+    constructor(
+        private translate: TranslateService,
+        private DateTimeService: DateTimeService,
+    ) {}
 
     ngOnInit() {
-        this.reservationWindowEndDate = DateTime.fromJSDate(this.reservationWindowEndDate)
-            .plus({ day: this.reservationWindowSize })
-            .toJSDate();
+        this.reservationWindowEndDate.set(
+            DateTime.fromJSDate(this.reservationWindowEndDate()).plus({ day: this.reservationWindowSize }).toJSDate(),
+        );
     }
 
     printExamDuration = (exam: { duration: number }) => this.DateTimeService.printExamDuration(exam);
-
-    getReservationWindowDescription(): string {
-        const text = this.translate
-            .instant('sitnet_description_reservation_window')
-            .replace('{}', this.reservationWindowSize.toString());
-        return `${text} (${DateTime.fromJSDate(this.reservationWindowEndDate).toFormat('dd.MM.yyyy')})`;
-    }
-
-    showReservationWindowInfo = (): boolean =>
-        !!this.reservationWindowEndDate &&
-        DateTime.fromISO(this.examInfo.examActiveEndDate as string).toJSDate() > this.reservationWindowEndDate;
 }

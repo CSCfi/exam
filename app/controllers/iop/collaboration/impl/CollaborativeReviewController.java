@@ -15,18 +15,18 @@
 
 package controllers.iop.collaboration.impl;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.vavr.control.Either;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
@@ -45,10 +45,12 @@ import models.User;
 import models.json.CollaborativeExam;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import org.springframework.util.StringUtils;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.ObjectUtils;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.Json;
@@ -91,7 +93,7 @@ public class CollaborativeReviewController extends CollaborationController {
     @Inject
     ConfigReader configReader;
 
-    private static final Logger.ALogger logger = Logger.of(CollaborativeReviewController.class);
+    private final Logger logger = LoggerFactory.getLogger(CollaborativeReviewController.class);
 
     private Optional<URL> parseUrl(String examRef, String assessmentRef) {
         String url = String.format("%s/api/exams/%s/assessments", configReader.getIopHost(), examRef);
@@ -99,9 +101,9 @@ public class CollaborativeReviewController extends CollaborationController {
             url += String.format("/%s", assessmentRef);
         }
         try {
-            return Optional.of(new URL(url));
+            return Optional.of(URI.create(url).toURL());
         } catch (MalformedURLException e) {
-            logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL", e);
             return Optional.empty();
         }
     }
@@ -121,7 +123,7 @@ public class CollaborativeReviewController extends CollaborationController {
                 esq.get("question").get("type").textValue().equals(Question.Type.ClozeTestQuestion.toString())
             )
             .forEach(esq -> {
-                if (!esq.get("clozeTestAnswer").isObject() || esq.get("clozeTestAnswer").size() == 0) {
+                if (!esq.get("clozeTestAnswer").isObject() || esq.get("clozeTestAnswer").isEmpty()) {
                     ((ObjectNode) esq).set("clozeTestAnswer", Json.newObject());
                 }
                 ClozeTestAnswer cta = JsonDeserializer.deserialize(ClozeTestAnswer.class, esq.get("clozeTestAnswer"));
@@ -158,7 +160,7 @@ public class CollaborativeReviewController extends CollaborationController {
             .findAny()
             .ifPresent(esq -> {
                 JsonNode essayAnswer = esq.get("essayAnswer");
-                if (essayAnswer.isObject() && essayAnswer.size() > 0) {
+                if (essayAnswer.isObject() && !essayAnswer.isEmpty()) {
                     ((ObjectNode) essayAnswer).put("evaluatedScore", score);
                 } else {
                     ((ObjectNode) essayAnswer).set("essayAnswer", Json.newObject().put("evaluatedScore", score));
@@ -212,7 +214,7 @@ public class CollaborativeReviewController extends CollaborationController {
                             return notFound("Assessment not found!");
                         }
                         final String eppn = assessment.get().path("user").path("eppn").textValue();
-                        if (StringUtils.isEmpty(eppn)) {
+                        if (ObjectUtils.isEmpty(eppn)) {
                             return notFound("Eppn not found!");
                         }
                         // Filter for user eppn and left out assessment that we currently are looking.
@@ -274,7 +276,7 @@ public class CollaborativeReviewController extends CollaborationController {
                                 try {
                                     file = csvBuilder.build(root);
                                 } catch (IOException e) {
-                                    return internalServerError("sitnet_error_creating_csv_file");
+                                    return internalServerError("i18n_error_creating_csv_file");
                                 }
                                 String contentDisposition = fileHandler.getContentDisposition(file);
                                 return ok(fileHandler.encodeAndDelete(file))
@@ -405,9 +407,9 @@ public class CollaborativeReviewController extends CollaborationController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> forceUpdateAnswerScore(Long id, String ref, Long qid, Http.Request request) {
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        CollaborativeExam ce = DB.find(CollaborativeExam.class, id);
         if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
         if (url.isEmpty()) {
@@ -441,6 +443,7 @@ public class CollaborativeReviewController extends CollaborationController {
                 }
                 JsonNode body = request.body().asJson();
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                cleanUser(user);
                 WSRequest wsRequest = wsClient.url(url.get().toString());
                 Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
                     JsonNode root = response.asJson();
@@ -463,7 +466,7 @@ public class CollaborativeReviewController extends CollaborationController {
                         return wrapAsPromise(forbidden("Not allowed to update grading of this exam"));
                     }
                     JsonNode grade = body.get("grade");
-                    if (grade != null && grade.isObject() && grade.size() > 0) {
+                    if (grade != null && grade.isObject() && !grade.isEmpty()) {
                         boolean validGrade = exam
                             .getGradeScale()
                             .getGrades()
@@ -472,6 +475,7 @@ public class CollaborativeReviewController extends CollaborationController {
                             .anyMatch(i -> i == grade.get("id").asInt());
                         if (validGrade) {
                             ((ObjectNode) examNode).set("grade", grade);
+                            ((ObjectNode) examNode).put("gradeless", false);
                         } else {
                             return wrapAsPromise(badRequest("Invalid grade for this grade scale"));
                         }
@@ -629,7 +633,7 @@ public class CollaborativeReviewController extends CollaborationController {
             exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
             exam.getExamRecord() != null
         ) {
-            return Optional.of(wrapAsPromise(forbidden("sitnet_error_exam_already_graded_logged")));
+            return Optional.of(wrapAsPromise(forbidden("i18n_error_exam_already_graded_logged")));
         }
         return Optional.empty();
     }
@@ -638,6 +642,7 @@ public class CollaborativeReviewController extends CollaborationController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> finalizeAssessment(Long id, String ref, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        cleanUser(user);
         JsonNode body = request.body().asJson();
         return findCollaborativeExam(id)
             .map(ce ->

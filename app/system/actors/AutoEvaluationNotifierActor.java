@@ -15,21 +15,22 @@
 
 package system.actors;
 
-import akka.actor.AbstractActor;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.AutoEvaluationConfig;
 import models.Exam;
 import models.User;
+import org.apache.pekko.actor.AbstractActor;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.datetime.DateTimeHandler;
 
 public class AutoEvaluationNotifierActor extends AbstractActor {
 
-    private static final Logger.ALogger logger = Logger.of(AutoEvaluationNotifierActor.class);
+    private final Logger logger = LoggerFactory.getLogger(AutoEvaluationNotifierActor.class);
 
     private final EmailComposer composer;
     private final DateTimeHandler dateTimeHandler;
@@ -47,7 +48,7 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Auto evaluation notification check started ->");
-                    Ebean
+                    DB
                         .find(Exam.class)
                         .fetch("autoEvaluationConfig")
                         .where()
@@ -73,27 +74,18 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
     }
 
     private boolean isPastReleaseDate(Exam exam) {
-        Optional<DateTime> releaseDate;
         AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
-        switch (config.getReleaseType()) {
-            // Put some delay in these dates to avoid sending stuff in the middle of the night
-            case GIVEN_DATE:
-                releaseDate = Optional.of(adjustReleaseDate(new DateTime(config.getReleaseDate())));
-                break;
-            case GIVEN_AMOUNT_DAYS:
-                releaseDate =
-                    Optional.of(adjustReleaseDate(new DateTime(exam.getGradedTime()).plusDays(config.getAmountDays())));
-                break;
-            case AFTER_EXAM_PERIOD:
-                releaseDate = Optional.of(adjustReleaseDate(new DateTime(exam.getExamActiveEndDate()).plusDays(1)));
-                break;
-            // Not handled at least by this actor
-            case IMMEDIATE:
-            case NEVER:
-            default:
-                releaseDate = Optional.empty();
-                break;
-        }
+        Optional<DateTime> releaseDate =
+            switch (config.getReleaseType()) {
+                // Put some delay in these dates to avoid sending stuff in the middle of the night
+                case GIVEN_DATE -> Optional.of(adjustReleaseDate(new DateTime(config.getReleaseDate())));
+                case GIVEN_AMOUNT_DAYS -> Optional.of(
+                    adjustReleaseDate(new DateTime(exam.getGradedTime()).plusDays(config.getAmountDays()))
+                );
+                case AFTER_EXAM_PERIOD -> Optional.of(adjustReleaseDate(new DateTime(exam.getPeriodEnd()).plusDays(1)));
+                // Not handled at least by this actor
+                default -> Optional.empty();
+            };
         return releaseDate.isPresent() && releaseDate.get().isBeforeNow();
     }
 

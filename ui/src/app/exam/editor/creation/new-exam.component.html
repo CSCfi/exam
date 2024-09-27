@@ -1,37 +1,20 @@
-<div id="dashboard">
-    <div class="top-row">
+<xm-page-header text="i18n_toolbar_new_exam" [history]="true" />
+<xm-page-content [content]="content" />
+<ng-template #content>
+    <div class="row me-3">
         <div class="col-md-12">
-            <xm-history-back></xm-history-back>
-            <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_toolbar_new_exam' | translate }}</div>
-            </div>
-        </div>
-    </div>
-    <div class="row marr50">
-        <div class="col-md-12 marl50 marr50 exam-new-border">
             <div class="row">
-                <div class="col-md-12">
-                    <div class="margin-20 marl30 marr30 marb20">
-                        <div class="review-list-title">{{ 'sitnet_exam_title' | translate }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="row margin-20 padl40 padr40">
                 <div class="col-md-3">
                     <form>
                         <div class="mb-3">
                             <label class="form-label" for="execType">
-                                {{ 'sitnet_new_exam_type' | translate }}
+                                {{ 'i18n_new_exam_type' | translate }}
                                 <sup
                                     triggers="mouseenter:mouseleave"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                    ngbPopover="{{ 'sitnet_new_exam_type_description' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                    ngbPopover="{{ 'i18n_new_exam_type_description' | translate }}"
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
+                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </label>
                             <select
@@ -42,62 +25,61 @@
                                 (change)="selectType()"
                                 required
                             >
-                                <option [ngValue]="undefined">{{ 'sitnet_choose' | translate }}</option>
-                                <option *ngFor="let type of executionTypes" [ngValue]="type">
-                                    {{ type.name | translate }}
-                                </option>
+                                <option [ngValue]="undefined">{{ 'i18n_choose' | translate }}</option>
+                                @for (type of executionTypes; track type) {
+                                    <option [ngValue]="type">
+                                        {{ type.name | translate }}
+                                    </option>
+                                }
                             </select>
                         </div>
-                        <div
-                            class="mb-3"
-                            *ngIf="
-                                (homeExaminationSupported || sebExaminationSupported) &&
-                                type &&
-                                type?.type !== 'PRINTOUT'
-                            "
-                        >
-                            <label class="form-label" for="examinationType"
-                                >{{ 'sitnet_examination_type' | translate }}
-                                <sup
-                                    triggers="mouseenter:mouseleave"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                    ngbPopover="{{ 'sitnet_examination_type_description' | translate }}"
+                        @if (
+                            (homeExaminationSupported || sebExaminationSupported) && type && type?.type !== 'PRINTOUT'
+                        ) {
+                            <div class="mb-3">
+                                <label class="form-label" for="examinationType"
+                                    >{{ 'i18n_examination_type' | translate }}
+                                    <sup
+                                        triggers="mouseenter:mouseleave"
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                        ngbPopover="{{ 'i18n_examination_type_description' | translate }}"
+                                    >
+                                        <img src="/assets/images/icon_tooltip.svg" alt="" />
+                                    </sup>
+                                </label>
+                                <select
+                                    class="form-select"
+                                    name="examinationType"
+                                    id="examinationType"
+                                    [(ngModel)]="examinationType"
+                                    required
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
-                                </sup>
-                            </label>
-                            <select
-                                class="form-select"
-                                name="examinationType"
-                                id="examinationType"
-                                [(ngModel)]="examinationType"
-                                required
-                            >
-                                <option value="AQUARIUM">{{ 'sitnet_examination_type_aquarium' | translate }}</option>
-                                <option *ngIf="sebExaminationSupported" value="CLIENT_AUTH">
-                                    {{ 'sitnet_examination_type_seb' | translate }}
-                                </option>
-                                <option *ngIf="homeExaminationSupported" value="WHATEVER">
-                                    {{ 'sitnet_examination_type_home_exam' | translate }}
-                                </option>
-                            </select>
-                        </div>
+                                    <option value="AQUARIUM">{{ 'i18n_examination_type_aquarium' | translate }}</option>
+                                    @if (sebExaminationSupported) {
+                                        <option [disabled]="!canCreateByodExams" value="CLIENT_AUTH">
+                                            {{ 'i18n_examination_type_seb' | translate }}
+                                        </option>
+                                    }
+                                    @if (homeExaminationSupported) {
+                                        <option [disabled]="!canCreateByodExams" value="WHATEVER">
+                                            {{ 'i18n_examination_type_home_exam' | translate }}
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        }
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12" *ngIf="homeExaminationSupported || sebExaminationSupported">
-            <div class="marl50 mart40">
+    <div class="row mt-3">
+        @if (homeExaminationSupported || sebExaminationSupported) {
+            <div class="col-md-12">
                 <button class="btn btn-success" (click)="createExam()" [disabled]="!type">
-                    {{ 'sitnet_create_new' | translate }}
+                    {{ 'i18n_create_new' | translate }}
                 </button>
             </div>
-        </div>
+        }
     </div>
-</div>
+</ng-template>

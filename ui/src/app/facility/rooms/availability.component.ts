@@ -12,14 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import type { OpeningHours } from '../../calendar/calendar.service';
-import { CalendarService } from '../../calendar/calendar.service';
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { BookingCalendarComponent } from 'src/app/calendar/booking-calendar.component';
+import type { OpeningHours } from 'src/app/calendar/calendar.service';
+import { CalendarService } from 'src/app/calendar/calendar.service';
+import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import type { Availability } from './room.service';
 import { RoomService } from './room.service';
 
@@ -33,6 +37,8 @@ import { RoomService } from './room.service';
             }
         `,
     ],
+    standalone: true,
+    imports: [NgClass, BookingCalendarComponent, TranslateModule, NgbPopover],
 })
 export class AvailabilityComponent implements OnInit {
     @Input() room!: ExamRoom;
@@ -41,7 +47,11 @@ export class AvailabilityComponent implements OnInit {
     newExceptions: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
     oldExceptionsHidden = true;
 
-    constructor(private toast: ToastrService, private roomService: RoomService, private calendar: CalendarService) {}
+    constructor(
+        private toast: ToastrService,
+        private roomService: RoomService,
+        private calendar: CalendarService,
+    ) {}
 
     ngOnInit() {
         if (!this.room) {

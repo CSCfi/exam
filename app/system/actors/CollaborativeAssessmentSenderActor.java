@@ -15,20 +15,21 @@
 
 package system.actors;
 
-import akka.actor.AbstractActor;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.List;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamParticipation;
-import play.Logger;
+import org.apache.pekko.actor.AbstractActor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CollaborativeAssessmentSenderActor extends AbstractActor {
 
-    private static final Logger.ALogger logger = Logger.of(CollaborativeAssessmentSenderActor.class);
+    private final Logger logger = LoggerFactory.getLogger(CollaborativeAssessmentSenderActor.class);
 
     private final CollaborativeExamLoader collaborativeExamLoader;
 
@@ -44,7 +45,7 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Starting collaborative assessment sending check ->");
-                    Query<ExamParticipation> query = Ebean.find(ExamParticipation.class);
+                    Query<ExamParticipation> query = DB.find(ExamParticipation.class);
                     PathProperties pp = collaborativeExamLoader.getAssessmentPath();
                     pp.apply(query);
                     List<ExamParticipation> enrolments = query

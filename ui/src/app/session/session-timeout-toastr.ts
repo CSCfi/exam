@@ -9,6 +9,7 @@ import { Toast, ToastPackage, ToastrService } from 'ngx-toastr';
         <b>{{ title }}.</b>
         {{ message }}
     `,
+    standalone: true,
 })
 export class SessionExpireWarningComponent extends Toast {
     // constructor is only necessary when not using AoT
@@ -32,7 +33,7 @@ export class SessionExpireWarningComponent extends Toast {
         this.toastrService.clear();
         this.http.put<void>('/app/session', {}).subscribe({
             next: () => {
-                this.toastrService.info(this.i18n.instant('sitnet_session_extended'), '', {
+                this.toastrService.info(this.i18n.instant('i18n_session_extended'), '', {
                     timeOut: 2000,
                 });
             },

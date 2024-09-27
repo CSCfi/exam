@@ -12,21 +12,44 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import type { Exam, ExamParticipation, ExamSectionQuestion } from 'src/app/exam/exam.model';
+import type { ExaminationQuestion } from 'src/app/examination/examination.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import type { ReviewQuestion } from 'src/app/review/review.model';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
-import type { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
-import type { ExaminationQuestion } from '../../../examination/examination.model';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import type { ReviewQuestion } from '../../review.model';
-import { AssessmentService } from '../assessment.service';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-r-essay-question',
     templateUrl: './essay-question.component.html',
+    styleUrls: ['../assessment.shared.scss', './essay-question.component.scss'],
+    standalone: true,
+    imports: [
+        MathJaxDirective,
+        NgbCollapse,
+        FormsModule,
+        FixedPrecisionValidatorDirective,
+        UpperCasePipe,
+        TranslateModule,
+    ],
+    styles: [
+        `
+            .warning-no-hover {
+                background-color: white;
+                border: #e3162e 1px solid;
+                color: #e3162e;
+            }
+        `,
+    ],
 })
 export class EssayQuestionComponent implements OnInit {
     @Input() participation!: ExamParticipation;
@@ -101,12 +124,12 @@ export class EssayQuestionComponent implements OnInit {
                 this.ref,
                 this.participation._rev as string,
             ).subscribe((resp) => {
-                this.toast.info(this.translate.instant('sitnet_graded'));
+                this.toast.info(this.translate.instant('i18n_graded'));
                 this.scored.emit(resp.rev);
             });
         } else {
             return this.Assessment.saveEssayScore$(this.sectionQuestion as ExaminationQuestion).subscribe(() => {
-                this.toast.info(this.translate.instant('sitnet_graded')), this.scored.emit();
+                this.toast.info(this.translate.instant('i18n_graded')), this.scored.emit();
             });
         }
     };

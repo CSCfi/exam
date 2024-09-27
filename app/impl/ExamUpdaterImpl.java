@@ -3,8 +3,7 @@ package impl;
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.forbidden;
 
-import akka.actor.ActorSystem;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -32,8 +31,10 @@ import models.User;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
 import models.sections.ExamSection;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
@@ -51,7 +52,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
     @Inject
     private ConfigReader configReader;
 
-    private static final Logger.ALogger logger = Logger.of(ExamUpdaterImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(ExamUpdaterImpl.class);
 
     @Override
     public Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request) {
@@ -64,27 +65,37 @@ public class ExamUpdaterImpl implements ExamUpdater {
             exam.setDuration(newDuration.orElse(null));
             return Optional.empty();
         }
+        if (exam.isUnsupervised() && newEnd.isPresent()) {
+            Set<DateTime> dates = exam
+                .getExaminationEventConfigurations()
+                .stream()
+                .map(c -> c.getExaminationEvent().getStart())
+                .collect(Collectors.toSet());
+            if (dates.stream().anyMatch(d -> d.isAfter(newEnd.get()))) {
+                return Optional.of(forbidden("i18n_error_future_reservations_exist"));
+            }
+        }
         boolean hasFutureReservations = hasFutureReservations(exam);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         if (newStart.isPresent()) {
             if (isAdmin || !hasFutureReservations || isNonRestrictingValidityChange(newStart.get(), exam, true)) {
-                exam.setExamActiveStartDate(newStart.get());
+                exam.setPeriodStart(newStart.get());
             } else {
-                return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
+                return Optional.of(forbidden("i18n_error_future_reservations_exist"));
             }
         }
         if (newEnd.isPresent()) {
             if (isAdmin || !hasFutureReservations || isNonRestrictingValidityChange(newEnd.get(), exam, false)) {
-                exam.setExamActiveEndDate(newEnd.get());
+                exam.setPeriodEnd(newEnd.get());
             } else {
-                return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
+                return Optional.of(forbidden("i18n_error_future_reservations_exist"));
             }
         }
         if (newDuration.isPresent()) {
             if (Objects.equals(newDuration.get(), exam.getDuration()) || !hasFutureReservations || isAdmin) {
                 exam.setDuration(newDuration.get());
             } else {
-                return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
+                return Optional.of(forbidden("i18n_error_future_reservations_exist"));
             }
         }
         return Optional.empty();
@@ -114,7 +125,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                 }
                 // no sections named
                 if (exam.getExamSections().stream().anyMatch(section -> section.getName() == null)) {
-                    return Optional.of(badRequest("sitnet_exam_contains_unnamed_sections"));
+                    return Optional.of(badRequest("i18n_exam_contains_unnamed_sections"));
                 }
                 if (exam.getExamLanguages().isEmpty()) {
                     return Optional.of(badRequest("no exam languages specified"));
@@ -136,7 +147,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                 if (exam.isPrivate() && exam.getState() != Exam.State.PUBLISHED) {
                     // No participants added, this is not good.
                     if (exam.getExamEnrolments().isEmpty()) {
-                        return Optional.of(badRequest("sitnet_no_participants"));
+                        return Optional.of(badRequest("i18n_no_participants"));
                     }
                     notifyParticipantsAboutPrivateExamPublication(exam, user);
                 }
@@ -160,7 +171,6 @@ public class ExamUpdaterImpl implements ExamUpdater {
         Optional<String> examType = request.attrs().getOptional(Attrs.TYPE);
         Optional<String> organisations = request.attrs().getOptional(Attrs.ORGANISATIONS);
         Integer trialCount = request.attrs().getOptional(Attrs.TRIAL_COUNT).orElse(null);
-        Boolean expanded = request.attrs().getOptional(Attrs.EXPANDED).orElse(false);
         Boolean requiresLanguageInspection = request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).orElse(null);
         String internalRef = request.attrs().getOptional(Attrs.REFERENCE).orElse(null);
         Boolean anonymous = request.attrs().getOptional(Attrs.ANONYMOUS).orElse(false);
@@ -187,14 +197,13 @@ public class ExamUpdaterImpl implements ExamUpdater {
             }
         }
         examType.ifPresent(type -> {
-            ExamType eType = Ebean.find(ExamType.class).where().eq("type", type).findOne();
+            ExamType eType = DB.find(ExamType.class).where().eq("type", type).findOne();
 
             if (eType != null) {
                 exam.setExamType(eType);
             }
         });
         exam.setTrialCount(trialCount);
-        exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
         if (impl == Exam.Implementation.WHATEVER && configReader.isHomeExaminationSupported()) {
@@ -297,9 +306,9 @@ public class ExamUpdaterImpl implements ExamUpdater {
     @Override
     public Optional<Result> updateLanguage(Exam exam, String code, User user) {
         if (!isPermittedToUpdate(exam, user)) {
-            return Optional.of(forbidden("sitnet_error_access_forbidden"));
+            return Optional.of(forbidden("i18n_error_access_forbidden"));
         }
-        Language language = Ebean.find(Language.class, code);
+        Language language = DB.find(Language.class, code);
         if (exam.getExamLanguages().contains(language)) {
             exam.getExamLanguages().remove(language);
         } else {
@@ -335,7 +344,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         GradeScale gs = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
         // Handle proposed entries, persist new ones where necessary
         for (GradeEvaluation src : newConfig.getGradeEvaluations()) {
-            Grade grade = Ebean.find(Grade.class, src.getGrade().getId());
+            Grade grade = DB.find(Grade.class, src.getGrade().getId());
             if (grade != null && gs.getGrades().contains(grade)) {
                 GradeEvaluation ge = gradeMap.get(grade.getId());
                 if (ge == null) {
@@ -386,20 +395,20 @@ public class ExamUpdaterImpl implements ExamUpdater {
             Optional<DateTime> start = request.attrs().getOptional(Attrs.START_DATE);
             Optional<DateTime> end = request.attrs().getOptional(Attrs.END_DATE);
             if (start.isEmpty()) {
-                reason = "sitnet_error_start_date";
+                reason = "i18n_error_start_date";
             } else if (end.isEmpty()) {
-                reason = "sitnet_error_end_date";
+                reason = "i18n_error_end_date";
             } else if (start.get().isAfter(end.get())) {
-                reason = "sitnet_error_end_sooner_than_start";
+                reason = "i18n_error_end_sooner_than_start";
             }/*else if (end.get().isBeforeNow()) { // CSCEXAM-1127
-                reason = "sitnet_error_end_sooner_than_now";
+                reason = "i18n_error_end_sooner_than_now";
             }*/
         }
         return reason == null ? Optional.empty() : Optional.of(badRequest(reason));
     }
 
     private boolean isNonRestrictingValidityChange(DateTime newDate, Exam exam, boolean isStartDate) {
-        DateTime oldDate = isStartDate ? exam.getExamActiveStartDate() : exam.getExamActiveEndDate();
+        DateTime oldDate = isStartDate ? exam.getPeriodStart() : exam.getPeriodEnd();
         return isStartDate ? !oldDate.isBefore(newDate) : !newDate.isBefore(oldDate);
     }
 
@@ -407,7 +416,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
         boolean canOverrideGrading = configReader.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse() == null || exam.getCourse().getGradeScale() == null) {
-            GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
+            GradeScale scale = DB.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
             if (scale != null) {
                 exam.setGradeScale(scale);
             } else {

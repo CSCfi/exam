@@ -12,24 +12,30 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
-import { EnrolmentService } from '../../enrolment/enrolment.service';
-import type { ExamRoom } from '../../reservation/reservation.model';
-import { SessionService } from '../../session/session.service';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import type { Examination, ExaminationSection } from '../examination.model';
-import { ExaminationService } from '../examination.service';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
+import type { ExamRoom } from 'src/app/reservation/reservation.model';
+import { SessionService } from 'src/app/session/session.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-examination-toolbar',
     templateUrl: './examination-toolbar.component.html',
+    styleUrls: ['../examination.shared.scss', './examination-toolbar.component.scss'],
+    standalone: true,
+    imports: [NgClass, NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
 })
 export class ExaminationToolbarComponent implements OnInit {
     @Input() exam!: Examination;
@@ -72,8 +78,8 @@ export class ExaminationToolbarComponent implements OnInit {
 
     turnExam = () =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_turn_exam'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_confirm_turn_exam'),
         ).subscribe({
             next: () =>
                 // Save all textual answers regardless of empty or not
@@ -85,7 +91,7 @@ export class ExaminationToolbarComponent implements OnInit {
                         }),
                         finalize(() =>
                             this.Examination.logout(
-                                'sitnet_exam_returned',
+                                'i18n_exam_returned',
                                 this.exam.hash,
                                 this.exam.implementation === 'CLIENT_AUTH',
                                 false,
@@ -93,19 +99,17 @@ export class ExaminationToolbarComponent implements OnInit {
                         ),
                     )
                     .subscribe(),
-            error: (err) => this.toast.error(err),
         });
 
     abortExam = () =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_abort_exam'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_confirm_abort_exam'),
         ).subscribe({
             next: () =>
                 this.Examination.abort$(this.exam.hash).subscribe({
                     next: () => {
-                        this.toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
-                        window.onbeforeunload = null;
+                        this.toast.info(this.translate.instant('i18n_exam_aborted'), undefined, { timeOut: 5000 });
                         this.router.navigate(['/examination/logout'], {
                             queryParams: {
                                 reason: 'aborted',
@@ -115,7 +119,6 @@ export class ExaminationToolbarComponent implements OnInit {
                     },
                     error: (err) => this.toast.error(err),
                 }),
-            error: (err) => this.toast.error(err),
         });
 
     downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.isCollaborative);
@@ -155,6 +158,14 @@ export class ExaminationToolbarComponent implements OnInit {
     };
 
     showMaturityInstructions = () => this.Enrolment.showMaturityInstructions({ exam: this.exam }, this.exam.external);
+
+    sectionSelectedText = () => {
+        return this.translate.instant('i18n_this_section_is_selected');
+    };
+
+    getSkipLinkPath = (skipTarget: string) => {
+        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
+    };
 
     exitPreview = () => {
         const tab = this.tab || 1;

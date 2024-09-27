@@ -12,77 +12,85 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import type { Exam } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
-import { SessionService } from '../../../session/session.service';
-import { AssessmentService } from '../assessment.service';
+import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+import type { Exam } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { SessionService } from 'src/app/session/session.service';
 import type { StateName } from './maturity.service';
 import { MaturityService } from './maturity.service';
 
 @Component({
     selector: 'xm-r-maturity-toolbar',
     template: `<!-- language inspection controls  -->
-        <div class="float-end" *ngIf="isOwnerOrAdmin() || isUnderLanguageInspection()">
-            <span [hidden]="isUnderLanguageInspection()">
-                <div *ngIf="!isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
-                    <button (click)="saveAssessment()" [disabled]="!valid" class="btn inspection-button">
-                        {{ 'sitnet_save' | translate }}
-                    </button>
-                </div>
-                <div *ngIf="isReadOnly()" class="review-attachment-button exam-questions-buttons marl15">
-                    <a class="pointer preview" [routerLink]="['/staff/exams', exam.parent?.id, '5']">
-                        {{ 'sitnet_close' | translate }}</a
-                    >
-                </div>
-            </span>
-
-            <div *ngIf="!isReadOnly() && !isDisabled()" class="review-attachment-button exam-questions-buttons marl10">
-                <button
-                    class="btn inspection-button"
-                    [ngClass]="getNextState().warn ? 'warning-filled' : ''"
-                    (click)="proceed(false)"
-                >
-                    {{ getNextState().text | translate }}
-                </button>
-            </div>
-            <div
-                *ngIf="
+        @if (isOwnerOrAdmin() || isUnderLanguageInspection()) {
+            <div class="d-flex flex-row-reverse">
+                <span [hidden]="isUnderLanguageInspection()">
+                    <div class="ms-1">
+                        @if (!isReadOnly()) {
+                            <button (click)="saveAssessment()" [disabled]="!valid" class="btn btn-success">
+                                {{ 'i18n_save' | translate }}
+                            </button>
+                        } @else {
+                            <button class="btn btn-secondary" [routerLink]="['/staff/exams', exam.parent?.id, '5']">
+                                {{ 'i18n_close' | translate }}
+                            </button>
+                        }
+                    </div>
+                </span>
+                @if (!isReadOnly() && !isDisabled()) {
+                    <div class="ms-1">
+                        <button
+                            [ngClass]="getNextState().warn ? 'btn btn-outline-danger' : 'btn btn-success'"
+                            (click)="proceed(false)"
+                        >
+                            {{ getNextState().text | translate }}
+                        </button>
+                    </div>
+                }
+                @if (
                     !isReadOnly() &&
                     getNextState().alternateState &&
                     !isDisabled(getAlternateState(getNextState().alternateState).name)
-                "
-                class="review-attachment-button exam-questions-buttons marl10"
-            >
-                <button
-                    class="btn inspection-button"
-                    [ngClass]="getAlternateState(getNextState().alternateState).warn ? 'warning-filled' : 'btn-primary'"
-                    (click)="proceed(true)"
-                >
-                    {{ getAlternateState(getNextState().alternateState).text | translate }}
-                </button>
+                ) {
+                    <div class="ms-1">
+                        <button
+                            [ngClass]="
+                                getAlternateState(getNextState().alternateState).warn
+                                    ? 'btn btn-outline-danger'
+                                    : 'btn btn-success'
+                            "
+                            (click)="proceed(true)"
+                        >
+                            {{ getAlternateState(getNextState().alternateState).text | translate }}
+                        </button>
+                    </div>
+                }
+                @if (!isReadOnly() && getNextState().alternateState) {
+                    @if (isMissingStatement()) {
+                        <span class="text-danger"
+                            >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                getNextState()?.hint(exam) || '' | translate
+                            }}</span
+                        >
+                    }
+                }
+                @if (!isReadOnly() && !getNextState().alternateState) {
+                    @if (getNextState()?.hint) {
+                        <span class="text-danger"
+                            >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                getNextState()?.hint(exam) || '' | translate
+                            }}</span
+                        >
+                    }
+                }
             </div>
-            <div
-                *ngIf="!isReadOnly() && getNextState().alternateState"
-                class="review-attachment-button exam-questions-buttons"
-            >
-                <span *ngIf="isMissingStatement()" class="text-danger"
-                    >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
-                        getNextState()?.hint(exam) || '' | translate
-                    }}</span
-                >
-            </div>
-            <div
-                *ngIf="!isReadOnly() && !getNextState().alternateState"
-                class="review-attachment-button exam-questions-buttons"
-            >
-                <span *ngIf="getNextState()?.hint" class="text-danger"
-                    >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
-                        getNextState()?.hint(exam) || '' | translate
-                    }}</span
-                >
-            </div>
-        </div> `,
+        }`,
+    standalone: true,
+    imports: [RouterLink, NgClass, TranslateModule],
 })
 export class MaturityToolbarComponent {
     @Input() exam!: Exam;

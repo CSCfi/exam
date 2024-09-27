@@ -17,11 +17,11 @@ package models.calendar;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import models.ExamRoom;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -99,10 +99,9 @@ public class ExceptionWorkingHours extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExceptionWorkingHours)) {
+        if (!(other instanceof ExceptionWorkingHours otherException)) {
             return false;
         }
-        ExceptionWorkingHours otherException = (ExceptionWorkingHours) other;
         return new EqualsBuilder().append(id, otherException.id).build();
     }
 

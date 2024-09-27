@@ -12,14 +12,21 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import { SessionService } from '../../../session/session.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-no-shows-component',
+    standalone: true,
+    imports: [TranslateModule, ApplyDstPipe, OrderByPipe, DatePipe, TableSortComponent],
     templateUrl: './no-shows.component.html',
+    styleUrls: ['../review-list.component.scss'],
 })
 export class NoShowsComponent implements OnInit {
     @Input() noShows: (ExamEnrolment & { displayName: string })[] = [];
@@ -27,13 +34,14 @@ export class NoShowsComponent implements OnInit {
     noShowPredicate = 'reservation.startAt';
     reverse = false;
 
-    constructor(private modal: NgbActiveModal, private Session: SessionService) {}
+    constructor(private modal: NgbActiveModal) {}
 
     //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
     ngOnInit() {
-        this.noShows.forEach(
-            (r) => (r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id.toString()),
-        );
+        this.noShows.forEach((r) => {
+            const id = (r.exam ? r.exam.id : r.collaborativeExam.id).toString();
+            r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : id;
+        });
     }
 
     cancel = () => this.modal.dismiss();

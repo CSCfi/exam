@@ -12,12 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgStyle } from '@angular/common';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
-import type { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from '../../exam.model';
-import { ExamService } from '../../exam.service';
+import { FormsModule, NgForm } from '@angular/forms';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import type { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { UniqueValuesValidatorDirective } from 'src/app/shared/validation/unique-values.directive';
 
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 
@@ -29,6 +42,23 @@ type AutoEvaluationConfigurationTemplate = {
 @Component({
     selector: 'xm-auto-evaluation',
     templateUrl: './auto-evaluation.component.html',
+    styleUrls: ['./auto-evaluation.component.scss'],
+    standalone: true,
+    imports: [
+        NgbPopover,
+        NgbCollapse,
+        NgStyle,
+        FormsModule,
+        UniqueValuesValidatorDirective,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgClass,
+        NgbDropdownItem,
+        DatePickerComponent,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class AutoEvaluationComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;
@@ -41,19 +71,22 @@ export class AutoEvaluationComponent implements OnInit, OnChanges {
     config?: AutoEvaluationConfig;
     autoevaluationDisplay: { visible: boolean };
 
-    constructor(private Exam: ExamService, private CommonExam: CommonExamService) {
+    constructor(
+        private Exam: ExamService,
+        private CommonExam: CommonExamService,
+    ) {
         this.autoevaluation = {
             enabled: false,
             releaseTypes: [
                 {
                     name: 'IMMEDIATE',
-                    translation: 'sitnet_release_type_immediate',
+                    translation: 'i18n_release_type_immediate',
                     filtered: true,
                 },
-                { name: 'GIVEN_DATE', translation: 'sitnet_release_type_given_date' },
-                { name: 'GIVEN_AMOUNT_DAYS', translation: 'sitnet_release_type_given_days' },
-                { name: 'AFTER_EXAM_PERIOD', translation: 'sitnet_release_type_period' },
-                { name: 'NEVER', translation: 'sitnet_release_type_never' },
+                { name: 'GIVEN_DATE', translation: 'i18n_release_type_given_date' },
+                { name: 'GIVEN_AMOUNT_DAYS', translation: 'i18n_release_type_given_days' },
+                { name: 'AFTER_EXAM_PERIOD', translation: 'i18n_release_type_period' },
+                { name: 'NEVER', translation: 'i18n_release_type_never' },
             ],
         };
         this.autoevaluationDisplay = { visible: false };

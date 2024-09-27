@@ -12,30 +12,54 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import type { Question } from 'src/app/exam/exam.model';
+import type { LibraryQuestion } from 'src/app/question/library/library.service';
+import { LibraryService } from 'src/app/question/library/library.service';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { isNumber, isString } from 'src/app/shared/miscellaneous/helpers';
-import type { Question } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
-import { SessionService } from '../../../session/session.service';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import type { LibraryQuestion } from '../library.service';
-import { LibraryService } from '../library.service';
+import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
 @Component({
     selector: 'xm-library-results',
     templateUrl: './library-results.component.html',
+    standalone: true,
+    imports: [
+        NgClass,
+        FormsModule,
+        NgbPopover,
+        TableSortComponent,
+        MathJaxDirective,
+        RouterLink,
+        PaginatorComponent,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        PageFillPipe,
+        OrderByPipe,
+    ],
+    styleUrls: ['../library.component.scss'],
 })
 export class LibraryResultsComponent implements OnInit, OnChanges {
     @Input() questions: Question[] = [];
     @Input() disableLinks = false;
-    @Input() tableClass = '';
     @Output() selected = new EventEmitter<number[]>();
     @Output() copied = new EventEmitter<LibraryQuestion>();
 
@@ -61,7 +85,6 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         this.fixedQuestions = this.questions as SelectableQuestion[]; // FIXME: ugly cast, should resolve this better
-        this.tableClass = this.tableClass || 'exams-table';
         const storedData = this.Library.loadFilters('sorting');
         if (storedData.filters) {
             this.questionsPredicate = storedData.filters.predicate;
@@ -89,21 +112,20 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     deleteQuestion = (question: SelectableQuestion) =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_question_from_library_only'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_remove_question_from_library_only'),
         ).subscribe({
             next: () =>
                 this.http.delete(`/app/questions/${question.id}`).subscribe({
                     next: () => this.questions.splice(this.questions.indexOf(question), 1),
-                    error: () => this.toast.info(this.translate.instant('sitnet_question_removed')),
+                    error: () => this.toast.info(this.translate.instant('i18n_question_removed')),
                 }),
-            error: (err) => this.toast.error(err),
         });
 
     copyQuestion = (question: SelectableQuestion) =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_copy_question'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_copy_question'),
         ).subscribe({
             next: () =>
                 this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe({
@@ -113,7 +135,6 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                     },
                     error: (err) => this.toast.error(err),
                 }),
-            error: (err) => this.toast.error(err),
         });
 
     downloadQuestionAttachment = (question: LibraryQuestion) => this.Attachment.downloadQuestionAttachment(question);
@@ -121,13 +142,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     printOwners = (question: LibraryQuestion) =>
         question.questionOwners.map((o) => this.printOwner(o, false)).join(', ');
 
-    renderMailTo = (owner?: User) => {
-        if (!(owner && owner.email)) {
-            return '';
-        }
-
-        return `mailto:${owner.email}`;
-    };
+    renderMailTo = (owner?: User) => (owner?.email ? `mailto:${owner.email}` : '');
 
     printOwner = (owner: User, showId: boolean): string => {
         if (!owner) {
@@ -141,7 +156,10 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         return user;
     };
 
-    printTags = (question: LibraryQuestion) => question.tags.map((t) => t.name.toUpperCase()).join(', ');
+    printTags = (question: LibraryQuestion) => {
+        const ownTags = question.tags.filter((t) => t.creator?.id === this.user.id);
+        return ownTags.map((t) => t.name).join(', ');
+    };
 
     pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
@@ -172,15 +190,15 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     getQuestionTypeText = (question: LibraryQuestion) => {
         switch (question.type) {
             case 'EssayQuestion':
-                return 'sitnet_essay';
+                return 'i18n_essay';
             case 'MultipleChoiceQuestion':
-                return 'sitnet_question_mc';
+                return 'i18n_question_mc';
             case 'WeightedMultipleChoiceQuestion':
-                return 'sitnet_question_weighted_mc';
+                return 'i18n_question_weighted_mc';
             case 'ClozeTestQuestion':
-                return 'sitnet_toolbar_cloze_test_question';
+                return 'i18n_toolbar_cloze_test_question';
             case 'ClaimChoiceQuestion':
-                return 'sitnet_toolbar_claim_choice_question';
+                return 'i18n_toolbar_claim_choice_question';
         }
         return '';
     };

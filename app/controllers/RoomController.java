@@ -15,13 +15,13 @@
 
 package controllers;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalFacilityAPI;
-import io.ebean.Ebean;
+import exceptions.MalformedDataException;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.net.MalformedURLException;
@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 import models.Accessibility;
@@ -43,12 +42,15 @@ import models.Role;
 import models.User;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.data.Form;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -65,7 +67,7 @@ public class RoomController extends BaseController {
     private final ExternalFacilityAPI externalApi;
     protected ActorSystem system;
     private final DateTimeHandler dateTimeHandler;
-    private static final Logger.ALogger logger = Logger.of(RoomController.class);
+    private final Logger logger = LoggerFactory.getLogger(RoomController.class);
     private static final int EPOCH = 1970;
 
     @Inject
@@ -115,7 +117,7 @@ public class RoomController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result getExamRooms(Http.Request request) {
-        ExpressionList<ExamRoom> query = Ebean
+        ExpressionList<ExamRoom> query = DB
             .find(ExamRoom.class)
             .fetch("accessibilities")
             .fetch("examMachines")
@@ -139,7 +141,7 @@ public class RoomController extends BaseController {
 
     @Restrict(@Group("ADMIN"))
     public Result getExamRoom(Long id) {
-        ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
+        ExamRoom examRoom = DB.find(ExamRoom.class, id);
         if (examRoom == null) {
             return notFound("room not found");
         }
@@ -183,7 +185,7 @@ public class RoomController extends BaseController {
                 "expanded"
             )
             .get();
-        ExamRoom existing = Ebean.find(ExamRoom.class, id);
+        ExamRoom existing = DB.find(ExamRoom.class, id);
         if (existing == null) {
             return wrapAsPromise(notFound());
         }
@@ -209,12 +211,12 @@ public class RoomController extends BaseController {
 
     @Restrict(@Group({ "ADMIN" }))
     public CompletionStage<Result> updateExamRoomAddress(Long id, Http.Request request) throws MalformedURLException {
-        MailAddress address = bindForm(MailAddress.class, request);
-        MailAddress existing = Ebean.find(MailAddress.class, id);
+        MailAddress address = bindAddress(request);
+        MailAddress existing = DB.find(MailAddress.class, id);
         if (existing == null) {
             return wrapAsPromise(notFound());
         }
-        Optional<ExamRoom> room = Ebean.find(ExamRoom.class).where().eq("mailAddress", existing).findOneOrEmpty();
+        Optional<ExamRoom> room = DB.find(ExamRoom.class).where().eq("mailAddress", existing).findOneOrEmpty();
         if (room.isEmpty()) {
             return wrapAsPromise(notFound());
         }
@@ -223,6 +225,14 @@ public class RoomController extends BaseController {
         existing.setZip(address.getZip());
         existing.update();
         return updateRemote(room.get());
+    }
+
+    private MailAddress bindAddress(Http.Request request) {
+        final Form<MailAddress> form = formFactory.form(MailAddress.class);
+        if (form.hasErrors()) {
+            throw new MalformedDataException(form.errorsAsJson().asText());
+        }
+        return form.bindFromRequest(request).get();
     }
 
     private DefaultWorkingHours parseWorkingHours(JsonNode root) {
@@ -245,21 +255,18 @@ public class RoomController extends BaseController {
         for (JsonNode roomId : root.get("roomIds")) {
             roomIds.add(roomId.asLong());
         }
-        List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().idIn(roomIds).findList();
+        List<ExamRoom> rooms = DB.find(ExamRoom.class).where().idIn(roomIds).findList();
         DefaultWorkingHours hours = parseWorkingHours(root);
         for (ExamRoom examRoom : rooms) {
             // Find out if there's overlap. Remove those
-            List<DefaultWorkingHours> existing = Ebean
+            List<DefaultWorkingHours> existing = DB
                 .find(DefaultWorkingHours.class)
                 .where()
                 .eq("room", examRoom)
                 .eq("weekday", hours.getWeekday())
                 .findList();
-            List<DefaultWorkingHours> overlapping = existing
-                .stream()
-                .filter(dwh -> dwh.overlaps(hours))
-                .collect(Collectors.toList());
-            Ebean.deleteAll(overlapping);
+            List<DefaultWorkingHours> overlapping = existing.stream().filter(dwh -> dwh.overlaps(hours)).toList();
+            DB.deleteAll(overlapping);
             examRoom.getDefaultWorkingHours().removeAll(overlapping);
 
             hours.setRoom(examRoom);
@@ -277,8 +284,8 @@ public class RoomController extends BaseController {
 
     @Restrict(@Group({ "ADMIN" }))
     public Result removeExamRoomWorkingHours(Long roomId, Long id) {
-        DefaultWorkingHours dwh = Ebean.find(DefaultWorkingHours.class, id);
-        ExamRoom room = Ebean.find(ExamRoom.class, roomId);
+        DefaultWorkingHours dwh = DB.find(DefaultWorkingHours.class, id);
+        ExamRoom room = DB.find(ExamRoom.class, roomId);
         if (dwh == null || room == null) {
             return forbidden();
         }
@@ -296,18 +303,18 @@ public class RoomController extends BaseController {
             roomIds.add(roomId.asLong());
         }
 
-        List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().idIn(roomIds).findList();
+        List<ExamRoom> rooms = DB.find(ExamRoom.class).where().idIn(roomIds).findList();
 
         for (ExamRoom examRoom : rooms) {
             if (examRoom == null) {
                 return notFound();
             }
-            List<ExamStartingHour> previous = Ebean
+            List<ExamStartingHour> previous = DB
                 .find(ExamStartingHour.class)
                 .where()
                 .eq("room.id", examRoom.getId())
                 .findList();
-            Ebean.deleteAll(previous);
+            DB.deleteAll(previous);
 
             JsonNode node = request.body().asJson();
             DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
@@ -341,11 +348,8 @@ public class RoomController extends BaseController {
         final JsonNode exceptionsNode = request.body().asJson().get("exceptions");
         final JsonNode ids = request.body().asJson().get("roomIds");
 
-        List<Long> roomIds = StreamSupport
-            .stream(ids.spliterator(), false)
-            .map(JsonNode::asLong)
-            .collect(Collectors.toList());
-        List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().idIn(roomIds).findList();
+        List<Long> roomIds = StreamSupport.stream(ids.spliterator(), false).map(JsonNode::asLong).toList();
+        List<ExamRoom> rooms = DB.find(ExamRoom.class).where().idIn(roomIds).findList();
         for (ExamRoom room : rooms) {
             for (JsonNode node : exceptionsNode) {
                 ExceptionWorkingHours exception = parse(node);
@@ -361,11 +365,7 @@ public class RoomController extends BaseController {
                 asyncUpdateRemote(room);
             }
         }
-        return ok(
-            Json.toJson(
-                rooms.stream().flatMap(r -> r.getCalendarExceptionEvents().stream()).collect(Collectors.toList())
-            )
-        );
+        return ok(Json.toJson(rooms.stream().flatMap(r -> r.getCalendarExceptionEvents().stream()).toList()));
     }
 
     @Restrict(@Group({ "ADMIN" }))
@@ -373,7 +373,7 @@ public class RoomController extends BaseController {
         JsonNode json = request.body().asJson();
         final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
 
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        ExamRoom room = DB.find(ExamRoom.class, id);
         if (room == null) {
             return notFound();
         }
@@ -388,7 +388,7 @@ public class RoomController extends BaseController {
                 } catch (Exception ex) {
                     break;
                 }
-                Accessibility accessibility = Ebean.find(Accessibility.class, accessibilityId);
+                Accessibility accessibility = DB.find(Accessibility.class, accessibilityId);
                 room.getAccessibilities().add(accessibility);
                 room.save();
                 asyncUpdateRemote(room);
@@ -399,8 +399,8 @@ public class RoomController extends BaseController {
 
     @Restrict(@Group({ "ADMIN" }))
     public CompletionStage<Result> removeRoomExceptionHour(Long roomId, Long exceptionId) throws MalformedURLException {
-        ExceptionWorkingHours exception = Ebean.find(ExceptionWorkingHours.class, exceptionId);
-        ExamRoom room = Ebean.find(ExamRoom.class, roomId);
+        ExceptionWorkingHours exception = DB.find(ExceptionWorkingHours.class, exceptionId);
+        ExamRoom room = DB.find(ExamRoom.class, roomId);
         if (exception == null || room == null) {
             return wrapAsPromise(notFound());
         }
@@ -411,7 +411,7 @@ public class RoomController extends BaseController {
 
     @Restrict(@Group({ "ADMIN" }))
     public CompletionStage<Result> inactivateExamRoom(Long id) throws MalformedURLException {
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        ExamRoom room = DB.find(ExamRoom.class, id);
         if (room == null) {
             return wrapAsPromise(notFound());
         }
@@ -427,7 +427,7 @@ public class RoomController extends BaseController {
 
     @Restrict(@Group({ "ADMIN" }))
     public CompletionStage<Result> activateExamRoom(Long id) throws MalformedURLException {
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        ExamRoom room = DB.find(ExamRoom.class, id);
         if (room == null) {
             return wrapAsPromise(notFound());
         }

@@ -12,59 +12,54 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { format } from 'date-fns';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     template: `
-        <div class="top-row">
-            <h4 class="col-md-12">
-                {{ 'sitnet_get_all_exam_answers' | translate }}
-            </h4>
+        <div class="row">
+            <strong class="col-12">
+                {{ 'i18n_get_all_exam_answers' | translate }}
+            </strong>
         </div>
-        <div class="bottom-row d-flex justify-content-between">
+        <div class="row align-items-end mb-2">
             <!-- Start & End time datepickers -->
-            <div class="col-lg-5 mb-2">
-                <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
+            <div class="col-3">
+                <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
                 <div id="startAt">
                     <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
-            <div class="col-lg-5 mb-2">
-                <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
+            <div class="col-3">
+                <label for="endAt">{{ 'i18n_end_time' | translate }}</label>
                 <div id="endAt">
                     <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
-            <div class="col-lg-2 mb-2">
-                <label for="link">&nbsp;</label>
-                <div id="link">
-                    <a
-                        (click)="getExamAnswerReport()"
-                        class="print-btn"
-                        download
-                        triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_download' | translate }}"
-                    >
-                        <i class="bi-file-earmark-excel font-6"></i>
-                    </a>
-                </div>
+            <div class="col-6">
+                <button class="btn btn-success btn-sm float-end" (click)="getExamAnswerReport()">
+                    <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
+                </button>
             </div>
         </div>
     `,
     selector: 'xm-answers-report',
+    standalone: true,
+    imports: [DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class AnswersReportComponent {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(private datePipe: DatePipe, private files: FileService) {}
+    constructor(private files: FileService) {}
 
     getExamAnswerReport = () => {
-        const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
-        const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
+        const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
+        const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
         this.files.download(`/app/statistics/allexams/${f}/${t}`, `exam_answers_${f}_${t}.xlsx`);
     };
 

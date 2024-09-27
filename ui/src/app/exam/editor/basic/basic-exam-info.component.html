@@ -1,63 +1,55 @@
-<div class="row ms-2 me-2">
+<div class="row mx-2">
     <div class="col-md-12">
-        <div class="row marr30">
-            <div class="col-md-12 padt40" *ngIf="!collaborative">
-                <div class="review-list-title">{{ 'sitnet_course_info' | translate }}</div>
-            </div>
+        <div class="row">
+            @if (!collaborative) {
+                <div class="col-md-12 pt-2">
+                    <div class="xm-paragraph-title">{{ 'i18n_course_info' | translate }}</div>
+                </div>
+            }
         </div>
         <div class="row">
             <!-- General info section container -->
             <div class="col-md-12">
                 <!-- Course data -->
-                <xm-exam-course *ngIf="!collaborative" [exam]="exam" (updated)="onCourseChange()"></xm-exam-course>
+                @if (!collaborative) {
+                    <xm-exam-course [exam]="exam" (updated)="onCourseChange()"></xm-exam-course>
+                }
                 <!-- Exam name and language -->
-                <div class="row marr30">
-                    <div class="col-md-12 margin-20">
-                        <div class="review-list-title">{{ 'sitnet_exam_title' | translate }}</div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="xm-paragraph-title">{{ 'i18n_exam_title' | translate }}</div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12 margin-20">
+                <div class="row mt-3">
+                    <div class="col-md-12">
                         <div class="row">
-                            <div class="col-md-3 exam-basic-title">
-                                {{ 'sitnet_exam_name' | translate }}
+                            <div class="col-md-3">
+                                {{ 'i18n_exam_name' | translate }}
                                 <sup
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'sitnet_exam_title_description' | translate }}"
+                                    ngbPopover="{{ 'i18n_exam_title_description' | translate }}"
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
+                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </div>
                             <div class="col-md-9">
-                                <input
-                                    class="form-control wdth-30"
-                                    [(ngModel)]="exam.name"
-                                    (change)="updateExam(false)"
-                                />
+                                <input class="form-control w-50" [(ngModel)]="exam.name" (change)="updateExam(false)" />
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
-                            <div class="col-md-3 exam-basic-title">
-                                {{ 'sitnet_exam_language' | translate }}
+                            <div class="col-md-3">
+                                {{ 'i18n_exam_language' | translate }}
                                 <sup
-                                    ngbPopover="{{ 'sitnet_exam_language_description' | translate }}"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    ngbPopover="{{ 'i18n_exam_language_description' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
+                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </div>
                             <div class="col">
@@ -73,29 +65,31 @@
 
                 <!-- EXECUTION TYPE -->
                 <div class="row">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
-                            <div class="col-md-3 exam-basic-title">{{ 'sitnet_new_exam_type' | translate }}</div>
+                            <div class="col-md-3">{{ 'i18n_new_exam_type' | translate }}</div>
                             <div class="col-md-9">{{ getExecutionTypeTranslation() | translate }}</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- EXAMINATION TYPE -->
-                <div class="row" *ngIf="byodExaminationSupported">
-                    <div class="col-md-12 margin-20">
-                        <div class="row">
-                            <div class="col-md-3 exam-basic-title">{{ 'sitnet_examination_type' | translate }}</div>
-                            <div class="col-md-9">{{ getExaminationTypeName() | translate }}</div>
+                @if (byodExaminationSupported) {
+                    <div class="row">
+                        <div class="col-md-12 mt-3">
+                            <div class="row">
+                                <div class="col-md-3">{{ 'i18n_examination_type' | translate }}</div>
+                                <div class="col-md-9">{{ getExaminationTypeName() | translate }}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
 
                 <!-- ANONYMOUS REVIEW -->
                 <div class="row" [hidden]="!showAnonymousReview()">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
-                            <div class="col-md-3 exam-basic-title">{{ 'sitnet_anonymous_review' | translate }}</div>
+                            <div class="col-md-3">{{ 'i18n_anonymous_review' | translate }}</div>
                             <div class="col-md-9">
                                 <input
                                     type="checkbox"
@@ -112,10 +106,10 @@
 
                 <!-- INTERNAL REF -->
                 <div class="row" [hidden]="exam.executionType.type !== 'PRINTOUT'">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
-                            <div class="col-md-3 exam-basic-title">
-                                {{ 'sitnet_internal_exam_reference' | translate }}
+                            <div class="col-md-3">
+                                {{ 'i18n_internal_exam_reference' | translate }}
                             </div>
                             <div class="col-md-9">
                                 <input
@@ -132,20 +126,22 @@
                 <!-- Exam owners -->
                 <div class="row">
                     <div class="col-md-12">
-                        <xm-exam-owner-picker *ngIf="!collaborative" [exam]="exam"></xm-exam-owner-picker>
+                        @if (!collaborative) {
+                            <xm-exam-owner-picker [exam]="exam"></xm-exam-owner-picker>
+                        }
                     </div>
                 </div>
 
                 <!-- Subject to language inspection-->
                 <div class="row" [hidden]="exam.executionType.type !== 'MATURITY'">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
-                            <div class="col-md-3 exam-basic-title">
-                                {{ 'sitnet_subject_to_language_inspection' | translate }}
+                            <div class="col-md-3">
+                                {{ 'i18n_subject_to_language_inspection' | translate }}
                             </div>
                             <div class="col-md-9">
                                 <button
-                                    class="btn btn-review"
+                                    class="btn selection-button-wide"
                                     [ngClass]="exam.subjectToLanguageInspection === true ? 'btn-primary' : ''"
                                     [disabled]="exam.state === 'PUBLISHED'"
                                     (click)="exam.subjectToLanguageInspection = true; updateExam(false)"
@@ -153,7 +149,7 @@
                                     {{ 'DIALOGS_YES' | translate }}</button
                                 >&nbsp;
                                 <button
-                                    class="btn btn-review"
+                                    class="btn selection-button-wide"
                                     [ngClass]="exam.subjectToLanguageInspection === false ? 'btn-primary' : ''"
                                     [disabled]="exam.state === 'PUBLISHED'"
                                     (click)="exam.subjectToLanguageInspection = false; updateExam(false)"
@@ -168,90 +164,85 @@
                 <!-- Exam inspectors -->
                 <div class="row">
                     <div class="col-md-12">
-                        <xm-exam-inspector-picker
-                            [exam]="exam"
-                            *ngIf="exam.executionType.type !== 'MATURITY' && !collaborative"
-                        >
-                        </xm-exam-inspector-picker>
+                        @if (exam.executionType.type !== 'MATURITY' && !collaborative) {
+                            <xm-exam-inspector-picker [exam]="exam"> </xm-exam-inspector-picker>
+                        }
                     </div>
                 </div>
 
                 <!-- Space requirements and attachments -->
                 <div class="row">
-                    <div class="col-md-12 margin-20">
-                        <div class="row marr30">
+                    <div class="col-md-12 mt-3">
+                        <div class="row me-3">
                             <div class="col-md-12">
-                                <div class="review-list-title">{{ 'sitnet_exam_requirements' | translate }}</div>
+                                <div class="xm-paragraph-title">{{ 'i18n_exam_requirements' | translate }}</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <xm-software-picker [exam]="exam" *ngIf="exam && !collaborative"></xm-software-picker>
+                @if (exam && !collaborative) {
+                    <xm-software-picker [exam]="exam"></xm-software-picker>
+                }
 
                 <!-- EXAM ATTACHMENT -->
-                <div class="row" *ngIf="exam.implementation !== 'CLIENT_AUTH'">
-                    <div class="col-md-12 margin-20">
-                        <div class="row">
-                            <div class="col-md-3 exam-basic-title">
-                                {{ 'sitnet_exam_attachment' | translate }}
-                                <sup
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'sitnet_attachment_description' | translate }}"
-                                >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
-                                </sup>
-                            </div>
-                            <div class="col-md-9">
-                                <button type="button" class="btn btn-primary green" (click)="selectAttachmentFile()">
-                                    {{ 'sitnet_attach_file' | translate }}
-                                </button>
-                                <div *ngIf="exam.attachment" class="make-inline student-enrolment-exam">
-                                    <a class="pointer" (click)="downloadExamAttachment()">
-                                        <i class="bi-paperclip padl10"></i> {{ exam.attachment?.fileName }}
-                                    </a>
-                                    <span class="sitnet-red pointer" (click)="removeExamAttachment()">
-                                        <img
-                                            src="/assets/images/icon_remove.svg"
-                                            alt=""
-                                            onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                                        />
-                                    </span>
+                @if (exam.implementation !== 'CLIENT_AUTH') {
+                    <div class="row">
+                        <div class="col-md-12 mt-3">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    {{ 'i18n_exam_attachment' | translate }}
+                                    <sup
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                        triggers="mouseenter:mouseleave"
+                                        ngbPopover="{{ 'i18n_attachment_description' | translate }}"
+                                    >
+                                        <img src="/assets/images/icon_tooltip.svg" alt="" />
+                                    </sup>
+                                </div>
+                                <div class="col-md-9">
+                                    <button type="button" class="btn btn-success" (click)="selectAttachmentFile()">
+                                        {{ 'i18n_attach_file' | translate }}
+                                    </button>
+                                    @if (exam.attachment) {
+                                        <div class="make-inline">
+                                            <a class="pointer" (click)="downloadExamAttachment()">
+                                                <i class="bi-paperclip ps-2"></i>{{ exam.attachment?.fileName }}</a
+                                            >
+                                            <span class="pointer ms-2" (click)="removeExamAttachment()">
+                                                <i
+                                                    class="bi bi-x-lg text-danger"
+                                                    title="{{ 'i18n_remove' | translate }}"
+                                                ></i>
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                }
 
                 <!-- INSTRUCTIONS -->
                 <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
-                    <div class="col-md-12 margin-20">
-                        <div class="row marr30">
+                    <div class="col-md-12 mt-3">
+                        <div class="row me-3">
                             <div class="col-md-12">
-                                <div class="review-list-title">{{ 'sitnet_instruction' | translate }}</div>
+                                <div class="xm-paragraph-title">{{ 'i18n_instruction' | translate }}</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
-                    <div class="col-md-12 margin-20">
-                        <div class="row marr30">
-                            <div class="col-md-3 exam-basic-title">
-                                {{ 'sitnet_exam_instruction' | translate }}
+                    <div class="col-md-12 mt-3">
+                        <div class="row me-3">
+                            <div class="col-md-3">
+                                {{ 'i18n_exam_instruction' | translate }}
                                 <sup
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'sitnet_exam_instruction_description' | translate }}"
+                                    ngbPopover="{{ 'i18n_exam_instruction_description' | translate }}"
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
+                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </div>
                             <div class="col-md-9">
@@ -269,26 +260,26 @@
                     </div>
                 </div>
                 <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
-                    <div class="col-md-12 margin-20">
-                        <div class="row marr30">
-                            <div *ngIf="exam.executionType.type !== 'PRINTOUT'" class="col-md-3 exam-basic-title">
-                                {{ 'sitnet_enroll_instruction' | translate }}
-                                <sup
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'sitnet_exam_enroll_instruction_description' | translate }}"
-                                >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
-                                </sup>
-                            </div>
+                    <div class="col-md-12 mt-3">
+                        <div class="row me-3">
+                            @if (exam.executionType.type !== 'PRINTOUT') {
+                                <div class="col-md-3">
+                                    {{ 'i18n_enroll_instruction' | translate }}
+                                    <sup
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                        triggers="mouseenter:mouseleave"
+                                        ngbPopover="{{ 'i18n_exam_enroll_instruction_description' | translate }}"
+                                    >
+                                        <img src="/assets/images/icon_tooltip.svg" alt="" />
+                                    </sup>
+                                </div>
+                            }
                             <!-- Map these instructions to allowed tools in case of printout -->
-                            <div *ngIf="exam.executionType.type === 'PRINTOUT'" class="col-md-3 exam-basic-title">
-                                {{ 'sitnet_allowed_tools' | translate }}
-                            </div>
+                            @if (exam.executionType.type === 'PRINTOUT') {
+                                <div class="col-md-3">
+                                    {{ 'i18n_allowed_tools' | translate }}
+                                </div>
+                            }
                             <div class="col-md-9">
                                 <xm-ckeditor
                                     rows="4"
@@ -309,26 +300,24 @@
 </div>
 
 <!-- Buttons -->
-<div class="row mt-3 justify-content-end">
+<div class="row d-flex flex-row-reverse flex-align-r m-4">
     <div class="col-auto p1">
-        <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer" (click)="updateExam(false)">
-                {{ 'sitnet_save' | translate }}
-            </a>
-        </div>
+        <button class="btn btn-success" (click)="updateExam(false)">
+            {{ 'i18n_save' | translate }}
+        </button>
     </div>
     <div class="col-auto p1">
-        <div *ngIf="showDelete()" class="review-attachment-button exam-questions-buttons">
-            <a class="pointer warning" (click)="removeExam()"> {{ 'sitnet_exam_remove' | translate }}</a>
-        </div>
+        @if (showDelete()) {
+            <button class="btn btn-outline-danger" (click)="removeExam()">{{ 'i18n_exam_remove' | translate }}</button>
+        }
     </div>
 </div>
 <div class="row mt-3">
-    <div class="col-md-12 padl0 padr0 marb20 padt20 grey-top">
+    <div class="col-md-12 mb-3 pt-3 grey-top">
         <span class="float-end">
-            <div class="review-attachment-button exam-questions-buttons">
-                <a class="pointer preview" (click)="nextTab()"> {{ 'sitnet_questions' | translate }} &raquo;</a>
-            </div>
+            <button class="btn btn-outline-secondary" (click)="nextTab()">
+                {{ 'i18n_questions' | translate }} &raquo;
+            </button>
         </span>
     </div>
 </div>

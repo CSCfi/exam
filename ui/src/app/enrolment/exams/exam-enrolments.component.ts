@@ -12,38 +12,48 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { SessionService } from '../../session/session.service';
-import type { EnrolmentInfo } from '../enrolment.model';
-import { EnrolmentService } from '../enrolment.service';
+import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import { ExamSearchResultComponent } from 'src/app/enrolment/search/exam-search-result.component';
+import { SessionService } from 'src/app/session/session.service';
+import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
 
 @Component({
     selector: 'xm-exam-enrolments',
     template: `
-        <div id="dashboard">
-            <div class="row mt-2 ms-2 me-2" *ngIf="exam?.noTrialsLeft">
+        @if (exam?.noTrialsLeft) {
+            <div class="row mt-2 ms-2 me-2">
                 <div class="col-md-12 alert-danger">
-                    <h1>{{ 'sitnet_no_trials_left' | translate }}</h1>
+                    <h1>{{ 'i18n_no_trials_left' | translate }}</h1>
                 </div>
             </div>
-            <xm-enrolment-details *ngIf="exam" [exam]="exam"></xm-enrolment-details>
-            <div *ngIf="exams.length > 0">
-                <div class="row mt-2 ms-4 me-4">
-                    <div class="col-md-12 mt-2 ms-4 me-4">
-                        <h3>{{ 'sitnet_student_exams' | translate }}</h3>
-                    </div>
+        }
+        @if (exam) {
+            <xm-enrolment-details [exam]="exam"></xm-enrolment-details>
+        }
+        @if (exams.length > 0) {
+            <div class="row mt-2 ms-2 me-2">
+                <div class="col-12 ms-4">
+                    <h2>{{ 'i18n_student_exams' | translate }}</h2>
                 </div>
-                <div class="row mt-2 ms-4 me-4 " *ngFor="let exam of exams">
-                    <div class="col-md-12">
+            </div>
+            @for (exam of exams; track exam) {
+                <div class="row mt-2 ms-4 me-4 ">
+                    <div class="col-12 ms-2">
                         <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
                     </div>
                 </div>
-            </div>
-        </div>
+            }
+        }
     `,
+    standalone: true,
+    imports: [EnrolmentDetailsComponent, ExamSearchResultComponent, TranslateModule],
 })
 export class ExamEnrolmentsComponent implements OnInit {
     exam!: EnrolmentInfo;

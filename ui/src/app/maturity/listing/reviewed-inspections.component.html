@@ -1,82 +1,74 @@
-<div class="main-row">
-    <div class="col-md-12">
-        <div class="review-list-title">
-            {{ 'sitnet_processed_language_inspections' | translate }}
-            <small class="smaller padl20">
-                <a [routerLink]="['/staff/inspections/reports']">{{
-                    'sitnet_language_inspection_report_link' | translate
-                }}</a>
-            </small>
-            <a *ngIf="inspections.length > 0" (click)="hideItems = !hideItems" class="pointer marl10">
-                <img
-                    [hidden]="!hideItems"
-                    src="/assets/images/icon_list_show_right.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                />
-                <img
-                    [hidden]="hideItems"
-                    src="/assets/images/icon_list_show_down.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                />
+<div class="row p-2 mb-2 maturity-paragraph-title">
+    <div class="col-md-6">
+        {{ 'i18n_processed_language_inspections' | translate }}
+        @if (inspections.length > 0) {
+            <a (click)="hideItems = !hideItems" class="pointer ms-1">
+                <img [hidden]="!hideItems" src="/assets/images/icon_list_show_right.svg" alt="" />
+                <img [hidden]="hideItems" src="/assets/images/icon_list_show_down.svg" alt="" />
             </a>
+        }
+    </div>
+    <div class="col-md-6">
+        <small class="float-end">
+            <a [routerLink]="['/staff/inspections/reports']">{{
+                'i18n_language_inspection_report_link' | translate
+            }}</a>
+        </small>
+    </div>
+</div>
+
+<div [ngbCollapse]="hideItems" [hidden]="inspections.length === 0">
+    <div class="col-md-12">
+        <!-- Start & End time datepickers -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <span class="maturity-input-label">&nbsp;</span>
+                <div class="input-group">
+                    <input
+                        [(ngModel)]="filterText"
+                        (ngModelChange)="filterTextChanged()"
+                        class="form-control"
+                        placeholder="{{ 'i18n_search' | translate }}"
+                        ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    />
+
+                    <div class="input-group-append search">
+                        <img src="/assets/images/icon_search.png" width="49" height="40" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <span class="maturity-input-label">{{ 'i18n_begin' | translate }}</span>
+                <xm-date-picker
+                    [optional]="true"
+                    [initiallyEmpty]="true"
+                    (updated)="onStartDateChanged($event)"
+                ></xm-date-picker>
+            </div>
+            <div class="col-md-2">
+                <span class="maturity-input-label">{{ 'i18n_end' | translate }}</span>
+                <xm-date-picker
+                    [optional]="true"
+                    [initiallyEmpty]="true"
+                    (updated)="onEndDateChanged($event)"
+                ></xm-date-picker>
+            </div>
         </div>
     </div>
 </div>
 
-<div [hidden]="hideItems">
-    <div class="top-row marb20 padt20">
-        <div class="col-md-12">
-            <!-- Start & End time datepickers -->
-            <div class="row">
-                <div class="col-md-3">
-                    <span class="exam-basic-selecttitle">&nbsp;</span>
-                    <div class="input-group">
-                        <input
-                            [(ngModel)]="filterText"
-                            (ngModelChange)="filterTextChanged()"
-                            class="form-control hgt40"
-                            placeholder="{{ 'sitnet_search' | translate }}"
-                            ngbPopover="{{ 'sitnet_maturity_search_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        />
-
-                        <div class="input-group-append search">
-                            <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-2">
-                    <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
-                    <xm-date-picker
-                        [optional]="true"
-                        [initiallyEmpty]="true"
-                        (updated)="onStartDateChanged($event)"
-                    ></xm-date-picker>
-                </div>
-                <div class="col-md-2">
-                    <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
-                    <xm-date-picker
-                        [optional]="true"
-                        [initiallyEmpty]="true"
-                        (updated)="onEndDateChanged($event)"
-                    ></xm-date-picker>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="overflow-x-auto">
-        <table class="table table-striped exams-table">
+<div class="row">
+    <div class="col-md-12" style="overflow-x: auto">
+        <table class="table table-striped xm-data-table" [hidden]="hideItems">
             <thead>
                 <tr>
                     <th class="with-top">
                         <xm-table-sort
                             by="exam.course.code"
-                            text="sitnet_code"
+                            text="i18n_code"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.course.code')"
@@ -86,7 +78,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="answerLanguage"
-                            text="sitnet_language"
+                            text="i18n_language"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('answerLanguage')"
@@ -96,7 +88,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="exam.name"
-                            text="sitnet_exam_name"
+                            text="i18n_exam_name"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.name')"
@@ -106,7 +98,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="ownerAggregate"
-                            text="sitnet_teachers"
+                            text="i18n_teachers"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('ownerAggregate')"
@@ -116,7 +108,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="created"
-                            text="sitnet_arrived"
+                            text="i18n_arrived"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('created')"
@@ -126,7 +118,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="studentNameAggregate"
-                            text="sitnet_student"
+                            text="i18n_student"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('studentNameAggregate')"
@@ -136,7 +128,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="exam.created"
-                            text="sitnet_finished"
+                            text="i18n_finished"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.created')"
@@ -146,7 +138,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="inspectorNameAggregate"
-                            text="sitnet_language_inspector"
+                            text="i18n_language_inspector"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('inspectorNameAggregate')"
@@ -156,7 +148,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="finishedAt"
-                            text="sitnet_inspection_finished"
+                            text="i18n_inspection_finished"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('finishedAt')"
@@ -166,109 +158,118 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="approved"
-                            text="sitnet_language_inspections"
+                            text="i18n_language_inspections"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('approved')"
                         >
                         </xm-table-sort>
                     </th>
-                    <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
+                    <th class="with-top">{{ 'i18n_feedback' | translate }}</th>
                 </tr>
             </thead>
 
             <tbody>
-                <tr
-                    *ngFor="
-                        let inspection of filteredInspections
-                            | orderBy : sorting.predicate : sorting.reverse
-                            | slice : currentPage * pageSize : currentPage * pageSize + pageSize
-                    "
-                >
-                    <!-- 1 -->
-                    <td>
-                        <xm-course-code
-                            *ngIf="inspection.exam.course"
-                            [course]="inspection.exam.course"
-                        ></xm-course-code>
-                    </td>
-                    <!-- 2 -->
-                    <td>
-                        {{ inspection.answerLanguage }}
-                    </td>
-                    <!-- 3 -->
-                    <td>
-                        <a class="table-column-examname" [routerLink]="['/staff/assessments', inspection.exam.id]">
-                            {{ inspection.exam.name }}
-                        </a>
-                    </td>
-                    <!-- 4 -->
-                    <td>
-                        {{ inspection.ownerAggregate }}
-                    </td>
-                    <!-- 5 -->
-                    <td>{{ inspection.created | date : 'dd.MM.yyyy' }}</td>
-                    <!-- 6 -->
-                    <td>
-                        <span>{{ inspection.studentName }}</span>
-                        <span *ngIf="inspection.exam.creator.userIdentifier"
-                            >&nbsp;({{ inspection.exam.creator.userIdentifier }})</span
-                        >
-                        <span>
-                            <br />
-                            <a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{
-                                inspection.exam.creator.email
+                @for (
+                    inspection of filteredInspections
+                        | orderBy: sorting.predicate : sorting.reverse
+                        | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
+                    track inspection
+                ) {
+                    <tr>
+                        <!-- 1 -->
+                        <td>
+                            @if (inspection.exam.course) {
+                                <xm-course-code [course]="inspection.exam.course"></xm-course-code>
+                            }
+                        </td>
+                        <!-- 2 -->
+                        <td>
+                            {{ inspection.answerLanguage }}
+                        </td>
+                        <!-- 3 -->
+                        <td>
+                            <a [routerLink]="['/staff/assessments', inspection.exam.id]">
+                                {{ inspection.exam.name }}
+                            </a>
+                        </td>
+                        <!-- 4 -->
+                        <td>
+                            {{ inspection.ownerAggregate }}
+                        </td>
+                        <!-- 5 -->
+                        <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
+                        <!-- 6 -->
+                        <td>
+                            <span>{{ inspection.studentName }}</span>
+                            @if (inspection.exam.creator.userIdentifier) {
+                                <span>&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                            }
+                            <span>
+                                <br />
+                                <a class="pointer" href="mailto:{{ inspection.exam.creator.email }}">{{
+                                    inspection.exam.creator.email
+                                }}</a>
+                            </span>
+                        </td>
+                        <!-- 7 -->
+                        <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
+                        <!-- 8 -->
+                        @if (inspection.modifier) {
+                            <td>
+                                <span>{{ inspection.inspectorName }} </span>
+                                <span>
+                                    <br />
+                                    <a class="pointer" href="mailto:{{ inspection.modifier.email }}">{{
+                                        inspection.modifier.email
+                                    }}</a>
+                                </span>
+                            </td>
+                        }
+                        <!-- 9 -->
+                        <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
+                        <!-- 10 -->
+                        <td>
+                            @if (inspection.approved) {
+                                <span class="text-success">
+                                    {{ 'i18n_approved' | translate }}
+                                </span>
+                            } @else {
+                                <span class="text-danger">
+                                    {{ 'i18n_rejected' | translate }}
+                                </span>
+                            }
+                        </td>
+                        <!-- 11 -->
+                        <td>
+                            <a class="pointer" (click)="showStatement(inspection.statement)">{{
+                                'i18n_view' | translate
                             }}</a>
-                        </span>
-                    </td>
-                    <!-- 7 -->
-                    <td>{{ inspection.exam.created | date : 'dd.MM.yyyy' }}</td>
-                    <!-- 8 -->
-                    <td *ngIf="inspection.modifier">
-                        <span>{{ inspection.inspectorName }} </span>
-                        <span>
-                            <br />
-                            <a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{
-                                inspection.modifier.email
-                            }}</a>
-                        </span>
-                    </td>
-                    <!-- 9 -->
-                    <td>{{ inspection.finishedAt | date : 'dd.MM.yyyy' }}</td>
-                    <!-- 10 -->
-                    <td>
-                        <span *ngIf="inspection.approved" class="approved">
-                            {{ 'sitnet_approved' | translate }}
-                        </span>
-                        <span *ngIf="!inspection.approved" class="rejected">
-                            {{ 'sitnet_rejected' | translate }}
-                        </span>
-                    </td>
-                    <!-- 11 -->
-                    <td>
-                        <a class="pointer smaller" (click)="showStatement(inspection.statement)">{{
-                            'sitnet_view' | translate
-                        }}</a>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                }
                 <!--Fill if page not full-->
-                <tr *ngFor="let r of [] | pageFill : filteredInspections.length : currentPage : pageSize">
-                    <td class="table-column-bold" colspan="11">&nbsp;</td>
-                </tr>
-                <tr *ngIf="filteredInspections.length === 0">
-                    <td class="table-column-bold" colspan="11">
-                        {{ 'sitnet_processed_language_inspections_no_results' | translate }}
-                    </td>
-                </tr>
+                @for (r of [] | pageFill: filteredInspections.length : currentPage : pageSize; track r) {
+                    <tr>
+                        <td colspan="11">&nbsp;</td>
+                    </tr>
+                }
+                @if (filteredInspections.length === 0) {
+                    <tr>
+                        <td colspan="11">
+                            {{ 'i18n_processed_language_inspections_no_results' | translate }}
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
-    <div [hidden]="filteredInspections.length <= pageSize">
-        <xm-paginator
-            [items]="filteredInspections"
-            (pageSelected)="pageSelected($event)"
-            [pageSize]="pageSize"
-            [currentPage]="currentPage"
-        ></xm-paginator>
-    </div>
+</div>
+<div [hidden]="filteredInspections.length <= pageSize">
+    <xm-paginator
+        [items]="filteredInspections"
+        (pageSelected)="pageSelected($event)"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+    ></xm-paginator>
 </div>

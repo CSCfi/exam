@@ -12,14 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import { EnrolmentService } from '../../../enrolment/enrolment.service';
-import { User } from '../../../session/session.service';
-import type { Exam, ExamParticipation } from '../../exam.model';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import { User } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-exam-pre-participant-selector',
@@ -29,50 +32,52 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                     <input
                         type="email"
                         name="email"
-                        placeholder="{{ 'sitnet_write_pre_participant_email' | translate }}"
-                        class="form-control wdth-30 make-inline"
+                        placeholder="{{ 'i18n_write_pre_participant_email' | translate }}"
+                        class="form-control w-50 make-inline"
                         [(ngModel)]="newPreParticipant.email"
                         email
                     />
                     <button
                         [disabled]="!myForm.valid || !newPreParticipant.email"
                         (click)="addPreParticipant()"
-                        class="btn btn-primary green"
+                        class="btn btn-success"
                     >
-                        {{ 'sitnet_add' | translate }}
+                        {{ 'i18n_add' | translate }}
                     </button>
                 </form>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-9 offset-md-3">
-                <ul class="muted-list mart10">
-                    <!-- Students not having finished the exam -->
-                    <li class="marl10" *ngFor="let enrolment of exam.examEnrolments">
+
+        <div class="row mt-1">
+            <span class="col-md-9 offset-md-3">
+                <!-- Students not having finished the exam -->
+                @for (enrolment of exam.examEnrolments; track enrolment) {
+                    <button
+                        class="badge ms-1"
+                        [ngClass]="exam.state === 'PUBLISHED' ? 'bg-secondary' : 'bg-light text-dark'"
+                        [disabled]="exam.state === 'PUBLISHED'"
+                        (click)="removeParticipant(enrolment.id)"
+                        title="{{ 'i18n_remove' | translate }}"
+                    >
                         {{ renderParticipantLabel(enrolment) }}
-                        <span *ngIf="enrolment.user?.userIdentifier">({{ enrolment.user.userIdentifier }})</span>
-                        <button
-                            class="reviewer-remove"
-                            [disabled]="exam.state === 'PUBLISHED'"
-                            (click)="removeParticipant(enrolment.id)"
-                            title="{{ 'sitnet_remove' | translate }}"
-                        >
-                            <img
-                                [hidden]="exam.state === 'PUBLISHED'"
-                                src="/assets/images/icon_remove.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                            />
-                        </button>
-                    </li>
-                    <!-- Students that have finished the exam -->
-                    <li class="marl10 text-muted" *ngFor="let participant of participants">
+                        @if (enrolment.user?.userIdentifier) {
+                            ({{ enrolment.user.userIdentifier }})
+                        }
+                    </button>
+                }
+                <!-- Students that have finished the exam -->
+                @for (participant of participants; track participant) {
+                    <button class="badge bg-light text-dark ms-1" [disabled]="true">
                         {{ participant.firstName }} {{ participant.lastName }}
-                        <span *ngIf="participant.userIdentifier">({{ participant.userIdentifier }})</span>
-                    </li>
-                </ul>
-            </div>
+                        @if (participant.userIdentifier) {
+                            ({{ participant.userIdentifier }})
+                        }
+                    </button>
+                }
+            </span>
         </div> `,
+    standalone: true,
+    imports: [FormsModule, NgClass, TranslateModule],
 })
 export class ExamPreParticipantSelectorComponent implements OnInit {
     @Input() exam!: Exam;
@@ -112,7 +117,7 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
         this.http.delete(`/app/enrolments/student/${id}`).subscribe({
             next: () => {
                 this.exam.examEnrolments = this.exam.examEnrolments.filter((ee) => ee.id !== id);
-                this.toast.info(this.translate.instant('sitnet_participant_removed'));
+                this.toast.info(this.translate.instant('i18n_participant_removed'));
             },
             error: (err) => this.toast.error(err),
         });

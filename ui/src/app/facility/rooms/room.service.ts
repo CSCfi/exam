@@ -5,11 +5,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { format, formatISO, parseISO, setHours, setMinutes } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { noop } from 'rxjs';
-import { MaintenancePeriod } from '../../exam/exam.model';
-import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { DateTimeService } from '../../shared/date/date.service';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { ExceptionDialogComponent } from '../schedule/exception-dialog.component';
+import { MaintenancePeriod } from 'src/app/exam/exam.model';
+import { ExceptionDialogComponent } from 'src/app/facility/schedule/exception-dialog.component';
+import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 export type Weekday = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 
@@ -84,12 +84,12 @@ export class RoomService {
 
     disableRoom = (room: ExamRoom) =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_confirm_room_inactivation'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_confirm_room_inactivation'))
             .subscribe({
                 next: () =>
                     this.inactivateRoom$(room.id).subscribe({
                         next: () => {
-                            this.toast.info(this.translate.instant('sitnet_room_inactivated'));
+                            this.toast.info(this.translate.instant('i18n_room_inactivated'));
                             room.state = 'INACTIVE';
                         },
                         error: (err) => this.toast.error(err),
@@ -100,7 +100,7 @@ export class RoomService {
     enableRoom = (room: ExamRoom) =>
         this.activateRoom$(room.id).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_room_activated'));
+                this.toast.info(this.translate.instant('i18n_room_activated'));
                 room.state = 'ACTIVE';
             },
             error: (err) => this.toast.error(err),
@@ -110,7 +110,7 @@ export class RoomService {
         new Promise<ExceptionWorkingHours[]>((resolve, reject) => {
             this.updateExceptions$(ids, exceptions).subscribe({
                 next: (data: ExceptionWorkingHours[]) => {
-                    this.toast.info(this.translate.instant('sitnet_exception_time_added'));
+                    this.toast.info(this.translate.instant('i18n_exception_time_added'));
                     resolve(data);
                 },
                 error: (error) => {
@@ -142,7 +142,7 @@ export class RoomService {
         new Promise<void>((resolve, reject) => {
             this.removeException$(roomId, exceptionId).subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_exception_time_removed'));
+                    this.toast.info(this.translate.instant('i18n_exception_time_removed'));
                     resolve();
                 },
                 error: (error) => {
@@ -164,7 +164,7 @@ export class RoomService {
 
             this.updateExamStartingHours$(data).subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_exam_starting_hours_updated'));
+                    this.toast.info(this.translate.instant('i18n_exam_starting_hours_updated'));
                     resolve();
                 },
                 error: (error) => {

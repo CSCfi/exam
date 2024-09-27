@@ -12,16 +12,40 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import type { ExamRoom } from '../../reservation/reservation.model';
-import { FileService } from '../../shared/file/file.service';
-import type { ExamEnrolment } from '../enrolment.model';
-import { EnrolmentService } from '../enrolment.service';
+import { RouterLink } from '@angular/router';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { ExamRoom } from 'src/app/reservation/reservation.model';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { FileService } from 'src/app/shared/file/file.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
+import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.component';
 
 @Component({
     selector: 'xm-active-enrolment',
     templateUrl: './active-enrolment.component.html',
+    standalone: true,
+    imports: [
+        RouterLink,
+        ActiveEnrolmentMenuComponent,
+        CourseCodeComponent,
+        TeacherListComponent,
+        NgbCollapse,
+        MathJaxDirective,
+        UpperCasePipe,
+        LowerCasePipe,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+    ],
+    styleUrls: ['../enrolment.shared.scss', './active-enrolment.component.scss'],
 })
 export class ActiveEnrolmentComponent {
     @Input() enrolment!: ExamEnrolment & { occasion?: { startAt: string; endAt: string; tz: string } };
@@ -31,7 +55,11 @@ export class ActiveEnrolmentComponent {
     showInstructions = false;
     showMaterials = false;
 
-    constructor(private translate: TranslateService, private Enrolment: EnrolmentService, private Files: FileService) {}
+    constructor(
+        private translate: TranslateService,
+        private Enrolment: EnrolmentService,
+        private Files: FileService,
+    ) {}
 
     hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment);
 
@@ -60,7 +88,7 @@ export class ActiveEnrolmentComponent {
     downloadSebFile = () =>
         this.Files.download(
             `/app/student/enrolments/${this.enrolment.id}/configFile`,
-            (this.enrolment.exam.name || this.translate.instant('sitnet_no_name')).replace(' ', '-') + '.seb',
+            (this.enrolment.exam.name || this.translate.instant('i18n_no_name')).replace(' ', '-') + '.seb',
         );
 
     private getRoomInstructions = (lang: string, room: Partial<ExamRoom>) => {

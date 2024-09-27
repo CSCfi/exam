@@ -1,0 +1,14 @@
+pre-commit:
+  commands:
+    prettier:
+      tags: frontend style
+      glob: "**/*.{ts,html}"
+      run: npx prettier --write {staged_files}
+    prettier-java:
+      tags: backend style
+      glob: "**/*.java"
+      run: npx prettier --write --plugin=prettier-plugin-java --print-width=120 --tab-width=4 {staged_files}
+    eslint:
+      tags: frontend rules
+      glob: "**/*.ts"
+      run: npx eslint --fix {staged_files}

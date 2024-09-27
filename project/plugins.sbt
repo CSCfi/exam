@@ -1,7 +1,11 @@
-resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
+addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.2")
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.16")
+addSbtPlugin("org.playframework" % "sbt-play-ebean" % "8.0.0")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-play-ebean" % "6.0.0")
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
 
-// addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
+
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
+
+

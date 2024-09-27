@@ -15,10 +15,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
-import type { ReviewedExam } from '../../enrolment/enrolment.model';
-import { SessionService } from '../../session/session.service';
-import type { CollaborativeExam, Exam, ExamParticipation } from '../exam.model';
-import { CollaborativeExamState } from '../exam.model';
+import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
+import type { CollaborativeExam, Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import { CollaborativeExamState } from 'src/app/exam/exam.model';
+import { SessionService } from 'src/app/session/session.service';
 
 export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exam: ReviewedExam } & {
     examId: string;
@@ -31,7 +31,10 @@ export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exa
 export class CollaborativeExamService {
     exams: CollaborativeExam[] = [];
 
-    constructor(private http: HttpClient, private Session: SessionService) {}
+    constructor(
+        private http: HttpClient,
+        private Session: SessionService,
+    ) {}
 
     listExams$ = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/app/iop/enrolments' : '/app/iop/exams';
@@ -41,7 +44,7 @@ export class CollaborativeExamService {
     createExam$ = (): Observable<CollaborativeExam> => this.http.post<CollaborativeExam>('/app/iop/exams', {});
 
     searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
-        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
+        const paramStr = searchTerm ? `?filter=${encodeURIComponent(searchTerm)}` : '';
         const path = `/app/iop/exams${paramStr}`;
         return this.http.get<CollaborativeExam[]>(path);
     };
@@ -49,11 +52,11 @@ export class CollaborativeExamService {
     getExamStateTranslation = (exam: CollaborativeExam): string | null => {
         switch (exam.state) {
             case CollaborativeExamState.DRAFT:
-                return 'sitnet_draft';
+                return 'i18n_draft';
             case CollaborativeExamState.PRE_PUBLISHED:
-                return 'sitnet_pre_published';
+                return 'i18n_pre_published';
             case CollaborativeExamState.PUBLISHED:
-                return 'sitnet_published';
+                return 'i18n_published';
             default:
                 return null;
         }

@@ -1,6 +1,6 @@
 package util.excel;
 
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.io.ByteArrayOutputStream;
@@ -121,7 +121,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
 
     @Override
     public ByteArrayOutputStream build(Long examId, Collection<Long> childIds) throws IOException {
-        List<ExamRecord> examRecords = Ebean
+        List<ExamRecord> examRecords = DB
             .find(ExamRecord.class)
             .fetch("examScore")
             .where()
@@ -177,27 +177,20 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             appendCell(valueRow, value);
         }
         int questionNumber;
-        for (ExamSection es : exam.getExamSections().stream().sorted().collect(Collectors.toList())) {
+        for (ExamSection es : exam.getExamSections().stream().sorted().toList()) {
             questionNumber = 1;
-            for (ExamSectionQuestion esq : es.getSectionQuestions().stream().sorted().collect(Collectors.toList())) {
-                String questionType = "";
-                switch (esq.getQuestion().getType()) {
-                    case EssayQuestion:
-                        questionType = messages.get(lang, "reports.question.type.essay");
-                        break;
-                    case ClozeTestQuestion:
-                        questionType = messages.get(lang, "reports.question.type.cloze");
-                        break;
-                    case MultipleChoiceQuestion:
-                        questionType = messages.get(lang, "reports.question.type.multiplechoice");
-                        break;
-                    case WeightedMultipleChoiceQuestion:
-                        questionType = messages.get(lang, "reports.question.type.weightedmultiplechoide");
-                        break;
-                    case ClaimChoiceQuestion:
-                        questionType = messages.get(lang, "reports.question.type.claim");
-                        break;
-                }
+            for (ExamSectionQuestion esq : es.getSectionQuestions().stream().sorted().toList()) {
+                String questionType =
+                    switch (esq.getQuestion().getType()) {
+                        case EssayQuestion -> messages.get(lang, "reports.question.type.essay");
+                        case ClozeTestQuestion -> messages.get(lang, "reports.question.type.cloze");
+                        case MultipleChoiceQuestion -> messages.get(lang, "reports.question.type.multiplechoice");
+                        case WeightedMultipleChoiceQuestion -> messages.get(
+                            lang,
+                            "reports.question.type.weightedmultiplechoide"
+                        );
+                        case ClaimChoiceQuestion -> messages.get(lang, "reports.question.type.claim");
+                    };
 
                 appendCell(
                     headerRow,
@@ -237,14 +230,17 @@ public class ExcelBuilderImpl implements ExcelBuilder {
         linkFont.setUnderline(HSSFFont.U_SINGLE);
         linkStyle.setFont(linkFont);
 
-        Exam parentExam = Ebean
+        Optional<Exam> parentExamOption = DB
             .find(Exam.class)
             .fetch("examSections.sectionQuestions.question")
             .where()
             .eq("id", examId)
-            .findOne();
-
-        List<Exam> childExams = Ebean
+            .findOneOrEmpty();
+        if (parentExamOption.isEmpty()) {
+            throw new RuntimeException("parent exam not found");
+        }
+        Exam parentExam = parentExamOption.get();
+        List<Exam> childExams = DB
             .find(Exam.class)
             .fetch("examParticipation.user")
             .fetch("examSections.sectionQuestions.question")
@@ -344,7 +340,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
                 exam.getState() == Exam.State.GRADED_LOGGED ||
                 exam.getState() == Exam.State.ARCHIVED;
 
-            /* Get non-score cells and append them to a new excel row */
+            /* Get non-score cells and append them to a new Excel row */
             List<Tuple2<String, CellType>> defaultCells = getScoreReportDefaultCells(student, exam, examScore);
             Row currentRow = sheet.createRow(sheet.getLastRowNum() + 1);
             appendCellsToRow(currentRow, defaultCells);

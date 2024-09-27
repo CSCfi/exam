@@ -1,0 +1,41 @@
+@import '../../../shared/definitions.scss';
+.exam-answered-correct {
+    border: 1px solid $exam-dark-green;
+    background-color: #f3fff5;
+    padding: 5px;
+    border-radius: 4px;
+
+    .answer-score-text {
+        color: #3c763d;
+    }
+}
+
+.exam-answered-wrong {
+    border: 1px solid red;
+    background-color: #fff6f7;
+    padding: 5px;
+    border-radius: 4px;
+
+    .answer-score-text {
+        color: #a94442;
+    }
+}
+
+.exam-answered-skip {
+    border: 1px solid #7f7f7f;
+    background-color: rgb(238, 238, 238);
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.exam-not-answered {
+    border: 1px solid white;
+    background-color: white;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.exam-question-option-text {
+    color: #2c2c2c;
+    font-size: 14px;
+}

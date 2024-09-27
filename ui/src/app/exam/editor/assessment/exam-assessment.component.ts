@@ -1,12 +1,16 @@
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, takeUntil } from 'rxjs';
-import { AutoEvaluationConfig, Exam, ExamFeedbackConfig, ExamType, GradeScale } from '../../exam.model';
-import { ExamService } from '../../exam.service';
-import { ExamTabService } from '../exam-tabs.service';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
+import { AutoEvaluationConfig, Exam, ExamFeedbackConfig, ExamType, GradeScale } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { AutoEvaluationComponent } from './auto-evaluation.component';
+import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
 
 /*
  * Copyright (c) 2017 Exam Consortium
@@ -25,6 +29,9 @@ import { ExamTabService } from '../exam-tabs.service';
 @Component({
     selector: 'xm-exam-assessment',
     templateUrl: './exam-assessment.component.html',
+    styleUrls: ['../../exam.shared.scss'],
+    standalone: true,
+    imports: [NgbPopover, NgClass, AutoEvaluationComponent, ExamFeedbackConfigComponent, TranslateModule],
 })
 export class ExamAssessmentComponent implements OnInit, OnDestroy {
     exam!: Exam;
@@ -113,7 +120,7 @@ export class ExamAssessmentComponent implements OnInit, OnDestroy {
         }
         this.Exam.updateExam$(this.exam, config, this.collaborative).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_exam_saved'));
+                this.toast.info(this.translate.instant('i18n_exam_saved'));
                 const code = this.exam.course ? this.exam.course.code : null;
                 this.Tabs.notifyExamUpdate({
                     name: this.exam.name,

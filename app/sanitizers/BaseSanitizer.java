@@ -3,15 +3,16 @@ package sanitizers;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
-public abstract class BaseSanitizer extends play.mvc.Action.Simple {
+abstract class BaseSanitizer extends play.mvc.Action.Simple {
 
-    protected play.Logger.ALogger logger() {
-        return Logger.of(getClass());
+    protected Logger logger() {
+        return LoggerFactory.getLogger(getClass());
     }
 
     @Override
@@ -20,7 +21,7 @@ public abstract class BaseSanitizer extends play.mvc.Action.Simple {
         try {
             return delegate.call(sanitize(request, body));
         } catch (SanitizingException e) {
-            logger().error("Sanitizing error: " + e.getMessage(), e);
+            logger().error(String.format("Sanitizing error: %s", e.getMessage()), e);
             return CompletableFuture.completedFuture(Results.badRequest());
         }
     }

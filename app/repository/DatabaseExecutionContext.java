@@ -1,7 +1,7 @@
 package repository;
 
-import akka.actor.ActorSystem;
 import javax.inject.Inject;
+import org.apache.pekko.actor.ActorSystem;
 import play.libs.concurrent.CustomExecutionContext;
 
 public class DatabaseExecutionContext extends CustomExecutionContext {

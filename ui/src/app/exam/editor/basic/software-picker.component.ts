@@ -12,30 +12,34 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Exam, Software } from '../../exam.model';
+import type { Exam, Software } from 'src/app/exam/exam.model';
 
 @Component({
     selector: 'xm-software-picker',
     template: `<div [hidden]="exam.executionType.type === 'MATURITY'" class="row">
-        <div class="col-md-12 margin-20">
+        <div class="col-md-12 mt-3">
             <div class="row">
-                <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_machine_softwares' | translate }}
+                <div class="col-md-3 ">
+                    {{ 'i18n_machine_softwares' | translate }}
                     <sup
-                        ngbPopover="{{ 'sitnet_exam_software_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_exam_software_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
-                        <img
-                            src="/assets/images/icon_tooltip.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                        />
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
                     </sup>
                 </div>
                 <div class="col-md-9">
@@ -50,29 +54,36 @@ import type { Exam, Software } from '../../exam.model';
                             {{ selectedSoftware() }}&nbsp;<span class="caret"></span>
                         </button>
                         <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
-                            <button
-                                ngbDropdownItem
-                                *ngFor="let sw of software"
-                                role="presentation"
-                                [ngClass]="isSelected(sw) ? 'active' : ''"
-                                (click)="updateExamSoftware(sw)"
-                                title="{{ sw.name }}"
-                            >
-                                {{ sw.name }}
-                            </button>
+                            @for (sw of software; track sw) {
+                                <button
+                                    ngbDropdownItem
+                                    role="presentation"
+                                    [ngClass]="isSelected(sw) ? 'active' : ''"
+                                    (click)="updateExamSoftware(sw)"
+                                    title="{{ sw.name }}"
+                                >
+                                    {{ sw.name }}
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div> `,
+    </div>`,
+    standalone: true,
+    imports: [NgbPopover, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass, TranslateModule],
 })
 export class SoftwareSelectorComponent implements OnInit {
     @Input() exam!: Exam;
 
     software: Software[] = [];
 
-    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     ngOnInit() {
         this.exam.softwares ||= [];
@@ -81,7 +92,7 @@ export class SoftwareSelectorComponent implements OnInit {
 
     selectedSoftware = () =>
         this.exam.softwares.length === 0
-            ? this.translate.instant('sitnet_select')
+            ? this.translate.instant('i18n_select')
             : this.exam.softwares.map((s) => s.name).join(', ');
 
     isSelected = (sw: Software) => this.exam.softwares.some((es) => es.id === sw.id);
@@ -95,7 +106,7 @@ export class SoftwareSelectorComponent implements OnInit {
                 } else {
                     this.exam.softwares.push(sw);
                 }
-                this.toast.info(this.translate.instant('sitnet_exam_software_updated'));
+                this.toast.info(this.translate.instant('i18n_exam_software_updated'));
             },
             error: (err) => this.toast.error(err),
         });

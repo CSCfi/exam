@@ -18,7 +18,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.List;
 import models.Language;
 import play.libs.Json;
@@ -28,7 +28,7 @@ public class LanguageController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getSupportedLanguages() {
-        List<Language> languages = Ebean.find(Language.class).findList();
+        List<Language> languages = DB.find(Language.class).findList();
         return ok(Json.toJson(languages));
     }
 }

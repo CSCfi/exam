@@ -12,17 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin, noop, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import type {
     Course,
     Exam,
@@ -31,21 +32,54 @@ import type {
     GradeScale,
     NoGrade,
     SelectableGrade,
-} from '../../exam/exam.model';
-import { isRealGrade } from '../../exam/exam.model';
-import { ExamService } from '../../exam/exam.service';
-import type { User } from '../../session/session.service';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { DateTimeService } from '../../shared/date/date.service';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { FileService } from '../../shared/file/file.service';
-import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
-import type { Review } from '../review.model';
+} from 'src/app/exam/exam.model';
+import { isRealGrade } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import type { Review } from 'src/app/review/review.model';
+import type { User } from 'src/app/session/session.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
+import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { FileService } from 'src/app/shared/file/file.service';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
+import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 
 @Component({
     selector: 'xm-speed-review',
     templateUrl: './speed-review.component.html',
+    standalone: true,
+    imports: [
+        HistoryBackComponent,
+        TableSortComponent,
+        RouterLink,
+        NgClass,
+        FormsModule,
+        PaginatorComponent,
+        NgbPopover,
+        LowerCasePipe,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+        PageFillPipe,
+        DiffInMinutesPipe,
+        DiffInDaysPipe,
+        OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
+    styleUrl: './speed-review.component.scss',
 })
 export class SpeedReviewComponent implements OnInit {
     pageSize = 10;
@@ -147,29 +181,28 @@ export class SpeedReviewComponent implements OnInit {
     gradeExams = () => {
         const reviews = this.examReviews.filter((r) => r.selectedGrade && r.selectedGrade.type && this.isGradeable(r));
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_grade_review'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_confirm_grade_review'),
         ).subscribe({
             next: () => {
                 forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
-                    this.toast.info(this.translate.instant('sitnet_saved'));
+                    this.toast.info(this.translate.instant('i18n_saved'));
                     if (this.examReviews.length === 0) {
                         this.router.navigate(['/staff/exams', this.examId, '5']);
                     }
                 });
             },
-            error: (err) => this.toast.error(err),
         });
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, {}, 'sitnet_import_grades_from_csv')
+        this.Attachment.selectFile(false, {}, 'i18n_import_grades_from_csv')
             .then((result) => {
                 this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, () => this.reload());
-                this.toast.success(`${this.translate.instant('sitnet_csv_uploaded_successfully')}`);
+                this.toast.success(`${this.translate.instant('i18n_csv_uploaded_successfully')}`);
             })
             .catch(() => {
-                this.toast.error(`${this.translate.instant('sitnet_csv_uploading_failed')}`);
+                this.toast.error(`${this.translate.instant('i18n_csv_uploading_failed')}`);
                 return noop;
             });
     };
@@ -234,14 +267,14 @@ export class SpeedReviewComponent implements OnInit {
     private getErrors = (review: Review) => {
         const messages = [];
         if (!this.isAllowedToGrade(review)) {
-            messages.push('sitnet_error_unauthorized');
+            messages.push('i18n_error_unauthorized');
         }
         const exam = review.examParticipation.exam;
         if (!exam.creditType && !exam.examType) {
-            messages.push('sitnet_exam_choose_credit_type');
+            messages.push('i18n_exam_choose_credit_type');
         }
         if (!exam.answerLanguage && exam.examLanguages.length !== 1) {
-            messages.push('sitnet_exam_choose_response_language');
+            messages.push('i18n_exam_choose_response_language');
         }
         return messages;
     };
@@ -254,7 +287,7 @@ export class SpeedReviewComponent implements OnInit {
         const exam = review.examParticipation.exam;
         const gradeId = exam.grade && (exam.grade as Grade).id;
         if (!review.selectedGrade && !gradeId) {
-            messages.push('sitnet_participation_unreviewed');
+            messages.push('i18n_participation_unreviewed');
         }
         messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
         if (messages.length === 0) {

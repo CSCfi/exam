@@ -1,15 +1,19 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { Reservation } from 'src/app/reservation/reservation.model';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import type { ExamEnrolment } from '../../enrolment.model';
-import { EnrolmentService } from '../../enrolment.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 @Component({
     selector: 'xm-active-enrolment-menu',
     templateUrl: './active-enrolment-menu.component.html',
+    standalone: true,
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, RouterLink, TranslateModule],
 })
 export class ActiveEnrolmentMenuComponent {
     @Input() enrolment!: ExamEnrolment;
@@ -40,17 +44,16 @@ export class ActiveEnrolmentMenuComponent {
 
     removeEnrolment = () => {
         if (this.enrolment.reservation) {
-            this.toast.error(this.translate.instant('sitnet_cancel_reservation_first'));
+            this.toast.error(this.translate.instant('i18n_cancel_reservation_first'));
         } else {
             this.Confirmation.open$(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_are_you_sure'),
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_are_you_sure'),
             ).subscribe({
                 next: () =>
                     this.Enrolment.removeEnrolment$(this.enrolment).subscribe(() =>
                         this.removed.emit(this.enrolment.id),
                     ),
-                error: (err) => this.toast.error(err),
             });
         }
     };

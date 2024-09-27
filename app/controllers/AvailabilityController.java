@@ -18,7 +18,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -57,7 +57,7 @@ public class AvailabilityController extends BaseController {
     }
 
     private List<Reservation> getReservationsDuring(List<Reservation> reservations, Interval interval) {
-        return reservations.stream().filter(r -> interval.overlaps(r.toInterval())).collect(Collectors.toList());
+        return reservations.stream().filter(r -> interval.overlaps(r.toInterval())).toList();
     }
 
     private List<Interval> toOneHourChunks(Interval i) {
@@ -80,13 +80,13 @@ public class AvailabilityController extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getAvailability(Long roomId, String day) {
-        ExamRoom room = Ebean.find(ExamRoom.class, roomId);
+        ExamRoom room = DB.find(ExamRoom.class, roomId);
         if (room == null) {
             return notFound();
         }
         DateTime searchStart = parseSearchStartDate(day);
         DateTime searchEnd = getSearchEndDate(searchStart);
-        List<Reservation> reservations = Ebean
+        List<Reservation> reservations = DB
             .find(Reservation.class)
             .where()
             .eq("machine.room.id", roomId)
@@ -107,7 +107,7 @@ public class AvailabilityController extends BaseController {
                 )
                 .map(this::round)
                 .flatMap(i -> toOneHourChunks(i).stream())
-                .collect(Collectors.toList());
+                .toList();
             allSlots.addAll(slotsForDate);
             window = window.plusDays(1);
         }
@@ -122,7 +122,7 @@ public class AvailabilityController extends BaseController {
             .entrySet()
             .stream()
             .map(e -> new Availability(e.getKey(), machineCount, e.getValue().size()))
-            .collect(Collectors.toList());
+            .toList();
 
         return ok(Json.toJson(availability));
     }
@@ -161,8 +161,7 @@ public class AvailabilityController extends BaseController {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof Availability)) return false;
-            Availability a = (Availability) o;
+            if (!(o instanceof Availability a)) return false;
             return new EqualsBuilder().append(start, a.start).append(end, a.end).build();
         }
 

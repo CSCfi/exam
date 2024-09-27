@@ -12,19 +12,34 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
-import { EnrolmentService } from '../enrolment/enrolment.service';
-import { SessionService } from '../session/session.service';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import { SessionService } from 'src/app/session/session.service';
 import type { Examination, ExaminationSection, NavigationPage } from './examination.model';
 import { ExaminationService } from './examination.service';
+import { ExaminationPageHeaderComponent } from './header/examination-header.component';
+import { AnswerInstructionsComponent } from './instructions/answer-instructions.component';
+import { ExaminationNavigationComponent } from './navigation/examination-navigation.component';
+import { ExaminationToolbarComponent } from './navigation/examination-toolbar.component';
+import { ExaminationSectionComponent } from './section/examination-section.component';
 
 @Component({
     selector: 'xm-examination',
     templateUrl: './examination.component.html',
+    standalone: true,
+    imports: [
+        ExaminationPageHeaderComponent,
+        ExaminationSectionComponent,
+        AnswerInstructionsComponent,
+        ExaminationNavigationComponent,
+        ExaminationToolbarComponent,
+        TranslateModule,
+    ],
 })
 export class ExaminationComponent implements OnInit, OnDestroy {
     isCollaborative = false;
@@ -35,7 +50,6 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private translate: TranslateService,
         private Examination: ExaminationService,
         private Session: SessionService,
         private Enrolment: EnrolmentService,
@@ -45,7 +59,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
         this.isPreview = this.route.snapshot.data.isPreview;
         this.isCollaborative = this.route.snapshot.data.isCollaborative || false;
         if (!this.isPreview) {
-            window.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
+            window.addEventListener('beforeunload', this.onUnload);
         }
         this.Examination.startExam$(
             this.route.snapshot.params.hash,
@@ -72,7 +86,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        window.onbeforeunload = null;
+        window.removeEventListener('beforeunload', this.onUnload);
     }
 
     selectNewPage = (event: { page: Partial<NavigationPage> }) => this.setActiveSection(event.page);
@@ -85,9 +99,13 @@ export class ExaminationComponent implements OnInit, OnDestroy {
                     if (err) console.log(err);
                     return of(err);
                 }),
-                finalize(() => this.logout('sitnet_exam_time_is_up', true)),
+                finalize(() => this.logout('i18n_exam_time_is_up', true)),
             )
             .subscribe();
+
+    getSkipLinkPath = (skipTarget: string) => {
+        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
+    };
 
     private logout = (msg: string, canFail: boolean) =>
         this.Examination.logout(msg, this.exam.hash, this.exam.implementation === 'CLIENT_AUTH', canFail);
@@ -115,5 +133,10 @@ export class ExaminationComponent implements OnInit, OnDestroy {
             return this.exam.examSections[i];
         }
         throw Error('invalid index');
+    };
+
+    private onUnload = (event: BeforeUnloadEvent) => {
+        event.preventDefault();
+        return (event.returnValue = '');
     };
 }

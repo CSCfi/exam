@@ -15,14 +15,13 @@
 
 package controllers;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Dynamic;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import java.net.URLDecoder;
@@ -36,8 +35,10 @@ import models.Comment;
 import models.Exam;
 import models.LanguageInspection;
 import models.User;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -55,17 +56,17 @@ public class LanguageInspectionController extends BaseController {
     @Inject
     protected ActorSystem actor;
 
-    private static final Logger.ALogger logger = Logger.of(LanguageInspectionController.class);
+    private final Logger logger = LoggerFactory.getLogger(LanguageInspectionController.class);
 
     @Dynamic(value = "inspector or admin", meta = "pattern=CAN_INSPECT_LANGUAGE,role=ADMIN,anyMatch=true")
     public Result listInspections(Optional<String> month, Optional<Long> start, Optional<Long> end) {
-        ExpressionList<LanguageInspection> query = Ebean
+        ExpressionList<LanguageInspection> query = DB
             .find(LanguageInspection.class)
             .fetch("exam")
             .fetch("exam.course")
             .fetch("exam.creator", "firstName, lastName, email, userIdentifier")
             .fetch("exam.parent.examOwners", "firstName, lastName, email, userIdentifier")
-            .fetch("exam.examLanguages", new FetchConfig().query())
+            .fetch("exam.examLanguages", FetchConfig.ofQuery())
             .fetch("statement")
             .fetch("creator", "firstName, lastName, email, userIdentifier")
             .fetch("assignee", "firstName, lastName, email, userIdentifier")
@@ -97,9 +98,9 @@ public class LanguageInspectionController extends BaseController {
     public Result createInspection(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         Long examId = Long.parseLong(df.get("examId"));
-        Exam exam = Ebean.find(Exam.class, examId);
+        Exam exam = DB.find(Exam.class, examId);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         if (exam.getLanguageInspection() != null) {
             return forbidden("already sent for inspection");
@@ -118,7 +119,7 @@ public class LanguageInspectionController extends BaseController {
     @Authenticated
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result assignInspection(Long id, Http.Request request) {
-        LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
+        LanguageInspection inspection = DB.find(LanguageInspection.class, id);
         if (inspection == null) {
             return notFound("Inspection not found");
         }
@@ -134,9 +135,6 @@ public class LanguageInspectionController extends BaseController {
     }
 
     private Optional<Result> checkInspection(LanguageInspection inspection) {
-        if (inspection == null) {
-            return Optional.of(notFound("Inspection not found"));
-        }
         if (inspection.getStartedAt() == null) {
             return Optional.of(forbidden("Inspection not assigned"));
         }
@@ -151,14 +149,13 @@ public class LanguageInspectionController extends BaseController {
     public Result setApproval(Long id, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         boolean isApproved = Boolean.parseBoolean(df.get("approved"));
-        LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
+        LanguageInspection inspection = DB.find(LanguageInspection.class, id);
+        if (inspection == null) {
+            return notFound("Inspection not found");
+        }
         return checkInspection(inspection)
             .orElseGet(() -> {
-                if (
-                    inspection == null ||
-                    inspection.getStatement() == null ||
-                    inspection.getStatement().getComment().isEmpty()
-                ) {
+                if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
                     return forbidden("No statement given");
                 }
                 inspection.setFinishedAt(new Date());
@@ -194,7 +191,10 @@ public class LanguageInspectionController extends BaseController {
         if (text.isEmpty()) {
             return badRequest();
         }
-        LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
+        LanguageInspection inspection = DB.find(LanguageInspection.class, id);
+        if (inspection == null) {
+            return notFound("Inspection not found");
+        }
         return checkInspection(inspection)
             .orElseGet(() -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);

@@ -12,47 +12,59 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
-import type { Exam } from '../../exam/exam.model';
-import type { CollaborativeExamInfo, EnrolmentInfo } from '../enrolment.model';
-import { EnrolmentService } from '../enrolment.service';
+import { Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+import type { CollaborativeExamInfo, EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 @Component({
     selector: 'xm-exam-search-result',
     template: `<div
-        class="student-enrolment-result-wrapper max-w-1100"
-        [ngClass]="exam.alreadyEnrolled && exam.reservationMade ? '' : 'notactive'"
+        [ngClass]="
+            exam.alreadyEnrolled && exam.reservationMade
+                ? 'xm-study-item-container'
+                : 'xm-study-item-container--inactive'
+        "
     >
         <div class="row">
             <div class="col">
                 <h2 class="student-exam-row-title-blue">
-                    <a
-                        *ngIf="!collaborative"
-                        class="infolink"
-                        [routerLink]="['/enrolments', exam.id]"
-                        [queryParams]="{ code: exam.course?.code }"
-                    >
-                        {{ exam.name }}
-                    </a>
-                    <span *ngIf="collaborative">{{ exam.name }}</span>
+                    @if (!collaborative) {
+                        <a
+                            class="xm-info-link"
+                            [routerLink]="['/enrolments', exam.id]"
+                            [queryParams]="{ code: exam.course?.code }"
+                        >
+                            {{ exam.name }}
+                        </a>
+                    }
+                    @if (collaborative) {
+                        <span>{{ exam.name }}</span>
+                    }
                 </h2>
             </div>
         </div>
         <div class="row mt-1">
-            <span *ngIf="exam.alreadyEnrolled && !exam.reservationMade" class="mt-1 student-exam-needs-reservation">
-                {{ 'sitnet_state_needs_reservation_title' | translate }}
-            </span>
+            @if (exam.alreadyEnrolled && !exam.reservationMade) {
+                <span class="mt-1 text-danger">
+                    {{ 'i18n_state_needs_reservation_title' | translate }}
+                </span>
+            }
         </div>
         <div class="row mt-3">
             <div class="col-md">
-                <span [hidden]="collaborative">{{ 'sitnet_course_name' | translate }}:</span>
-                <div *ngIf="!collaborative && exam.course">
-                    <xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}
-                </div>
+                <span [hidden]="collaborative">{{ 'i18n_course_name' | translate }}:</span>
+                @if (!collaborative && exam.course) {
+                    <div><xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}</div>
+                }
             </div>
             <div class="col">
-                <span [hidden]="collaborative">{{ 'sitnet_teachers' | translate }}: </span>
+                <span [hidden]="collaborative">{{ 'i18n_teachers' | translate }}: </span>
                 <span [hidden]="collaborative">
                     <xm-teacher-list [exam]="exam"></xm-teacher-list>
                 </span>
@@ -60,44 +72,39 @@ import { EnrolmentService } from '../enrolment.service';
         </div>
         <div class="row mt-3">
             <div class="col">
-                <span>{{ 'sitnet_exam_validity' | translate }}: </span>
+                <span>{{ 'i18n_exam_validity' | translate }}: </span>
                 <span
-                    >{{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }} &ndash;
-                    {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}</span
+                    >{{ exam.periodStart | date: 'dd.MM.yyyy' }} &ndash; {{ exam.periodEnd | date: 'dd.MM.yyyy' }}</span
                 >
             </div>
         </div>
         <div class="row mt-3">
             <div class="col">
-                <span>{{ 'sitnet_exam_language' | translate }}: </span>
+                <span>{{ 'i18n_exam_language' | translate }}: </span>
                 <span>{{ exam.languages.join(', ') }}</span>
             </div>
         </div>
         <div class="row mt-3">
             <div class="col flex justify-content-end">
-                <button
-                    class="btn btn-success text-nowrap important-clear-focus"
-                    (click)="enrollForExam()"
-                    *ngIf="!exam.alreadyEnrolled"
-                    [disabled]="enrolling"
-                >
-                    {{ 'sitnet_enroll_to_exam' | translate }}
-                </button>
-                <button
-                    class="btn btn-success text-nowrap important-clear-focus"
-                    (click)="makeReservation()"
-                    *ngIf="exam.alreadyEnrolled && !exam.reservationMade"
-                >
-                    {{ 'sitnet_student_new_reservation' | translate }}
-                </button>
-                <span
-                    class="student-exam-all-required text-nowrap"
-                    *ngIf="exam.alreadyEnrolled && exam.reservationMade"
-                    >{{ 'sitnet_enrolled_to_exam' | translate }}</span
-                >
+                @if (!exam.alreadyEnrolled) {
+                    <button class="btn btn-success" (click)="enrollForExam()" [disabled]="enrolling">
+                        {{ 'i18n_enroll_to_exam' | translate }}
+                    </button>
+                }
+                @if (exam.alreadyEnrolled && !exam.reservationMade) {
+                    <button class="btn btn-success" (click)="makeReservation()">
+                        {{ 'i18n_student_new_reservation' | translate }}
+                    </button>
+                }
+                @if (exam.alreadyEnrolled && exam.reservationMade) {
+                    <span class="student-exam-all-required">{{ 'i18n_enrolled_to_exam' | translate }}</span>
+                }
             </div>
         </div>
-    </div> `,
+    </div>`,
+    styleUrls: ['./exam-search.component.scss'],
+    standalone: true,
+    imports: [NgClass, RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class ExamSearchResultComponent {
     @Input() exam!: EnrolmentInfo | CollaborativeExamInfo;
@@ -105,7 +112,10 @@ export class ExamSearchResultComponent {
 
     enrolling = false; // DO WE NEED THIS?
 
-    constructor(private router: Router, private Enrolment: EnrolmentService) {}
+    constructor(
+        private router: Router,
+        private Enrolment: EnrolmentService,
+    ) {}
 
     enrollForExam = () => {
         if (this.enrolling) {

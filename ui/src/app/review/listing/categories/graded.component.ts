@@ -12,24 +12,63 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
-import type { Exam } from '../../../exam/exam.model';
-import { SessionService } from '../../../session/session.service';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
-import { AssessmentService } from '../../assessment/assessment.service';
-import type { Review } from '../../review.model';
-import type { ReviewListView } from '../review-list.service';
-import { ReviewListService } from '../review-list.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import type { ReviewListView } from 'src/app/review/listing/review-list.service';
+import { ReviewListService } from 'src/app/review/listing/review-list.service';
+import type { Review } from 'src/app/review/review.model';
+import { SessionService } from 'src/app/session/session.service';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-rl-graded',
     templateUrl: './graded.component.html',
+    standalone: true,
+    imports: [
+        NgbPopover,
+        FormsModule,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        NgbCollapse,
+        NgClass,
+        TableSortComponent,
+        RouterLink,
+        PaginatorComponent,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+        PageFillPipe,
+        DiffInDaysPipe,
+        OrderByPipe,
+    ],
+    styleUrl: '../review-list.component.scss',
 })
 export class GradedReviewsComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;
@@ -80,12 +119,12 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
         }
         const content = this.Assessment.getRecordReviewConfirmationDialogContent('', this.needsFeedbackWarning);
         const examId = this.collaborative ? this.exam.id : undefined;
-        this.Confirmation.open$(this.translate.instant('sitnet_confirm'), content).subscribe({
+        this.Confirmation.open$(this.translate.instant('i18n_confirm'), content).subscribe({
             next: () =>
                 forkJoin(selection.map((s) => this.ReviewList.sendToRegistry$(s.examParticipation, examId))).subscribe(
                     () => {
                         this.registered.emit(selection);
-                        this.toast.info(this.translate.instant('sitnet_results_send_ok'));
+                        this.toast.info(this.translate.instant('i18n_results_send_ok'));
                     },
                 ),
         });

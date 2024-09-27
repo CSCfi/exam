@@ -20,10 +20,10 @@ import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { QuestionService } from '../question/question.service';
-import { SessionService } from '../session/session.service';
-import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
-import { CommonExamService } from '../shared/miscellaneous/common-exam.service';
+import { QuestionService } from 'src/app/question/question.service';
+import { SessionService } from 'src/app/session/session.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import type {
     Exam,
     ExamExecutionType,
@@ -42,6 +42,7 @@ export type ExaminationEventConfigurationInput = {
             description: string;
             capacity: number;
         };
+        quitPassword?: string;
         settingsPassword?: string;
     };
 };
@@ -74,7 +75,7 @@ export class ExamService {
             .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
             .subscribe({
                 next: (response) => {
-                    this.toast.info(this.translate.instant('sitnet_exam_added'));
+                    this.toast.info(this.translate.instant('i18n_exam_added'));
                     this.router.navigate(['/staff/exams', response.id, 'course']);
                 },
                 error: (err) => this.toast.error(err),
@@ -90,10 +91,8 @@ export class ExamService {
             enrollInstruction: exam.enrollInstruction || '',
             state: exam.state,
             shared: exam.shared,
-            examActiveStartDate: exam.examActiveStartDate ? new Date(exam.examActiveStartDate).getTime() : undefined,
-            examActiveEndDate: exam.examActiveEndDate
-                ? new Date(exam.examActiveEndDate).setHours(23, 59, 59, 999)
-                : undefined,
+            periodStart: exam.periodStart ? new Date(exam.periodStart).getTime() : undefined,
+            periodEnd: exam.periodEnd ? new Date(exam.periodEnd).setHours(23, 59, 59, 999) : undefined,
             duration: exam.duration,
             grading: exam.gradeScale ? exam.gradeScale.id : undefined,
             expanded: exam.expanded,
@@ -137,13 +136,13 @@ export class ExamService {
     getExecutionTypeTranslation = (et: ExamExecutionType) => {
         switch (et.type) {
             case 'PUBLIC':
-                return 'sitnet_public_exam';
+                return 'i18n_public_exam';
             case 'PRIVATE':
-                return 'sitnet_private_exam';
+                return 'i18n_private_exam';
             case 'MATURITY':
-                return 'sitnet_maturity';
+                return 'i18n_maturity';
             case 'PRINTOUT':
-                return 'sitnet_printout_exam';
+                return 'i18n_printout_exam';
             default:
                 return '';
         }
@@ -185,13 +184,13 @@ export class ExamService {
     removeExam = (exam: Exam, collaborative = false, isAdmin = false) => {
         if (this.isAllowedToUnpublishOrRemove(exam, collaborative)) {
             this.ConfirmationDialog.open$(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_remove_exam'),
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_remove_exam'),
             ).subscribe({
                 next: () =>
                     this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe({
                         next: () => {
-                            this.toast.success(this.translate.instant('sitnet_exam_removed'));
+                            this.toast.success(this.translate.instant('i18n_exam_removed'));
                             this.router.navigate(['/staff', isAdmin ? 'admin' : 'teacher']);
                         },
                         error: (err) => this.toast.error(err),
@@ -199,7 +198,7 @@ export class ExamService {
                 error: (err) => this.toast.error(err),
             });
         } else {
-            this.toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));
+            this.toast.warning(this.translate.instant('i18n_exam_removal_not_possible'));
         }
     };
 

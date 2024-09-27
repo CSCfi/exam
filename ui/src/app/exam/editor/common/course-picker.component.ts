@@ -12,20 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbHighlight, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
+import type { Course } from 'src/app/exam/exam.model';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
-import type { Course } from '../../exam.model';
 import { CoursePickerService } from './course-picker.service';
 
 @Component({
     selector: 'xm-course-picker',
     templateUrl: './course-picker.component.html',
+    styleUrls: ['../../exam.shared.scss'],
+    standalone: true,
+    imports: [FormsModule, NgbTypeahead, NgbHighlight, NgbPopover, TranslateModule],
 })
 export class CoursePickerComponent implements OnInit {
     @Input() course?: Course;
@@ -62,7 +67,7 @@ export class CoursePickerComponent implements OnInit {
     };
 
     private showError = (term: string) =>
-        this.toast.error(`${this.translate.instant('sitnet_course_not_found')} ( ${term}  )`);
+        this.toast.error(`${this.translate.instant('i18n_course_not_found')} ( ${term}  )`);
 
     private getCourses$ = (category: 'name' | 'code', text$: Observable<string>): Observable<Course[]> =>
         text$.pipe(

@@ -20,6 +20,15 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.annotation.EnumValue;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -27,16 +36,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 import models.Attachment;
 import models.Tag;
 import models.User;
@@ -123,6 +122,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
     private List<MultipleChoiceOption> options;
 
     @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+        name = "question_tag",
+        joinColumns = @JoinColumn(name = "question_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
     private List<Tag> tags;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -263,12 +267,10 @@ public class Question extends OwnedModel implements AttachmentContainer {
         this.questionOwners = questionOwners;
     }
 
-    @Transient
     private boolean nodeExists(JsonNode node, String name) {
         return node.get(name) != null && !node.get(name).isNull();
     }
 
-    @Transient
     private String getClozeTestQuestionContentValidationResult(JsonNode node) {
         String reason = null;
         String questionText = node.get("question").asText();
@@ -297,7 +299,6 @@ public class Question extends OwnedModel implements AttachmentContainer {
         return reason;
     }
 
-    @Transient
     private boolean getClaimChoiceOptionsValidationResult(ArrayNode options) {
         // Check that all required option conditions are met, discarding possible duplicates
         return (
@@ -315,21 +316,15 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     }
 
                     return (
-                        (
-                            type == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
+                        (type == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
                             defaultScore > 0 &&
-                            !option.isEmpty()
-                        ) ||
-                        (
-                            type == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
+                            !option.isEmpty()) ||
+                        (type == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
                             defaultScore <= 0 &&
-                            !option.isEmpty()
-                        ) ||
-                        (
-                            type == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
+                            !option.isEmpty()) ||
+                        (type == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
                             defaultScore == 0 &&
-                            !option.isEmpty()
-                        )
+                            !option.isEmpty())
                     );
                 })
                 .map(n ->
@@ -345,12 +340,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
         );
     }
 
-    @Transient
     public Optional<Result> getValidationResult(JsonNode node) {
         String reason = null;
         if (nodeExists(node, "question")) {
             switch (type) {
-                case EssayQuestion:
+                case EssayQuestion -> {
                     if (!nodeExists(node, "defaultEvaluationType")) {
                         reason = "no evaluation type defined";
                     }
@@ -358,26 +352,26 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     if (type == EvaluationType.Points && !nodeExists(node, "defaultMaxScore")) {
                         reason = "no max score defined";
                     }
-                    break;
-                case MultipleChoiceQuestion:
+                }
+                case MultipleChoiceQuestion -> {
                     if (nodeExists(node, "options")) {
                         ArrayNode an = (ArrayNode) node.get("options");
                         if (an.size() < 2) {
-                            reason = "sitnet_minimum_of_two_options_required";
+                            reason = "i18n_minimum_of_two_options_required";
                         } else if (
                             StreamSupport
                                 .stream(an.spliterator(), false)
                                 .noneMatch(n -> n.get("correctOption").asBoolean())
                         ) {
-                            reason = "sitnet_correct_option_required";
+                            reason = "i18n_correct_option_required";
                         }
                     } else {
-                        reason = "sitnet_minimum_of_two_options_required";
+                        reason = "i18n_minimum_of_two_options_required";
                     }
-                    break;
-                case WeightedMultipleChoiceQuestion:
+                }
+                case WeightedMultipleChoiceQuestion -> {
                     if (!nodeExists(node, "options") || node.get("options").size() < 2) {
-                        reason = "sitnet_minimum_of_two_options_required";
+                        reason = "i18n_minimum_of_two_options_required";
                     } else {
                         ArrayNode options = (ArrayNode) node.get("options");
                         if (
@@ -385,37 +379,35 @@ public class Question extends OwnedModel implements AttachmentContainer {
                                 .stream(options.spliterator(), false)
                                 .noneMatch(n -> n.get("defaultScore").asDouble() > 0)
                         ) {
-                            reason = "sitnet_correct_option_required";
+                            reason = "i18n_correct_option_required";
                         }
                     }
-                    break;
-                case ClozeTestQuestion:
+                }
+                case ClozeTestQuestion -> {
                     if (!nodeExists(node, "defaultMaxScore")) {
                         reason = "no max score defined";
                     } else {
                         reason = getClozeTestQuestionContentValidationResult(node);
                     }
-                    break;
-                case ClaimChoiceQuestion:
+                }
+                case ClaimChoiceQuestion -> {
                     if (!nodeExists(node, "options") || node.get("options").size() != 3) {
-                        reason = "sitnet_three_answers_required_in_claim_question";
+                        reason = "i18n_three_answers_required_in_claim_question";
                     } else {
                         ArrayNode options = (ArrayNode) node.get("options");
                         boolean hasValidOptions = getClaimChoiceOptionsValidationResult(options);
 
                         if (!hasValidOptions) {
-                            reason = "sitnet_incorrect_claim_question_options";
+                            reason = "i18n_incorrect_claim_question_options";
                         }
                     }
-                    break;
-                default:
-                    reason = "unknown question type";
-                    break;
+                }
+                default -> reason = "unknown question type";
             }
         } else {
             reason = "no question text defined";
         }
-        if (!nodeExists(node, "questionOwners") || node.get("questionOwners").size() == 0) {
+        if (!nodeExists(node, "questionOwners") || node.get("questionOwners").isEmpty()) {
             reason = "no owners defined";
         }
         if (reason != null) {
@@ -424,36 +416,37 @@ public class Question extends OwnedModel implements AttachmentContainer {
         return Optional.empty();
     }
 
-    @Transient
     public Double getMaxDefaultScore() {
         switch (getType()) {
-            case EssayQuestion:
+            case EssayQuestion -> {
                 if (defaultEvaluationType == EvaluationType.Points) {
                     return defaultMaxScore == null ? 0 : defaultMaxScore;
                 }
-                break;
-            case MultipleChoiceQuestion:
+            }
+            case MultipleChoiceQuestion -> {
                 return defaultMaxScore == null ? 0 : defaultMaxScore;
-            case WeightedMultipleChoiceQuestion:
+            }
+            case WeightedMultipleChoiceQuestion -> {
                 return options
                     .stream()
                     .map(MultipleChoiceOption::getDefaultScore)
                     .filter(score -> score != null && score > 0)
-                    .reduce(0.0, (sum, x) -> sum += x);
-            case ClaimChoiceQuestion:
+                    .reduce(0.0, Double::sum);
+            }
+            case ClaimChoiceQuestion -> {
                 return options.stream().mapToDouble(MultipleChoiceOption::getDefaultScore).max().orElse(0.0);
+            }
         }
         return 0.0;
     }
 
-    @Transient
     public Double getMinDefaultScore() {
         if (getType() == Type.WeightedMultipleChoiceQuestion) {
             return options
                 .stream()
                 .map(MultipleChoiceOption::getDefaultScore)
                 .filter(score -> score != null && score < 0)
-                .reduce(0.0, (sum, x) -> sum += x);
+                .reduce(0.0, Double::sum);
         } else if (getType() == Type.ClaimChoiceQuestion) {
             return options.stream().mapToDouble(MultipleChoiceOption::getDefaultScore).min().orElse(0.0);
         }
@@ -465,10 +458,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
         if (this == object) {
             return true;
         }
-        if (!(object instanceof Question)) {
+        if (!(object instanceof Question other)) {
             return false;
         }
-        Question other = (Question) object;
         return new EqualsBuilder().append(id, other.getId()).build();
     }
 

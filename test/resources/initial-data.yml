@@ -631,8 +631,8 @@ exams:
     examType: *final
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
-    examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-12-29 16:00:00.123
+    periodStart: 2014-05-01 08:00:00.123
+    periodEnd: 2014-12-29 16:00:00.123
     gradeScale: *zerotofive
     examSections:
     executionType: *public
@@ -658,8 +658,8 @@ exams:
     examType: *final
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
-    examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-01 16:00:00.123
+    periodStart: 2014-05-01 08:00:00.123
+    periodEnd: 2014-08-01 16:00:00.123
     gradeScale: *zerotofive
     executionType: *public
     examSections:
@@ -680,8 +680,8 @@ exams:
     examType: *final
     instruction:
     shared: false
-    examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-12-29 16:00:00.123
+    periodStart: 2014-05-01 08:00:00.123
+    periodEnd: 2014-12-29 16:00:00.123
     gradeScale: *zerotofive
     executionType: *public
     examSections:
@@ -700,8 +700,8 @@ exams:
     examType: *final
     instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
     shared: true
-    examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-12-29 16:00:00.123
+    periodStart: 2014-05-01 08:00:00.123
+    periodEnd: 2014-12-29 16:00:00.123
     gradeScale: *zerotofive
     executionType: *public
     examSections:
@@ -719,8 +719,8 @@ exams:
     examType: *final
     instruction: Vastaa kaikkiin tenttikysymyksiin
     shared: true
-    examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-12-29 16:00:00.123
+    periodStart: 2014-05-01 08:00:00.123
+    periodEnd: 2014-12-29 16:00:00.123
     gradeScale: *latin
     executionType: *public
     examSections:
@@ -738,8 +738,8 @@ exams:
     examType: *final
     instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
     shared: true
-    examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-12-29 16:00:00.123
+    periodStart: 2014-05-01 08:00:00.123
+    periodEnd: 2014-12-29 16:00:00.123
     gradeScale: *approvedrejected
     executionType: *public
     examSections:
@@ -757,8 +757,8 @@ exams:
     examType: *final
     instruction: Tentissä saa käyttää vain tilakoneita.
     shared: true
-    examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-12-29 16:00:00.123
+    periodStart: 2014-05-01 08:00:00.123
+    periodEnd: 2014-12-29 16:00:00.123
     gradeScale: *zerotofive
     executionType: *public
     examSections:
@@ -776,8 +776,8 @@ exams:
     examType: *final
     instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
     shared: true
-    examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-12-29 16:00:00.123
+    periodStart: 2014-05-01 08:00:00.123
+    periodEnd: 2014-12-29 16:00:00.123
     gradeScale: *approvedrejected
     executionType: *public
     examSections:
@@ -1322,60 +1322,6 @@ exam-rooms:
 #      - *exam-machine3
     outOfService: false
     state: ACTIVE
-
-################################################################
-
-calendar-events:
-  - !!models.calendar.DefaultWorkingHours
-    startTime: 2014-05-05 08:00:00.000
-    endTime: 2014-05-05 16:00:00.000
-    weekday: MONDAY
-    timezoneOffset: 7200000
-    room: *room-pegasus
-
-  - !!models.calendar.DefaultWorkingHours
-    startTime: 2014-05-05 08:00:00.000
-    endTime: 2014-05-05 16:00:00.000
-    weekday: TUESDAY
-    timezoneOffset: 7200000
-    room: *room-pegasus
-
-  - !!models.calendar.DefaultWorkingHours
-    startTime: 2014-05-05 08:00:00.000
-    endTime: 2014-05-05 16:00:00.000
-    weekday: WEDNESDAY
-    timezoneOffset: 7200000
-    room: *room-pegasus
-
-  - !!models.calendar.DefaultWorkingHours
-    startTime: 2014-05-05 08:00:00.000
-    endTime: 2014-05-05 16:00:00.000
-    weekday: THURSDAY
-    timezoneOffset: 7200000
-    room: *room-pegasus
-
-  - !!models.calendar.DefaultWorkingHours
-    startTime: 2014-05-05 08:00:00.000
-    endTime: 2014-05-05 16:00:00.000
-    weekday: FRIDAY
-    timezoneOffset: 7200000
-    room: *room-pegasus
-
-  - !!models.calendar.DefaultWorkingHours
-    startTime: 2014-05-05 08:00:00.000
-    endTime: 2014-05-05 16:00:00.000
-    weekday: SATURDAY
-    timezoneOffset: 7200000
-    room: *room-pegasus
-
-  - !!models.calendar.DefaultWorkingHours
-    startTime: 2014-05-05 08:00:00.000
-    endTime: 2014-05-05 21:00:00.000
-    weekday: SUNDAY
-    timezoneOffset: 7200000
-    room: *room-pegasus
-
-################################################################
 
 exam-machines:
 

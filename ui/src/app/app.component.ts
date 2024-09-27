@@ -12,31 +12,64 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { registerLocaleData } from '@angular/common';
+import { NgClass, registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ExaminationStatusService } from './examination/examination-status.service';
+import { NavigationComponent } from './navigation/navigation.component';
+import { DevLoginComponent } from './session/dev/dev-login.component';
 import type { User } from './session/session.service';
 import { SessionService } from './session/session.service';
 
 @Component({
     selector: 'xm-app',
     template: `
-        <div *ngIf="!user && devLoginRequired">
-            <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
-        </div>
-        <div *ngIf="user">
-            <xm-navigation [hidden]="hideNavBar"></xm-navigation>
-            <main id="mainView" class="container-fluid pad0 w-auto" [ngClass]="{ 'vmenu-on': !hideNavBar }">
-                <router-outlet></router-outlet>
-            </main>
-        </div>
+        @if (!user && devLoginRequired) {
+            <div>
+                <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
+            </div>
+        }
+        @if (user) {
+            <div>
+                <xm-navigation [hidden]="hideNavBar"></xm-navigation>
+                <main id="mainView" class="container-fluid" [ngClass]="{ 'vmenu-on': !hideNavBar }">
+                    <router-outlet></router-outlet>
+                </main>
+            </div>
+        }
     `,
+    styles: [
+        `
+            #mainView {
+                width: auto !important;
+                @media print {
+                    margin: 0 15px;
+                    max-width: 1000px;
+                }
+            }
+            .vmenu-on {
+                width: auto;
+                margin-left: 17.025em !important;
+
+                @media (max-width: 920px) {
+                    margin-left: 0 !important;
+                    padding-left: 0;
+                    padding-right: 0;
+                }
+
+                @media print {
+                    overflow-x: visible;
+                }
+            }
+        `,
+    ],
+    standalone: true,
+    imports: [DevLoginComponent, NavigationComponent, NgClass, RouterOutlet],
 })
 export class AppComponent implements OnInit, OnDestroy {
     user?: User;

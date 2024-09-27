@@ -12,9 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type {
     ExamSectionQuestion,
@@ -22,26 +25,46 @@ import type {
     MultipleChoiceOption,
     Question,
     ReverseQuestion,
-} from '../../exam/exam.model';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { QuestionService } from '../question.service';
+} from 'src/app/exam/exam.model';
+import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
+import { QuestionService } from 'src/app/question/question.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
-// This component depicts a distributed exam question
+// This component depicts a distributed exam question. Only used thru a modal.
 @Component({
     selector: 'xm-exam-question',
     templateUrl: './exam-question.component.html',
+    styleUrls: ['../question.shared.scss'],
+    standalone: true,
+    imports: [
+        FormsModule,
+        NgbPopover,
+        CKEditorComponent,
+        NgClass,
+        FixedPrecisionValidatorDirective,
+        UpperCasePipe,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
-export class ExamQuestionComponent implements OnInit {
+export class ExamQuestionComponent implements OnInit, OnDestroy {
     @Input() examQuestion!: ExamSectionQuestion;
     @Input() lotteryOn = false;
     @Output() saved = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
-    @Output() cancelled = new EventEmitter<void>();
+    @Output() cancelled = new EventEmitter<{ dirty: boolean }>();
+    @ViewChild('questionForm', { static: false }) questionForm?: NgForm;
 
     question?: ReverseQuestion;
     examNames: string[] = [];
     sectionNames: string[] = [];
     missingOptions: string[] = [];
     isInPublishedExam = false;
+    hideRestExams = true;
 
     constructor(
         private http: HttpClient,
@@ -49,10 +72,15 @@ export class ExamQuestionComponent implements OnInit {
         private toast: ToastrService,
         private Question: QuestionService,
         private Attachment: AttachmentService,
+        private modal: NgbModal,
     ) {}
 
     ngOnInit() {
         this.init();
+    }
+
+    ngOnDestroy() {
+        window.removeEventListener('beforeunload', this.onUnload);
     }
 
     save = () =>
@@ -61,14 +89,24 @@ export class ExamQuestionComponent implements OnInit {
             examQuestion: this.examQuestion as ExamSectionQuestion,
         });
 
-    cancel = () => this.cancelled.emit();
+    cancel = () => this.cancelled.emit({ dirty: this.questionForm?.dirty || false });
+
+    openPreview = () => {
+        const modal = this.modal.open(QuestionPreviewDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'lg',
+        });
+        modal.componentInstance.question = this.examQuestion;
+        modal.componentInstance.isExamQuestion = true;
+    };
 
     showWarning = () => this.examNames && this.examNames.length > 1;
     estimateCharacters = () => (this.examQuestion.expectedWordCount || 0) * 8;
 
     removeOption = (selectedOption: ExamSectionQuestionOption) => {
         if (this.lotteryOn) {
-            this.toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('i18n_action_disabled_lottery_on'));
             return;
         }
 
@@ -83,13 +121,13 @@ export class ExamQuestionComponent implements OnInit {
         if (!this.isInPublishedExam || hasCorrectAnswer) {
             this.examQuestion.options.splice(this.examQuestion.options.indexOf(selectedOption), 1);
         } else {
-            this.toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
+            this.toast.error(this.translate.instant('i18n_action_disabled_minimum_options'));
         }
     };
 
     addNewOption = () => {
         if (this.lotteryOn) {
-            this.toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('i18n_action_disabled_lottery_on'));
             return;
         }
         const newOption: ExamSectionQuestionOption = {
@@ -149,7 +187,7 @@ export class ExamQuestionComponent implements OnInit {
         if (!optionType) {
             return '';
         }
-        return this.Question.returnClaimChoiceOptionClass(optionType);
+        return this.Question.determineClaimChoiceOptionClass(optionType);
     };
 
     determineOptionType = (option: ExamSectionQuestionOption) =>
@@ -160,7 +198,7 @@ export class ExamQuestionComponent implements OnInit {
         if (!optionType) {
             return;
         }
-        return this.Question.returnOptionDescriptionTranslation(optionType);
+        return this.Question.determineOptionDescriptionTranslation(optionType);
     };
 
     validate = () => {
@@ -188,8 +226,14 @@ export class ExamQuestionComponent implements OnInit {
             });
             const sectionNames = sections.map((s) => s.name);
             // remove duplicates
-            this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
+            this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort();
             this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
             this.validate();
+            window.addEventListener('beforeunload', this.onUnload);
         });
+
+    private onUnload = (event: BeforeUnloadEvent) => {
+        event.preventDefault();
+        return this.questionForm?.dirty ? (event.returnValue = '') : null;
+    };
 }

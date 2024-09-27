@@ -1,20 +1,17 @@
-<div class="row col-md-12 margin-20">
-    <div class="col-md-3 exam-basic-title">
-        {{ 'sitnet_exam_editor_materials' | translate }}
+<div class="row col-md-12 mt-3">
+    <div class="col-md-3">
+        {{ 'i18n_exam_editor_materials' | translate }}
         <sup
-            ngbPopover="{{ 'sitnet_exam_material_description' | translate }}"
-            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            ngbPopover="{{ 'i18n_exam_material_description' | translate }}"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
-            ><img
-                src="/assets/images/icon_tooltip.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
+            ><img src="/assets/images/icon_tooltip.svg" alt=""
         /></sup>
     </div>
     <div class="col-md-6">
         <input
             type="text"
-            class="form-control wdth-30 make-inline"
+            class="form-control w-50 make-inline"
             [(ngModel)]="filter"
             [ngbTypeahead]="filterMaterials$"
             (selectItem)="selectMaterial($event)"
@@ -22,35 +19,28 @@
             [editable]="false"
         />
         <span
-            ><button (click)="addMaterial()" class="btn btn-primary green">
-                {{ 'sitnet_add' | translate }}
+            ><button (click)="addMaterial()" class="btn btn-success">
+                {{ 'i18n_add' | translate }}
             </button></span
         >
     </div>
     <div class="col-md-3">
-        <button class="btn btn-link" (click)="openMaterialEditor()">
-            {{ 'sitnet_modify_materials' | translate }}
+        <button class="btn btn-sm btn-outline-secondary px-0" (click)="openMaterialEditor()">
+            {{ 'i18n_modify_materials' | translate }}
         </button>
     </div>
 </div>
 <div class="row col-md-12">
-    <div class="col-md-3 exam-basic-title"></div>
+    <div class="col-md-3"></div>
     <div class="col-md-9">
-        <ul class="list-inline mart10">
-            <li *ngFor="let material of section.examMaterials" class="list-inline-item">
-                {{ material.name }}
-                <button
-                    class="reviewer-remove"
-                    (click)="removeMaterial(material)"
-                    title="{{ 'sitnet_remove' | translate }}"
-                >
-                    <img
-                        src="/assets/images/icon_remove.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                    />
-                </button>
-            </li>
-        </ul>
+        @for (material of section.examMaterials; track material) {
+            <button
+                class="btn btn-sm btn-light px-0"
+                (click)="removeMaterial(material)"
+                title="{{ 'i18n_remove' | translate }}"
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+        }
     </div>
 </div>

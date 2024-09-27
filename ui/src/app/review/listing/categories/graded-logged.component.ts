@@ -12,23 +12,60 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import type { Exam } from '../../../exam/exam.model';
-import { SessionService } from '../../../session/session.service';
-import { FileService } from '../../../shared/file/file.service';
-import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
-import type { Review } from '../../review.model';
-import type { ReviewListView } from '../review-list.service';
-import { ReviewListService } from '../review-list.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { ReviewListView } from 'src/app/review/listing/review-list.service';
+import { ReviewListService } from 'src/app/review/listing/review-list.service';
+import type { Review } from 'src/app/review/review.model';
+import { SessionService } from 'src/app/session/session.service';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { FileService } from 'src/app/shared/file/file.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-rl-graded-logged',
     templateUrl: './graded-logged.component.html',
+    standalone: true,
+    imports: [
+        NgbPopover,
+        FormsModule,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        NgbCollapse,
+        NgClass,
+        TableSortComponent,
+        RouterLink,
+        PaginatorComponent,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+        PageFillPipe,
+        OrderByPipe,
+    ],
+    styleUrl: '../review-list.component.scss',
 })
 export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
     @Input() reviews: Review[] = [];
@@ -84,7 +121,7 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
         }
         const ok = () => {
             this.archived.emit(selection);
-            this.toast.info(this.translate.instant('sitnet_exams_archived'));
+            this.toast.info(this.translate.instant('i18n_exams_archived'));
         };
         const ids = selection.map((r) => r.examParticipation.exam.id);
         this.http.put('/app/reviews/archive', { ids: ids.join() }).subscribe(ok);
@@ -106,7 +143,7 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
 
         this.Files.download(
             url + this.exam.id,
-            `${this.translate.instant('sitnet_grading_info')}_${format(new Date(), 'dd-MM-yyyy')}.${fileType}`,
+            `${this.translate.instant('i18n_grading_info')}_${format(new Date(), 'dd-MM-yyyy')}.${fileType}`,
             { childIds: ids.map((i) => i.toString()) },
             true,
         );

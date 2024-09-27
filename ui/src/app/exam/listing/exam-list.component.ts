@@ -12,24 +12,49 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { Router, RouterLink } from '@angular/router';
+import { NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { from, Subject } from 'rxjs';
+import { Subject, from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { ExaminationTypeSelectorComponent } from '../editor/common/examination-type-picker.component';
-import type { Exam, Implementation } from '../exam.model';
-import { ExamService } from '../exam.service';
+import { ExaminationTypeSelectorComponent } from 'src/app/exam/editor/common/examination-type-picker.component';
+import type { Exam, Implementation } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 
 @Component({
     selector: 'xm-exam-list',
     templateUrl: './exam-list.component.html',
+    standalone: true,
+    imports: [
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLink,
+        NgbPopover,
+        TableSortComponent,
+        CourseCodeComponent,
+        RouterLink,
+        TeacherListComponent,
+        UpperCasePipe,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class ExamListingComponent implements OnInit, OnDestroy {
     activeId = 0;
@@ -39,7 +64,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
         { view: 'SAVED', showExpired: false },
         { view: 'DRAFT', showExpired: false },
     ];
-    examsPredicate = 'examActiveEndDate';
+    examsPredicate = 'periodEnd';
     reverse = true;
     loader = { loading: false };
     exams: ExamListExam[] = [];
@@ -72,7 +97,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                     exams.forEach((e) => {
                         e.ownerAggregate = e.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join();
                         if (e.state === 'PUBLISHED') {
-                            e.expired = e.examActiveEndDate != null && new Date() > new Date(e.examActiveEndDate);
+                            e.expired = e.periodEnd != null && new Date() > new Date(e.periodEnd);
                         } else {
                             e.expired = false;
                         }
@@ -106,7 +131,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
             )
             .subscribe({
                 next: (resp) => {
-                    this.toast.success(this.translate.instant('sitnet_exam_copied'));
+                    this.toast.success(this.translate.instant('i18n_exam_copied'));
                     this.router.navigate(['/staff/exams', resp.id, '1']);
                 },
                 error: (err) => this.toast.error(err),
@@ -114,19 +139,18 @@ export class ExamListingComponent implements OnInit, OnDestroy {
 
     deleteExam = (exam: ExamListExam) =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_exam'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_remove_exam'),
         ).subscribe({
             next: () => {
                 this.http.delete(`/app/exams/${exam.id}`).subscribe({
                     next: () => {
-                        this.toast.success(this.translate.instant('sitnet_exam_removed'));
+                        this.toast.success(this.translate.instant('i18n_exam_removed'));
                         this.exams.splice(this.exams.indexOf(exam), 1);
                     },
                     error: (err) => this.toast.error(err),
                 });
             },
-            error: (err) => this.toast.error(err),
         });
 
     filterByStateAndExpiration = (state: string, expired: boolean) =>

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -41,7 +42,7 @@ public class OrganisationController extends BaseController {
     private ConfigReader configReader;
 
     private URL parseUrl() throws MalformedURLException {
-        return new URL(configReader.getIopHost() + "/api/organisations?withFacilities=true");
+        return URI.create(configReader.getIopHost() + "/api/organisations?withFacilities=true").toURL();
     }
 
     @Restrict({ @Group("STUDENT"), @Group("TEACHER"), @Group("ADMIN") })
@@ -55,8 +56,7 @@ public class OrganisationController extends BaseController {
             if (response.getStatus() != 200) {
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
-            if (root instanceof ArrayNode) {
-                ArrayNode node = (ArrayNode) root;
+            if (root instanceof ArrayNode node) {
                 for (JsonNode n : node) {
                     ((ObjectNode) n).put("homeOrg", n.get("_id").asText().equals(localRef));
                 }

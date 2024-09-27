@@ -1,70 +1,75 @@
-<div class="row ms-3 mt-3">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_total_score' | translate }}:</div>
-    <div class="col-md-4 general-info-content">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
-    <div class="col-md-2 general-info-title">{{ 'sitnet_inspection_status' | translate }}:</div>
-    <div class="col-md-4 general-info-content">
-        <div *ngFor="let inspection of exam.examInspections">
-            <xm-r-inspection
-                [inspection]="inspection"
-                [user]="user"
-                [disabled]="isGraded() || isReadOnly()"
-                (inspected)="inspectionDone()"
-            >
-            </xm-r-inspection>
-        </div>
+<div class="row">
+    <div class="col-md-2">{{ 'i18n_total_score' | translate }}:</div>
+    <div class="col-md-4">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
+    <div class="col-md-2">{{ 'i18n_grading_inspector' | translate }}:</div>
+    <div class="col-md-4">
+        @for (inspection of exam.examInspections; track inspection) {
+            <div>
+                <xm-r-inspection
+                    [inspection]="inspection"
+                    [user]="user"
+                    [disabled]="isGraded() || isReadOnly()"
+                    (inspected)="inspectionDone()"
+                >
+                </xm-r-inspection>
+            </div>
+        }
     </div>
 </div>
-<div class="row ms-3">
-    <div class="col-md-2 general-info-title">
-        {{ 'sitnet_approved' | translate }} / {{ 'sitnet_rejected' | translate }}:
-    </div>
-    <div class="col-md-4 general-info-content">{{ questionSummary.accepted }} / {{ questionSummary.rejected }}</div>
-    <div class="col-md-2 general-info-title">&nbsp;</div>
-    <div class="col-md-4 general-info-content">&nbsp;</div>
+<div class="row">
+    <div class="col-md-2">{{ 'i18n_approved' | translate }} / {{ 'i18n_rejected' | translate }}:</div>
+    <div class="col-md-4">{{ questionSummary.accepted }} / {{ questionSummary.rejected }}</div>
+    <div class="col-md-2">&nbsp;</div>
+    <div class="col-md-4">&nbsp;</div>
 </div>
-<div class="row ms-3 mt-3">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_exam_owners' | translate }}:</div>
-    <div class="col-md-4 general-info-content">
-        <div *ngIf="!collaborative">
-            <span *ngFor="let teacher of exam.parent?.examOwners">
-                {{ teacher.firstName }} {{ teacher.lastName }}
-            </span>
-        </div>
-        <div *ngIf="collaborative">
-            <span *ngFor="let teacher of exam.examOwners">
-                {{ teacher.email }}
-            </span>
-        </div>
+<div class="row mt-3">
+    <div class="col-md-2">{{ 'i18n_exam_owners' | translate }}:</div>
+    <div class="col-md-4">
+        @if (!collaborative) {
+            <div>
+                @for (teacher of exam.parent?.examOwners; track teacher) {
+                    <span> {{ teacher.firstName }} {{ teacher.lastName }} </span>
+                }
+            </div>
+        }
+        @if (collaborative) {
+            <div>
+                @for (teacher of exam.examOwners; track teacher) {
+                    <span>
+                        {{ teacher.email }}
+                    </span>
+                }
+            </div>
+        }
     </div>
-    <div class="col-md-2 general-info-title">{{ 'sitnet_exam_instructor' | translate }}:</div>
-    <div class="col-md-4 general-info-content">
-        <span *ngFor="let inspection of exam.examInspections">
-            {{ inspection.user.firstName }} {{ inspection.user.lastName }}
-        </span>
+    <div class="col-md-2">{{ 'i18n_exam_instructor' | translate }}:</div>
+    <div class="col-md-4">
+        @for (inspection of exam.examInspections; track inspection) {
+            <span> {{ inspection.user.firstName }} {{ inspection.user.lastName }} </span>
+        }
     </div>
 </div>
 
-<div class="row ms-3" *ngIf="exam.state === 'GRADED_LOGGED'">
-    <div class="col-md-4 general-info-title">{{ 'sitnet_graded' | translate }}:</div>
-    <div class="col-md-8 general-info-content">
-        {{ exam.gradedTime | date : 'dd.MM.yyyy' }}
+@if (exam.state === 'GRADED_LOGGED') {
+    <div class="row">
+        <div class="col-md-2">{{ 'i18n_graded' | translate }}:</div>
+        <div class="col-md-10">
+            {{ exam.gradedTime | date: 'dd.MM.yyyy' }}
+        </div>
     </div>
-</div>
+}
 
-<div class="row ms-3 mt-3 me-2 align-items-center">
-    <div class="col-md-2 general-info-title">
-        {{ 'sitnet_additional_info_for_registry' | translate }}:
+<div class="row mt-3 align-items-center">
+    <div class="col-md-2">
+        {{ 'i18n_additional_info_for_registry' | translate }}:
         <sup
-            ngbPopover="{{ 'sitnet_additional_info_for_registry_description' | translate }}"
-            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            ngbPopover="{{ 'i18n_additional_info_for_registry_description' | translate }}"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
-            ><img
-                src="/assets/images/icon_tooltip.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+            ><img src="/assets/images/icon_tooltip.svg" alt=""
         /></sup>
     </div>
-    <div class="col-md-8 general-info-content">
+    <div class="col-md-8">
         <textarea
             class="form-control"
             [(ngModel)]="exam.additionalInfo"
@@ -74,75 +79,77 @@
         </textarea>
     </div>
 </div>
-<div class="row ms-3 mt-3 me-2 align-items-center" [hidden]="!isReadOnly() || !isOwnerOrAdmin()">
-    <div class="col-md-2 general-info-title">
-        {{ 'sitnet_additional_info_for_student' | translate }}:
+<div class="row mt-3 align-items-center" [hidden]="!isReadOnly() || !isOwnerOrAdmin()">
+    <div class="col-md-2">
+        {{ 'i18n_additional_info_for_student' | translate }}:
         <sup
-            ngbPopover="{{ 'sitnet_additional_info_for_student_description' | translate }}"
-            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            ngbPopover="{{ 'i18n_additional_info_for_student_description' | translate }}"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
-            ><img
-                src="/assets/images/icon_tooltip.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+            ><img src="/assets/images/icon_tooltip.svg" alt=""
         /></sup>
     </div>
-    <div class="col-md-8 general-info-content">
+    <div class="col-md-8">
         <textarea class="form-control" [(ngModel)]="exam.assessmentInfo" rows="3 "> </textarea>
     </div>
-    <div class="col-md-2 general-info-content">
+    <div class="col-md-2">
         <button class="btn btn-success" [disabled]="!exam.assessmentInfo" (click)="saveAssessmentInfo()">
-            {{ 'sitnet_save' | translate }}
+            {{ 'i18n_save' | translate }}
         </button>
     </div>
 </div>
-<div class="row ms-3 mt-3 me-2 align-items-center" [hidden]="getTeacherCount() === 0">
-    <div class="col-md-2 general-info-title">
-        {{ 'sitnet_send_to_other_reviewers' | translate }}:
+<div class="row mt-3 align-items-center" [hidden]="getTeacherCount() === 0">
+    <div class="col-md-2">
+        {{ 'i18n_send_to_other_reviewers' | translate }}:
         <sup
-            ngbPopover="{{ 'sitnet_send_to_other_reviewers_description' | translate }}"
-            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            ngbPopover="{{ 'i18n_send_to_other_reviewers_description' | translate }}"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
-            ><img
-                src="/assets/images/icon_tooltip.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+            ><img src="/assets/images/icon_tooltip.svg" alt=""
         /></sup>
     </div>
-    <div class="col-md-8 general-info-content">
+    <div class="col-md-8">
         <textarea class="form-control" [(ngModel)]="message.text" rows="3" cols="120"></textarea>
     </div>
     <div class="col-md-2">
         <button class="btn btn-success" (click)="sendEmailMessage()">
-            {{ 'sitnet_send' | translate }}
+            {{ 'i18n_send' | translate }}
         </button>
     </div>
 </div>
-<div class="row ms-3 mt-2" [hidden]="!isReadOnly()">
-    <div class="col-md-2 general-info-title">
-        {{ 'sitnet_teachers_comment' | translate }}
-        <span *ngIf="!!isCommentRead()">({{ 'sitnet_teachers_comment_read' | translate | lowercase }})</span>
-        <span *ngIf="!isCommentRead()">({{ 'sitnet_teachers_comment_notread' | translate | lowercase }})</span>:
+<div class="row mt-2" [hidden]="!isReadOnly()">
+    <div class="col-md-2">
+        {{ 'i18n_teachers_comment' | translate }}
+        @if (!!isCommentRead()) {
+            <span>({{ 'i18n_teachers_comment_read' | translate | lowercase }})</span>
+        }
+        @if (!isCommentRead()) {
+            <span>({{ 'i18n_teachers_comment_notread' | translate | lowercase }})</span>
+        }
+        :
     </div>
-    <div
-        *ngIf="exam.examFeedback?.comment"
-        class="col-md-10"
-        [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
-        [xmMathJax]="exam.examFeedback?.comment"
-    ></div>
-    <div *ngIf="exam.examFeedback?.attachment" class="col-md-offset-2 col-md-10 general-info-content">
-        <a class="pointer" (click)="downloadFeedbackAttachment()">
-            {{ exam.examFeedback.attachment?.fileName }}
-        </a>
-    </div>
+    @if (exam.examFeedback?.comment) {
+        <div
+            class="col-md-10"
+            [ngClass]="isCommentRead() ? '' : 'text-danger'"
+            [xmMathJax]="exam.examFeedback?.comment"
+        ></div>
+    }
+    @if (exam.examFeedback?.attachment) {
+        <div class="col-md-offset-2 col-md-10">
+            <a class="pointer" (click)="downloadFeedbackAttachment()">
+                {{ exam.examFeedback.attachment?.fileName }}
+            </a>
+        </div>
+    }
 </div>
-<div class="row ms-3 me-2 mt-3">
+<div class="row mt-3">
     <div class="col-md-12">
         <form #gradingForm="ngForm" name="gradingForm" role="form" novalidate>
             <div class="row">
                 <div class="col-md-3">
                     <label for="examGrade" class="form-label grading-title">
-                        {{ 'sitnet_exam_grade' | translate | uppercase }}
+                        {{ 'i18n_exam_grade' | translate | uppercase }}
                     </label>
                     <select
                         id="examGrade"
@@ -153,13 +160,15 @@
                         (ngModelChange)="setGrade()"
                         required
                     >
-                        <option value="">{{ 'sitnet_choose' | translate }}</option>
-                        <option *ngFor="let grade of grades" [ngValue]="grade">{{ grade.name }}</option>
+                        <option value="">{{ 'i18n_choose' | translate }}</option>
+                        @for (grade of grades; track grade) {
+                            <option [ngValue]="grade">{{ grade.name }}</option>
+                        }
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label for="creditType" class="form-label grading-title">
-                        {{ 'sitnet_exam_choose_credit_type' | translate | uppercase }}
+                        {{ 'i18n_exam_choose_credit_type' | translate | uppercase }}
                     </label>
                     <select
                         id="creditType"
@@ -170,12 +179,14 @@
                         [disabled]="isReadOnly() || !isOwnerOrAdmin()"
                         required
                     >
-                        <option *ngFor="let type of creditTypes" [ngValue]="type">{{ type.name }}</option>
+                        @for (type of creditTypes; track type) {
+                            <option [ngValue]="type">{{ type.name }}</option>
+                        }
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label for="answerLanguage" class="form-label grading-title">
-                        {{ 'sitnet_exam_record_language' | translate | uppercase }}
+                        {{ 'i18n_exam_record_language' | translate | uppercase }}
                     </label>
                     <select
                         id="answerLanguage"
@@ -186,12 +197,14 @@
                         (ngModelChange)="setLanguage()"
                         required
                     >
-                        <option *ngFor="let lang of languages" [ngValue]="lang">{{ lang.name }}</option>
+                        @for (lang of languages; track lang) {
+                            <option [ngValue]="lang">{{ lang.name }}</option>
+                        }
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label for="customCredit" class="form-label grading-title">
-                        {{ 'sitnet_exam_credit' | translate | uppercase }}
+                        {{ 'i18n_exam_credit' | translate | uppercase }}
                     </label>
                     <input
                         id="customCredit"

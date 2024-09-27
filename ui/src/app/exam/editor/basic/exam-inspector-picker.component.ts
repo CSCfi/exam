@@ -12,20 +12,26 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
-import type { User } from '../../../session/session.service';
-import type { Exam, ExamInspection } from '../../exam.model';
+import type { Exam, ExamInspection } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-exam-inspector-picker',
     templateUrl: './exam-inspector-picker.component.html',
+    standalone: true,
+    imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
+    styles: '.vbottom { vertical-align: bottom !important }',
 })
 export class ExamInspectorSelectorComponent implements OnInit {
     @Input() exam!: Exam;
@@ -38,7 +44,10 @@ export class ExamInspectorSelectorComponent implements OnInit {
         email?: string;
     };
 
-    constructor(private http: HttpClient, private toast: ToastrService) {
+    constructor(
+        private http: HttpClient,
+        private toast: ToastrService,
+    ) {
         this.newInspector = {};
     }
 

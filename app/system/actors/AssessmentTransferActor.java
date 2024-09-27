@@ -15,29 +15,32 @@
 
 package system.actors;
 
-import akka.actor.AbstractActor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.function.Function;
 import javax.inject.Inject;
 import models.ExamEnrolment;
 import models.json.ExternalExam;
+import org.apache.pekko.actor.AbstractActor;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import util.config.ConfigReader;
 
 public class AssessmentTransferActor extends AbstractActor {
 
-    private static final Logger.ALogger logger = Logger.of(AssessmentTransferActor.class);
+    private final Logger logger = LoggerFactory.getLogger(AssessmentTransferActor.class);
 
     private final WSClient wsClient;
     private final ConfigReader configReader;
@@ -55,7 +58,7 @@ public class AssessmentTransferActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Assessment transfer check started ->");
-                    List<ExamEnrolment> enrolments = Ebean
+                    List<ExamEnrolment> enrolments = DB
                         .find(ExamEnrolment.class)
                         .where()
                         .isNotNull("externalExam")
@@ -79,27 +82,29 @@ public class AssessmentTransferActor extends AbstractActor {
 
     private void send(ExamEnrolment enrolment) throws IOException {
         String ref = enrolment.getReservation().getExternalRef();
-        logger.debug("Transferring back assessment for reservation " + ref);
+        logger.debug("Transferring back assessment for reservation {}", ref);
         URL url = parseUrl(ref);
         WSRequest request = wsClient.url(url.toString());
         ExternalExam ee = enrolment.getExternalExam();
         Function<WSResponse, Void> onSuccess = response -> {
-            if (response.getStatus() != 201) {
-                logger.error("Failed in transferring assessment for reservation " + ref);
+            if (response.getStatus() != Http.Status.CREATED) {
+                logger.error("Failed in transferring assessment for reservation {}", ref);
             } else {
                 ee.setSent(DateTime.now());
                 ee.update();
-                logger.info("Assessment transfer for reservation " + ref + " processed successfully");
+                logger.info("Assessment transfer for reservation {} processed successfully", ref);
             }
             return null;
         };
-        String json = Ebean.json().toJson(ee, PathProperties.parse("(*, creator(id))"));
+        String json = DB.json().toJson(ee, PathProperties.parse("(*, creator(id))"));
         ObjectMapper om = new ObjectMapper();
         JsonNode node = om.readTree(json);
         request.post(node).thenApplyAsync(onSuccess);
     }
 
     private URL parseUrl(String reservationRef) throws MalformedURLException {
-        return new URL(configReader.getIopHost() + String.format("/api/enrolments/%s/assessment", reservationRef));
+        return URI
+            .create(configReader.getIopHost() + String.format("/api/enrolments/%s/assessment", reservationRef))
+            .toURL();
     }
 }

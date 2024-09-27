@@ -16,11 +16,11 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -54,10 +54,9 @@ public class ExaminationDate extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExaminationDate)) {
+        if (!(other instanceof ExaminationDate otherException)) {
             return false;
         }
-        ExaminationDate otherException = (ExaminationDate) other;
         return new EqualsBuilder().append(id, otherException.id).build();
     }
 

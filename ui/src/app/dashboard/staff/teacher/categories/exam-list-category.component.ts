@@ -12,22 +12,28 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { from, Subject } from 'rxjs';
+import { Subject, from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
-import { ExaminationTypeSelectorComponent } from '../../../../exam/editor/common/examination-type-picker.component';
-import type { Exam } from '../../../../exam/exam.model';
-import { ExamService } from '../../../../exam/exam.service';
-import { SessionService } from '../../../../session/session.service';
-import { DateTimeService } from '../../../../shared/date/date.service';
-import { ConfirmationDialogService } from '../../../../shared/dialogs/confirmation-dialog.service';
-import { CommonExamService } from '../../../../shared/miscellaneous/common-exam.service';
-import { DashboardExam, TeacherDashboardService } from '../teacher-dashboard.service';
+import { DashboardExam, TeacherDashboardService } from 'src/app/dashboard/staff/teacher/teacher-dashboard.service';
+import { ExaminationTypeSelectorComponent } from 'src/app/exam/editor/common/examination-type-picker.component';
+import type { Exam } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { SessionService } from 'src/app/session/session.service';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 export interface ExtraData {
     text: string;
     property: keyof DashboardExam;
@@ -37,6 +43,19 @@ export interface ExtraData {
 @Component({
     selector: 'xm-exam-list-category',
     templateUrl: './exam-list-category.component.html',
+    styleUrls: ['./exam-list-category.component.scss'],
+    standalone: true,
+    imports: [
+        FormsModule,
+        TableSortComponent,
+        RouterLink,
+        CourseCodeComponent,
+        TeacherListComponent,
+        NgbPopover,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class ExamListCategoryComponent implements OnInit, OnDestroy {
     @Input() items: DashboardExam[] = [];
@@ -117,29 +136,29 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
             )
             .subscribe({
                 next: (resp) => {
-                    this.toast.success(this.translate.instant('sitnet_exam_copied'));
+                    this.toast.success(this.translate.instant('i18n_exam_copied'));
                     this.router.navigate(['/staff/exams', resp.id, '1']);
                 },
+                error: () => this.toast.error(this.translate.instant('i18n_error_access_forbidden')),
             });
 
     deleteExam = (exam: DashboardExam) => {
         if (this.isAllowedToUnpublishOrRemove(exam)) {
             this.Dialog.open$(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_remove_exam'),
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_remove_exam'),
             ).subscribe({
                 next: () =>
                     this.Dashboard.deleteExam$(exam.id).subscribe({
                         next: () => {
-                            this.toast.success(this.translate.instant('sitnet_exam_removed'));
+                            this.toast.success(this.translate.instant('i18n_exam_removed'));
                             this.items.splice(this.items.indexOf(exam), 1);
                         },
                         error: (err) => this.toast.error(err),
                     }),
-                error: (err) => this.toast.error(err),
             });
         } else {
-            this.toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));
+            this.toast.warning(this.translate.instant('i18n_exam_removal_not_possible'));
         }
     };
 

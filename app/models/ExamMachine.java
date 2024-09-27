@@ -17,14 +17,13 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.HashSet;
 import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import org.joda.time.Interval;
 
@@ -39,7 +38,6 @@ public class ExamMachine extends GeneratedIdentityModel {
     private String accessibilityInfo;
 
     // Checkbox indicating is there any accessibility issues concerning the room
-    @Column(columnDefinition = "boolean default false")
     @Deprecated
     private boolean accessible;
 
@@ -66,7 +64,6 @@ public class ExamMachine extends GeneratedIdentityModel {
     private List<Reservation> reservations;
 
     // In UI, section has been expanded
-    @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
     // Machine may be out of service,
@@ -196,12 +193,10 @@ public class ExamMachine extends GeneratedIdentityModel {
         this.accessibilities = accessibilities;
     }
 
-    @Transient
     public boolean hasRequiredSoftware(Exam exam) {
-        return softwareInfo.containsAll(exam.getSoftwareInfo());
+        return new HashSet<>(softwareInfo).containsAll(exam.getSoftwareInfo());
     }
 
-    @Transient
     public boolean isReservedDuring(Interval interval) {
         return reservations.stream().anyMatch(r -> interval.overlaps(r.toInterval()));
     }

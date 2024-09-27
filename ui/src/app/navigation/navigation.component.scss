@@ -1,0 +1,329 @@
+@import '../shared/definitions.scss';
+#nav {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: 0;
+    position: fixed;
+
+    .hidden-mobile {
+        display: block;
+        @media (max-width: $mobile-width) {
+            display: none;
+        }
+    }
+
+    .visible-mobile {
+        display: none;
+        @media (max-width: $mobile-width) {
+            display: block;
+        }
+    }
+
+    @media (max-width: $mobile-width) {
+        position: relative;
+        z-index: 1;
+    }
+
+    i {
+        vertical-align: middle;
+    }
+
+    .logo {
+        img {
+            margin-left: 3.57em;
+            margin-right: 3.57em;
+            margin-top: 1.07em;
+
+            @media (max-width: $mobile-width) {
+                margin-top: 0em;
+                margin-left: 20px;
+                padding-top: 15px;
+            }
+        }
+    }
+
+  button {
+        display: flex;
+        text-decoration: none;
+        padding-left: 1.5em;
+        border-left: 3px solid #212121;
+        border-radius: 0px;
+        font-size: 16px;
+        color: #e7e7e7;
+        letter-spacing: 0.27px;
+        height: auto;
+        text-align: left;
+        align-items: center;
+        @media (max-width: $mobile-width) {
+            border: 3px solid #212121;
+            border-radius: 50px;
+        }
+
+        &.selected {
+            font-weight: bold;
+            border-left: 3px solid $exam-dark-green;
+            @media (max-width: $mobile-width) {
+                border-left: 3px solid #212121;
+                border-radius: 50px !important;
+            }
+        }
+    }
+
+  button:hover {
+        border-left: 3px solid $exam-dark-green;
+        @media (max-width: $mobile-width) {
+            border: 3px solid white;
+            border-radius: 50px;
+        }
+    }
+
+    li {
+        list-style: none;
+        margin-bottom: 2.5em;
+        @media (max-width: $mobile-width) {
+            margin-bottom: 1em;
+        }
+    }
+
+    ul {
+        padding: 0;
+        @media (max-width: $mobile-width) {
+            margin: 0 1.5em;
+        }
+    }
+
+    .nav-header {
+        background-color: #212121;
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: block;
+        height: 162px;
+        width: 17.125em;
+
+        @media (max-width: $mobile-width) {
+            position: relative;
+            width: 100%;
+            height: 80px;
+        }
+
+        .mobile-menu {
+            float: right;
+            background: none;
+            border: none;
+
+            img {
+                padding-top: 30px;
+            }
+        }
+    }
+
+    .nav-body {
+        position: fixed;
+        background-color: #212121;
+        top: 162px;
+        bottom: 105px;
+        width: 17.125em;
+
+        @media (max-width: $mobile-width) {
+            display: none;
+        }
+    }
+
+    .nav-body-mobile {
+        @media (max-width: $mobile-width) {
+            background-color: #212121;
+            position: relative;
+            width: 100%;
+        }
+    }
+
+    .nav-footer {
+        background-color: $exam-medium-green;
+        position: fixed;
+        bottom: 0;
+        width: 17.125em;
+        &.button {
+          height: 25px;
+
+        }
+
+        @media (max-width: $mobile-width) {
+            display: none;
+        }
+    }
+
+    .nav-user {
+        @media (max-width: $mobile-width) {
+            display: none;
+        }
+    }
+
+    .menu-item {
+        margin: 0;
+        @media (max-width: $mobile-width) {
+            padding-top: 1em;
+            padding-bottom: 1em;
+        }
+        font-size: 16px;
+        color: #e7e7e7;
+        letter-spacing: 0.27px;
+        line-height: 18px;
+        text-align: left;
+        padding-left: 1em;
+    }
+
+    .app-version {
+        margin-left: 3.5em;
+        padding: 0.5em 1em 1em;
+        font-size: 14px;
+        color: white;
+        letter-spacing: 0.27px;
+        line-height: 18px;
+        text-align: left;
+    }
+
+    .user {
+        bottom: 60px;
+        color: white;
+    }
+
+    .user-name {
+        background-color: #212121;
+        padding: 1.5em 1em 1em;
+        left: 0;
+        font-size: 1em;
+        color: white;
+        font-weight: 300;
+        letter-spacing: 1px;
+    }
+
+    .locale-bar {
+        margin-left: 1.7em;
+        margin-top: 0.4em;
+    }
+
+    .locale-item {
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: 300;
+        letter-spacing: 1px;
+        display: inline-block;
+        height: auto;
+        color: white;
+        padding: 0.5em;
+        margin-left: 1.5em;
+        border: 0;
+        @media (max-width: $mobile-width) {
+            border: 3px solid #00000000;
+        }
+        :active :hover {
+            font-weight: bold;
+            @media (max-width: $mobile-width) {
+                border-radius: 50px;
+                border: 3px solid white;
+            }
+        }
+    }
+
+    @media print {
+        .nav-container {
+            display: none !important;
+        }
+    }
+
+    .user-logo {
+        display: inline-block;
+        vertical-align: top;
+        margin-right: 10px;
+        margin-left: 10px;
+    }
+
+    .user-data {
+        display: inline-block;
+        max-width: 165px;
+    }
+
+    ul.submenu {
+        margin-top: 20px;
+        border-top: 15px;
+        padding: 0px;
+        border: 0px;
+        font-size: 16px;
+        color: #e7e7e7;
+        letter-spacing: 0.27px;
+        line-height: 16px;
+        text-align: left;
+
+        button {
+            height: 20px;
+            border-radius: 0px;
+            color: #e7e7e7;
+            @media (max-width: $mobile-width) {
+                margin: 0;
+            }
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        div {
+            padding-left: 28px;
+            text-indent: -35px;
+        }
+
+        img {
+            margin-left: 0.5em;
+            margin-right: 1em;
+        }
+
+        @media (max-width: $mobile-width) {
+            margin-top: 10px;
+        }
+    }
+}
+button.skip-main {
+    left: -999px;
+    display: flex;
+    position: absolute;
+    top: auto;
+    z-index: -999;
+
+    background-color: #e6e6e6;
+    border: #4c4c4c;
+    border-radius: 4px;
+    color: black;
+}
+button.skip-main:focus,
+button.skip-main:active {
+    white-space: nowrap;
+    margin: 20px;
+    padding: 0 5px !important;
+    left: auto;
+    top: auto;
+    z-index: 999;
+}
+a.skip-main {
+    left: -999px;
+    display: flex;
+    position: absolute;
+    top: auto;
+    z-index: -999;
+
+    margin: 20px;
+    padding: 0 5px !important;
+    white-space: nowrap;
+    background-color: black;
+    border: #e7e7e7;
+    border-radius: 4px;
+    color: white;
+}
+a.skip-main:focus,
+a.skip-main:active {
+    left: auto;
+    top: auto;
+    z-index: 999;
+}

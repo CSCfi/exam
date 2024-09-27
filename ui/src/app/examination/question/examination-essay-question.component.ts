@@ -12,21 +12,28 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import type { EssayAnswer } from '../../exam/exam.model';
-import type { AnsweredQuestion } from '../../shared/attachment/attachment.service';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { FileService } from '../../shared/file/file.service';
-import type { Examination, ExaminationQuestion } from '../examination.model';
-import { ExaminationService } from '../examination.service';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import type { EssayAnswer } from 'src/app/exam/exam.model';
+import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
+import type { AnsweredQuestion } from 'src/app/shared/attachment/attachment.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
+import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-examination-essay-question',
     templateUrl: './examination-essay-question.component.html',
+    standalone: true,
+    imports: [FormsModule, TranslateModule, UpperCasePipe, DatePipe, CKEditorComponent],
+    styleUrls: ['../examination.shared.scss', './question.shared.scss'],
 })
 export class ExaminationEssayQuestionComponent implements OnInit {
     @Input() sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
-    @Input() exam!: Examination;
+    @Input() exam?: Examination;
     @Input() isPreview = false;
 
     questionTitle!: string;
@@ -41,17 +48,18 @@ export class ExaminationEssayQuestionComponent implements OnInit {
         if (!this.sq.essayAnswer) {
             Object.assign(this.sq, { essayAnswer: {} });
         }
-        this.Examination.setQuestionColors(this.sq);
+        this.Examination.setAnswerStatus(this.sq);
         const html = this.sq.question.question;
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const decodedString = doc.documentElement.innerText;
         this.questionTitle = decodedString;
     }
-    saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.exam.hash, false, false).subscribe();
+    saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.exam?.hash || '', false, false).subscribe();
+
     removeQuestionAnswerAttachment = () => {
         const answeredQuestion = this.sq as AnsweredQuestion; // TODO: no casting
-        if (this.exam.external) {
+        if (this.exam?.external) {
             this.Attachment.removeExternalQuestionAnswerAttachment(answeredQuestion, this.exam.hash);
             return;
         }
@@ -59,11 +67,11 @@ export class ExaminationEssayQuestionComponent implements OnInit {
     };
 
     selectFile = () => {
-        if (this.isPreview) {
+        if (this.isPreview || !this.exam) {
             return;
         }
         this.Attachment.selectFile(false).then((data) => {
-            if (this.exam.external) {
+            if (this.exam?.external) {
                 this.Files.uploadAnswerAttachment(
                     '/app/iop/attachment/question/answer',
                     data.$value.attachmentFile,

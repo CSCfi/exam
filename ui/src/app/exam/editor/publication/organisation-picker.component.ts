@@ -12,10 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
-import type { Exam } from '../../exam.model';
-import { ExamService } from '../../exam.service';
+import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import type { Exam } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
 
 type Organisation = {
     _id: string;
@@ -28,18 +32,14 @@ type Organisation = {
 @Component({
     selector: 'xm-exam-organisation-selector',
     template: `<div class="row mt-2">
-            <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_organisations' | translate }}
+            <div class="col-md-3 ">
+                {{ 'i18n_exam_organisations' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_exam_organisations_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_organisations_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
-                    <img
-                        src="/assets/images/icon_tooltip.svg"
-                        alt="exam organisations"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                    />
+                    <img src="/assets/images/icon_tooltip.svg" alt="exam organisations" />
                 </sup>
             </div>
             <div class="col-md-9" ngbDropdown>
@@ -52,43 +52,46 @@ type Organisation = {
                     aria-haspopup="true"
                     aria-expanded="true"
                 >
-                    {{ 'sitnet_faculty_name' | translate }}&nbsp;
+                    {{ 'i18n_faculty_name' | translate }}&nbsp;
                 </button>
                 <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
-                    <li *ngFor="let org of organisations" role="presentation">
-                        <button
-                            [disabled]="org.filtered"
-                            ngbDropdownItem
-                            (click)="addOrganisation(org)"
-                            role="menuitem"
-                        >
-                            {{ org.code }} ({{ org.name }})
-                        </button>
-                    </li>
+                    @for (org of organisations; track org) {
+                        <li role="presentation">
+                            <button
+                                [disabled]="org.filtered"
+                                ngbDropdownItem
+                                (click)="addOrganisation(org)"
+                                role="menuitem"
+                            >
+                                {{ org.code }} ({{ org.name }})
+                            </button>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
-        <div class="row mt-2" *ngIf="selectedOrganisations.length > 0">
-            <div class="col-md-9 offset-md-3">
-                <ul class="list-group list-group-horizontal">
-                    <li class="list-group-item" *ngFor="let org of selectedOrganisations">
+        @if (selectedOrganisations.length > 0) {
+            <div class="row mt-2">
+                <div class="col-md-9 offset-md-3">
+                    @for (org of selectedOrganisations; track org) {
                         {{ org.name }} ({{ org.code }})
                         <button
-                            class="reviewer-remove"
+                            class="btn btn-sm btn-link px-0"
                             [disabled]="exam.state === 'PUBLISHED'"
                             (click)="removeOrganisation(org)"
+                            title="{{ 'i18n_remove' | translate }}"
                         >
-                            <img
-                                [hidden]="exam.state === 'PUBLISHED'"
-                                src="/assets/images/icon_remove.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                            />
+                            <i
+                                class="bi bi-x-lg"
+                                [ngClass]="exam.state === 'PUBLISHED' ? 'text-danger' : 'text-success'"
+                            ></i>
                         </button>
-                    </li>
-                </ul>
+                    }
+                </div>
             </div>
-        </div> `,
+        }`,
+    standalone: true,
+    imports: [NgClass, NgbPopover, NgbDropdownModule, TranslateModule],
 })
 export class OrganisationSelectorComponent implements OnInit {
     @Input() exam!: Exam;
@@ -96,7 +99,10 @@ export class OrganisationSelectorComponent implements OnInit {
     organisations: Organisation[] = [];
     selectedOrganisations: Organisation[] = [];
 
-    constructor(private http: HttpClient, private Exam: ExamService) {}
+    constructor(
+        private http: HttpClient,
+        private Exam: ExamService,
+    ) {}
 
     ngOnInit() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {

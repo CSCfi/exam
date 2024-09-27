@@ -13,11 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Address } from '../rooms/room.service';
-import { RoomService } from '../rooms/room.service';
+import type { Address } from 'src/app/facility/rooms/room.service';
+import { RoomService } from 'src/app/facility/rooms/room.service';
 
 @Component({
     selector: 'xm-room-address',
@@ -32,7 +33,7 @@ import { RoomService } from '../rooms/room.service';
         >
             <div class="row">
                 <div class="col-md-6">
-                    <div class="sitnet-info-text">{{ 'sitnet_exam_room_address_street' | translate }}</div>
+                    <div class="facility-info-text">{{ 'i18n_exam_room_address_street' | translate }}</div>
                     <div class="input-group">
                         <input type="text" name="street" class="form-control" [(ngModel)]="address.street" required />
                         <span class="input-group-append">
@@ -40,8 +41,8 @@ import { RoomService } from '../rooms/room.service';
                                 <i
                                     class="bi-question-circle"
                                     triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'sitnet_exam_room_address_street' | translate }}"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    ngbPopover="{{ 'i18n_exam_room_address_street' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                                 ></i>
                             </span>
                         </span>
@@ -49,7 +50,7 @@ import { RoomService } from '../rooms/room.service';
                 </div>
 
                 <div class="col-md-6">
-                    <div class="sitnet-info-text">{{ 'sitnet_exam_room_address_zip' | translate }}</div>
+                    <div class="facility-info-text">{{ 'i18n_exam_room_address_zip' | translate }}</div>
                     <div class="input-group">
                         <input type="text" name="zip" class="form-control" [(ngModel)]="address.zip" required />
                         <span class="input-group-append">
@@ -57,8 +58,8 @@ import { RoomService } from '../rooms/room.service';
                                 <i
                                     class="bi-question-circle"
                                     triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'sitnet_exam_room_address_zip' | translate }}"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    ngbPopover="{{ 'i18n_exam_room_address_zip' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                                 ></i>
                             </span>
                         </span>
@@ -67,16 +68,16 @@ import { RoomService } from '../rooms/room.service';
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="sitnet-info-text">{{ 'sitnet_exam_room_address_city' | translate }}</div>
+                    <div class="facility-info-text">{{ 'i18n_exam_room_address_city' | translate }}</div>
                     <div class="input-group">
                         <input type="text" name="city" class="form-control" [(ngModel)]="address.city" required />
                         <span class="input-group-append">
                             <span class="input-group-text">
                                 <i
                                     class="bi-question-circle"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'sitnet_exam_room_address_city' | translate }}"
+                                    ngbPopover="{{ 'i18n_exam_room_address_city' | translate }}"
                                 ></i>
                             </span>
                         </span>
@@ -86,18 +87,25 @@ import { RoomService } from '../rooms/room.service';
             <div class="row mt-4">
                 <div class="col-md-12">
                     <button type="submit" [disabled]="addressForm.invalid" class="btn btn-primary">
-                        {{ 'sitnet_save' | translate }}
+                        {{ 'i18n_save' | translate }}
                     </button>
                 </div>
             </div>
         </form>
     </div> `,
+    styleUrls: ['../rooms/rooms.component.scss'],
+    standalone: true,
+    imports: [FormsModule, NgbPopover, TranslateModule],
 })
 export class AddressComponent {
     @Input() address!: Address;
     @ViewChild('addressForm', { static: false }) addressForm?: NgForm;
 
-    constructor(private room: RoomService, private toast: ToastrService, private translate: TranslateService) {}
+    constructor(
+        private room: RoomService,
+        private toast: ToastrService,
+        private translate: TranslateService,
+    ) {}
 
     validateAndUpdateAddress = () => {
         if (this.addressForm?.valid) {
@@ -107,7 +115,7 @@ export class AddressComponent {
 
     updateAddress = () =>
         this.room.updateAddress$(this.address).subscribe({
-            next: () => this.toast.info(this.translate.instant('sitnet_room_address_updated')),
+            next: () => this.toast.info(this.translate.instant('i18n_room_address_updated')),
             error: (err) => this.toast.error(err),
         });
 }

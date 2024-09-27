@@ -12,16 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
-import { QuestionDraft, QuestionService } from '../question.service';
+import type { MultipleChoiceOption, Question } from 'src/app/exam/exam.model';
+import { QuestionDraft, QuestionService } from 'src/app/question/question.service';
 
 @Component({
     selector: 'xm-mc-option-editor',
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
-        <div class="question-editor-option">
+        <div ngModelGroup="mcOptions" class="m-0 p-0 exclude">
             <div class="row">
                 <div
                     class="col-md-6 question-option-empty"
@@ -51,12 +54,17 @@ import { QuestionDraft, QuestionService } from '../question.service';
                     />
                 </div>
 
-                <div *ngIf="allowRemoval" (click)="removeOption()" class="col-md-1 question-option-trash">
-                    <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
-                </div>
+                @if (allowRemoval) {
+                    <div (click)="removeOption()" class="col-md-1 question-option-trash">
+                        <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
+                    </div>
+                }
             </div>
         </div>
     `,
+    styleUrls: ['../question.shared.scss'],
+    standalone: true,
+    imports: [FormsModule, NgClass, TranslateModule],
 })
 export class MultipleChoiceOptionEditorComponent {
     @Input() option!: MultipleChoiceOption;
@@ -64,7 +72,11 @@ export class MultipleChoiceOptionEditorComponent {
     @Input() question!: Question | QuestionDraft;
     @Input() allowRemoval = false;
 
-    constructor(private translate: TranslateService, private toast: ToastrService, private Question: QuestionService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Question: QuestionService,
+    ) {}
 
     correctAnswerToggled = () => this.Question.toggleCorrectOption(this.option, this.question.options);
 
@@ -73,7 +85,7 @@ export class MultipleChoiceOptionEditorComponent {
         if (hasCorrectAnswer) {
             this.question.options.splice(this.question.options.indexOf(this.option), 1);
         } else {
-            this.toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
+            this.toast.error(this.translate.instant('i18n_action_disabled_minimum_options'));
         }
     };
 }

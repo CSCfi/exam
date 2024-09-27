@@ -12,57 +12,86 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import type { Examination, ExaminationSection } from '../examination.model';
-import { ExaminationService } from '../examination.service';
+import { TranslateModule } from '@ngx-translate/core';
+import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
+import { ExaminationQuestionComponent } from 'src/app/examination/question/examination-question.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-examination-section',
-    template: `<div class="row">
-            <div class="col-md-12 studentexam-header">
-                <h2>
+    template: `<div class="row mt-3 ms-1">
+            <div class="col-md-12">
+                <h2
+                    aria-live="polite"
+                    attr.aria-label="{{ 'i18n_exam_section' | translate }} {{ index ? index + '. ' : '' }}{{
+                        section.name
+                    }}"
+                    id="examination-section"
+                >
                     <span class="exam-title">{{ index ? index + '. ' : '' }}{{ section.name }}</span>
-                    <span *ngIf="isPreview && section.lotteryOn" class="sitnet-text-medium">
-                        <small class="ms-3">({{ 'sitnet_lottery_questions' | translate }})</small>
-                    </span>
+                    @if (isPreview && section.lotteryOn) {
+                        <span class="text-black">
+                            <small class="ms-3">({{ 'i18n_lottery_questions' | translate }})</small>
+                        </span>
+                    }
                 </h2>
                 <div class="section-score-details">
-                    <div class="section-score-label" *ngIf="getSectionMaxScore() > 0">
-                        {{ 'sitnet_section_max_score' | translate }}: &nbsp; {{ getSectionMaxScore() }}
-                    </div>
-                    <div class="section-score-label" *ngIf="getAmountOfSelectionEvaluatedQuestions() > 0">
-                        {{ 'sitnet_word_passed_max' | translate }}: &nbsp;
-                        {{ getAmountOfSelectionEvaluatedQuestions() }}
-                    </div>
+                    @if (getSectionMaxScore() > 0) {
+                        <div class="section-score-label">
+                            {{ 'i18n_section_max_score' | translate }}: &nbsp; {{ getSectionMaxScore() }}
+                        </div>
+                    }
+                    @if (getAmountOfSelectionEvaluatedQuestions() > 0) {
+                        <div class="section-score-label">
+                            {{ 'i18n_word_passed_max' | translate }}: &nbsp;
+                            {{ getAmountOfSelectionEvaluatedQuestions() }}
+                        </div>
+                    }
                 </div>
                 <!-- DESCRIPTION FOR SECTION -->
-                <div *ngIf="section.description && section.description.length > 0">
-                    <img src="/assets/images/icon_info.svg" alt="" />
-                    <span class="ps-2">{{ section.description }}</span>
-                </div>
+                @if (section.description && section.description.length > 0) {
+                    <div>
+                        <img src="/assets/images/icon_info.svg" alt="" />
+                        <span class="ps-2">{{ section.description }}</span>
+                    </div>
+                }
             </div>
         </div>
-        <div class="row">
+        <!-- Question Content -->
+        <div class="row ms-1">
             <div class="col-md-12">
-                <div *ngFor="let material of section.examMaterials" class="row">
-                    <div class="col-md-12 info-row mart10">
-                        <i class="text-muted bi-book" alt="exam materials"></i>
-                        <span style="padding-left: 15px">{{ material.name }}</span>
-                        <span *ngIf="material.author"> ({{ material.author }}) </span>
-                        <span *ngIf="material.isbn">
-                            <small>[ISBN: {{ material.isbn }}]</small>
-                        </span>
+                @for (material of section.examMaterials; track material) {
+                    <div class="row">
+                        <div class="col-md-12 mt-1">
+                            <i class="text-muted bi-book" alt="exam materials"></i>
+                            <span style="padding-left: 15px">{{ material.name }}</span>
+                            @if (material.author) {
+                                <span> ({{ material.author }}) </span>
+                            }
+                            @if (material.isbn) {
+                                <span>
+                                    <small>[ISBN: {{ material.isbn }}]</small>
+                                </span>
+                            }
+                        </div>
                     </div>
-                </div>
-                <xm-examination-question
-                    *ngFor="let sq of section.sectionQuestions | orderBy : 'sequenceNumber'"
-                    [question]="sq"
-                    [exam]="exam"
-                    [isPreview]="isPreview"
-                    [isCollaborative]="isCollaborative"
-                ></xm-examination-question>
+                }
+                @for (sq of section.sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
+                    <xm-examination-question
+                        [question]="sq"
+                        [exam]="exam"
+                        [isPreview]="isPreview"
+                        [isCollaborative]="isCollaborative"
+                    ></xm-examination-question>
+                }
             </div>
-        </div> `,
+        </div>`,
+    standalone: true,
+    imports: [ExaminationQuestionComponent, TranslateModule, OrderByPipe],
+    styleUrls: ['../examination.shared.scss', './examination-section.component.scss'],
 })
 export class ExaminationSectionComponent implements OnInit, OnDestroy {
     @Input() exam!: Examination;

@@ -6,15 +6,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import impl.ExamUpdater;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
 import io.vavr.control.Either;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -31,9 +29,11 @@ import models.Role;
 import models.User;
 import models.json.CollaborativeExam;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.Json;
 import play.libs.ws.WSClient;
+import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import util.config.ConfigReader;
@@ -55,34 +55,32 @@ public class CollaborationController extends BaseController {
     @Inject
     protected ConfigReader configReader;
 
-    private static final Logger.ALogger logger = Logger.of(CollaborationController.class);
+    private final Logger logger = LoggerFactory.getLogger(CollaborationController.class);
 
     Optional<URL> parseUrl() {
         String url = String.format("%s/api/exams", configReader.getIopHost());
         try {
-            return Optional.of(new URL(url));
+            return Optional.of(URI.create(url).toURL());
         } catch (MalformedURLException e) {
-            logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL", e);
             return Optional.empty();
         }
     }
 
-    Optional<URL> parseUrlWithSearchParam(String filter, boolean anonymous) {
-        try {
-            if (filter == null) {
-                return Optional.empty();
-            }
-            String paramStr = String.format(
-                "filter=%s&anonymous=%s",
-                URLEncoder.encode(filter, StandardCharsets.UTF_8),
-                anonymous
-            );
-            URI uri = URI.create(String.format("%s/api/exams/search?%s", configReader.getIopHost(), paramStr));
-            return Optional.of(uri.toURL());
-        } catch (MalformedURLException e) {
-            logger.error("Malformed URL {}", e);
-            return Optional.empty();
-        }
+    WSRequest getSearchRequest(Optional<String> filter) {
+        String host = configReader.getIopHost();
+        return filter
+            .map(s -> {
+                URI uri = URI.create(String.format("%s/api/exams/search", host));
+                return wsClient
+                    .url(uri.toString())
+                    .addQueryParameter("filter", s)
+                    .addQueryParameter("anonymous", "false");
+            })
+            .orElseGet(() -> {
+                URI uri = URI.create(String.format("%s/api/exams", host));
+                return wsClient.url(uri.toString());
+            });
     }
 
     protected CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {
@@ -103,6 +101,7 @@ public class CollaborationController extends BaseController {
         user.getEnrolments().clear();
         user.getParticipations().clear();
         user.getInspections().clear();
+        user.getPermissions().clear();
     }
 
     void updateLocalReferences(JsonNode root, Map<String, CollaborativeExam> locals) {
@@ -141,30 +140,26 @@ public class CollaborationController extends BaseController {
         }
         return (
             user.getLoginRole() == Role.Name.ADMIN ||
-            (
-                exam
+            (exam
                     .getExamOwners()
                     .stream()
                     .anyMatch(u ->
                         u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn())
                     ) &&
-                exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED)
-            )
+                exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED))
         );
     }
 
     boolean isUnauthorizedToAssess(Exam exam, User user) {
         return (
             user.getLoginRole() != Role.Name.ADMIN &&
-            (
-                exam
+            (exam
                     .getExamOwners()
                     .stream()
                     .noneMatch(u ->
                         u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn())
                     ) ||
-                !exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED)
-            )
+                !exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED))
         );
     }
 
@@ -200,7 +195,7 @@ public class CollaborationController extends BaseController {
             return Either.left(internalServerError(root.get("message").asText("Connection refused")));
         }
 
-        Map<String, CollaborativeExam> locals = Ebean
+        Map<String, CollaborativeExam> locals = DB
             .find(CollaborativeExam.class)
             .findSet()
             .stream()
@@ -216,22 +211,22 @@ public class CollaborationController extends BaseController {
     }
 
     Either<CompletionStage<Result>, CollaborativeExam> findCollaborativeExam(Long id) {
-        return Ebean
+        return DB
             .find(CollaborativeExam.class)
             .where()
             .idEq(id)
             .findOneOrEmpty()
             .<Either<CompletionStage<Result>, CollaborativeExam>>map(Either::right)
-            .orElse(Either.left(wrapAsPromise(notFound("sitnet_error_exam_not_found"))));
+            .orElse(Either.left(wrapAsPromise(notFound("i18n_error_exam_not_found"))));
     }
 
     Either<CompletionStage<Result>, CollaborativeExam> findCollaborativeExam(String ref) {
-        return Ebean
+        return DB
             .find(CollaborativeExam.class)
             .where()
             .eq("externalRef", ref)
             .findOneOrEmpty()
             .<Either<CompletionStage<Result>, CollaborativeExam>>map(Either::right)
-            .orElse(Either.left(wrapAsPromise(notFound("sitnet_error_exam_not_found"))));
+            .orElse(Either.left(wrapAsPromise(notFound("i18n_error_exam_not_found"))));
     }
 }

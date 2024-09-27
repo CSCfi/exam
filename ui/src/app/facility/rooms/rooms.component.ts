@@ -12,18 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { groupBy } from 'ramda';
-import type { DefaultWorkingHours, ExamRoom } from '../../reservation/reservation.model';
-import { ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
-import { DateTimeService } from '../../shared/date/date.service';
+import { MachineListComponent } from 'src/app/facility/machines/machines.component';
+import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
+import { OpenHoursComponent } from 'src/app/facility/schedule/opening-hours.component';
+import { StartingTimeComponent } from 'src/app/facility/schedule/starting-time.component';
+import type { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
+import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { DateTimeService } from 'src/app/shared/date/date.service';
 import { RoomService } from './room.service';
 
 interface ExtendedRoom extends ExamRoom {
@@ -43,6 +49,18 @@ export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
 @Component({
     templateUrl: './rooms.component.html',
     selector: 'xm-rooms',
+    standalone: true,
+    imports: [
+        NgClass,
+        NgbPopover,
+        RouterLink,
+        OpenHoursComponent,
+        ExceptionListComponent,
+        StartingTimeComponent,
+        MachineListComponent,
+        TranslateModule,
+    ],
+    styleUrl: './rooms.component.scss',
 })
 export class RoomListComponent implements OnInit {
     user: User;

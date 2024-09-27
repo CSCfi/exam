@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { range as _range } from 'ramda';
@@ -23,19 +24,19 @@ import { range as _range } from 'ramda';
             <li [ngClass]="previousPageDisabled()">
                 <a tabindex="0" (click)="previousPage()" (keyup.enter)="previousPage()">&#60;</a>
             </li>
-            <li
-                *ngFor="let n of range()"
-                [ngClass]="{ active: isCurrent(n) }"
-                (click)="setPage(n)"
-                (keyup.enter)="setPage(n)"
-            >
-                <a tabindex="0">{{ printRange(n) }}</a>
-            </li>
+            @for (n of range(); track $index) {
+                <li [ngClass]="{ active: isCurrent(n) }" (click)="setPage(n)" (keyup.enter)="setPage(n)">
+                    <a tabindex="0" class="fs-6 text badge">{{ n + 1 }}</a>
+                </li>
+            }
             <li [ngClass]="nextPageDisabled()">
                 <a tabindex="0" (click)="nextPage()" (keyup.enter)="nextPage()">&#62;</a>
             </li>
         </ul>
     `,
+    styleUrls: ['./paginator.component.scss'],
+    standalone: true,
+    imports: [NgClass],
 })
 export class PaginatorComponent implements OnChanges {
     @Input() items: unknown[] = [];
@@ -53,8 +54,6 @@ export class PaginatorComponent implements OnChanges {
             this.pageSelected.emit({ page: 0 });
         }
     }
-
-    printRange = (n: number) => (n < 9 ? '0' + (n + 1) : n + 1);
 
     previousPage = () => {
         if (this.currentPage > 0) {

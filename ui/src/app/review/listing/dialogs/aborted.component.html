@@ -1,135 +1,152 @@
-<div id="dashboard">
-    <div class="top-row">
+<div class="modal-header">
+    <div class="row ms-3 mt-3">
         <div class="col-md-12">
-            <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_aborted_exams' | translate }}</div>
+            <div class="xm-modal-title">{{ 'i18n_aborted_exams' | translate }}</div>
+        </div>
+    </div>
+</div>
+<div class="modal-body">
+    @if (abortedExams.length === 0) {
+        <div class="row my-3 align-items-center xm-paragraph-title-no-results">
+            <div class="col-auto">
+                <i class="bi-exclamation-circle ps-3"></i>
+            </div>
+            <div class="col">
+                {{ 'i18n_exam_no_aborted' | translate }}
             </div>
         </div>
-    </div>
-    <div class="row mart40 padl30" *ngIf="abortedExams.length === 0">
-        <div class="review-no-results">
-            <i class="bi-exclamation-circle padl20 grayish"></i> {{ 'sitnet_exam_no_aborted' | translate }}
+    } @else {
+        <div class="row">
+            <table class="col-12 table table-striped xm-data-table">
+                <thead>
+                    <tr>
+                        @if (showId()) {
+                            <th>Id</th>
+                        }
+                        <th>
+                            <xm-table-sort
+                                [reverse]="reverse"
+                                [predicate]="abortedPredicate"
+                                by="displayName"
+                                text="i18n_student"
+                                (click)="setPredicate('displayName')"
+                            ></xm-table-sort>
+                        </th>
+                        <th>
+                            <xm-table-sort
+                                [reverse]="reverse"
+                                [predicate]="abortedPredicate"
+                                by="examParticipation.user.email"
+                                text="i18n_email"
+                                (click)="setPredicate('examParticipation.user.email')"
+                            ></xm-table-sort>
+                        </th>
+                        <th>
+                            <xm-table-sort
+                                [reverse]="reverse"
+                                [predicate]="abortedPredicate"
+                                by="examParticipation.started"
+                                text="i18n_exam_duration"
+                                (click)="setPredicate('examParticipation.started')"
+                            ></xm-table-sort>
+                        </th>
+                        <th>{{ 'i18n_exam_state' | translate }}</th>
+                        <th>
+                            <xm-table-sort
+                                [reverse]="reverse"
+                                [predicate]="abortedPredicate"
+                                by="examParticipation.reservation.trialCount"
+                                text="i18n_trial"
+                                (click)="setPredicate('examParticipation.exam.trialCount')"
+                            ></xm-table-sort>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (review of abortedExams | orderBy: abortedPredicate : reverse; track review) {
+                        <tr>
+                            @if (showId()) {
+                                <td>{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
+                            }
+                            <td>
+                                {{ review.displayName }}
+                                @if (review.examParticipation.user?.userIdentifier) {
+                                    <span><br />({{ review.examParticipation.user?.userIdentifier }})</span>
+                                }
+                            </td>
+                            <td>
+                                <a class="pointer" href="mailto:{{ review.examParticipation.user?.email }}">
+                                    {{ review.examParticipation.user?.email }}</a
+                                >
+                            </td>
+                            @if (
+                                review.examParticipation.exam.implementation === 'CLIENT_AUTH' ||
+                                review.examParticipation.exam.implementation === 'WHATEVER'
+                            ) {
+                                <td>
+                                    {{ review.examParticipation.started | date: 'dd.MM.yyyy' }}
+                                    {{ 'i18n_clock_short' | translate }}
+                                    {{ review.examParticipation.started | date: 'HH:mm' }} -
+                                    {{ review.examParticipation.ended | date: 'HH:mm' }} ({{
+                                        review.examParticipation.started | minuteDiff: review.examParticipation.ended
+                                    }}&nbsp;min)
+                                </td>
+                            }
+                            @if (review.examParticipation.exam.implementation === 'AQUARIUM') {
+                                <td>
+                                    {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                                    {{ 'i18n_clock_short' | translate }}
+                                    {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
+                                    {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }} ({{
+                                        review.examParticipation.started | minuteDiff: review.examParticipation.ended
+                                    }}&nbsp;min)
+                                </td>
+                            }
+                            <td class="text-danger">
+                                {{ 'i18n_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
+                            </td>
+                            @if (review.examParticipation.exam.executionType.type === 'PUBLIC') {
+                                <td>
+                                    @if (
+                                        review.examParticipation.exam.trialCount &&
+                                        review.examParticipation.exam.examEnrolments[0]
+                                    ) {
+                                        <div>
+                                            <button
+                                                [disabled]="
+                                                    review.examParticipation.exam.examEnrolments[0].retrialPermitted
+                                                "
+                                                (click)="permitRetrial(review.examParticipation.exam.examEnrolments[0])"
+                                                class="btn btn-sm btn-primary"
+                                            >
+                                                {{
+                                                    review.examParticipation.exam.examEnrolments[0].retrialPermitted
+                                                        ? ('i18n_retrial_permitted' | translate)
+                                                        : ('i18n_permit_retrial' | translate)
+                                                }}
+                                            </button>
+                                        </div>
+                                    }
+                                    @if (!review.examParticipation.exam.trialCount) {
+                                        <div class="text-muted">
+                                            {{ 'i18n_unrestricted' | translate }}
+                                        </div>
+                                    }
+                                </td>
+                            }
+                            @if (review.examParticipation.exam.executionType.type !== 'PUBLIC') {
+                                <td>&ndash;</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-    </div>
-    <div class="row review-no-show" *ngIf="abortedExams.length > 0">
-        <table class="table table-striped exams-table">
-            <thead>
-                <tr>
-                    <th *ngIf="showId()">Id</th>
-                    <th>
-                        <xm-table-sort
-                            [reverse]="reverse"
-                            [predicate]="abortedPredicate"
-                            by="displayName"
-                            text="sitnet_student"
-                            (click)="setPredicate('displayName')"
-                        ></xm-table-sort>
-                    </th>
-                    <th>
-                        <xm-table-sort
-                            [reverse]="reverse"
-                            [predicate]="abortedPredicate"
-                            by="examParticipation.user.email"
-                            text="sitnet_email"
-                            (click)="setPredicate('examParticipation.user.email')"
-                        ></xm-table-sort>
-                    </th>
-                    <th>
-                        <xm-table-sort
-                            [reverse]="reverse"
-                            [predicate]="abortedPredicate"
-                            by="examParticipation.started"
-                            text="sitnet_exam_duration"
-                            (click)="setPredicate('examParticipation.started')"
-                        ></xm-table-sort>
-                    </th>
-                    <th>{{ 'sitnet_exam_state' | translate }}</th>
-                    <th>
-                        <xm-table-sort
-                            [reverse]="reverse"
-                            [predicate]="abortedPredicate"
-                            by="examParticipation.reservation.trialCount"
-                            text="sitnet_trial"
-                            (click)="setPredicate('examParticipation.exam.trialCount')"
-                        ></xm-table-sort>
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr *ngFor="let review of abortedExams | orderBy : abortedPredicate : reverse">
-                    <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
-                    <td class="table-column-examname">
-                        {{ review.displayName }}
-                        <span *ngIf="review.examParticipation.user?.userIdentifier"
-                            ><br />({{ review.examParticipation.user?.userIdentifier }})</span
-                        >
-                    </td>
-                    <td class="table-column-25">
-                        <a class="pointer" href="mailto:{{ review.examParticipation.user?.email }}">
-                            {{ review.examParticipation.user?.email }}</a
-                        >
-                    </td>
-                    <td
-                        class="table-column-25"
-                        *ngIf="
-                            review.examParticipation.exam.implementation === 'CLIENT_AUTH' ||
-                            review.examParticipation.exam.implementation === 'WHATEVER'
-                        "
-                    >
-                        {{ review.examParticipation.started | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }} {{ review.examParticipation.started | date : 'HH:mm' }} -
-                        {{ review.examParticipation.ended | date : 'HH:mm' }} ({{
-                            review.examParticipation.started | minuteDiff : review.examParticipation.ended
-                        }}&nbsp;min)
-                    </td>
-                    <td class="table-column-25" *ngIf="review.examParticipation.exam.implementation === 'AQUARIUM'">
-                        {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }}
-                        {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
-                        {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }} ({{
-                            review.examParticipation.started | minuteDiff : review.examParticipation.ended
-                        }}&nbsp;min)
-                    </td>
-                    <td class="table-column-15 sitnet-text-aborted">
-                        {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
-                    </td>
-                    <td class="table-column-10" *ngIf="review.examParticipation.exam.executionType.type === 'PUBLIC'">
-                        <div
-                            *ngIf="
-                                review.examParticipation.exam.trialCount &&
-                                review.examParticipation.exam.examEnrolments[0]
-                            "
-                        >
-                            <button
-                                [disabled]="review.examParticipation.exam.examEnrolments[0].retrialPermitted"
-                                (click)="permitRetrial(review.examParticipation.exam.examEnrolments[0])"
-                                class="btn btn-sm btn-primary"
-                            >
-                                {{
-                                    review.examParticipation.exam.examEnrolments[0].retrialPermitted
-                                        ? ('sitnet_retrial_permitted' | translate)
-                                        : ('sitnet_permit_retrial' | translate)
-                                }}
-                            </button>
-                        </div>
-                        <div *ngIf="!review.examParticipation.exam.trialCount" class="text-muted">
-                            {{ 'sitnet_unrestricted' | translate }}
-                        </div>
-                    </td>
-                    <td class="table-column-10" *ngIf="review.examParticipation.exam.executionType.type !== 'PUBLIC'">
-                        &ndash;
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    }
+</div>
+<div class="d-flex flex-row-reverse flex-align-r m-3">
     <!-- Buttons -->
-    <div class="flex justify-content-end">
-        <div class="review-attachment-button marr10 marb10">
-            <a class="pointer preview" (click)="cancel()">
-                {{ 'sitnet_button_ok' | translate }}
-            </a>
-        </div>
-    </div>
+    <button class="btn btn-success" (click)="cancel()">
+        {{ 'i18n_button_ok' | translate }}
+    </button>
 </div>

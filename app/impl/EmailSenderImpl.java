@@ -24,11 +24,12 @@ import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EmailSenderImpl implements EmailSender {
 
-    private static final Logger.ALogger logger = Logger.of(EmailSenderImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(EmailSenderImpl.class);
     private final Config config;
 
     @Inject
@@ -71,7 +72,7 @@ public class EmailSenderImpl implements EmailSender {
         for (String r : recipients) {
             email.addTo(r);
         }
-        email.setFrom(String.format("Exam <%s>", config.getString("sitnet.email.system.account")));
+        email.setFrom(String.format("Exam <%s>", config.getString("exam.email.system.account")));
         email.addReplyTo(sender);
         for (String addr : cc) {
             email.addCc(addr);

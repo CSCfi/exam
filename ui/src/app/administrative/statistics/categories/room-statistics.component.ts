@@ -12,43 +12,64 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import type { ExamParticipation } from '../../../exam/exam.model';
-import type { Participations, QueryParams } from '../statistics.service';
-import { StatisticsService } from '../statistics.service';
+import { TranslateModule } from '@ngx-translate/core';
+import type { Participations, QueryParams } from 'src/app/administrative/statistics/statistics.service';
+import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({
     template: `
-        <div class="detail-row">
-            <div class="col-md-12">
+        <div class="row my-2">
+            <div class="col-12">
                 <button class="btn btn-primary" (click)="listParticipations()">
-                    {{ 'sitnet_search' | translate }}
+                    {{ 'i18n_search' | translate }}
                 </button>
             </div>
         </div>
-        <div class="main-row">
-            <div class="col-md-12" style="overflow: auto">
+        <div class="row">
+            <div class="col-12" style="overflow: auto">
                 <table class="table table-sm table-bordered table-striped">
                     <thead>
-                        <th class="warning">{{ 'sitnet_year' | translate }}</th>
-                        <th class="warning">{{ 'sitnet_month' | translate }}</th>
-                        <th *ngFor="let room of rooms">{{ room.split('___')[1] }}</th>
-                        <th class="success">{{ 'sitnet_total' | translate }}</th>
+                        <th>
+                            <strong>{{ 'i18n_year' | translate }}</strong>
+                        </th>
+                        <th>
+                            <strong>{{ 'i18n_month' | translate }}</strong>
+                        </th>
+                        @for (room of rooms; track room) {
+                            <th>{{ room.split('___')[1] }}</th>
+                        }
+                        <th>
+                            <strong>{{ 'i18n_total' | translate }}</strong>
+                        </th>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let month of months">
-                            <td class="warning">{{ month | date : 'yyyy' }}</td>
-                            <td class="warning">{{ month | date : 'M' }}</td>
-                            <td *ngFor="let room of rooms">{{ totalParticipations(month, room) }}</td>
-                            <td class="success">{{ totalParticipations(month) }}</td>
-                        </tr>
+                        @for (month of months; track month.toISOString()) {
+                            <tr>
+                                <td>
+                                    <strong>{{ month | date: 'yyyy' }}</strong>
+                                </td>
+                                <td>
+                                    <strong>{{ month | date: 'M' }}</strong>
+                                </td>
+                                @for (room of rooms; track room) {
+                                    <td>{{ totalParticipations(month, room) }}</td>
+                                }
+                                <td>
+                                    <strong>{{ totalParticipations(month) }}</strong>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                     <tfoot>
-                        <tr class="success">
+                        <tr>
                             <td colspan="2">
-                                <b>{{ 'sitnet_total' | translate }}</b>
+                                <strong>{{ 'i18n_total' | translate }}</strong>
                             </td>
-                            <td *ngFor="let room of rooms">{{ totalParticipations(undefined, room) }}</td>
+                            @for (room of rooms; track room) {
+                                <td>{{ totalParticipations(undefined, room) }}</td>
+                            }
                             <td>
                                 <b>{{ totalParticipations() }}</b>
                             </td>
@@ -59,6 +80,8 @@ import { StatisticsService } from '../statistics.service';
         </div>
     `,
     selector: 'xm-room-statistics',
+    standalone: true,
+    imports: [DatePipe, TranslateModule],
 })
 export class RoomStatisticsComponent {
     @Input() queryParams: QueryParams = {};
@@ -82,8 +105,8 @@ export class RoomStatisticsComponent {
 
     totalParticipations = (month?: Date, room?: string) => {
         if (!this.participations) return 0;
-        const isWithinBounds = (p: ExamParticipation) => {
-            const date = new Date(p.externalExam ? p.externalExam.started : p.exam.created);
+        const isWithinBounds = (data: { date: string }) => {
+            const date = new Date(data.date);
             const current = month ? new Date(month) : new Date();
             const min = new Date(current.getFullYear(), current.getMonth(), 1);
             const max = new Date(current.getFullYear(), current.getMonth() + 1, 0, 23, 59, 59);
@@ -119,12 +142,7 @@ export class RoomStatisticsComponent {
 
     private getMinAndMaxDates = (): { min: Date; max: Date } => {
         const dates: Date[] = Object.values(this.participations)
-            .flatMap((ps) =>
-                ps
-                    .filter((p) => p.exam || p.externalExam)
-                    .map((p) => (p.externalExam ? p.externalExam.started : p.exam.created))
-                    .map((d) => new Date(d)),
-            )
+            .flatMap((ps) => ps.map((d) => new Date(d.date)))
             .sort((a, b) => a.getTime() - b.getTime());
         let minDate = dates[0];
         // Set min date to which one is earlier: participation or search date

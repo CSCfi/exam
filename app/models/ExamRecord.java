@@ -16,13 +16,15 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import models.base.GeneratedIdentityModel;
 import models.dto.ExamScore;
+import org.joda.time.DateTime;
+import util.datetime.DateTimeAdapter;
 
 @Entity
 public class ExamRecord extends GeneratedIdentityModel {
@@ -40,9 +42,10 @@ public class ExamRecord extends GeneratedIdentityModel {
     @JsonManagedReference
     private ExamScore examScore;
 
-    // what timestamp is this? The moments teacher marked Exam as recorded
+    // The moment exam was marked as graded and logged
     @Temporal(TemporalType.TIMESTAMP)
-    private Date timeStamp;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime timeStamp;
 
     public User getTeacher() {
         return teacher;
@@ -76,11 +79,11 @@ public class ExamRecord extends GeneratedIdentityModel {
         this.examScore = examScore;
     }
 
-    public Date getTimeStamp() {
+    public DateTime getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(Date timeStamp) {
+    public void setTimeStamp(DateTime timeStamp) {
         this.timeStamp = timeStamp;
     }
 }

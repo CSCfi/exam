@@ -1,64 +1,51 @@
 <!-- Sections -->
 
-<div class="row ms-2 me-2" *ngIf="exam.hasEnrolmentsInEffect">
-    <div class="col-md-12">
-        <div class="row student-enrolment-wrapper review-view exam-questions-warning mart40">
-            <div class="col-md-1">
-                <img
-                    src="/assets/images/icon_warning.png"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_warning.svg';"
-                />
-            </div>
-            <div class="col-md-11 warning-text">
-                {{ 'sitnet_upcoming_reservations_exist' | translate }}
+@if (exam.hasEnrolmentsInEffect) {
+    <div class="row mx-2">
+        <div class="col-md-12">
+            <div class="row xm-study-item-container--warning m-3">
+                <div class="col-md-1">
+                    <img src="/assets/images/icon_warning.png" alt="" />
+                </div>
+                <div class="col-md-11 warning-text">
+                    {{ 'i18n_upcoming_reservations_exist' | translate }}
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
-<div
-    class="row ms-2 me-2"
-    id="exam"
-    cdkDropList
-    [cdkDropListData]="exam.examSections"
-    (cdkDropListDropped)="moveSection($event)"
->
+<div class="row mx-2">
     <div class="col-md-12">
-        <div
-            *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let i = index"
-            cdkDrag
-            cdkDragLockAxis="y"
-        >
-            <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
-            <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
-            <div class="row section-handle">
-                <xm-section
-                    class="col-md-12 padt40"
-                    [section]="section"
-                    [index]="i + 1"
-                    [examId]="exam.id"
-                    [collaborative]="collaborative"
-                    [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
-                    (removed)="removeSection(section)"
-                    (materialsChanged)="loadMaterials()"
-                >
-                    <i
-                        cdkDragHandle
-                        class="bi bi-arrows-move"
-                        ngbPopover="{{ 'sitnet_move_section' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    ></i>
-                </xm-section>
-            </div>
+        <div cdkDropList [cdkDropListData]="exam.examSections" (cdkDropListDropped)="moveSection($event)">
+            @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
+                <div class="section-box mb-4" cdkDrag cdkDragLockAxis="y">
+                    <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
+                    <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
+                    <div class="row">
+                        <xm-section
+                            class="col-md-12 pt-2"
+                            [section]="section"
+                            [index]="i + 1"
+                            [examId]="exam.id"
+                            [collaborative]="collaborative"
+                            [canBeOptional]="
+                                exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'
+                            "
+                            (removed)="removeSection(section)"
+                            (materialsChanged)="loadMaterials()"
+                        >
+                        </xm-section>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
 
 <div class="row mt-4">
-    <div class="col-md-3 exam-basic-title">
-        <h4>{{ 'sitnet_total_score' | translate }}:</h4>
+    <div class="col-md-3">
+        <h4>{{ 'i18n_total_score' | translate }}:</h4>
     </div>
     <div class="col-md-9">
         <h4>{{ calculateExamMaxScore() }}</h4>
@@ -67,52 +54,44 @@
 
 <!-- Buttons -->
 <div class="row me-1 mt-4">
-    <div class="col-md-2 marb20">
-        <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer" (click)="addNewSection()">
-                <i class="bi-plus"></i>&nbsp;{{ 'sitnet_section_add' | translate }}
-            </a>
-        </div>
+    <div class="col-md-3 mb-3">
+        <button class="btn btn-success" (click)="addNewSection()">
+            <i class="bi-plus"></i>&nbsp;{{ 'i18n_section_add' | translate }}
+        </button>
     </div>
     <div class="col">
         <div class="row justify-content-end">
             <div class="col-auto p-1">
-                <div class="review-attachment-button exam-questions-buttons">
-                    <a class="pointer preview" (click)="previewExam(2)">
-                        {{ 'sitnet_preview' | translate }}
-                    </a>
-                </div>
+                <button class="btn btn-outline-secondary" (click)="previewExam(2)">
+                    {{ 'i18n_preview' | translate }}
+                </button>
             </div>
             <div class="col-auto p-1">
-                <div class="review-attachment-button exam-questions-buttons marl10">
-                    <a class="pointer" (click)="updateExam(false)">
-                        {{ 'sitnet_save' | translate }}
-                    </a>
-                </div>
+                <button class="btn btn-success" (click)="updateExam(false)">
+                    {{ 'i18n_save' | translate }}
+                </button>
             </div>
             <div class="col-auto p-1">
-                <div *ngIf="showDelete()" class="review-attachment-button exam-questions-buttons marl10">
-                    <a class="pointer warning" (click)="removeExam()">
-                        {{ 'sitnet_exam_remove' | translate }}
-                    </a>
-                </div>
+                @if (showDelete()) {
+                    <button class="btn btn-outline-danger" (click)="removeExam()">
+                        {{ 'i18n_exam_remove' | translate }}
+                    </button>
+                }
             </div>
         </div>
     </div>
 </div>
 <div class="row mt-2">
-    <div class="col-md-2 grey-top marb20 padt20">
-        <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer preview" (click)="previousTab()">
-                &#171; {{ 'sitnet_exam_basic_information_tab' | translate }}</a
-            >
-        </div>
+    <div class="col-md-2 grey-top mb-3 pt-3">
+        <button class="btn btn-outline-secondary" (click)="previousTab()">
+            &#171; {{ 'i18n_exam_basic_information_tab' | translate }}
+        </button>
     </div>
-    <div class="col grey-top marb20 padt20">
-        <div class="review-attachment-button exam-questions-buttons float-end">
-            <a class="pointer preview" (click)="nextTab()">
-                {{ 'sitnet_exam_assessment_settings' | translate }} &#187;</a
-            >
+    <div class="col grey-top mb-3 pt-3">
+        <div class="float-end">
+            <button class="btn btn-outline-secondary" (click)="nextTab()">
+                {{ 'i18n_exam_assessment_settings' | translate }} &#187;
+            </button>
         </div>
     </div>
 </div>

@@ -12,19 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgStyle, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import type { ExamParticipation, ExamSectionQuestion } from 'src/app/exam/exam.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
-import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { AssessmentService } from '../assessment.service';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-r-cloze-test',
     templateUrl: './cloze-test.component.html',
+    standalone: true,
+    imports: [NgStyle, MathJaxDirective, FormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
+    styleUrls: ['../assessment.shared.scss'],
 })
 export class ClozeTestComponent implements OnInit {
     @Input() participation!: ExamParticipation;
@@ -96,10 +102,10 @@ export class ClozeTestComponent implements OnInit {
                   this.ref,
                   this.participation._rev as string,
               ).subscribe((resp) => {
-                  this.toast.info(this.translate.instant('sitnet_graded'));
+                  this.toast.info(this.translate.instant('i18n_graded'));
                   this.scored.emit(resp.rev);
               })
             : this.Assessment.saveForcedScore(this.sectionQuestion).subscribe(() =>
-                  this.toast.info(this.translate.instant('sitnet_graded')),
+                  this.toast.info(this.translate.instant('i18n_graded')),
               );
 }

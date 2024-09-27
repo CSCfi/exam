@@ -1,4 +1,4 @@
-import type { Exam, ExamSection, ExamSectionQuestion, ExamSectionQuestionOption } from '../exam/exam.model';
+import type { Exam, ExamSection, ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/exam/exam.model';
 
 export interface Examination extends Exam {
     cloned: boolean;
@@ -12,7 +12,6 @@ export interface ExaminationQuestion extends ExamSectionQuestion {
     derivedMinScore: number;
     selectedOption: number;
     answered: boolean;
-    selectedAnsweredState: string;
     expanded: boolean;
     options: ExamSectionQuestionOption[];
 }
@@ -22,6 +21,7 @@ export interface ExaminationSection extends ExamSection {
 }
 
 export interface NavigationPage {
+    index: number;
     id: number;
     text: string;
     type: string;

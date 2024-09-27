@@ -14,11 +14,19 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { ExamEnrolment } from '../enrolment/enrolment.model';
+import { noop } from 'rxjs';
+import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 import type { Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
 import { AnyReservation } from './reservations.component';
@@ -28,6 +36,20 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
 @Component({
     selector: 'xm-reservation-details',
     templateUrl: './reservation-details.component.html',
+    standalone: true,
+    imports: [
+        TableSortComponent,
+        RouterLink,
+        CourseCodeComponent,
+        TeacherListComponent,
+        NgClass,
+        LowerCasePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+        OrderByPipe,
+    ],
+    styles: '.wrap { white-space: wrap !important }',
 })
 export class ReservationDetailsComponent implements OnChanges {
     @Input() reservations: AnyReservation[] = [];
@@ -51,23 +73,27 @@ export class ReservationDetailsComponent implements OnChanges {
 
     printExamState = (reservation: Reservation) => this.Reservation.printExamState(reservation);
 
-    getStateClass = (reservation: Reservation) =>
-        reservation.enrolment.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
+    getStateClass = (reservation: Reservation) => {
+        if (reservation.enrolment.noShow) {
+            return 'text-danger';
+        }
+        return reservation.enrolment.exam.state === 'REVIEW' ? 'text-success' : '';
+    };
 
     removeReservation(reservation: ReservationDetail) {
         this.Reservation.cancelReservation(reservation)
             .then(() => {
                 this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
-                this.toast.info(this.translate.instant('sitnet_reservation_removed'));
+                this.toast.info(this.translate.instant('i18n_reservation_removed'));
             })
-            .catch((err) => this.toast.error(err));
+            .catch(noop);
     }
 
     permitRetrial(enrolment: ExamEnrolment) {
         this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe({
             next: () => {
                 enrolment.retrialPermitted = true;
-                this.toast.info(this.translate.instant('sitnet_retrial_permitted'));
+                this.toast.info(this.translate.instant('i18n_retrial_permitted'));
             },
             error: (err) => this.toast.error(err),
         });

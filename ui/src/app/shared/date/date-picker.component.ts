@@ -14,9 +14,16 @@
  */
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Injectable, Input, Output } from '@angular/core';
-import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { NgbDate, NgbDateParserFormatter, NgbDatepickerI18n } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import {
+    NgbDate,
+    NgbDateParserFormatter,
+    NgbDateStruct,
+    NgbDatepickerI18n,
+    NgbInputDatepicker,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { WeekdayNumbers } from 'luxon';
 import { DateTimeService } from './date.service';
 
 @Injectable({ providedIn: 'root' })
@@ -39,18 +46,21 @@ export class DatePickerFormatter extends NgbDateParserFormatter {
 
 @Injectable({ providedIn: 'root' })
 export class DatePickerI18n extends NgbDatepickerI18n {
-    constructor(private translate: TranslateService, private DateTime: DateTimeService) {
+    constructor(
+        private translate: TranslateService,
+        private DateTime: DateTimeService,
+    ) {
         super();
     }
 
-    getWeekdayShortName = (weekday: number): string =>
+    getWeekdayShortName = (weekday: WeekdayNumbers): string =>
         this.DateTime.getLocalizedDateForDay(weekday, this.getLocale()).weekdayShort as string;
     getMonthShortName = (month: number): string =>
         this.DateTime.getLocalizedDateForMonth(month, this.getLocale()).monthShort as string;
     getMonthFullName = (month: number): string =>
         this.DateTime.getLocalizedDateForMonth(month, this.getLocale()).monthLong as string;
     getDayAriaLabel = (date: NgbDateStruct): string => new Date(date.year, date.month - 1, date.day).toISOString();
-    getWeekdayLabel = (weekday: number): string => this.getWeekdayShortName(weekday);
+    getWeekdayLabel = (weekday: WeekdayNumbers): string => this.getWeekdayShortName(weekday);
 
     private getLocale = (): string => {
         const lang = this.translate.currentLang;
@@ -64,6 +74,8 @@ export class DatePickerI18n extends NgbDatepickerI18n {
         { provide: NgbDateParserFormatter, useClass: DatePickerFormatter },
         { provide: NgbDatepickerI18n, useClass: DatePickerI18n },
     ],
+    standalone: true,
+    imports: [FormsModule, NgbInputDatepicker, TranslateModule],
 })
 export class DatePickerComponent implements OnInit, OnChanges {
     @Input() initialDate: Date | string | number | null = null;
@@ -73,6 +85,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
     @Input() modelOptions: Record<string, string> = {};
     @Input() disabled = false;
     @Input() optional = true;
+    @Input() readonly = false;
     @Input() minDate?: string;
     @Input() maxDate?: string;
 

@@ -14,13 +14,17 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamMaterial } from '../../exam.model';
+import type { ExamMaterial } from 'src/app/exam/exam.model';
 
 @Component({
     selector: 'xm-exam-material',
     templateUrl: './exam-material.component.html',
+    standalone: true,
+    imports: [FormsModule, TranslateModule, NgbPopoverModule],
 })
 export class ExamMaterialComponent implements OnInit {
     materials: ExamMaterial[] = [];
@@ -29,7 +33,11 @@ export class ExamMaterialComponent implements OnInit {
     filter = '';
     materialsChanged = false;
 
-    constructor(private activeModal: NgbActiveModal, private http: HttpClient, private toast: ToastrService) {}
+    constructor(
+        private activeModal: NgbActiveModal,
+        private http: HttpClient,
+        private toast: ToastrService,
+    ) {}
 
     ngOnInit() {
         this.http

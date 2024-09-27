@@ -12,32 +12,40 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { Component, Input, OnInit } from '@angular/core';
-import type { ExaminationQuestion } from '../examination.model';
-import { ExaminationService } from '../examination.service';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import type { ExaminationQuestion } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
 
 @Component({
     selector: 'xm-examination-weighted-multi-choice-question',
     template: `
-        <div class="bottom-padding-2">
+        <div class="pb-3">
             <fieldset [attr.aria-label]="questionTitle">
-                <legend style="visibility: hidden;">answer options for multiple choice question</legend>
-                <div *ngFor="let sqo of sq.options" class="exam-answer-options">
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="selectedOption"
-                            [(ngModel)]="sqo.answered"
-                            (change)="saveOption()"
-                        />
-                        {{ sqo.option.option }}
-                    </label>
-                </div>
+                <legend [hidden]="true">answer options for multiple choice question</legend>
+                @for (sqo of sq.options; track sqo) {
+                    <div class="exam-answer-options">
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="selectedOption"
+                                [(ngModel)]="sqo.answered"
+                                (change)="saveOption()"
+                            />
+                            {{ sqo.option.option }}
+                        </label>
+                    </div>
+                }
             </fieldset>
         </div>
 
-        <div class="padl0 question-type-text">{{ sq.derivedMaxScore }} {{ 'sitnet_unit_points' | translate }}</div>
+        <div class="ps-0 question-type-text">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
     `,
+    standalone: true,
+    imports: [FormsModule, TranslateModule],
+    styleUrls: ['./question.shared.scss'],
 })
 export class ExaminationWeightedMultiChoiceComponent implements OnInit {
     @Input() sq!: ExaminationQuestion;

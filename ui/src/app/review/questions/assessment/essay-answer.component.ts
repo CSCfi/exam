@@ -12,14 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import type { ReviewQuestion } from 'src/app/review/review.model';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import type { ReviewQuestion } from '../../review.model';
 
 @Component({
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
+    standalone: true,
+    imports: [RouterLink, MathJaxDirective, FormsModule, UpperCasePipe, NgbCollapse, TranslateModule],
 })
 export class EssayAnswerComponent implements OnInit {
     @Input() answer!: ReviewQuestion;
@@ -29,7 +37,10 @@ export class EssayAnswerComponent implements OnInit {
 
     name = '';
 
-    constructor(private CommonExam: CommonExamService, private Attachment: AttachmentService) {}
+    constructor(
+        private CommonExam: CommonExamService,
+        private Attachment: AttachmentService,
+    ) {}
 
     ngOnInit() {
         this.name = this.answer.examSection.exam.creator

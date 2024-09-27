@@ -1,27 +1,36 @@
 <div
-    class="student-enrolment-wrapper row align-items-center"
-    [ngClass]="{ 'unseen-review': reviewedExam && reviewedExam.examFeedback?.feedbackStatus === null }"
+    [ngClass]="
+        reviewedExam && !reviewedExam.examFeedback?.feedbackStatus
+            ? 'xm-study-item-container--unseen'
+            : 'xm-study-item-container'
+    "
 >
-    <div class="col-12">
-        <div class="row mb-2">
-            <div class="col-12">
-                <!-- exam title n stuff -->
-                <h2 class="student-enrolment-exam">
-                    <span *ngIf="!participation.exam.anonymous">#{{ participation.exam.id }}</span>
-                    {{ participation.exam.name }}
-                    <span *ngIf="participation.exam.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
-                </h2>
-            </div>
+    <div class="row mb-2">
+        <div class="col-12">
+            <!-- exam title n stuff -->
+            <h2 class="participation-heading">
+                @if (!participation.exam.anonymous) {
+                    <span>#{{ participation.exam.id }}</span>
+                }
+                {{ participation.exam.name }}
+                @if (participation.exam.anonymous) {
+                    <span>({{ 'i18n_anonymous_review' | translate }})</span>
+                }
+            </h2>
         </div>
-        <div *ngIf="!collaborative" class="row">
+    </div>
+    @if (!collaborative) {
+        <div class="row">
             <div class="col-12">
                 <div class="row">
-                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
-                    <div *ngIf="participation.exam.course" class="col-6 col-sm-6 col-md-3 col-lg-3">
-                        <xm-course-code [course]="participation.exam.course"></xm-course-code>
-                        {{ participation.exam.course?.name }}
-                    </div>
-                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_teachers' | translate }}:</div>
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_course_name' | translate }}:</div>
+                    @if (participation.exam.course) {
+                        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                            <xm-course-code [course]="participation.exam.course"></xm-course-code>
+                            {{ participation.exam.course?.name }}
+                        </div>
+                    }
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_teachers' | translate }}:</div>
                     <div class="col-6 col-sm-6 col-md-5 col-lg-5">
                         <div>
                             <xm-teacher-list [exam]="participation.exam" [useParent]="true"></xm-teacher-list>
@@ -30,31 +39,33 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_endtime' | translate }}:</div>
-                    <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                        {{ participation.ended | applyDst | date : 'dd.MM.yyyy' }}
-                    </div>
-                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">&nbsp;</div>
-                    <div class="col-6 col-sm-6 col-md-5 col-lg-5">&nbsp;</div>
+    }
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+                <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_endtime' | translate }}:</div>
+                <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ participation.ended | applyDst | date: 'dd.MM.yyyy' }}
                 </div>
+                <div class="col-6 col-sm-6 col-md-2 col-lg-2">&nbsp;</div>
+                <div class="col-6 col-sm-6 col-md-5 col-lg-5">&nbsp;</div>
             </div>
         </div>
+    </div>
 
-        <div class="row mt-2" *ngIf="reviewedExam">
+    @if (reviewedExam) {
+        <div class="row mt-2">
             <div class="col-12">
                 <div class="row align-items-center">
                     <div class="col-12">
                         <button
-                            class="btn btn-link"
+                            class="btn btn-outline-secondary"
                             (click)="showEvaluation = !showEvaluation; setCommentRead(reviewedExam)"
                             (ngEnter)="showEvaluation = !showEvaluation; setCommentRead(reviewedExam)"
                             [attr.aria-expanded]="showEvaluation"
                         >
-                            <span [hidden]="showEvaluation">{{ 'sitnet_comments_open' | translate }}</span>
-                            <span [hidden]="!showEvaluation">{{ 'sitnet_comments_hide' | translate }}</span>
+                            <span [hidden]="showEvaluation">{{ 'i18n_comments_open' | translate }}</span>
+                            <span [hidden]="!showEvaluation">{{ 'i18n_comments_hide' | translate }}</span>
                             <i [hidden]="showEvaluation" class="bi bi-chevron-right ms-2" alt="hide evaluation"></i>
                             <i [hidden]="!showEvaluation" class="bi bi-chevron-down ms-2" alt="show evaluation"></i>
                         </button>
@@ -62,10 +73,11 @@
                 </div>
             </div>
         </div>
-        <div class="row" *ngIf="reviewedExam" [ngbCollapse]="!showEvaluation">
-            <div class="col-12 ms-4">
+    }
+    @if (reviewedExam) {
+        <div class="row" [ngbCollapse]="!showEvaluation">
+            <div class="col-12 ms-4 pt-2">
                 <xm-exam-feedback
-                    class="student-exam-row-infobox"
                     [assessment]="reviewedExam"
                     [participationTime]="participation.ended || ''"
                     [participationDuration]="participation.duration || 0"
@@ -75,17 +87,21 @@
                 </xm-exam-feedback>
             </div>
         </div>
-        <div class="row mt-2">
-            <div class="col-12" *ngIf="participation.noShow">
+    }
+    <div class="row mt-2">
+        @if (participation.noShow) {
+            <div class="col-12">
                 <div class="row">
-                    <div class="col-12 text-danger">{{ 'sitnet_no_show' | translate }}</div>
+                    <div class="col-12 text-danger">{{ 'i18n_no_show' | translate }}</div>
                 </div>
             </div>
-            <div class="col-12" *ngIf="!participation.noShow && !reviewedExam">
+        }
+        @if (!participation.noShow && !reviewedExam) {
+            <div class="col-12">
                 <div class="row">
-                    <div class="col-12 text-muted">{{ 'sitnet_no_comments' | translate }}</div>
+                    <div class="col-12 text-muted">{{ 'i18n_no_comments' | translate }}</div>
                 </div>
             </div>
-        </div>
+        }
     </div>
 </div>

@@ -12,19 +12,33 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { format } from 'date-fns';
+import { TranslateModule } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
+import type { ReviewedExam, Scores } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { FileService } from '../../shared/file/file.service';
-import type { ReviewedExam, Scores } from '../enrolment.model';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { FileService } from 'src/app/shared/file/file.service';
 import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
 
 @Component({
     selector: 'xm-exam-feedback',
     templateUrl: './exam-feedback.component.html',
+    standalone: true,
+    imports: [NgClass, DatePipe, TranslateModule],
+    styles: [
+        `
+            .notice-wrap {
+                margin-left: 1em;
+                display: inline-block;
+                margin-bottom: 30px;
+                margin-top: 10px;
+            }
+        `,
+    ],
 })
 export class ExamFeedbackComponent implements OnInit {
     @Input() assessment!: ReviewedExam;
@@ -72,6 +86,11 @@ export class ExamFeedbackComponent implements OnInit {
 
     downloadScoreReport = () => {
         const url = `/app/feedback/exams/${this.assessment.id}/report`;
-        this.Files.download(url, `${this.assessment.name}_${format(new Date(), 'dd-MM-yyyy')}.xlsx`, undefined, false);
+        this.Files.download(
+            url,
+            `${this.assessment.name}_${DateTime.now().toFormat('dd-LL-yyyy')}.xlsx`,
+            undefined,
+            false,
+        );
     };
 }

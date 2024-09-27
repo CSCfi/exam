@@ -14,11 +14,17 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import type { User } from '../../session/session.service';
+import { forkJoin, map } from 'rxjs';
+import type { User } from 'src/app/session/session.service';
+import { deduplicate } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
     constructor(private http: HttpClient) {}
 
     listUsersByRole$ = (role: string) => this.http.get<User[]>(`/app/users/byrole/${role}`);
+    listUsersByRoles$ = (roles: string[]) => {
+        const requests = roles.map((r) => this.http.get<User[]>(`/app/users/byrole/${r}`));
+        return forkJoin(requests).pipe(map((u) => deduplicate<User>(u.flat(), 'id')));
+    };
 }

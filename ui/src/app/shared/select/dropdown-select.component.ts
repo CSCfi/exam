@@ -14,8 +14,12 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { NgClass, SlicePipe } from '@angular/common';
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface Option<V, I> {
     value?: V;
@@ -26,7 +30,7 @@ export interface Option<V, I> {
 
 @Component({
     selector: 'xm-dropdown-select',
-    template: `<div ngbDropdown>
+    template: `<div ngbDropdown #d="ngbDropdown" autoClose="outside">
         <button
             ngbDropdownToggle
             class="btn btn-outline-secondary"
@@ -38,15 +42,14 @@ export interface Option<V, I> {
         >
             {{ selected?.label || placeholder | translate }}
         </button>
-        <div ngbDropdownMenu class="scrollable-menu" role="menu" aria-labelledby="dd1">
-            <button ngbDropdownItem *ngIf="!noSearch">
-                <div class="input-group">
+        <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" aria-labelledby="dd1">
+            @if (!noSearch) {
+                <div class="input-group" ngbDropdownItem>
                     <input
                         [(ngModel)]="searchFilter"
                         class="form-control"
                         (input)="filterOptions()"
-                        (click)="$event.stopPropagation()"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ placeholder | translate }}"
                     />
                     <div class="input-group-append">
                         <span class="input-group-text">
@@ -54,27 +57,40 @@ export interface Option<V, I> {
                         </span>
                     </div>
                 </div>
-            </button>
-            <button ngbDropdownItem (click)="clearSelection()">
+            }
+            <button ngbDropdownItem (click)="clearSelection(); d.close()">
                 <i class="bi-x text text-danger"></i>
             </button>
-            <button
-                ngbDropdownItem
-                *ngFor="let opt of filteredOptions"
-                [ngClass]="getClasses(opt)"
-                (click)="selectOption(opt)"
-            >
-                <span *ngIf="!opt.isHeader">
-                    {{ opt.label || '' | translate | slice : 0 : 40 }}
-                </span>
-                <span *ngIf="opt.isHeader">{{ opt.label }}</span>
-            </button>
+            @for (opt of filteredOptions; track $index) {
+                <button ngbDropdownItem [ngClass]="getClasses(opt)" (click)="selectOption(opt); d.close()">
+                    @if (!opt.isHeader) {
+                        <span>
+                            {{ opt.label || '' | translate | slice: 0 : 40 }}
+                        </span>
+                    }
+                    @if (opt.isHeader) {
+                        <span>{{ opt.label }}</span>
+                    }
+                </button>
+            }
         </div>
-    </div> `,
+    </div>`,
+    standalone: true,
+    imports: [
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgClass,
+        NgbDropdownMenu,
+        FormsModule,
+        NgbDropdownItem,
+        SlicePipe,
+        TranslateModule,
+    ],
+    styleUrl: './dropdown-select.component.scss',
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
     @Input() options: Option<V, I>[] = []; // everything
-    @Input() placeholder = ' ';
+    @Input() placeholder = 'i18n_choose';
     @Input() limitTo?: number;
     @Input() fullWidth = false;
     @Input() noSearch = false;

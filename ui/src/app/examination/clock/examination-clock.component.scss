@@ -1,0 +1,35 @@
+@import '../../shared/definitions.scss';
+
+.floating-clock {
+    display: inline-block;
+    position: fixed;
+    right: 3em;
+    z-index: 9999;
+    @media (max-width: $mobile-width) {
+        top: 0;
+    }
+    .header-wrapper {
+        background-color: black;
+        padding-right: 25px;
+        min-width: 20em;
+    }
+
+    .exam-clock {
+        font-size: 28px;
+        letter-spacing: 1.5px;
+        color: #fff;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+    .exam-clock-text {
+        font-size: 18px;
+        letter-spacing: 1.5px;
+        color: #fff;
+        margin-left: 20px;
+    }
+
+    .clock-hide {
+        font-size: 14px;
+        white-space: nowrap;
+    }
+}

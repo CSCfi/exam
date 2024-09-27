@@ -14,12 +14,14 @@
  */
 import type { ComponentRef, OnDestroy, OnInit } from '@angular/core';
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewContainerRef } from '@angular/core';
+import { hashString } from 'src/app/shared/miscellaneous/helpers';
 
 type ClozeTestAnswer = { [key: string]: string };
 
 @Component({
     selector: 'xm-dynamic-cloze-test',
     template: ` <div #clozeContainer></div> `,
+    standalone: true,
 })
 export class DynamicClozeTestComponent implements OnInit, OnDestroy {
     @Input() answer: ClozeTestAnswer = {};
@@ -47,13 +49,17 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
         this.getTextNodes(doc.body).forEach((n) => {
             if (n.textContent) {
                 n.textContent = n.textContent.replace(/\{/g, '&#123;');
+                n.textContent = n.textContent.replace(/\}/g, '&#125;');
             }
         });
 
         // Replace temporary input attributes with Angular input-directives
         const clozeTemplate = doc.body.innerHTML.replace(/data-input-handler/g, '(input)');
         // Compile component and module with formatted cloze template
-        const clozeComponent = Component({ template: clozeTemplate, selector: 'xm-dyn-ct' })(
+        const clozeComponent = Component({
+            template: clozeTemplate,
+            selector: `xm-dyn-ct-${hashString(clozeTemplate)}`,
+        })(
             class ClozeComponent {
                 el!: ElementRef;
                 onInput!: (_: { target: HTMLInputElement }) => void;
@@ -64,7 +70,10 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
                         .flatMap((e: Element) => Array.from(e.childNodes))
                         .filter((n) => n.nodeName === '#text')
                         .forEach((n) => {
-                            if (n.textContent) n.textContent = n.textContent.replace(/&#123;/g, '{');
+                            if (n.textContent) {
+                                n.textContent = n.textContent.replace(/&#123;/g, '{');
+                                n.textContent = n.textContent.replace(/&#125;/g, '}');
+                            }
                         });
                     MathJax.Hub.Queue(['Typeset', MathJax.Hub, this.el.nativeElement]);
                 }

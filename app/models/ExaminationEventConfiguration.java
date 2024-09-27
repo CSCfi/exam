@@ -17,14 +17,14 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import java.util.Set;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -48,8 +48,15 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
     @JsonIgnore
     private byte[] encryptedSettingsPassword;
 
+    @Lob
+    @JsonIgnore
+    private byte[] encryptedQuitPassword;
+
     @JsonIgnore
     private String settingsPasswordSalt;
+
+    @JsonIgnore
+    private String quitPasswordSalt;
 
     @JsonIgnore
     private String configKey;
@@ -59,6 +66,9 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
 
     @Transient
     private String settingsPassword;
+
+    @Transient
+    private String quitPassword;
 
     public Exam getExam() {
         return exam;
@@ -92,8 +102,24 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
         this.encryptedSettingsPassword = encryptedSettingsPassword;
     }
 
+    public byte[] getEncryptedQuitPassword() {
+        return encryptedQuitPassword;
+    }
+
+    public void setEncryptedQuitPassword(byte[] encryptedQuitPassword) {
+        this.encryptedQuitPassword = encryptedQuitPassword;
+    }
+
     public String getSettingsPasswordSalt() {
         return settingsPasswordSalt;
+    }
+
+    public String getQuitPasswordSalt() {
+        return quitPasswordSalt;
+    }
+
+    public void setQuitPasswordSalt(String quitPasswordSalt) {
+        this.quitPasswordSalt = quitPasswordSalt;
     }
 
     public void setSettingsPasswordSalt(String settingsPasswordSalt) {
@@ -124,13 +150,19 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
         this.settingsPassword = settingsPassword;
     }
 
+    public String getQuitPassword() {
+        return quitPassword;
+    }
+
+    public void setQuitPassword(String quitPassword) {
+        this.quitPassword = quitPassword;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof ExaminationEventConfiguration)) return false;
-
-        ExaminationEventConfiguration that = (ExaminationEventConfiguration) o;
+        if (!(o instanceof ExaminationEventConfiguration that)) return false;
 
         return new EqualsBuilder().append(exam, that.exam).append(examinationEvent, that.examinationEvent).isEquals();
     }

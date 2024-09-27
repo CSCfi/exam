@@ -12,21 +12,43 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import type { EssayAnswer } from '../../exam/exam.model';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import type { Examination, ExaminationQuestion } from '../examination.model';
-import { ExaminationService } from '../examination.service';
+import { TranslateModule } from '@ngx-translate/core';
+import type { EssayAnswer } from 'src/app/exam/exam.model';
+import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { DynamicClozeTestComponent } from './dynamic-cloze-test.component';
+import { ExaminationClozeTestComponent } from './examination-cloze-test.component';
+import { ExaminationEssayQuestionComponent } from './examination-essay-question.component';
+import { ExaminationMultiChoiceComponent } from './examination-multi-choice-question.component';
+import { ExaminationWeightedMultiChoiceComponent } from './examination-weighted-multi-choice-question.component';
 
 type ClozeTestAnswer = { [key: string]: string };
 
 @Component({
     selector: 'xm-examination-question',
     templateUrl: './examination-question.component.html',
+    standalone: true,
+    imports: [
+        NgClass,
+        MathJaxDirective,
+        DynamicClozeTestComponent,
+        ExaminationEssayQuestionComponent,
+        ExaminationClozeTestComponent,
+        ExaminationMultiChoiceComponent,
+        ExaminationWeightedMultiChoiceComponent,
+        UpperCasePipe,
+        SlicePipe,
+        TranslateModule,
+    ],
+    styleUrls: ['../examination.shared.scss', './question.shared.scss', './examination-question.component.scss'],
 })
 export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
-    @Input() exam!: Examination;
+    @Input() exam?: Examination;
     @Input() question!: ExaminationQuestion;
     @Input() isPreview = false;
     @Input() isCollaborative = false;
@@ -67,12 +89,15 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     };
 
     downloadQuestionAttachment = () => {
-        if (this.exam.external) {
-            this.Attachment.downloadExternalQuestionAttachment(this.exam, this.sq);
-        } else if (this.isCollaborative) {
-            this.Attachment.downloadCollaborativeQuestionAttachment(this.exam.id, this.sq);
-        } else {
-            this.Attachment.downloadQuestionAttachment(this.sq.question);
+        if (this.exam) {
+            if (this.exam.external) {
+                this.Attachment.downloadExternalQuestionAttachment(this.exam, this.sq);
+            } else if (this.isCollaborative) {
+                this.Attachment.downloadCollaborativeQuestionAttachment(this.exam.id, this.sq);
+            } else {
+                this.Attachment.downloadQuestionAttachment(this.sq.question);
+            }
+            console.error('Cannot retrieve attachment without exam.');
         }
     };
 

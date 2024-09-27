@@ -15,33 +15,30 @@
  */
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-publication-revoke-dialog',
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_unpublish_exam_confirm_dialog_title' | translate }}</div>
-            </div>
-            <div class="modal-body">
-                <p>
-                    {{ 'sitnet_unpublish_exam_confirm' | translate }}
-                </p>
-            </div>
-            <div class="student-message-dialog-footer">
-                <div class="student-message-dialog-button-save marl10">
-                    <button class="btn btn-sm btn-primary nowdt" (click)="activeModal.close()" autofocus>
-                        {{ 'sitnet_unpublish_exam' | translate }}
-                    </button>
-                </div>
-                <div class="student-message-dialog-button-cancel">
-                    <button class="btn btn-sm btn-danger float-start" (click)="activeModal.dismiss()">
-                        {{ 'sitnet_close' | translate }}
-                    </button>
-                </div>
-            </div>
+    standalone: true,
+    imports: [TranslateModule],
+    template: `
+        <div class="modal-header">
+            <div class="xm-modal-title">{{ 'i18n_unpublish_exam_confirm_dialog_title' | translate }}</div>
         </div>
-    </div> `,
+        <div class="modal-body">
+            <p>
+                {{ 'i18n_unpublish_exam_confirm' | translate }}
+            </p>
+        </div>
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success" (click)="activeModal.close()" autofocus>
+                {{ 'i18n_unpublish_exam' | translate }}
+            </button>
+            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
+                {{ 'i18n_close' | translate }}
+            </button>
+        </div>
+    `,
 })
 export class PublicationRevocationDialogComponent {
     constructor(public activeModal: NgbActiveModal) {}

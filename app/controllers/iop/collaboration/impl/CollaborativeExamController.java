@@ -15,12 +15,11 @@
 
 package controllers.iop.collaboration.impl;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +39,7 @@ import models.Language;
 import models.User;
 import models.json.CollaborativeExam;
 import models.sections.ExamSection;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.libs.ws.WSRequest;
@@ -52,12 +52,8 @@ import sanitizers.EmailSanitizer;
 import sanitizers.ExamUpdateSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
-import util.config.ConfigReader;
 
 public class CollaborativeExamController extends CollaborationController {
-
-    @Inject
-    private ConfigReader configReader;
 
     @Inject
     private ActorSystem as;
@@ -66,7 +62,7 @@ public class CollaborativeExamController extends CollaborationController {
     private EmailComposer composer;
 
     private Exam prepareDraft(User user) {
-        ExamExecutionType examExecutionType = Ebean
+        ExamExecutionType examExecutionType = DB
             .find(ExamExecutionType.class)
             .where()
             .eq("type", ExamExecutionType.Type.PUBLIC.toString())
@@ -87,17 +83,16 @@ public class CollaborativeExamController extends CollaborationController {
         examSection.setSequenceNumber(0);
 
         exam.getExamSections().add(examSection);
-        exam.getExamLanguages().add(Ebean.find(Language.class, "fi"));
-        exam.setExamType(Ebean.find(ExamType.class, 2)); // Final
+        exam.getExamLanguages().add(DB.find(Language.class, "fi"));
+        exam.setExamType(DB.find(ExamType.class, 2)); // Final
 
         DateTime start = DateTime.now().withTimeAtStartOfDay();
-        exam.setExamActiveStartDate(start);
-        exam.setExamActiveEndDate(start.plusDays(1));
-        exam.setDuration(configReader.getExamDurations().get(0)); // check
-        exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0)); // check
+        exam.setPeriodStart(start);
+        exam.setPeriodEnd(start.plusDays(1));
+        exam.setDuration(configReader.getExamDurations().getFirst()); // check
+        exam.setGradeScale(DB.find(GradeScale.class).findList().getFirst()); // check
 
         exam.setTrialCount(1);
-        exam.setExpanded(true);
         exam.setAnonymous(true);
 
         return exam;
@@ -105,14 +100,9 @@ public class CollaborativeExamController extends CollaborationController {
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
-    public CompletionStage<Result> searchExams(Http.Request request, final Optional<String> filter) {
-        Optional<URL> url = filter.orElse("").isEmpty() ? parseUrl() : parseUrlWithSearchParam(filter.get(), false);
-        if (url.isEmpty()) {
-            return wrapAsPromise(internalServerError("sitnet_internal_error"));
-        }
-
+    public CompletionStage<Result> searchExams(Http.Request request, Optional<String> filter) {
+        WSRequest wsRequest = getSearchRequest(filter);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        WSRequest wsRequest = wsClient.url(url.get().toString());
         String homeOrg = configReader.getHomeOrganisationRef();
 
         Function<WSResponse, Result> onSuccess = response ->
@@ -124,7 +114,7 @@ public class CollaborativeExamController extends CollaborationController {
                         .map(e -> e.getKey().getExam(e.getValue()))
                         .filter(e -> isAuthorizedToView(e, user, homeOrg))
                         .map(this::serialize)
-                        .collect(Collectors.toList());
+                        .toList();
 
                     return ok(Json.newArray().addAll(exams));
                 })
@@ -140,11 +130,11 @@ public class CollaborativeExamController extends CollaborationController {
                 downloadExam(ce)
                     .thenApplyAsync(result -> {
                         if (result.isEmpty()) {
-                            return notFound("sitnet_error_exam_not_found");
+                            return notFound("i18n_error_exam_not_found");
                         }
                         Exam exam = result.get();
                         if (!isAuthorizedToView(exam, user, homeOrg)) {
-                            return notFound("sitnet_error_exam_not_found");
+                            return notFound("i18n_error_exam_not_found");
                         }
                         postProcessor.accept(exam);
                         return ok(serialize(exam));
@@ -155,7 +145,7 @@ public class CollaborativeExamController extends CollaborationController {
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result listGradeScales() {
-        Set<GradeScale> grades = Ebean.find(GradeScale.class).fetch("grades").where().isNull("externalRef").findSet();
+        Set<GradeScale> grades = DB.find(GradeScale.class).fetch("grades").where().isNull("externalRef").findSet();
         return ok(grades);
     }
 
@@ -203,7 +193,7 @@ public class CollaborativeExamController extends CollaborationController {
         return findCollaborativeExam(id)
             .map(ce -> {
                 if (!ce.getState().equals(Exam.State.DRAFT) && !ce.getState().equals(Exam.State.PRE_PUBLISHED)) {
-                    return wrapAsPromise(forbidden("sitnet_exam_removal_not_possible"));
+                    return wrapAsPromise(forbidden("i18n_exam_removal_not_possible"));
                 }
                 return examLoader
                     .deleteExam(ce)
@@ -270,7 +260,7 @@ public class CollaborativeExamController extends CollaborationController {
                                         return result2;
                                     });
                             }
-                            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
                         }
                         return wrapAsPromise(notFound());
                     });

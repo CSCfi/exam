@@ -12,34 +12,44 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { ReviewQuestion } from '../../review.model';
-import { QuestionReviewService } from '../question-review.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
+import type { ReviewQuestion } from 'src/app/review/review.model';
+import { EssayAnswerComponent } from './essay-answer.component';
 
 @Component({
     selector: 'xm-essay-answers',
     template: `
-        <div class="top-row">
-            <div class="col-md-12" *ngFor="let answer of answers">
-                <xm-essay-answer
-                    [answer]="answer"
-                    [editable]="editable"
-                    [action]="actionText"
-                    (selected)="assessEssay(answer)"
-                ></xm-essay-answer>
-            </div>
-            <div *ngIf="answers.length === 0" class="col-md-12">
-                <div class="mt-4 p-5 bg-primary text-white rounded">
-                    <p class="lead">{{ 'sitnet_no_answers_to_assess' | translate }}</p>
+        <div class="row mt-3">
+            @for (answer of answers; track answer) {
+                <div class="col-md-12 mb-3">
+                    <xm-essay-answer
+                        [answer]="answer"
+                        [editable]="editable"
+                        [action]="actionText"
+                        (selected)="assessEssay(answer)"
+                    ></xm-essay-answer>
                 </div>
-            </div>
-            <div *ngIf="answers.length > 0" class="col-md-12 mart20 marb30">
-                <button class="btn btn-success" (click)="assessSelected()">
-                    {{ actionText | translate }} ({{ countSelected() }})
-                </button>
-            </div>
+            } @empty {
+                <div class="col-md-12">
+                    <div class="mt-4 p-5 bg-primary text-white rounded">
+                        <p class="lead">{{ 'i18n_no_answers_to_assess' | translate }}</p>
+                    </div>
+                </div>
+            }
+            @if (answers.length > 0) {
+                <div class="col-md-12 mt-2 mb-3">
+                    <button class="btn btn-success" (click)="assessSelected()">
+                        {{ actionText | translate }} ({{ countSelected() }})
+                    </button>
+                </div>
+            }
         </div>
     `,
+    standalone: true,
+    imports: [EssayAnswerComponent, TranslateModule],
 })
 export class EssayAnswerListComponent {
     @Input() answers: ReviewQuestion[] = [];

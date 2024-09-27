@@ -36,7 +36,7 @@ class CombinedRoleAndPermissionHandler implements DynamicResourceHandler {
             String[] config = meta.get().split(",");
             String pattern = config[0].substring(config[0].indexOf('=') + 1);
             String[] roles = { config[1].substring(config[1].indexOf('=') + 1) };
-            Boolean anyMatch = Boolean.valueOf(config[2].substring(config[2].indexOf('=') + 1));
+            boolean anyMatch = Boolean.parseBoolean(config[2].substring(config[2].indexOf('=') + 1));
             return deadboltHandler
                 .getSubject(request)
                 .thenApplyAsync(s -> {

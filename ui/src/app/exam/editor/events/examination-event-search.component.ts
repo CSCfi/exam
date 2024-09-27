@@ -12,19 +12,44 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { EnrolmentService } from '../../../enrolment/enrolment.service';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { ExaminationEventConfiguration } from '../../exam.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-examination-event-search',
     templateUrl: './examination-event-search.component.html',
+    styleUrls: ['../../exam.shared.scss'],
+    standalone: true,
+    imports: [
+        DatePickerComponent,
+        FormsModule,
+        NgbPopover,
+        TableSortComponent,
+        CourseCodeComponent,
+        RouterLink,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class ExaminationEventSearchComponent implements OnInit {
     date = new Date();
@@ -82,13 +107,13 @@ export class ExaminationEventSearchComponent implements OnInit {
 
     removeEvent = (configuration: ExaminationEventConfiguration) => {
         this.ConfirmationDialog.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_byod_exam'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_remove_byod_exam'),
         ).subscribe({
             next: () => {
                 this.Enrolment.removeAllEventEnrolmentConfigs$(configuration).subscribe({
                     next: () => {
-                        this.toast.info(this.translate.instant('sitnet_removed'));
+                        this.toast.info(this.translate.instant('i18n_removed'));
                         this.events.splice(this.events.indexOf(configuration), 1);
                     },
                     error: (err) => this.toast.error(err),

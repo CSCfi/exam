@@ -1,25 +1,51 @@
+import { NgClass } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EventApi, EventInput } from '@fullcalendar/core';
-import { TranslateService } from '@ngx-translate/core';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import { MaintenancePeriod } from '../../exam/exam.model';
-import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
-import type { Organisation, Slot } from '../calendar.service';
-import { CalendarService } from '../calendar.service';
+import { BookingCalendarComponent } from 'src/app/calendar/booking-calendar.component';
+import type { Organisation, Slot } from 'src/app/calendar/calendar.service';
+import { CalendarService } from 'src/app/calendar/calendar.service';
+import { MaintenancePeriod } from 'src/app/exam/exam.model';
+import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
+import { updateList } from 'src/app/shared/miscellaneous/helpers';
+import { AccessibilityPickerComponent } from './accessibility-picker.component';
+import { SelectedRoomComponent } from './selected-room.component';
 
-type FilterableAccessibility = Accessibility & { filtered: boolean };
+export type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
 type AvailableSlot = Slot & { availableMachines: number };
 
 @Component({
     selector: 'xm-calendar-slot-picker',
     templateUrl: './slot-picker.component.html',
+    styleUrls: ['../calendar.component.scss'],
     encapsulation: ViewEncapsulation.None,
+    standalone: true,
+    imports: [
+        NgClass,
+        NgbCollapse,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        SelectedRoomComponent,
+        AccessibilityPickerComponent,
+        BookingCalendarComponent,
+        TranslateModule,
+    ],
 })
 export class SlotPickerComponent implements OnInit, OnChanges {
     @Input() sequenceNumber = 0;
@@ -38,13 +64,12 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         accessibilities: Accessibility[];
     }>();
 
-    rooms: FilterableRoom[] = [];
-    maintenancePeriods: MaintenancePeriod[] = [];
+    rooms = signal<FilterableRoom[]>([]);
+    maintenancePeriods = signal<MaintenancePeriod[]>([]);
     selectedRoom?: ExamRoom;
     accessibilities: FilterableAccessibility[] = [];
-    showAccessibilityMenu = false;
-    currentWeek = DateTime.now();
-    examId = 0;
+    currentWeek = signal(DateTime.now());
+    examId = signal(0);
 
     constructor(
         private translate: TranslateService,
@@ -54,20 +79,20 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     ) {}
 
     ngOnInit() {
-        this.examId = Number(this.route.snapshot.paramMap.get('id'));
+        this.examId.set(Number(this.route.snapshot.paramMap.get('id')));
         this.Calendar.listAccessibilityCriteria$().subscribe(
             (resp) => (this.accessibilities = resp.map((a) => ({ ...a, filtered: false }))),
         );
         this.Calendar.listRooms$().subscribe((resp) => {
             const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false })).filter((r) => r.name);
-            this.rooms = rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
+            this.rooms.set(rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)));
         });
-        this.Calendar.listMaintenancePeriods$().subscribe((periods) => (this.maintenancePeriods = periods));
+        this.Calendar.listMaintenancePeriods$().subscribe((periods) => this.maintenancePeriods.set(periods));
     }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.organisation && this.organisation) {
-            this.rooms = this.organisation.facilities.map((f) => ({ ...f, filtered: false }));
+            this.rooms.set(this.organisation.facilities.map((f) => ({ ...f, filtered: false })));
             delete this.selectedRoom;
         }
     }
@@ -85,7 +110,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             return;
         }
         const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week');
-        this.currentWeek = start;
+        this.currentWeek.set(start as DateTime<true>);
         const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
 
         const getColor = (slot: AvailableSlot) => {
@@ -124,33 +149,32 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         this.cancelled.emit();
     };
 
-    selectAccessibility = (accessibility: FilterableAccessibility) => {
-        accessibility.filtered = !accessibility.filtered;
-        this.accessibilities = [...this.accessibilities]; // copy to ignite change deteccttion
-    };
+    accesibilitiesChanged = (items: FilterableAccessibility[]) => (this.accessibilities = [...items]);
 
     selectRoom = (room: FilterableRoom) => {
         if (!room.outOfService) {
             this.selectedRoom = room;
-            this.rooms.forEach((r) => (r.filtered = false));
-            room.filtered = true;
+            this.rooms.update((rs) => {
+                const unfiltered = rs.map((r) => ({ ...r, filtered: false }));
+                return updateList(unfiltered, 'id', { ...room, filtered: true });
+            });
         }
     };
 
     getDescription(room: ExamRoom): string {
         const status = room.statusComment ? ': ' + room.statusComment : '';
-        return this.translate.instant('sitnet_room_out_of_service') + status;
+        return this.translate.instant('i18n_room_out_of_service') + status;
     }
 
     outOfServiceGate = (room: ExamRoom, text: string) => (room.outOfService ? text : undefined);
 
     private getTitle(slot: AvailableSlot): string {
         if (slot.availableMachines > 0) {
-            return `${this.translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
+            return `${this.translate.instant('i18n_slot_available')} (${slot.availableMachines})`;
         } else {
             return slot.conflictingExam
-                ? this.translate.instant('sitnet_own_reservation')
-                : this.translate.instant('sitnet_reserved');
+                ? this.translate.instant('i18n_own_reservation')
+                : this.translate.instant('i18n_reserved');
         }
     }
 
@@ -162,7 +186,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
                     ? { org: this.organisation._id, date: date }
                     : { day: date, aids: accessibilityIds.map((i) => i.toString()) },
         });
-        return this.Calendar.listSlots$(this.isExternal, this.isCollaborative, room, this.examId, params);
+        return this.Calendar.listSlots$(this.isExternal, this.isCollaborative, room, this.examId(), params);
     }
 
     private adjust = (date: string, tz: string): Date => {

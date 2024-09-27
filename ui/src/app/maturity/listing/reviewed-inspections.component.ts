@@ -12,14 +12,42 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, SlicePipe } from '@angular/common';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { LanguageInspectionData } from '../language-inspections.component';
-import { LanguageInspectionService } from '../language-inspections.service';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import type { LanguageInspectionData } from 'src/app/maturity/language-inspections.component';
+import { LanguageInspectionService } from 'src/app/maturity/language-inspections.service';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-reviewed-inspections',
     templateUrl: './reviewed-inspections.component.html',
+    styleUrls: ['../maturity.shared.scss'],
+    standalone: true,
+    imports: [
+        RouterLink,
+        FormsModule,
+        NgbPopover,
+        NgbCollapse,
+        DatePickerComponent,
+        TableSortComponent,
+        CourseCodeComponent,
+        PaginatorComponent,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        PageFillPipe,
+        OrderByPipe,
+    ],
 })
 export class ReviewedInspectionsComponent implements OnChanges {
     @Input() inspections: LanguageInspectionData[] = [];

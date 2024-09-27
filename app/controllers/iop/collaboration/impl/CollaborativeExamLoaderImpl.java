@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -21,7 +22,8 @@ import models.ExamParticipation;
 import models.User;
 import models.json.CollaborativeExam;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
@@ -33,7 +35,7 @@ import util.config.ConfigReader;
 public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
 
     private static final int OK = 200;
-    private static final Logger.ALogger logger = Logger.of(CollaborativeExamLoaderImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(CollaborativeExamLoaderImpl.class);
 
     @Inject
     WSClient wsClient;
@@ -50,9 +52,9 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             sb.append(String.format("/%s", examRef));
         }
         try {
-            return Optional.of(new URL(sb.toString()));
+            return Optional.of(URI.create(sb.toString()).toURL());
         } catch (MalformedURLException e) {
-            logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL", e);
             return Optional.empty();
         }
     }
@@ -60,10 +62,10 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     private Optional<URL> parseAssessmentUrl(String examRef) {
         try {
             return Optional.of(
-                new URL(configReader.getIopHost() + String.format("/api/exams/%s/assessments", examRef))
+                URI.create(configReader.getIopHost() + String.format("/api/exams/%s/assessments", examRef)).toURL()
             );
         } catch (MalformedURLException e) {
-            logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL", e);
             return Optional.empty();
         }
     }
@@ -83,9 +85,9 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     private Optional<URL> parseUrl(String examRef, String assessmentRef) {
         String url = String.format("%s/api/exams/%s/assessments/%s", configReader.getIopHost(), examRef, assessmentRef);
         try {
-            return Optional.of(new URL(url));
+            return Optional.of(URI.create(url).toURL());
         } catch (MalformedURLException e) {
-            logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL", e);
             return Optional.empty();
         }
     }
@@ -114,7 +116,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     @Override
     public CompletionStage<Boolean> createAssessmentWithAttachments(ExamParticipation participation) {
         String ref = participation.getCollaborativeExam().getExternalRef();
-        logger.debug("Sending back collaborative assessment for exam " + ref);
+        logger.debug("Sending back collaborative assessment for exam {}", ref);
         Optional<URL> ou = parseAssessmentUrl(ref);
         if (ou.isEmpty()) {
             return CompletableFuture.completedFuture(false);
@@ -127,7 +129,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     @Override
     public CompletionStage<Boolean> createAssessment(ExamParticipation participation) {
         String ref = participation.getCollaborativeExam().getExternalRef();
-        logger.debug("Sending back collaborative assessment for exam " + ref);
+        logger.debug("Sending back collaborative assessment for exam {}", ref);
         Optional<URL> ou = parseAssessmentUrl(ref);
         if (ou.isEmpty()) {
             return CompletableFuture.completedFuture(false);
@@ -135,20 +137,20 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         WSRequest request = wsClient.url(ou.get().toString()).setContentType("application/json");
         Function<WSResponse, Boolean> onSuccess = response -> {
             if (response.getStatus() != Http.Status.CREATED) {
-                logger.error("Failed in sending assessment for exam " + ref);
+                logger.error("Failed in sending assessment for exam {}", ref);
                 return false;
             }
             participation.setSentForReview(DateTime.now());
             participation.update();
-            logger.info("Assessment for exam " + ref + " processed successfully");
+            logger.info("Assessment for exam {} processed successfully", ref);
             return true;
         };
 
         return request
-            .post(Ebean.json().toJson(participation, getAssessmentPath()))
+            .post(DB.json().toJson(participation, getAssessmentPath()))
             .thenApplyAsync(onSuccess)
             .exceptionally(t -> {
-                logger.error("Could not send assessment to xm! [id=" + participation.getId() + "]", t);
+                logger.error(String.format("Could not send assessment to xm! [id=%s]", participation.getId()), t);
                 return false;
             });
     }
@@ -185,10 +187,10 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
                 }
                 ce.setRevision(root.get("_rev").asText());
                 Exam exam = ce.getExam(root);
-                // Save certain informative properties locally so we can display them right away in some cases
+                // Save certain informative properties locally, so we can display them right away in some cases
                 ce.setName(exam.getName());
-                ce.setExamActiveStartDate(exam.getExamActiveStartDate());
-                ce.setExamActiveEndDate(exam.getExamActiveEndDate());
+                ce.setPeriodStart(exam.getPeriodStart());
+                ce.setPeriodEnd(exam.getPeriodEnd());
                 ce.setEnrollInstruction(exam.getEnrollInstruction());
                 ce.setDuration(exam.getDuration());
                 ce.setHash(exam.getHash());
@@ -262,7 +264,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     }
 
     protected Result ok(Object object, PathProperties pp) {
-        String body = pp == null ? Ebean.json().toJson(object) : Ebean.json().toJson(object, pp);
+        String body = pp == null ? DB.json().toJson(object) : DB.json().toJson(object, pp);
         return Results.ok(body).as("application/json");
     }
 }

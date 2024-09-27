@@ -14,33 +14,43 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Reservation } from '../reservation.model';
+import type { Reservation } from 'src/app/reservation/reservation.model';
 
 @Component({
     selector: 'xm-remove-reservation-dialog',
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="terms-dialog-header">
-            <h4><i class="bi-trash"></i>&nbsp;&nbsp;{{ 'sitnet_remove_reservation' | translate }}</h4>
+    standalone: true,
+    imports: [FormsModule, TranslateModule],
+    template: `
+        <div class="modal-header">
+            <h4 class="xm-modal-title">
+                <i class="bi-trash"></i>&nbsp;&nbsp;{{ 'i18n_remove_reservation' | translate }}
+            </h4>
         </div>
         <div class="modal-body">
-            <strong>{{ 'sitnet_message' | translate }}</strong>
+            <strong>{{ 'i18n_message' | translate }}</strong>
             <textarea class="form-control" [(ngModel)]="message.text" rows="3" autofocus> </textarea>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-sm btn-danger" (click)="cancel()">
-                {{ 'sitnet_button_cancel' | translate }}
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-sm btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
+            <button class="btn btn-sm btn-outline-secondary me-3" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
             </button>
-            <button class="btn btn-sm btn-primary" (click)="ok()">{{ 'sitnet_send' | translate }}</button>
         </div>
-    </div> `,
+    `,
 })
 export class RemoveReservationDialogComponent {
     @Input() reservation!: Reservation;
     message = { text: '' };
 
-    constructor(public activeModal: NgbActiveModal, private http: HttpClient, private toast: ToastrService) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private http: HttpClient,
+        private toast: ToastrService,
+    ) {}
 
     ok = () =>
         this.http

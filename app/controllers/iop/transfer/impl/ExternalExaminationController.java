@@ -15,7 +15,6 @@
 
 package controllers.iop.transfer.impl;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,7 +23,7 @@ import controllers.ExaminationController;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import impl.AutoEvaluationHandler;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -37,7 +36,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 import models.Exam;
@@ -48,9 +46,10 @@ import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import play.Environment;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -73,7 +72,7 @@ public class ExternalExaminationController extends ExaminationController {
         ExaminationRepository examinationRepository,
         AutoEvaluationHandler autoEvaluationHandler,
         Environment environment,
-        HttpExecutionContext httpExecutionContext,
+        ClassLoaderExecutionContext httpExecutionContext,
         ExternalAttachmentLoader externalAttachmentLoader,
         ByodConfigHandler byodConfigHandler,
         DateTimeHandler dateTimeHandler
@@ -184,7 +183,7 @@ public class ExternalExaminationController extends ExaminationController {
                     List<Long> optionIds = StreamSupport
                         .stream(node.spliterator(), false)
                         .map(JsonNode::asLong)
-                        .collect(Collectors.toList());
+                        .toList();
                     return findSectionQuestion(ee, qid)
                         .map(t -> processOptions(optionIds, t._2, ee, t._1))
                         .getOrElseGet(Function.identity());
@@ -225,7 +224,7 @@ public class ExternalExaminationController extends ExaminationController {
                     } else if (objectVersion.isPresent()) {
                         if (answer.getObjectVersion() > objectVersion.get()) {
                             // Optimistic locking problem
-                            return forbidden("sitnet_error_data_has_changed");
+                            return forbidden("i18n_error_data_has_changed");
                         }
                         answer.setObjectVersion(objectVersion.get() + 1);
                     }
@@ -281,7 +280,7 @@ public class ExternalExaminationController extends ExaminationController {
                                 long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
                                 if (answer.getObjectVersion() > objectVersion) {
                                     // Optimistic locking problem
-                                    return forbidden("sitnet_error_data_has_changed");
+                                    return forbidden("i18n_error_data_has_changed");
                                 }
                                 answer.setObjectVersion(objectVersion + 1);
                             }
@@ -318,12 +317,12 @@ public class ExternalExaminationController extends ExaminationController {
     }
 
     private Optional<ExternalExam> getExternalExam(String hash, User user) {
-        return Ebean.find(ExternalExam.class).where().eq("hash", hash).eq("creator", user).forUpdate().findOneOrEmpty();
+        return DB.find(ExternalExam.class).where().eq("hash", hash).eq("creator", user).forUpdate().findOneOrEmpty();
     }
 
     private Optional<ExamEnrolment> getEnrolment(User user, ExternalExam prototype) {
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        ExamEnrolment enrolment = Ebean
+        ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.machine")
@@ -339,7 +338,7 @@ public class ExternalExaminationController extends ExaminationController {
     }
 
     private CompletionStage<Optional<Result>> getEnrolmentError(String hash, User user, Http.Request request) {
-        ExamEnrolment enrolment = Ebean
+        ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .where()
             .eq("externalExam.hash", hash)
@@ -350,7 +349,7 @@ public class ExternalExaminationController extends ExaminationController {
     }
 
     private Result terminateExam(String hash, Exam.State newState, User user) {
-        ExternalExam ee = Ebean.find(ExternalExam.class).where().eq("hash", hash).eq("creator", user).findOne();
+        ExternalExam ee = DB.find(ExternalExam.class).where().eq("hash", hash).eq("creator", user).findOne();
         if (ee == null) {
             return forbidden();
         }

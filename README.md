@@ -1,83 +1,36 @@
-[![Build Status](https://api.travis-ci.com/CSCfi/exam.svg?branch=master)](https://app.travis-ci.com/github/CSCfi/exam)
+[![Build](https://github.com/CSCfi/exam/actions/workflows/scala.yml/badge.svg?branch=dev)](https://github.com/CSCfi/exam/actions) 
 
 EXAM Quickstart for developers
 =====================================
 
-1.  Prerequisites: install SBT, Java (11), Node (>= 14) and PostgreSQL (>= 9.4).
+1.  Prerequisites: install SBT, Java (21), Node (>= 18) and PostgreSQL (>= 9.4).
 
 2.  Create PostgreSQL database
 
-        $ createuser -SPRD sitnet
-        $ createdb sitnet --owner=sitnet
+        $ createuser -SPRD exam
+        $ createdb exam --owner=exam
 
     For tests
 
-        $ createdb sitnet_test --owner=sitnet
-
-    For protractor
-
-        $ createdb sitnet_protractor --owner=sitnet
+        $ createdb exam_test --owner=exam
 
     Requires that you have pg_hba.conf set up to accept local connections etc.  
-    Note that you can configure database related parameters (and others) in the dev config file (conf/dev.conf)
+    Note that you can configure database related parameters (and others) in the dev config file (/conf/dev.conf)
 
-3.  Get frontend dependencies
+3.  Get frontend dependencies and start frontend application in development mode
 
-        $ cd ui
-        $ npm install       
+        $ npm install
+        $ npm start
 
-4.  Start sbt console
+4.  In another tab or window start sbt console and run backend application in development mode
 
-        $ cd ..
-        $ sbt -Dconfig.file=conf/dev.conf -jvm-debug 9999
-
-    This opens up a debug port at 9999 and starts up webpack dev server at 8080. You can run webpack server independent of
-    sbt by passing the following build parameter
-
-        $ sbt -Dconfig.file=conf/dev.conf -DwithoutWebpackServer=true
-
-    in which case you can manage the server yourself in a separate terminal like this
-
-        $ cd ui
-        $ npm start    
-
-5.  Inside sbt console start the app
-
+        $ sbt -Dconfig.file=conf/dev.conf -jvm-debug 9999 -mem 2048
         [exam] $ run
 
-6.  Open http://localhost:9000 in your browser
+    This opens up a debug port at 9999 and allocates 2 Gb of heap memory for the JVM.
+
+5.  Open http://localhost:4200 in your browser. 
     Accept the database migrations in case you see a prompt.
-
-## Skipping Karma and Protractor tests
-
-You can skip running UI tests by passing the following build parameter
-
-    $ sbt -Dconfig.file=conf/dev.conf -DskipUiTests=true
-
-in which case the tests will not be executed after starting the app.     
-
-## Running Protractor tests with SBT
-
-You can run protractor tests with sbt build using following command:
-
-    $sbt run -Dconfig.resource=protractor.conf
-
-### Passing parameters to protractor
-
-You can pass parameters to protractor using _protractor.args_ property.
-Passing multiple protractor parameters use comma (,) to separate parameters.
-
-    -Dprotractor.args=--capabilities.browserName=firefox,--troubleshoot
-
-For example running specific test spec only:
-
-    $sbt run -Dconfig.resource=protractor.conf -Dprotractor.args=--specs=protractor/e2e/teacher-exam-spec.js
-
-## Running Protractor tests in CI
-
-Using CI specific protractor configuration.
-
-    $sbt run -Dconfig.resource=protractor.conf -Dprotractor.config=ciConf.js
 
 ## More information
 For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)

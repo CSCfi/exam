@@ -1,9 +1,9 @@
 package models.calendar;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import javax.persistence.Entity;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
 import util.datetime.DateTimeAdapter;

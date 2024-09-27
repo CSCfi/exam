@@ -1,54 +1,50 @@
-<div id="sitnet-header" class="header">
-    <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{ 'sitnet_statistics' | translate }}</span>
-    </div>
-</div>
-
-<div id="dashboard">
+<xm-page-header text="i18n_statistics" />
+<xm-page-content [content]="content" />
+<ng-template #content>
     <!-- TAB NAVIGATION -->
-    <div class="main-row">
-        <div class="col-md-12">
+    <div class="row">
+        <div class="col-12">
             <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs">
                 <li [ngbNavItem]="'RESPONSES'">
-                    <a ngbNavLink>{{ 'sitnet_exam_responses' | translate }}</a>
+                    <a ngbNavLink>{{ 'i18n_exam_responses' | translate }}</a>
                 </li>
                 <li [ngbNavItem]="'ROOMS'">
-                    <a ngbNavLink>{{ 'sitnet_statistics_rooms' | translate }}</a>
+                    <a ngbNavLink>{{ 'i18n_statistics_rooms' | translate }}</a>
                 </li>
                 <li [ngbNavItem]="'EXAMS'">
-                    <a ngbNavLink>{{ 'sitnet_exams' | translate }}</a>
+                    <a ngbNavLink>{{ 'i18n_exams' | translate }}</a>
                 </li>
                 <li [ngbNavItem]="'RESERVATIONS'">
-                    <a ngbNavLink>{{ 'sitnet_reservations' | translate }}</a>
+                    <a ngbNavLink>{{ 'i18n_reservations' | translate }}</a>
                 </li>
             </ul>
         </div>
     </div>
 
     <!-- FILTERS -->
-    <div class="main-row">
+    <div class="row mt-2 align-items-end">
         <!-- Start & End time datepickers, department selection -->
-        <div class="col-md">
-            <h4>{{ 'sitnet_begin' | translate }}</h4>
+        <div class="col-md-3">
+            <strong>{{ 'i18n_begin' | translate }}</strong>
             <xm-date-picker
                 (updated)="startDateChanged($event)"
-                [initialDate]="null"
+                [initiallyEmpty]="true"
                 [modelOptions]="{ timezone: '+0000' }"
             ></xm-date-picker>
         </div>
 
-        <div class="col-md">
-            <h4>{{ 'sitnet_end' | translate }}</h4>
+        <div class="col-md-3">
+            <strong>{{ 'i18n_end' | translate }}</strong>
             <xm-date-picker
                 (updated)="endDateChanged($event)"
-                [initialDate]="null"
+                [initiallyEmpty]="true"
                 [modelOptions]="{ timezone: '+0000' }"
             ></xm-date-picker>
         </div>
 
-        <div class="col-md">
-            <h4>{{ 'sitnet_department' | translate }}</h4>
-            <span class="dropdown" ngbDropdown>
+        <div class="col-md-1">
+            <strong>{{ 'i18n_department' | translate }}</strong>
+            <div ngbDropdown>
                 <button
                     ngbDropdownToggle
                     class="btn btn-outline-secondary"
@@ -56,7 +52,7 @@
                     id="dropDownMenu1"
                     aria-expanded="true"
                 >
-                    {{ 'sitnet_choose' | translate }}&nbsp;<span class="caret"></span>
+                    {{ 'i18n_choose' | translate }}&nbsp;<span class="caret"></span>
                 </button>
                 <div
                     ngbDropdownMenu
@@ -70,7 +66,7 @@
                             (change)="handleDepartmentInputChange()"
                             type="text"
                             class="form-control"
-                            placeholder="{{ 'sitnet_search' | translate }}"
+                            placeholder="{{ 'i18n_search' | translate }}"
                         />
                         <div class="input-group-append">
                             <span class="input-group-text">
@@ -78,41 +74,42 @@
                             </span>
                         </div>
                     </div>
-                    <button
-                        ngbDropdownItem
-                        *ngFor="let department of filteredDepartments"
-                        role="presentation"
-                        [ngClass]="department.filtered ? 'active' : ''"
-                        (click)="setDepartmentFilter(department)"
-                        (keydown.enter)="setDepartmentFilter(department)"
-                    >
-                        {{ department.name }} {{ department.name }}
-                    </button>
-                </div>
-            </span>
-        </div>
-        <div class="col-md">
-            <ul class="inline-list">
-                <li>
-                    <ng-container *ngFor="let department of departments">
+                    @for (department of filteredDepartments; track department) {
                         <button
-                            *ngIf="department.filtered"
-                            type="button"
+                            ngbDropdownItem
+                            role="presentation"
+                            [ngClass]="department.filtered ? 'active' : ''"
                             (click)="setDepartmentFilter(department)"
-                            class="btn btn-primary btn-xs"
-                            style="margin: 0.2em"
+                            (keydown.enter)="setDepartmentFilter(department)"
                         >
-                            {{ department.name }}
+                            {{ department.name }} {{ department.name }}
                         </button>
-                    </ng-container>
-                </li>
-            </ul>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            @for (department of departments; track department) {
+                @if (department.filtered) {
+                    <span (click)="setDepartmentFilter(department)" class="badge bg-secondary me-1 pointer">
+                        {{ department.name }}
+                    </span>
+                }
+            }
         </div>
     </div>
 
     <!-- TAB CONTENT -->
-    <xm-room-statistics *ngIf="view === 'ROOMS'" [queryParams]="queryParams"></xm-room-statistics>
-    <xm-reservation-statistics *ngIf="view === 'RESERVATIONS'" [queryParams]="queryParams"> </xm-reservation-statistics>
-    <xm-response-statistics *ngIf="view === 'RESPONSES'" [queryParams]="queryParams"></xm-response-statistics>
-    <xm-exam-statistics *ngIf="view === 'EXAMS'" [queryParams]="queryParams"></xm-exam-statistics>
-</div>
+    @if (view === 'ROOMS') {
+        <xm-room-statistics [queryParams]="queryParams"></xm-room-statistics>
+    }
+    @if (view === 'RESERVATIONS') {
+        <xm-reservation-statistics [queryParams]="queryParams"> </xm-reservation-statistics>
+    }
+    @if (view === 'RESPONSES') {
+        <xm-response-statistics [queryParams]="queryParams"></xm-response-statistics>
+    }
+    @if (view === 'EXAMS') {
+        <xm-exam-statistics [queryParams]="queryParams"></xm-exam-statistics>
+    }
+</ng-template>

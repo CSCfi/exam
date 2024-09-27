@@ -12,13 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { LanguageService } from '../../../shared/language/language.service';
-import type { Exam, ExamLanguage } from '../../exam.model';
+import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
+import { LanguageService } from 'src/app/shared/language/language.service';
 
 @Component({
     selector: 'xm-language-picker',
@@ -28,17 +30,20 @@ import type { Exam, ExamLanguage } from '../../exam.model';
             <span class="caret"></span>
         </button>
         <div ngbDropdownMenu aria-labelledby="ddMenu">
-            <button
-                ngbDropdownItem
-                *ngFor="let language of examLanguages"
-                [ngClass]="isSelected(language) ? 'active' : ''"
-                (click)="updateExamLanguage(language)"
-                title="{{ language.name }}"
-            >
-                {{ language.name }}
-            </button>
+            @for (language of examLanguages; track language) {
+                <button
+                    ngbDropdownItem
+                    [ngClass]="isSelected(language) ? 'active' : ''"
+                    (click)="updateExamLanguage(language)"
+                    title="{{ language.name }}"
+                >
+                    {{ language.name }}
+                </button>
+            }
         </div>
-    </div> `,
+    </div>`,
+    standalone: true,
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass],
 })
 export class LanguageSelectorComponent implements OnInit {
     @Input() exam!: Exam;
@@ -62,7 +67,7 @@ export class LanguageSelectorComponent implements OnInit {
 
     selectedLanguages = () =>
         this.exam.examLanguages.length === 0
-            ? this.translate.instant('sitnet_select')
+            ? this.translate.instant('i18n_select')
             : this.exam.examLanguages.map((language) => language.name).join(', ');
 
     isSelected = (lang: ExamLanguage) => this.exam.examLanguages.map((el) => el.code).indexOf(lang.code) > -1;
@@ -77,7 +82,7 @@ export class LanguageSelectorComponent implements OnInit {
                 } else {
                     this.exam.examLanguages.push(lang);
                 }
-                this.toast.info(this.translate.instant('sitnet_exam_language_updated'));
+                this.toast.info(this.translate.instant('i18n_exam_language_updated'));
             },
             error: (err) => this.toast.error(err),
         });

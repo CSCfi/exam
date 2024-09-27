@@ -17,6 +17,13 @@ package models.sections;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,15 +31,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
 import models.Exam;
 import models.ExamEnrolment;
 import models.User;
@@ -58,13 +56,10 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     private Integer sequenceNumber;
 
-    @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
-    @Column(columnDefinition = "boolean default false")
     private boolean lotteryOn;
 
-    @Column(columnDefinition = "boolean default false")
     private boolean optional;
 
     private int lotteryItemCount;
@@ -211,35 +206,30 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         return section;
     }
 
-    @Transient
     public double getTotalScore() {
         return sectionQuestions
             .stream()
             .map(ExamSectionQuestion::getAssessedScore)
             .filter(Objects::nonNull)
-            .reduce(0.0, (sum, x) -> sum += x);
+            .reduce(0.0, Double::sum);
     }
 
-    @Transient
     public double getMaxScore() {
         return sectionQuestions
             .stream()
             .map(ExamSectionQuestion::getMaxAssessedScore)
             .filter(Objects::nonNull)
-            .reduce(0.0, (sum, x) -> sum += x);
+            .reduce(0.0, Double::sum);
     }
 
-    @Transient
     public int getRejectedCount() {
         return (int) sectionQuestions.stream().filter(ExamSectionQuestion::isRejected).count();
     }
 
-    @Transient
     public int getApprovedCount() {
         return (int) sectionQuestions.stream().filter(ExamSectionQuestion::isApproved).count();
     }
 
-    @Transient
     public boolean hasQuestion(Question question) {
         return sectionQuestions.stream().map(ExamSectionQuestion::getQuestion).anyMatch(q -> q.equals(question));
     }
@@ -262,8 +252,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ExamSection)) return false;
-        ExamSection that = (ExamSection) o;
+        if (!(o instanceof ExamSection that)) return false;
         return new EqualsBuilder().append(id, that.id).isEquals();
     }
 

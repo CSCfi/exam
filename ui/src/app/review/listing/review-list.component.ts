@@ -12,14 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import type { ExamEnrolment } from '../../enrolment/enrolment.model';
-import { ExamTabService } from '../../exam/editor/exam-tabs.service';
-import type { Exam, ExamParticipation } from '../../exam/exam.model';
-import type { Review } from '../review.model';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
+import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import type { Review } from 'src/app/review/review.model';
+import { ArchivedReviewsComponent } from './categories/archived.component';
+import { GradedLoggedReviewsComponent } from './categories/graded-logged.component';
+import { GradedReviewsComponent } from './categories/graded.component';
+import { InLanguageInspectionReviewsComponent } from './categories/in-language-inspection.component';
+import { InProgressReviewsComponent } from './categories/in-progress.component';
+import { RejectedReviewsComponent } from './categories/rejected.component';
 import { AbortedExamsComponent } from './dialogs/aborted.component';
 import { NoShowsComponent } from './dialogs/no-shows.component';
 import { ReviewListService } from './review-list.service';
@@ -27,6 +35,19 @@ import { ReviewListService } from './review-list.service';
 @Component({
     selector: 'xm-review-list',
     templateUrl: './review-list.component.html',
+    standalone: true,
+    imports: [
+        NgbPopover,
+        InProgressReviewsComponent,
+        InLanguageInspectionReviewsComponent,
+        GradedReviewsComponent,
+        GradedLoggedReviewsComponent,
+        RejectedReviewsComponent,
+        ArchivedReviewsComponent,
+        DatePipe,
+        TranslateModule,
+    ],
+    styleUrl: './review-list.component.scss',
 })
 export class ReviewListComponent implements OnInit, OnChanges {
     exam!: Exam;
@@ -55,17 +76,10 @@ export class ReviewListComponent implements OnInit, OnChanges {
             this.reviews = data.reviews;
             this.exam = this.Tabs.getExam();
             this.collaborative = this.Tabs.isCollaborative();
-
             this.refreshLists();
-            // No-shows
-            if (this.collaborative) {
-                //TODO: Fetch collaborative no-shows from xm.
-                this.noShows = [];
-            } else {
-                this.http
-                    .get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`)
-                    .subscribe((resp) => (this.noShows = resp));
-            }
+            this.http
+                .get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`, { params: { collaborative: this.collaborative } })
+                .subscribe((resp) => (this.noShows = resp));
             this.Tabs.notifyTabChange(5);
         });
     }

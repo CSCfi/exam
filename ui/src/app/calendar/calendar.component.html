@@ -1,62 +1,74 @@
-<div id="dashboard">
-    <div class="col-md-12 mt-2">
-        <div class="student-details-title-wrap">
-            <xm-history-back xmAutoFocus></xm-history-back>
-            <h1 class="student-exam-details-title">{{ 'sitnet_calendar' | translate }}</h1>
-        </div>
-    </div>
-
+<xm-page-header text="i18n_calendar" [history]="true" />
+<xm-page-content [content]="content" />
+<ng-template #content>
     <!-- Phase 1: Exam Info -->
-    <xm-calendar-exam-info
-        *ngIf="examInfo && reservationWindowSize"
-        [examInfo]="examInfo"
-        [reservationWindowSize]="reservationWindowSize"
-        [collaborative]="isCollaborative"
-    ></xm-calendar-exam-info>
+    @if (examInfo && reservationWindowSize) {
+        <div class="row">
+            <div class="col-12 p-0">
+                <xm-calendar-exam-info
+                    [examInfo]="examInfo"
+                    [reservationWindowSize]="reservationWindowSize"
+                    [collaborative]="isCollaborative"
+                ></xm-calendar-exam-info>
+            </div>
+        </div>
+    }
     <!-- Phase 2: Optional exam section selection (optional) -->
-    <div *ngIf="examInfo && hasOptionalSections()" class="mart10">
-        <xm-calendar-optional-sections
-            [examInfo]="examInfo"
-            (selected)="onSectionSelection($event)"
-        ></xm-calendar-optional-sections>
-    </div>
+    @if (examInfo && hasOptionalSections()) {
+        <div class="row">
+            <div class="col-12 p-0">
+                <xm-calendar-optional-sections
+                    [examInfo]="examInfo"
+                    (selected)="onSectionSelection($event)"
+                ></xm-calendar-optional-sections>
+            </div>
+        </div>
+    }
     <!-- Phase 3: Organisation picker -->
-    <div *ngIf="isInteroperable && isExternal" class="mart10">
-        <xm-calendar-organisation-picker
-            [sequenceNumber]="getSequenceNumber('organization')"
-            [disabled]="!sectionSelectionOk()"
-            (selected)="setOrganisation($event)"
-            (cancelled)="makeInternalReservation()"
-        ></xm-calendar-organisation-picker>
-    </div>
+    @if (isInteroperable && isExternal) {
+        <div class="row">
+            <div class="col-12 p-0">
+                <xm-calendar-organisation-picker
+                    [sequenceNumber]="getSequenceNumber('organization')"
+                    [disabled]="!sectionSelectionOk()"
+                    (selected)="setOrganisation($event)"
+                    (cancelled)="makeInternalReservation()"
+                ></xm-calendar-organisation-picker>
+            </div>
+        </div>
+    }
     <!-- Phase 4: Room picker -->
-    <div class="mart10">
-        <xm-calendar-slot-picker
-            [sequenceNumber]="getSequenceNumber('room')"
-            [isInteroperable]="isInteroperable"
-            [isExternal]="isExternal"
-            [isCollaborative]="isCollaborative"
-            [organisation]="selectedOrganisation"
-            [minDate]="minDate"
-            [maxDate]="maxDate"
-            [disabled]="!sectionSelectionOk()"
-            (cancelled)="makeExternalReservation()"
-            (selected)="createReservation($event)"
-        >
-        </xm-calendar-slot-picker>
+    <div class="row">
+        <div class="col-12 p-0">
+            <xm-calendar-slot-picker
+                [sequenceNumber]="getSequenceNumber('room')"
+                [isInteroperable]="isInteroperable"
+                [isExternal]="isExternal"
+                [isCollaborative]="isCollaborative"
+                [organisation]="selectedOrganisation"
+                [minDate]="minDate"
+                [maxDate]="maxDate"
+                [disabled]="!sectionSelectionOk()"
+                (cancelled)="makeExternalReservation()"
+                (selected)="createReservation($event)"
+            >
+            </xm-calendar-slot-picker>
+        </div>
     </div>
 
     <!-- Reservation confirmation -->
 
-    <div class="row mart10 marb20">
-        <div class="col-md-8 col-12 pad0">
-            <div class="row student-enrolment-wrapper details-view" [ngClass]="reservation ? '' : 'notactive'">
+    <div class="row mb-4">
+        <div class="col-md-8 col-12 p-0">
+            <div class="row m-2" [ngClass]="'xm-study-item-container' ? '' : 'xm-study-item-container--inactive'">
                 <div class="col-md-12">
                     <div class="row">
-                        <span class="col-md-12 marb10">
+                        <span class="col-md-6 mb-3">
                             <h2 class="calendar-phase-title">
-                                {{ getSequenceNumber('confirmation') }}. {{ 'sitnet_calendar_phase_3' | translate }}
+                                {{ getSequenceNumber('confirmation') }}. {{ 'i18n_calendar_phase_3' | translate }}
                             </h2>
+                        </span>
+                        <span class="col-md-6">
                             <span class="calendar-phase-icon float-end" [hidden]="!reservation">
                                 <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                             </span>
@@ -73,20 +85,24 @@
                         <div class="col-md-12">
                             <div class="row">
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ 'sitnet_course_name' | translate }}:
+                                    {{ 'i18n_course_name' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    <div *ngIf="examInfo.course">
-                                        <xm-course-code *ngIf="examInfo" [course]="examInfo.course"></xm-course-code>
-                                        {{ examInfo.course.name }}
-                                    </div>
+                                    @if (examInfo.course) {
+                                        <div>
+                                            @if (examInfo) {
+                                                <xm-course-code [course]="examInfo.course"></xm-course-code>
+                                            }
+                                            {{ examInfo.course.name }}
+                                        </div>
+                                    }
                                 </div>
                                 <div class="mt-2 col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ 'sitnet_exam_validity' | translate }}:
+                                    {{ 'i18n_exam_validity' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ examInfo.examActiveStartDate | date : 'dd.MM.yyyy' }} -
-                                    {{ examInfo.examActiveEndDate | date : 'dd.MM.yyyy' }}
+                                    {{ examInfo.periodStart | date: 'dd.MM.yyyy' }} -
+                                    {{ examInfo.periodEnd | date: 'dd.MM.yyyy' }}
                                 </div>
                             </div>
                         </div>
@@ -95,13 +111,13 @@
                         <div class="col-md-12">
                             <div class="row">
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    {{ 'sitnet_examination_location' | translate }}:
+                                    {{ 'i18n_examination_location' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
                                     {{ reservation?.room?.name }}
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-2">
-                                    {{ 'sitnet_reservation' | translate }}:
+                                    {{ 'i18n_reservation' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-4">
                                     {{ reservation?.time }}
@@ -113,7 +129,7 @@
                         <div class="col-md-12">
                             <div class="row">
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    {{ 'sitnet_exam_duration' | translate }}:
+                                    {{ 'i18n_exam_duration' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
                                     {{ printExamDuration(examInfo) }}
@@ -124,8 +140,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 col-12 pad0 mar-">
-            <div class="row mart20 marb10 marr10 marl10 align-items-center">
+        <div class="col-md-4 col-12 p-0">
+            <div class="row m-2 align-items-center">
                 <div class="col-md-12">
                     <button
                         [disabled]="!reservation || confirming"
@@ -133,21 +149,21 @@
                         style="width: 100%; line-height: 1.5; border-radius: 3px"
                         (click)="confirmReservation()"
                     >
-                        {{ 'sitnet_student_confirm_reservation' | translate }}
+                        {{ 'i18n_student_confirm_reservation' | translate }}
                     </button>
                 </div>
             </div>
-            <div class="row mart20 marb10 marr10 marl10 align-items-center">
+            <div class="row m-2 align-items-center">
                 <div class="col-md-12">
                     <button
                         class="btn btn-lg btn-outline-secondary float-end"
                         style="width: 100%; line-height: 1.5; border-radius: 3px"
                         (click)="cancel()"
                     >
-                        {{ 'sitnet_button_cancel' | translate }}
+                        {{ 'i18n_button_cancel' | translate }}
                     </button>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</ng-template>

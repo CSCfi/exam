@@ -12,12 +12,12 @@ import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit4.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import io.ebean.Ebean;
+import io.ebean.DB;
+import jakarta.mail.internet.MimeMessage;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import javax.mail.internet.MimeMessage;
 import models.AutoEvaluationConfig;
 import models.Exam;
 import models.ExamEnrolment;
@@ -59,19 +59,13 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
+        DB.deleteAll(DB.find(ExamEnrolment.class).findList());
         exam =
-            Ebean
-                .find(Exam.class)
-                .fetch("examSections")
-                .fetch("examSections.sectionQuestions")
-                .where()
-                .idEq(1L)
-                .findOne();
+            DB.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
         initExamSectionQuestions(exam);
 
-        user = Ebean.find(User.class, userId);
-        ExamRoom room = Ebean.find(ExamRoom.class, 1L);
+        user = DB.find(User.class, userId);
+        ExamRoom room = DB.find(ExamRoom.class, 1L);
         machine = room.getExamMachines().get(0);
         machine.setIpAddress("127.0.0.1"); // so that the IP check won't fail
         machine.update();
@@ -130,11 +124,11 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
         assertThat(studentExam.getDuration()).isEqualTo(exam.getDuration());
 
-        assertThat(Ebean.find(Exam.class).where().eq("hash", studentExam.getHash()).findOne()).isNotNull();
-        assertThat(Ebean.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash())
+        assertThat(DB.find(Exam.class).where().eq("hash", studentExam.getHash()).findOne()).isNotNull();
+        assertThat(DB.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash())
             .isEqualTo(studentExam.getHash());
 
-        ExamParticipation participation = Ebean
+        ExamParticipation participation = DB
             .find(ExamParticipation.class)
             .where()
             .eq("exam.id", studentExam.getId())
@@ -147,7 +141,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testAnswerMultiChoiceQuestion() throws Exception {
         Exam studentExam = prepareExamination();
-        ExamSectionQuestion question = Ebean
+        ExamSectionQuestion question = DB
             .find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)
@@ -187,7 +181,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     public void testAnswerMultiChoiceQuestionWrongIP() throws Exception {
         // Setup
         Exam studentExam = prepareExamination();
-        ExamSectionQuestion question = Ebean
+        ExamSectionQuestion question = DB
             .find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)
@@ -213,7 +207,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testAnswerClozeTestQuestionInvalidJson() throws Exception {
         Exam studentExam = prepareExamination();
-        ExamSectionQuestion question = Ebean
+        ExamSectionQuestion question = DB
             .find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)
@@ -279,7 +273,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                         assertThat(r.status()).isEqualTo(Helpers.OK);
                         break;
                     default:
-                        ExamSectionQuestion sectionQuestion = Ebean
+                        ExamSectionQuestion sectionQuestion = DB
                             .find(ExamSectionQuestion.class)
                             .where()
                             .eq("examSection.exam", studentExam)
@@ -304,7 +298,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
             });
         Result result = request(Helpers.PUT, String.format("/app/student/exam/%s", studentExam.getHash()), null);
         assertThat(result.status()).isEqualTo(Helpers.OK);
-        Exam turnedExam = Ebean.find(Exam.class, studentExam.getId());
+        Exam turnedExam = DB.find(Exam.class, studentExam.getId());
         assertThat(turnedExam.getGrade()).isNotNull();
         assertThat(turnedExam.getState()).isEqualTo(Exam.State.GRADED);
 
@@ -313,7 +307,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
     private Exam createPrivateStudentExam() {
         exam.setExecutionType(
-            Ebean.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
+            DB.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
         );
         exam.update();
         // Execute
@@ -369,7 +363,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(Helpers.FORBIDDEN);
 
         // Verify that no student exam was created
-        assertThat(Ebean.find(Exam.class).where().eq("parent.id", exam.getId()).findList()).hasSize(0);
+        assertThat(DB.find(Exam.class).where().eq("parent.id", exam.getId()).findList()).hasSize(0);
     }
 
     @Test
@@ -384,7 +378,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(Helpers.FORBIDDEN);
 
         // Verify that no student exam was created
-        assertThat(Ebean.find(Exam.class).where().eq("parent.id", exam.getId()).findList()).hasSize(1);
+        assertThat(DB.find(Exam.class).where().eq("parent.id", exam.getId()).findList()).hasSize(1);
     }
 
     @Test
@@ -405,9 +399,9 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
         // Verify that the previous exam was returned, and participation & enrolment still point to it
         assertThat(studentExam.getId()).isEqualTo(anotherStudentExam.getId());
-        assertThat(Ebean.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash())
+        assertThat(DB.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash())
             .isEqualTo(studentExam.getHash());
-        ExamParticipation participation = Ebean
+        ExamParticipation participation = DB
             .find(ExamParticipation.class)
             .where()
             .eq("exam.id", studentExam.getId())
@@ -420,7 +414,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testClaimChoiceQuestionOptionOrderAndAnswerSkip() throws Exception {
         Exam studentExam = prepareExamination();
-        ExamSectionQuestion question = Ebean
+        ExamSectionQuestion question = DB
             .find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)

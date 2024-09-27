@@ -12,22 +12,56 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { LowerCasePipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import {
+    NgbNav,
+    NgbNavContent,
+    NgbNavItem,
+    NgbNavItemRole,
+    NgbNavLink,
+    NgbNavOutlet,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { QuestionFlowComponent } from 'src/app/review/questions/flow/question-flow.component';
+import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
+import type { QuestionReview, ReviewQuestion } from 'src/app/review/review.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
-import type { User } from '../../../session/session.service';
-import { SessionService } from '../../../session/session.service';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { AssessmentService } from '../../assessment/assessment.service';
-import type { QuestionReview, ReviewQuestion } from '../../review.model';
-import { QuestionReviewService } from '../question-review.service';
+import { EssayAnswerListComponent } from './essay-answers.component';
 
 @Component({
     selector: 'xm-question-assessment',
     templateUrl: './question-assessment.component.html',
+    styleUrls: ['./question-assessment.component.scss'],
+    standalone: true,
+    imports: [
+        HistoryBackComponent,
+        NgClass,
+        MathJaxDirective,
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLink,
+        NgbNavContent,
+        EssayAnswerListComponent,
+        NgbNavOutlet,
+        QuestionFlowComponent,
+        LowerCasePipe,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class QuestionAssessmentComponent implements OnInit {
     user: User;
@@ -100,7 +134,7 @@ export class QuestionAssessmentComponent implements OnInit {
         return new Promise<void>((resolve) => {
             answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
             this.Assessment.saveEssayScore$(answer).subscribe(() => {
-                this.toast.info(this.translate.instant('sitnet_graded'));
+                this.toast.info(this.translate.instant('i18n_graded'));
                 if (this.assessedAnswers.indexOf(answer) === -1) {
                     this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
                     this.assessedAnswers.push(answer);

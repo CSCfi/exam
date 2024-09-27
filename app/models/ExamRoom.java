@@ -18,14 +18,14 @@ package models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import controllers.RoomLike;
 import io.ebean.Finder;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import models.base.GeneratedIdentityModel;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
@@ -69,7 +69,6 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     private List<Accessibility> accessibilities;
 
     // Checkbox indicating is there any accessibility issues concerning the room
-    @Column(columnDefinition = "boolean default false")
     private boolean accessible;
 
     @Column(columnDefinition = "TEXT")
@@ -87,7 +86,6 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
 
     private String statusComment;
 
-    @Column(columnDefinition = "boolean default false")
     private boolean outOfService;
 
     private String state;
@@ -97,7 +95,6 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     private List<ExamMachine> examMachines;
 
     // In UI, section has been expanded
-    @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
     private String localTimezone;
@@ -284,8 +281,7 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ExamRoom)) return false;
-        ExamRoom examRoom = (ExamRoom) o;
+        if (!(o instanceof ExamRoom examRoom)) return false;
         return new EqualsBuilder().append(id, examRoom.id).build();
     }
 

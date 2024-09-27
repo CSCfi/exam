@@ -12,34 +12,42 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
-import { SessionService } from '../../../session/session.service';
-import type { QuestionReview } from '../../review.model';
-import { QuestionReviewService } from '../question-review.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
+import type { QuestionReview } from 'src/app/review/review.model';
+import { SessionService } from 'src/app/session/session.service';
+import { QuestionFlowCategoryComponent } from './question-flow-category.component';
 
 @Component({
     selector: 'xm-question-flow',
-    template: `<div class="top-row">
-            <div class="col-md-12 marb30">
-                <div class="question-flow-title">{{ 'sitnet_question_flow' | translate }}</div>
+    template: `<div class="row mt-3">
+            <div class="col-md-12 mb-3">
+                <div class="question-flow-title">{{ 'i18n_question_flow' | translate }}</div>
             </div>
         </div>
-        <xm-question-flow-category
-            *ngIf="unfinished"
-            categoryTitle="sitnet_in_progress"
-            [reviews]="unfinished"
-            (selected)="questionSelected($event)"
-        >
-        </xm-question-flow-category>
-        <xm-question-flow-category
-            *ngIf="finished"
-            categoryTitle="sitnet_all_finished"
-            [reviews]="finished"
-            [allDone]="true"
-            (selected)="questionSelected($event)"
-        >
-        </xm-question-flow-category> `,
+        @if (unfinished) {
+            <xm-question-flow-category
+                categoryTitle="i18n_in_progress"
+                [reviews]="unfinished"
+                (selected)="questionSelected($event)"
+            >
+            </xm-question-flow-category>
+        }
+        @if (finished) {
+            <xm-question-flow-category
+                categoryTitle="i18n_all_finished"
+                [reviews]="finished"
+                [allDone]="true"
+                (selected)="questionSelected($event)"
+            >
+            </xm-question-flow-category>
+        }`,
+    styleUrls: ['./question-flow.component.scss'],
+    standalone: true,
+    imports: [QuestionFlowCategoryComponent, TranslateModule],
 })
 export class QuestionFlowComponent implements OnInit, OnChanges {
     @Input() reviews: QuestionReview[] = [];
@@ -48,7 +56,10 @@ export class QuestionFlowComponent implements OnInit, OnChanges {
     unfinished: QuestionReview[] = [];
     finished: QuestionReview[] = [];
 
-    constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
+    constructor(
+        private QuestionReview: QuestionReviewService,
+        private Session: SessionService,
+    ) {}
 
     getAssessedAnswerCount = (review: QuestionReview) =>
         this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());

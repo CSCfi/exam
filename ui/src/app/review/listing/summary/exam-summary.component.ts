@@ -12,25 +12,28 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, DecimalPipe, KeyValuePipe } from '@angular/common';
 import { Component, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
 import { format } from 'date-fns';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { Exam, ExamParticipation } from '../../../exam/exam.model';
-import { FileService } from '../../../shared/file/file.service';
-import type { Review } from '../../review.model';
-import { AbortedExamsComponent } from '../dialogs/aborted.component';
-import { NoShowsComponent } from '../dialogs/no-shows.component';
-import { ReviewListService } from '../review-list.service';
+import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import { AbortedExamsComponent } from 'src/app/review/listing/dialogs/aborted.component';
+import { NoShowsComponent } from 'src/app/review/listing/dialogs/no-shows.component';
+import { ReviewListService } from 'src/app/review/listing/review-list.service';
+import type { Review } from 'src/app/review/review.model';
+import { FileService } from 'src/app/shared/file/file.service';
 import { ExamSummaryService } from './exam-summary.service';
 
 @Component({
     selector: 'xm-exam-summary',
     templateUrl: './exam-summary.component.html',
+    standalone: true,
+    imports: [NgbPopover, DecimalPipe, DatePipe, KeyValuePipe, TranslateModule],
 })
 export class ExamSummaryComponent implements OnInit, OnChanges {
     exam!: Exam;
@@ -110,7 +113,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
             const url = '/app/reports/questionreport/' + this.exam.id;
             this.Files.download(
                 url,
-                this.translate.instant('sitnet_grading_info') + '_' + format(new Date(), 'dd-MM-yyyy') + '.xlsx',
+                this.translate.instant('i18n_grading_info') + '_' + format(new Date(), 'dd-MM-yyyy') + '.xlsx',
                 { childIds: ids.map((i) => i.toString()) },
                 true,
             );
@@ -160,21 +163,21 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         if (this.gradeTimeChart.options?.scales) {
             const scales = this.gradeTimeChart.options.scales;
             if (scales.x?.title) {
-                scales.x.title.text = this.translate.instant('sitnet_word_points').toLowerCase();
+                scales.x.title.text = this.translate.instant('i18n_word_points').toLowerCase();
             }
             if (scales.y?.title) {
-                scales.y.title.text = this.translate.instant('sitnet_word_minutes').toLowerCase();
+                scales.y.title.text = this.translate.instant('i18n_word_minutes').toLowerCase();
             }
         }
         this.gradeTimeChart.update();
         if (this.examinationDateDistribution.options?.scales) {
             const scales = this.examinationDateDistribution.options.scales;
             if (scales.x?.title) {
-                scales.x.title.text = this.translate.instant('sitnet_days_since_period_beginning').toLowerCase();
+                scales.x.title.text = this.translate.instant('i18n_days_since_period_beginning').toLowerCase();
             }
         }
         if (this.examinationDateDistribution.data?.datasets) {
-            this.examinationDateDistribution.data.datasets[0].label = this.translate.instant('sitnet_amount_exams');
+            this.examinationDateDistribution.data.datasets[0].label = this.translate.instant('i18n_amount_exams');
         }
         this.examinationDateDistribution.update();
     }

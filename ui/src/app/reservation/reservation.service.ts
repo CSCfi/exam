@@ -16,12 +16,12 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { parseISO } from 'date-fns';
 import { noop } from 'rxjs';
-import type { Exam } from '../exam/exam.model';
+import type { Exam } from 'src/app/exam/exam.model';
 import { ChangeMachineDialogComponent } from './admin/change-machine-dialog.component';
 import { RemoveReservationDialogComponent } from './admin/remove-reservation-dialog.component';
 import type { ExamMachine, Reservation } from './reservation.model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ReservationService {
     constructor(private modal: NgbModal) {}
 
@@ -31,8 +31,8 @@ export class ReservationService {
         reservation.enrolment.noShow
             ? 'NO_SHOW'
             : reservation.enrolment.exam
-            ? reservation.enrolment.exam.state
-            : reservation.enrolment.collaborativeExam.state;
+              ? reservation.enrolment.exam.state
+              : reservation.enrolment.collaborativeExam.state;
 
     getReservationCount = (exam: Exam) =>
         exam.examEnrolments.filter(

@@ -7,8 +7,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import impl.CalendarHandler;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Optional;
@@ -32,19 +33,11 @@ import play.mvc.With;
 import sanitizers.Attrs;
 import sanitizers.ExternalCalendarReservationSanitizer;
 import security.Authenticated;
-import util.config.ConfigReader;
-import util.datetime.DateTimeHandler;
 
 public class CollaborativeExternalCalendarController extends CollaborativeCalendarController {
 
     @Inject
     CalendarHandler calendarHandler;
-
-    @Inject
-    private ConfigReader configReader;
-
-    @Inject
-    private DateTimeHandler dateTimeHandler;
 
     @Authenticated
     @With(ExternalCalendarReservationSanitizer.class)
@@ -63,11 +56,11 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
         Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
 
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
+        CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
         if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
-        final ExamEnrolment enrolment = Ebean
+        final ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .where()
@@ -79,12 +72,12 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
             .endJunction()
             .findOne();
         if (enrolment == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         return downloadExam(ce)
             .thenComposeAsync(result -> {
                 if (result.isEmpty()) {
-                    return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+                    return wrapAsPromise(notFound("i18n_error_exam_not_found"));
                 }
                 Exam exam = result.get();
                 Optional<Result> badEnrolment = checkEnrolment(enrolment, exam, user);
@@ -151,22 +144,22 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
     ) {
         if (org.isPresent() && date.isPresent()) {
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
+            CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
             if (ce == null) {
-                return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+                return wrapAsPromise(notFound("i18n_error_exam_not_found"));
             }
             ExamEnrolment enrolment = getEnrolledExam(examId, user);
             if (enrolment == null) {
-                return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
+                return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
             }
             return downloadExam(ce)
                 .thenComposeAsync(result -> {
                     if (result.isEmpty()) {
-                        return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+                        return wrapAsPromise(notFound("i18n_error_exam_not_found"));
                     }
                     Exam exam = result.get();
                     if (!exam.hasState(Exam.State.PUBLISHED)) {
-                        return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+                        return wrapAsPromise(notFound("i18n_error_exam_not_found"));
                     }
                     // Also sanity check the provided search date
                     try {
@@ -175,8 +168,8 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                         return wrapAsPromise(notFound());
                     }
                     // Ready to shoot
-                    String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveStartDate()));
-                    String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveEndDate()));
+                    String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart()));
+                    String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd()));
                     Integer duration = exam.getDuration();
                     URL url = parseUrl(org.get(), roomRef, date.get(), start, end, duration);
                     WSRequest wsRequest = wsClient.url(url.toString().split("\\?")[0]).setQueryString(url.getQuery());
@@ -201,7 +194,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
 
     private ExamEnrolment getEnrolledExam(Long examId, User user) {
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        return Ebean
+        return DB
             .find(ExamEnrolment.class)
             .where()
             .eq("user", user)
@@ -214,10 +207,12 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
     }
 
     private URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
-        return new URL(
-            configReader.getIopHost() +
-            String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
-        );
+        return URI
+            .create(
+                configReader.getIopHost() +
+                String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
+            )
+            .toURL();
     }
 
     private URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration) {
@@ -226,7 +221,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
             String.format("/api/organisations/%s/facilities/%s/slots", orgRef, facilityRef) +
             String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration);
         try {
-            return new URL(url);
+            return URI.create(url).toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }

@@ -12,15 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbTimepicker,
+} from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { areIntervalsOverlapping, formatISO, setDayOfYear } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { DefaultWorkingHours, ExamRoom } from '../../reservation/reservation.model';
-import { DateTimeService } from '../../shared/date/date.service';
-import { RoomService } from '../rooms/room.service';
-import { DefaultWorkingHoursWithEditing } from '../rooms/rooms.component';
+import { RoomService } from 'src/app/facility/rooms/room.service';
+import { DefaultWorkingHoursWithEditing } from 'src/app/facility/rooms/rooms.component';
+import { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
+import { DateTimeService } from 'src/app/shared/date/date.service';
 interface RoomWithAddressVisibility extends ExamRoom {
     addressVisible: boolean;
     availabilityVisible: boolean;
@@ -29,50 +38,61 @@ interface RoomWithAddressVisibility extends ExamRoom {
 @Component({
     selector: 'xm-opening-hours',
     template: `
-        <div class="row mart10 flex align-content-center" *ngFor="let dwh of orderByWeekday(extendedRoom.extendedDwh)">
-            <div class="col-2 min-w-100 align-self-center">{{ dateTime.translateWeekdayName(dwh.weekday, true) }}</div>
-            <div class="col row">
-                <div class="col flex justify-content-around align-self-center" *ngIf="!dwh.editing">
-                    <div>{{ workingHourFormat(dwh.displayStartingTime) }}</div>
-                    <div class="align-self-center">-</div>
-                    <div>{{ workingHourFormat(dwh.displayEndingTime) }}</div>
+        @for (dwh of orderByWeekday(extendedRoom.extendedDwh); track dwh) {
+            <div class="row mt-1 d-flex align-content-center">
+                <div class="col-2 align-self-center">
+                    {{ dateTime.translateWeekdayName(dwh.weekday, true) }}
                 </div>
-                <div class="col flex justify-content-around align-self-center" *ngIf="dwh.editing">
-                    <ngb-timepicker
-                        name="timepicker"
-                        size="small"
-                        [minuteStep]="15"
-                        [(ngModel)]="dwh.pickStartingTime"
-                    ></ngb-timepicker>
-                    <div class="align-self-center">-</div>
-                    <ngb-timepicker
-                        name="timepicker"
-                        size="small"
-                        [minuteStep]="15"
-                        [(ngModel)]="dwh.pickEndingTime"
-                    ></ngb-timepicker>
+                <div class="col row">
+                    @if (!dwh.editing) {
+                        <div class="col d-flex justify-content-around align-self-center">
+                            <div>{{ workingHourFormat(dwh.displayStartingTime) }}</div>
+                            <div class="align-self-center">-</div>
+                            <div>{{ workingHourFormat(dwh.displayEndingTime) }}</div>
+                        </div>
+                    }
+                    @if (dwh.editing) {
+                        <div class="col d-flex justify-content-around align-self-center">
+                            <ngb-timepicker
+                                name="timepicker"
+                                size="small"
+                                [minuteStep]="15"
+                                [(ngModel)]="dwh.pickStartingTime"
+                            ></ngb-timepicker>
+                            <div class="align-self-center">-</div>
+                            <ngb-timepicker
+                                name="timepicker"
+                                size="small"
+                                [minuteStep]="15"
+                                [(ngModel)]="dwh.pickEndingTime"
+                            ></ngb-timepicker>
+                        </div>
+                    }
+                </div>
+                <div class="col-2 align-self-center">
+                    @if (!dwh.editing) {
+                        <div class="bi-pencil-fill pointer align-self-center" (click)="dwh.editing = true"></div>
+                    }
+                    @if (dwh.editing) {
+                        <div class="d-flex">
+                            <div
+                                class="ms-1 bi-x-square-fill text-muted pointer align-self-center"
+                                (click)="dwh.editing = false"
+                            ></div>
+                            <div
+                                class="ms-1 bi-check-circle-fill text-success pointer align-self-center"
+                                (click)="updateHours(dwh)"
+                            ></div>
+                            <div
+                                class="ms-1 bi-trash text-danger pointer align-self-center"
+                                (click)="deleteHours(dwh)"
+                            ></div>
+                        </div>
+                    }
                 </div>
             </div>
-            <div class="col-2 align-self-center">
-                <div
-                    class="bi-pencil-fill pointer align-self-center"
-                    *ngIf="!dwh.editing"
-                    (click)="dwh.editing = true"
-                ></div>
-                <div class="flex" *ngIf="dwh.editing">
-                    <div
-                        class="marl5 bi-x-square-fill text-muted pointer align-self-center"
-                        (click)="dwh.editing = false"
-                    ></div>
-                    <div
-                        class="marl5 bi-check-circle-fill text-success pointer align-self-center"
-                        (click)="updateHours(dwh)"
-                    ></div>
-                    <div class="marl5 bi-trash text-danger pointer align-self-center" (click)="deleteHours(dwh)"></div>
-                </div>
-            </div>
-        </div>
-        <div class="row mart10 flex align-content-center">
+        }
+        <div class="row mt-1 d-flex align-content-center">
             <span class="col-2 align-self-center min-w-100" ngbDropdown>
                 <button
                     ngbDropdownToggle
@@ -84,20 +104,21 @@ interface RoomWithAddressVisibility extends ExamRoom {
                     {{ dateTime.translateWeekdayName(newTime.weekday, true) }}&nbsp;<span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
-                    <button
-                        ngbDropdownItem
-                        *ngFor="let weekday of WEEKDAYS"
-                        role="presentation"
-                        class="pointer"
-                        (click)="updateNewTime(weekday)"
-                        (keydown.enter)="updateNewTime(weekday)"
-                    >
-                        {{ dateTime.translateWeekdayName(weekday, true) }}
-                    </button>
+                    @for (weekday of WEEKDAYS; track weekday) {
+                        <button
+                            ngbDropdownItem
+                            role="presentation"
+                            class="pointer"
+                            (click)="updateNewTime(weekday)"
+                            (keydown.enter)="updateNewTime(weekday)"
+                        >
+                            {{ dateTime.translateWeekdayName(weekday, true) }}
+                        </button>
+                    }
                 </div>
             </span>
             <div class="col row">
-                <div class="col flex justify-content-around align-self-center">
+                <div class="col d-flex justify-content-around align-self-center">
                     <ngb-timepicker
                         name="timepicker"
                         size="small"
@@ -123,6 +144,8 @@ interface RoomWithAddressVisibility extends ExamRoom {
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [NgbTimepicker, FormsModule, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem],
 })
 export class OpenHoursComponent implements OnInit, OnChanges {
     @Input() room!: ExamRoom;
@@ -188,7 +211,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
 
     updateHours(wh: DefaultWorkingHoursWithEditing) {
         if (this.overlaps(wh)) {
-            this.toast.error(this.translate.instant(this.translate.instant('sitnet_time_overlaps_error')));
+            this.toast.error(this.translate.instant(this.translate.instant('i18n_time_overlaps_error')));
             return;
         }
         const start = formatISO(
@@ -198,7 +221,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
             setDayOfYear(new Date().setHours(wh.pickEndingTime.hour, wh.pickEndingTime.minute, 0, 0), 1),
         );
         if (new Date(start) > new Date(end)) {
-            this.toast.error(this.translate.instant(this.translate.instant('sitnet_starting_cannot_be_after_ending')));
+            this.toast.error(this.translate.instant(this.translate.instant('i18n_starting_cannot_be_after_ending')));
             return;
         }
         const id = wh.id;
@@ -214,7 +237,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
                     };
                     this.newTime = { ...this.NEW_TIME };
                 }
-                this.toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
+                this.toast.info(this.translate.instant('i18n_default_opening_hours_updated'));
             });
         wh.displayStartingTime = wh.pickStartingTime;
         wh.displayEndingTime = wh.pickEndingTime;
@@ -225,7 +248,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
         return this.roomService.removeWorkingHours$(wh.id, this.room.id).subscribe(() => {
             const index = this.extendedRoom.extendedDwh.indexOf(wh);
             this.extendedRoom.extendedDwh.splice(index, 1);
-            this.toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
+            this.toast.info(this.translate.instant('i18n_default_opening_hours_updated'));
         });
     }
 

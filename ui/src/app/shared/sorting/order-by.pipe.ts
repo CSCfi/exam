@@ -2,7 +2,10 @@ import type { PipeTransform } from '@angular/core';
 import { Injectable, Pipe } from '@angular/core';
 import { path } from 'ramda';
 
-@Pipe({ name: 'orderBy' })
+@Pipe({
+    name: 'orderBy',
+    standalone: true,
+})
 @Injectable({ providedIn: 'root' })
 export class OrderByPipe implements PipeTransform {
     transform<T>(input: T[], path: string, reverse = false, lowercase = true): T[] {

@@ -12,17 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import type { CollaborativeParticipation } from '../../exam/collaborative/collaborative-exam.service';
-import type { Exam } from '../../exam/exam.model';
-import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
-import type { ReviewedExam } from '../enrolment.model';
-import type { ParticipationLike } from '../enrolment.service';
-import { EnrolmentService } from '../enrolment.service';
+import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
+import type { ParticipationLike } from 'src/app/enrolment/enrolment.service';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { CollaborativeParticipation } from 'src/app/exam/collaborative/collaborative-exam.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
+import { ExamFeedbackComponent } from './exam-feedback.component';
 
 type Scores = {
     maxScore: number;
@@ -34,6 +40,18 @@ type Scores = {
 @Component({
     selector: 'xm-exam-participation',
     templateUrl: './exam-participation.component.html',
+    standalone: true,
+    imports: [
+        NgClass,
+        CourseCodeComponent,
+        TeacherListComponent,
+        NgbCollapse,
+        ExamFeedbackComponent,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+    ],
+    styleUrl: './exam-participations.component.scss',
 })
 export class ExamParticipationComponent implements OnInit, OnDestroy {
     @Input() participation!: ParticipationLike;
@@ -108,7 +126,7 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
         }
         if (exam.languageInspection) {
             exam.grade.displayName = this.translate.instant(
-                exam.languageInspection.approved ? 'sitnet_approved' : 'sitnet_rejected',
+                exam.languageInspection.approved ? 'i18n_approved' : 'i18n_rejected',
             );
             exam.contentGrade = this.Exam.getExamGradeDisplayName(exam.grade.name);
             exam.gradedTime = exam.languageInspection.finishedAt;

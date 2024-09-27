@@ -17,8 +17,10 @@ import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
-import { QuestionService } from '../question.service';
+import type { Course, Exam, ExamSection, ReverseQuestion, Tag } from 'src/app/exam/exam.model';
+import { QuestionService } from 'src/app/question/question.service';
+import { User } from 'src/app/session/session.service';
+import { UserService } from 'src/app/shared/user/user.service';
 
 export interface LibraryQuestion extends ReverseQuestion {
     icon: string;
@@ -34,16 +36,50 @@ export class LibraryService {
         private http: HttpClient,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private Question: QuestionService,
+        private User: UserService,
     ) {}
 
-    listExams = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Exam[]> =>
-        this.http.get<Exam[]>('/app/examsearch', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
+    listExams$ = (
+        courseIds: number[],
+        sectionIds: number[],
+        tagIds: number[],
+        ownerIds: number[],
+    ): Observable<Exam[]> =>
+        this.http.get<Exam[]>('/app/examsearch', {
+            params: this.getQueryParams(courseIds, [], sectionIds, tagIds, ownerIds),
+        });
 
-    listCourses = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Course[]> =>
-        this.http.get<Course[]>('/app/courses/user', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
+    listCourses$ = (
+        examIds: number[],
+        sectionIds: number[],
+        tagIds: number[],
+        ownerIds: number[],
+    ): Observable<Course[]> =>
+        this.http.get<Course[]>('/app/courses/user', {
+            params: this.getQueryParams([], examIds, sectionIds, tagIds, ownerIds),
+        });
 
-    listTags = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Tag[]> =>
-        this.http.get<Course[]>('/app/tags', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
+    listSections$ = (
+        courseIds: number[],
+        examIds: number[],
+        tagIds: number[],
+        ownerIds: number[],
+    ): Observable<ExamSection[]> =>
+        this.http.get<ExamSection[]>('/app/sections', {
+            params: this.getQueryParams(courseIds, examIds, [], tagIds, ownerIds),
+        });
+
+    listTags$ = (courseIds: number[], examIds: number[], sectionIds: number[], ownerIds: number[]): Observable<Tag[]> =>
+        this.http.get<Tag[]>('/app/tags', {
+            params: this.getQueryParams(courseIds, sectionIds, examIds, [], ownerIds),
+        });
+
+    listAllTags$ = (): Observable<Tag[]> => this.http.get<Tag[]>('/app/tags');
+
+    listAllOwners$ = (): Observable<User[]> => this.User.listUsersByRole$('TEACHER');
+
+    addTagForQuestions$ = (tagId: number, questionIds: number[]) =>
+        this.http.post<void>('/app/tags/questions', { questionIds: questionIds, tagId: tagId });
 
     loadFilters = (category: string) => {
         const entry = this.webStorageService.get('questionFilters');
@@ -85,7 +121,7 @@ export class LibraryService {
         if (text) {
             return questions.filter((question) => {
                 const re = new RegExp(text, 'i');
-                const owner = question.creator ? question.creator.firstName + ' ' + question.creator.lastName : '';
+                const owner = question.questionOwners.map((o) => o.firstName + ' ' + o.lastName).toString();
                 return owner.match(re);
             });
         } else {
@@ -94,14 +130,15 @@ export class LibraryService {
     };
 
     search = (
-        examIds: number[],
         courseIds: number[],
-        tagIds: number[],
+        examIds: number[],
         sectionIds: number[],
+        tagIds: number[],
+        ownerIds: number[],
     ): Observable<LibraryQuestion[]> =>
         this.http
             .get<LibraryQuestion[]>('/app/questions', {
-                params: this.getQueryParams(courseIds, sectionIds, tagIds, examIds),
+                params: this.getQueryParams(courseIds, examIds, sectionIds, tagIds, ownerIds),
             })
             .pipe(
                 map((questions) => {
@@ -121,7 +158,7 @@ export class LibraryService {
                                 const exam = esq.examSection.exam;
                                 return (
                                     exam.state === 'PUBLISHED' &&
-                                    new Date(exam.examActiveEndDate || 0).getTime() > new Date().getTime()
+                                    new Date(exam.periodEnd || 0).getTime() > new Date().getTime()
                                 );
                             }).length === 0;
                     });
@@ -129,24 +166,33 @@ export class LibraryService {
                 }),
             );
 
-    private getQueryParams = (courseIds: number[], sectionIds: number[], tagIds: number[], examIds?: number[]) => {
+    private getQueryParams = (
+        courseIds: number[],
+        examIds: number[],
+        sectionIds: number[],
+        tagIds: number[],
+        ownerIds: number[],
+    ) => {
         let params = new HttpParams();
 
-        const returnAppendedHttpParams = (key: string, idArray: number[], paramsObj: HttpParams) => {
+        const append = (key: string, idArray: number[], paramsObj: HttpParams) => {
             return idArray.reduce((paramObj, currentId) => paramObj.append(key, currentId.toString()), paramsObj);
         };
 
         if (courseIds.length > 0) {
-            params = returnAppendedHttpParams('course', courseIds, params);
+            params = append('course', courseIds, params);
         }
         if (sectionIds.length > 0) {
-            params = returnAppendedHttpParams('section', sectionIds, params);
+            params = append('section', sectionIds, params);
         }
         if (tagIds.length > 0) {
-            params = returnAppendedHttpParams('tag', tagIds, params);
+            params = append('tag', tagIds, params);
         }
-        if (examIds && examIds.length > 0) {
-            params = returnAppendedHttpParams('exam', examIds, params);
+        if (examIds.length > 0) {
+            params = append('exam', examIds, params);
+        }
+        if (ownerIds.length > 0) {
+            params = append('owner', ownerIds, params);
         }
 
         return params;
@@ -177,7 +223,7 @@ export class LibraryService {
         ) {
             return q.defaultMaxScore || 0;
         } else if (q.defaultEvaluationType === 'Selection') {
-            return 'sitnet_evaluation_select';
+            return 'i18n_evaluation_select';
         } else if (q.type === 'WeightedMultipleChoiceQuestion') {
             return this.Question.calculateDefaultMaxPoints(q);
         } else if (q.type === 'ClaimChoiceQuestion') {

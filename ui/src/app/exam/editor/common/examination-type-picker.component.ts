@@ -1,61 +1,83 @@
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { NgbAccordion, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ExamService } from '../../exam.service';
+import { NgbAccordionDirective, NgbAccordionModule, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { ExamService } from 'src/app/exam/exam.service';
 
 export type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
 
 @Component({
     selector: 'xm-examination-type-selector',
+    standalone: true,
+    imports: [TranslateModule, NgbAccordionModule, NgClass],
     template: `
-        <div id="sitnet-dialog" role="dialog" aria-modal="true">
-            <div class="modal-header">
-                <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'sitnet_choose' | translate }}</h4>
+        <div class="modal-header">
+            <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_choose' | translate }}</h4>
+        </div>
+        <div class="modal-body">
+            <div ngbAccordion #acc="ngbAccordion">
+                <div ngbAccordionItem="executionType">
+                    <h2 ngbAccordionHeader>
+                        <button ngbAccordionButton>
+                            {{ 'i18n_choose_execution_type' | translate }}
+                        </button>
+                    </h2>
+                    <div ngbAccordionCollapse>
+                        <div ngbAccordionBody>
+                            <ng-template>
+                                @for (type of executionTypes; track type) {
+                                    <div>
+                                        @if (type.examinationTypes.length > 0) {
+                                            <a
+                                                class="pointer"
+                                                [ngClass]="{ 'selected-type': selectedType === type }"
+                                                (click)="selectType(type)"
+                                                autofocus
+                                            >
+                                                {{ type.name | translate }}
+                                            </a>
+                                        }
+                                        @if (type.examinationTypes.length === 0) {
+                                            <a class="pointer" (click)="selectConfig(type.type)">
+                                                {{ type.name | translate }}
+                                            </a>
+                                        }
+                                    </div>
+                                }
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    ngbAccordionItem="examinationType"
+                    [disabled]="!selectedType || selectedType.examinationTypes.length === 0"
+                >
+                    <h2 ngbAccordionHeader>
+                        <button ngbAccordionButton>
+                            {{ 'i18n_examination_type' | translate }}
+                        </button>
+                    </h2>
+                    <div ngbAccordionCollapse>
+                        <div ngbAccordionBody>
+                            <ng-template>
+                                @for (et of selectedType.examinationTypes; track et) {
+                                    <div>
+                                        <a class="pointer" (click)="selectConfig(selectedType.type, et.type)">
+                                            {{ et.name | translate }}
+                                        </a>
+                                    </div>
+                                }
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <ngb-accordion #acc="ngbAccordion">
-                    <ngb-panel id="toggle-1" title="{{ 'sitnet_choose_execution_type' | translate }}">
-                        <ng-template ngbPanelContent>
-                            <div *ngFor="let type of executionTypes">
-                                <a
-                                    class="pointer"
-                                    [ngClass]="{ 'selected-type': selectedType === type }"
-                                    *ngIf="type.examinationTypes.length > 0"
-                                    (click)="selectType(type)"
-                                    autofocus
-                                >
-                                    {{ type.name | translate }}
-                                </a>
-                                <a
-                                    class="pointer"
-                                    *ngIf="type.examinationTypes.length === 0"
-                                    (click)="selectConfig(type.type)"
-                                >
-                                    {{ type.name | translate }}
-                                </a>
-                            </div>
-                        </ng-template>
-                    </ngb-panel>
-                    <ngb-panel
-                        [disabled]="!selectedType || selectedType.examinationTypes.length === 0"
-                        id="toggle-2"
-                        title="{{ 'sitnet_examination_type' | translate }}"
-                    >
-                        <ng-template ngbPanelContent>
-                            <div *ngFor="let et of selectedType.examinationTypes">
-                                <a class="pointer" (click)="selectConfig(selectedType.type, et.type)">
-                                    {{ et.name | translate }}
-                                </a>
-                            </div>
-                        </ng-template>
-                    </ngb-panel>
-                </ngb-accordion>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-sm btn-danger" (click)="cancel()">
-                    {{ 'sitnet_button_cancel' | translate }}
-                </button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-sm btn-danger" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
         </div>
     `,
     styles: [
@@ -69,11 +91,15 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
     ],
 })
 export class ExaminationTypeSelectorComponent implements OnInit {
-    @ViewChild('acc', { static: false }) acc!: NgbAccordion;
+    @ViewChild('acc', { static: false }) acc!: NgbAccordionDirective;
     executionTypes: ExamConfig[] = [];
     selectedType!: ExamConfig;
 
-    constructor(private http: HttpClient, private modal: NgbActiveModal, private Exam: ExamService) {}
+    constructor(
+        private http: HttpClient,
+        private modal: NgbActiveModal,
+        private Exam: ExamService,
+    ) {}
 
     ngOnInit() {
         this.http
@@ -83,24 +109,24 @@ export class ExaminationTypeSelectorComponent implements OnInit {
                     this.executionTypes = types.map((t) => {
                         const implementations = [];
                         if (t.type !== 'PRINTOUT' && (resp.sebExaminationSupported || resp.homeExaminationSupported)) {
-                            implementations.push({ type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' });
+                            implementations.push({ type: 'AQUARIUM', name: 'i18n_examination_type_aquarium' });
                             if (resp.sebExaminationSupported) {
-                                implementations.push({ type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' });
+                                implementations.push({ type: 'CLIENT_AUTH', name: 'i18n_examination_type_seb' });
                             }
                             if (resp.homeExaminationSupported) {
-                                implementations.push({ type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' });
+                                implementations.push({ type: 'WHATEVER', name: 'i18n_examination_type_home_exam' });
                             }
                         }
                         return { ...t, examinationTypes: implementations };
                     });
                 });
-                this.acc.expand('toggle-1');
+                this.acc.expand('executionType');
             });
     }
 
     selectType = (type: ExamConfig) => {
         this.selectedType = type;
-        setTimeout(() => this.acc.expand('toggle-2'), 100);
+        setTimeout(() => this.acc.expand('examinationType'), 100);
     };
 
     selectConfig = (type: string, examinationType = 'AQUARIUM') =>

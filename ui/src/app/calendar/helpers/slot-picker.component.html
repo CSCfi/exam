@@ -1,74 +1,22 @@
-<div class="row student-enrolment-wrapper details-view" [ngClass]="selectedRoom ? '' : 'notactive'">
+<div
+    class="row m-2 details-view"
+    [ngClass]="selectedRoom ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+>
     <div class="col-md-12">
         <div class="row">
             <span class="col-md-11 col-9">
-                <h2 class="calendar-phase-title">{{ sequenceNumber }}. {{ 'sitnet_calendar_phase_2' | translate }}</h2>
+                <h2 class="calendar-phase-title">{{ sequenceNumber }}. {{ 'i18n_calendar_phase_2' | translate }}</h2>
             </span>
             <span class="col-md-1 col-3">
-                <span class="calendar-phase-icon float-end" *ngIf="selectedRoom">
-                    <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
-                </span>
+                @if (selectedRoom) {
+                    <span class="calendar-phase-icon float-end">
+                        <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
+                    </span>
+                }
             </span>
         </div>
-        <div class="row mt-2 mb-2">
-            <!-- todo: make this a component -->
-            <div class="col-md-12 mart10 marb20" [hidden]="isExternal">
-                <div class="row">
-                    <span class="col-md-12">
-                        <button
-                            class="infolink pointer border rounded"
-                            *ngIf="!disabled"
-                            (click)="showAccessibilityMenu = !showAccessibilityMenu"
-                            (keydown.enter)="showAccessibilityMenu = !showAccessibilityMenu"
-                            [attr.aria-expanded]="showAccessibilityMenu"
-                        >
-                            {{ 'sitnet_calendar_room_accessibility_info' | translate }}
-                            <img
-                                class="arrow_icon"
-                                *ngIf="!showAccessibilityMenu"
-                                aria-hidden="true"
-                                src="/assets/images/arrow_right.png"
-                            />
-                            <img
-                                class="arrow_icon"
-                                *ngIf="showAccessibilityMenu"
-                                aria-hidden="true"
-                                src="/assets/images/arrow_down.png"
-                            />
-                        </button>
-                        <span *ngIf="disabled" class="text text-muted">
-                            {{ 'sitnet_calendar_room_accessibility_info' | translate }}
-                        </span>
-                        <div [ngbCollapse]="!showAccessibilityMenu">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="calendar-accs-title">
-                                        {{ 'sitnet_exam_room_accessibility' | translate }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12 calendar-accs-checkboxes">
-                                    <span class="marr10 accs-list" *ngFor="let accessibility of accessibilities">
-                                        <label for="{{ accessibility.name }}">
-                                            <input
-                                                id="{{ accessibility.name }}"
-                                                type="checkbox"
-                                                (click)="selectAccessibility(accessibility)"
-                                                value="{{ accessibility.name }}"
-                                            />
-                                        </label>
-                                        {{ accessibility.name }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="row ms-1 mt-3">
-            <div class="dropdown col" ngbDropdown>
+        <div class="row mt-3">
+            <div class="col" ngbDropdown>
                 <button
                     ngbDropdownToggle
                     class="btn btn-outline-dark"
@@ -77,55 +25,65 @@
                     aria-expanded="true"
                     [disabled]="(isExternal && !organisation) || disabled"
                 >
-                    {{ isExternal ? ('sitnet_external_room' | translate) : ('sitnet_room' | translate) }}
+                    {{ isExternal ? ('i18n_external_room' | translate) : ('i18n_room' | translate) }}
                     <span class="caret"></span>
                 </button>
-                <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1" class="scrollable-menu">
-                    <button
-                        ngbDropdownItem
-                        *ngFor="let room of rooms"
-                        role="presentation"
-                        (click)="selectRoom(room)"
-                        title="{{ room.name }}"
-                    >
-                        <div ngbDropdownItem [disabled]="room.outOfService" role="menuitem">
+                <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1" class="xm-scrollable-menu">
+                    @for (room of rooms(); track room.id) {
+                        <button
+                            ngbDropdownItem
+                            [class]="room.outOfService ? 'disabled' : ''"
+                            role="menuitem"
+                            (click)="selectRoom(room)"
+                            title="{{ room.name }}"
+                            [attr.aria-disabled]="room.outOfService"
+                        >
                             <a> {{ room.name }}</a>
-                        </div>
-                    </button>
+                        </button>
+                    }
                 </div>
             </div>
             <div class="col ps-0">
-                <button
-                    class="btn btn-outline-dark"
-                    (click)="makeExternalReservation()"
-                    *ngIf="isInteroperable && !isExternal"
-                >
-                    {{ 'sitnet_external_reservation' | translate }}&nbsp;
-                </button>
+                @if (isInteroperable && !isExternal) {
+                    <button class="btn btn-outline-secondary" (click)="makeExternalReservation()">
+                        {{ 'i18n_external_reservation' | translate }}&nbsp;
+                    </button>
+                }
             </div>
         </div>
-        <div class="row mart10" *ngIf="selectedRoom">
-            <div class="col-md-12">
-                <xm-calendar-selected-room
-                    [room]="selectedRoom"
-                    [viewStart]="currentWeek"
-                    [maintenancePeriods]="maintenancePeriods"
-                ></xm-calendar-selected-room>
+        <xm-calendar-accessibility-picker
+            [items]="accessibilities"
+            (itemsChange)="accesibilitiesChanged($event)"
+            [disabled]="disabled"
+            [hidden]="isExternal"
+        />
+
+        @if (selectedRoom) {
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <xm-calendar-selected-room
+                        [room]="selectedRoom"
+                        [viewStart]="currentWeek()"
+                        [maintenancePeriods]="maintenancePeriods()"
+                    ></xm-calendar-selected-room>
+                </div>
             </div>
-        </div>
-        <div class="row mart10" *ngIf="selectedRoom">
-            <div class="col-md-12">
-                <xm-booking-calendar
-                    (eventSelected)="eventSelected($event)"
-                    (moreEventsNeeded)="refresh($event)"
-                    [minDate]="minDate"
-                    [maxDate]="maxDate"
-                    [room]="selectedRoom"
-                    [accessibilities]="accessibilities"
-                    [visible]="selectedRoom !== undefined"
-                >
-                </xm-booking-calendar>
+        }
+        @if (selectedRoom) {
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <xm-booking-calendar
+                        (eventSelected)="eventSelected($event)"
+                        (moreEventsNeeded)="refresh($event)"
+                        [minDate]="minDate"
+                        [maxDate]="maxDate"
+                        [room]="selectedRoom"
+                        [accessibilities]="accessibilities"
+                        [visible]="selectedRoom !== undefined"
+                    >
+                    </xm-booking-calendar>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>

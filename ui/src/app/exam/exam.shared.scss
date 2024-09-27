@@ -1,0 +1,25 @@
+.grey-top {
+    border-top: 1px solid #c3c3c3;
+}
+@mixin selection-button($pl, $pr) {
+    color: #2c2c2c;
+    background-color: white;
+    border-color: #00a34b;
+    height: 40px;
+    padding-left: $pl;
+    padding-right: $pr;
+    &.btn-primary {
+        background-color: #7fd28e;
+        border-color: #25622f;
+    }
+}
+.selection-button-wide {
+    @include selection-button(30px, 30px);
+}
+.selection-button-narrow {
+    @include selection-button(15px, 15px);
+}
+.xm-datepicker-label {
+    font-size: 12px;
+    text-transform: uppercase;
+}

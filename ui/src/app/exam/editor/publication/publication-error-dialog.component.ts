@@ -13,28 +13,30 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-publication-error-dialog',
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_please_check_following_infos' | translate }}</div>
-            </div>
-            <div class="modal-body">
-                <p *ngFor="let error of errors">{{ error | translate }}</p>
-            </div>
-            <div class="modal-footer">
-                <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'sitnet_button_ok' | translate }}
-                    </button>
-                </div>
-            </div>
+    standalone: true,
+    imports: [TranslateModule],
+    template: `<div role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <div class="xm-modal-title">{{ 'i18n_please_check_following_infos' | translate }}</div>
         </div>
-    </div> `,
+        <div class="modal-body">
+            @for (error of errors; track error) {
+                <p>{{ error | translate }}</p>
+            }
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="activeModal.close()" autofocus>
+                {{ 'i18n_button_ok' | translate }}
+            </button>
+        </div>
+    </div>`,
 })
 export class PublicationErrorDialogComponent {
     @Input() errors: string[] = [];

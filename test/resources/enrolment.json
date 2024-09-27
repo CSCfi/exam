@@ -713,11 +713,11 @@
   "examInspections": [{"user":{"id": 4, "lastName":"Penaali","firstName":"Arvon"}}],
   "examinationDates": [],
   "enrollInstruction": null,
-  "examActiveEndDate": null,
+  "periodEnd": null,
   "examParticipations": [],
   "inspectionComments": [],
   "languageInspection": null,
-  "examActiveStartDate": null,
+  "periodStart": null,
   "autoEvaluationConfig": null,
   "autoEvaluationNotified": null,
   "subjectToLanguageInspection": null

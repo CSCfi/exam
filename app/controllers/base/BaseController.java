@@ -18,28 +18,23 @@ package controllers.base;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import exceptions.MalformedDataException;
 import impl.NoShowHandler;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 import models.Exam;
 import models.ExamEnrolment;
 import models.Role;
 import models.User;
-import play.Logger;
-import play.data.Form;
 import play.data.FormFactory;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.libs.typedmap.TypedKey;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -49,55 +44,45 @@ import system.interceptors.AnonymousJsonAction;
 
 public class BaseController extends Controller {
 
-    private static final Logger.ALogger logger = Logger.of(BaseController.class);
-
     @Inject
     protected FormFactory formFactory;
 
     @Inject
-    protected HttpExecutionContext ec;
+    protected ClassLoaderExecutionContext ec;
 
     @Inject
-    private NoShowHandler noShowHandler;
-
-    protected <T> T bindForm(final Class<T> clazz, Http.Request request) {
-        final Form<T> form = formFactory.form(clazz);
-        if (form.hasErrors()) {
-            throw new MalformedDataException(form.errorsAsJson().asText());
-        }
-        return form.bindFromRequest(request).get();
-    }
+    protected NoShowHandler noShowHandler;
 
     protected Result ok(Object object) {
-        String body = Ebean.json().toJson(object);
+        var body = DB.json().toJson(object);
         return ok(body).as("application/json");
     }
 
     protected Result ok(Object object, PathProperties props) {
-        String body = Ebean.json().toJson(object, props);
+        var body = DB.json().toJson(object, props);
         return ok(body).as("application/json");
     }
 
     protected Result created(Object object) {
-        String body = Ebean.json().toJson(object);
+        var body = DB.json().toJson(object);
         return created(body).as("application/json");
     }
 
     protected Result created(Object object, PathProperties props) {
-        String body = Ebean.json().toJson(object, props);
+        var body = DB.json().toJson(object, props);
         return created(body).as("application/json");
     }
 
     protected <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
-        ExpressionList<T> result = query;
-        String rawFilter = filter.replaceAll(" +", " ").trim();
-        String condition = String.format("%%%s%%", rawFilter);
-        String fnField = prefix == null ? "firstName" : String.format("%s.firstName", prefix);
-        String lnField = prefix == null ? "lastName" : String.format("%s.lastName", prefix);
+        var result = query;
+        var rawFilter = filter.replaceAll(" +", " ").trim();
+        var condition = String.format("%%%s%%", rawFilter);
+        var fnField = prefix == null ? "firstName" : String.format("%s.firstName", prefix);
+        var lnField = prefix == null ? "lastName" : String.format("%s.lastName", prefix);
         if (rawFilter.contains(" ")) {
             // Possible that user provided us two names. Let's try out some combinations of first and last names
-            String name1 = rawFilter.split(" ")[0];
-            String name2 = rawFilter.split(" ")[1];
+            var name1 = rawFilter.split(" ")[0];
+            var name2 = rawFilter.split(" ")[1];
             result =
                 result
                     .or()
@@ -117,7 +102,7 @@ public class BaseController extends Controller {
     }
 
     private void handleNoShow(User user, Long examId) {
-        List<ExamEnrolment> enrolments = Ebean
+        var enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("exam")
@@ -128,8 +113,8 @@ public class BaseController extends Controller {
             .lt("reservation.endAt", new Date())
             .lt("examinationEventConfiguration.examinationEvent.start", new Date()) // FIXME: exam period
             .endOr()
-            // Either a) exam id matches and exam state is published OR
-            //        b) collaborative exam id matches and exam is NULL
+            // Either (a) exam id matches and exam state is published OR
+            //        (b) collaborative exam id matches and exam is NULL
             .or()
             .and()
             .eq("exam.id", examId)
@@ -151,7 +136,7 @@ public class BaseController extends Controller {
         if (trialCount == null) {
             return true;
         }
-        List<ExamEnrolment> trials = Ebean
+        var trials = DB
             .find(ExamEnrolment.class)
             .fetch("exam")
             .where()
@@ -163,7 +148,7 @@ public class BaseController extends Controller {
             .findList()
             .stream()
             .sorted(Comparator.comparing(ExamEnrolment::getId).reversed())
-            .collect(Collectors.toList());
+            .toList();
 
         if (trials.size() >= trialCount) {
             return trials.stream().limit(trialCount).anyMatch(ExamEnrolment::isProcessed);
@@ -183,12 +168,12 @@ public class BaseController extends Controller {
     }
 
     protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return writeAnonymousResult(request, result, anonymous, user.hasRole(Role.Name.ADMIN));
     }
 
     protected Result writeAnonymousResult(Http.Request request, Result result, Set<Long> anonIds) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!anonIds.isEmpty() && !user.hasRole(Role.Name.ADMIN)) {
             return withAnonymousHeader(result, request, anonIds);
         }
@@ -202,23 +187,21 @@ public class BaseController extends Controller {
     }
 
     protected JsonNode serialize(Object o) {
-        ObjectMapper mapper = new ObjectMapper();
+        var mapper = new ObjectMapper();
         try {
-            String json = mapper.writeValueAsString(o);
+            var json = mapper.writeValueAsString(o);
             return mapper.readTree(json);
         } catch (IOException e) {
-            logger.error("unable to serialize");
             throw new RuntimeException(e);
         }
     }
 
     protected JsonNode serialize(Object o, PathProperties pp) {
-        ObjectMapper mapper = new ObjectMapper();
+        var mapper = new ObjectMapper();
         try {
-            String json = Ebean.json().toJson(o, pp);
+            var json = DB.json().toJson(o, pp);
             return mapper.readTree(json);
         } catch (IOException e) {
-            logger.error("unable to serialize");
             throw new RuntimeException(e);
         }
     }

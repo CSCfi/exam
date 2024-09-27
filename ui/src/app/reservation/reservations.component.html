@@ -1,94 +1,77 @@
-<div id="dashboard">
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-enroll-title-wrap">
-                <div *ngIf="isAdminView()" class="student-enroll-title">
-                    {{ 'sitnet_reservations_administration' | translate }}
-                </div>
-                <div *ngIf="!isAdminView()" class="student-enroll-title">
-                    {{ 'sitnet_reservations_new' | translate }}
-                </div>
+@if (isAdminView()) {
+    <xm-page-header text="i18n_reservations_administration" />
+} @else {
+    <xm-page-header text="i18n_reservations_new" />
+}
+<xm-page-content [content]="content" />
+<ng-template #content>
+    <div class="row">
+        <div class="col-md-2 pt-1 reservation-search-form-label">
+            <label for="start-date-picker" class="reservation-search-form-label">{{ 'i18n_begin' | translate }}</label>
+            <xm-date-picker id="start-date-picker" (updated)="startDateChanged($event)"></xm-date-picker>
+        </div>
+        <div class="col-md-2 pt-1 reservation-search-form-label">
+            <label for="end-date-picker" class="reservation-search-form-label">{{ 'i18n_end' | translate }}</label>
+            <xm-date-picker id="end-date-picker" (updated)="endDateChanged($event)"></xm-date-picker>
+        </div>
+        <div class="col-md-2">
+            <label for="student-search" class="reservation-search-form-label">{{ 'i18n_student' | translate }}</label>
+            <div class="input-group">
+                <input
+                    #studentInput
+                    id="student-search"
+                    type="text"
+                    class="form-control"
+                    [ngbTypeahead]="searchStudents$"
+                    [resultFormatter]="nameFormatter"
+                    [inputFormatter]="nameFormatter"
+                    (selectItem)="studentSelected($event)"
+                    [disabled]="student"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                />
+                <button class="btn btn-outline-secondary" type="reset" (click)="clearStudent()">
+                    {{ 'i18n_remove' | translate }}
+                </button>
             </div>
+        </div>
+        <div class="col-md-3">
+            <label for="exam-search" class="reservation-search-form-label">{{ 'i18n_exam' | translate }}</label>
+            <div class="input-group">
+                <input
+                    #examInput
+                    id="exam-search"
+                    type="text"
+                    class="form-control"
+                    [ngbTypeahead]="searchExams$"
+                    [resultFormatter]="nameFormatter"
+                    [inputFormatter]="nameFormatter"
+                    (selectItem)="examSelected($event)"
+                    [disabled]="examId || externalRef"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                />
+                <button class="btn btn-outline-secondary" type="reset" (click)="clearExam()">
+                    {{ 'i18n_remove' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="state-search" class="reservation-search-form-label">{{ 'i18n_exam_state' | translate }}</label>
+            <xm-dropdown-select
+                id="state-search"
+                [options]="stateOptions"
+                [fullWidth]="true"
+                (optionSelected)="stateChanged($event)"
+                placeholder="{{ 'i18n_select' | translate }}"
+            >
+            </xm-dropdown-select>
         </div>
     </div>
-
-    <div class="reservation-border">
-        <div class="ps-4 pe-4 pt-4 pb-2 row">
-            <div class="col-md-2 pt-1 reservation-search-titles">
-                <label for="start-date-picker" class="reservation-search-titles form-label">{{
-                    'sitnet_begin' | translate
-                }}</label>
-                <xm-date-picker id="start-date-picker" (updated)="startDateChanged($event)"></xm-date-picker>
-            </div>
-            <div class="col-md-2 pt-1 reservation-search-titles">
-                <label for="end-date-picker" class="reservation-search-titles form-label">{{
-                    'sitnet_end' | translate
-                }}</label>
-                <xm-date-picker id="end-date-picker" (updated)="endDateChanged($event)"></xm-date-picker>
-            </div>
-            <div class="col-md-2">
-                <label for="student-search" class="reservation-search-titles form-label">{{
-                    'sitnet_student' | translate
-                }}</label>
-                <div class="input-group">
-                    <input
-                        #studentInput
-                        id="student-search"
-                        type="text"
-                        class="form-control"
-                        [ngbTypeahead]="searchStudents$"
-                        [resultFormatter]="nameFormatter"
-                        [inputFormatter]="nameFormatter"
-                        (selectItem)="studentSelected($event)"
-                        [disabled]="student"
-                        placeholder="{{ 'sitnet_search' | translate }}"
-                    />
-                    <button class="btn btn-outline-secondary" type="reset" (click)="clearStudent()">
-                        {{ 'sitnet_remove' | translate }}
-                    </button>
-                </div>
-            </div>
+    <!-- 2nd row of controls for admin only -->
+    @if (isAdminView()) {
+        <div class="row mt-2 align-items-center">
             <div class="col-md-3">
-                <label for="exam-search" class="reservation-search-titles form-label">{{
-                    'sitnet_exam' | translate
-                }}</label>
-                <div class="input-group">
-                    <input
-                        #examInput
-                        id="exam-search"
-                        type="text"
-                        class="form-control"
-                        [ngbTypeahead]="searchExams$"
-                        [resultFormatter]="nameFormatter"
-                        [inputFormatter]="nameFormatter"
-                        (selectItem)="examSelected($event)"
-                        [disabled]="examId || externalRef"
-                        placeholder="{{ 'sitnet_search' | translate }}"
-                    />
-                    <button class="btn btn-outline-secondary" type="reset" (click)="clearExam()">
-                        {{ 'sitnet_remove' | translate }}
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <label for="state-search" class="reservation-search-titles form-label">{{
-                    'sitnet_exam_state' | translate
-                }}</label>
-                <xm-dropdown-select
-                    id="state-search"
-                    [options]="stateOptions"
-                    [fullWidth]="true"
-                    (optionSelected)="stateChanged($event)"
-                    placeholder="{{ 'sitnet_select' | translate }}"
-                >
-                </xm-dropdown-select>
-            </div>
-        </div>
-        <!-- 2nd row of controls for admin only -->
-        <div *ngIf="isAdminView()" class="row ps-4 pe-4 align-items-center">
-            <div class="col-md-3">
-                <label for="owner-search" class="reservation-search-titles form-label">{{
-                    'sitnet_exam_owners' | translate
+                <label for="owner-search" class="reservation-search-form-label">{{
+                    'i18n_exam_owners' | translate
                 }}</label>
                 <div class="input-group">
                     <input
@@ -101,65 +84,65 @@
                         [inputFormatter]="nameFormatter"
                         (selectItem)="ownerSelected($event)"
                         [disabled]="owner"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ 'i18n_search' | translate }}"
                     />
                     <button class="btn btn-outline-secondary" type="reset" (click)="clearOwner()">
-                        {{ 'sitnet_remove' | translate }}
+                        {{ 'i18n_remove' | translate }}
                     </button>
                 </div>
             </div>
             <div class="col-md-3">
-                <label for="room-search" class="reservation-search-titles form-label">{{
-                    'sitnet_room' | translate
-                }}</label>
-                <xm-dropdown-select
-                    id="room-search"
-                    *ngIf="roomOptions"
-                    [options]="roomOptions"
-                    (optionSelected)="roomChanged($event)"
-                    [limitTo]="0"
-                    [fullWidth]="true"
-                    placeholder="{{ 'sitnet_select' | translate }}"
-                >
-                </xm-dropdown-select>
+                <label for="room-search" class="reservation-search-form-label">{{ 'i18n_room' | translate }}</label>
+                @if (roomOptions) {
+                    <xm-dropdown-select
+                        id="room-search"
+                        [options]="roomOptions"
+                        (optionSelected)="roomChanged($event)"
+                        [limitTo]="0"
+                        [fullWidth]="true"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                    >
+                    </xm-dropdown-select>
+                }
             </div>
             <div class="col-md-3">
-                <label for="machine-search" class="reservation-search-titles form-label">{{
-                    'sitnet_exam_machine' | translate
+                <label for="machine-search" class="reservation-search-form-label">{{
+                    'i18n_exam_machine' | translate
                 }}</label>
-                <xm-dropdown-select
-                    id="machine-search"
-                    *ngIf="machineOptions"
-                    [options]="machineOptions"
-                    (optionSelected)="machineChanged($event)"
-                    [limitTo]="0"
-                    [fullWidth]="true"
-                    placeholder="{{ 'sitnet_select' | translate }}"
-                >
-                </xm-dropdown-select>
+                @if (machineOptions) {
+                    <xm-dropdown-select
+                        id="machine-search"
+                        [options]="machineOptions"
+                        (optionSelected)="machineChanged($event)"
+                        [limitTo]="0"
+                        [fullWidth]="true"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                    >
+                    </xm-dropdown-select>
+                }
             </div>
             <div class="col-md-3">
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" value="" [(ngModel)]="externalReservationsOnly" (change)="query()" />
-                        <strong class="reservation-search-titles">
-                            {{ 'sitnet_external_reservations_only' | translate }}
+                        <strong class="reservation-search-form-label">
+                            {{ 'i18n_external_reservations_only' | translate }}
                         </strong>
                     </label>
                 </div>
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" value="" [(ngModel)]="byodExamsOnly" (change)="query()" />
-                        <strong class="reservation-search-titles">
-                            {{ 'sitnet_byod_only' | translate }}
+                        <strong class="reservation-search-form-label">
+                            {{ 'i18n_byod_only' | translate }}
                         </strong>
                     </label>
                 </div>
             </div>
         </div>
-        <div class="overflow-x-auto">
-            <xm-reservation-details *ngIf="reservations" [reservations]="reservations" [isAdminView]="isAdminView()">
-            </xm-reservation-details>
-        </div>
-    </div>
-</div>
+    }
+
+    @if (reservations) {
+        <xm-reservation-details [reservations]="reservations" [isAdminView]="isAdminView()"> </xm-reservation-details>
+    }
+</ng-template>

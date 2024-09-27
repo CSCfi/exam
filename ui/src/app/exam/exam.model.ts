@@ -1,8 +1,8 @@
-import type { Organisation } from '../calendar/calendar.service';
-import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { LanguageInspection } from '../maturity/maturity.model';
-import type { Reservation } from '../reservation/reservation.model';
-import type { User } from '../session/session.service';
+import type { Organisation } from 'src/app/calendar/calendar.service';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { LanguageInspection } from 'src/app/maturity/maturity.model';
+import type { Reservation } from 'src/app/reservation/reservation.model';
+import type { User } from 'src/app/session/session.service';
 
 export interface Grade {
     id: number;
@@ -96,6 +96,8 @@ export interface ReverseQuestion extends Question {
 export interface Tag {
     id?: number;
     name: string;
+    creator?: User;
+    questions: Question[];
 }
 
 export interface Question {
@@ -221,8 +223,8 @@ export interface CollaborativeExam {
     examOwners: User[];
     executionType: ExamExecutionType;
     enrollInstruction: string;
-    examActiveStartDate: string | number;
-    examActiveEndDate: string | number;
+    periodStart: string | number;
+    periodEnd: string | number;
     externalRef?: string;
 }
 
@@ -243,6 +245,7 @@ export interface ExaminationEvent {
 
 export interface ExaminationEventConfiguration {
     id?: number;
+    quitPassword?: string;
     settingsPassword?: string;
     exam: Exam;
     examinationEvent: ExaminationEvent;
@@ -275,8 +278,8 @@ export interface ExamImpl {
     attachment?: Attachment;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
-    examActiveStartDate: string | null;
-    examActiveEndDate: string | null;
+    periodStart: string | null;
+    periodEnd: string | null;
     duration: number;
     course?: Course;
     external: boolean;

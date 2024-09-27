@@ -12,12 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { addDays } from 'date-fns';
-import { LanguageService } from '../shared/language/language.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { LanguageService } from 'src/app/shared/language/language.service';
 import type { QueryParams } from './language-inspections.service';
 import { LanguageInspectionService } from './language-inspections.service';
+import { ReviewedInspectionsComponent } from './listing/reviewed-inspections.component';
+import { UnfinishedInspectionsComponent } from './listing/unfinished-inspections.component';
 import type { LanguageInspection } from './maturity.model';
 
 export interface LanguageInspectionData extends LanguageInspection {
@@ -31,34 +37,36 @@ export interface LanguageInspectionData extends LanguageInspection {
 
 @Component({
     selector: 'xm-language-inspections',
-    template: `<div id="dashboard">
-        <div class="top-row">
-            <div class="col-md-12">
-                <div class="student-enroll-title-wrap">
-                    <div class="student-enroll-title marl20">{{ 'sitnet_language_inspections' | translate }}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-wrapper-exams">
-            <div class="review-border">
+    template: `
+        <xm-page-header text="i18n_language_inspections" />
+        <xm-page-content [content]="content" />
+        <ng-template #content>
+            <div class="tab-wrapper-exams">
                 <!-- Under review language inspection -->
-                <xm-unfinished-inspections *ngIf="ongoingInspections" [inspections]="ongoingInspections">
-                </xm-unfinished-inspections>
-            </div>
+                @if (ongoingInspections) {
+                    <xm-unfinished-inspections [inspections]="ongoingInspections" />
+                }
 
-            <div class="review-border">
                 <!-- Reviewed language inspection -->
-                <xm-reviewed-inspections
-                    *ngIf="processedInspections"
-                    [inspections]="processedInspections"
-                    (endDateChanged)="endDateChanged($event)"
-                    (startDateChanged)="startDateChanged($event)"
-                >
-                </xm-reviewed-inspections>
+                @if (processedInspections) {
+                    <xm-reviewed-inspections
+                        [inspections]="processedInspections"
+                        (endDateChanged)="endDateChanged($event)"
+                        (startDateChanged)="startDateChanged($event)"
+                    >
+                    </xm-reviewed-inspections>
+                }
             </div>
-        </div>
-    </div> `,
+        </ng-template>
+    `,
+    standalone: true,
+    imports: [
+        UnfinishedInspectionsComponent,
+        ReviewedInspectionsComponent,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class LanguageInspectionsComponent implements OnInit {
     ongoingInspections: LanguageInspectionData[] = [];
@@ -66,7 +74,10 @@ export class LanguageInspectionsComponent implements OnInit {
     private startDate: Date | null = null;
     private endDate: Date | null = null;
 
-    constructor(private Language: LanguageService, private LanguageInspection: LanguageInspectionService) {}
+    constructor(
+        private Language: LanguageService,
+        private LanguageInspection: LanguageInspectionService,
+    ) {}
 
     ngOnInit() {
         this.query();

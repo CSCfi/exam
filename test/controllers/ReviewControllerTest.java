@@ -24,24 +24,39 @@ import base.RunAsAdmin;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import models.Exam;
 import models.ExamInspection;
 import models.User;
+import org.junit.Before;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 
 public class ReviewControllerTest extends IntegrationTestCase {
 
+    private Exam parentExam = null;
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        final User user = DB.find(User.class, userId);
+        final Exam parent = DB.find(Exam.class).where().eq("name", "Algoritmit, 2013").isNull("parent").findOne();
+        assert parent != null;
+        final ExamInspection examInspection = new ExamInspection();
+        examInspection.setUser(user);
+        examInspection.setExam(parent.getChildren().get(0));
+        examInspection.save();
+        parent.getExamInspections().add(examInspection);
+        parent.save();
+        this.parentExam = parent;
+    }
+
     @Test
     @RunAsTeacher
     public void getExamReviews() {
-        final User user = Ebean.find(User.class, userId);
-        final Exam parent = setUpReviews(user);
-
         // Execute
-        Result result = get("/app/reviews/" + parent.getId());
+        Result result = get("/app/reviews/" + parentExam.getId());
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
@@ -64,35 +79,13 @@ public class ReviewControllerTest extends IntegrationTestCase {
     @Test
     @RunAsAdmin
     public void getExamReviewsAsAdmin() {
-        final User user = Ebean.find(User.class, 3L);
-        final Exam parent = setUpReviews(user);
-
         // Execute
-        Result result = get("/app/reviews/" + parent.getId());
+        Result result = get("/app/reviews/" + parentExam.getId());
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         ArrayNode participationArray = (ArrayNode) node;
         assertThat(participationArray.size()).isEqualTo(1);
-    }
-
-    private Exam setUpReviews(User user) {
-        final Exam parent = Ebean
-            .find(Exam.class)
-            .where()
-            .and()
-            .eq("name", "Algoritmit, 2013")
-            .eq("parent", null)
-            .endAnd()
-            .findOne();
-        assert parent != null;
-        final ExamInspection examInspection = new ExamInspection();
-        examInspection.setUser(user);
-        examInspection.setExam(parent.getChildren().get(0));
-        examInspection.save();
-        parent.getExamInspections().add(examInspection);
-        parent.save();
-        return parent;
     }
 }

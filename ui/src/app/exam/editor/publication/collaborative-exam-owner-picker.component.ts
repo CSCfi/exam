@@ -12,28 +12,29 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { User } from '../../../session/session.service';
-import { SessionService } from '../../../session/session.service';
-import type { Exam } from '../../exam.model';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-collaborative-exam-owner-selector',
     template: `<div class="row mt-2">
-            <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_owners' | translate }}
+            <div class="col-md-3 ">
+                {{ 'i18n_exam_owners' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_exam_owner_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_owner_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
-                    <img
-                        src="/assets/images/icon_tooltip.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                    />
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                 </sup>
             </div>
             <div class="col-md-9">
@@ -41,45 +42,40 @@ import type { Exam } from '../../exam.model';
                     <input
                         type="email"
                         name="email"
-                        placeholder="{{ 'sitnet_write_exam_owner_email' | translate }}"
-                        class="form-control wdth-30 make-inline"
+                        placeholder="{{ 'i18n_write_exam_owner_email' | translate }}"
+                        class="form-control w-50 make-inline"
                         [(ngModel)]="newOwner.email"
                         email
                     />
                     <button
                         [disabled]="!myForm.valid || !newOwner.email || !user.isAdmin"
                         (click)="addOwner()"
-                        class="btn btn-primary green"
+                        class="btn btn-success"
                     >
-                        {{ 'sitnet_add' | translate }}
+                        {{ 'i18n_add' | translate }}
                     </button>
                 </form>
             </div>
         </div>
         <div class="row mt-2">
-            <div class="col-md-3 exam-basic-title"></div>
+            <div class="col-md-3 "></div>
             <div class="col-md-9">
-                <ul class="list-group list-group-horizontal">
-                    <!-- Owners for the exam -->
-                    <li class="list-group-item" *ngFor="let owner of exam.examOwners">
-                        {{ owner.email }}
-                        <button
-                            class="reviewer-remove"
-                            [disabled]="!user.isAdmin"
-                            (click)="removeOwner(owner.id)"
-                            title="{{ 'sitnet_remove' | translate }}"
-                        >
-                            <img
-                                [hidden]="exam.state === 'PUBLISHED'"
-                                src="/assets/images/icon_remove.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                            />
-                        </button>
-                    </li>
-                </ul>
+                <!-- Owners for the exam -->
+                @for (owner of exam.examOwners; track owner) {
+                    {{ owner.email }}
+                    <button
+                        class="btn btn-sm btn-link px-0"
+                        [disabled]="!user.isAdmin"
+                        (click)="removeOwner(owner.id)"
+                        title="{{ 'i18n_remove' | translate }}"
+                    >
+                        <i class="bi bi-x-lg" [ngClass]="!user.isAdmin ? 'text-danger' : 'text-success'"></i>
+                    </button>
+                }
             </div>
-        </div> `,
+        </div>`,
+    standalone: true,
+    imports: [NgClass, NgbPopover, FormsModule, TranslateModule],
 })
 export class CollaborativeExamOwnerSelectorComponent {
     @Input() exam!: Exam;
@@ -87,7 +83,11 @@ export class CollaborativeExamOwnerSelectorComponent {
     user: User;
     newOwner: { email: string | undefined } = { email: undefined };
 
-    constructor(private http: HttpClient, private toast: ToastrService, private Session: SessionService) {
+    constructor(
+        private http: HttpClient,
+        private toast: ToastrService,
+        private Session: SessionService,
+    ) {
         this.user = this.Session.getUser();
     }
 

@@ -15,40 +15,24 @@
 
 package controllers;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPOutputStream;
 import javax.inject.Inject;
-import models.Attachment;
 import models.Comment;
 import models.Exam;
 import models.ExamEnrolment;
@@ -67,21 +51,14 @@ import models.base.GeneratedIdentityModel;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.Question;
-import models.sections.ExamSection;
 import models.sections.ExamSectionQuestion;
-import org.apache.commons.compress.archivers.ArchiveOutputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.jsoup.Jsoup;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
-import play.libs.Files.TemporaryFile;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -92,7 +69,6 @@ import sanitizers.CommentSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import system.interceptors.Anonymous;
-import util.csv.CsvBuilder;
 import util.file.FileHandler;
 
 public class ReviewController extends BaseController {
@@ -103,9 +79,6 @@ public class ReviewController extends BaseController {
     protected EmailComposer emailComposer;
 
     @Inject
-    protected CsvBuilder csvBuilder;
-
-    @Inject
     protected FileHandler fileHandler;
 
     @Inject
@@ -114,18 +87,18 @@ public class ReviewController extends BaseController {
     @Inject
     protected MessagesApi messaging;
 
-    private static final Logger.ALogger logger = Logger.of(ReviewController.class);
+    private final Logger logger = LoggerFactory.getLogger(ReviewController.class);
 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Anonymous(filteredProperties = { "user", "preEnrolledUserEmail", "grade" })
     public Result getParticipationsForExamAndUser(Long eid, Http.Request request) {
-        final Exam exam = Ebean.find(Exam.class, eid);
+        final Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
             return notFound();
         }
 
-        List<ExamParticipation> participations = Ebean
+        List<ExamParticipation> participations = DB
             .find(ExamParticipation.class)
             .fetch("exam", "id, state, anonymous")
             .fetch("exam.grade", "id, name")
@@ -146,11 +119,11 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Anonymous(filteredProperties = { "user", "preEnrolledUserEmail" })
     public Result listNoShowsForExamAndUser(Long eid, Http.Request request) {
-        final Exam exam = Ebean.find(Exam.class, eid);
+        final Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
             return notFound();
         }
-        List<ExamEnrolment> enrolments = Ebean
+        List<ExamEnrolment> enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("reservation", "startAt, endAt")
             .fetch("examinationEventConfiguration.examinationEvent", "start")
@@ -185,11 +158,11 @@ public class ReviewController extends BaseController {
         query = query.endJunction();
         ExamParticipation examParticipation = query.findOne();
         if (examParticipation == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         Exam exam = examParticipation.getExam();
         if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !isAdmin && !exam.isViewableForLanguageInspector(user)) {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
 
         String blankAnswerText = messaging.get(Lang.forCode(user.getLanguage().getCode()), "clozeTest.blank.answer");
@@ -222,12 +195,12 @@ public class ReviewController extends BaseController {
             "course(code, name, gradeScale(grades(*))), " +
             "examSections(name, sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
             "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
-            "parent(name, examActiveStartDate, examActiveEndDate, course(code, name), examOwners(firstName, lastName, email)), " +
+            "parent(name, periodStart, periodEnd, course(code, name), examOwners(firstName, lastName, email), examInspections(id, user(firstName, lastName)))" +
             "examParticipation(*, user(id, firstName, lastName, email, userIdentifier)), " +
-            "examEnrolments(retrialPermitted)" +
+            "examEnrolments(retrialPermitted)," +
             ")"
         );
-        Query<Exam> query = Ebean.find(Exam.class);
+        Query<Exam> query = DB.find(Exam.class);
         pp.apply(query);
         query
             .fetchQuery("course", "code, credits")
@@ -278,7 +251,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result scoreExamQuestion(Long id, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
-        ExamSectionQuestion essayQuestion = Ebean.find(ExamSectionQuestion.class, id);
+        ExamSectionQuestion essayQuestion = DB.find(ExamSectionQuestion.class, id);
         if (essayQuestion == null) {
             return notFound("question not found");
         }
@@ -301,7 +274,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result forceScoreExamQuestion(Long id, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
-        Optional<ExamSectionQuestion> oeq = Ebean
+        Optional<ExamSectionQuestion> oeq = DB
             .find(ExamSectionQuestion.class)
             .fetch("examSection.exam.parent.examOwners")
             .where()
@@ -335,7 +308,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER") })
     public Result updateAssessmentInfo(Long id, Http.Request request) {
         String info = request.body().asJson().get("assessmentInfo").asText();
-        Optional<Exam> option = Ebean
+        Optional<Exam> option = DB
             .find(Exam.class)
             .fetch("parent.creator")
             .where()
@@ -343,7 +316,7 @@ public class ReviewController extends BaseController {
             .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
             .findOneOrEmpty();
         if (option.isEmpty()) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("i18n_exam_not_found");
         }
         Exam exam = option.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -362,9 +335,9 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result reviewExam(Long id, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
-        Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findOne();
+        Exam exam = DB.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findOne();
         if (exam == null) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("i18n_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam.State newState = Exam.State.valueOf(df.get("state"));
@@ -382,7 +355,7 @@ public class ReviewController extends BaseController {
         Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo");
         if (grade != null) {
-            Grade examGrade = Ebean.find(Grade.class, grade);
+            Grade examGrade = DB.find(Grade.class, grade);
             GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
             if (scale.getGrades().contains(examGrade)) {
                 exam.setGrade(examGrade);
@@ -401,7 +374,7 @@ public class ReviewController extends BaseController {
             creditType = df.get("creditType");
         }
         if (creditType != null) {
-            ExamType eType = Ebean.find(ExamType.class).where().eq("type", creditType).findOne();
+            ExamType eType = DB.find(ExamType.class).where().eq("type", creditType).findOne();
             if (eType != null) {
                 exam.setCreditType(eType);
             }
@@ -422,9 +395,9 @@ public class ReviewController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result sendInspectionMessage(Long eid, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         JsonNode body = request.body().asJson();
         if (!body.has("msg")) {
@@ -432,7 +405,7 @@ public class ReviewController extends BaseController {
         }
         User loggedUser = request.attrs().get(Attrs.AUTHENTICATED_USER);
 
-        List<ExamInspection> inspections = Ebean
+        List<ExamInspection> inspections = DB
             .find(ExamInspection.class)
             .fetch("user")
             .fetch("exam")
@@ -464,10 +437,11 @@ public class ReviewController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Anonymous(filteredProperties = { "user" })
-    public Result listNoShows(Long eid, Http.Request request) {
-        List<ExamEnrolment> enrolments = Ebean
+    public Result listNoShows(Long eid, Optional<Boolean> collaborative, Http.Request request) {
+        ExpressionList<ExamEnrolment> el = DB
             .find(ExamEnrolment.class)
             .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
+            .fetch("collaborativeExam")
             .fetch("exam.executionType")
             .fetch("reservation")
             .fetch("examinationEventConfiguration.examinationEvent")
@@ -475,17 +449,15 @@ public class ReviewController extends BaseController {
             .fetch("exam.course", "code, credits")
             .fetch("exam.grade", "id, name")
             .where()
-            .or()
-            .eq("exam.id", eid)
-            .eq("exam.parent.id", eid)
-            .endOr()
-            .eq("noShow", true)
-            .orderBy("reservation.endAt")
-            .findList();
+            .eq("noShow", true);
+        var query = collaborative.orElse(false)
+            ? el.eq("collaborativeExam.id", eid)
+            : el.or().eq("exam.id", eid).eq("exam.parent.id", eid).endOr();
+        var enrolments = query.findList();
         final Result result = ok(enrolments);
         Set<Long> anonIds = enrolments
             .stream()
-            .filter(e -> e.getExam().isAnonymous())
+            .filter(e -> e.getCollaborativeExam() != null || e.getExam().isAnonymous())
             .map(GeneratedIdentityModel::getId)
             .collect(Collectors.toSet());
         return writeAnonymousResult(request, result, anonIds);
@@ -495,9 +467,9 @@ public class ReviewController extends BaseController {
     @With(CommentSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateComment(Long eid, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden();
@@ -506,7 +478,7 @@ public class ReviewController extends BaseController {
         Optional<Long> commentId = request.attrs().getOptional(Attrs.COMMENT_ID);
         Comment comment = commentId.isEmpty()
             ? new Comment()
-            : Ebean.find(Comment.class).fetch("creator", "firstName, lastName").where().idEq(commentId.get()).findOne();
+            : DB.find(Comment.class).fetch("creator", "firstName, lastName").where().idEq(commentId.get()).findOne();
         if (comment == null) {
             return notFound();
         }
@@ -531,14 +503,14 @@ public class ReviewController extends BaseController {
     @With(CommentSanitizer.class)
     @Restrict({ @Group("STUDENT") })
     public Result setCommentStatusRead(Long eid, Long cid, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.ARCHIVED)) {
             return forbidden();
         }
-        Comment comment = Ebean.find(Comment.class, cid);
+        Comment comment = DB.find(Comment.class, cid);
         if (comment == null) {
             return notFound();
         }
@@ -555,7 +527,7 @@ public class ReviewController extends BaseController {
     @With(CommentSanitizer.class)
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result addInspectionComment(Long id, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, id);
+        Exam exam = DB.find(Exam.class, id);
         if (exam == null) {
             return notFound("Inspection not found");
         }
@@ -573,7 +545,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result archiveExams(Http.Request request) {
         Collection<Long> ids = request.attrs().get(Attrs.ID_COLLECTION);
-        List<Exam> exams = Ebean.find(Exam.class).where().eq("state", Exam.State.GRADED_LOGGED).idIn(ids).findList();
+        List<Exam> exams = DB.find(Exam.class).where().eq("state", Exam.State.GRADED_LOGGED).idIn(ids).findList();
         for (Exam e : exams) {
             e.setState(Exam.State.ARCHIVED);
             e.update();
@@ -586,7 +558,7 @@ public class ReviewController extends BaseController {
         // if no assessments => everything
         // if assessments and type == locked => none
         // else date only
-        Set<Exam> assessments = Ebean
+        Set<Exam> assessments = DB
             .find(Exam.class)
             .where()
             .eq("parent.id", eid)
@@ -596,7 +568,7 @@ public class ReviewController extends BaseController {
         if (assessments.isEmpty()) {
             return ok(Json.newObject().put("status", "everything"));
         } else {
-            Exam exam = Ebean.find(Exam.class, eid);
+            Exam exam = DB.find(Exam.class, eid);
             if (
                 exam != null &&
                 exam.getExamFeedbackConfig() != null &&
@@ -607,177 +579,6 @@ public class ReviewController extends BaseController {
                 return ok(Json.newObject().put("status", "nothing"));
             }
         }
-    }
-
-    private static boolean isEligibleForArchiving(Exam exam, DateTime start, DateTime end) {
-        return (
-            exam.hasState(Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED) &&
-            !(start != null && exam.getCreated().isBefore(start)) &&
-            !(end != null && exam.getCreated().isAfter(end))
-        );
-    }
-
-    private static void createSummaryFile(
-        ArchiveOutputStream aos,
-        DateTime start,
-        DateTime end,
-        Exam exam,
-        Map<Long, String> questions
-    ) throws IOException {
-        File file = File.createTempFile("summary", ".txt");
-        FileOutputStream fos = new FileOutputStream(file);
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
-
-        if (start != null || end != null) {
-            DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy");
-            writer.write(
-                String.format("period: %s-%s", start == null ? "" : dtf.print(start), end == null ? "" : dtf.print(end))
-            );
-            writer.newLine();
-        }
-        writer.write(String.format("exam id: %d", exam.getId()));
-        writer.newLine();
-        writer.write(String.format("exam name: %s", exam.getName()));
-        writer.newLine();
-        writer.newLine();
-        writer.write("questions");
-        writer.newLine();
-        for (Map.Entry<Long, String> entry : questions.entrySet()) {
-            writer.write(String.format("%d: %s", entry.getKey(), Jsoup.parse(entry.getValue()).text()));
-            writer.newLine();
-        }
-        writer.close();
-        TarArchiveEntry entry = new TarArchiveEntry("summary.txt");
-        entry.setSize(file.length());
-        aos.putArchiveEntry(entry);
-        IOUtils.copy(new FileInputStream(file), aos);
-        aos.closeArchiveEntry();
-    }
-
-    private void createArchive(Exam prototype, ArchiveOutputStream aos, DateTime start, DateTime end)
-        throws IOException {
-        List<Exam> children = prototype
-            .getChildren()
-            .stream()
-            .filter(e -> isEligibleForArchiving(e, start, end))
-            .collect(Collectors.toList());
-        Map<Long, String> questions = new LinkedHashMap<>();
-        for (Exam exam : children) {
-            String uid = String.format(
-                "%s-%d",
-                exam.getCreator().getUserIdentifier() == null
-                    ? exam.getCreator().getId().toString()
-                    : exam.getCreator().getUserIdentifier(),
-                exam.getId()
-            );
-            for (ExamSection es : exam.getExamSections()) {
-                List<ExamSectionQuestion> essays = es
-                    .getSectionQuestions()
-                    .stream()
-                    .filter(esq -> esq.getQuestion().getType() == Question.Type.EssayQuestion)
-                    .collect(Collectors.toList());
-                for (ExamSectionQuestion esq : essays) {
-                    Long questionId = esq.getQuestion().getParent() == null
-                        ? esq.getQuestion().getId()
-                        : esq.getQuestion().getParent().getId();
-                    questions.put(questionId, esq.getQuestion().getQuestion());
-                    String questionIdText = esq.getQuestion().getParent() == null
-                        ? questionId + "#original_question_removed"
-                        : Long.toString(esq.getQuestion().getParent().getId());
-                    EssayAnswer answer = esq.getEssayAnswer();
-                    Attachment attachment;
-                    File file = null;
-                    if (answer != null && (attachment = answer.getAttachment()) != null) {
-                        // attached answer
-                        String fileName = attachment.getFileName();
-                        file = new File(attachment.getFilePath());
-                        if (file.exists()) {
-                            String entryName = String.format(
-                                "%d/%s/%s/%s",
-                                prototype.getId(),
-                                questionIdText,
-                                uid,
-                                fileName
-                            );
-                            TarArchiveEntry entry = new TarArchiveEntry(entryName);
-                            entry.setSize(file.length());
-                            aos.putArchiveEntry(entry);
-                            IOUtils.copy(new FileInputStream(file), aos);
-                        } else {
-                            logger.warn("Attachment {} is not connected to a file on disk!", attachment.getId());
-                        }
-                    }
-                    if (file == null || !file.exists()) {
-                        // no attached answer, create empty directory
-                        String entryName = String.format("%d/%d/%s/", prototype.getId(), questionId, uid);
-                        TarArchiveEntry entry = new TarArchiveEntry(entryName);
-                        aos.putArchiveEntry(entry);
-                    }
-                    aos.closeArchiveEntry();
-                }
-            }
-        }
-        createSummaryFile(aos, start, end, prototype, questions);
-    }
-
-    @Authenticated
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
-    public Result importGrades(Http.Request request) {
-        Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<TemporaryFile> filePart = body.getFile("file");
-        if (filePart == null) {
-            return notFound();
-        }
-        File file = filePart.getRef().path().toFile();
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        boolean isAdmin = user.hasRole(Role.Name.ADMIN);
-        try {
-            csvBuilder.parseGrades(file, user, isAdmin ? Role.Name.ADMIN : Role.Name.TEACHER);
-        } catch (Exception e) {
-            logger.error("Failed to parse CSV file. Stack trace follows");
-            e.printStackTrace();
-            return internalServerError("sitnet_internal_error");
-        }
-        return ok();
-    }
-
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
-    public Result getArchivedAttachments(Long eid, Optional<String> start, Optional<String> end) throws IOException {
-        Exam prototype = Ebean.find(Exam.class, eid);
-        if (prototype == null) {
-            return notFound();
-        }
-        DateTime startDate = null;
-        DateTime endDate = null;
-        try {
-            DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
-            if (start.isPresent()) {
-                startDate = new DateTime(df.parse(start.get())).withTimeAtStartOfDay();
-            }
-            if (end.isPresent()) {
-                endDate = new DateTime(df.parse(end.get())).withTimeAtStartOfDay().plusDays(1);
-            }
-        } catch (ParseException e) {
-            return badRequest();
-        }
-        File tarball = File.createTempFile(eid.toString(), ".tar.gz");
-        try (
-            TarArchiveOutputStream aos = new TarArchiveOutputStream(
-                new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(tarball)))
-            )
-        ) {
-            aos.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
-            createArchive(prototype, aos, startDate, endDate);
-            if (aos.getBytesWritten() == 0) {
-                return notFound("sitnet_no_attachments_to_archive");
-            }
-        } catch (IOException e) {
-            logger.error("Failed in creating a tarball", e);
-        }
-        String contentDisposition = fileHandler.getContentDisposition(tarball);
-        byte[] data = fileHandler.read(tarball);
-        String body = Base64.getEncoder().encodeToString(data);
-        return ok(body).withHeader("Content-Disposition", contentDisposition);
     }
 
     private boolean isRejectedInLanguageInspection(Exam exam, User user, Exam.State newState) {
@@ -838,7 +639,7 @@ public class ReviewController extends BaseController {
     }
 
     private static Query<ExamParticipation> createQuery() {
-        return Ebean
+        return DB
             .find(ExamParticipation.class)
             .fetch(
                 "exam",
@@ -847,12 +648,12 @@ public class ReviewController extends BaseController {
             .fetch("exam.course")
             .fetch("exam.course.organisation")
             .fetch("exam.course.gradeScale")
-            .fetch("exam.course.gradeScale.grades", new FetchConfig().query())
+            .fetch("exam.course.gradeScale.grades", FetchConfig.ofQuery())
             .fetch("exam.parent")
             .fetch("exam.parent.creator")
             .fetch("exam.parent.gradeScale")
-            .fetch("exam.parent.gradeScale.grades", new FetchConfig().query())
-            .fetch("exam.parent.examOwners", new FetchConfig().query())
+            .fetch("exam.parent.gradeScale.grades", FetchConfig.ofQuery())
+            .fetch("exam.parent.examOwners", FetchConfig.ofQuery())
             .fetch("exam.parent.examFeedbackConfig")
             .fetch("exam.examEnrolments")
             .fetch("exam.examEnrolments.reservation")
@@ -869,7 +670,7 @@ public class ReviewController extends BaseController {
             .fetch(
                 "exam.examSections.sectionQuestions",
                 "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType",
-                new FetchConfig().query()
+                FetchConfig.ofQuery()
             )
             .fetch("exam.examSections.sectionQuestions.question", "id, type, question, shared")
             .fetch("exam.examSections.sectionQuestions.question.attachment", "fileName")

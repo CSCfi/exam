@@ -12,17 +12,21 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { Component, Input, OnInit } from '@angular/core';
-import type { Question } from '../../exam/exam.model';
-import { QuestionDraft } from '../question.service';
+import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import type { Question } from 'src/app/exam/exam.model';
+import { QuestionDraft } from 'src/app/question/question.service';
 
 @Component({
     selector: 'xm-essay-editor',
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
-        <form name="essayForm">
+        <div ngModelGroup="essay">
             <div class="row mt-3">
-                <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_essay_length_recommendation' | translate }}
+                <div class="col-md-3 ">
+                    {{ 'i18n_essay_length_recommendation' | translate }}
                 </div>
                 <div class="col-md-6">
                     <div class="input-group">
@@ -32,24 +36,29 @@ import { QuestionDraft } from '../question.service';
                             #wc="ngModel"
                             type="number"
                             lang="en"
-                            class="form-control"
+                            class="form-control xm-numeric-input"
                             [(ngModel)]="question.defaultExpectedWordCount"
                             [min]="1"
                             [max]="1000000"
                         />
-                        <span class="input-group-text" title="{{ 'sitnet_average_word_length_finnish' | translate }}">
-                            {{ 'sitnet_approximately' | translate }} {{ estimateCharacters() }}
-                            {{ 'sitnet_characters' | translate }}
+                        <span class="input-group-text" title="{{ 'i18n_average_word_length_finnish' | translate }}">
+                            {{ 'i18n_approximately' | translate }} {{ estimateCharacters() }}
+                            {{ 'i18n_characters' | translate }}
                         </span>
                     </div>
-                    <div *ngIf="wc.invalid" class="warning-text-small margin-10">
-                        <i class="bi-exclamation-circle reddish"></i>
-                        {{ 'sitnet_essay_length_recommendation_bounds' | translate }}
-                    </div>
+                    @if (wc.invalid) {
+                        <div class="warning-text-small m-2 edit-warning-container">
+                            <i class="bi-exclamation-circle text-danger me-2"></i>
+                            {{ 'i18n_essay_length_recommendation_bounds' | translate }}
+                        </div>
+                    }
                 </div>
             </div>
-        </form>
+        </div>
     `,
+    styleUrls: ['../question.shared.scss'],
+    standalone: true,
+    imports: [FormsModule, TranslateModule],
 })
 export class EssayEditorComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;

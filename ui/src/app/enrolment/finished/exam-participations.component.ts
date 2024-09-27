@@ -12,17 +12,45 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf, SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import type { ParticipationLike } from '../enrolment.service';
-import { EnrolmentService } from '../enrolment.service';
+import type { ParticipationLike } from 'src/app/enrolment/enrolment.service';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({
     selector: 'xm-exam-participations',
     templateUrl: './exam-participations.component.html',
+    standalone: true,
+    imports: [
+        FormsModule,
+        AutoFocusDirective,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        NgFor,
+        ExamParticipationComponent,
+        NgIf,
+        PaginatorComponent,
+        SlicePipe,
+        TranslateModule,
+        OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class ExamParticipationsComponent implements OnInit, OnDestroy {
     filter = { ordering: 'ended', reverse: true, text: '' };
@@ -32,8 +60,12 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
     collaborative = false;
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
+    searchDone = false;
 
-    constructor(private toast: ToastrService, private Enrolment: EnrolmentService) {
+    constructor(
+        private toast: ToastrService,
+        private Enrolment: EnrolmentService,
+    ) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this._search);
@@ -60,6 +92,7 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
                     (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),
                 );
                 this.participations = data.filter((d) => d.ended);
+                this.searchDone = true;
             },
             error: (err) => this.toast.error(err),
         });

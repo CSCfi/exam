@@ -12,21 +12,36 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamMachine, ExamRoom, Reservation } from '../../reservation/reservation.model';
-import { DateTimeService } from '../../shared/date/date.service';
-import type { ExamEnrolment } from '../enrolment.model';
-import { EnrolmentService } from '../enrolment.service';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { ExamMachine, ExamRoom, Reservation } from 'src/app/reservation/reservation.model';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 @Component({
     selector: 'xm-wrong-location',
     templateUrl: './wrong-location.component.html',
+    standalone: true,
+    imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
+    styles: [
+        `
+            .exams-list-title-text {
+                font-size: 1.4em;
+                font-weight: 400;
+                letter-spacing: 1px;
+                vertical-align: middle;
+            }
+        `,
+    ],
 })
 export class WrongLocationComponent implements OnInit {
     cause = '';

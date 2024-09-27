@@ -12,31 +12,51 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe, NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
-import type { Examination } from '../../../examination/examination.model';
-import type { QuestionAmounts } from '../../../question/question.service';
-import type { User } from '../../../session/session.service';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { LanguageService } from '../../../shared/language/language.service';
-import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
-import { AssessmentService } from '../assessment.service';
-import { CollaborativeAssesmentService } from '../collaborative-assessment.service';
-import { GradingBaseComponent } from '../common/grading-base.component';
+import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import type { Examination } from 'src/app/examination/examination.model';
+import type { QuestionAmounts } from 'src/app/question/question.service';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { CollaborativeAssesmentService } from 'src/app/review/assessment/collaborative-assessment.service';
+import { GradingBaseComponent } from 'src/app/review/assessment/common/grading-base.component';
+import type { User } from 'src/app/session/session.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { LanguageService } from 'src/app/shared/language/language.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { InspectionComponent } from './inspection.component';
+import { ToolbarComponent } from './toolbar.component';
 
 @Component({
     selector: 'xm-r-grading',
     templateUrl: './grading.component.html',
+    styleUrls: ['../assessment.shared.scss'],
+    standalone: true,
+    imports: [
+        InspectionComponent,
+        NgbPopover,
+        FormsModule,
+        NgClass,
+        MathJaxDirective,
+        ToolbarComponent,
+        UpperCasePipe,
+        LowerCasePipe,
+        DatePipe,
+        TranslateModule,
+    ],
 })
 export class GradingComponent extends GradingBaseComponent implements OnInit {
     @Input() exam!: Examination;
-    @Input() questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false, totalSelectionEssays: 0 };
+    @Input() questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
     @Input() participation!: ExamParticipation;
     @Input() collaborative = false;
     @Input() user!: User;
@@ -102,21 +122,21 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
     sendEmailMessage = () => {
         if (!this.message.text) {
-            this.toast.error(this.translate.instant('sitnet_email_empty'));
+            this.toast.error(this.translate.instant('i18n_email_empty'));
             return;
         }
         if (this.collaborative) {
             this.CollaborativeAssessment.sendEmailMessage$(this.id, this.ref, this.message.text).subscribe({
                 next: () => {
                     delete this.message.text;
-                    this.toast.info(this.translate.instant('sitnet_email_sent'));
+                    this.toast.info(this.translate.instant('i18n_email_sent'));
                 },
                 error: (err) => this.toast.error(err),
             });
         } else {
             this.http.post(`/app/email/inspection/${this.exam.id}`, { msg: this.message.text }).subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_email_sent'));
+                    this.toast.info(this.translate.instant('i18n_email_sent'));
                     delete this.message.text;
                 },
                 error: (err) => this.toast.error(err),

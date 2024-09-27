@@ -17,9 +17,9 @@ import { Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
-import { ReservationService } from '../../../reservation/reservation.service';
+import type { Exam, ExamExecutionType } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { ReservationService } from 'src/app/reservation/reservation.service';
 
 export interface DashboardExam extends Exam {
     ownerAggregate: string;
@@ -39,7 +39,11 @@ export class Dashboard {
 
 @Injectable({ providedIn: 'root' })
 export class TeacherDashboardService {
-    constructor(private http: HttpClient, private Exam: ExamService, private Reservation: ReservationService) {}
+    constructor(
+        private http: HttpClient,
+        private Exam: ExamService,
+        private Reservation: ReservationService,
+    ) {}
 
     populate$ = (): Observable<Dashboard> =>
         forkJoin([this.Exam.listExecutionTypes$(), this.http.get<Exam[]>('/app/reviewerexams')]).pipe(
@@ -70,7 +74,7 @@ export class TeacherDashboardService {
                     }
                     const periodOk =
                         r.executionType.type !== 'PRINTOUT' &&
-                        new Date() <= new Date(r.examActiveEndDate as string) &&
+                        new Date() <= new Date(r.periodEnd as string) &&
                         this.participationsInFuture(r);
                     const examinationDatesOk =
                         r.executionType.type === 'PRINTOUT' && this.hasUpcomingExaminationDates(r);
@@ -95,7 +99,7 @@ export class TeacherDashboardService {
                     }
                     const periodOk =
                         r.executionType.type !== 'PRINTOUT' &&
-                        (new Date() > new Date(r.examActiveEndDate as string) || !this.participationsInFuture(r));
+                        (new Date() > new Date(r.periodEnd as string) || !this.participationsInFuture(r));
                     const examinationDatesOk =
                         r.executionType.type === 'PRINTOUT' && !this.hasUpcomingExaminationDates(r);
                     return periodOk || examinationDatesOk;
@@ -157,7 +161,7 @@ export class TeacherDashboardService {
     // Produce a fake period for information purposes by selecting first and last examination dates.
     private createFakeActivityPeriod(exam: Exam) {
         const dates = exam.examinationDates.map((es) => new Date(es.date).getTime());
-        exam.examActiveStartDate = new Date(dates.length > 0 ? Math.min(...dates) : new Date()).toISOString();
-        exam.examActiveEndDate = new Date(dates.length > 0 ? Math.max(...dates) : new Date()).toISOString();
+        exam.periodStart = new Date(dates.length > 0 ? Math.min(...dates) : new Date()).toISOString();
+        exam.periodEnd = new Date(dates.length > 0 ? Math.max(...dates) : new Date()).toISOString();
     }
 }

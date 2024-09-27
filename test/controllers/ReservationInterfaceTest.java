@@ -6,7 +6,7 @@ import static play.test.Helpers.contentAsString;
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import models.ExamRoom;
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
@@ -46,7 +46,7 @@ public class ReservationInterfaceTest extends IntegrationTestCase {
 
     @Test
     public void getRoomOpeningHours() {
-        ExamRoom room = Ebean.find(ExamRoom.class, 1L);
+        ExamRoom room = DB.find(ExamRoom.class, 1L);
         ExceptionWorkingHours ewh = new ExceptionWorkingHours();
         ewh.setStartDate(DateTime.now().withDayOfMonth(15).toDate());
         ewh.setEndDate(DateTime.now().plusMonths(1).withDayOfMonth(15).toDate());

@@ -1,13 +1,16 @@
-import { formatDate } from '@angular/common';
+import { formatDate, NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbDropdownModule, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { areIntervalsOverlapping, eachDayOfInterval } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { range } from 'ramda';
-import { ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { DateTimeService, REPEAT_OPTIONS } from '../../shared/date/date.service';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
+import { DateTimeService, REPEAT_OPTION } from 'src/app/shared/date/date.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 enum ORDINAL {
     First = 'FIRST',
@@ -18,7 +21,19 @@ enum ORDINAL {
 }
 
 @Component({
+    standalone: true,
+    imports: [
+        FormsModule,
+        TranslateModule,
+        NgClass,
+        DateTimePickerComponent,
+        DatePickerComponent,
+        NgbTimepickerModule,
+        NgbDropdownModule,
+    ],
     templateUrl: './exception-dialog.component.html',
+    styleUrls: ['../rooms/rooms.component.scss'],
+    styles: '.blue-shadow-hover:hover { box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1); }',
 })
 export class ExceptionDialogComponent {
     @Input() outOfService = true;
@@ -38,8 +53,8 @@ export class ExceptionDialogComponent {
     dayOfMonth = 1;
     selectableWeekDays: { selected: boolean; day: string; number: number }[];
     selectableMonths: { selected: boolean; month: string; number: number }[];
-    repeatOptions: REPEAT_OPTIONS[] = Object.values(REPEAT_OPTIONS);
-    repeats: REPEAT_OPTIONS = REPEAT_OPTIONS.once;
+    repeatOptions: REPEAT_OPTION[] = Object.values(REPEAT_OPTION);
+    repeats: REPEAT_OPTION = REPEAT_OPTION.once;
     isNumericNotWeekday = true;
     weeks = [range(1, 8), range(8, 15), range(15, 22), range(22, 29)];
     ordinals: { ordinal: string; number: number }[] = Object.values(ORDINAL).map((o, i) => ({ ordinal: o, number: i }));
@@ -77,13 +92,13 @@ export class ExceptionDialogComponent {
             this.endTime.minute = 59;
         }
         if (
-            this.repeats === REPEAT_OPTIONS.once
+            this.repeats === REPEAT_OPTION.once
                 ? this.startDate >= this.endDate
                 : this.startTime.hour * 100 + this.startTime.minute >= this.endTime.hour * 100 + this.endTime.minute ||
                   new Date(this.startDate.getFullYear(), this.startDate.getMonth() + 1, this.startDate.getDate()) >
                       new Date(this.endDate.getFullYear(), this.endDate.getMonth() + 1, this.endDate.getDate())
         ) {
-            this.toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
+            this.toast.error(this.translate.instant('i18n_endtime_before_starttime'));
             return;
         }
         switch (this.repeats.toString()) {
@@ -140,11 +155,11 @@ export class ExceptionDialogComponent {
         );
         const result = this.parseExceptionDays(monthlyExceptions);
         const message =
-            this.translate.instant('sitnet_of_month') +
+            this.translate.instant('i18n_of_month') +
             ' ' +
             (this.isNumericNotWeekday
-                ? this.dayOfMonth + '. ' + this.translate.instant('sitnet_day')
-                : this.translate.instant('sitnet_' + this.selectedOrdinal.ordinal.toLowerCase()) +
+                ? this.dayOfMonth + '. ' + this.translate.instant('i18n_day')
+                : this.translate.instant('i18n_' + this.selectedOrdinal.ordinal.toLowerCase()) +
                   ' ' +
                   this.weekdayOfMonth.day) +
             '.';
@@ -157,13 +172,13 @@ export class ExceptionDialogComponent {
             .filter((date) => this.monthOfYear.number === date.getMonth() + 1);
         const result = this.parseExceptionDays(yearlyExceptions);
         const message =
-            this.translate.instant('sitnet_year').toLowerCase() +
+            this.translate.instant('i18n_year').toLowerCase() +
             ' ' +
             this.monthOfYear.month +
             ' ' +
             (this.isNumericNotWeekday
-                ? this.dayOfMonth + '. ' + this.translate.instant('sitnet_day')
-                : this.translate.instant('sitnet_' + this.selectedOrdinal.ordinal.toLowerCase()).toLowerCase() +
+                ? this.dayOfMonth + '. ' + this.translate.instant('i18n_day')
+                : this.translate.instant('i18n_' + this.selectedOrdinal.ordinal.toLowerCase()).toLowerCase() +
                   ' ' +
                   this.weekdayOfMonth.day) +
             '.';
@@ -186,13 +201,13 @@ export class ExceptionDialogComponent {
         );
         if (overlapExceptions.length > 0) {
             const message =
-                this.translate.instant('sitnet_room_closed_overlap') +
+                this.translate.instant('i18n_room_closed_overlap') +
                 ': ' +
                 overlapExceptions
                     .map(
                         (e) =>
                             e.ownerRoom ||
-                            this.translate.instant('sitnet_this_room') +
+                            this.translate.instant('i18n_this_room') +
                                 ': ' +
                                 formatDate(e.startDate, this.dateFormat, this.translate.currentLang) +
                                 '-' +
@@ -211,18 +226,18 @@ export class ExceptionDialogComponent {
         }
         this.dialogs
             .open$(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_confirm_adding_x') +
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_confirm_adding_x') +
                     ' ' +
                     result.length +
                     ' ' +
-                    this.translate.instant('sitnet_x_exceptions') +
+                    this.translate.instant('i18n_x_exceptions') +
                     ' ' +
-                    this.translate.instant('sitnet_and_repeats_every_x') +
+                    this.translate.instant('i18n_and_repeats_every_x') +
                     ' ' +
                     repetitionMessage +
                     ' ' +
-                    this.translate.instant('sitnet_exception_happens_at') +
+                    this.translate.instant('i18n_exception_happens_at') +
                     ' ' +
                     this.startTime.hour +
                     ':' +
@@ -330,7 +345,7 @@ export class ExceptionDialogComponent {
         }
     }
 
-    updateRepeatOption(select: REPEAT_OPTIONS) {
+    updateRepeatOption(select: REPEAT_OPTION) {
         this.repeats = select;
     }
 

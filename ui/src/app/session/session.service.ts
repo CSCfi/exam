@@ -22,7 +22,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable, Unsubscribable } from 'rxjs';
-import { defer, from, interval, of, Subject, throwError } from 'rxjs';
+import { Subject, defer, from, interval, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
@@ -39,7 +39,6 @@ export interface User {
     eppn: string;
     firstName: string;
     lastName: string;
-    name?: string;
     email: string;
     lang: string;
     loginRole: string | null;
@@ -53,6 +52,7 @@ export interface User {
     isLanguageInspector: boolean;
     employeeNumber: string | null;
     lastLogin: string | null;
+    canCreateByodExam: boolean;
 }
 
 interface Env {
@@ -87,11 +87,7 @@ export class SessionService implements OnDestroy {
         this.disableSessionCheck();
     }
 
-    getUser = (): User => {
-        const user = this.webStorageService.get('EXAM_USER');
-        if (!user) console.log('Tried to fetch a logged-out user.');
-        return user;
-    };
+    getUser = (): User => this.webStorageService.get('EXAM_USER');
 
     getUserName = () => {
         const user = this.getUser();
@@ -156,8 +152,8 @@ export class SessionService implements OnDestroy {
                 if (resp === 'alarm') {
                     this.toast
                         .warning(
-                            this.i18n.instant('sitnet_continue_session'),
-                            this.i18n.instant('sitnet_session_will_expire_soon'),
+                            this.i18n.instant('i18n_continue_session'),
+                            this.i18n.instant('i18n_session_will_expire_soon'),
                             {
                                 timeOut: 30000,
                                 toastComponent: this.customSessionExpireWarning,
@@ -168,7 +164,7 @@ export class SessionService implements OnDestroy {
                             this.http.put<void>('/app/session', {}).subscribe({
                                 next: () => {
                                     this.toast.clear();
-                                    this.toast.info(this.i18n.instant('sitnet_session_extended'), '', {
+                                    this.toast.info(this.i18n.instant('i18n_session_extended'), '', {
                                         timeOut: 2000,
                                     });
                                 },
@@ -202,7 +198,7 @@ export class SessionService implements OnDestroy {
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
                     if (u) {
-                        this.toast.success(this.i18n.instant('sitnet_welcome'), `${u.firstName} ${u.lastName}`, {
+                        this.toast.success(this.i18n.instant('i18n_welcome'), `${u.firstName} ${u.lastName}`, {
                             timeOut: 2000,
                         });
                     }
@@ -249,6 +245,7 @@ export class SessionService implements OnDestroy {
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';
                 user.isLanguageInspector = user.isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
+                user.canCreateByodExam = !user.isStudent && this.hasPermission(user, 'CAN_CREATE_BYOD_EXAM');
                 return user;
             }),
         );
@@ -258,16 +255,16 @@ export class SessionService implements OnDestroy {
         user.roles.forEach((role) => {
             switch (role.name) {
                 case 'ADMIN':
-                    role.displayName = 'sitnet_admin';
+                    role.displayName = 'i18n_admin';
                     role.icon = 'bi-gear';
                     break;
                 case 'TEACHER':
-                    role.displayName = 'sitnet_teacher';
-                    role.icon = 'bi-person-fill';
+                    role.displayName = 'i18n_teacher';
+                    role.icon = 'bi-person';
                     break;
                 case 'STUDENT':
-                    role.displayName = 'sitnet_student';
-                    role.icon = 'bi-person';
+                    role.displayName = 'i18n_student';
+                    role.icon = 'bi-mortarboard';
                     break;
             }
         });
@@ -282,6 +279,7 @@ export class SessionService implements OnDestroy {
                 isAdmin: loginRole != null && loginRole === 'ADMIN',
                 isStudent: loginRole != null && loginRole === 'STUDENT',
                 isLanguageInspector: isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
+                canCreateByodExam: loginRole !== 'STUDENT' && this.hasPermission(user, 'CAN_CREATE_BYOD_EXAM'),
             })),
         );
     }
@@ -289,8 +287,7 @@ export class SessionService implements OnDestroy {
     private onLogoutSuccess(data: { logoutUrl: string }): void {
         this.userChangeSubscription.next(undefined);
 
-        this.toast.success(this.i18n.instant('sitnet_logout_success'));
-        window.onbeforeunload = null;
+        this.toast.success(this.i18n.instant('i18n_logout_success'));
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         const env = this.getEnv();

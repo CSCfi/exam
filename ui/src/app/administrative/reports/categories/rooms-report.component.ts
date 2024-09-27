@@ -12,62 +12,58 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamRoom } from '../../../reservation/reservation.model';
-import { FileService } from '../../../shared/file/file.service';
-import { Option } from '../../../shared/select/dropdown-select.component';
+import type { ExamRoom } from 'src/app/reservation/reservation.model';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { FileService } from 'src/app/shared/file/file.service';
+import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
 
 @Component({
     template: `
-        <div class="top-row">
-            <h4 class="col-md-12">
-                {{ 'sitnet_get_all_reservations_from_room' | translate }}
-            </h4>
+        <div class="row">
+            <strong class="col-12">
+                {{ 'i18n_get_all_reservations_from_room' | translate }}
+            </strong>
         </div>
-        <div class="bottom-row">
-            <div class="col-lg-4 mb-2">
-                <label for="roomPick">{{ 'sitnet_select_room' | translate }}</label>
-                <xm-dropdown-select
-                    id="roomPick"
-                    *ngIf="rooms"
-                    [options]="rooms"
-                    (optionSelected)="roomSelected($event)"
-                    placeholder="{{ 'sitnet_select' | translate }}"
-                ></xm-dropdown-select>
+        <div class="row mb-2 align-items-end">
+            <div class="col-3">
+                <label for="roomPick">{{ 'i18n_select_room' | translate }}</label>
+                @if (rooms) {
+                    <xm-dropdown-select
+                        id="roomPick"
+                        [options]="rooms"
+                        (optionSelected)="roomSelected($event)"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                    ></xm-dropdown-select>
+                }
             </div>
-            <div class="col-lg-3 mb-2">
-                <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
+            <div class="col-3">
+                <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
                 <div id="startAt">
                     <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
-            <div class="col-lg-3 mb-2">
-                <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
+            <div class="col-3">
+                <label for="endAt">{{ 'i18n_end_time' | translate }}</label>
                 <div id="endAt">
                     <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
-            <div class="col-lg-2 mb-2">
-                <label for="link">&nbsp;</label>
-                <div id="link">
-                    <a
-                        (click)="getRoomReservationsByDate()"
-                        class="print-btn"
-                        download
-                        triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_download' | translate }}"
-                    >
-                        <i class="bi-file-earmark-excel font-6"></i>
-                    </a>
-                </div>
+            <div class="col-3">
+                <button class="btn btn-success btn-sm float-end" (click)="getRoomReservationsByDate()">
+                    <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
+                </button>
             </div>
         </div>
     `,
     selector: 'xm-rooms-report',
+    standalone: true,
+    imports: [DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class RoomsReportComponent {
     @Input() rooms: Option<ExamRoom, number>[] = [];
@@ -79,7 +75,6 @@ export class RoomsReportComponent {
     constructor(
         private translate: TranslateService,
         private toast: ToastrService,
-        private datePipe: DatePipe,
         private files: FileService,
     ) {}
 
@@ -88,12 +83,12 @@ export class RoomsReportComponent {
     };
 
     getRoomReservationsByDate = () => {
-        const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
-        const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
+        const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
+        const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
         if (this.room) {
             this.files.download(`/app/statistics/resbydate/${this.room}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
         } else {
-            this.toast.error(this.translate.instant('sitnet_choose_room'));
+            this.toast.error(this.translate.instant('i18n_choose_room'));
         }
     };
 

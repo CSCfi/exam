@@ -12,70 +12,79 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { CdkDrag } from '@angular/cdk/drag-drop';
+import { NgClass } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import type { ExamParticipation } from '../../../exam/exam.model';
-import type { Examination } from '../../../examination/examination.model';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import type { FileResult } from '../../../shared/attachment/dialogs/attachment-picker.component';
-import { FileService } from '../../../shared/file/file.service';
-import { AssessmentService } from '../assessment.service';
-import { CollaborativeAssesmentService } from '../collaborative-assessment.service';
+import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import type { ExamParticipation } from 'src/app/exam/exam.model';
+import type { Examination } from 'src/app/examination/examination.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { CollaborativeAssesmentService } from 'src/app/review/assessment/collaborative-assessment.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import type { FileResult } from 'src/app/shared/attachment/dialogs/attachment-picker.component';
+import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
+import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-feedback',
-    template: `<div id="feedback">
-        <div cdkDrag id="draggable" class="wrapper">
-            <div class="row align-items-center">
-                <div
-                    class="col-1"
-                    ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
-                    triggers="mouseenter:mouseleave"
+    template: `<div cdkDrag [cdkDragConstrainPosition]="fixPosition" class="wrapper">
+        <div class="row align-items-center">
+            <div
+                class="col-1"
+                ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <i
+                    (click)="toggleFeedbackVisibility()"
+                    class="pointer"
+                    [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
                 >
-                    <i
-                        (click)="toggleFeedbackVisibility()"
-                        class="pointer font-6"
-                        [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
-                    >
-                    </i>
-                </div>
-                <div class="col-11">
-                    {{ title | translate }}
+                </i>
+            </div>
+            <div class="col-11">
+                {{ title | translate }}
+            </div>
+        </div>
+        <div [ngbCollapse]="hideEditor" class="body">
+            <div class="row mt-2 mb-1">
+                <div class="col-md-12">
+                    <xm-ckeditor
+                        id="feedback-editor"
+                        [enableClozeTest]="false"
+                        [(ngModel)]="exam.examFeedback.comment"
+                        #ck="ngModel"
+                        name="ck"
+                        rows="10"
+                        cols="80"
+                    ></xm-ckeditor>
                 </div>
             </div>
-            <div [ngbCollapse]="hideEditor" class="body">
-                <div class="row mt-2 mb-1">
-                    <div class="col-md-12">
-                        <xm-ckeditor
-                            id="feedback-editor"
-                            [enableClozeTest]="false"
-                            [(ngModel)]="exam.examFeedback.comment"
-                            #ck="ngModel"
-                            name="ck"
-                            rows="10"
-                            cols="80"
-                        ></xm-ckeditor>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-end" *ngIf="exam.examFeedback?.attachment">
+            @if (exam.examFeedback?.attachment) {
+                <div class="d-flex justify-content-end">
                     <a class="pointer" (click)="downloadFeedbackAttachment()">{{
                         exam.examFeedback?.attachment?.fileName
                     }}</a>
                     <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
-                        <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
+                        <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
                     </span>
                 </div>
-                <div class="d-flex justify-content-between mt-2">
-                    <button class="btn btn-outline-secondary" (click)="saveFeedback()">
-                        {{ 'sitnet_save' | translate }}
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
-                        {{ 'sitnet_attach_file' | translate }}
-                    </button>
-                </div>
+            }
+            <div class="d-flex justify-content-between flex-row-reverse mt-2">
+                <button class="btn btn-outline-success" (click)="saveFeedback()">
+                    {{ 'i18n_save' | translate }}
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
+                    {{ 'i18n_attach_file' | translate }}
+                </button>
             </div>
         </div>
-    </div> `,
+    </div>`,
+    standalone: true,
+    imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
+    styleUrl: './feedback.component.scss',
 })
 export class FeedbackComponent implements OnInit {
     @Input() exam!: Examination;
@@ -83,10 +92,11 @@ export class FeedbackComponent implements OnInit {
     @Input() participation!: ExamParticipation;
     feedbackComment = '';
     title = '';
-
+    fixPosition = this.Assessment.fixPosition;
     hideEditor = false;
-    id = 0;
-    ref = '';
+
+    private id = 0;
+    private ref = '';
 
     constructor(
         private route: ActivatedRoute,
@@ -99,8 +109,7 @@ export class FeedbackComponent implements OnInit {
     ngOnInit() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        this.title =
-            this.exam.executionType.type === 'MATURITY' ? 'sitnet_give_content_statement' : 'sitnet_give_feedback';
+        this.title = this.exam.executionType.type === 'MATURITY' ? 'i18n_give_content_statement' : 'i18n_give_feedback';
     }
 
     toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);

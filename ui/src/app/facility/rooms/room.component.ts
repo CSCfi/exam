@@ -12,19 +12,38 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import type { OnInit } from '@angular/core';
 import { Component, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { AccessibilitySelectorComponent } from 'src/app/facility/accessibility/accessibility-picker.component';
+import { AddressComponent } from 'src/app/facility/address/address.component';
+import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { AvailabilityComponent } from './availability.component';
 import { InteroperabilityService } from './interoperability.service';
 import { RoomService } from './room.service';
 
 @Component({
     templateUrl: './room.component.html',
+    styleUrls: ['./rooms.component.scss'],
     selector: 'xm-room',
+    standalone: true,
+    imports: [
+        FormsModule,
+        NgbPopover,
+        AvailabilityComponent,
+        AccessibilitySelectorComponent,
+        AddressComponent,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class RoomComponent implements OnInit {
     @ViewChild('roomForm', { static: false }) roomForm!: NgForm;
@@ -98,7 +117,7 @@ export class RoomComponent implements OnInit {
     updateRoom = () => {
         this.roomService.updateRoom(this.room).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_room_updated'));
+                this.toast.info(this.translate.instant('i18n_room_updated'));
             },
             error: (err) => this.toast.error(err),
         });
@@ -106,11 +125,11 @@ export class RoomComponent implements OnInit {
 
     saveRoom = () => {
         if (!this.roomService.isAnyExamMachines(this.room))
-            this.toast.error(this.translate.instant('sitnet_dont_forget_to_add_machines') + ' ' + this.room.name);
+            this.toast.error(this.translate.instant('i18n_dont_forget_to_add_machines') + ' ' + this.room.name);
 
         this.roomService.updateRoom(this.room).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_room_saved'));
+                this.toast.info(this.translate.instant('i18n_room_saved'));
                 this.router.navigate(['/staff/rooms']);
             },
             error: (err) => this.toast.error(err),

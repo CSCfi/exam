@@ -15,20 +15,20 @@
 
 package controllers;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import impl.EmailComposer;
 import impl.ExamUpdater;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
@@ -40,10 +40,12 @@ import models.ExamMachine;
 import models.ExamType;
 import models.GradeScale;
 import models.Language;
+import models.Permission;
 import models.Role;
 import models.Software;
 import models.User;
 import models.sections.ExamSection;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.Json;
@@ -85,7 +87,7 @@ public class ExamController extends BaseController {
     }
 
     private static ExpressionList<Exam> createPrototypeQuery() {
-        return Ebean
+        return DB
             .find(Exam.class)
             .fetch("course")
             .fetch("creator")
@@ -134,7 +136,7 @@ public class ExamController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result listPrintouts() {
-        List<Exam> printouts = Ebean
+        List<Exam> printouts = DB
             .find(Exam.class)
             .where()
             .eq("executionType.type", ExamExecutionType.Type.PRINTOUT.toString())
@@ -153,14 +155,18 @@ public class ExamController extends BaseController {
         Optional<List<Long>> courseIds,
         Optional<List<Long>> sectionIds,
         Optional<List<Long>> tagIds,
+        Optional<List<Long>> ownerIds,
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Long> courses = courseIds.orElse(Collections.emptyList());
         List<Long> sections = sectionIds.orElse(Collections.emptyList());
         List<Long> tags = tagIds.orElse(Collections.emptyList());
-        PathProperties pp = PathProperties.parse("(id, name, course(id, code), examSections(id, name))");
-        Query<Exam> query = Ebean.find(Exam.class);
+        List<Long> owners = ownerIds.orElse(Collections.emptyList());
+        PathProperties pp = PathProperties.parse(
+            "(id, name, examActiveStartDate, examActiveEndDate, course(id, code), examSections(id, name))"
+        );
+        Query<Exam> query = DB.find(Exam.class);
         pp.apply(query);
         ExpressionList<Exam> el = query.where().isNotNull("name").isNotNull("course").isNull("parent");
         if (!user.hasRole(Role.Name.ADMIN)) {
@@ -174,6 +180,9 @@ public class ExamController extends BaseController {
         }
         if (!tags.isEmpty()) {
             el = el.in("examSections.sectionQuestions.question.parent.tags.id", tags);
+        }
+        if (!owners.isEmpty()) {
+            el = el.in("questionOwners.id", user);
         }
         return ok(el.findList(), pp);
     }
@@ -190,7 +199,7 @@ public class ExamController extends BaseController {
             "examInspections(id, user(id, firstName, lastName)), " +
             "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
         );
-        Query<Exam> query = Ebean.createQuery(Exam.class);
+        Query<Exam> query = DB.createQuery(Exam.class);
         props.apply(query);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Exam> exams = query
@@ -209,9 +218,9 @@ public class ExamController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result deleteExam(Long id, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, id);
+        Exam exam = DB.find(Exam.class, id);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.ADMIN) || exam.isOwnedOrCreatedBy(user)) {
@@ -221,9 +230,9 @@ public class ExamController extends BaseController {
                 exam.update();
                 return ok();
             }
-            return forbidden("sitnet_exam_removal_not_possible");
+            return forbidden("i18n_exam_removal_not_possible");
         }
-        return forbidden("sitnet_error_access_forbidden");
+        return forbidden("i18n_error_access_forbidden");
     }
 
     private static Exam doGetExam(Long id) {
@@ -244,18 +253,25 @@ public class ExamController extends BaseController {
     public Result getExam(Long id, Http.Request request) {
         Exam exam = doGetExam(id);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
-        // decipher the settings passwords if any
+        // decipher the passwords if any
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
             exam
                 .getExaminationEventConfigurations()
                 .forEach(eec -> {
-                    String plainTextPwd = byodConfigHandler.getPlaintextPassword(
+                    String plainTextSettingsPwd = byodConfigHandler.getPlaintextPassword(
                         eec.getEncryptedSettingsPassword(),
                         eec.getSettingsPasswordSalt()
                     );
-                    eec.setSettingsPassword(plainTextPwd);
+                    eec.setSettingsPassword(plainTextSettingsPwd);
+                    if (eec.getEncryptedQuitPassword() != null) {
+                        String plainTextQuitPwd = byodConfigHandler.getPlaintextPassword(
+                            eec.getEncryptedQuitPassword(),
+                            eec.getQuitPasswordSalt()
+                        );
+                        eec.setQuitPassword(plainTextQuitPwd);
+                    }
                 });
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -263,24 +279,24 @@ public class ExamController extends BaseController {
             exam.getExamSections().forEach(s -> s.setSectionQuestions(new TreeSet<>(s.getSectionQuestions())));
             return writeAnonymousResult(request, ok(exam), exam.isAnonymous());
         }
-        return forbidden("sitnet_error_access_forbidden");
+        return forbidden("i18n_error_access_forbidden");
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamTypes() {
-        List<ExamType> types = Ebean.find(ExamType.class).where().ne("deprecated", true).findList();
+        List<ExamType> types = DB.find(ExamType.class).where().ne("deprecated", true).findList();
         return ok(types);
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamGradeScales() {
-        List<GradeScale> scales = Ebean.find(GradeScale.class).fetch("grades").findList();
+        List<GradeScale> scales = DB.find(GradeScale.class).fetch("grades").findList();
         return ok(scales);
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamExecutionTypes() {
-        List<ExamExecutionType> types = Ebean.find(ExamExecutionType.class).where().ne("active", false).findList();
+        List<ExamExecutionType> types = DB.find(ExamExecutionType.class).where().ne("active", false).findList();
         return ok(types);
     }
 
@@ -288,7 +304,7 @@ public class ExamController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamPreview(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Exam exam = Ebean
+        Exam exam = DB
             .find(Exam.class)
             .fetch("course")
             .fetch("executionType")
@@ -296,7 +312,7 @@ public class ExamController extends BaseController {
             .fetch("examLanguages")
             .fetch("examSections")
             .fetch("examSections.examMaterials")
-            .fetch("examSections.sectionQuestions", new FetchConfig().query())
+            .fetch("examSections.sectionQuestions", FetchConfig.ofQuery())
             .fetch("examSections.sectionQuestions.question")
             .fetch("examSections.sectionQuestions.question.attachment")
             .fetch("examSections.sectionQuestions.options")
@@ -309,13 +325,13 @@ public class ExamController extends BaseController {
             .idEq(id)
             .findOne();
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             examUpdater.preparePreview(exam);
             return ok(exam);
         }
-        return forbidden("sitnet_error_access_forbidden");
+        return forbidden("i18n_error_access_forbidden");
     }
 
     private Result handleExamUpdate(Exam exam, User user, Http.Request request) {
@@ -359,7 +375,7 @@ public class ExamController extends BaseController {
                         .orElseGet(() -> handleExamUpdate(exam, user, request))
                 );
         } else {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
     }
 
@@ -367,7 +383,7 @@ public class ExamController extends BaseController {
         boolean canOverrideGrading = configReader.isCourseGradeScaleOverridable();
         boolean changed = false;
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
-            GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
+            GradeScale scale = DB.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
             if (scale != null) {
                 changed = exam.getGradeScale() == null || !exam.getGradeScale().equals(scale);
             }
@@ -378,21 +394,21 @@ public class ExamController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateExamSoftware(Long eid, Long sid, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!examUpdater.isPermittedToUpdate(exam, user)) {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
-        Software software = Ebean.find(Software.class, sid);
+        Software software = DB.find(Software.class, sid);
         if (exam.getSoftwareInfo().contains(software)) {
             exam.getSoftwareInfo().remove(software);
         } else {
             exam.getSoftwareInfo().add(software);
             if (!softwareRequirementDoable(exam)) {
-                return badRequest("sitnet_no_required_softwares");
+                return badRequest("i18n_no_required_softwares");
             }
         }
         exam.update();
@@ -400,17 +416,17 @@ public class ExamController extends BaseController {
     }
 
     private static boolean softwareRequirementDoable(Exam exam) {
-        List<ExamMachine> machines = Ebean.find(ExamMachine.class).where().eq("archived", false).findList();
+        List<ExamMachine> machines = DB.find(ExamMachine.class).where().eq("archived", false).findList();
 
-        return machines.stream().anyMatch(m -> m.getSoftwareInfo().containsAll(exam.getSoftwareInfo()));
+        return machines.stream().anyMatch(m -> new HashSet<>(m.getSoftwareInfo()).containsAll(exam.getSoftwareInfo()));
     }
 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateExamLanguage(Long eid, String code, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return examUpdater
@@ -425,7 +441,14 @@ public class ExamController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result copyExam(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Exam prototype = Ebean
+        String examinationType = formFactory.form().bindFromRequest(request).get("examinationType");
+        if (
+            Exam.Implementation.valueOf(examinationType) != Exam.Implementation.AQUARIUM &&
+            !user.hasPermission(Permission.Type.CAN_CREATE_BYOD_EXAM)
+        ) {
+            return forbidden("i18n_access_forbidden");
+        }
+        Exam prototype = DB
             .find(Exam.class) // TODO: check if all this fetching is necessary
             .fetch("creator", "id")
             .fetch("examType", "id, type")
@@ -444,13 +467,12 @@ public class ExamController extends BaseController {
             .idEq(id)
             .findOne();
         if (prototype == null) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("i18n_exam_not_found");
         }
         String type = formFactory.form().bindFromRequest(request).get("type");
-        String examinationType = formFactory.form().bindFromRequest(request).get("examinationType");
-        ExamExecutionType executionType = Ebean.find(ExamExecutionType.class).where().eq("type", type).findOne();
-        if (type == null) {
-            return notFound("sitnet_execution_type_not_found");
+        ExamExecutionType executionType = DB.find(ExamExecutionType.class).where().eq("type", type).findOne();
+        if (executionType == null) {
+            return notFound("i18n_execution_type_not_found");
         }
         // No sense in copying the AE config if grade scale is fixed to course (that will initially be NULL for a copy)
         if (prototype.getAutoEvaluationConfig() != null && !configReader.isCourseGradeScaleOverridable()) {
@@ -467,10 +489,12 @@ public class ExamController extends BaseController {
         copy.setExamFeedbackConfig(null);
         copy.setSubjectToLanguageInspection(null);
         DateTime now = DateTime.now().withTimeAtStartOfDay();
-        copy.setExamActiveStartDate(now);
-        copy.setExamActiveEndDate(now.plusDays(1));
-        // Force anonymous review if globally enabled
-        if (configReader.isAnonymousReviewEnabled()) {
+        copy.setPeriodStart(now);
+        copy.setPeriodEnd(now.plusDays(1));
+        // Force anonymous review if globally enabled for public examinations
+        if (!copy.isPrivate()) {
+            copy.setAnonymous(false);
+        } else if (configReader.isAnonymousReviewEnabled()) {
             copy.setAnonymous(true);
         }
         copy.save();
@@ -482,7 +506,7 @@ public class ExamController extends BaseController {
     public Result createExamDraft(Http.Request request) {
         String executionType = request.body().asJson().get("executionType").asText();
         String implementation = request.body().asJson().get("implementation").asText();
-        ExamExecutionType examExecutionType = Ebean
+        ExamExecutionType examExecutionType = DB
             .find(ExamExecutionType.class)
             .where()
             .eq("type", executionType)
@@ -491,6 +515,12 @@ public class ExamController extends BaseController {
             return badRequest("Unsupported execution type");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (
+            Exam.Implementation.valueOf(implementation) != Exam.Implementation.AQUARIUM &&
+            !user.hasPermission(Permission.Type.CAN_CREATE_BYOD_EXAM)
+        ) {
+            return forbidden("No permission to create home examinations");
+        }
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
@@ -511,17 +541,17 @@ public class ExamController extends BaseController {
         examSection.save();
 
         exam.getExamSections().add(examSection);
-        exam.getExamLanguages().add(Ebean.find(Language.class, "fi")); // TODO: configurable?
-        exam.setExamType(Ebean.find(ExamType.class, 2)); // Final
+        exam.getExamLanguages().add(DB.find(Language.class, "fi")); // TODO: configurable?
+        exam.setExamType(DB.find(ExamType.class, 2)); // Final
 
         DateTime start = DateTime.now().withTimeAtStartOfDay();
         if (!exam.isPrintout()) {
-            exam.setExamActiveStartDate(start);
-            exam.setExamActiveEndDate(start.plusDays(1));
+            exam.setPeriodStart(start);
+            exam.setPeriodEnd(start.plusDays(1));
         }
-        exam.setDuration(configReader.getExamDurations().get(0));
+        exam.setDuration(configReader.getExamDurations().getFirst());
         if (configReader.isCourseGradeScaleOverridable()) {
-            exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
+            exam.setGradeScale(DB.find(GradeScale.class).findList().getFirst());
         }
 
         exam.save();
@@ -529,7 +559,6 @@ public class ExamController extends BaseController {
         exam.getExamOwners().add(user);
         exam.setTrialCount(1);
 
-        exam.setExpanded(true);
         exam.save();
 
         ObjectNode part = Json.newObject();
@@ -540,46 +569,46 @@ public class ExamController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateCourse(Long eid, Long cid, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!examUpdater.isAllowedToUpdate(exam, user)) {
-            return forbidden("sitnet_error_future_reservations_exist");
+            return forbidden("i18n_error_future_reservations_exist");
         }
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
-            Course course = Ebean.find(Course.class, cid);
+            Course course = DB.find(Course.class, cid);
             if (course == null) {
-                return notFound("sitnet_error_not_found");
+                return notFound("i18n_error_not_found");
             }
             if (course.getStartDate() != null) {
                 DateTime validity = configReader.getCourseValidityDate(new DateTime(course.getStartDate()));
                 if (validity.isAfterNow()) {
-                    return forbidden("sitnet_error_course_not_active");
+                    return forbidden("i18n_error_course_not_active");
                 }
             }
             if (course.getEndDate() != null && course.getEndDate().before(new Date())) {
-                return forbidden("sitnet_error_course_not_active");
+                return forbidden("i18n_error_course_not_active");
             }
             exam.setCourse(course);
             exam.save();
             return ok();
         } else {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
     }
 
     private static Query<Exam> prototypeQuery() {
-        return Ebean
+        return DB
             .find(Exam.class)
             .fetch("course")
             .fetch("course.organisation")
             .fetch("course.gradeScale")
-            .fetch("course.gradeScale.grades", new FetchConfig().query())
+            .fetch("course.gradeScale.grades", FetchConfig.ofQuery())
             .fetch("examType")
             .fetch("autoEvaluationConfig")
-            .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
+            .fetch("autoEvaluationConfig.gradeEvaluations", FetchConfig.ofQuery())
             .fetch("examFeedbackConfig")
             .fetch("executionType")
             .fetch("examinationDates")
@@ -593,7 +622,7 @@ public class ExamController extends BaseController {
             )
             .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
             .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-            .fetch("examSections.sectionQuestions.options", new FetchConfig().query())
+            .fetch("examSections.sectionQuestions.options", FetchConfig.ofQuery())
             .fetch(
                 "examSections.sectionQuestions.options.option",
                 "id, option, correctOption, defaultScore, claimChoiceType"

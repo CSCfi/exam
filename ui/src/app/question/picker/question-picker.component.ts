@@ -15,64 +15,53 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamSection, Question } from '../../exam/exam.model';
+import type { ExamSection, Question } from 'src/app/exam/exam.model';
+import { LibraryResultsComponent } from 'src/app/question/library/results/library-results.component';
+import { LibrarySearchComponent } from 'src/app/question/library/search/library-search.component';
 
 @Component({
     selector: 'xm-question-selector',
+    standalone: true,
+    imports: [TranslateModule, LibrarySearchComponent, LibraryResultsComponent],
     template: `
-        <div id="library">
-            <!-- title row and add new question button -->
-            <div class="modal-header">
-                <div class="student-enroll-title-wrap">
-                    <div class="student-enroll-title">{{ 'sitnet_library_choose' | translate }}</div>
+        <!-- title row and add new question button -->
+        <div class="modal-header">
+            <div class="xm-modal-title">{{ 'i18n_library_choose' | translate }}</div>
+        </div>
+        <div class="modal-body pt-3">
+            <!-- search bar and search parameters -->
+            <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
+
+            <div class="row ms-3 mb-3">
+                <div class="col-md-12">
+                    <button class="btn btn-success" (click)="addQuestions()">
+                        {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
+                    </button>
                 </div>
             </div>
-            <div class="modal-content">
-                <!-- search bar and search parameters -->
-                <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
 
-                <div class="row">
-                    <div class="col-md-12 padl0 padr0 marb20">
-                        <span class="float-start marl20">
-                            <div class="library-button make-inline mart20 marr30 marl10">
-                                <a class="pointer" (click)="addQuestions()"
-                                    >{{ 'sitnet_add_chosen' | translate }} ( {{ selections.length }} )
-                                </a>
-                            </div>
-                        </span>
-                    </div>
-                </div>
-
-                <!-- resulting table with questions -->
-                <xm-library-results
-                    [questions]="questions"
-                    (selected)="questionSelected($event)"
-                    (copied)="questionCopied()"
-                    tableClass="library-table"
-                    [disableLinks]="true"
-                    class="overflow-x-auto"
-                ></xm-library-results>
-            </div>
-
-            <!-- Buttons -->
-            <div class="modal-footer">
-                <div class="flex flex-middle marr20 marb20">
-                    <span class="float-end">
-                        <div class="library-button make-inline">
-                            <a class="pointer preview" (click)="cancel()">
-                                {{ 'sitnet_button_cancel' | translate }}
-                            </a>
-                        </div>
-                        <div class="library-button make-inline mart20 marr30 marl10">
-                            <a class="pointer" (click)="addQuestions()">
-                                {{ 'sitnet_add_chosen' | translate }} ( {{ selections.length }} )
-                            </a>
-                        </div>
-                    </span>
+            <div class="row">
+                <div class="col-md-12">
+                    <xm-library-results
+                        [questions]="questions"
+                        (selected)="questionSelected($event)"
+                        (copied)="questionCopied()"
+                        [disableLinks]="true"
+                    ></xm-library-results>
                 </div>
             </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success" (click)="addQuestions()">
+                {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
+            </button>
+            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
         </div>
     `,
 })
@@ -92,13 +81,13 @@ export class QuestionSelectorComponent {
 
     resultsUpdated = (event: Question[]) => (this.questions = event);
     questionSelected = (event: number[]) => (this.selections = event);
-    questionCopied = () => this.toast.info(this.translate.instant('sitnet_question_copied'));
+    questionCopied = () => this.toast.info(this.translate.instant('i18n_question_copied'));
     cancel = () => this.modal.dismiss();
 
     addQuestions = () => {
         // check that at least one has been selected
         if (this.selections.length === 0) {
-            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
             return;
         }
 
@@ -113,7 +102,7 @@ export class QuestionSelectorComponent {
                         const insertedSectionQuestions = resp.sectionQuestions.filter((esq) =>
                             this.selections.includes(esq.question.id),
                         );
-                        this.toast.info(this.translate.instant('sitnet_question_added'));
+                        this.toast.info(this.translate.instant('i18n_question_added'));
                         this.modal.close(insertedSectionQuestions);
                     },
                     error: (err) => {

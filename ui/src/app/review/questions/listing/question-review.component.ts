@@ -12,31 +12,33 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { LowerCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { SessionService } from '../../../session/session.service';
-import type { QuestionReview } from '../../review.model';
-import { QuestionReviewService } from '../question-review.service';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
+import type { QuestionReview } from 'src/app/review/review.model';
+import { SessionService } from 'src/app/session/session.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 
 @Component({
     selector: 'xm-question-review',
-    template: `<div class="student-enrolment-wrapper essay-review">
+    template: `<div class="xm-study-item-container mx-0">
         <div class="review-points-exam d-flex justify-content-between">
             <div>
-                <img
-                    *ngIf="getAssessedAnswerCount() === review.answers.length"
-                    src="/assets/images/icon_question_type_ready.png"
-                />
-                <img
-                    *ngIf="getAssessedAnswerCount() !== review.answers.length"
-                    src="/assets/images/icon_question_type_ready_grey.png"
-                />
+                @if (getAssessedAnswerCount() === review.answers.length) {
+                    <img src="/assets/images/icon_question_type_ready.png" />
+                }
+                @if (getAssessedAnswerCount() !== review.answers.length) {
+                    <img src="/assets/images/icon_question_type_ready_grey.png" />
+                }
 
-                <span class="vcenter marl10">
+                <span class="ms-2">
                     {{ getAssessedAnswerCount() }} / {{ review.answers.length }}
-                    {{ 'sitnet_graded' | translate | lowercase }}
+                    {{ 'i18n_graded' | translate | lowercase }}
                 </span>
             </div>
-            <span class="float-end dropdown pointer-hand single-question-icon" uib-dropdown>
+            <span class="float-end">
                 <input
                     type="checkbox"
                     (change)="reviewSelected()"
@@ -49,61 +51,59 @@ import { QuestionReviewService } from '../question-review.service';
             <strong>#{{ review.question.id }}</strong>
         </div>
         <!-- question points -->
-        <div class="review-points-exam" *ngIf="review.question.defaultEvaluationType === 'Points'">
-            {{ review.question.defaultMaxScore }} {{ 'sitnet_unit_points' | translate }}
-        </div>
-        <div class="review-points-exam" *ngIf="review.question.defaultEvaluationType === 'Selection'">
-            {{ 'sitnet_evaluation_select' | translate }}
-        </div>
+        @if (review.question.defaultEvaluationType === 'Points') {
+            <div class="review-points-exam">
+                {{ review.question.defaultMaxScore }} {{ 'i18n_unit_points' | translate }}
+            </div>
+        }
+        @if (review.question.defaultEvaluationType === 'Selection') {
+            <div class="review-points-exam">
+                {{ 'i18n_evaluation_select' | translate }}
+            </div>
+        }
 
         <!-- Question -->
-        <div class="marl10 make-inline">
-            <div class="review-question-title make-inline" [xmMathJax]="review.question.question"></div>
-            <a
-                (click)="review.expanded = !review.expanded"
-                class="pointer-hand"
-                *ngIf="review.question.defaultAnswerInstructions"
-            >
-                <img
-                    *ngIf="!review.expanded"
-                    src="/assets/images/icon_list_show_right.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
-                />
-                <img
-                    *ngIf="review.expanded"
-                    src="/assets/images/icon_list_show_down.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
-                />
-            </a>
+        <div class="ms-2">
+            <div [xmMathJax]="review.question.question"></div>
+            @if (review.question.defaultAnswerInstructions) {
+                <a (click)="review.expanded = !review.expanded" class="pointer-hand">
+                    @if (!review.expanded) {
+                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                    }
+                    @if (review.expanded) {
+                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                    }
+                </a>
+            }
         </div>
 
-        <div *ngIf="review.expanded">
-            <img
-                *ngIf="
+        @if (review.expanded) {
+            <div>
+                @if (
                     review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0
-                "
-                src="/assets/images/icon_info.png"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_info.png'"
-            />
-            <span
-                *ngIf="
+                ) {
+                    <img src="/assets/images/icon_info.png" alt="" />
+                }
+                @if (
                     review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0
-                "
-                class="padl10"
-            >
-                {{ review.question.defaultAnswerInstructions }}</span
-            >
-        </div>
-    </div> `,
+                ) {
+                    <span class="ps-2"> {{ review.question.defaultAnswerInstructions }}</span>
+                }
+            </div>
+        }
+    </div>`,
+    standalone: true,
+    styleUrls: ['./question-review.component.scss'],
+    imports: [FormsModule, MathJaxDirective, LowerCasePipe, TranslateModule],
 })
 export class QuestionReviewComponent {
     @Input() review!: QuestionReview;
     @Output() selected = new EventEmitter<{ id: number; selected: boolean }>();
 
-    constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
+    constructor(
+        private QuestionReview: QuestionReviewService,
+        private Session: SessionService,
+    ) {}
 
     getAssessedAnswerCount = () => this.QuestionReview.getProcessedAnswerCount(this.review, this.Session.getUser());
 

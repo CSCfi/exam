@@ -12,29 +12,55 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap, tap } from 'rxjs/operators';
-import { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
-import { DateTimeService } from '../shared/date/date.service';
-import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
+import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
 import { CalendarService, ExamInfo, Organisation } from './calendar.service';
+import { CalendarExamInfoComponent } from './helpers/exam-info.component';
+import { OptionalSectionsComponent } from './helpers/optional-sections.component';
+import { OrganisationPickerComponent } from './helpers/organisation-picker.component';
+import { SlotPickerComponent } from './helpers/slot-picker.component';
 
 @Component({
     selector: 'xm-calendar',
     templateUrl: './calendar.component.html',
+    styleUrls: ['./calendar.component.scss'],
+    standalone: true,
+    imports: [
+        HistoryBackComponent,
+        AutoFocusDirective,
+        CalendarExamInfoComponent,
+        OptionalSectionsComponent,
+        OrganisationPickerComponent,
+        SlotPickerComponent,
+        NgClass,
+        CourseCodeComponent,
+        DatePipe,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class CalendarComponent implements OnInit {
     isInteroperable = false;
     confirming = false;
     examInfo: ExamInfo = {
-        examActiveStartDate: null,
-        examActiveEndDate: null,
+        periodStart: null,
+        periodEnd: null,
         name: '',
         duration: 0,
         anonymous: false,
@@ -89,13 +115,12 @@ export class CalendarComponent implements OnInit {
                 tap((resp) => {
                     this.reservationWindowSize = resp.value;
                     this.reservationWindowEndDate = DateTime.now().plus({ day: resp.value }).toJSDate();
-                    this.minDate = [new Date(), new Date(this.examInfo.examActiveStartDate as string)].reduce((a, b) =>
+                    this.minDate = [new Date(), new Date(this.examInfo.periodStart as string)].reduce((a, b) =>
                         a > b ? a : b,
                     );
-                    this.maxDate = [
-                        this.reservationWindowEndDate,
-                        new Date(this.examInfo.examActiveEndDate as string),
-                    ].reduce((a, b) => (a < b ? a : b));
+                    this.maxDate = [this.reservationWindowEndDate, new Date(this.examInfo.periodEnd as string)].reduce(
+                        (a, b) => (a < b ? a : b),
+                    );
                 }),
                 switchMap(() => this.Calendar.getExamVisitSupportStatus$()),
                 tap((resp) => (this.isInteroperable = resp.isExamVisitSupported)),
@@ -141,8 +166,8 @@ export class CalendarComponent implements OnInit {
 
     makeExternalReservation() {
         this.Dialog.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_external_reservation'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_confirm_external_reservation'),
         ).subscribe({
             next: () =>
                 this.router.navigate(['/calendar', this.examId, 'external'], {
@@ -196,7 +221,7 @@ export class CalendarComponent implements OnInit {
         }
         const selectedSectionIds = this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id);
         if (!this.sectionSelectionOk()) {
-            this.toast.error(this.translate.instant('sitnet_select_at_least_one_section'));
+            this.toast.error(this.translate.instant('i18n_select_at_least_one_section'));
             return;
         }
         this.confirming = true;

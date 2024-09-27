@@ -12,19 +12,35 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { Exam } from '../../../exam/exam.model';
-import { SessionService } from '../../../session/session.service';
-import type { Review } from '../../review.model';
+import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { Review } from 'src/app/review/review.model';
+import { SessionService } from 'src/app/session/session.service';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-aborted-exams',
+    standalone: true,
+    imports: [
+        TranslateModule,
+        DatePipe,
+        DiffInMinutesPipe,
+        ApplyDstPipe,
+        LowerCasePipe,
+        OrderByPipe,
+        TableSortComponent,
+    ],
     templateUrl: './aborted.component.html',
+    styleUrls: ['../review-list.component.scss'],
 })
 export class AbortedExamsComponent {
     @Input() exam!: Exam;
@@ -46,7 +62,7 @@ export class AbortedExamsComponent {
     permitRetrial = (enrolment: ExamEnrolment) => {
         this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe(() => {
             enrolment.retrialPermitted = true;
-            this.toast.info(this.translate.instant('sitnet_retrial_permitted'));
+            this.toast.info(this.translate.instant('i18n_retrial_permitted'));
         });
     };
 

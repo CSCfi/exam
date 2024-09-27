@@ -13,44 +13,46 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { TranslateModule } from '@ngx-translate/core';
+import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 
 @Component({
-    selector: 'xm-publication-delete-dialog',
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_remove_exception_confirmation' | translate }}</div>
-            </div>
-            <div class="modal-body">
-                <div class="flex">
-                    <div class="min-width-300 marr10">
-                        {{ message }}
-                    </div>
-                    <div class="text-danger" *ngIf="exception?.outOfService">
-                        {{ 'sitnet_room_out_of_service' | translate }}
-                    </div>
-                    <div class="text-info" *ngIf="!exception?.outOfService">
-                        {{ 'sitnet_room_in_service' | translate }}
-                    </div>
+    template: `
+        <div class="modal-header">
+            <div class="xm-modal-title">{{ 'i18n_remove_exception_confirmation' | translate }}</div>
+        </div>
+        <div class="modal-body">
+            <div class="d-flex">
+                <div class="me-2">
+                    {{ message }}
                 </div>
-            </div>
-            <div class="modal-footer">
-                <div class="student-message-dialog-button-save float-end">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'sitnet_confirm' | translate }}
-                    </button>
-                </div>
-                <div class="student-message-dialog-button-cancel">
-                    <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss()">
-                        {{ 'sitnet_button_cancel' | translate }}
-                    </button>
-                </div>
+                @if (exception?.outOfService) {
+                    <div class="text-danger">
+                        {{ 'i18n_room_out_of_service' | translate }}
+                    </div>
+                }
+                @if (!exception?.outOfService) {
+                    <div class="text-info">
+                        {{ 'i18n_room_in_service' | translate }}
+                    </div>
+                }
             </div>
         </div>
-    </div> `,
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success" (click)="activeModal.close()" autofocus>
+                {{ 'i18n_confirm' | translate }}
+            </button>
+            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
+        </div>
+    `,
+    styleUrls: ['../rooms/rooms.component.scss'],
+    standalone: true,
+    imports: [TranslateModule],
 })
 export class ExceptionDeleteDialogComponent {
     @Input() message?: string;

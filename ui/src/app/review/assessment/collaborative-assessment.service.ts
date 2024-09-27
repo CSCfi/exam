@@ -20,8 +20,8 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import type { Exam, ExamParticipation, Feedback, SelectableGrade } from '../../exam/exam.model';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import type { Exam, ExamParticipation, Feedback, SelectableGrade } from 'src/app/exam/exam.model';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { AssessmentService } from './assessment.service';
 
 interface Payload {
@@ -55,7 +55,7 @@ export class CollaborativeAssesmentService {
         if (participation.exam.state === 'GRADED_LOGGED') {
             const url = `/app/iop/reviews/${examId}/${examRef}/info`;
             return this.http.put<{ rev: string }>(url, { assessmentInfo: participation.exam.assessmentInfo }).pipe(
-                tap(() => this.toast.info(this.translate.instant('sitnet_saved'))),
+                tap(() => this.toast.info(this.translate.instant('i18n_saved'))),
                 map((data) => {
                     participation._rev = data.rev;
                     return participation;
@@ -77,7 +77,7 @@ export class CollaborativeAssesmentService {
         };
         const url = `/app/iop/reviews/${examId}/${examRef}/comment`;
         return this.http.put<{ rev: string }>(url, payload).pipe(
-            tap(() => this.toast.info(this.translate.instant('sitnet_comment_added'))),
+            tap(() => this.toast.info(this.translate.instant('i18n_comment_added'))),
             map((data) => {
                 participation._rev = data.rev;
                 return participation;
@@ -104,9 +104,9 @@ export class CollaborativeAssesmentService {
             if (participation.exam.state !== 'GRADED') {
                 // Just save feedback and leave
                 this.saveFeedback$(id, ref, participation).subscribe(() => {
-                    this.toast.info(this.translate.instant('sitnet_saved'));
+                    this.toast.info(this.translate.instant('i18n_saved'));
                     const state = this.Assessment.getExitStateById(id, true);
-                    this.router.navigate(state.fragments, state.params);
+                    this.router.navigate(state.fragments, { queryParams: state.params });
                 });
             }
         } else {
@@ -121,8 +121,8 @@ export class CollaborativeAssesmentService {
                 this.sendAssessment(newState, payload, messages, participation, id, ref);
             } else {
                 const dialog = this.dialogs.open$(
-                    this.translate.instant('sitnet_confirm'),
-                    this.translate.instant('sitnet_confirm_grade_review'),
+                    this.translate.instant('i18n_confirm'),
+                    this.translate.instant('i18n_confirm_grade_review'),
                 );
                 dialog.subscribe({
                     next: () => this.sendAssessment(newState, payload, messages, participation, id, ref),
@@ -141,13 +141,13 @@ export class CollaborativeAssesmentService {
             messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
         } else {
             const dialogNote = participation.exam.gradeless
-                ? this.translate.instant('sitnet_confirm_archiving_without_grade')
+                ? this.translate.instant('i18n_confirm_archiving_without_grade')
                 : this.Assessment.getRecordReviewConfirmationDialogContent(
                       (participation.exam.examFeedback as Feedback).comment,
                       false,
                   );
             const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
-            this.dialogs.open$(this.translate.instant('sitnet_confirm'), dialogNote).subscribe({
+            this.dialogs.open$(this.translate.instant('i18n_confirm'), dialogNote).subscribe({
                 next: () => this.register(participation, examId, ref, payload),
                 error: (err) => this.toast.error(err),
             });
@@ -170,14 +170,11 @@ export class CollaborativeAssesmentService {
                     next: () => {
                         if (newState === 'REVIEW_STARTED') {
                             messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
-                            window.setTimeout(
-                                () => this.toast.info(this.translate.instant('sitnet_review_saved')),
-                                1000,
-                            );
+                            window.setTimeout(() => this.toast.info(this.translate.instant('i18n_review_saved')), 1000);
                         } else {
-                            this.toast.info(this.translate.instant('sitnet_review_graded'));
+                            this.toast.info(this.translate.instant('i18n_review_graded'));
                             const state = this.Assessment.getExitStateById(examId, true);
-                            this.router.navigate(state.fragments, state.params);
+                            this.router.navigate(state.fragments, { queryParams: state.params });
                         }
                     },
                     error: (err) => this.toast.error(err),
@@ -193,9 +190,9 @@ export class CollaborativeAssesmentService {
         this.http.put<{ rev: string }>(url, payload).subscribe({
             next: (data) => {
                 participation._rev = data.rev;
-                this.toast.info(this.translate.instant('sitnet_review_recorded'));
+                this.toast.info(this.translate.instant('i18n_review_recorded'));
                 const state = this.Assessment.getExitStateById(examId, true);
-                this.router.navigate(state.fragments, state.params);
+                this.router.navigate(state.fragments, { queryParams: state.params });
             },
             error: (err) => this.toast.error(err),
         });
@@ -210,7 +207,7 @@ export class CollaborativeAssesmentService {
                     next: (data) => {
                         payload.rev = participation._rev = data.rev;
                         if (participation.exam.state !== 'GRADED') {
-                            this.toast.info(this.translate.instant('sitnet_review_graded'));
+                            this.toast.info(this.translate.instant('i18n_review_graded'));
                         }
                         this.sendToRegistry(payload, examId, ref, participation);
                     },

@@ -12,25 +12,50 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbModal,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { mergeDeepRight } from 'ramda';
-import { from, noop, Observable, of } from 'rxjs';
+import { Observable, from, noop, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BaseQuestionEditorComponent } from '../../../question/examquestion/base-question-editor.component';
-import { ExamQuestionEditorComponent } from '../../../question/examquestion/exam-question-editor.component';
-import { QuestionService } from '../../../question/question.service';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { FileService } from '../../../shared/file/file.service';
-import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
+import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/exam/exam.model';
+import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
+import { ExamQuestionEditorComponent } from 'src/app/question/examquestion/exam-question-editor.component';
+import { QuestionService } from 'src/app/question/question.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { FileService } from 'src/app/shared/file/file.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-section-question',
     templateUrl: './section-question.component.html',
+    standalone: true,
+    imports: [
+        CdkDragHandle,
+        NgbPopover,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        MathJaxDirective,
+        NgbCollapse,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class SectionQuestionComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;
@@ -40,6 +65,7 @@ export class SectionQuestionComponent {
     @Input() examId = 0;
     @Output() removed = new EventEmitter<ExamSectionQuestion>();
     @Output() updated = new EventEmitter<ExamSectionQuestion>();
+    @Output() copied = new EventEmitter<ExamSectionQuestion>();
 
     constructor(
         private http: HttpClient,
@@ -69,9 +95,15 @@ export class SectionQuestionComponent {
 
     removeQuestion = () =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_question'),
-        ).subscribe({ next: () => this.removed.emit(this.sectionQuestion), error: (err) => this.toast.error(err) });
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_remove_question'),
+        ).subscribe({ next: () => this.removed.emit(this.sectionQuestion) });
+
+    copyQuestion = () =>
+        this.Confirmation.open$(
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_copy_question'),
+        ).subscribe({ next: () => this.copied.emit(this.sectionQuestion) });
 
     determineClaimOptionType(examOption: ExamSectionQuestionOption) {
         return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
@@ -151,7 +183,6 @@ export class SectionQuestionComponent {
                         error: (err) => this.toast.error(err),
                     });
             },
-            error: (err) => this.toast.error(err),
         });
     };
 
@@ -173,7 +204,7 @@ export class SectionQuestionComponent {
                     this.section.id,
                 ).subscribe({
                     next: (esq: ExamSectionQuestion) => {
-                        this.toast.info(this.translate.instant('sitnet_question_saved'));
+                        this.toast.info(this.translate.instant('i18n_question_saved'));
                         // apply changes back to scope
                         this.sectionQuestion = { ...mergeDeepRight(this.sectionQuestion, esq) } as ExamSectionQuestion;
                         this.updated.emit(this.sectionQuestion);

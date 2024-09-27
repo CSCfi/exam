@@ -12,21 +12,26 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
-import type { User } from '../../../session/session.service';
-import type { Exam } from '../../exam.model';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-exam-owner-picker',
     templateUrl: './exam-owner-picker.component.html',
+    standalone: true,
+    imports: [NgClass, NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
 })
 export class ExamOwnerSelectorComponent implements OnInit {
     @Input() exam!: Exam;
@@ -39,7 +44,11 @@ export class ExamOwnerSelectorComponent implements OnInit {
         email?: string;
     };
 
-    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {
         this.newOwner = {};
     }
 
@@ -81,7 +90,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
                 error: (err) => this.toast.error(err),
             });
         } else {
-            this.toast.error(this.translate.instant('sitnet_teacher_not_found'));
+            this.toast.error(this.translate.instant('i18n_teacher_not_found'));
         }
     };
 

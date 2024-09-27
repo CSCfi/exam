@@ -18,18 +18,18 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import models.json.CollaborativeExam;
 import models.json.ExternalExam;
@@ -41,6 +41,8 @@ import util.datetime.DateTimeAdapter;
 
 @Entity
 public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {
+
+    private static final int DELAY_MAX = 30;
 
     @ManyToOne
     @JsonManagedReference
@@ -85,6 +87,8 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     private boolean noShow;
 
     private boolean retrialPermitted;
+
+    private int delay;
 
     public User getUser() {
         return user;
@@ -190,9 +194,20 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
         this.retrialPermitted = retrialPermitted;
     }
 
-    @Transient
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
+
     public boolean isProcessed() {
         return (exam != null && exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED));
+    }
+
+    public void setRandomDelay() {
+        this.setDelay(new Random().nextInt(DELAY_MAX));
     }
 
     @Override
@@ -212,10 +227,9 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExamEnrolment)) {
+        if (!(other instanceof ExamEnrolment otherEnrolment)) {
             return false;
         }
-        ExamEnrolment otherEnrolment = (ExamEnrolment) other;
         return new EqualsBuilder().append(id, otherEnrolment.id).build();
     }
 

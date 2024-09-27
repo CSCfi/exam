@@ -17,7 +17,7 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.Model;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -73,10 +73,9 @@ public class Grade extends Model {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof Grade)) {
+        if (!(other instanceof Grade otherGrade)) {
             return false;
         }
-        Grade otherGrade = (Grade) other;
         return new EqualsBuilder().append(id, otherGrade.id).build();
     }
 

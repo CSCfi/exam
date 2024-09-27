@@ -1,7 +1,7 @@
 package repository;
 
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.ExpressionList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
@@ -29,9 +28,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
-import play.Logger;
-import play.db.ebean.EbeanConfig;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.config.ByodConfigHandler;
@@ -43,20 +42,19 @@ public class EnrolmentRepository {
     private final DatabaseExecutionContext ec;
     private final ByodConfigHandler byodConfigHandler;
     private final DateTimeHandler dateTimeHandler;
-    private final EbeanServer db;
+    private final Database db;
 
-    private static final Logger.ALogger logger = Logger.of(EnrolmentRepository.class);
+    private final Logger logger = LoggerFactory.getLogger(EnrolmentRepository.class);
 
     @Inject
     public EnrolmentRepository(
         Environment environment,
-        EbeanConfig ebeanConfig,
         DatabaseExecutionContext databaseExecutionContext,
         ByodConfigHandler byodConfigHandler,
         DateTimeHandler dateTimeHandler
     ) {
         this.environment = environment;
-        this.db = Ebean.getServer(ebeanConfig.defaultServer());
+        this.db = DB.getDefault();
         this.ec = databaseExecutionContext;
         this.byodConfigHandler = byodConfigHandler;
         this.dateTimeHandler = dateTimeHandler;
@@ -73,7 +71,7 @@ public class EnrolmentRepository {
     public CompletionStage<ExamRoom> getRoomInfoForEnrolment(String hash, User user) {
         return CompletableFuture.supplyAsync(
             () -> {
-                ExpressionList<ExamEnrolment> query = Ebean
+                ExpressionList<ExamEnrolment> query = DB
                     .find(ExamEnrolment.class)
                     .fetch("user", "id")
                     .fetch("user.language")
@@ -96,7 +94,7 @@ public class EnrolmentRepository {
 
     private List<ExamEnrolment> doGetStudentEnrolments(User user) {
         DateTime now = dateTimeHandler.adjustDST(new DateTime());
-        List<ExamEnrolment> enrolments = Ebean
+        List<ExamEnrolment> enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("examinationEventConfiguration")
             .fetch("examinationEventConfiguration.examinationEvent")
@@ -127,11 +125,14 @@ public class EnrolmentRepository {
             .endJunction()
             .findList()
             .stream()
-            .filter(ee ->
-                ee.getExaminationEventConfiguration() == null ||
-                ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((DateTime.now()))
-            )
-            .collect(Collectors.toList());
+            .filter(ee -> {
+                if (ee.getExaminationEventConfiguration() == null) {
+                    return true;
+                }
+                var start = ee.getExaminationEventConfiguration().getExaminationEvent().getStart();
+                return start.plusMinutes(ee.getExam().getDuration()).isAfterNow();
+            })
+            .toList();
         enrolments.forEach(ee -> {
             Exam exam = ee.getExam();
             if (exam != null && exam.getExamSections().stream().noneMatch(ExamSection::isOptional)) {
@@ -143,16 +144,16 @@ public class EnrolmentRepository {
             .stream()
             .filter(ee -> {
                 Exam exam = ee.getExam();
-                if (exam != null && exam.getExamActiveEndDate() != null) {
+                if (exam != null && exam.getPeriodEnd() != null) {
                     return (
-                        exam.getExamActiveEndDate().isAfterNow() &&
+                        exam.getPeriodEnd().isAfterNow() &&
                         exam.hasState(Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED)
                     );
                 }
                 CollaborativeExam ce = ee.getCollaborativeExam();
-                return ce != null && ce.getExamActiveEndDate().isAfterNow();
+                return ce != null && ce.getPeriodEnd().isAfterNow();
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Long userId) {
@@ -240,7 +241,7 @@ public class EnrolmentRepository {
                     message = enrolment.getId() + ":::" + lookedUp.getId();
                 }
                 headers.put(header, Base64.encodeBase64String(message.getBytes()));
-                logger.debug("room and machine not ok. " + message);
+                logger.debug("room and machine not ok. {}", message);
                 return false;
             }
         }
@@ -318,24 +319,25 @@ public class EnrolmentRepository {
         ExaminationEvent event = ee.getExaminationEventConfiguration() != null
             ? ee.getExaminationEventConfiguration().getExaminationEvent()
             : null;
+        int delay = ee.getDelay();
         return (
-            (
-                reservation != null &&
-                reservation.getStartAt().isBefore(latest) &&
-                reservation.getEndAt().isAfter(earliest)
-            ) ||
-            (
-                event != null &&
-                event.getStart().isBefore(latest) &&
-                event.getStart().plusMinutes(ee.getExam().getDuration()).isAfter(earliest)
-            )
+            (reservation != null &&
+                reservation.getStartAt().plusSeconds(delay).isBefore(latest) &&
+                reservation.getEndAt().isAfter(earliest)) ||
+            (event != null &&
+                event.getStart().plusSeconds(delay).isBefore(latest) &&
+                event.getStart().plusMinutes(ee.getExam().getDuration()).isAfter(earliest))
         );
     }
 
     private DateTime getStartTime(ExamEnrolment enrolment) {
         return enrolment.getReservation() != null
-            ? enrolment.getReservation().getStartAt()
-            : enrolment.getExaminationEventConfiguration().getExaminationEvent().getStart();
+            ? enrolment.getReservation().getStartAt().plusSeconds(enrolment.getDelay())
+            : enrolment
+                .getExaminationEventConfiguration()
+                .getExaminationEvent()
+                .getStart()
+                .plusSeconds(enrolment.getDelay());
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {

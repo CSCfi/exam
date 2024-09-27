@@ -12,17 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { Router, RouterLink } from '@angular/router';
+import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
-import type { CollaborativeExam } from '../exam.model';
-import { CollaborativeExamState } from '../exam.model';
+import type { CollaborativeExam } from 'src/app/exam/exam.model';
+import { CollaborativeExamState } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { CollaborativeExamService } from './collaborative-exam.service';
 
 enum ListingView {
@@ -41,6 +47,23 @@ interface ListedCollaborativeExam extends CollaborativeExam {
 @Component({
     selector: 'xm-collaborative-exam-listing',
     templateUrl: './collaborative-exam-listing.component.html',
+    standalone: true,
+    imports: [
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLink,
+        NgbPopover,
+        TableSortComponent,
+        RouterLink,
+        NgClass,
+        UpperCasePipe,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     exams: ListedCollaborativeExam[] = [];
@@ -62,7 +85,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     ) {
         this.view = ListingView.PUBLISHED;
         this.user = this.Session.getUser();
-        this.examsPredicate = 'examActiveEndDate';
+        this.examsPredicate = 'periodEnd';
         this.reverse = true;
         this.loader = { loading: false };
         this.filterChanged
@@ -71,7 +94,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
                 distinctUntilChanged(),
                 switchMap((text) => this.CollaborativeExam.searchExams$(text)),
                 tap(() => (this.loader.loading = true)),
-                map((exams) => this.returnListedCollaborativeExams(exams)),
+                map((exams) => this.searchExams(exams)),
                 tap((exams) => (this.exams = exams)),
                 tap(() => (this.loader.loading = false)),
                 takeUntil(this.ngUnsubscribe),
@@ -79,7 +102,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
             .subscribe();
         this.examCreated.pipe(exhaustMap(() => this.CollaborativeExam.createExam$())).subscribe({
             next: (exam: CollaborativeExam) => {
-                toast.info(this.translate.instant('sitnet_exam_created'));
+                toast.info(this.translate.instant('i18n_exam_created'));
                 this.router.navigate(['/staff/exams', exam.id, '1'], { queryParams: { collaborative: true } });
             },
             error: (err) => this.toast.error(err),
@@ -97,24 +120,10 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
 
     listAllExams = () => this.filterChanged.next('');
 
-    returnListedCollaborativeExams(exams: CollaborativeExam[]): ListedCollaborativeExam[] {
-        const listedExams: ListedCollaborativeExam[] = exams
-            .map((e) => {
-                const ownerAggregate = e.examOwners.map((o) => o.email).join();
-                const stateTranslation = this.getStateTranslation(e);
-                const listingView = this.determineListingView(e);
-
-                return { ...e, ownerAggregate, stateTranslation, listingView };
-            })
-            .filter((e) => e.listingView !== ListingView.OTHER);
-
-        return listedExams;
-    }
-
     determineListingView(exam: CollaborativeExam) {
         if (
             (exam.state === CollaborativeExamState.PUBLISHED || exam.state === CollaborativeExamState.PRE_PUBLISHED) &&
-            Date.now() > new Date(exam.examActiveEndDate).getTime()
+            Date.now() > new Date(exam.periodEnd).getTime()
         ) {
             return ListingView.EXPIRED;
         }
@@ -151,11 +160,22 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     }
 
     getExamAnonymousStatus(exam: CollaborativeExam) {
-        return exam.anonymous ? 'sitnet_anonymous_enabled' : 'sitnet_anonymous_disabled';
+        return exam.anonymous ? 'i18n_anonymous_enabled' : 'i18n_anonymous_disabled';
     }
 
     search = (event: KeyboardEvent) => {
         const e = event.target as HTMLInputElement;
         return this.filterChanged.next(e.value);
     };
+
+    private searchExams = (exams: CollaborativeExam[]): ListedCollaborativeExam[] =>
+        exams
+            .map((e) => {
+                const ownerAggregate = e.examOwners.map((o) => o.email).join();
+                const stateTranslation = this.getStateTranslation(e);
+                const listingView = this.determineListingView(e);
+
+                return { ...e, ownerAggregate, stateTranslation, listingView };
+            })
+            .filter((e) => e.listingView !== ListingView.OTHER);
 }

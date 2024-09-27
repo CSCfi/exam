@@ -15,9 +15,13 @@
 
 package models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.util.List;
-import javax.persistence.*;
 import models.base.OwnedModel;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -31,7 +35,6 @@ public class Tag extends OwnedModel {
     private String name;
 
     @ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)
-    @JsonBackReference
     private List<Question> questions;
 
     public String getName() {
@@ -53,10 +56,9 @@ public class Tag extends OwnedModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof Tag)) {
+        if (!(other instanceof Tag otherTag)) {
             return false;
         }
-        Tag otherTag = (Tag) other;
         return new EqualsBuilder().append(name, otherTag.name).build();
     }
 

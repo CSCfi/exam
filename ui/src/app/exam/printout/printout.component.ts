@@ -12,18 +12,27 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
-import { FileService } from '../../shared/file/file.service';
-import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from '../exam.model';
+import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from 'src/app/exam/exam.model';
+import { FileService } from 'src/app/shared/file/file.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & { ord: number })[] };
 
 @Component({
     selector: 'xm-printout',
     templateUrl: './printout.component.html',
+    standalone: true,
+    imports: [CourseCodeComponent, TeacherListComponent, MathJaxDirective, DatePipe, TranslateModule, OrderByPipe],
+    styleUrl: './printout.component.scss',
 })
 export class PrintoutComponent implements OnInit {
     exam!: Printout;

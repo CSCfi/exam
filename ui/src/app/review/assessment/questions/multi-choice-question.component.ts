@@ -12,20 +12,39 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgStyle, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import type { ExamParticipation, ExamSectionQuestion } from 'src/app/exam/exam.model';
 import { QuestionService } from 'src/app/question/question.service';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
-import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { AssessmentService } from '../assessment.service';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
+import { ClaimChoiceAnswerComponent } from './claim-choice-answer.component';
+import { MultiChoiceAnswerComponent } from './multi-choice-answer.component';
+import { WeightedMultiChoiceAnswerComponent } from './weighted-multi-choice-answer.component';
 
 @Component({
     selector: 'xm-r-multi-choice-question',
     templateUrl: './multi-choice-question.component.html',
+    styleUrls: ['../assessment.shared.scss'],
+    standalone: true,
+    imports: [
+        MathJaxDirective,
+        NgStyle,
+        MultiChoiceAnswerComponent,
+        WeightedMultiChoiceAnswerComponent,
+        ClaimChoiceAnswerComponent,
+        FormsModule,
+        FixedPrecisionValidatorDirective,
+        UpperCasePipe,
+        TranslateModule,
+    ],
 })
 export class MultiChoiceQuestionComponent implements OnInit {
     @Input() sectionQuestion!: ExamSectionQuestion;
@@ -111,14 +130,14 @@ export class MultiChoiceQuestionComponent implements OnInit {
                 this.participation._rev,
             ).subscribe({
                 next: (resp) => {
-                    this.toast.info(this.translate.instant('sitnet_graded'));
+                    this.toast.info(this.translate.instant('i18n_graded'));
                     this.scored.emit(resp.rev);
                 },
                 error: (err) => this.toast.error(err.data),
             });
         } else {
             this.Assessment.saveForcedScore(this.sectionQuestion).subscribe({
-                next: () => this.toast.info(this.translate.instant('sitnet_graded')),
+                next: () => this.toast.info(this.translate.instant('i18n_graded')),
                 error: (err) => this.toast.error(err.data),
             });
         }

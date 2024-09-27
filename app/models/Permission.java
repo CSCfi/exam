@@ -15,11 +15,11 @@
 
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.annotation.EnumValue;
+import jakarta.persistence.Entity;
 import java.util.Objects;
 import java.util.Optional;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 
 @Entity
@@ -28,12 +28,14 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
     public enum Type {
         @EnumValue("1")
         CAN_INSPECT_LANGUAGE,
+        @EnumValue("2")
+        CAN_CREATE_BYOD_EXAM,
     }
 
     private Type type;
 
     @Override
-    @Transient
+    @JsonIgnore
     public String getValue() {
         return type.toString();
     }
@@ -58,8 +60,7 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Permission)) return false;
-        Permission permission = (Permission) o;
+        if (!(o instanceof Permission permission)) return false;
         return Objects.equals(type, permission.type);
     }
 

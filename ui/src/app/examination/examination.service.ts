@@ -19,7 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { concat, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import type { ClozeTestAnswer, EssayAnswer } from '../exam/exam.model';
+import type { ClozeTestAnswer, EssayAnswer } from 'src/app/exam/exam.model';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
 @Injectable({ providedIn: 'root' })
@@ -36,7 +36,7 @@ export class ExaminationService {
     getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
-        const getUrl = (h: string) => (isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + h);
+        const getUrl = (h: string) => (isPreview && id ? `/app/exams/${id}/preview` : `/app/student/exam/${h}`);
         return this.http.get<void>('/app/session').pipe(
             switchMap(() =>
                 this.http.get<Examination>(isCollaboration ? getUrl(hash).replace('/app/', '/app/iop/') : getUrl(hash)),
@@ -67,7 +67,7 @@ export class ExaminationService {
         if (!answerObj) {
             throw new Error('no answer object in question');
         }
-        esq.questionStatus = this.translate.instant('sitnet_answer_saved');
+        esq.questionStatus = this.translate.instant('i18n_answer_saved');
         const url = this.getResource(
             type === 'EssayQuestion'
                 ? '/app/student/exam/' + hash + '/question/' + esq.id
@@ -84,7 +84,7 @@ export class ExaminationService {
                     esq.autosaved = new Date();
                 } else {
                     if (!canFail) {
-                        this.toast.info(this.translate.instant('sitnet_answer_saved'));
+                        this.toast.info(this.translate.instant('i18n_answer_saved'));
                     }
                 }
                 answerObj.objectVersion = a.objectVersion;
@@ -144,15 +144,13 @@ export class ExaminationService {
         return isAnswered;
     };
 
-    setQuestionColors = (sectionQuestion: ExaminationQuestion) => {
+    setAnswerStatus = (sectionQuestion: ExaminationQuestion) => {
         if (this.isAnswered(sectionQuestion)) {
             sectionQuestion.answered = true;
-            sectionQuestion.questionStatus = this.translate.instant('sitnet_question_answered');
-            sectionQuestion.selectedAnsweredState = 'question-answered-header';
+            sectionQuestion.questionStatus = this.translate.instant('i18n_question_answered');
         } else {
             sectionQuestion.answered = false;
-            sectionQuestion.questionStatus = this.translate.instant('sitnet_question_unanswered');
-            sectionQuestion.selectedAnsweredState = 'question-unanswered-header';
+            sectionQuestion.questionStatus = this.translate.instant('i18n_question_unanswered');
         }
     };
 
@@ -167,14 +165,14 @@ export class ExaminationService {
             const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
             this.http.post(url, { oids: ids }).subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_answer_saved'));
+                    this.toast.info(this.translate.instant('i18n_answer_saved'));
                     sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
-                    this.setQuestionColors(sq);
+                    this.setAnswerStatus(sq);
                 },
                 error: (err) => this.toast.error(err),
             });
         } else {
-            this.setQuestionColors(sq);
+            this.setAnswerStatus(sq);
         }
     };
 
@@ -199,7 +197,6 @@ export class ExaminationService {
     logout = (msg: string, hash: string, quitLinkEnabled: boolean, canFail: boolean) => {
         const ok = () => {
             this.toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
-            window.onbeforeunload = null;
             this.router.navigate(['/examination/logout'], {
                 queryParams: { reason: 'finished', quitLinkEnabled: quitLinkEnabled },
             });

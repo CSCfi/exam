@@ -12,62 +12,55 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import type { User } from '../../../session/session.service';
-import { FileService } from '../../../shared/file/file.service';
-import { Option } from '../../../shared/select/dropdown-select.component';
+import type { User } from 'src/app/session/session.service';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { FileService } from 'src/app/shared/file/file.service';
+import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
 
 @Component({
     template: `
-        <div class="top-row">
-            <h4 class="col-md-12">
-                {{ 'sitnet_get_all_student_activities' | translate }}
-            </h4>
+        <div class="row">
+            <strong class="col-md-12">
+                {{ 'i18n_get_all_student_activities' | translate }}
+            </strong>
         </div>
-        <div class="bottom-row d-flex justify-content-between">
-            <div class="col-lg-4 mb-2">
-                <label for="student">{{ 'sitnet_student' | translate }}</label>
+        <div class="row align-items-end mb-2">
+            <div class="col-3">
+                <label for="student">{{ 'i18n_student' | translate }}</label>
                 <xm-dropdown-select
                     id="student"
-                    *ngIf="students"
                     [options]="students"
                     (optionSelected)="studentSelected($event)"
-                    placeholder="{{ 'sitnet_select' | translate }}"
+                    placeholder="{{ 'i18n_select' | translate }}"
                 ></xm-dropdown-select>
             </div>
-            <div class="col-lg-3 mb-2">
-                <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
+            <div class="col-3">
+                <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
                 <div id="startAt">
                     <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
-            <div class="col-lg-3 mb-2">
-                <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
+            <div class="col-3">
+                <label for="endAt">{{ 'i18n_end_time' | translate }}</label>
                 <div id="endAt">
                     <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
-            <div class="col-lg-2 mb-2">
-                <label for="link">&nbsp;</label>
-                <div id="link">
-                    <a
-                        (click)="getStudentReport()"
-                        class="print-btn"
-                        download
-                        triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_download' | translate }}"
-                    >
-                        <i class="bi-file-earmark-excel font-6"></i>
-                    </a>
-                </div>
+            <div class="col-3">
+                <button class="btn btn-success btn-sm float-end" (click)="getStudentReport()">
+                    <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
+                </button>
             </div>
         </div>
     `,
     selector: 'xm-students-report',
+    standalone: true,
+    imports: [DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class StudentsReportComponent {
     @Input() students: Option<User, number>[] = [];
@@ -76,7 +69,6 @@ export class StudentsReportComponent {
     endDate: Date | null = null;
 
     constructor(
-        private datePipe: DatePipe,
         private translate: TranslateService,
         private toast: ToastrService,
         private files: FileService,
@@ -84,11 +76,11 @@ export class StudentsReportComponent {
 
     getStudentReport = () => {
         if (this.student) {
-            const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
-            const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
+            const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
+            const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
             this.files.download(`/app/statistics/student/${this.student}/${f}/${t}`, 'student_activity.xlsx');
         } else {
-            this.toast.error(this.translate.instant('sitnet_choose_student'));
+            this.toast.error(this.translate.instant('i18n_choose_student'));
         }
     };
 

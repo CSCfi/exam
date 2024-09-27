@@ -15,12 +15,11 @@
 
 package controllers;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Model;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +30,7 @@ import models.Exam;
 import models.ExamInspection;
 import models.Role;
 import models.User;
+import org.apache.pekko.actor.ActorSystem;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -52,14 +52,14 @@ public class ExamInspectionController extends BaseController {
     @With(CommentSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result addInspection(Long eid, Long uid, Http.Request request) {
-        User recipient = Ebean.find(User.class, uid);
-        Exam exam = Ebean.find(Exam.class, eid);
+        User recipient = DB.find(User.class, uid);
+        Exam exam = DB.find(Exam.class, eid);
         if (exam == null || recipient == null) {
             return notFound();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
         if (isInspectorOf(recipient, exam)) {
             return forbidden("already an inspector");
@@ -67,7 +67,7 @@ public class ExamInspectionController extends BaseController {
         Optional<String> comment = request.attrs().getOptional(Attrs.COMMENT);
         // Exam name required before adding inspectors that are to receive an email notification
         if ((exam.getName() == null || exam.getName().isEmpty()) && comment.isPresent()) {
-            return badRequest("sitnet_exam_name_missing_or_too_short");
+            return badRequest("i18n_exam_name_missing_or_too_short");
         }
         ExamInspection inspection = new ExamInspection();
         inspection.setExam(exam);
@@ -113,7 +113,7 @@ public class ExamInspectionController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamInspections(Long id) {
-        Set<ExamInspection> inspections = Ebean
+        Set<ExamInspection> inspections = DB
             .find(ExamInspection.class)
             .fetch("user", "id, email, firstName, lastName")
             .where()
@@ -125,7 +125,7 @@ public class ExamInspectionController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result setInspectionOutcome(Long id, Http.Request request) {
         boolean ready = Boolean.parseBoolean(formFactory.form().bindFromRequest(request).get("ready"));
-        ExamInspection inspection = Ebean.find(ExamInspection.class, id);
+        ExamInspection inspection = DB.find(ExamInspection.class, id);
 
         if (inspection == null) {
             return notFound();
@@ -138,9 +138,9 @@ public class ExamInspectionController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result deleteInspection(Long id) {
-        ExamInspection inspection = Ebean.find(ExamInspection.class, id);
+        ExamInspection inspection = DB.find(ExamInspection.class, id);
         if (inspection == null) {
-            return notFound("sitnet_error_not_found");
+            return notFound("i18n_error_not_found");
         }
         User inspector = inspection.getUser();
         Exam exam = inspection.getExam();

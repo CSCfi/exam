@@ -18,16 +18,15 @@ package models.questions;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import models.sections.ExamSectionQuestion;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -53,9 +52,6 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     @Transient
     private Score score;
 
-    @Transient
-    private List<ContentElement> elements;
-
     public String getAnswer() {
         return answer;
     }
@@ -70,10 +66,6 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
 
     public Score getScore() {
         return score;
-    }
-
-    public List<ContentElement> getElements() {
-        return elements;
     }
 
     public ClozeTestAnswer copy() {
@@ -100,11 +92,12 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             b.text("");
             b.attr("aria-label", "cloze test answer");
             b.attr("type", isNumeric ? "number" : "text");
-            b.attr("class", "cloze-input");
+            b.attr("class", "cloze-input mt-2");
             if (isNumeric) {
                 b.attr("step", "any");
-                // Should allow for using both comma and period as decimal separator
-                b.attr("lang", "en-150");
+                // Hacky, but this should allow for using both comma and period as decimal separator even in Firefox
+                // regardless of browser language.
+                b.attr("lang", "fi");
             }
         });
         this.question = doc.body().children().toString();
@@ -200,7 +193,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         String precisionAttr = blank.attr("precision");
         double answer = Double.parseDouble(answerText);
         Double correctAnswer = Double.parseDouble(blank.text().trim().replaceAll("(^\\h*)|(\\h*$)", ""));
-        Double precision = precisionAttr == null ? 0.0 : Double.parseDouble(precisionAttr);
+        Double precision = precisionAttr.isEmpty() ? 0.0 : Double.parseDouble(precisionAttr);
         return (correctAnswer - precision <= answer && answer <= correctAnswer + precision);
     }
 
@@ -253,63 +246,6 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
 
         public int getIncorrectAnswers() {
             return incorrectAnswers;
-        }
-    }
-
-    public abstract static class ContentElement {
-
-        int order;
-
-        ContentElement(int order) {
-            this.order = order;
-        }
-
-        public int getOrder() {
-            return order;
-        }
-
-        public abstract String getType();
-    }
-
-    public static class BlankElement extends ContentElement {
-
-        boolean numeric;
-        String id;
-
-        BlankElement(int order, boolean numeric, String id) {
-            super(order);
-            this.numeric = numeric;
-            this.id = id;
-        }
-
-        public String getType() {
-            return "Blank";
-        }
-
-        public boolean isNumeric() {
-            return numeric;
-        }
-
-        public String getId() {
-            return id;
-        }
-    }
-
-    public static class TextElement extends ContentElement {
-
-        String text;
-
-        TextElement(int order, String text) {
-            super(order);
-            this.text = text;
-        }
-
-        public String getType() {
-            return "Text";
-        }
-
-        public String getText() {
-            return text;
         }
     }
 }

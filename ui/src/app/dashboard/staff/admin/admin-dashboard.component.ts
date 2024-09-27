@@ -13,9 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
+import { ReservationsComponent } from 'src/app/reservation/reservations.component';
 
 @Component({
     selector: 'xm-admin-dashboard',
     template: '<xm-reservations></xm-reservations>',
+    standalone: true,
+    imports: [ReservationsComponent],
 })
 export class AdminDashboardComponent {}

@@ -17,9 +17,9 @@ import { Injectable } from '@angular/core';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { ExamEnrolment } from '../../enrolment/enrolment.model';
-import type { Reservation } from '../../reservation/reservation.model';
-import { DateTimeService } from '../../shared/date/date.service';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { Reservation } from 'src/app/reservation/reservation.model';
+import { DateTimeService } from 'src/app/shared/date/date.service';
 
 interface Occasion {
     startAt: string;
@@ -34,7 +34,10 @@ export interface DashboardEnrolment extends ExamEnrolment {
 
 @Injectable({ providedIn: 'root' })
 export class StudentDashboardService {
-    constructor(private http: HttpClient, private DateTime: DateTimeService) {}
+    constructor(
+        private http: HttpClient,
+        private DateTime: DateTimeService,
+    ) {}
 
     listEnrolments = (): Observable<DashboardEnrolment[]> =>
         this.http.get<ExamEnrolment[]>('/app/student/enrolments').pipe(

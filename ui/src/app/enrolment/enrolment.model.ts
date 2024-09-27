@@ -5,9 +5,9 @@ import type {
     ExaminationEventConfiguration,
     ExamInspection,
     ExamSection,
-} from '../exam/exam.model';
-import type { Reservation } from '../reservation/reservation.model';
-import type { User } from '../session/session.service';
+} from 'src/app/exam/exam.model';
+import type { Reservation } from 'src/app/reservation/reservation.model';
+import type { User } from 'src/app/session/session.service';
 
 export interface Scores {
     maxScore: number;
@@ -47,6 +47,7 @@ export interface ExamEnrolment {
     noShow: boolean;
     retrialPermitted: boolean;
     optionalSections: ExamSection[];
+    delay: number;
 }
 
 export interface EnrolmentInfo extends Exam {

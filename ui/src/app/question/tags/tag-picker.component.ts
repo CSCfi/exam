@@ -12,14 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
-import type { Question, Tag } from '../../exam/exam.model';
-import { QuestionDraft } from '../question.service';
+import type { Question, Tag } from 'src/app/exam/exam.model';
+import { QuestionDraft } from 'src/app/question/question.service';
+import { SessionService, User } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-tag-picker',
@@ -27,11 +31,11 @@ import { QuestionDraft } from '../question.service';
         <form>
             <div class="row mt-3 align-items-center">
                 <label class="col-md-3 col-form-label" for="newTag"
-                    >{{ 'sitnet_tag_question' | translate
+                    >{{ 'i18n_tag_question' | translate
                     }}<sup
                         class="ms-1"
-                        ngbPopover="{{ 'sitnet_question_tag_question_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_question_tag_question_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                         ><img src="/assets/images/icon_tooltip.svg" alt="" /></sup
                 ></label>
@@ -44,48 +48,59 @@ import { QuestionDraft } from '../question.service';
                             maxlength="30"
                             class="form-control col-md-8"
                             [(ngModel)]="tagName"
-                            lowerCase
+                            xmLowerCase
                             [ngbTypeahead]="getTags$"
                             (selectItem)="onTagSelect($event)"
                             [resultFormatter]="nameFormat"
                             [inputFormatter]="nameFormat"
                         />
                         <button
-                            class="input-group-text btn btn-primary green"
+                            class="input-group-text btn btn-success"
                             (click)="addTag()"
                             [disabled]="!newTag || newTag.name.length < 2"
                         >
-                            {{ 'sitnet_add' | translate }}
+                            {{ 'i18n_add' | translate }}
                         </button>
                     </div>
                 </div>
                 <div class="col">
-                    <ul class="list-inline mart10">
-                        <li *ngFor="let tag of question.tags" class="list-inline-item">
-                            {{ tag.name }}
-                            <button
-                                class="reviewer-remove"
-                                ngbPopover="{{ 'sitnet_remove' | translate }}"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                                (click)="removeTag(tag)"
-                                title="{{ 'sitnet_remove' | translate }}"
-                            >
-                                <img src="/assets/images/icon_remove.svg" alt="" />
-                            </button>
-                        </li>
-                    </ul>
+                    @for (tag of ownTags; track tag) {
+                        {{ tag.name }}
+                        <button
+                            class="btn btn-sm btn-link"
+                            ngbPopover="{{ 'i18n_remove' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                            (click)="removeTag(tag)"
+                            title="{{ 'i18n_remove' | translate }}"
+                        >
+                            <i class="bi bi-x"></i>
+                        </button>
+                    }
                 </div>
             </div>
         </form>
     `,
+    standalone: true,
+    imports: [FormsModule, NgbPopover, NgbTypeahead, TranslateModule],
 })
-export class TagPickerComponent {
+export class TagPickerComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;
     tagName = '';
-    newTag: Tag = { name: '' };
+    user: User;
+    newTag: Tag = { name: '', questions: [] };
+    ownTags: Tag[] = [];
 
-    constructor(private http: HttpClient) {}
+    constructor(
+        private http: HttpClient,
+        private Session: SessionService,
+    ) {
+        this.user = this.Session.getUser();
+    }
+
+    ngOnInit() {
+        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.user.id);
+    }
 
     getTags$ = (text$: Observable<string>): Observable<Tag[]> =>
         text$.pipe(
@@ -102,11 +117,15 @@ export class TagPickerComponent {
             map((resp) => {
                 const { filter, tags } = resp;
                 if (filter) {
-                    tags.unshift({ name: filter });
+                    tags.unshift({ name: filter, questions: [] });
                 }
                 // filter out the ones already tagged for this question and slice
                 return tags
-                    .filter((tag) => !this.question.tags || this.question.tags.every((qt) => qt.name !== tag.name))
+                    .filter(
+                        (tag) =>
+                            !this.question.tags ||
+                            this.question.tags.every((qt) => qt.name !== tag.name || qt.creator?.id !== this.user.id),
+                    )
                     .slice(0, 15);
             }),
         );
@@ -115,10 +134,16 @@ export class TagPickerComponent {
     nameFormat = (tag: Tag) => tag.name;
 
     addTag = () => {
-        if (this.newTag) this.question.tags.push(this.newTag);
-        this.newTag = { name: '' };
+        if (this.newTag) {
+            this.question.tags.push(this.newTag);
+            this.ownTags.push(this.newTag);
+        }
+        this.newTag = { name: '', questions: [] };
         this.tagName = '';
     };
 
-    removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);
+    removeTag = (tag: Tag) => {
+        this.question.tags.splice(this.question.tags.indexOf(tag), 1);
+        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.user.id);
+    };
 }

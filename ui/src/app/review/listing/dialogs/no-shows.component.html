@@ -1,97 +1,110 @@
-<div id="dashboard">
-    <div class="top-row">
+<div class="modal-header">
+    <div class="row ms-3 mt-3">
         <div class="col-md-12">
-            <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_no_shows' | translate }}</div>
+            <div class="xm-modal-title">{{ 'i18n_no_shows' | translate }}</div>
+        </div>
+    </div>
+</div>
+<div class="modal-body">
+    @if (noShows.length === 0) {
+        <div class="row my-3 align-items-center xm-paragraph-title-no-results">
+            <div class="col-auto">
+                <i class="bi-exclamation-circle ps-3"></i>
+            </div>
+            <div class="col">
+                {{ 'i18n_exam_no_shows' | translate }}
             </div>
         </div>
-    </div>
-
-    <div class="row mart40 padl30" *ngIf="noShows.length === 0">
-        <div class="review-no-results">
-            <i class="bi-exclamation-circle padl20 grayish"></i> {{ 'sitnet_exam_no_shows' | translate }}
+    } @else {
+        <div class="row">
+            <table class="col-12 table table-striped xm-data-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <xm-table-sort
+                                [reverse]="reverse"
+                                [predicate]="noShowPredicate"
+                                by="displayName"
+                                text="i18n_student"
+                                (click)="setPredicate('displayName')"
+                            ></xm-table-sort>
+                        </th>
+                        <th>
+                            <xm-table-sort
+                                [reverse]="reverse"
+                                [predicate]="noShowPredicate"
+                                by="user.email"
+                                text="i18n_email"
+                                (click)="setPredicate('user.email')"
+                            ></xm-table-sort>
+                        </th>
+                        <th>
+                            <!-- reservation vs eventconfig-->
+                            <xm-table-sort
+                                [reverse]="reverse"
+                                [predicate]="noShowPredicate"
+                                by="reservation.startAt"
+                                text="i18n_reservation"
+                                (click)="setPredicate('reservation.startAt')"
+                            ></xm-table-sort>
+                        </th>
+                        <th>{{ 'i18n_exam_state' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (noShow of noShows | orderBy: noShowPredicate : reverse; track noShow) {
+                        <tr>
+                            <td>
+                                {{ noShow.displayName }}
+                                @if (noShow.user?.userIdentifier) {
+                                    <span><br />({{ noShow.user?.userIdentifier }})</span>
+                                }
+                            </td>
+                            <td>
+                                <a class="pointer" href="mailto:{{ noShow.user?.email }}"> {{ noShow.user?.email }}</a>
+                            </td>
+                            @if (noShow.reservation) {
+                                <td>
+                                    {{ noShow.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
+                                    {{ 'i18n_clock_short' | translate }}
+                                    {{ noShow.reservation.startAt | applyDst | date: 'HH:mm' }} -
+                                    {{ noShow.reservation.endAt | applyDst | date: 'HH:mm' }}
+                                </td>
+                            }
+                            @if (!noShow.reservation && !noShow.examinationEventConfiguration) {
+                                <td></td>
+                            }
+                            @if (noShow.examinationEventConfiguration) {
+                                <td>
+                                    {{
+                                        noShow.examinationEventConfiguration.examinationEvent.start | date: 'dd.MM.yyyy'
+                                    }}
+                                    {{ 'i18n_clock_short' | translate }}
+                                    {{ noShow.examinationEventConfiguration.examinationEvent.start | date: 'HH:mm' }}
+                                    -
+                                    {{
+                                        noShow.examinationEventConfiguration.examinationEvent.start +
+                                            noShow.exam.duration
+                                            | applyDst
+                                            | date: 'HH:mm'
+                                    }}
+                                </td>
+                            }
+                            <td class="text-danger">
+                                {{ 'i18n_exam_status_no_show' | translate }}
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-    </div>
-
-    <div class="row review-no-show" *ngIf="noShows.length > 0">
-        <table class="table table-striped exams-table">
-            <thead>
-                <tr>
-                    <th>
-                        <xm-table-sort
-                            [reverse]="reverse"
-                            [predicate]="noShowPredicate"
-                            by="displayName"
-                            text="sitnet_student"
-                            (click)="setPredicate('displayName')"
-                        ></xm-table-sort>
-                    </th>
-                    <th>
-                        <xm-table-sort
-                            [reverse]="reverse"
-                            [predicate]="noShowPredicate"
-                            by="user.email"
-                            text="sitnet_email"
-                            (click)="setPredicate('user.email')"
-                        ></xm-table-sort>
-                    </th>
-                    <th>
-                        <!-- reservation vs eventconfig-->
-                        <xm-table-sort
-                            [reverse]="reverse"
-                            [predicate]="noShowPredicate"
-                            by="reservation.startAt"
-                            text="sitnet_reservation"
-                            (click)="setPredicate('reservation.startAt')"
-                        ></xm-table-sort>
-                    </th>
-                    <th>{{ 'sitnet_exam_state' | translate }}</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr *ngFor="let noShow of noShows | orderBy : noShowPredicate : reverse">
-                    <td class="table-column-examname">
-                        {{ noShow.displayName }}
-                        <span *ngIf="noShow.user?.userIdentifier"><br />({{ noShow.user?.userIdentifier }})</span>
-                    </td>
-                    <td class="table-column-25">
-                        <a class="pointer" href="mailto:{{ noShow.user?.email }}"> {{ noShow.user?.email }}</a>
-                    </td>
-                    <td class="table-column-25" *ngIf="noShow.reservation">
-                        {{ noShow.reservation.startAt | applyDst | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }}
-                        {{ noShow.reservation.startAt | applyDst | date : 'HH:mm' }} -
-                        {{ noShow.reservation.endAt | applyDst | date : 'HH:mm' }}
-                    </td>
-                    <td
-                        class="table-column-25"
-                        *ngIf="!noShow.reservation && !noShow.examinationEventConfiguration"
-                    ></td>
-                    <td class="table-column-25" *ngIf="noShow.examinationEventConfiguration">
-                        {{ noShow.examinationEventConfiguration.examinationEvent.start | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }}
-                        {{ noShow.examinationEventConfiguration.examinationEvent.start | date : 'HH:mm' }} -
-                        {{
-                            noShow.examinationEventConfiguration.examinationEvent.start + noShow.exam.duration
-                                | applyDst
-                                | date : 'HH:mm'
-                        }}
-                    </td>
-                    <td class="table-column-15" class="sitnet-text-aborted">
-                        {{ 'sitnet_exam_status_no_show' | translate }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
+    }
+</div>
+<div class="modal-footer">
     <!-- Buttons -->
-    <div class="flex justify-content-end">
-        <div class="review-attachment-button marb10 marr10">
-            <a class="pointer preview" (click)="cancel()">
-                {{ 'sitnet_button_ok' | translate }}
-            </a>
-        </div>
+    <div class="justify-content-end">
+        <button class="btn btn-success mb-2 me-2" (click)="cancel()">
+            {{ 'i18n_button_ok' | translate }}
+        </button>
     </div>
 </div>

@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import play.libs.Json;
+import scala.jdk.javaapi.CollectionConverters;
 import util.json.JsonFilter;
 
 public class JsonFilterTest {
@@ -54,7 +55,11 @@ public class JsonFilterTest {
         offers.forEach(offer -> assertThatJsonHasProperties(offer, filters));
 
         // Filter json
-        JsonFilter.filterProperties(node1, true, Collections.emptySet(), filters);
+        JsonFilter.filterProperties(
+            node1,
+            CollectionConverters.asScala(Collections.emptySet()).toSet(),
+            CollectionConverters.asScala(Arrays.asList(filters)).toSeq()
+        );
 
         // Check that node1 does not have properties
         assertThatJsonDoesNotHaveProperties(node1, filters);
@@ -78,7 +83,11 @@ public class JsonFilterTest {
         // Filter json
         final Set<Long> ids = new HashSet<>();
         ids.add(2L);
-        JsonFilter.filterProperties(root, true, ids, filters);
+        JsonFilter.filterProperties(
+            root,
+            CollectionConverters.asScala(ids).toSet(),
+            CollectionConverters.asScala(Arrays.asList(filters)).toSeq()
+        );
 
         final ArrayNode array = (ArrayNode) root;
         final JsonNode node1 = array.get(0);

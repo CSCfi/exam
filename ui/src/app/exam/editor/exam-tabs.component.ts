@@ -12,23 +12,42 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { LowerCasePipe } from '@angular/common';
 import type { OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavItemRole, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
-import type { Exam } from '../exam.model';
 import type { UpdateProps } from './exam-tabs.service';
 import { ExamTabService } from './exam-tabs.service';
 
 @Component({
     selector: 'xm-exam-tabs',
     templateUrl: './exam-tabs.component.html',
+    standalone: true,
+    imports: [
+        RouterLink,
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLink,
+        RouterOutlet,
+        LowerCasePipe,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+        HistoryBackComponent,
+    ],
+    styleUrl: './exam-tabs.component.scss',
 })
 export class ExamTabsComponent implements OnInit, OnDestroy {
     exam!: Exam;
@@ -78,11 +97,11 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
         if (code && name) {
             this.examInfo.title = `${this.CourseCode.formatCode(code)} ${name}`;
         } else if (code) {
-            this.examInfo.title = `${this.CourseCode.formatCode(code)} ${this.translate.instant('sitnet_no_name')}`;
+            this.examInfo.title = `${this.CourseCode.formatCode(code)} ${this.translate.instant('i18n_no_name')}`;
         } else if (name) {
             this.examInfo.title = name;
         } else {
-            this.examInfo.title = this.translate.instant('sitnet_no_name');
+            this.examInfo.title = this.translate.instant('i18n_no_name');
         }
     };
 
@@ -92,7 +111,11 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
             (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
         );
 
-    navChanged = (event: NgbNavChangeEvent) => this.router.navigate([event.nextId], { relativeTo: this.route });
+    navChanged = (event: NgbNavChangeEvent) =>
+        this.router.navigate([event.nextId], {
+            relativeTo: this.route,
+            queryParams: { collaborative: this.collaborative },
+        });
 
     examUpdated = (props: UpdateProps) => {
         this.updateTitle(props.code, props.name);

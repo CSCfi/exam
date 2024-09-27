@@ -12,14 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+import type { Exam, ExamParticipation, ExamSection, ExamSectionQuestion } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
-import type { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
-import { QuestionAmounts, QuestionService } from '../../../question/question.service';
+import { QuestionService } from 'src/app/question/question.service';
+import { ClozeTestComponent } from 'src/app/review/assessment/questions/cloze-test.component';
+import { EssayQuestionComponent } from 'src/app/review/assessment/questions/essay-question.component';
+import { MultiChoiceQuestionComponent } from 'src/app/review/assessment/questions/multi-choice-question.component';
+import { isNumber } from 'src/app/shared/miscellaneous/helpers';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-section',
     templateUrl: './section.component.html',
+    styleUrls: ['../assessment.shared.scss'],
+    standalone: true,
+    imports: [MultiChoiceQuestionComponent, EssayQuestionComponent, ClozeTestComponent, TranslateModule, OrderByPipe],
 })
 export class ExamSectionComponent implements OnInit, AfterViewInit {
     @Input() section!: ExamSection;
@@ -30,14 +40,16 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
     @Input() collaborative = false;
     @Output() scored = new EventEmitter<string>();
 
-    selectionEvaluatedAmounts: { accepted: number; rejected: number } = { accepted: 0, rejected: 0 };
-    selectionEssays?: QuestionAmounts;
+    essayQuestionAmounts = { rejected: 0, accepted: 0, total: 0 };
 
-    constructor(private Exam: ExamService, private Question: QuestionService, private cdr: ChangeDetectorRef) {}
+    constructor(
+        private Exam: ExamService,
+        private Question: QuestionService,
+        private cdr: ChangeDetectorRef,
+    ) {}
 
     ngOnInit() {
-        this.selectionEssays = this.Question.getQuestionAmounts(this.exam);
-        this.selectionEvaluatedAmounts = this.Question.getQuestionAmountsBySection(this.section);
+        this.essayQuestionAmounts = this.Question.getEssayQuestionAmountsBySection(this.section);
     }
 
     ngAfterViewInit() {
@@ -46,7 +58,19 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
 
     scoreSet = (revision: string) => {
         this.scored.emit(revision);
-        this.selectionEvaluatedAmounts = this.Question.getQuestionAmountsBySection(this.section);
+        this.essayQuestionAmounts = this.Question.getEssayQuestionAmountsBySection(this.section);
+    };
+
+    // getReviewProgress gathers the questions that have been reviewed by calculating essay answers that have been evaluated plus the rest of the questions.
+    // Since the essay questions are the only ones that need to be evaluated and the rest of the questions are evaluated automatically.
+    getReviewProgress = () => {
+        return this.section.sectionQuestions.filter((q: ExamSectionQuestion) => {
+            return q.question.type !== 'EssayQuestion' || isNumber(q.essayAnswer?.evaluatedScore);
+        }).length;
+    };
+
+    getTotalQuestionAmount = () => {
+        return this.section.sectionQuestions.length;
     };
 
     getSectionMaxScore = () => this.Exam.getSectionMaxScore(this.section);

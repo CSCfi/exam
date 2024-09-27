@@ -12,45 +12,58 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { RoomService } from '../../facility/rooms/room.service';
-import { ExamRoom } from '../../reservation/reservation.model';
-import { User } from '../../session/session.service';
-import { Option } from '../../shared/select/dropdown-select.component';
-import { UserService } from '../../shared/user/user.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { RoomService } from 'src/app/facility/rooms/room.service';
+import { ExamRoom } from 'src/app/reservation/reservation.model';
+import { User } from 'src/app/session/session.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { Option } from 'src/app/shared/select/dropdown-select.component';
+import { UserService } from 'src/app/shared/user/user.service';
+import { AnswersReportComponent } from './categories/answers-report.component';
+import { EnrolmentsReportComponent } from './categories/enrolments-report.component';
+import { ExamsReportComponent } from './categories/exams-report.component';
+import { RecordsReportComponent } from './categories/records-report.component';
+import { ReviewsReportComponent } from './categories/reviews-report.component';
+import { RoomsReportComponent } from './categories/rooms-report.component';
+import { StudentsReportComponent } from './categories/students-report.component';
+import { TeachersReportComponent } from './categories/teachers-report.component';
 import { ReportsService, UserRole } from './reports.service';
 
 @Component({
     selector: 'xm-reports',
     template: `
-        <div>
-            <div id="sitnet-header" class="header">
-                <div class="col-md-12 header-wrapper">
-                    <span class="header-text">{{ 'sitnet_reports' | translate }}</span>
-                </div>
-            </div>
-
-            <div id="dashboard">
-                <div class="report-category" *ngIf="rooms"><xm-rooms-report [rooms]="rooms"></xm-rooms-report></div>
-                <div class="report-category" *ngIf="examNames">
-                    <xm-exams-report [examNames]="examNames" fileType="xlsx"></xm-exams-report>
-                </div>
-                <div class="report-category" *ngIf="students">
-                    <xm-students-report [students]="students"></xm-students-report>
-                </div>
-                <div class="report-category" *ngIf="examNames">
-                    <xm-enrolments-report [examNames]="examNames"></xm-enrolments-report>
-                </div>
-                <div class="report-category"><xm-answers-report></xm-answers-report></div>
-                <div class="report-category"><xm-reviews-report></xm-reviews-report></div>
-                <div class="report-category"><xm-records-report></xm-records-report></div>
-                <div class="report-category" *ngIf="teachers">
-                    <xm-teachers-report [teachers]="teachers"></xm-teachers-report>
-                </div>
-            </div>
-        </div>
+        <xm-page-header text="i18n_reports" />
+        <xm-page-content [content]="content" />
+        <ng-template #content>
+            <div class="report-category"><xm-rooms-report [rooms]="rooms" /></div>
+            <div class="report-category"><xm-exams-report [examNames]="examNames" /></div>
+            <div class="report-category"><xm-students-report [students]="students" /></div>
+            <div class="report-category"><xm-enrolments-report [examNames]="examNames" /></div>
+            <div class="report-category"><xm-answers-report /></div>
+            <div class="report-category"><xm-reviews-report /></div>
+            <div class="report-category"><xm-records-report /></div>
+            <div class="report-category"><xm-teachers-report [teachers]="teachers" /></div>
+        </ng-template>
     `,
+    standalone: true,
+    imports: [
+        RoomsReportComponent,
+        ExamsReportComponent,
+        StudentsReportComponent,
+        EnrolmentsReportComponent,
+        AnswersReportComponent,
+        ReviewsReportComponent,
+        RecordsReportComponent,
+        TeachersReportComponent,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
+    styleUrl: './reports.component.scss',
 })
 export class ReportsComponent implements OnInit {
     rooms: Option<ExamRoom, number>[] = [];
@@ -58,7 +71,11 @@ export class ReportsComponent implements OnInit {
     teachers: Option<User, number>[] = [];
     students: Option<User, number>[] = [];
 
-    constructor(private Users: UserService, private Reports: ReportsService, private Room: RoomService) {}
+    constructor(
+        private Users: UserService,
+        private Reports: ReportsService,
+        private Room: RoomService,
+    ) {}
 
     ngOnInit() {
         this.Room.getRooms$().subscribe((resp) => {
@@ -80,7 +97,7 @@ export class ReportsComponent implements OnInit {
         this.Users.listUsersByRole$(UserRole.TEACHER).subscribe((resp) => {
             this.teachers = resp.map((t) => ({
                 id: t.id,
-                label: t.name as string,
+                label: t.firstName + ' ' + t.lastName,
                 value: t,
             }));
         });
@@ -88,7 +105,7 @@ export class ReportsComponent implements OnInit {
         this.Users.listUsersByRole$(UserRole.STUDENT).subscribe((resp) => {
             this.students = resp.map((t) => ({
                 id: t.id,
-                label: t.name as string,
+                label: t.firstName + ' ' + t.lastName,
                 value: t,
             }));
         });

@@ -15,11 +15,10 @@
 /// <reference types="ckeditor" />
 import { DOCUMENT } from '@angular/common';
 import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
-import { Component, ElementRef, forwardRef, Inject, Input, NgZone, ViewChild } from '@angular/core';
-import type { ControlValueAccessor } from '@angular/forms';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, ElementRef, Inject, Input, NgZone, ViewChild, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { debounce } from '../miscellaneous/helpers';
+import { debounce } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
     selector: 'xm-ckeditor',
@@ -31,6 +30,14 @@ import { debounce } from '../miscellaneous/helpers';
         },
     ],
     template: ` <textarea #host [required]="required"></textarea> `,
+    standalone: true,
+    styles: [
+        `
+            .marker {
+                background-color: yellow;
+            }
+        `,
+    ],
 })
 export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDestroy, ControlValueAccessor {
     @ViewChild('host', { static: false }) host!: ElementRef;
@@ -92,18 +99,20 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
                 this.onTouched();
                 if (this.instance) this.updateValue(this.instance.getData());
             };
-            this.instance.on('change', debounce(update, 500));
-            this.instance.on('dataReady', debounce(update, 500));
-            this.instance.on('key', debounce(update, 500));
-            this.instance.on('mode', update);
+            setTimeout(() => {
+                this.instance?.on('change', debounce(update, 500));
+                this.instance?.on('dataReady', debounce(update, 500));
+                this.instance?.on('key', debounce(update, 500));
+                this.instance?.on('mode', update);
+            }, 500);
         }
     }
 
-    ngAfterViewChecked(): void {
+    ngAfterViewInit(): void {
         this.editorInit();
     }
 
-    ngAfterViewInit(): void {
+    ngAfterViewChecked(): void {
         this.editorInit();
     }
 

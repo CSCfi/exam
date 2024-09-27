@@ -12,23 +12,45 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+    CdkDrag,
+    CdkDragDrop,
+    CdkDragPlaceholder,
+    CdkDragPreview,
+    CdkDropList,
+    moveItemInArray,
+} from '@angular/cdk/drag-drop';
+
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, tap } from 'rxjs/operators';
-import { SessionService } from '../../../session/session.service';
-import type { Exam, ExamMaterial, ExamSection } from '../../exam.model';
-import { ExamService } from '../../exam.service';
-import { ExamTabService } from '../exam-tabs.service';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
+import type { Exam, ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { SessionService } from 'src/app/session/session.service';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { SectionComponent } from './section.component';
 
 @Component({
     selector: 'xm-sections',
     templateUrl: './sections.component.html',
+    standalone: true,
+    imports: [
+        CdkDropList,
+        CdkDrag,
+        CdkDragPlaceholder,
+        CdkDragPreview,
+        SectionComponent,
+        NgbPopover,
+        TranslateModule,
+        OrderByPipe,
+    ],
+    styleUrls: ['../../exam.shared.scss', './sections.component.scss', './sections.shared.scss'],
 })
 export class SectionsComponent implements OnInit, OnChanges {
     exam!: Exam;
@@ -68,7 +90,7 @@ export class SectionsComponent implements OnInit, OnChanges {
                 next: () => {
                     moveItemInArray(this.exam.examSections, from, to);
                     this.updateIndices();
-                    this.toast.info(this.translate.instant('sitnet_sections_reordered'));
+                    this.toast.info(this.translate.instant('i18n_sections_reordered'));
                 },
                 error: (err) => this.toast.error(err),
             });
@@ -79,7 +101,7 @@ export class SectionsComponent implements OnInit, OnChanges {
         this.Exam.addSection$(this.exam, this.collaborative)
             .pipe(
                 tap((es) => {
-                    this.toast.success(this.translate.instant('sitnet_section_added'));
+                    this.toast.success(this.translate.instant('i18n_section_added'));
                     this.exam.examSections.push(es);
                 }),
                 catchError(async (resp) => this.toast.error(resp)),
@@ -91,7 +113,7 @@ export class SectionsComponent implements OnInit, OnChanges {
         this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe({
             next: () => {
                 if (!silent) {
-                    this.toast.info(this.translate.instant('sitnet_exam_saved'));
+                    this.toast.info(this.translate.instant('i18n_exam_saved'));
                 }
             },
             error: (resp) => this.toast.error(this.translate.instant(resp)),
@@ -106,7 +128,7 @@ export class SectionsComponent implements OnInit, OnChanges {
             .delete(this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`, this.collaborative))
             .subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_section_removed'));
+                    this.toast.info(this.translate.instant('i18n_section_removed'));
                     this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
                 },
                 error: (err) => this.toast.error(err),

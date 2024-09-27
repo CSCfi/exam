@@ -1,11 +1,18 @@
+import { DatePipe } from '@angular/common';
 import type { OnChanges } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
-import type { LanguageInspectionData } from '../language-inspections.component';
-import { LanguageInspectionService } from '../language-inspections.service';
-import type { LanguageInspection } from '../maturity.model';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import type { LanguageInspectionData } from 'src/app/maturity/language-inspections.component';
+import { LanguageInspectionService } from 'src/app/maturity/language-inspections.service';
+import type { LanguageInspection } from 'src/app/maturity/maturity.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 /*
  * Copyright (c) 2018 Exam Consortium
@@ -24,6 +31,19 @@ import type { LanguageInspection } from '../maturity.model';
 @Component({
     selector: 'xm-unfinished-inspections',
     templateUrl: './unfinished-inspections.component.html',
+    styleUrls: ['../maturity.shared.scss'],
+    standalone: true,
+    imports: [
+        FormsModule,
+        NgbPopover,
+        NgbCollapse,
+        TableSortComponent,
+        CourseCodeComponent,
+        RouterLink,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class UnfinishedInspectionsComponent implements OnChanges {
     @Input() inspections: LanguageInspectionData[] = [];
@@ -65,7 +85,7 @@ export class UnfinishedInspectionsComponent implements OnChanges {
 
     getInspectionAmounts = () =>
         this.translate
-            .instant('sitnet_ongoing_language_inspections_detail')
+            .instant('i18n_ongoing_language_inspections_detail')
             .replace('{0}', this.inspections.length.toString());
 
     assignInspection = (inspection: LanguageInspection) => this.LanguageInspection.assignInspection(inspection);

@@ -17,16 +17,19 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 import models.Role;
 import models.Tag;
 import models.User;
+import models.questions.Question;
 import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
@@ -38,13 +41,14 @@ public class TagController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result listTags(
         Optional<String> filter,
-        Optional<List<Long>> examIds,
         Optional<List<Long>> courseIds,
+        Optional<List<Long>> examIds,
         Optional<List<Long>> sectionIds,
+        Optional<List<Long>> ownerIds,
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Tag> query = Ebean.find(Tag.class).where();
+        ExpressionList<Tag> query = DB.find(Tag.class).where();
         if (!user.hasRole(Role.Name.ADMIN)) {
             query = query.where().eq("creator.id", user.getId());
         }
@@ -61,7 +65,29 @@ public class TagController extends BaseController {
         if (sectionIds.isPresent() && !sectionIds.get().isEmpty()) {
             query = query.in("questions.examSectionQuestions.examSection.id", sectionIds.get());
         }
+        if (ownerIds.isPresent() && !ownerIds.get().isEmpty()) {
+            query = query.in("questions.questionOwners.id", ownerIds.get());
+        }
         Set<Tag> tags = query.findSet();
-        return ok(tags, PathProperties.parse("(*, creator(id))"));
+        return ok(tags, PathProperties.parse("(*, creator(id), questions(id))"));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result addTagToQuestions(Http.Request request) {
+        JsonNode body = request.body().asJson();
+        List<Long> questionIds = StreamSupport
+            .stream(body.get("questionIds").spliterator(), false)
+            .map(JsonNode::asLong)
+            .toList();
+        Long tagId = body.get("tagId").asLong();
+        List<Question> questions = DB.find(Question.class).where().idIn(questionIds).findList();
+        Tag tag = DB.find(Tag.class, tagId);
+        questions.forEach(question -> {
+            if (!question.getTags().contains(tag)) {
+                question.getTags().add(tag);
+                question.update();
+            }
+        });
+        return ok();
     }
 }

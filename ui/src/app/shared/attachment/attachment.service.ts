@@ -18,12 +18,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import type { ReviewedExam } from '../../enrolment/enrolment.model';
-import type { Exam, ExamParticipation, ExamSectionQuestion, Question } from '../../exam/exam.model';
-import type { Examination } from '../../examination/examination.model';
-import type { ReviewQuestion } from '../../review/review.model';
-import { ConfirmationDialogService } from '../dialogs/confirmation-dialog.service';
-import { FileService } from '../file/file.service';
+import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
+import type { Exam, ExamParticipation, ExamSectionQuestion, Question } from 'src/app/exam/exam.model';
+import type { Examination } from 'src/app/examination/examination.model';
+import type { ReviewQuestion } from 'src/app/review/review.model';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { FileService } from 'src/app/shared/file/file.service';
 import type { FileResult } from './dialogs/attachment-picker.component';
 import { AttachmentSelectorComponent } from './dialogs/attachment-picker.component';
 
@@ -70,13 +70,13 @@ export class AttachmentService {
 
     removeExamAttachment = (exam: Exam, collaborative = false) =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
             .subscribe({
                 next: () => {
                     const api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
                     this.http.delete(api(exam.id)).subscribe({
                         next: () => {
-                            this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                            this.toast.info(this.translate.instant('i18n_attachment_removed'));
                             delete exam.attachment;
                         },
                         error: (err) => this.toast.error(err),
@@ -87,12 +87,12 @@ export class AttachmentService {
 
     removeFeedbackAttachment = (exam: Examination) =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
             .subscribe({
                 next: () => {
                     this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe({
                         next: () => {
-                            this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                            this.toast.info(this.translate.instant('i18n_attachment_removed'));
                             delete exam.examFeedback?.attachment;
                         },
                         error: (err) => this.toast.error(err),
@@ -103,14 +103,14 @@ export class AttachmentService {
 
     removeCollaborativeExamFeedbackAttachment = (id: number, ref: string, participation: ExamParticipation) =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
             .subscribe({
                 next: () => {
                     this.http
                         .delete<{ rev: string }>(`/app/iop/collab/attachment/exam/${id}/${ref}/feedback`)
                         .subscribe({
                             next: (resp) => {
-                                this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                                this.toast.info(this.translate.instant('i18n_attachment_removed'));
                                 participation._rev = resp.rev;
                                 delete participation.exam.examFeedback?.attachment;
                             },
@@ -122,12 +122,12 @@ export class AttachmentService {
 
     removeStatementAttachment = (exam: Exam) =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
             .subscribe({
                 next: () => {
                     this.http.delete(this.statementAttachmentApi(exam.id)).subscribe({
                         next: () => {
-                            this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                            this.toast.info(this.translate.instant('i18n_attachment_removed'));
                             delete exam.languageInspection?.statement.attachment;
                         },
                         error: (err) => this.toast.error(err),
@@ -207,7 +207,7 @@ export class AttachmentService {
         return Math.round(size / 1000) + ' kB';
     }
 
-    selectFile(isTeacherModal: boolean, params?: unknown, title = 'sitnet_attachment_selection'): Promise<FileResult> {
+    selectFile(isTeacherModal: boolean, params?: unknown, title = 'i18n_attachment_selection'): Promise<FileResult> {
         const modalRef = this.modal.open(AttachmentSelectorComponent, {
             backdrop: 'static',
             keyboard: false,
@@ -228,12 +228,12 @@ export class AttachmentService {
 
     private removeAnswerAttachment = (url: string, question: AnsweredQuestion) =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
             .subscribe({
                 next: () => {
                     this.http.delete<{ objectVersion?: number }>(url, {}).subscribe({
                         next: (resp) => {
-                            this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                            this.toast.info(this.translate.instant('i18n_attachment_removed'));
                             question.essayAnswer.objectVersion = resp?.objectVersion ? resp.objectVersion : 0;
                             delete question.essayAnswer.attachment;
                         },
@@ -258,7 +258,7 @@ export class AttachmentService {
         return external
             ? url.replace('/app/', '/app/iop/')
             : collaborative
-            ? url.replace('/app/', '/app/iop/collab/')
-            : url;
+              ? url.replace('/app/', '/app/iop/collab/')
+              : url;
     }
 }

@@ -18,12 +18,12 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import models.base.GeneratedIdentityModel;
 import models.json.CollaborativeExam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -156,10 +156,9 @@ public class ExamParticipation extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExamParticipation)) {
+        if (!(other instanceof ExamParticipation otherParticipation)) {
             return false;
         }
-        ExamParticipation otherParticipation = (ExamParticipation) other;
         return new EqualsBuilder().append(id, otherParticipation.id).build();
     }
 

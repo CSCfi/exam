@@ -12,20 +12,27 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin, Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ExaminationStatusService } from '../examination/examination-status.service';
-import type { User } from '../session/session.service';
-import { SessionService } from '../session/session.service';
+import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
 import type { Link } from './navigation.service';
 import { NavigationService } from './navigation.service';
 
 @Component({
     selector: 'xm-navigation',
     templateUrl: './navigation.component.html',
+    standalone: true,
+    imports: [RouterLinkActive, RouterLink, NgbCollapse, TranslateModule],
+    styleUrl: './navigation.component.scss',
 })
 export class NavigationComponent implements OnInit, OnDestroy {
     appVersion = '';

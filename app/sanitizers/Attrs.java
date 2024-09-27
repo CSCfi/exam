@@ -35,7 +35,7 @@ public enum Attrs {
     public static final TypedKey<String> ORG_REF = TypedKey.create("orgId");
     public static final TypedKey<Long> EXAM_ID = TypedKey.create("examId");
     public static final TypedKey<Integer> GRADE_ID = TypedKey.create("gradeId");
-    public static final TypedKey<Collection<Integer>> ACCESSABILITES = TypedKey.create("accessabilities");
+    public static final TypedKey<Collection<Integer>> ACCESSIBILITIES = TypedKey.create("accessabilities");
     public static final TypedKey<Collection<Long>> SECTION_IDS = TypedKey.create("sections");
     public static final TypedKey<Collection<Long>> ID_COLLECTION = TypedKey.create("idCollection");
     public static final TypedKey<Collection<String>> REF_COLLECTION = TypedKey.create("refCollection");
@@ -50,7 +50,6 @@ public enum Attrs {
     public static final TypedKey<Exam.State> EXAM_STATE = TypedKey.create("examState");
     public static final TypedKey<String> TYPE = TypedKey.create("type");
     public static final TypedKey<Boolean> SHARED = TypedKey.create("shared");
-    public static final TypedKey<Boolean> EXPANDED = TypedKey.create("expanded");
     public static final TypedKey<Integer> TRIAL_COUNT = TypedKey.create("trialCount");
     public static final TypedKey<Boolean> LANG_INSPECTION_REQUIRED = TypedKey.create("langInspectionRequired");
     public static final TypedKey<AutoEvaluationConfig> AUTO_EVALUATION_CONFIG = TypedKey.create("autoEvaluationConfig");
@@ -61,6 +60,7 @@ public enum Attrs {
     public static final TypedKey<String> COURSE_CODE = TypedKey.create("code");
     public static final TypedKey<Boolean> ANONYMOUS = TypedKey.create("anonymous");
     public static final TypedKey<String> SETTINGS_PASSWORD = TypedKey.create("settingsPassword");
+    public static final TypedKey<String> QUIT_PASSWORD = TypedKey.create("quitPassword");
     public static final TypedKey<String> QUESTION_TEXT = TypedKey.create("question");
     public static final TypedKey<String> ANSWER_INSTRUCTIONS = TypedKey.create("answerInstructions");
     public static final TypedKey<String> EVALUATION_CRITERIA = TypedKey.create("evaluationCriteria");

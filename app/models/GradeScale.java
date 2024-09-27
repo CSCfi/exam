@@ -16,9 +16,9 @@
 package models;
 
 import io.ebean.Model;
+import jakarta.persistence.*;
 import java.util.Optional;
 import java.util.Set;
-import javax.persistence.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -111,10 +111,9 @@ public class GradeScale extends Model {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof GradeScale)) {
+        if (!(other instanceof GradeScale otherScale)) {
             return false;
         }
-        GradeScale otherScale = (GradeScale) other;
         return new EqualsBuilder().append(id, otherScale.id).build();
     }
 

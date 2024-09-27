@@ -28,11 +28,11 @@ import type {
     MultipleChoiceOption,
     Question,
     ReverseQuestion,
-} from '../exam/exam.model';
-import { SessionService } from '../session/session.service';
-import { AttachmentService } from '../shared/attachment/attachment.service';
-import { FileService } from '../shared/file/file.service';
-import { isNumber } from '../shared/miscellaneous/helpers';
+} from 'src/app/exam/exam.model';
+import { SessionService } from 'src/app/session/session.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { FileService } from 'src/app/shared/file/file.service';
+import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { BaseQuestionEditorComponent } from './examquestion/base-question-editor.component';
 
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
@@ -40,7 +40,6 @@ export type QuestionAmounts = {
     accepted: number;
     rejected: number;
     hasEssays: boolean;
-    totalSelectionEssays: number;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -95,31 +94,26 @@ export class QuestionService {
     getQuestion = (id: number): Observable<ReverseQuestion> => this.http.get<ReverseQuestion>(this.questionsApi(id));
 
     getQuestionAmounts = (exam: Exam): QuestionAmounts => {
-        const data = { accepted: 0, rejected: 0, hasEssays: false, totalSelectionEssays: 0 };
-        exam.examSections.forEach((section) => {
-            section.sectionQuestions.forEach((sectionQuestion) => {
-                const question = sectionQuestion.question;
-                if (question.type === 'EssayQuestion') {
-                    if (sectionQuestion.evaluationType === 'Selection' && sectionQuestion.essayAnswer) {
-                        if (sectionQuestion.essayAnswer.evaluatedScore === 1) {
-                            data.accepted++;
-                        } else if (sectionQuestion.essayAnswer.evaluatedScore === 0) {
-                            data.rejected++;
-                        }
-                        data.totalSelectionEssays++;
-                    }
-                    data.hasEssays = true;
-                }
-            });
-        });
-        return data;
+        const essays = exam.examSections
+            .flatMap((es) => es.sectionQuestions)
+            .filter((esq) => esq.question.type === 'EssayQuestion');
+        const scores = essays
+            .filter((e) => e.evaluationType === 'Selection' && e.essayAnswer)
+            .map((e) => e.essayAnswer?.evaluatedScore);
+        const accepted = scores.filter((s) => s === 1).length;
+        const rejected = scores.filter((s) => s === 0).length;
+        return { accepted: accepted, rejected: rejected, hasEssays: essays.length > 0 };
     };
 
-    getQuestionAmountsBySection = (section: ExamSection) => {
+    getEssayQuestionAmountsBySection = (section: ExamSection) => {
         const scores = section.sectionQuestions
             .filter((sq) => sq.question.type === 'EssayQuestion' && sq.evaluationType === 'Selection' && sq.essayAnswer)
             .map((sq) => sq.essayAnswer?.evaluatedScore);
-        return { accepted: scores.filter((s) => s === 1).length, rejected: scores.filter((s) => s === 0).length };
+        return {
+            accepted: scores.filter((s) => s === 1).length,
+            rejected: scores.filter((s) => s === 0).length,
+            total: scores.length,
+        };
     };
 
     calculateDefaultMaxPoints = (question: Question) =>
@@ -259,7 +253,7 @@ export class QuestionService {
         return new Promise<Question>((resolve, reject) => {
             this.http.post<Question>(this.questionsApi(), body).subscribe({
                 next: (response) => {
-                    this.toast.info(this.translate.instant('sitnet_question_added'));
+                    this.toast.info(this.translate.instant('i18n_question_added'));
                     if (question.attachment && question.attachment.file && question.attachment.modified) {
                         this.Files.upload(
                             '/app/attachment/question',
@@ -281,7 +275,7 @@ export class QuestionService {
         const body = this.getQuestionData(question);
         return new Promise<Question>((resolve) => {
             this.http.put<Question>(this.questionsApi(question.id), body).subscribe((response) => {
-                this.toast.info(this.translate.instant('sitnet_question_saved'));
+                this.toast.info(this.translate.instant('i18n_question_saved'));
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
                     this.Files.upload(
                         '/app/attachment/question',
@@ -385,17 +379,17 @@ export class QuestionService {
     getOptionTypeTranslation = (type: string) => {
         switch (type) {
             case 'CorrectOption':
-                return 'sitnet_question_claim_correct';
+                return 'i18n_question_claim_correct';
             case 'IncorrectOption':
-                return 'sitnet_question_claim_incorrect';
+                return 'i18n_question_claim_incorrect';
             case 'SkipOption':
-                return 'sitnet_question_claim_skip';
+                return 'i18n_question_claim_skip';
             default:
                 return '';
         }
     };
 
-    returnClaimChoiceOptionClass = (optionType: string): string => {
+    determineClaimChoiceOptionClass = (optionType: string): string => {
         switch (optionType) {
             case 'CorrectOption':
                 return 'claim-choice-correct-answer';
@@ -408,12 +402,12 @@ export class QuestionService {
         }
     };
 
-    returnOptionDescriptionTranslation = (optionType: string) => {
+    determineOptionDescriptionTranslation = (optionType: string) => {
         switch (optionType) {
             case 'CorrectOption':
-                return this.translate.instant('sitnet_claim_choice_correct_option_description');
+                return this.translate.instant('i18n_claim_choice_correct_option_description');
             case 'IncorrectOption':
-                return this.translate.instant('sitnet_claim_choice_incorrect_option_description');
+                return this.translate.instant('i18n_claim_choice_incorrect_option_description');
             default:
                 return '';
         }

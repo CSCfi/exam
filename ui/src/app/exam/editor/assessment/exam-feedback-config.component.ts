@@ -12,9 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { Exam, ExamFeedbackConfig } from '../../exam.model';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import type { Exam, ExamFeedbackConfig } from 'src/app/exam/exam.model';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 
@@ -26,7 +37,19 @@ type ExamFeedbackConfigTemplate = {
 @Component({
     selector: 'xm-exam-feedback-config',
     templateUrl: './exam-feedback-config.component.html',
-    styleUrls: ['./exam-feedback-config.component.css'], // CSCEXAM-1127
+    styleUrls: ['./exam-feedback-config.component.scss'],
+    standalone: true,
+    imports: [
+        NgbPopover,
+        NgbCollapse,
+        NgClass,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        DatePickerComponent,
+        TranslateModule,
+    ],
 })
 export class ExamFeedbackConfigComponent implements OnInit {
     @Input() exam!: Exam;
@@ -45,11 +68,11 @@ export class ExamFeedbackConfigComponent implements OnInit {
             releaseTypes: [
                 {
                     name: 'ONCE_LOCKED',
-                    translation: 'sitnet_release_type_once_locked',
+                    translation: 'i18n_release_type_once_locked',
                     filtered: true,
                 },
                 // CSCEXAM-1127
-                //{ name: 'GIVEN_DATE', translation: 'sitnet_feedback_config_release_type_date' },
+                //{ name: 'GIVEN_DATE', translation: 'i18n_feedback_config_release_type_date' },
             ],
         };
         this.examFeedbackConfigDisplay = { visible: false };

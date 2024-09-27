@@ -1,61 +1,57 @@
-<div>
-    <div class="student-exam-row">
-        <!-- ROOM  -->
-        <div class="calendar-room-title" *ngIf="room">
-            <span
-                >{{ room.name }}&nbsp;
-                <small> ({{ room.localTimezone }})</small>
-                <small class="text-muted"
-                    >{{ room.mailAddress.street }} {{ room.mailAddress.zip }} {{ room.mailAddress.city }}
-                </small>
-            </span>
-        </div>
-
-        <div class="calendar-room-info" *ngIf="room">
-            <div class="calendar-room-info-title">{{ 'sitnet_room_default_working_hours' | translate }}</div>
-            <div class="calendar-room-info-content">
-                <div *ngFor="let oh of openingHours">{{ oh.name }}: {{ oh.periodText }}</div>
-            </div>
-        </div>
-
-        <div class="calendar-room-info" *ngIf="exceptionHours && exceptionHours.length > 0">
-            <div class="calendar-room-info-title">{{ 'sitnet_exception_datetimes' | translate }}:</div>
-            <button (click)="oldExceptionsHidden = !oldExceptionsHidden" class="btn btn-secondary marb20">
-                {{ 'sitnet_hide_over_year_old' | translate }} ({{
-                    oldExceptionsHidden ? ('sitnet_on' | translate) : ('sitnet_off' | translate)
-                }})
-            </button>
-            <div class="calendar-room-info-content">
-                <div *ngFor="let eh of !oldExceptionsHidden ? exceptionHours : newExceptions">
-                    <span [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'">
-                        {{ eh.start }} - {{ eh.end }}
-                        <small>({{ eh.description | translate }})</small>
-                        <i
-                            class="bi-dot"
-                            *ngIf="isInFuture(eh.startDate)"
-                            [attr.aria-label]="'sitnet_coming_exception' | translate"
-                        ></i>
-                        <i
-                            class="bi-exclamation-circle"
-                            *ngIf="isNow(eh.startDate, eh.endDate)"
-                            [attr.aria-label]="'sitnet_ongoing_exception' | translate"
-                        ></i>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <hr *ngIf="room" />
+<div class="row mt-2">
+    <div class="col-md-3">
+        {{ 'i18n_room_default_working_hours' | translate }}
     </div>
-
-    <div class="student-exam-row bottom-row">
-        <div class="col-md-12">
-            <xm-booking-calendar
-                *ngIf="room"
-                (moreEventsNeeded)="refresh($event)"
-                [room]="room"
-                [visible]="true"
-            ></xm-booking-calendar>
+    <div class="col-md-9">
+        @for (oh of openingHours; track oh) {
+            <span class="pe-2 row">{{ oh.name }}: {{ oh.periodText }}</span>
+        }
+    </div>
+</div>
+@if (room.calendarExceptionEvents.length > 0) {
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_exception_datetimes' | translate }}
+            <button
+                (click)="oldExceptionsHidden = !oldExceptionsHidden"
+                class="btn btn-light"
+                ngbPopover="{{ 'i18n_hide_over_year_old' | translate }} ({{
+                    oldExceptionsHidden ? ('i18n_on' | translate) : ('i18n_off' | translate)
+                }})"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <i [ngClass]="'bi ' + (oldExceptionsHidden ? 'bi-eye' : 'bi-eye-slash')"></i>
+            </button>
         </div>
+        <div class="col">
+            @for (eh of !oldExceptionsHidden ? exceptionHours : newExceptions; track eh) {
+                <span [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'" class="row">
+                    {{ eh.start }} - {{ eh.end }} ({{ eh.description | translate }})
+                    @if (isInFuture(eh.startDate)) {
+                        <i
+                            class="bi-dot w-auto"
+                            [attr.aria-label]="'i18n_coming_exception' | translate"
+                            ngbPopover="{{ 'i18n_coming_exception' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        ></i>
+                    }
+                    @if (isNow(eh.startDate, eh.endDate)) {
+                        <i
+                            class="bi-exclamation-circle w-auto"
+                            [attr.aria-label]="'i18n_ongoing_exception' | translate"
+                            ngbPopover="{{ 'i18n_ongoing_exception' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        ></i>
+                    }
+                </span>
+            }
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <xm-booking-calendar (moreEventsNeeded)="refresh($event)" [room]="room" [visible]="true"></xm-booking-calendar>
     </div>
 </div>

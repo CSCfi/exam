@@ -1,71 +1,82 @@
-<div class="student-enrolment-result-wrapper max-w-1100">
-    <div class="row">
+<div class="active-enrolment-container">
+    <div class="row align-items-center">
         <!-- calendar box -->
-        <div class="col-auto" *ngIf="enrolment.reservation || enrolment.examinationEventConfiguration">
-            <div class="student-enrolment-date-box" *ngIf="enrolment.reservation">
-                {{ enrolment.reservation!.startAt | date : 'dd' }}
-                <span class="month-name">{{
-                    enrolment.reservation!.startAt | date : 'MMM' | slice : 0 : 3 | uppercase
-                }}</span>
+        @if (enrolment.reservation || enrolment.examinationEventConfiguration) {
+            <div class="col-auto">
+                @if (enrolment.reservation) {
+                    <div class="student-enrolment-date-box">
+                        {{ enrolment.reservation!.startAt | date: 'dd' }}
+                        <span class="month-name">{{
+                            enrolment.reservation!.startAt | date: 'MMM' | slice: 0 : 3 | uppercase
+                        }}</span>
+                    </div>
+                }
+                @if (enrolment.examinationEventConfiguration) {
+                    <div class="student-enrolment-date-box">
+                        {{ enrolment.examinationEventConfiguration!.examinationEvent.start | date: 'dd' }}
+                        <span class="month-name">{{
+                            enrolment.examinationEventConfiguration!.examinationEvent.start
+                                | date: 'MMM'
+                                | slice: 0 : 3
+                                | uppercase
+                        }}</span>
+                    </div>
+                }
             </div>
-            <div class="student-enrolment-date-box" *ngIf="enrolment.examinationEventConfiguration">
-                {{ enrolment.examinationEventConfiguration!.examinationEvent.start | date : 'dd' }}
-                <span class="month-name">{{
-                    enrolment.examinationEventConfiguration!.examinationEvent.start
-                        | date : 'MMM'
-                        | slice : 0 : 3
-                        | uppercase
-                }}</span>
-            </div>
-        </div>
+        }
         <!-- exam title n stuff -->
-        <div class="col student-enrolment-exam">
+        <div class="col active-enrolment-heading">
             <div class="row">
                 <div class="col">
-                    <h2 *ngIf="enrolment.exam">
-                        <a
-                            [routerLink]="['/enrolments', enrolment.exam.id]"
-                            [queryParams]="{ code: enrolment.exam.course?.code }"
-                        >
-                            {{ enrolment.exam.name }}
-                        </a>
-                    </h2>
-                    <h2 *ngIf="enrolment.collaborativeExam">
-                        {{ enrolment.collaborativeExam.name }}
-                    </h2>
+                    @if (enrolment.exam) {
+                        <h2>
+                            <a
+                                [routerLink]="['/enrolments', enrolment.exam.id]"
+                                [queryParams]="{ code: enrolment.exam.course?.code }"
+                            >
+                                {{ enrolment.exam.name }}
+                            </a>
+                        </h2>
+                    }
+                    @if (enrolment.collaborativeExam) {
+                        <h2>
+                            <a>
+                                {{ enrolment.collaborativeExam.name }}
+                            </a>
+                        </h2>
+                    }
 
-                    <small *ngIf="enrolment.exam?.anonymous || enrolment.collaborativeExam?.anonymous"
-                        >({{ 'sitnet_anonymous_review' | translate }})</small
-                    >
-                    <small *ngIf="enrolment.exam && enrolment.exam.implementation === 'CLIENT_AUTH'"
-                        >({{ 'sitnet_examination_type_seb' | translate }})</small
-                    >
-                    <small *ngIf="enrolment.exam && enrolment.exam.implementation === 'WHATEVER'"
-                        >({{ 'sitnet_examination_type_home_exam' | translate }})</small
-                    >
+                    @if (enrolment.exam?.anonymous || enrolment.collaborativeExam?.anonymous) {
+                        <small>({{ 'i18n_anonymous_review' | translate }})</small>
+                    }
+                    @if (enrolment.exam && enrolment.exam.implementation === 'CLIENT_AUTH') {
+                        <small>({{ 'i18n_examination_type_seb' | translate }})</small>
+                    }
+                    @if (enrolment.exam && enrolment.exam.implementation === 'WHATEVER') {
+                        <small>({{ 'i18n_examination_type_home_exam' | translate }})</small>
+                    }
                     <div class="row">
                         <div class="col">
-                            <span
-                                *ngIf="
-                                    (enrolment.exam?.state === 'PUBLISHED' ||
-                                        enrolment.collaborativeExam?.state === 'PUBLISHED') &&
-                                    (enrolment.reservation || enrolment.examinationEventConfiguration)
-                                "
-                                class="exam-ready"
-                                >{{ 'sitnet_state_ready' | translate }}</span
-                            >
-                            <span
-                                *ngIf="
-                                    enrolment.exam?.state === 'PUBLISHED' &&
-                                    !enrolment.reservation &&
-                                    !enrolment.examinationEventConfiguration
-                                "
-                                class="exam-needs-reservation"
-                                >{{ 'sitnet_state_needs_reservation_title' | translate }}</span
-                            >
-                            <span *ngIf="enrolment.exam?.state === 'STUDENT_STARTED'" class="exam-ready">
-                                {{ 'sitnet_state_started' | translate }}
-                            </span>
+                            @if (
+                                (enrolment.exam?.state === 'PUBLISHED' ||
+                                    enrolment.collaborativeExam?.state === 'PUBLISHED') &&
+                                (enrolment.reservation || enrolment.examinationEventConfiguration)
+                            ) {
+                                <span class="text-success">{{ 'i18n_state_ready' | translate }}</span>
+                            }
+                            @if (
+                                (enrolment.exam?.state === 'PUBLISHED' ||
+                                    enrolment.collaborativeExam?.state === 'PUBLISHED') &&
+                                !enrolment.reservation &&
+                                !enrolment.examinationEventConfiguration
+                            ) {
+                                <span class="text-danger">{{ 'i18n_state_needs_reservation_title' | translate }}</span>
+                            }
+                            @if (enrolment.exam?.state === 'STUDENT_STARTED') {
+                                <span class="text-success">
+                                    {{ 'i18n_state_started' | translate }}
+                                </span>
+                            }
                         </div>
                     </div>
                 </div>
@@ -78,294 +89,302 @@
         ></xm-active-enrolment-menu>
     </div>
     <div class="row mt-3">
-        <div class="col-md">
-            <div *ngIf="enrolment.exam">{{ 'sitnet_course_name' | translate }}:</div>
+        <div class="col-6">
+            @if (enrolment.exam) {
+                <div>{{ 'i18n_course_name' | translate }}:</div>
+            }
 
-            <div *ngIf="enrolment.exam && enrolment.exam.course">
-                <span class="exam-code">
-                    <strong><xm-course-code [course]="enrolment.exam.course"></xm-course-code></strong>
-                </span>
-                {{ enrolment.exam.course.name }}
-            </div>
+            @if (enrolment.exam && enrolment.exam.course) {
+                <div>
+                    <span class="exam-code">
+                        <strong><xm-course-code [course]="enrolment.exam.course"></xm-course-code></strong>
+                    </span>
+                    {{ enrolment.exam.course.name }}
+                </div>
+            }
         </div>
-        <div class="col">
-            <div *ngIf="enrolment.exam">{{ 'sitnet_teachers' | translate }}:</div>
-            <div *ngIf="enrolment.exam">
-                <xm-teacher-list [exam]="enrolment.exam"></xm-teacher-list>
-            </div>
-            <button
-                *ngIf="enrolment.exam"
-                class="mart10 flex-middle pointer border rounded hover-grey max-w-350"
-                (click)="addEnrolmentInformation()"
-            >
-                <img
-                    class="padr10 padt4"
-                    height="20px"
-                    alt="edit message to teacher"
-                    src="/assets/images/icon_message.png"
-                />
-                <div class="infolink">{{ 'sitnet_student_edit' | translate }}</div>
-            </button>
+        <div class="col-6">
+            @if (enrolment.exam) {
+                <div>{{ 'i18n_teachers' | translate }}:</div>
+            }
+            @if (enrolment.exam) {
+                <div>
+                    <xm-teacher-list [exam]="enrolment.exam"></xm-teacher-list>
+                </div>
+            }
         </div>
     </div>
-    <div class="row mt-3" *ngIf="!enrolment.reservation">
-        <div class="col">
-            <div>{{ 'sitnet_exam_validity' | translate }}:</div>
-            <div>
-                {{
-                    enrolment.exam?.examActiveStartDate || enrolment.collaborativeExam.examActiveStartDate
-                        | date : 'dd.MM.yyyy'
-                }}
-                &ndash;
-                {{
-                    enrolment.exam?.examActiveEndDate || enrolment.collaborativeExam.examActiveEndDate
-                        | date : 'dd.MM.yyyy'
-                }}
-            </div>
-        </div>
-    </div>
-    <div class="" *ngIf="enrolment.reservation">
+    @if (enrolment.exam) {
         <div class="row mt-3">
-            <div class="col-md-3 col-lg-2">{{ 'sitnet_exam_room' | translate }}:</div>
-            <div class="col-md-9 col-lg-10" *ngIf="enrolment.reservation.machine">
-                {{ enrolment.reservation.machine.name }}&nbsp;&nbsp;|&nbsp;&nbsp;{{
-                    enrolment.reservation.machine.room.name
-                }}
-                ({{ enrolment.reservation.machine.room.roomCode }})
-            </div>
-            <div class="col-sm-12" *ngIf="enrolment.reservation.externalReservation">
-                <span *ngIf="enrolment.reservation.externalReservation.orgName">
-                    <strong>{{ 'sitnet_faculty_name' | translate | uppercase }}:</strong>
-                    {{ enrolment.reservation.externalReservation.orgName }} ({{
-                        enrolment.reservation.externalReservation.orgCode
-                    }})<br />
-                </span>
-                <strong>{{ 'sitnet_room_campus' | translate | uppercase }}:</strong>
-                {{ enrolment.reservation.externalReservation.campus }}<br />
-                <strong>{{ 'sitnet_room_building_name' | translate | uppercase }}:</strong>
-                {{ enrolment.reservation.externalReservation.buildingName }}<br />
-                <strong>{{ 'sitnet_exam_room' | translate | uppercase }}:</strong>
-                {{ enrolment.reservation.externalReservation.roomName }}
-                ({{ enrolment.reservation.externalReservation.roomCode }})<br />
-                <strong>{{ 'sitnet_exam_machine' | translate | uppercase }}:</strong>
-                {{ enrolment.reservation.externalReservation.machineName }}<br />
-                {{ enrolment.reservation.externalReservation.mailAddress.street }},
-                {{ enrolment.reservation.externalReservation.mailAddress.zip }}&nbsp;
-                {{ enrolment.reservation.externalReservation.mailAddress.city | uppercase }}
-            </div>
-
-            <div class="clearfix visible-xs"></div>
-            <div class="clearfix visible-sm"></div>
-            <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'sitnet_reservation' | translate }}:</div>
-            <div class="col-md-9 col-lg-10 mt-md-2">
-                {{ enrolment.reservation.startAt | applyDst | date : 'dd.MM.yyyy' }}
-                {{ enrolment.occasion?.startAt }} &ndash; {{ enrolment.occasion?.endAt }} ({{ enrolment.occasion?.tz }})
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col">
-                <button
-                    class="infolink pointer mart10 pointer border rounded hover-grey"
-                    (click)="showGuide = !showGuide"
-                    (keydown.enter)="showGuide = !showGuide"
-                    [attr.aria-expanded]="showGuide"
-                >
-                    {{ 'sitnet_room_guidance' | translate }}
-                    <img class="arrow_icon" [hidden]="showGuide" alt="" src="/assets/images/arrow_right.png" />
-                    <img class="arrow_icon" [hidden]="!showGuide" alt="" src="/assets/images/arrow_down.png" />
+            <div class="col-12">
+                <button class="btn btn-outline-secondary" (click)="addEnrolmentInformation()">
+                    <i class="bi bi-envelope"></i>
+                    {{ 'i18n_student_edit' | translate }}
                 </button>
             </div>
-            <div class="" [ngbCollapse]="!showGuide">
-                {{ getRoomInstruction() }}
-            </div>
         </div>
-    </div>
-    <div class="row mt-3 justify-content-start" *ngIf="!enrolment.reservation && enrolment.reservationCanceled">
-        <div class="text-danger" *ngIf="enrolment.reservationCanceled">
-            {{ 'sitnet_canceled' | translate }}
-        </div>
-    </div>
-    <div
-        *ngIf="
-            enrolment.exam && enrolment.examinationEventConfiguration && enrolment.exam.implementation !== 'AQUARIUM'
-        "
-    >
-        <div class="row mt-3 justify-content-start">
-            <div class="">{{ 'sitnet_examination_event' | translate }}:</div>
-            <div class="">
-                {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date : 'dd.MM.yyyy HH:mm zzzz' }}
-            </div>
-        </div>
-    </div>
-
-    <div
-        class="row mt-3 justify-content-start"
-        *ngIf="
-            enrolment.exam && enrolment.examinationEventConfiguration && enrolment.exam.implementation !== 'AQUARIUM'
-        "
-    >
-        <div class="col">
-            <div class="row">
-                <div class="">{{ 'sitnet_instructions' | translate }}:</div>
-                <div class="">
-                    <span class="marr20">
-                        {{ enrolment.examinationEventConfiguration.examinationEvent.description }}
-                    </span>
+    }
+    @if (!enrolment.reservation) {
+        <div class="row mt-3">
+            <div class="col">
+                <div>{{ 'i18n_exam_validity' | translate }}:</div>
+                <div>
+                    {{ enrolment.exam?.periodStart || enrolment.collaborativeExam.periodStart | date: 'dd.MM.yyyy' }}
+                    &ndash;
+                    {{ enrolment.exam?.periodEnd || enrolment.collaborativeExam.periodEnd | date: 'dd.MM.yyyy' }}
                 </div>
             </div>
         </div>
-    </div>
-
-    <div
-        class="row mt-3 justify-content-start"
-        *ngIf="enrolment.exam && enrolment.exam.implementation === 'CLIENT_AUTH'"
-    >
-        <div class="col">
-            <div class="row">
-                <div class="">{{ 'sitnet_seb_file' | translate }}:</div>
-                <div class="">
-                    <span class="marr20">
+    } @else {
+        <div>
+            <div class="row mt-3">
+                <div class="col-md-3 col-lg-2">{{ 'i18n_exam_room' | translate }}:</div>
+                @if (enrolment.reservation.machine) {
+                    <div class="col-md-9 col-lg-10">
+                        {{ enrolment.reservation.machine.name }}&nbsp;&nbsp;|&nbsp;&nbsp;{{
+                            enrolment.reservation.machine.room.name
+                        }}
+                        ({{ enrolment.reservation.machine.room.roomCode }})
+                    </div>
+                }
+                @if (enrolment.reservation.externalReservation) {
+                    <div class="col-sm-12">
+                        @if (enrolment.reservation.externalReservation.orgName) {
+                            <span>
+                                <strong>{{ 'i18n_faculty_name' | translate | uppercase }}:</strong>
+                                {{ enrolment.reservation.externalReservation.orgName }} ({{
+                                    enrolment.reservation.externalReservation.orgCode
+                                }})<br />
+                            </span>
+                        }
+                        <strong>{{ 'i18n_room_campus' | translate | uppercase }}:</strong>
+                        {{ enrolment.reservation.externalReservation.campus }}<br />
+                        <strong>{{ 'i18n_room_building_name' | translate | uppercase }}:</strong>
+                        {{ enrolment.reservation.externalReservation.buildingName }}<br />
+                        <strong>{{ 'i18n_exam_room' | translate | uppercase }}:</strong>
+                        {{ enrolment.reservation.externalReservation.roomName }}
+                        ({{ enrolment.reservation.externalReservation.roomCode }})<br />
+                        <strong>{{ 'i18n_exam_machine' | translate | uppercase }}:</strong>
+                        {{ enrolment.reservation.externalReservation.machineName }}<br />
+                        {{ enrolment.reservation.externalReservation.mailAddress.street }},
+                        {{ enrolment.reservation.externalReservation.mailAddress.zip }}&nbsp;
+                        {{ enrolment.reservation.externalReservation.mailAddress.city | uppercase }}
+                    </div>
+                }
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'i18n_reservation' | translate }}:</div>
+                <div class="col-md-9 col-lg-10 mt-md-2">
+                    {{ enrolment.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
+                    {{ enrolment.occasion?.startAt }} &ndash; {{ enrolment.occasion?.endAt }} ({{
+                        enrolment.occasion?.tz
+                    }})
+                </div>
+            </div>
+            @if (getRoomInstruction()) {
+                <div class="row mt-3">
+                    <div class="col">
                         <button
-                            (click)="downloadSebFile()"
-                            class="text text-success pointer mart10 pointer border rounded hover-grey"
+                            class="btn btn-outline-secondary"
+                            (click)="showGuide = !showGuide"
+                            (keydown.enter)="showGuide = !showGuide"
+                            [attr.aria-expanded]="showGuide"
                         >
-                            <strong>{{ 'sitnet_download' | translate }}</strong>
+                            {{ 'i18n_room_guidance' | translate }}
+                            <img class="arrow_icon" [hidden]="showGuide" alt="" src="/assets/images/arrow_right.png" />
+                            <img class="arrow_icon" [hidden]="!showGuide" alt="" src="/assets/images/arrow_down.png" />
                         </button>
-                    </span>
+                    </div>
+                    <div class="row mt-3" [ngbCollapse]="!showGuide">
+                        <div class="col-12">
+                            {{ getRoomInstruction() }}
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    @if (!enrolment.reservation && enrolment.reservationCanceled) {
+        <div class="row mt-3 justify-content-start">
+            @if (enrolment.reservationCanceled) {
+                <div class="text-danger">
+                    {{ 'i18n_canceled' | translate }}
+                </div>
+            }
+        </div>
+    }
+    @if (enrolment.exam && enrolment.examinationEventConfiguration && enrolment.exam.implementation !== 'AQUARIUM') {
+        <div>
+            <div class="row mt-3 justify-content-start">
+                <div>{{ 'i18n_examination_event' | translate }}:</div>
+                <div>
+                    {{
+                        enrolment.examinationEventConfiguration?.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm zzzz'
+                    }}
                 </div>
             </div>
         </div>
-    </div>
-    <div
-        class="row mt-2 enrollment-card-dropdown"
-        *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0"
-    >
-        <div class="col col-md-12">
-            <button
-                class="infolink pointer mart10 pointer border rounded hover-grey"
-                (click)="showMaterials = !showMaterials"
-                (keydown.enter)="showMaterials = !showMaterials"
-                [attr.aria-expanded]="showMaterials"
-            >
-                {{ 'sitnet_selected_sections' | translate }}
-                <img class="arrow_icon" [hidden]="showMaterials" alt="" src="/assets/images/arrow_right.png" />
-                <img class="arrow_icon" [hidden]="!showMaterials" alt="" src="/assets/images/arrow_down.png" />
-            </button>
-            <div
-                class="student-exam-row-infobox"
-                *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0"
-                [hidden]="!showMaterials"
-            >
-                <div *ngFor="let section of enrolment.exam.examSections" class="marb20">
-                    <div *ngIf="section.optional === false">
-                        <div class="row">
-                            <div class="col">
-                                <strong
-                                    >{{ 'sitnet_exam_section' | translate }}
-                                    <small class="text text-danger"
-                                        >({{ 'sitnet_required' | translate | lowercase }})</small
-                                    >:</strong
-                                >
-                                {{ section.name }}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ section.description }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div *ngFor="let section of enrolment.optionalSections" class="marb20">
-                    <div class="row">
-                        <div class="col">
-                            <strong
-                                >{{ 'sitnet_exam_section' | translate }}
-                                <small class="text text-success"
-                                    >({{ 'sitnet_optional' | translate | lowercase }})</small
-                                >:</strong
-                            >
-                            {{ section.name }}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            {{ section.description }}
-                        </div>
-                    </div>
-                    <div *ngIf="section.examMaterials.length > 0">
-                        <div class="row">
-                            <div class="col">
-                                <strong>{{ 'sitnet_exam_materials' | translate }}</strong>
-                            </div>
-                        </div>
-                        <div *ngFor="let material of section.examMaterials">
-                            <div class="row">
-                                <span class="col">
-                                    {{ 'sitnet_name' | translate | uppercase }}: {{ material.name }}
-                                    <span *ngIf="material.author">
-                                        {{ 'sitnet_author' | translate | uppercase }}: {{ material.author }}
-                                    </span>
-                                    <span *ngIf="material.isbn"> ISBN: {{ material.isbn }} </span>
-                                </span>
-                            </div>
-                        </div>
+    }
+
+    @if (enrolment.exam && enrolment.examinationEventConfiguration && enrolment.exam.implementation !== 'AQUARIUM') {
+        <div class="row mt-3 justify-content-start">
+            <div class="col">
+                <div class="row">
+                    <div>{{ 'i18n_instructions' | translate }}:</div>
+                    <div>
+                        <span class="me-2">
+                            {{ enrolment.examinationEventConfiguration.examinationEvent.description }}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
+
+    @if (enrolment.exam && enrolment.exam.implementation === 'CLIENT_AUTH') {
+        <div class="row mt-3 justify-content-start">
+            <div class="col">
+                <div class="row">
+                    <div>{{ 'i18n_seb_file' | translate }}:</div>
+                    <div>
+                        <span class="me-2">
+                            <button (click)="downloadSebFile()" class="mt-1 btn btn-outline-secondary">
+                                <strong>{{ 'i18n_download' | translate }}</strong>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (enrolment.reservation && enrolment.optionalSections.length > 0) {
+        <div class="row mt-2 enrollment-card-dropdown">
+            <div class="col col-md-12">
+                <button
+                    class="btn btn-outline-secondary"
+                    (click)="showMaterials = !showMaterials"
+                    (keydown.enter)="showMaterials = !showMaterials"
+                    [attr.aria-expanded]="showMaterials"
+                >
+                    {{ 'i18n_selected_sections' | translate }}
+                    <img class="arrow_icon" [hidden]="showMaterials" alt="" src="/assets/images/arrow_right.png" />
+                    <img class="arrow_icon" [hidden]="!showMaterials" alt="" src="/assets/images/arrow_down.png" />
+                </button>
+                @if (enrolment.reservation && enrolment.optionalSections.length > 0) {
+                    <div class="pt-2" [hidden]="!showMaterials">
+                        @for (section of enrolment.exam.examSections; track section) {
+                            <div class="mb-3">
+                                @if (section.optional === false) {
+                                    <div class="row">
+                                        <div class="col">
+                                            <strong
+                                                >{{ 'i18n_exam_section' | translate }}
+                                                <small class="text text-danger"
+                                                    >({{ 'i18n_required' | translate | lowercase }})</small
+                                                >:</strong
+                                            >
+                                            {{ section.name }}
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            {{ section.description }}
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        @for (section of enrolment.optionalSections; track section) {
+                            <div class="mb-3">
+                                <div class="row">
+                                    <div class="col">
+                                        <strong
+                                            >{{ 'i18n_exam_section' | translate }}
+                                            <small class="text text-success"
+                                                >({{ 'i18n_optional' | translate | lowercase }})</small
+                                            >:</strong
+                                        >
+                                        {{ section.name }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        {{ section.description }}
+                                    </div>
+                                </div>
+                                @if (section.examMaterials.length > 0) {
+                                    <div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <strong>{{ 'i18n_exam_materials' | translate }}</strong>
+                                            </div>
+                                        </div>
+                                        @for (material of section.examMaterials; track material) {
+                                            <div>
+                                                <div class="row">
+                                                    <span class="col">
+                                                        {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
+                                                        @if (material.author) {
+                                                            <span>
+                                                                {{ 'i18n_author' | translate | uppercase }}:
+                                                                {{ material.author }}
+                                                            </span>
+                                                        }
+                                                        @if (material.isbn) {
+                                                            <span> ISBN: {{ material.isbn }} </span>
+                                                        }
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
     <div class="row mb-3 mt-2">
         <div class="col">
             <button
-                class="infolink pointer mart10 pointer border rounded hover-grey"
+                class="mt-1 btn btn-outline-secondary"
+                [attr.aria-expanded]="showInstructions"
                 [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
                 (click)="showInstructions = !showInstructions"
-            >
-                {{ 'sitnet_view_instructions' | translate }}
-                <img
-                    class="arrow_icon"
-                    [hidden]="showInstructions"
-                    alt="show instructions"
-                    src="/assets/images/arrow_right.png"
-                />
-                <img
-                    class="arrow_icon"
-                    [hidden]="!showInstructions"
-                    alt="hide instructions"
-                    src="/assets/images/arrow_down.png"
-                />
-            </button>
-            <div
-                class="border rounded col"
-                [ngbCollapse]="!showInstructions"
                 [attr.aria-expanded]="showInstructions"
-                [xmMathJax]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''"
-            ></div>
+            >
+                {{ 'i18n_view_instructions' | translate }}
+                <i [hidden]="showInstructions" class="bi bi-chevron-right"></i>
+                <i [hidden]="!showInstructions" class="bi bi-chevron-down"></i>
+            </button>
+            <div aria-live="polite">
+                @if (showInstructions) {
+                    <div
+                        class="mt-3"
+                        [xmMathJax]="
+                            enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''
+                        "
+                    ></div>
+                }
+            </div>
         </div>
     </div>
-    <div class="col flex justify-content-end">
-        <div
-            *ngIf="
-                !enrolment.reservation && (enrolment.exam?.implementation === 'AQUARIUM' || enrolment.collaborativeExam)
-            "
-            class="student-message-dialog-button-save"
-        >
-            <button class="link-button pointer" (click)="makeReservation()">
-                {{ 'sitnet_student_new_reservation' | translate }}
+    <div class="col flex justify-content-end mb-3">
+        @if (!enrolment.reservation && (enrolment.exam?.implementation === 'AQUARIUM' || enrolment.collaborativeExam)) {
+            <button class="btn btn-success" (click)="makeReservation()">
+                {{ 'i18n_student_new_reservation' | translate }}
             </button>
-        </div>
-        <div
-            *ngIf="
-                !enrolment.examinationEventConfiguration &&
-                enrolment.exam?.implementation !== 'AQUARIUM' &&
-                hasUpcomingAlternativeEvents()
-            "
-            class="student-message-dialog-button-save"
-        >
-            <button class="link-button pointer" (click)="makeReservation()">
-                {{ 'sitnet_student_new_reservation' | translate }}
+        }
+        @if (
+            !enrolment.examinationEventConfiguration &&
+            enrolment.exam?.implementation !== 'AQUARIUM' &&
+            hasUpcomingAlternativeEvents()
+        ) {
+            <button class="btn btn-success" (click)="makeReservation()">
+                {{ 'i18n_student_new_reservation' | translate }}
             </button>
-        </div>
+        }
     </div>
 </div>

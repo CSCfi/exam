@@ -12,21 +12,53 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import {
+    NgbModal,
+    NgbNav,
+    NgbNavContent,
+    NgbNavItem,
+    NgbNavItemRole,
+    NgbNavLink,
+    NgbNavOutlet,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from } from 'rxjs';
-import type { MaintenancePeriod } from '../exam/exam.model';
-import type { User } from '../session/session.service';
-import { SessionService } from '../session/session.service';
+import type { MaintenancePeriod } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { SoftwareComponent } from 'src/app/software/software.component';
+import { AccessibilityComponent } from './accessibility/accessibility.component';
 import { RoomService } from './rooms/room.service';
+import { RoomListComponent } from './rooms/rooms.component';
 import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-dialog.component';
 
 @Component({
     templateUrl: './facility.component.html',
     selector: 'xm-facility',
+    standalone: true,
+    imports: [
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLink,
+        NgbNavContent,
+        RoomListComponent,
+        SoftwareComponent,
+        AccessibilityComponent,
+        NgbNavOutlet,
+        TranslateModule,
+        DatePipe,
+        OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class FacilityComponent implements OnInit {
     user: User;
@@ -50,7 +82,7 @@ export class FacilityComponent implements OnInit {
     createExamRoom = () => {
         this.room.getDraft$().subscribe({
             next: (room) => {
-                this.toast.info(this.translate.instant('sitnet_room_draft_created'));
+                this.toast.info(this.translate.instant('i18n_room_draft_created'));
                 this.router.navigate(['/staff/rooms', room.id]);
             },
             error: (err) => this.toast.error(err),
@@ -67,13 +99,12 @@ export class FacilityComponent implements OnInit {
             next: (res: MaintenancePeriod) => {
                 this.room.createMaintenancePeriod$(res).subscribe({
                     next: (mp) => {
-                        this.toast.info(this.translate.instant('sitnet_maintenance_period_created'));
+                        this.toast.info(this.translate.instant('i18n_maintenance_period_created'));
                         this.maintenancePeriods.push(mp);
                     },
                     error: (err) => this.toast.error(err),
                 });
             },
-            error: (err) => this.toast.error(err),
         });
     };
 
@@ -88,21 +119,20 @@ export class FacilityComponent implements OnInit {
             next: (res: MaintenancePeriod) => {
                 this.room.updateMaintenancePeriod$(res).subscribe({
                     next: () => {
-                        this.toast.info(this.translate.instant('sitnet_maintenance_period_updated'));
+                        this.toast.info(this.translate.instant('i18n_maintenance_period_updated'));
                         const index = this.maintenancePeriods.indexOf(period);
                         this.maintenancePeriods.splice(index, 1, res);
                     },
                     error: (err) => this.toast.error(err),
                 });
             },
-            error: (err) => this.toast.error(err),
         });
     };
 
     removePeriod = (period: MaintenancePeriod) => {
         this.room.removeMaintenancePeriod$(period).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_maintenance_period_removed'));
+                this.toast.info(this.translate.instant('i18n_maintenance_period_removed'));
                 this.maintenancePeriods.splice(this.maintenancePeriods.indexOf(period), 1);
             },
             error: (err) => this.toast.error(err),

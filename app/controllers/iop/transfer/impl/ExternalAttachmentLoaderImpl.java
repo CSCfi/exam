@@ -16,16 +16,11 @@
 
 package controllers.iop.transfer.impl;
 
-import akka.actor.ActorSystem;
-import akka.stream.IOResult;
-import akka.stream.Materializer;
-import akka.stream.javadsl.FileIO;
-import akka.stream.javadsl.Source;
-import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -36,8 +31,15 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Attachment;
 import models.Exam;
-import org.springframework.util.StringUtils;
-import play.Logger;
+import org.apache.pekko.actor.ActorSystem;
+import org.apache.pekko.stream.IOResult;
+import org.apache.pekko.stream.Materializer;
+import org.apache.pekko.stream.javadsl.FileIO;
+import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.util.ByteString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.ObjectUtils;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
@@ -58,7 +60,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
     @Inject
     private ConfigReader configReader;
 
-    private static final Logger.ALogger logger = Logger.of(ExternalAttachmentLoaderImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(ExternalAttachmentLoaderImpl.class);
 
     @Override
     public CompletableFuture<Void> fetchExternalAttachmentsAsLocal(Exam exam) {
@@ -98,7 +100,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 
     @Override
     public CompletableFuture<Void> createExternalAttachment(Attachment attachment) {
-        if (attachment == null || StringUtils.isEmpty(attachment.getFilePath())) {
+        if (attachment == null || ObjectUtils.isEmpty(attachment.getFilePath())) {
             return CompletableFuture.completedFuture(null);
         }
         final URL attachmentUrl;
@@ -134,12 +136,13 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                     return;
                 }
                 final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
-                final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart = new Http.MultipartFormData.FilePart<>(
-                    "file",
-                    attachment.getFileName(),
-                    attachment.getMimeType(),
-                    source
-                );
+                final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
+                    new Http.MultipartFormData.FilePart<>(
+                        "file",
+                        attachment.getFileName(),
+                        attachment.getMimeType(),
+                        source
+                    );
                 Http.MultipartFormData.DataPart dp = new Http.MultipartFormData.DataPart("key", "value");
 
                 updateRequest
@@ -182,7 +185,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 
     private CompletableFuture<Void> createFromExternalAttachment(Attachment attachment, String... pathParams) {
         return CompletableFuture.runAsync(() -> {
-            if (StringUtils.isEmpty(attachment.getExternalId())) {
+            if (ObjectUtils.isEmpty(attachment.getExternalId())) {
                 logger.error("Could not find external ID for an attachment");
                 return;
             }
@@ -215,6 +218,6 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 
     private URL parseUrl(String format, Object... args) throws MalformedURLException {
         final String path = args.length < 1 ? format : String.format(format, args);
-        return new URL(configReader.getIopHost() + path);
+        return URI.create(configReader.getIopHost() + path).toURL();
     }
 }

@@ -1,62 +1,64 @@
-<div id="dashboard">
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-details-title-wrap">
-                <img
-                    (click)="cancel()"
-                    class="pointer arrow_icon"
-                    src="/assets/images/icon_history.png"
-                    alt="go back"
-                />
-                <div class="student-enroll-title-wrap">
-                    <div *ngIf="!newQuestion" class="student-enroll-title">
-                        {{ 'sitnet_questions_edit' | translate }}
-                    </div>
-                    <div *ngIf="newQuestion" class="student-enroll-title">
-                        {{ 'sitnet_toolbar_new_question' | translate }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row marl50 marr50">
+@if (newQuestion) {
+    <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
+} @else {
+    <xm-page-header text="i18n_questions_edit" [prependTemplate]="linkBack" />
+}
+<xm-page-content [content]="content" />
+<ng-template #linkBack>
+    <xm-history-back></xm-history-back>
+</ng-template>
+<ng-template #content>
+    <div class="row">
         <!-- Question body //-->
-        <div class="col-md-12 question-border padl40 padr40">
-            <form role="form" #questionForm="ngForm" class="form-horizontal" name="questionForm" novalidate>
-                <xm-question-body
-                    *ngIf="question"
-                    [question]="question"
-                    [currentOwners]="currentOwners"
-                    [lotteryOn]="lotteryOn"
-                    [examId]="examId"
-                    [sectionQuestion]="sectionQuestion"
-                    [collaborative]="collaborative"
-                ></xm-question-body>
+        <div class="col-md-12">
+            <form role="form" #questionForm="ngForm" name="questionForm" novalidate>
+                @if (question) {
+                    <xm-question-body
+                        [question]="question"
+                        [currentOwners]="currentOwners"
+                        [lotteryOn]="lotteryOn"
+                        [examId]="examId"
+                        [sectionQuestion]="sectionQuestion"
+                        [collaborative]="collaborative"
+                    ></xm-question-body>
+                }
             </form>
             <!-- buttons -->
-            <div class="mart20">
-                <div class="question-cancel">
-                    <button
-                        [disabled]="
-                            !question ||
-                            !question.type ||
-                            hasNoCorrectOption() ||
-                            hasInvalidClaimChoiceOptions() ||
-                            questionForm.invalid
-                        "
-                        (click)="saveQuestion()"
-                        type="submit"
-                        class="btn btn-success bigbutton"
-                    >
-                        {{ 'sitnet_save' | translate }}
-                    </button>
-                </div>
-                <div class="question-cancel marr20">
-                    <button (click)="cancel()" type="submit" class="btn btn-cancel float-end bigbutton">
-                        {{ 'sitnet_button_cancel' | translate }}
-                    </button>
-                </div>
+
+            <div class="d-flex flex-row-reverse mt-2">
+                <button
+                    [disabled]="
+                        !question ||
+                        !question.type ||
+                        hasNoCorrectOption() ||
+                        hasInvalidClaimChoiceOptions() ||
+                        questionForm.invalid
+                    "
+                    (click)="saveQuestion()"
+                    type="submit"
+                    class="btn btn-success"
+                >
+                    {{ 'i18n_save' | translate }}
+                </button>
+
+                <button (click)="cancel()" type="submit" class="btn btn-secondary me-2">
+                    {{ 'i18n_button_cancel' | translate }}
+                </button>
+                <!--button
+                    (click)="openPreview()"
+                    type="submit"
+                    class="xm-neutral-button me-2"
+                    [disabled]="
+                        !question ||
+                        !question.type ||
+                        hasNoCorrectOption() ||
+                        hasInvalidClaimChoiceOptions() ||
+                        questionForm.invalid
+                    "
+                >
+                    {{ 'i18n_button_preview' | translate }}
+                </button-->
             </div>
         </div>
     </div>
-</div>
+</ng-template>

@@ -12,35 +12,39 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import type { ExaminationQuestion } from '../examination.model';
-import { ExaminationService } from '../examination.service';
+import { TranslateModule } from '@ngx-translate/core';
+import type { ExaminationQuestion } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
 
 @Component({
     selector: 'xm-examination-cloze-test',
-    template: `<div class="row">
-            <div class="col-md-12">
-                <small class="sitnet-info-text" *ngIf="sq.autosaved">
-                    {{ 'sitnet_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date : 'HH:mm' }}
-                </small>
-                <small class="sitnet-info-text" *ngIf="!sq.autosaved"> &nbsp; </small>
+    template: `@if (!isPreview) {
+            <div class="row">
+                <div class="col-md-12">
+                    @if (sq.autosaved) {
+                        <small class="autosave-text">
+                            {{ 'i18n_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date: 'HH:mm' }}
+                        </small>
+                    } @else {
+                        <small class="autosave-text"> &nbsp; </small>
+                    }
+                </div>
             </div>
+        }
+        <div class="row">
+            <div class="col-12">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
         </div>
-        <div class="padl0 question-type-text">
-            <span *ngIf="sq.evaluationType === 'Selection'">
-                {{ 'sitnet_evaluation_select' | translate }}
-            </span>
-            <span *ngIf="sq.evaluationType !== 'Selection'">
-                {{ sq.derivedMaxScore }} {{ 'sitnet_unit_points' | translate }}
-            </span>
-        </div>
-        <div class="row top-margin-1">
+        <div class="row mt-2">
             <div class="col-md-12">
                 <button (click)="saveAnswer()" [disabled]="isPreview" class="pointer btn btn-success">
-                    {{ 'sitnet_save' | translate }}
+                    {{ 'i18n_save' | translate }}
                 </button>
             </div>
-        </div> `,
+        </div>`,
+    standalone: true,
+    imports: [DatePipe, TranslateModule],
 })
 export class ExaminationClozeTestComponent {
     @Input() sq!: ExaminationQuestion;

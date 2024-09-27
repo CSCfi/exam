@@ -19,8 +19,8 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { ExamParticipation } from '../../exam/exam.model';
-import type { Review } from '../review.model';
+import type { ExamParticipation } from 'src/app/exam/exam.model';
+import type { Review } from 'src/app/review/review.model';
 
 type Selection = { [k: string]: boolean };
 
@@ -37,7 +37,11 @@ export type ReviewListView = {
 
 @Injectable({ providedIn: 'root' })
 export class ReviewListService {
-    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
         if (review.user) return `${review.user.lastName} ${review.user.firstName}`;
@@ -123,7 +127,7 @@ export class ReviewListService {
     getSelectedReviews = (items: Review[]) => {
         const objects = items.filter((i) => i.selected);
         if (objects.length === 0) {
-            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
         }
         return objects;
     };
@@ -180,7 +184,7 @@ export class ReviewListService {
                 return this.http.post<ExamParticipation>(resource, examToRecord);
             }
         } else {
-            this.toast.error(this.translate.instant('sitnet_failed_to_record_review'));
+            this.toast.error(this.translate.instant('i18n_failed_to_record_review'));
             return of();
         }
     };

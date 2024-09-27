@@ -13,59 +13,59 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
-import type { Exam } from '../../exam.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import type { Exam } from 'src/app/exam/exam.model';
 
 @Component({
     selector: 'xm-publication-dialog',
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ getTitle() | translate }}</div>
-            </div>
-            <div class="modal-body">
-                <p>
-                    {{ getConfirmationText() }}
-                </p>
-                <p *ngIf="exam.examFeedbackConfig">
-                    {{ 'sitnet_exam_feedback_config_confirmation' | translate }}
-                </p>
-            </div>
-            <div class="modal-footer">
-                <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'sitnet_button_ok' | translate }}
-                    </button>
-                </div>
-                <div class="student-message-dialog-button-cancel">
-                    <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss()">
-                        {{ 'sitnet_button_cancel' | translate }}
-                    </button>
-                </div>
-            </div>
+    standalone: true,
+    imports: [TranslateModule],
+    template: `
+        <div class="modal-header">
+            <div class="xm-modal-title">{{ getTitle() | translate }}</div>
         </div>
-    </div> `,
+        <div class="modal-body">
+            <p>
+                {{ getConfirmationText() }}
+            </p>
+            @if (exam.examFeedbackConfig) {
+                <p>
+                    {{ 'i18n_exam_feedback_config_confirmation' | translate }}
+                </p>
+            }
+        </div>
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success" (click)="activeModal.close()" autofocus>
+                {{ 'i18n_button_ok' | translate }}
+            </button>
+            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
+        </div>
+    `,
 })
 export class PublicationDialogComponent {
     @Input() exam!: Exam;
     @Input() prePublication = false;
 
-    constructor(public activeModal: NgbActiveModal, private translate: TranslateService) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private translate: TranslateService,
+    ) {}
 
     getConfirmationText = () => {
         let confirmation = this.prePublication
-            ? this.translate.instant('sitnet_pre_publish_exam_confirm')
-            : this.translate.instant('sitnet_publish_exam_confirm');
+            ? this.translate.instant('i18n_pre_publish_exam_confirm')
+            : this.translate.instant('i18n_publish_exam_confirm');
         if (this.exam.executionType.type !== 'PRINTOUT' && !this.prePublication) {
-            confirmation += ' ' + this.translate.instant('sitnet_publish_exam_confirm_enroll');
+            confirmation += ' ' + this.translate.instant('i18n_publish_exam_confirm_enroll');
         }
         return confirmation;
     };
 
     getTitle = () =>
-        this.prePublication
-            ? 'sitnet_pre_publish_exam_confirm_dialog_title'
-            : 'sitnet_publish_exam_confirm_dialog_title';
+        this.prePublication ? 'i18n_pre_publish_exam_confirm_dialog_title' : 'i18n_publish_exam_confirm_dialog_title';
 }

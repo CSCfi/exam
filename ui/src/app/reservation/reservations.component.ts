@@ -12,21 +12,28 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin, from, Observable, of } from 'rxjs';
+import { Observable, forkJoin, from, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
-import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { CollaborativeExam, Exam, ExamImpl, Implementation } from '../exam/exam.model';
-import type { User } from '../session/session.service';
-import { SessionService } from '../session/session.service';
-import { isObject } from '../shared/miscellaneous/helpers';
-import type { Option } from '../shared/select/dropdown-select.component';
-import { OrderByPipe } from '../shared/sorting/order-by.pipe';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { CollaborativeExam, Exam, ExamImpl, Implementation } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { isObject } from 'src/app/shared/miscellaneous/helpers';
+import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { ReservationDetailsComponent } from './reservation-details.component';
 import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
 
@@ -67,7 +74,19 @@ export type AnyReservation =
 
 @Component({
     selector: 'xm-reservations',
+    standalone: true,
+    imports: [
+        FormsModule,
+        TranslateModule,
+        NgbTypeaheadModule,
+        DatePickerComponent,
+        DropdownSelectComponent,
+        ReservationDetailsComponent,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
     templateUrl: './reservations.component.html',
+    styleUrl: './reservations.component.scss',
 })
 export class ReservationsComponent implements OnInit {
     @ViewChild('studentInput') studentInput!: ElementRef;
@@ -124,7 +143,7 @@ export class ReservationsComponent implements OnInit {
         this.initOptions();
         this.query();
         this.stateOptions = this.examStates.map((s) => {
-            return { id: s, value: s, label: `sitnet_exam_status_${s.toLowerCase()}` };
+            return { id: s, value: s, label: `i18n_exam_status_${s.toLowerCase()}` };
         });
     }
 
@@ -160,10 +179,10 @@ export class ReservationsComponent implements OnInit {
                             userAggregate: r.user
                                 ? `${r.user.lastName}  ${r.user.firstName}`
                                 : r.externalUserRef
-                                ? r.externalUserRef
-                                : r.enrolment?.exam
-                                ? r.enrolment.exam.id.toString()
-                                : '',
+                                  ? r.externalUserRef
+                                  : r.enrolment?.exam
+                                    ? r.enrolment.exam.id.toString()
+                                    : '',
                             org: '',
                             stateOrd: 0,
                             enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,

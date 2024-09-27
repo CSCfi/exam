@@ -14,37 +14,39 @@
  *
  */
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import type { EnrolmentInfo } from '../../enrolment.model';
+import { TranslateModule } from '@ngx-translate/core';
+import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-add-enrolment-information-dialog',
+    standalone: true,
+    imports: [FormsModule, TranslateModule],
     template: `
         <div class="modal-header">
-            <h4 class="modal-title">{{ 'sitnet_student_enrolment_info' | translate }}</h4>
+            <h1 class="xm-modal-title">{{ 'i18n_student_enrolment_info' | translate }}</h1>
         </div>
         <div class="modal-body">
             <form role="form" id="infoForm" name="infoForm" novalidate>
-                {{ 'sitnet_student_enrolment_info_description' | translate }}
+                {{ 'i18n_student_enrolment_info_description' | translate }}
                 <textarea
                     name="info"
                     aria-label="write additional information for the examiner"
                     rows="10"
-                    class="mart10 student-message-dialog-textarea"
+                    class="mt-1 w-100"
                     [(ngModel)]="information"
                 >
                 </textarea>
             </form>
         </div>
-        <div class="modal-footer student-message-dialog-buttons">
-            <div class="student-message-dialog-button-save mar0">
-                <button class="btn mar0" (click)="ok()">
-                    {{ 'sitnet_button_save' | translate }}
+        <div class="modal-footer">
+            <div class="d-flex flex-row-reverse flex-align-r">
+                <button class="btn btn-success" (click)="ok()">
+                    {{ 'i18n_button_save' | translate }}
                 </button>
-            </div>
-            <div class="student-message-dialog-button-cancel">
-                <button class="btn btn-sm btn-danger float-start" (click)="cancel()">
-                    {{ 'sitnet_button_cancel' | translate }}
+                <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+                    {{ 'i18n_button_cancel' | translate }}
                 </button>
             </div>
         </div>

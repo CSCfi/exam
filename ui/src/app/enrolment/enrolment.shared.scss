@@ -1,0 +1,17 @@
+.student-enrolment-date-box {
+    // waitinroom, active-enrolment
+    border: 2px solid #ededed;
+    border-radius: 3px;
+    text-align: center;
+    vertical-align: top;
+    padding: 3px;
+    font-weight: bold;
+    font-size: 20px;
+    width: 46px;
+    line-height: 16px;
+    margin-right: 15px;
+
+    .month-name {
+        font-size: 14px;
+    }
+}

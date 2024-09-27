@@ -17,7 +17,7 @@ package controllers.integration;
 
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.List;
@@ -35,7 +35,7 @@ public class ExamAPIController extends BaseController {
         PathProperties pp = PathProperties.parse(
             "(course(name, code, credits, " +
             "gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation)) " +
-            "id, name, examActiveStartDate, examActiveEndDate, duration, enrollInstruction, " +
+            "id, name, periodStart, periodEnd, duration, enrollInstruction, " +
             "examLanguages(code, name), gradeScale(description, externalRef, displayName), " +
             "examOwners(firstName, lastName, email), examType(type)" +
             ")"
@@ -43,12 +43,12 @@ public class ExamAPIController extends BaseController {
         DateTime dateTime = date.isPresent()
             ? ISODateTimeFormat.dateTimeParser().parseDateTime(date.get())
             : DateTime.now();
-        Query<Exam> query = Ebean.find(Exam.class);
+        Query<Exam> query = DB.find(Exam.class);
         query.apply(pp);
         List<Exam> exams = query
             .where()
             .eq("state", Exam.State.PUBLISHED)
-            .ge("examActiveEndDate", dateTime)
+            .ge("periodEnd", dateTime)
             .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
             .findList();
 
