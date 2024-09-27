@@ -168,9 +168,8 @@ export class MultiRoomComponent implements OnInit {
             this.toast.error(this.translate.instant('i18n_select_room_error'));
             return;
         }
-        outOfService
-            ? this.roomService.openExceptionDialog(this.addExceptions, true, allExceptions)
-            : this.roomService.openExceptionDialog(this.addExceptions, false, allExceptions);
+        if (outOfService) this.roomService.openExceptionDialog(this.addExceptions, true, allExceptions);
+        else this.roomService.openExceptionDialog(this.addExceptions, false, allExceptions);
     };
 
     selectAll = () => {

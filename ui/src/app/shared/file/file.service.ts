@@ -106,7 +106,7 @@ export class FileService {
                 ia[i] = byteString.charCodeAt(i);
             }
             blob = new Blob([ia], { type: contentType });
-        } catch (e) {
+        } catch {
             // Maybe this isn't base64, try plaintext approaches
             const text = contentType === 'application/json' ? JSON.stringify(data, null, 2) : data;
             blob = new Blob([text], { type: contentType });
