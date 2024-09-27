@@ -135,8 +135,5 @@ export class ExaminationComponent implements OnInit, OnDestroy {
         throw Error('invalid index');
     };
 
-    private onUnload = (event: BeforeUnloadEvent) => {
-        event.preventDefault();
-        return (event.returnValue = '');
-    };
+    private onUnload = (event: BeforeUnloadEvent) => event.preventDefault();
 }

@@ -154,8 +154,5 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
         }
     };
 
-    private onUnload = (event: BeforeUnloadEvent) => {
-        event.preventDefault();
-        return this.questionForm?.dirty ? (event.returnValue = '') : null;
-    };
+    private onUnload = (event: BeforeUnloadEvent) => event.preventDefault();
 }
