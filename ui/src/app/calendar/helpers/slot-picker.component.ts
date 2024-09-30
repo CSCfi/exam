@@ -68,7 +68,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     }>();
 
     rooms = signal<FilterableRoom[]>([]);
-    maintenancePeriods = signal<MaintenancePeriod[]>([]);
+    maintenancePeriods = signal<(MaintenancePeriod & { remote: boolean })[]>([]);
     selectedRoom?: ExamRoom;
     accessibilities: FilterableAccessibility[] = [];
     currentWeek = signal(DateTime.now());
@@ -90,13 +90,25 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false })).filter((r) => r.name);
             this.rooms.set(rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)));
         });
-        this.Calendar.listMaintenancePeriods$().subscribe((periods) => this.maintenancePeriods.set(periods));
+        this.Calendar.listMaintenancePeriods$().subscribe((periods) => {
+            const localMaintenances = periods.map((p) => ({ ...p, remote: false }));
+            this.maintenancePeriods.set(localMaintenances);
+        });
     }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.organisation && this.organisation) {
             this.rooms.set(this.organisation.facilities.map((f) => ({ ...f, filtered: false })));
             delete this.selectedRoom;
+            const remoteMaintenances = (this.organisation.maintenancePeriods || []).map((p) => ({
+                ...p,
+                remote: true,
+            }));
+            this.maintenancePeriods.set(
+                this.maintenancePeriods()
+                    .filter((p) => !p.remote)
+                    .concat(remoteMaintenances),
+            );
         }
     }
 

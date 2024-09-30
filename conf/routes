@@ -466,10 +466,10 @@ GET           /app/reports/responses                                            
 POST          /app/reports/questionreport/:id                                     controllers.admin.ReportController.exportExamQuestionScoresAsExcel(id: Long, request: Request)
 
 ################# Maintenance period interface ##################
-GET           /app/maintenance                                                    controllers.MaintenancePeriodController.listMaintenancePeriods
-POST          /app/maintenance                                                    controllers.MaintenancePeriodController.createMaintenancePeriod
-PUT           /app/maintenance/:id                                                controllers.MaintenancePeriodController.updateMaintenancePeriod(id: Long)
-DELETE        /app/maintenance/:id                                                controllers.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
+GET           /app/maintenance                                                    controllers.facility.MaintenancePeriodController.listMaintenancePeriods
+POST          /app/maintenance                                                    controllers.facility.MaintenancePeriodController.createMaintenancePeriod
+PUT           /app/maintenance/:id                                                controllers.facility.MaintenancePeriodController.updateMaintenancePeriod(id: Long)
+DELETE        /app/maintenance/:id                                                controllers.facility.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
 
 #######################################################
 GET           /attributes                                                         controllers.user.SessionController.getAttributes(request: Request)
