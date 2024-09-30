@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.integration;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -18,14 +22,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
-import models.Course;
-import models.Grade;
-import models.GradeScale;
-import models.Organisation;
-import models.User;
+import models.exam.Course;
+import models.exam.Grade;
+import models.exam.GradeScale;
+import models.facility.Organisation;
+import models.user.User;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHandler;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.server.ServerConnector;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import play.libs.Json;
@@ -63,9 +70,13 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
     public static void startServer() throws Exception {
         Server server = new Server(31245);
         server.setStopAtShutdown(true);
-        ServletHandler handler = new ServletHandler();
-        handler.addServletWithMapping(CourseInfoServlet.class, "/courseUnitInfo");
-        handler.addServletWithMapping(CourseInfoServlet.class, "/courseUnitInfo/oulu");
+        Connector connector = new ServerConnector(server);
+        server.addConnector(connector);
+        server.setStopAtShutdown(true);
+        ServletContextHandler handler = new ServletContextHandler();
+        handler.setContextPath("/");
+        handler.addServlet(CourseInfoServlet.class, "/courseUnitInfo");
+        handler.addServlet(CourseInfoServlet.class, "/courseUnitInfo/oulu");
         server.setHandler(handler);
         server.start();
     }
@@ -95,8 +106,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo("9");
         assertThat(course.getCreditsLanguage()).isEqualTo("fi");
-        List<Grade> grades = DB
-            .find(Grade.class)
+        List<Grade> grades = DB.find(Grade.class)
             .where()
             .eq("gradeScale.id", course.getGradeScale().getId())
             .findList();
@@ -122,8 +132,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo("sis-0-5");
         assertThat(course.getCreditsLanguage()).isEqualTo("en");
-        List<Grade> grades = DB
-            .find(Grade.class)
+        List<Grade> grades = DB.find(Grade.class)
             .where()
             .eq("gradeScale.id", course.getGradeScale().getId())
             .findList();
@@ -196,8 +205,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo("9");
-        List<Grade> grades = DB
-            .find(Grade.class)
+        List<Grade> grades = DB.find(Grade.class)
             .where()
             .eq("gradeScale.id", course.getGradeScale().getId())
             .findList();

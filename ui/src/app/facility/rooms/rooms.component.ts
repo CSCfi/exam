@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
@@ -20,16 +10,17 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { groupBy } from 'ramda';
+import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import { MachineListComponent } from 'src/app/facility/machines/machines.component';
 import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
 import { OpenHoursComponent } from 'src/app/facility/schedule/opening-hours.component';
 import { StartingTimeComponent } from 'src/app/facility/schedule/starting-time.component';
 import type { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
 import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 import { RoomService } from './room.service';
 
 interface ExtendedRoom extends ExamRoom {
@@ -37,13 +28,6 @@ interface ExtendedRoom extends ExamRoom {
     availabilityVisible: boolean;
     extendedDwh: DefaultWorkingHoursWithEditing[];
     activate: boolean;
-}
-export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
-    editing: boolean;
-    pickStartingTime: { hour: number; minute: number; second: number; millisecond?: number };
-    pickEndingTime: { hour: number; minute: number; second: number; millisecond?: number };
-    displayStartingTime: { hour: number; minute: number; second: number; millisecond?: number };
-    displayEndingTime: { hour: number; minute: number; second: number; millisecond?: number };
 }
 
 @Component({
@@ -166,9 +150,9 @@ export class RoomListComponent implements OnInit {
         const sorter = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const capitalize = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
         const timePart = (s: string) => format(new Date(s), 'HH:mm');
-        const mapping: Record<string, DefaultWorkingHours[]> = groupBy(
-            (wh) => `${timePart(wh.startTime)} - ${timePart(wh.endTime)}`,
+        const mapping = groupBy(
             workingHours,
+            (x: DefaultWorkingHours) => `${timePart(x.startTime)} - ${timePart(x.endTime)}`,
         );
         return Object.keys(mapping).map((k) => {
             const days = mapping[k]

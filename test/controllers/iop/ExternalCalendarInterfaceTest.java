@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -29,34 +33,31 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.GeneralSettings;
-import models.GradeEvaluation;
-import models.Language;
-import models.Reservation;
-import models.Role;
-import models.User;
-import models.iop.ExternalReservation;
-import models.json.ExternalExam;
+import miscellaneous.json.JsonDeserializer;
+import models.admin.GeneralSettings;
+import models.assessment.AutoEvaluationConfig;
+import models.assessment.GradeEvaluation;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExternalReservation;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.facility.ExamMachine;
+import models.facility.ExamRoom;
+import models.iop.ExternalExam;
+import models.user.Language;
+import models.user.Role;
+import models.user.User;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.json.JsonDeserializer;
 
 public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
@@ -72,8 +73,9 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     private ExamEnrolment enrolment;
 
     @Rule
-    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
-        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
+    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(
+        ServerSetupTest.SMTP
+    ).withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     public static class SlotServlet extends HttpServlet {
 
@@ -164,31 +166,34 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         String baseUrl = String.format("/api/organisations/%s/facilities/%s", ORG_REF, ROOM_REF);
         // Check this shit
         String baseUrl2 = String.format("/api/organisations/test-org/facilities/%s", ROOM_REF);
-        server =
-            RemoteServerHelper.createAndStartServer(
-                31247,
-                Map.of(
-                    SlotServlet.class,
-                    List.of(String.format("%s/slots", baseUrl)),
-                    ReservationServlet.class,
-                    List.of(String.format("%s/reservations", baseUrl)),
-                    ReservationRemovalServlet.class,
-                    List.of(
-                        String.format("%s/reservations/%s", baseUrl, RESERVATION_REF),
-                        String.format("%s/reservations/%s/force", baseUrl2, RESERVATION_REF)
-                    ),
-                    EnrolmentServlet.class,
-                    List.of(String.format("/api/enrolments/%s", RESERVATION_REF)),
-                    AttachmentServlet.class,
-                    List.of("/api/attachments/*")
-                )
-            );
+        server = RemoteServerHelper.createAndStartServer(
+            31247,
+            Map.of(
+                SlotServlet.class,
+                List.of(String.format("%s/slots", baseUrl)),
+                ReservationServlet.class,
+                List.of(String.format("%s/reservations", baseUrl)),
+                ReservationRemovalServlet.class,
+                List.of(
+                    String.format("%s/reservations/%s", baseUrl, RESERVATION_REF),
+                    String.format("%s/reservations/%s/force", baseUrl2, RESERVATION_REF)
+                ),
+                EnrolmentServlet.class,
+                List.of(String.format("/api/enrolments/%s", RESERVATION_REF)),
+                AttachmentServlet.class,
+                List.of("/api/attachments/*")
+            )
+        );
     }
 
     private void initialize(User other) {
         DB.deleteAll(DB.find(ExamEnrolment.class).findList());
-        exam =
-            DB.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
+        exam = DB.find(Exam.class)
+            .fetch("examSections")
+            .fetch("examSections.sectionQuestions")
+            .where()
+            .idEq(1L)
+            .findOne();
         initExamSectionQuestions(exam);
         exam.setPeriodStart(DateTime.now().minusDays(1));
         exam.setPeriodEnd(DateTime.now().plusDays(1));
@@ -332,8 +337,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/integration/iop/reservations",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("id", RESERVATION_REF)
                 .put("roomId", ROOM_REF)
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -510,8 +514,9 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Exam ee = deserialize(Exam.class, body);
         assertThat(ee.getId()).isEqualTo(exam.getId());
         assertThat(ee.getExamSections()).hasSize(exam.getExamSections().size());
-        assertThat(ee.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum())
-            .isEqualTo(exam.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum());
+        assertThat(ee.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()).isEqualTo(
+            exam.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()
+        );
     }
 
     @Test
@@ -547,8 +552,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(403);
 
         // see that enrolment was created for the user
-        ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .where()
             .eq("reservation.externalRef", RESERVATION_REF)
             .findOne();
@@ -569,7 +573,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(user).isNull();
 
         ExamMachine machine = room.getExamMachines().get(0);
-        machine.setIpAddress("128.0.0.2");
+        machine.setIpAddress("128.2.2.2");
         machine.update();
         Reservation reservation = new Reservation();
         reservation.setExternalUserRef(eppn);
@@ -784,8 +788,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.save();
 
         login(eppn);
-        ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .where()
             .eq("reservation.externalRef", RESERVATION_REF)
             .findOne();

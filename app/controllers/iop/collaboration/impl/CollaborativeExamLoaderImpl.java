@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.iop.collaboration.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,10 +21,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
-import models.Exam;
-import models.ExamParticipation;
-import models.User;
-import models.json.CollaborativeExam;
+import miscellaneous.config.ConfigReader;
+import models.enrolment.ExamParticipation;
+import models.exam.Exam;
+import models.iop.CollaborativeExam;
+import models.user.User;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +35,6 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import util.config.ConfigReader;
 
 public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
 

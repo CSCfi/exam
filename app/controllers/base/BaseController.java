@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.base;
 
@@ -23,16 +12,18 @@ import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import models.Exam;
-import models.ExamEnrolment;
-import models.Role;
-import models.User;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.user.Role;
+import models.user.User;
 import play.data.FormFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.libs.typedmap.TypedKey;
@@ -40,6 +31,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
+import scala.jdk.javaapi.CollectionConverters;
 import system.interceptors.AnonymousJsonAction;
 
 public class BaseController extends Controller {
@@ -83,18 +75,17 @@ public class BaseController extends Controller {
             // Possible that user provided us two names. Let's try out some combinations of first and last names
             var name1 = rawFilter.split(" ")[0];
             var name2 = rawFilter.split(" ")[1];
-            result =
-                result
-                    .or()
-                    .and()
-                    .ilike(fnField, String.format("%%%s%%", name1))
-                    .ilike(lnField, String.format("%%%s%%", name2))
-                    .endAnd()
-                    .and()
-                    .ilike(fnField, String.format("%%%s%%", name2))
-                    .ilike(lnField, String.format("%%%s%%", name1))
-                    .endAnd()
-                    .endOr();
+            result = result
+                .or()
+                .and()
+                .ilike(fnField, String.format("%%%s%%", name1))
+                .ilike(lnField, String.format("%%%s%%", name2))
+                .endAnd()
+                .and()
+                .ilike(fnField, String.format("%%%s%%", name2))
+                .ilike(lnField, String.format("%%%s%%", name1))
+                .endAnd()
+                .endOr();
         } else {
             result = result.ilike(fnField, condition).ilike(lnField, condition);
         }
@@ -102,8 +93,7 @@ public class BaseController extends Controller {
     }
 
     private void handleNoShow(User user, Long examId) {
-        var enrolments = DB
-            .find(ExamEnrolment.class)
+        var enrolments = DB.find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("exam")
             .where()
@@ -127,7 +117,10 @@ public class BaseController extends Controller {
             .endOr()
             .isNull("reservation.externalReservation")
             .findList();
-        noShowHandler.handleNoShows(enrolments, Collections.emptyList());
+        noShowHandler.handleNoShows(
+            CollectionConverters.asScala(enrolments).toList(),
+            CollectionConverters.asScala(new ArrayList<Reservation>()).toList()
+        );
     }
 
     protected boolean isAllowedToParticipate(Exam exam, User user) {
@@ -136,8 +129,7 @@ public class BaseController extends Controller {
         if (trialCount == null) {
             return true;
         }
-        var trials = DB
-            .find(ExamEnrolment.class)
+        var trials = DB.find(ExamEnrolment.class)
             .fetch("exam")
             .where()
             .eq("user", user)
@@ -198,8 +190,8 @@ public class BaseController extends Controller {
 
     protected JsonNode serialize(Object o, PathProperties pp) {
         var mapper = new ObjectMapper();
+        var json = DB.json().toJson(o, pp);
         try {
-            var json = DB.json().toJson(o, pp);
             return mapper.readTree(json);
         } catch (IOException e) {
             throw new RuntimeException(e);

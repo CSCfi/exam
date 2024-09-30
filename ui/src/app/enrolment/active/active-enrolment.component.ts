@@ -1,19 +1,9 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-import { DatePipe, LowerCasePipe, SlicePipe, UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
+import { Component, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -26,6 +16,7 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.component';
+import { OptionalSectionsComponent } from './helpers/optional-sections.component';
 
 @Component({
     selector: 'xm-active-enrolment',
@@ -36,10 +27,10 @@ import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.co
         ActiveEnrolmentMenuComponent,
         CourseCodeComponent,
         TeacherListComponent,
+        OptionalSectionsComponent,
         NgbCollapse,
         MathJaxDirective,
         UpperCasePipe,
-        LowerCasePipe,
         SlicePipe,
         DatePipe,
         TranslateModule,
@@ -48,12 +39,11 @@ import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.co
     styleUrls: ['../enrolment.shared.scss', './active-enrolment.component.scss'],
 })
 export class ActiveEnrolmentComponent {
-    @Input() enrolment!: ExamEnrolment & { occasion?: { startAt: string; endAt: string; tz: string } };
-    @Output() removed = new EventEmitter<number>();
+    enrolment = input.required<ExamEnrolment & { occasion?: { startAt: string; endAt: string; tz: string } }>();
+    removed = output<number>();
 
-    showGuide = false;
-    showInstructions = false;
-    showMaterials = false;
+    showGuide = signal(false);
+    showInstructions = signal(false);
 
     constructor(
         private translate: TranslateService,
@@ -61,16 +51,16 @@ export class ActiveEnrolmentComponent {
         private Files: FileService,
     ) {}
 
-    hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment);
+    hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment());
 
-    makeReservation = () => this.Enrolment.makeReservation(this.enrolment);
+    makeReservation = () => this.Enrolment.makeReservation(this.enrolment());
 
-    addEnrolmentInformation = () => this.Enrolment.addEnrolmentInformation(this.enrolment);
+    addEnrolmentInformation = () => this.Enrolment.addEnrolmentInformation(this.enrolment());
 
     enrolmentRemoved = ($event: number) => this.removed.emit($event);
 
     getRoomInstruction = () => {
-        const reservation = this.enrolment.reservation;
+        const reservation = this.enrolment().reservation;
         if (!reservation) {
             return;
         }
@@ -87,8 +77,8 @@ export class ActiveEnrolmentComponent {
 
     downloadSebFile = () =>
         this.Files.download(
-            `/app/student/enrolments/${this.enrolment.id}/configFile`,
-            (this.enrolment.exam.name || this.translate.instant('i18n_no_name')).replace(' ', '-') + '.seb',
+            `/app/student/enrolments/${this.enrolment().id}/configFile`,
+            (this.enrolment().exam.name || this.translate.instant('i18n_no_name')).replace(' ', '-') + '.seb',
         );
 
     private getRoomInstructions = (lang: string, room: Partial<ExamRoom>) => {

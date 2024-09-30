@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, DecimalPipe, KeyValuePipe } from '@angular/common';
 import { Component, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -19,14 +9,15 @@ import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
 import { format } from 'date-fns';
-import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
-import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import type { Exam } from 'src/app/exam/exam.model';
 import { AbortedExamsComponent } from 'src/app/review/listing/dialogs/aborted.component';
 import { NoShowsComponent } from 'src/app/review/listing/dialogs/no-shows.component';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import type { Review } from 'src/app/review/review.model';
 import { FileService } from 'src/app/shared/file/file.service';
+import { ChartService } from './chart-service';
 import { ExamSummaryService } from './exam-summary.service';
 
 @Component({
@@ -54,6 +45,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         private route: ActivatedRoute,
         private translate: TranslateService,
         private modal: NgbModal,
+        private ChartService: ChartService,
         private ExamSummary: ExamSummaryService,
         private ReviewList: ReviewListService,
         private Files: FileService,
@@ -143,18 +135,18 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
 
     private refresh = () => {
         this.ExamSummary.getNoShows$(this.collaborative, this.exam).subscribe((ns) => (this.noShows = ns));
-        this.gradeDistributionChart = this.ExamSummary.getGradeDistributionChart(
+        this.gradeDistributionChart = this.ChartService.getGradeDistributionChart(
             'gradeDistributionChart',
             this.reviews,
         );
-        this.examinationDateDistribution = this.ExamSummary.getExaminationTimeDistributionChart(
+        this.examinationDateDistribution = this.ChartService.getExaminationTimeDistributionChart(
             'examinationDateDistributionChart',
             this.reviews,
             this.exam,
         );
-        this.gradeTimeChart = this.ExamSummary.getGradeTimeChart('gradeTimeChart', this.reviews, this.exam);
-        this.questionScoreChart = this.ExamSummary.getQuestionScoreChart('questionScoreChart', this.reviews);
-        this.approvalRatingChart = this.ExamSummary.getApprovalRateChart('approvalRatingChart', this.reviews);
+        this.gradeTimeChart = this.ChartService.getGradeTimeChart('gradeTimeChart', this.reviews, this.exam);
+        this.questionScoreChart = this.ChartService.getQuestionScoreChart('questionScoreChart', this.reviews);
+        this.approvalRatingChart = this.ChartService.getApprovalRateChart('approvalRatingChart', this.reviews);
         this.gradedCount = this.reviews.filter((r) => r.exam.gradedTime).length;
         this.abortedExams = this.ReviewList.filterByStateAndEnhance(['ABORTED'], this.reviews, this.collaborative);
     };

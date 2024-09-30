@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package base;
 
 import java.util.Date;
@@ -6,16 +10,12 @@ import org.joda.time.DateTimeZone;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.constructor.Construct;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.inspector.TrustedTagInspector;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeId;
 import org.yaml.snakeyaml.nodes.Tag;
 
 class JodaPropertyConstructor extends Constructor {
 
-    /*JodaPropertyConstructor() {
-        yamlClassConstructors.put(NodeId.scalar, new TimeStampConstruct());
-    }*/
     JodaPropertyConstructor(LoaderOptions options) {
         super(options);
         yamlClassConstructors.put(NodeId.scalar, new TimeStampConstruct());

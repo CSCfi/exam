@@ -1,35 +1,20 @@
-/*
- *
- *  * Copyright (c) 2024 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *  *
- *  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- *  * versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- *  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package system.actors
 
 import impl.NoShowHandler
 import io.ebean.DB
-
-import javax.inject.Inject
-import models.ExamEnrolment
-import models.Reservation
+import miscellaneous.datetime.DateTimeHandler
+import miscellaneous.scala.DbApiHelper
+import models.enrolment.{ExamEnrolment, Reservation}
 import org.apache.pekko.actor.AbstractActor
 import org.joda.time.DateTime
 import play.api.Logging
-import util.datetime.DateTimeHandler
-import util.scala.DbApiHelper
 
-import scala.jdk.CollectionConverters.*
+import javax.inject.Inject
+import scala.jdk.CollectionConverters._
 
 class ReservationPollerActor @Inject (
     private val noShowHandler: NoShowHandler,
@@ -51,7 +36,7 @@ class ReservationPollerActor @Inject (
   override def createReceive(): AbstractActor.Receive = receiveBuilder()
     .`match`(
       classOf[String],
-      (s: String) =>
+      (_: String) =>
         logger.debug("Starting no-show check ->")
         val enrolments = DB
           .find(classOf[ExamEnrolment])
@@ -80,7 +65,7 @@ class ReservationPollerActor @Inject (
           .list
 
         if enrolments.isEmpty && reservations.isEmpty then logger.debug("None found")
-        else noShowHandler.handleNoShows(enrolments.asJava, reservations.asJava)
+        else noShowHandler.handleNoShows(enrolments, reservations)
         logger.debug("<- done")
     )
     .build

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="xm-study-item-container review-view mb-2">
     <div class="row align-items-center">
         <span class="col-md-6">
@@ -95,7 +101,7 @@
                 }
                 @switch (sectionQuestion.question.type) {
                     @case ('MultipleChoiceQuestion') {
-                        @for (option of sectionQuestion.options; track option) {
+                        @for (option of sectionQuestion.options; track option.id) {
                             <div class="row ms-2 mt-2">
                                 <div class="col-md-12">
                                     @if (option.option.correctOption) {
@@ -109,7 +115,7 @@
                         }
                     }
                     @case ('WeightedMultipleChoiceQuestion') {
-                        @for (option of sectionQuestion.options; track option) {
+                        @for (option of sectionQuestion.options; track option.id) {
                             <div class="row ms-2 mt-2">
                                 <div class="col-md-12">
                                     @if (option.score >= 0) {

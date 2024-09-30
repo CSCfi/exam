@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -19,12 +8,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamSectionQuestion, Question, ReverseQuestion } from 'src/app/exam/exam.model';
 import { CanComponentDeactivate } from 'src/app/question/has-unsaved-changes.quard';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
-import type { QuestionDraft } from 'src/app/question/question.service';
+import type { QuestionDraft } from 'src/app/question/question.model';
+import { ExamSectionQuestion, Question, ReverseQuestion } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
@@ -155,7 +144,6 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
     };
 
     private onUnload = (event: BeforeUnloadEvent) => {
-        event.preventDefault();
-        return this.questionForm?.dirty ? (event.returnValue = '') : null;
+        if (this.questionForm?.dirty) event.preventDefault();
     };
 }

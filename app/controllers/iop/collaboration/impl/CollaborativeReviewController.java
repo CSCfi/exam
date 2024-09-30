@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop.collaboration.impl;
 
@@ -20,7 +9,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import impl.EmailComposer;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.vavr.control.Either;
 import java.io.File;
@@ -37,14 +26,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import models.Exam;
-import models.ExamInspection;
-import models.Grade;
-import models.Role;
-import models.User;
-import models.json.CollaborativeExam;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.csv.CsvBuilder;
+import miscellaneous.file.FileHandler;
+import miscellaneous.json.JsonDeserializer;
+import models.assessment.ExamInspection;
+import models.exam.Exam;
+import models.exam.Grade;
+import models.iop.CollaborativeExam;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
+import models.user.Role;
+import models.user.User;
 import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -65,10 +58,6 @@ import sanitizers.ExternalRefCollectionSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import system.interceptors.Anonymous;
-import util.config.ConfigReader;
-import util.csv.CsvBuilder;
-import util.file.FileHandler;
-import util.json.JsonDeserializer;
 
 public class CollaborativeReviewController extends CollaborationController {
 
@@ -279,8 +268,10 @@ public class CollaborativeReviewController extends CollaborationController {
                                     return internalServerError("i18n_error_creating_csv_file");
                                 }
                                 String contentDisposition = fileHandler.getContentDisposition(file);
-                                return ok(fileHandler.encodeAndDelete(file))
-                                    .withHeader("Content-Disposition", contentDisposition);
+                                return ok(fileHandler.encodeAndDelete(file)).withHeader(
+                                    "Content-Disposition",
+                                    contentDisposition
+                                );
                             })
                     )
                     .getOrElseGet(Function.identity())
@@ -661,26 +652,25 @@ public class CollaborativeReviewController extends CollaborationController {
                                             JsonNode root = r.asJson();
                                             JsonNode examNode = root.get("exam");
                                             Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
-                                            return validateExamState(exam, !gradeless, user)
-                                                .orElseGet(() -> {
-                                                    ((ObjectNode) examNode).put(
-                                                            "state",
-                                                            Exam.State.GRADED_LOGGED.toString()
-                                                        );
-                                                    if (
-                                                        exam.getGradedByUser() == null &&
-                                                        exam.getAutoEvaluationConfig() != null
-                                                    ) {
-                                                        // Automatically graded by system, set graded by user at this point.
-                                                        ((ObjectNode) examNode).set("gradedByUser", serialize(user));
-                                                    }
-                                                    if (gradeless) {
-                                                        ((ObjectNode) examNode).put("gradeless", true);
-                                                        ((ObjectNode) examNode).set("grade", NullNode.getInstance());
-                                                    }
-                                                    ((ObjectNode) root).put("rev", revision);
-                                                    return upload(url, root);
-                                                });
+                                            return validateExamState(exam, !gradeless, user).orElseGet(() -> {
+                                                ((ObjectNode) examNode).put(
+                                                        "state",
+                                                        Exam.State.GRADED_LOGGED.toString()
+                                                    );
+                                                if (
+                                                    exam.getGradedByUser() == null &&
+                                                    exam.getAutoEvaluationConfig() != null
+                                                ) {
+                                                    // Automatically graded by system, set graded by user at this point.
+                                                    ((ObjectNode) examNode).set("gradedByUser", serialize(user));
+                                                }
+                                                if (gradeless) {
+                                                    ((ObjectNode) examNode).put("gradeless", true);
+                                                    ((ObjectNode) examNode).set("grade", NullNode.getInstance());
+                                                }
+                                                ((ObjectNode) root).put("rev", revision);
+                                                return upload(url, root);
+                                            });
                                         })
                                         .getOrElseGet(Function.identity());
                                 return wsr.get().thenComposeAsync(onSuccess);

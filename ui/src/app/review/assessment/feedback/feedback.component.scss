@@ -1,9 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
 @import '../../../shared/definitions.scss';
 
 .wrapper {
-    @media (max-width: $mobile-width) {
-        width: auto;
-    }
     padding: 1em;
     position: fixed;
     top: 80px;
@@ -13,4 +16,7 @@
     background: rgba(255, 255, 255, 0.7);
     width: 620px;
     margin: 2px;
+    @media (max-width: $mobile-width) {
+        width: auto;
+    }
 }

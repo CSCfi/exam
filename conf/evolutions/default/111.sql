@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 -- !Ups
 ALTER TABLE external_reservation ADD mail_address_id BIGINT;
 ALTER TABLE external_reservation ADD CONSTRAINT FK_EXTERNAL_RESERVATION_MAIL_ADDRESS FOREIGN KEY (mail_address_id) REFERENCES mail_address(id);

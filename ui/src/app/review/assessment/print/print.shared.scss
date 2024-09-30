@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
 @media print {
     [class*='col-md-'] {
         float: left;
@@ -95,10 +101,10 @@
 }
 
 .marker {
+    background: yellow;
     @media print {
         border: 1px solid;
     }
-    background: yellow;
 }
 
 blockquote {

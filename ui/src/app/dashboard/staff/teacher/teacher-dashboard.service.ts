@@ -1,41 +1,16 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { Exam, ExamExecutionType } from 'src/app/exam/exam.model';
+import { Dashboard } from 'src/app/dashboard/dashboard.model';
+import type { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { ReservationService } from 'src/app/reservation/reservation.service';
-
-export interface DashboardExam extends Exam {
-    ownerAggregate: string;
-    unassessedCount: number;
-    unfinishedCount: number;
-    reservationCount: number;
-    assessedCount: number;
-}
-
-export class Dashboard {
-    executionTypes: ExamExecutionType[] = [];
-    draftExams: DashboardExam[] = [];
-    activeExams: DashboardExam[] = [];
-    finishedExams: DashboardExam[] = [];
-    archivedExams: DashboardExam[] = [];
-}
 
 @Injectable({ providedIn: 'root' })
 export class TeacherDashboardService {

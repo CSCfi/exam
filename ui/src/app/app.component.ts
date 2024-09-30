@@ -1,46 +1,32 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass, registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ExaminationStatusService } from './examination/examination-status.service';
 import { NavigationComponent } from './navigation/navigation.component';
 import { DevLoginComponent } from './session/dev/dev-login.component';
-import type { User } from './session/session.service';
+import type { User } from './session/session.model';
 import { SessionService } from './session/session.service';
 
 @Component({
     selector: 'xm-app',
     template: `
-        @if (!user && devLoginRequired) {
-            <div>
-                <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
-            </div>
+        @if (!user && devLoginRequired()) {
+            <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
         }
         @if (user) {
-            <div>
-                <xm-navigation [hidden]="hideNavBar"></xm-navigation>
-                <main id="mainView" class="container-fluid" [ngClass]="{ 'vmenu-on': !hideNavBar }">
-                    <router-outlet></router-outlet>
-                </main>
-            </div>
+            <xm-navigation [hidden]="hideNavBar"></xm-navigation>
+            <main id="mainView" class="container-fluid" [ngClass]="{ 'vmenu-on': !hideNavBar }">
+                <router-outlet></router-outlet>
+            </main>
         }
     `,
     styles: [
@@ -74,7 +60,7 @@ import { SessionService } from './session/session.service';
 export class AppComponent implements OnInit, OnDestroy {
     user?: User;
     hideNavBar = false;
-    devLoginRequired = false;
+    devLoginRequired = signal(false);
     private ngUnsubscribe = new Subject();
 
     constructor(
@@ -116,7 +102,7 @@ export class AppComponent implements OnInit, OnDestroy {
                     if (value === 'PROD') {
                         this.Session.login$('', '').subscribe((user) => (this.user = user));
                     }
-                    this.devLoginRequired = value === 'DEV';
+                    this.devLoginRequired.set(value === 'DEV');
                 },
                 error: () => console.log('no env found'),
             });

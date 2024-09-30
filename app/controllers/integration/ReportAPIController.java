@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.integration;
 
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
@@ -11,10 +15,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import models.Exam;
-import models.ExamEnrolment;
-import models.Software;
 import models.base.GeneratedIdentityModel;
+import models.enrolment.ExamEnrolment;
+import models.exam.Exam;
+import models.facility.Software;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;
@@ -61,8 +65,7 @@ public class ReportAPIController extends BaseController {
             .map(participation -> participation.getExam().getParent().getId())
             .collect(Collectors.toSet());
 
-        Map<Long, List<Software>> softwaresByExam = DB
-            .find(Exam.class)
+        Map<Long, List<Software>> softwaresByExam = DB.find(Exam.class)
             .fetch("softwares", "name")
             .where()
             .idIn(parentExamIds)
@@ -73,10 +76,11 @@ public class ReportAPIController extends BaseController {
         /* Set software lists to child exams */
         participations
             .stream()
-            .filter(participation ->
-                participation.getExam() != null &&
-                participation.getExam().getParent() != null &&
-                softwaresByExam.containsKey(participation.getExam().getParent().getId())
+            .filter(
+                participation ->
+                    participation.getExam() != null &&
+                    participation.getExam().getParent() != null &&
+                    softwaresByExam.containsKey(participation.getExam().getParent().getId())
             )
             .forEach(participation -> {
                 Long parentId = participation.getExam().getParent().getId();

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package repository;
 
 import io.ebean.DB;
@@ -12,17 +16,19 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.ExaminationEvent;
-import models.ExaminationEventConfiguration;
-import models.Reservation;
-import models.Role;
-import models.User;
-import models.json.CollaborativeExam;
+import miscellaneous.config.ByodConfigHandler;
+import miscellaneous.datetime.DateTimeHandler;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExaminationEvent;
+import models.enrolment.ExaminationEventConfiguration;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.facility.ExamMachine;
+import models.facility.ExamRoom;
+import models.iop.CollaborativeExam;
 import models.sections.ExamSection;
+import models.user.Role;
+import models.user.User;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -33,8 +39,6 @@ import org.slf4j.LoggerFactory;
 import play.Environment;
 import play.mvc.Http;
 import play.mvc.Result;
-import util.config.ByodConfigHandler;
-import util.datetime.DateTimeHandler;
 
 public class EnrolmentRepository {
 
@@ -71,8 +75,7 @@ public class EnrolmentRepository {
     public CompletionStage<ExamRoom> getRoomInfoForEnrolment(String hash, User user) {
         return CompletableFuture.supplyAsync(
             () -> {
-                ExpressionList<ExamEnrolment> query = DB
-                    .find(ExamEnrolment.class)
+                ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class)
                     .fetch("user", "id")
                     .fetch("user.language")
                     .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
@@ -94,8 +97,7 @@ public class EnrolmentRepository {
 
     private List<ExamEnrolment> doGetStudentEnrolments(User user) {
         DateTime now = dateTimeHandler.adjustDST(new DateTime());
-        List<ExamEnrolment> enrolments = DB
-            .find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
             .fetch("examinationEventConfiguration")
             .fetch("examinationEventConfiguration.examinationEvent")
             .fetch("collaborativeExam")
@@ -217,20 +219,18 @@ public class EnrolmentRepository {
                     // IP not known
                     header = "x-exam-unknown-machine";
                     DateTimeZone zone = DateTimeZone.forID(room.getLocalTimezone());
-                    String start = ISODateTimeFormat
-                        .dateTime()
+                    String start = ISODateTimeFormat.dateTime()
                         .withZone(zone)
                         .print(new DateTime(enrolment.getReservation().getStartAt()));
-                    message =
-                        String.format(
-                            "%s:::%s:::%s:::%s:::%s:::%s",
-                            room.getCampus(),
-                            room.getBuildingName(),
-                            room.getRoomCode(),
-                            examMachine.getName(),
-                            start,
-                            zone.getID()
-                        );
+                    message = String.format(
+                        "%s:::%s:::%s:::%s:::%s:::%s",
+                        room.getCampus(),
+                        room.getBuildingName(),
+                        room.getRoomCode(),
+                        examMachine.getName(),
+                        start,
+                        zone.getID()
+                    );
                 } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                     // Right room, wrong machine
                     header = "x-exam-wrong-machine";

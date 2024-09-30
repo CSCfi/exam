@@ -340,7 +340,7 @@
     "i18n_positive_integer_required": "A positive integer is required",
     "i18n_endtime_before_starttime": "End time cannot be before start time",
     "i18n_section_name": "Section name (visible to students)",
-    "i18n_write_question_below": "Write the question in the box below",
+    "i18n_write_question_above": "Write the question in the box above",
     "i18n_option_updated": "The alternative answer has been updated",
     "i18n_new_question_draft": "New question draft",
     "i18n_unpublish_exam": "Unpublish the exam",
@@ -1179,5 +1179,7 @@
     "i18n_unsaved_changes": "Unsaved changes",
     "i18n_type_to_start_search": "Type to start search",
     "i18n_datepicker": "Datepicker",
-    "i18n_move_question": "Change the order of the exam sections by dragging"
+    "i18n_move_question": "Change the order of the exam sections by dragging",
+    "i18n_no_maintenance_periods_this_week": "No service breaks this week",
+  "i18n_no_exceptions_this_week": "No exceptions this week"
 }

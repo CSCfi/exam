@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 ALTER TABLE general_settings ADD name VARCHAR(32);
 ALTER TABLE general_settings ADD value TEXT;

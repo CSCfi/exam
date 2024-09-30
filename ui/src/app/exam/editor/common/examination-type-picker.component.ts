@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
@@ -5,7 +9,7 @@ import { NgbAccordionDirective, NgbAccordionModule, NgbActiveModal } from '@ng-b
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamService } from 'src/app/exam/exam.service';
 
-export type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
+type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
 
 @Component({
     selector: 'xm-examination-type-selector',

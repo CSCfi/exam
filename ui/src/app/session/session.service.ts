@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy } from '@angular/core';
@@ -27,33 +17,7 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
 import { SessionExpireWarningComponent } from './session-timeout-toastr';
-
-export interface Role {
-    name: string;
-    displayName?: string;
-    icon?: string;
-}
-
-export interface User {
-    id: number;
-    eppn: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    lang: string;
-    loginRole: string | null;
-    roles: Role[];
-    userAgreementAccepted: boolean;
-    userIdentifier: string;
-    permissions: { type: string }[];
-    isAdmin: boolean;
-    isStudent: boolean;
-    isTeacher: boolean;
-    isLanguageInspector: boolean;
-    employeeNumber: string | null;
-    lastLogin: string | null;
-    canCreateByodExam: boolean;
-}
+import { Role, User } from './session.model';
 
 interface Env {
     isProd: boolean;

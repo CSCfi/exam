@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
@@ -22,7 +12,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
-import { DashboardExam, TeacherDashboardService } from 'src/app/dashboard/staff/teacher/teacher-dashboard.service';
+import { DashboardExam, ExtraData } from 'src/app/dashboard/dashboard.model';
+import { TeacherDashboardService } from 'src/app/dashboard/staff/teacher/teacher-dashboard.service';
 import { ExaminationTypeSelectorComponent } from 'src/app/exam/editor/common/examination-type-picker.component';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -34,12 +25,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
-export interface ExtraData {
-    text: string;
-    property: keyof DashboardExam;
-    link: string[];
-    checkOwnership: boolean;
-}
+
 @Component({
     selector: 'xm-exam-list-category',
     templateUrl: './exam-list-category.component.html',
@@ -59,7 +45,6 @@ export interface ExtraData {
 })
 export class ExamListCategoryComponent implements OnInit, OnDestroy {
     @Input() items: DashboardExam[] = [];
-
     @Input() extraData: ExtraData[] = [];
     @Input() defaultPredicate = '';
     @Input() defaultReverse = false;

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -14,8 +18,8 @@ import io.ebean.DB;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import models.Exam;
-import models.ExamType;
+import models.exam.Exam;
+import models.exam.ExamType;
 import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -37,8 +41,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testGetActiveExams() {
         // Setup
-        List<Exam> activeExams = DB
-            .find(Exam.class)
+        List<Exam> activeExams = DB.find(Exam.class)
             .where()
             .eq("creator.id", userId)
             .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)

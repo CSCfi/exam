@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 ALTER TABLE exam ALTER subject_to_language_inspection DROP NOT NULL;
 ALTER TABLE exam ALTER subject_to_language_inspection DROP DEFAULT;

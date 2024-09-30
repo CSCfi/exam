@@ -1,4 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -16,8 +20,8 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
     imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, RouterLink, TranslateModule],
 })
 export class ActiveEnrolmentMenuComponent {
-    @Input() enrolment!: ExamEnrolment;
-    @Output() removed = new EventEmitter<number>();
+    enrolment = input.required<ExamEnrolment>();
+    removed = output<number>();
 
     constructor(
         private translate: TranslateService,
@@ -26,7 +30,7 @@ export class ActiveEnrolmentMenuComponent {
         private Confirmation: ConfirmationDialogService,
     ) {}
 
-    makeReservation = () => this.Enrolment.makeReservation(this.enrolment);
+    makeReservation = () => this.Enrolment.makeReservation(this.enrolment());
 
     canChangeReservation = (reservation: Reservation) => {
         const now = DateTime.now();
@@ -35,15 +39,15 @@ export class ActiveEnrolmentMenuComponent {
     };
 
     removeReservation = () => {
-        if (this.enrolment.reservation) {
-            this.Enrolment.removeReservation(this.enrolment);
+        if (this.enrolment().reservation) {
+            this.Enrolment.removeReservation(this.enrolment());
         } else {
-            this.Enrolment.removeExaminationEvent(this.enrolment);
+            this.Enrolment.removeExaminationEvent(this.enrolment());
         }
     };
 
     removeEnrolment = () => {
-        if (this.enrolment.reservation) {
+        if (this.enrolment().reservation) {
             this.toast.error(this.translate.instant('i18n_cancel_reservation_first'));
         } else {
             this.Confirmation.open$(
@@ -51,12 +55,12 @@ export class ActiveEnrolmentMenuComponent {
                 this.translate.instant('i18n_are_you_sure'),
             ).subscribe({
                 next: () =>
-                    this.Enrolment.removeEnrolment$(this.enrolment).subscribe(() =>
-                        this.removed.emit(this.enrolment.id),
+                    this.Enrolment.removeEnrolment$(this.enrolment()).subscribe(() =>
+                        this.removed.emit(this.enrolment().id),
                     ),
             });
         }
     };
 
-    hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment);
+    hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment());
 }

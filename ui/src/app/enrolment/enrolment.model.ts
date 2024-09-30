@@ -1,13 +1,18 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type {
     CollaborativeExam,
     Course,
     Exam,
+    ExaminationEvent,
     ExaminationEventConfiguration,
     ExamInspection,
     ExamSection,
 } from 'src/app/exam/exam.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 
 export interface Scores {
     maxScore: number;
@@ -32,6 +37,43 @@ export interface ExternalExam {
     sent: Date;
     creator: User;
 }
+
+export interface ExamParticipation {
+    id: number;
+    exam: Exam;
+    ended: string;
+    started: string;
+    reservation?: Reservation;
+    examinationEvent?: ExaminationEvent;
+    collaborativeExam?: CollaborativeExam;
+    externalExam?: { started: Date };
+    user: User;
+    duration: string;
+    deadline: string;
+    displayName?: string;
+    _id?: string;
+    _rev?: string;
+}
+
+export function isParticipation(event: ExamParticipation | ExamEnrolment): event is ExamParticipation {
+    return (
+        event.reservation !== null &&
+        event.reservation !== undefined &&
+        event.reservation.enrolment.noShow === undefined // FIXME: check this
+    );
+}
+
+export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exam: ReviewedExam } & {
+    examId: string;
+    noShow: false;
+    _id: string;
+    _rev: string;
+};
+
+export type ParticipationLike =
+    | (ExamParticipation & { noShow: boolean })
+    | (CollaborativeParticipation & { noShow: boolean })
+    | (ExamEnrolment & { started?: string; ended?: string; duration?: number });
 
 export interface ExamEnrolment {
     id: number;

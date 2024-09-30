@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
 public
 conf/local.conf
 node_modules
@@ -8,3 +12,4 @@ default-create-all.sql
 /data/
 .angular
 dist
+ui/src/assets/components/vendor/mathjax

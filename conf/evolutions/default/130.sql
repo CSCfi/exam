@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 UPDATE exam_feedback_config SET release_type = 1;
 UPDATE exam_feedback_config SET release_date = NULL;

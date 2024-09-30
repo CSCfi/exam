@@ -1,8 +1,15 @@
-import type { Organisation } from 'src/app/calendar/calendar.service';
-import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { Organisation } from 'src/app/calendar/calendar.model';
+import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import { Software } from 'src/app/facility/facility.model';
 import type { LanguageInspection } from 'src/app/maturity/maturity.model';
-import type { Reservation } from 'src/app/reservation/reservation.model';
-import type { User } from 'src/app/session/session.service';
+import { ExamSectionQuestion } from 'src/app/question/question.model';
+import { Feedback } from 'src/app/review/review.model';
+import type { User } from 'src/app/session/session.model';
+import { Attachment } from 'src/app/shared/attachment/attachment.model';
 
 export interface Grade {
     id: number;
@@ -70,122 +77,8 @@ export interface ExamLanguage {
     name: string;
 }
 
-export interface Attachment {
-    id?: number;
-    externalId?: string;
-    fileName: string;
-    removed: boolean;
-    modified: boolean;
-    size: number;
-    file?: File;
-    rev?: string;
-    objectVersion?: number;
-}
 export interface ReverseExamSection extends ExamSection {
     exam: Exam;
-}
-
-export interface ReverseExamSectionQuestion extends ExamSectionQuestion {
-    examSection: ReverseExamSection;
-}
-
-export interface ReverseQuestion extends Question {
-    examSectionQuestions: ReverseExamSectionQuestion[];
-}
-
-export interface Tag {
-    id?: number;
-    name: string;
-    creator?: User;
-    questions: Question[];
-}
-
-export interface Question {
-    id: number;
-    question: string;
-    creator?: User;
-    type: string;
-    attachment?: Attachment;
-    options: MultipleChoiceOption[];
-    tags: Tag[];
-    questionOwners: User[];
-    parent?: Question;
-    state: string;
-    defaultMaxScore?: number;
-    modifier?: User;
-    modified?: Date;
-    shared?: boolean;
-    defaultAnswerInstructions?: string;
-    defaultEvaluationCriteria?: string;
-    defaultExpectedWordCount?: number;
-    defaultEvaluationType?: string;
-}
-
-export interface EssayAnswer {
-    id?: number;
-    evaluatedScore?: number;
-    answer?: string;
-    objectVersion?: number;
-    attachment?: Attachment;
-}
-
-export interface MultipleChoiceOption {
-    id?: number;
-    option: string;
-    correctOption: boolean;
-    defaultScore: number;
-    claimChoiceType?: string;
-}
-
-export interface ExamSectionQuestionOption {
-    id?: number;
-    score: number;
-    answered: boolean;
-    option: MultipleChoiceOption;
-}
-
-export interface ContentElement {
-    order: number;
-    type: string;
-}
-export interface TextElement extends ContentElement {
-    text: string;
-}
-export function isTextElement(element: ContentElement): element is TextElement {
-    return element.type === 'Text';
-}
-export function isBlankElement(element: ContentElement): element is BlankElement {
-    return element.type === 'Blank';
-}
-interface BlankElement extends ContentElement {
-    id: string;
-    numeric: boolean;
-}
-export interface ClozeTestAnswer {
-    id: number;
-    score?: { correctAnswers: number; incorrectAnswers: number };
-    maxScore: number;
-    answer: string;
-    objectVersion: number;
-    question: string;
-}
-
-export interface ExamSectionQuestion {
-    id: number;
-    question: Question;
-    evaluationType?: string;
-    forcedScore: number | null;
-    maxScore: number;
-    essayAnswer?: EssayAnswer;
-    clozeTestAnswer?: ClozeTestAnswer;
-    options: ExamSectionQuestionOption[];
-    answerInstructions: string;
-    evaluationCriteria: string;
-    expectedWordCount?: number;
-    sequenceNumber: number;
-    expanded: boolean;
-    derivedMaxScore?: number;
-    derivedAssessedScore?: number;
 }
 
 export interface ExamMaterial {
@@ -228,13 +121,6 @@ export interface CollaborativeExam {
     externalRef?: string;
 }
 
-export interface Feedback {
-    comment: string;
-    id?: number;
-    attachment?: Attachment;
-    feedbackStatus?: boolean;
-}
-
 export interface ExaminationEvent {
     id?: number;
     start: string;
@@ -258,12 +144,6 @@ export interface ExamInspection {
     id: number;
     user: User;
     ready: boolean;
-}
-
-export interface Software {
-    id: number;
-    name: string;
-    turnedOn: boolean;
 }
 
 export interface ExamType {
@@ -337,41 +217,3 @@ export interface ExamImpl {
 export interface Exam extends ExamImpl {
     answerLanguage?: string;
 }
-
-export interface ExamParticipation {
-    id: number;
-    exam: Exam;
-    ended: string;
-    started: string;
-    reservation?: Reservation;
-    examinationEvent?: ExaminationEvent;
-    collaborativeExam?: CollaborativeExam;
-    externalExam?: { started: Date };
-    user: User;
-    duration: string;
-    deadline: string;
-    displayName?: string;
-    _id?: string;
-    _rev?: string;
-}
-
-export function isParticipation(event: ExamParticipation | ExamEnrolment): event is ExamParticipation {
-    return (
-        event.reservation !== null &&
-        event.reservation !== undefined &&
-        event.reservation.enrolment.noShow === undefined // FIXME: check this
-    );
-}
-
-export enum ClaimChoiceOptionType {
-    CorrectOption = 'CorrectOption',
-    IncorrectOption = 'IncorrectOption',
-    SkipOption = 'SkipOption',
-}
-
-export type MaintenancePeriod = {
-    id?: number;
-    startsAt: string;
-    endsAt: string;
-    description: string;
-};

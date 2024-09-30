@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
@@ -27,6 +17,7 @@ import {
     NgbNavLink,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { QueryParams } from 'src/app/administrative/administrative.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -34,7 +25,7 @@ import { ExamStatisticsComponent } from './categories/exam-statistics.component'
 import { ReservationStatisticsComponent } from './categories/reservation-statistics.component';
 import { ResponseStatisticsComponent } from './categories/response-statistics.component';
 import { RoomStatisticsComponent } from './categories/room-statistics.component';
-import { QueryParams, StatisticsService } from './statistics.service';
+import { StatisticsService } from './statistics.service';
 
 interface Departments {
     name: string;

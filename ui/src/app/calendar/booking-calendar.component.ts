@@ -1,31 +1,18 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
     Component,
-    EventEmitter,
-    Input,
-    OnChanges,
     OnInit,
-    Output,
-    SimpleChanges,
     ViewChild,
+    input,
+    output,
     signal,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalendar/core';
 import enLocale from '@fullcalendar/core/locales/en-gb';
@@ -37,41 +24,38 @@ import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { CalendarService } from './calendar.service';
-
 @Component({
     selector: 'xm-booking-calendar',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        @if (visible) {
-            <div>
-                <div class="row mt-2 mb-2" id="calendarBlock">
-                    @if (visible) {
-                        <div class="col-md-12">
-                            <full-calendar #fc [options]="calendarOptions()"></full-calendar>
-                        </div>
-                    }
-                </div>
+        @if (visible()) {
+            <div class="row my-2">
+                @if (visible()) {
+                    <div class="col-md-12">
+                        <full-calendar #fc [options]="calendarOptions()"></full-calendar>
+                    </div>
+                }
             </div>
         }
     `,
     standalone: true,
     imports: [FullCalendarModule],
 })
-export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewInit {
-    @Output() eventSelected = new EventEmitter<EventApi>();
-    @Output() moreEventsNeeded = new EventEmitter<{
+export class BookingCalendarComponent implements OnInit, AfterViewInit {
+    @ViewChild('fc') calendar!: FullCalendarComponent;
+
+    eventSelected = output<EventApi>();
+    moreEventsNeeded = output<{
         date: string;
         timeZone: string;
         success: (events: EventInput[]) => void;
     }>();
 
-    @Input() visible = false;
-    @Input() minDate?: Date;
-    @Input() maxDate?: Date;
-    @Input() room!: ExamRoom;
-    @Input() accessibilities: Accessibility[] = [];
-
-    @ViewChild('fc') calendar!: FullCalendarComponent;
+    room = input.required<ExamRoom>();
+    visible = input(false);
+    minDate = input<Date>();
+    maxDate = input<Date>();
+    accessibilities = input<Accessibility[]>([]);
 
     calendarOptions = signal<CalendarOptions>({});
     searchStart = DateTime.now().startOf('week').toISO();
@@ -99,55 +83,59 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
         this.translate.onLangChange.subscribe((event) =>
             this.calendarOptions.set({ ...this.calendarOptions(), locale: event.lang }),
         );
-    }
-
-    ngOnInit() {
-        if (this.minDate && this.maxDate) {
-            this.calendarOptions().validRange = {
-                end: DateTime.fromJSDate(this.maxDate).endOf('week').plus({ hours: 1 }).toFormat('yyyy-MM-dd'),
-                start: DateTime.fromJSDate(this.minDate).startOf('week').toFormat('yyyy-MM-dd'),
-            };
-        }
-    }
-
-    ngAfterViewInit() {
-        if (!this.minDate) {
-            this.calendar.getApi().render(); // TODO: see if needed
-        }
-    }
-
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.room && this.room) {
-            const earliestOpening = this.Calendar.getEarliestOpening(this.room, this.searchStart, this.searchEnd);
+        // Change detection ->
+        toObservable(this.room).subscribe((room) => {
+            const earliestOpening = this.Calendar.getEarliestOpening(room, this.searchStart, this.searchEnd);
             const minTime =
                 earliestOpening.getHours() > 1
                     ? DateTime.fromJSDate(earliestOpening).minus({ hour: 1 }).toJSDate()
                     : earliestOpening;
-            const latestClosing = this.Calendar.getLatestClosing(this.room, this.searchStart, this.searchEnd);
+            const latestClosing = this.Calendar.getLatestClosing(room, this.searchStart, this.searchEnd);
             const maxTime =
                 latestClosing.getHours() < 23
                     ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
                     : latestClosing;
             this.calendarOptions.update((cos) => ({
                 ...cos,
-                hiddenDays: this.Calendar.getClosedWeekdays(this.room, this.searchStart, this.searchEnd),
+                hiddenDays: this.Calendar.getClosedWeekdays(room, this.searchStart, this.searchEnd),
                 slotMinTime: DateTime.fromJSDate(minTime).toFormat('HH:mm:ss'),
                 slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
-                timeZone: this.room.localTimezone,
+                timeZone: room.localTimezone,
             }));
-            if (this.calendar) this.calendar.getApi().refetchEvents();
-        }
-        if (changes.accessibilities && this.calendar) {
             this.calendar.getApi().refetchEvents();
+        });
+        toObservable(this.accessibilities).subscribe(() => this.calendar.getApi().refetchEvents());
+    }
+
+    ngOnInit() {
+        if (this.minDate() && this.maxDate()) {
+            this.calendarOptions.update((options) => ({
+                ...options,
+                validRange: {
+                    end: DateTime.fromJSDate(this.maxDate() as Date)
+                        .endOf('week')
+                        .plus({ hours: 1 })
+                        .toFormat('yyyy-MM-dd'),
+                    start: DateTime.fromJSDate(this.minDate() as Date)
+                        .startOf('week')
+                        .toFormat('yyyy-MM-dd'),
+                },
+            }));
+        }
+    }
+
+    ngAfterViewInit() {
+        if (!this.minDate()) {
+            this.calendar.getApi().render(); // TODO: see if needed
         }
     }
 
     refetch = (input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) => {
         this.searchStart = input.startStr;
         this.searchEnd = DateTime.fromISO(input.startStr).endOf('week').toISO() as string;
-        const hidden = this.Calendar.getClosedWeekdays(this.room, this.searchStart, this.searchEnd);
-        const earliestOpening = this.Calendar.getEarliestOpening(this.room, this.searchStart, this.searchEnd);
-        const latestClosing = this.Calendar.getLatestClosing(this.room, this.searchStart, this.searchEnd);
+        const hidden = this.Calendar.getClosedWeekdays(this.room(), this.searchStart, this.searchEnd);
+        const earliestOpening = this.Calendar.getEarliestOpening(this.room(), this.searchStart, this.searchEnd);
+        const latestClosing = this.Calendar.getLatestClosing(this.room(), this.searchStart, this.searchEnd);
         this.calendarOptions.update((cos) => ({
             ...cos,
             hiddenDays: hidden,

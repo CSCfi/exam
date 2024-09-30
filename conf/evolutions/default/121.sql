@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 ALTER TABLE exam_enrolment ADD retrial_permitted BOOLEAN NOT NULL default false;
 ALTER TABLE exam_enrolment ADD no_show BOOLEAN NOT NULL DEFAULT false;

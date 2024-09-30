@@ -1,11 +1,14 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package security.scala
 
 import io.ebean.DB
-import models.{Role, User}
+import models.user.{Role, User}
 import play.api.libs.typedmap.TypedKey
 import play.api.mvc.Results._
 import play.api.mvc._
-import util.scala.JavaApiHelper
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

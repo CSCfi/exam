@@ -1,16 +1,10 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-
-export type QueryParams = { start?: string; end?: string; dept?: string };
-export type ExamInfo = {
-    name: string;
-    participations: number;
-    state: string;
-    rank: number;
-};
-export type Participations = {
-    [room: string]: { date: string }[];
-};
+import { ExamInfo, Participations, QueryParams } from 'src/app/administrative/administrative.model';
 
 @Injectable({ providedIn: 'root' })
 export class StatisticsService {

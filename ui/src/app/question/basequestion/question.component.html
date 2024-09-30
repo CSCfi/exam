@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 @if (newQuestion) {
     <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
 } @else {
@@ -9,9 +15,9 @@
 </ng-template>
 <ng-template #content>
     <div class="row">
-        <!-- Question body //-->
+        <!-- Question body -->
         <div class="col-md-12">
-            <form role="form" #questionForm="ngForm" name="questionForm" novalidate>
+            <form role="form" #questionForm="ngForm" name="questionForm">
                 @if (question) {
                     <xm-question-body
                         [question]="question"
@@ -32,6 +38,7 @@
                         !question.type ||
                         hasNoCorrectOption() ||
                         hasInvalidClaimChoiceOptions() ||
+                        !question.question ||
                         questionForm.invalid
                     "
                     (click)="saveQuestion()"

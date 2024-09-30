@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -5,39 +9,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { format, formatISO, parseISO, setHours, setMinutes } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { noop } from 'rxjs';
-import { MaintenancePeriod } from 'src/app/exam/exam.model';
+import { Address, Availability, MaintenancePeriod, WorkingHour } from 'src/app/facility/facility.model';
 import { ExceptionDialogComponent } from 'src/app/facility/schedule/exception-dialog.component';
 import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-
-export type Weekday = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
-
-export interface Day {
-    index: number;
-    type: string;
-}
-
-export type Week = { [day: string]: Day[] };
-
-export interface WorkingHour {
-    startingHour: string;
-    selected: boolean;
-}
-
-export interface Availability {
-    start: string;
-    end: string;
-    total: number;
-    reserved: number;
-}
-
-export interface Address {
-    id: number;
-    city: string;
-    zip: string;
-    street: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {

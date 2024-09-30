@@ -1,4 +1,8 @@
-﻿// Our dialog definition.
+﻿// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+// Our dialog definition.
 CKEDITOR.dialog.add('clozeDialog', function (editor) {
     return {
         onLoad: function () {
@@ -37,44 +41,50 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                             element.setAttribute('style', 'border: 1px solid;');
                         },
                         // Validation checking whether the field is not empty.
-                        validate: CKEDITOR.dialog.validate.notEmpty(editor.lang.clozetest.dialog.errors.nonEmpty)
+                        validate: CKEDITOR.dialog.validate.notEmpty(editor.lang.clozetest.dialog.errors.nonEmpty),
                     },
                     {
                         type: 'radio',
                         id: 'case-sensitive',
-                        items: [[editor.lang.clozetest.dialog.options.yes, 'true'], [editor.lang.clozetest.dialog.options.no, 'false']],
+                        items: [
+                            [editor.lang.clozetest.dialog.options.yes, 'true'],
+                            [editor.lang.clozetest.dialog.options.no, 'false'],
+                        ],
                         setup: function (element) {
-                            this.setValue(element.getAttribute('case-sensitive'))
+                            this.setValue(element.getAttribute('case-sensitive'));
                         },
                         commit: function (element) {
                             element.setAttribute('case-sensitive', this.getValue());
                         },
                         label: editor.lang.clozetest.dialog.caseSensitive,
-                        'default': 'true'
+                        default: 'true',
                     },
                     {
                         type: 'radio',
                         id: 'numeric',
-                        items: [[editor.lang.clozetest.dialog.options.yes, 'true'], [editor.lang.clozetest.dialog.options.no, 'false']],
+                        items: [
+                            [editor.lang.clozetest.dialog.options.yes, 'true'],
+                            [editor.lang.clozetest.dialog.options.no, 'false'],
+                        ],
                         setup: function (element) {
-                            this.setValue(element.getAttribute('numeric'))
+                            this.setValue(element.getAttribute('numeric'));
                         },
                         commit: function (element) {
                             element.setAttribute('numeric', this.getValue());
                         },
                         label: editor.lang.clozetest.dialog.numeric,
-                        'default': 'false',
-                        validate: CKEDITOR.dialog.validate.functions(
-                            function(val) {
-                                if (val === 'true') {
-                                    var answer = CKEDITOR.dialog.getCurrent().getContentElement('tab-basic','answer').getValue();
-                                    // Returns false for any non-numeric values/whitespace
-                                    return !isNaN(answer) && !/(\.$)|(^\.)|(\s)/.test(answer);
-                                }
-                                return true;
-                            },
-                            editor.lang.clozetest.dialog.errors.numeric
-                        )
+                        default: 'false',
+                        validate: CKEDITOR.dialog.validate.functions(function (val) {
+                            if (val === 'true') {
+                                var answer = CKEDITOR.dialog
+                                    .getCurrent()
+                                    .getContentElement('tab-basic', 'answer')
+                                    .getValue();
+                                // Returns false for any non-numeric values/whitespace
+                                return !isNaN(answer) && !/(\.$)|(^\.)|(\s)/.test(answer);
+                            }
+                            return true;
+                        }, editor.lang.clozetest.dialog.errors.numeric),
                     },
                     {
                         // Number input field for answer accuracy value
@@ -88,22 +98,26 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                         commit: function (element) {
                             element.setAttribute('precision', this.getValue() || 0);
                         },
-                        validate: CKEDITOR.dialog.validate.functions(function(val) {
+                        validate: CKEDITOR.dialog.validate.functions(function (val) {
                             return !val || parseFloat(val) >= 0;
-                        }, editor.lang.clozetest.dialog.errors.nonNegative)
+                        }, editor.lang.clozetest.dialog.errors.nonNegative),
                     },
                     {
                         type: 'html',
                         id: 'usage',
-                        html: '<h4 style="margin-top: 0">' + editor.lang.clozetest.dialog.usage.title +
-                        '</h4>' + editor.lang.clozetest.dialog.usage.part1 + '<pre>' +
-                        editor.lang.clozetest.dialog.usage.example1 + '</pre>' +
-                        editor.lang.clozetest.dialog.usage.part2 +
-                        '<pre>10\\*10=100</pre>'
-                    }
-
-                ]
-            }
+                        html:
+                            '<h4 style="margin-top: 0">' +
+                            editor.lang.clozetest.dialog.usage.title +
+                            '</h4>' +
+                            editor.lang.clozetest.dialog.usage.part1 +
+                            '<pre>' +
+                            editor.lang.clozetest.dialog.usage.example1 +
+                            '</pre>' +
+                            editor.lang.clozetest.dialog.usage.part2 +
+                            '<pre>10\\*10=100</pre>',
+                    },
+                ],
+            },
         ],
         onShow: function () {
             var selection = editor.getSelection();
@@ -112,15 +126,14 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                 element = element.getAscendant('span', true);
             }
             var createUid = function () {
-                return "$" + ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).slice(-4)
+                return '$' + ('0000' + ((Math.random() * Math.pow(36, 4)) << 0).toString(36)).slice(-4);
             };
             if (!element || element.getName() !== 'span') {
                 element = editor.document.createElement('span');
                 element.setAttribute('id', createUid());
                 element.setAttribute('numeric', 'false');
                 this.insertMode = true;
-            }
-            else {
+            } else {
                 this.insertMode = false;
             }
             this.element = element;
@@ -130,7 +143,6 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
         },
         // This method is invoked once a user clicks the OK button, confirming the dialog.
         onOk: function () {
-
             // The context of this function is the dialog object itself.
             // http://docs.ckeditor.com/#!/api/CKEDITOR.dialog
             var cloze = this.element;
@@ -142,6 +154,6 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                 // and editing text there, maybe it's a bug with the editor?
                 editor.insertText(' ');
             }
-        }
+        },
     };
 });

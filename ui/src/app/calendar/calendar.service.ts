@@ -1,23 +1,13 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateTime, Interval } from 'luxon';
 import type { Observable } from 'rxjs';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
-import { Course, Exam, ExamSection, MaintenancePeriod } from 'src/app/exam/exam.model';
+import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type {
     Accessibility,
     DefaultWorkingHours,
@@ -26,48 +16,14 @@ import type {
 } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+import { AvailableSlot, ExamInfo, OpeningHours, Organisation, Slot } from './calendar.model';
 
 type WeekdayNames = Record<string, { ord: number; name: string }>;
-
-export interface Slot {
-    start: string;
-    end: string;
-    conflictingExam?: boolean;
-    roomId: number | string;
-    examId: number;
-    orgId: string | null;
-    aids?: number[];
-    sectionIds: number[];
-}
-
-export interface OpeningHours {
-    name: string;
-    ref: string;
-    ord: number;
-    periods: string[];
-    periodText?: string;
-}
-
-export type SelectableSection = ExamSection & { selected: boolean };
-export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Course } & {
-    duration: number;
-    examSections: (ExamSection & { selected: boolean })[];
-};
-export type Organisation = {
-    _id: string;
-    name: string;
-    code: string;
-    filtered: boolean;
-    homeOrg: string;
-    facilities: ExamRoom[];
-};
-export type AvailableSlot = Slot & { availableMachines: number };
 
 @Injectable({ providedIn: 'root' })
 export class CalendarService {
     constructor(
         private http: HttpClient,
-
         private DateTimeService: DateTimeService,
         private Session: SessionService,
     ) {}

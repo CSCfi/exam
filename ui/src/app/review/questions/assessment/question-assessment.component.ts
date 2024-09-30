@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { LowerCasePipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -25,12 +15,12 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of, tap } from 'rxjs';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { QuestionFlowComponent } from 'src/app/review/questions/flow/question-flow.component';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { QuestionReview, ReviewQuestion } from 'src/app/review/review.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -115,7 +105,7 @@ export class QuestionAssessmentComponent implements OnInit {
     isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
     saveAssessments = (answers: ReviewQuestion[]) =>
-        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = [...this.reviews]));
+        forkJoin(answers.map(this.saveEvaluation$)).subscribe(() => (this.reviews = [...this.reviews]));
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
 
@@ -130,10 +120,12 @@ export class QuestionAssessmentComponent implements OnInit {
         this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
     };
 
-    private saveEvaluation = (answer: ReviewQuestion) => {
-        return new Promise<void>((resolve) => {
-            answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
-            this.Assessment.saveEssayScore$(answer).subscribe(() => {
+    private saveEvaluation$ = (answer: ReviewQuestion): Observable<void> => {
+        // TODO: this looks shady with rollback and all, whatabout smth like
+        // const tempAnswer: ReviewQuestion = {...answer, essayAnswer: {... answer.essayAnswer, evaluatedScore: answer.essayAnswer.temporaryScore}};
+        answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
+        return this.Assessment.saveEssayScore$(answer).pipe(
+            tap(() => {
                 this.toast.info(this.translate.instant('i18n_graded'));
                 if (this.assessedAnswers.indexOf(answer) === -1) {
                     this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
@@ -152,15 +144,14 @@ export class QuestionAssessmentComponent implements OnInit {
                         }
                     }
                 }
-                resolve();
             }),
-                (err: string) => {
-                    // Roll back
-                    answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
-                    this.toast.error(err);
-                    resolve();
-                };
-        });
+            catchError((err) => {
+                // Roll back
+                answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
+                this.toast.error(err);
+                return of();
+            }),
+        );
     };
 
     private isLocked = (answer: ReviewQuestion) => {

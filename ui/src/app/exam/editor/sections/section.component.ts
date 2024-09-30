@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import {
     CdkDrag,
     CdkDragDrop,
@@ -35,11 +25,13 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { noop } from 'rxjs';
-import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from 'src/app/exam/exam.model';
+import { from, noop } from 'rxjs';
+import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
 import { QuestionSelectorComponent } from 'src/app/question/picker/question-picker.component';
-import { QuestionService } from 'src/app/question/question.service';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
+import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -85,7 +77,7 @@ export class SectionComponent {
         private modal: NgbModal,
         private toast: ToastrService,
         private dialogs: ConfirmationDialogService,
-        private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
         private Files: FileService,
         private Exam: ExamService,
     ) {}
@@ -286,7 +278,7 @@ export class SectionComponent {
         optional: this.section.optional,
     });
 
-    private getQuestionScore = (question: ExamSectionQuestion) => this.Question.calculateMaxScore(question);
+    private getQuestionScore = (question: ExamSectionQuestion) => this.QuestionScore.calculateMaxScore(question);
 
     private insertExamQuestion = (question: Question, seq: number) => {
         const resource = this.collaborative
@@ -335,8 +327,15 @@ export class SectionComponent {
         }
     };
 
-    private openBaseQuestionEditor = () =>
-        this.Question.openBaseQuestionEditor(true, this.collaborative).subscribe((resp) =>
-            this.insertExamQuestion(resp, this.section.sectionQuestions.length),
-        );
+    private openBaseQuestionEditor = () => {
+        const modal = this.modal.open(BaseQuestionEditorComponent, {
+            backdrop: 'static',
+            keyboard: false,
+            windowClass: 'question-editor-modal',
+            size: 'xl',
+        });
+        modal.componentInstance.newQuestion = true;
+        modal.componentInstance.collaborative = this.collaborative;
+        from(modal.result).subscribe((resp) => this.insertExamQuestion(resp, this.section.sectionQuestions.length));
+    };
 }

@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
@@ -30,9 +19,11 @@ import { ToastrService } from 'ngx-toastr';
 import { mergeDeepRight } from 'ramda';
 import { Observable, from, noop, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/exam/exam.model';
+import type { ExamSection } from 'src/app/exam/exam.model';
 import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
 import { ExamQuestionEditorComponent } from 'src/app/question/examquestion/exam-question-editor.component';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
+import { ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
@@ -74,15 +65,16 @@ export class SectionQuestionComponent {
         private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
         private Attachment: AttachmentService,
         private Files: FileService,
     ) {}
 
-    calculateWeightedMaxPoints = () => this.Question.calculateWeightedMaxPoints(this.sectionQuestion);
+    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion.options);
 
-    getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
+    getCorrectClaimChoiceOptionScore = () => this.QuestionScore.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 
-    getMinimumOptionScore = () => this.Question.getMinimumOptionScore(this.sectionQuestion);
+    getMinimumOptionScore = () => this.QuestionScore.getMinimumOptionScore(this.sectionQuestion);
 
     editQuestion = () => this.openExamQuestionEditor();
 
@@ -135,6 +127,7 @@ export class SectionQuestionComponent {
         const modal = this.modal.open(BaseQuestionEditorComponent, {
             backdrop: 'static',
             keyboard: true,
+            windowClass: 'xm-xxl-modal',
             size: 'xl',
         });
         modal.componentInstance.lotteryOn = this.lotteryOn;

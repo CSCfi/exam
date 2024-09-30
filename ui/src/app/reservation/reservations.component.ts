@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
@@ -19,58 +8,21 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
+import { endOfDay, startOfDay } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, forkJoin, from, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
-import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
-import type { CollaborativeExam, Exam, ExamImpl, Implementation } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import { Observable } from 'rxjs';
+import type { CollaborativeExam, Exam, ExamImpl } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
-import { isObject } from 'src/app/shared/miscellaneous/helpers';
-import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
+import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
+import { Option } from 'src/app/shared/select/select.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ReservationDetailsComponent } from './reservation-details.component';
-import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
-import { ReservationService } from './reservation.service';
-
-interface Selection {
-    [data: string]: string;
-}
-
-// All of this is needed to put all our reservations in one basket :D
-type ExamEnrolmentDisplay = ExamEnrolment & { teacherAggregate: string };
-type MachineDisplay = Omit<ExamMachine, 'room'> & { room: Partial<ExamRoom> };
-type ReservationDisplay = Omit<Reservation, 'machine' | 'enrolment'> & {
-    machine: Partial<MachineDisplay>;
-    userAggregate: string;
-    stateOrd: number;
-    enrolment: ExamEnrolmentDisplay;
-};
-type LocalTransferExamEnrolment = Omit<ExamEnrolmentDisplay, 'exam'> & {
-    exam: { id: number; external: true; examOwners: User[]; state: string; parent: null };
-};
-type CollaborativeExamEnrolment = Omit<ExamEnrolmentDisplay, 'exam'> & {
-    exam: CollaborativeExam & { examOwners: User[]; parent: null; implementation: Implementation };
-};
-type LocalTransferExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
-    enrolment: LocalTransferExamEnrolment;
-};
-type RemoteTransferExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
-    enrolment: ExamEnrolmentDisplay;
-    org: { name: string; code: string };
-};
-type CollaborativeExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
-    enrolment: CollaborativeExamEnrolment;
-};
-export type AnyReservation =
-    | ReservationDisplay
-    | LocalTransferExamReservation
-    | RemoteTransferExamReservation
-    | CollaborativeExamReservation;
+import type { AnyReservation, ExamMachine, ExamRoom } from './reservation.model';
+import { ReservationService, Selection } from './reservation.service';
 
 @Component({
     selector: 'xm-reservations',
@@ -150,128 +102,18 @@ export class ReservationsComponent implements OnInit {
     query() {
         if (this.somethingSelected(this.selection)) {
             const params = this.createParams(this.selection);
-            // Do not fetch byod exams if machine id, room id or external ref in the query params.
-            // Also applies if searching for external reservations
-            const eventRequest =
-                params.roomId || params.machineId || params.externalRef || params.state?.startsWith('EXTERNAL_')
-                    ? of([])
-                    : this.http.get<ExamEnrolment[]>('/app/events', { params: params });
-            forkJoin([this.http.get<Reservation[]>('/app/reservations', { params: params }), eventRequest])
-                .pipe(
-                    map(([reservations, enrolments]) => {
-                        const events: Partial<Reservation>[] = enrolments.map((ee) => {
-                            return {
-                                user: ee.user,
-                                enrolment: ee,
-                                startAt: ee.examinationEventConfiguration?.examinationEvent.start,
-                                endAt: addMinutes(
-                                    parseISO(ee.examinationEventConfiguration?.examinationEvent.start as string),
-                                    ee.exam.duration,
-                                ).toISOString(),
-                            };
-                        });
-                        const allEvents: Partial<Reservation>[] = reservations;
-                        return allEvents.concat(events) as Reservation[]; // FIXME: this is wrong(?) <- don't know how to model anymore with strict checking
-                    }),
-                    map((reservations: Reservation[]) =>
-                        reservations.map((r) => ({
-                            ...r,
-                            userAggregate: r.user
-                                ? `${r.user.lastName}  ${r.user.firstName}`
-                                : r.externalUserRef
-                                  ? r.externalUserRef
-                                  : r.enrolment?.exam
-                                    ? r.enrolment.exam.id.toString()
-                                    : '',
-                            org: '',
-                            stateOrd: 0,
-                            enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,
-                        })),
-                    ),
-                    map((reservations: AnyReservation[]) => {
-                        // Transfer exams taken here
-                        reservations.filter(this.isLocalTransfer).forEach((r: LocalTransferExamReservation) => {
-                            const state = r.enrolment?.externalExam?.finished
-                                ? 'EXTERNAL_FINISHED'
-                                : 'EXTERNAL_UNFINISHED';
-                            const enrolment: LocalTransferExamEnrolment = {
-                                ...r.enrolment,
-                                exam: {
-                                    id: r.enrolment?.externalExam?.id as number,
-                                    external: true,
-                                    examOwners: [],
-                                    state: state,
-                                    parent: null,
-                                },
-                            };
-                            r.enrolment = enrolment;
-                        });
-                        // Transfer exams taken elsewhere
-                        reservations.filter(this.isRemoteTransfer).forEach((r: RemoteTransferExamReservation) => {
-                            if (r.externalReservation) {
-                                r.org = { name: r.externalReservation.orgName, code: r.externalReservation.orgCode };
-                                r.machine = {
-                                    name: r.externalReservation.machineName,
-                                    room: { name: r.externalReservation.roomName },
-                                };
-                            }
-                        });
-                        // Collaborative exams
-                        reservations.filter(this.isCollaborative).forEach((r) => {
-                            if (!r.enrolment.exam) {
-                                r.enrolment.exam = {
-                                    ...r.enrolment.collaborativeExam,
-                                    examOwners: [],
-                                    parent: null,
-                                    implementation: 'AQUARIUM',
-                                };
-                            } else {
-                                r.enrolment.exam.examOwners = [];
-                            }
-                        });
-
-                        return reservations;
-                    }),
-                    map((reservations: AnyReservation[]) => reservations.filter((r) => r.enrolment?.exam)),
-                    map((reservations: AnyReservation[]) => {
-                        reservations.forEach((r) => {
-                            const exam = (r.enrolment?.exam.parent || r.enrolment?.exam) as Exam;
-                            r.enrolment = {
-                                ...(r.enrolment as ExamEnrolment),
-                                teacherAggregate: exam.examOwners.map((o) => o.lastName + o.firstName).join(),
-                            };
-                            const state = this.Reservation.printExamState(r) as string;
-                            r.stateOrd = [
-                                'PUBLISHED',
-                                'NO_SHOW',
-                                'STUDENT_STARTED',
-                                'ABORTED',
-                                'REVIEW',
-                                'REVIEW_STARTED',
-                                'GRADED',
-                                'GRADED_LOGGED',
-                                'REJECTED',
-                                'ARCHIVED',
-                                'EXTERNAL_UNFINISHED',
-                                'EXTERNAL_FINISHED',
-                            ].indexOf(state);
-                        });
-                        return reservations;
-                    }),
-                )
-                .subscribe({
-                    next: (reservations) => {
-                        this.reservations = reservations
-                            .filter((r) => r.externalReservation || !this.externalReservationsOnly)
-                            .filter(
-                                (r) =>
-                                    (!r.externalUserRef &&
-                                        (r.enrolment.exam as ExamImpl).implementation !== 'AQUARIUM') ||
-                                    !this.byodExamsOnly,
-                            );
-                    },
-                    error: (err) => this.toast.error(err),
-                });
+            this.Reservation.listReservations$(params).subscribe({
+                next: (reservations) => {
+                    this.reservations = reservations
+                        .filter((r) => r.externalReservation || !this.externalReservationsOnly)
+                        .filter(
+                            (r) =>
+                                (!r.externalUserRef && (r.enrolment.exam as ExamImpl).implementation !== 'AQUARIUM') ||
+                                !this.byodExamsOnly,
+                        );
+                },
+                error: (err) => this.toast.error(err),
+            });
         }
     }
 
@@ -356,53 +198,12 @@ export class ReservationsComponent implements OnInit {
         this.query();
     }
 
-    protected searchStudents$ = (text$: Observable<string>) =>
-        text$.pipe(
-            debounceTime(300),
-            distinctUntilChanged(),
-            exhaustMap((term) =>
-                term.length < 2
-                    ? from([])
-                    : this.http.get<(User & { name: string })[]>('/app/reservations/students', {
-                          params: { filter: term },
-                      }),
-            ),
-            map((ss) => ss.sort((a, b) => a.firstName.localeCompare(b.firstName)).slice(0, 100)),
-        );
+    protected searchStudents$ = (text$: Observable<string>) => this.Reservation.searchStudents$(text$);
 
-    protected searchOwners$ = (text$: Observable<string>) =>
-        text$.pipe(
-            debounceTime(300),
-            distinctUntilChanged(),
-            exhaustMap((term) =>
-                term.length < 2
-                    ? from([])
-                    : this.http.get<(User & { name: string })[]>('/app/reservations/teachers', {
-                          params: { filter: term },
-                      }),
-            ),
-            map((ss) => ss.sort((a, b) => a.lastName.localeCompare(b.lastName)).slice(0, 100)),
-        );
+    protected searchOwners$ = (text$: Observable<string>) => this.Reservation.searchOwners$(text$);
 
-    protected searchExams$ = (text$: Observable<string>) => {
-        const listExams$ = (text: string) => {
-            const examObservables: Observable<Exam[] | CollaborativeExam[]>[] = [
-                this.http.get<Exam[]>('/app/reservations/exams', { params: { filter: text } }),
-            ];
-            if (this.isInteroperable && this.isAdminView()) {
-                examObservables.push(
-                    this.http.get<CollaborativeExam[]>('/app/iop/exams', { params: { filter: text } }),
-                );
-            }
-            return forkJoin(examObservables).pipe(map((exams) => exams.flat()));
-        };
-        return text$.pipe(
-            debounceTime(300),
-            distinctUntilChanged(),
-            exhaustMap((term) => (term.length < 2 ? from([]) : listExams$(term))),
-            map((es) => es.sort((a, b) => (a.name as string).localeCompare(b.name as string)).slice(0, 100)),
-        );
-    };
+    protected searchExams$ = (text$: Observable<string>) =>
+        this.Reservation.searchExams$(text$, this.isInteroperable && this.isAdminView());
 
     protected nameFormatter = (item: { name: string }) => item.name;
 
@@ -422,15 +223,6 @@ export class ReservationsComponent implements OnInit {
         }
         return params;
     };
-
-    // Transfer examination taking place here
-    private isLocalTransfer = (reservation: AnyReservation): reservation is LocalTransferExamReservation =>
-        !reservation.enrolment || isObject(reservation.enrolment.externalExam);
-    // Transfer examination taking place elsewhere
-    private isRemoteTransfer = (reservation: AnyReservation): reservation is RemoteTransferExamReservation =>
-        isObject(reservation.externalReservation);
-    private isCollaborative = (reservation: AnyReservation): reservation is CollaborativeExamReservation =>
-        isObject(reservation.enrolment?.collaborativeExam);
 
     private initOptions() {
         this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit').subscribe((resp) => {

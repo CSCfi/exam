@@ -1,18 +1,6 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop.collaboration.api;
 
@@ -23,7 +11,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
-import controllers.BaseAttachmentInterface;
+import controllers.attachment.BaseAttachmentInterface;
 import io.ebean.DB;
 import io.vavr.control.Either;
 import java.io.IOException;
@@ -35,14 +23,14 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
-import models.Attachment;
-import models.Comment;
-import models.Exam;
-import models.LanguageInspection;
-import models.User;
-import models.api.AttachmentContainer;
+import models.assessment.Comment;
+import models.assessment.LanguageInspection;
+import models.attachment.Attachment;
+import models.attachment.AttachmentContainer;
+import models.exam.Exam;
 import models.questions.EssayAnswer;
 import models.sections.ExamSectionQuestion;
+import models.user.User;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pekko.stream.IOResult;
 import org.apache.pekko.stream.javadsl.FileIO;

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -18,22 +22,22 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.ExamMachine;
-import models.ExamParticipation;
-import models.ExamRoom;
-import models.GradeEvaluation;
-import models.Reservation;
-import models.User;
+import models.assessment.AutoEvaluationConfig;
+import models.assessment.GradeEvaluation;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExamParticipation;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.exam.ExamExecutionType;
+import models.facility.ExamMachine;
+import models.facility.ExamRoom;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.MultipleChoiceOption.ClaimChoiceOptionType;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
+import models.user.User;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
@@ -52,16 +56,21 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     private final Reservation reservation = new Reservation();
 
     @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
-        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
+    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP).withConfiguration(
+        new GreenMailConfiguration().withDisabledAuthentication()
+    );
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         DB.deleteAll(DB.find(ExamEnrolment.class).findList());
-        exam =
-            DB.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
+        exam = DB.find(Exam.class)
+            .fetch("examSections")
+            .fetch("examSections.sectionQuestions")
+            .where()
+            .idEq(1L)
+            .findOne();
         initExamSectionQuestions(exam);
 
         user = DB.find(User.class, userId);
@@ -125,11 +134,11 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         assertThat(studentExam.getDuration()).isEqualTo(exam.getDuration());
 
         assertThat(DB.find(Exam.class).where().eq("hash", studentExam.getHash()).findOne()).isNotNull();
-        assertThat(DB.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash())
-            .isEqualTo(studentExam.getHash());
+        assertThat(DB.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash()).isEqualTo(
+            studentExam.getHash()
+        );
 
-        ExamParticipation participation = DB
-            .find(ExamParticipation.class)
+        ExamParticipation participation = DB.find(ExamParticipation.class)
             .where()
             .eq("exam.id", studentExam.getId())
             .findOne();
@@ -141,8 +150,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testAnswerMultiChoiceQuestion() throws Exception {
         Exam studentExam = prepareExamination();
-        ExamSectionQuestion question = DB
-            .find(ExamSectionQuestion.class)
+        ExamSectionQuestion question = DB.find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)
             .eq("question.type", Question.Type.MultipleChoiceQuestion)
@@ -159,12 +167,11 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
         // Change answer
         option = it.next();
-        result =
-            request(
-                Helpers.POST,
-                String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
-                createMultipleChoiceAnswerData(option)
-            );
+        result = request(
+            Helpers.POST,
+            String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
+            createMultipleChoiceAnswerData(option)
+        );
         assertThat(result.status()).isEqualTo(Helpers.OK);
     }
 
@@ -181,8 +188,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     public void testAnswerMultiChoiceQuestionWrongIP() throws Exception {
         // Setup
         Exam studentExam = prepareExamination();
-        ExamSectionQuestion question = DB
-            .find(ExamSectionQuestion.class)
+        ExamSectionQuestion question = DB.find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)
             .eq("question.type", Question.Type.MultipleChoiceQuestion)
@@ -207,8 +213,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testAnswerClozeTestQuestionInvalidJson() throws Exception {
         Exam studentExam = prepareExamination();
-        ExamSectionQuestion question = DB
-            .find(ExamSectionQuestion.class)
+        ExamSectionQuestion question = DB.find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)
             .eq("question.type", Question.Type.ClozeTestQuestion)
@@ -242,21 +247,18 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                         if (answer != null && answer.getObjectVersion() > 0) {
                             body.put("objectVersion", answer.getObjectVersion());
                         }
-                        r =
-                            request(
-                                Helpers.POST,
-                                String.format("/app/student/exam/%s/question/%d", studentExam.getHash(), esq.getId()),
-                                body
-                            );
+                        r = request(
+                            Helpers.POST,
+                            String.format("/app/student/exam/%s/question/%d", studentExam.getHash(), esq.getId()),
+                            body
+                        );
                         assertThat(r.status()).isEqualTo(Helpers.OK);
                         break;
                     case ClozeTestQuestion:
-                        ObjectNode content = (ObjectNode) Json
-                            .newObject()
+                        ObjectNode content = Json.newObject()
                             .set(
                                 "answer",
-                                Json
-                                    .newObject()
+                                Json.newObject()
                                     .put("1", "this is my answer for cloze 1")
                                     .put("2", "this is my answer for cloze 2")
                             );
@@ -264,34 +266,31 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                         if (clozeAnswer != null && clozeAnswer.getObjectVersion() > 0) {
                             content.put("objectVersion", clozeAnswer.getObjectVersion());
                         }
-                        r =
-                            request(
-                                Helpers.POST,
-                                String.format("/app/student/exam/%s/clozetest/%d", studentExam.getHash(), esq.getId()),
-                                content
-                            );
+                        r = request(
+                            Helpers.POST,
+                            String.format("/app/student/exam/%s/clozetest/%d", studentExam.getHash(), esq.getId()),
+                            content
+                        );
                         assertThat(r.status()).isEqualTo(Helpers.OK);
                         break;
                     default:
-                        ExamSectionQuestion sectionQuestion = DB
-                            .find(ExamSectionQuestion.class)
+                        ExamSectionQuestion sectionQuestion = DB.find(ExamSectionQuestion.class)
                             .where()
                             .eq("examSection.exam", studentExam)
                             .eq("question.type", Question.Type.MultipleChoiceQuestion)
                             .findList()
-                            .get(0);
+                            .getFirst();
                         Iterator<ExamSectionQuestionOption> it = sectionQuestion.getOptions().iterator();
                         ExamSectionQuestionOption option = it.next();
-                        r =
-                            request(
-                                Helpers.POST,
-                                String.format(
-                                    "/app/student/exam/%s/question/%d/option",
-                                    studentExam.getHash(),
-                                    esq.getId()
-                                ),
-                                createMultipleChoiceAnswerData(option)
-                            );
+                        r = request(
+                            Helpers.POST,
+                            String.format(
+                                "/app/student/exam/%s/question/%d/option",
+                                studentExam.getHash(),
+                                esq.getId()
+                            ),
+                            createMultipleChoiceAnswerData(option)
+                        );
                         assertThat(r.status()).isEqualTo(Helpers.OK);
                         break;
                 }
@@ -399,10 +398,10 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
         // Verify that the previous exam was returned, and participation & enrolment still point to it
         assertThat(studentExam.getId()).isEqualTo(anotherStudentExam.getId());
-        assertThat(DB.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash())
-            .isEqualTo(studentExam.getHash());
-        ExamParticipation participation = DB
-            .find(ExamParticipation.class)
+        assertThat(DB.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash()).isEqualTo(
+            studentExam.getHash()
+        );
+        ExamParticipation participation = DB.find(ExamParticipation.class)
             .where()
             .eq("exam.id", studentExam.getId())
             .findOne();
@@ -414,8 +413,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testClaimChoiceQuestionOptionOrderAndAnswerSkip() throws Exception {
         Exam studentExam = prepareExamination();
-        ExamSectionQuestion question = DB
-            .find(ExamSectionQuestion.class)
+        ExamSectionQuestion question = DB.find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)
             .eq("question.type", Question.Type.ClaimChoiceQuestion)

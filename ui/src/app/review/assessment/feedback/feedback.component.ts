@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { NgClass } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
@@ -19,12 +9,12 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamParticipation } from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Examination } from 'src/app/examination/examination.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { CollaborativeAssesmentService } from 'src/app/review/assessment/collaborative-assessment.service';
+import { FileResult } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import type { FileResult } from 'src/app/shared/attachment/dialogs/attachment-picker.component';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
 
@@ -141,9 +131,9 @@ export class FeedbackComponent implements OnInit {
         if (!attachment) {
             return;
         }
-        this.collaborative && attachment.externalId
-            ? this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName)
-            : this.Attachment.downloadFeedbackAttachment(this.exam);
+        if (this.collaborative && attachment.externalId)
+            this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+        else this.Attachment.downloadFeedbackAttachment(this.exam);
     };
 
     removeFeedbackAttachment = () => {

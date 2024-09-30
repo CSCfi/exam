@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package base;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -26,15 +30,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
 import javax.validation.constraints.NotNull;
-import models.Attachment;
-import models.Exam;
-import models.ExamInspection;
-import models.Language;
-import models.User;
+import miscellaneous.json.JsonDeserializer;
+import models.assessment.ExamInspection;
+import models.attachment.Attachment;
+import models.exam.Exam;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
+import models.user.Language;
+import models.user.User;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -44,7 +49,8 @@ import org.junit.rules.TestName;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.inspector.TrustedTagInspector;
+import org.yaml.snakeyaml.inspector.TagInspector;
+import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -53,7 +59,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
-import util.json.JsonDeserializer;
 
 public class IntegrationTestCase extends WithApplication {
 
@@ -312,7 +317,7 @@ public class IntegrationTestCase extends WithApplication {
         if (userCount == 0) {
             LoaderOptions options = new LoaderOptions();
             options.setMaxAliasesForCollections(400);
-            options.setTagInspector(new TrustedTagInspector());
+            options.setTagInspector(tag -> true);
             Yaml yaml = new Yaml(new JodaPropertyConstructor(options), new Representer(new DumperOptions()));
             //Yaml yaml = new Yaml(new JodaPropertyConstructor(), new Representer(new DumperOptions()), new DumperOptions(), options);
             InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));

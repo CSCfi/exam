@@ -1,11 +1,15 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnChanges, OnInit, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import type { OpeningHours } from 'src/app/calendar/calendar.service';
+import type { OpeningHours } from 'src/app/calendar/calendar.model';
 import { CalendarService } from 'src/app/calendar/calendar.service';
-import { MaintenancePeriod } from 'src/app/exam/exam.model';
+import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
@@ -37,11 +41,11 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 }
             </div>
         </div>
-        @if (maintenancePeriods.length > 0) {
+        @if (thisWeeksMaintenancePeriods().length > 0) {
             <div class="row mt-2">
                 <div class="col-md-2 col-12">{{ 'i18n_maintenance_periods' | translate }}:</div>
                 <div class="col-md-10 col-12">
-                    @for (period of maintenancePeriods | orderBy: 'startsAt'; track period.id) {
+                    @for (period of thisWeeksMaintenancePeriods() | orderBy: 'startsAt'; track period.id) {
                         <div>
                             {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
                             {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
@@ -49,6 +53,10 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                         </div>
                     }
                 </div>
+            </div>
+        } @else {
+            <div class="row mt-2">
+                <div class="">{{ 'i18n_no_maintenance_periods_this_week' | translate }}</div>
             </div>
         }
         @if (exceptionHours().length > 0) {
@@ -62,10 +70,14 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                             ngbPopover="{{ eh.description | translate }}"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
                         >
-                            {{ eh.start }} - {{ eh.end }}
+                            {{ eh.start }} - {{ eh.end }} {{ eh.description + '' | translate }}
                         </div>
                     }
                 </div>
+            </div>
+        } @else {
+            <div class="row mt-2">
+                <div class="">{{ 'i18n_no_exceptions_this_week' | translate }}</div>
             </div>
         }
         @if (getRoomInstructions()) {
@@ -92,6 +104,7 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
 
     openingHours = signal<OpeningHours[]>([]);
     exceptionHours = signal<(ExceptionWorkingHours & { start: string; end: string; description: string })[]>([]);
+    showAllMaintenancePeriods = false;
 
     constructor(
         private translate: TranslateService,
@@ -123,6 +136,13 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
     getRoomAccessibility = () =>
         this.room.accessibilities ? this.room.accessibilities.map((a) => a.name).join(', ') : '';
 
+    thisWeeksMaintenancePeriods() {
+        const mp = [...this.maintenancePeriods];
+        return mp.filter((p) => {
+            const start = DateTime.fromISO(p.startsAt);
+            return start >= this.viewStart && start < this.viewStart.plus({ week: 1 });
+        });
+    }
     private init() {
         this.openingHours.set(this.Calendar.processOpeningHours(this.room));
         this.exceptionHours.set(

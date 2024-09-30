@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -66,7 +56,6 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
     ngOnInit() {
         const now = new Date();
         this.time = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() };
-        this.date = new Date();
         if (this.initialTime) {
             this.setDateTime(this.initialTime);
         }
@@ -75,7 +64,6 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
     ngOnChanges() {
         const now = new Date();
         this.time = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() };
-        this.date = new Date();
         if (this.initialTime) {
             this.setDateTime(this.initialTime);
         }
@@ -104,9 +92,6 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
     private setDateTime = (dt: Date) => {
         this.date.setFullYear(dt.getFullYear());
         this.date.setMonth(dt.getMonth(), dt.getDate());
-        this.time.hour = dt.getHours();
-        this.time.minute = dt.getMinutes();
-        this.time.second = 0;
-        this.time.millisecond = 0;
+        this.time = { ...this.time, hour: dt.getHours(), minute: dt.getMinutes(), second: 0, millisecond: 0 };
     };
 }

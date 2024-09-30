@@ -1,4 +1,9 @@
 #! /bin/bash
+
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
 if [ "$#" -ne 1 ]; then
   echo "Usage: sh $0 <version_string>"
   exit 0;

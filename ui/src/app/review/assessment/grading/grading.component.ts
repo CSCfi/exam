@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, LowerCasePipe, NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
@@ -21,14 +11,15 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import type { Exam, ExamLanguage, ExamType, SelectableGrade } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Examination } from 'src/app/examination/examination.model';
-import type { QuestionAmounts } from 'src/app/question/question.service';
+import type { QuestionAmounts } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { CollaborativeAssesmentService } from 'src/app/review/assessment/collaborative-assessment.service';
 import { GradingBaseComponent } from 'src/app/review/assessment/common/grading-base.component';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { LanguageService } from 'src/app/shared/language/language.service';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';

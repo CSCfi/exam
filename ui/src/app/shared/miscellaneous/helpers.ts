@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 export const isNumber = (a: unknown): a is number => typeof a === 'number';
 export const isObject = (a: unknown): a is Record<string, unknown> => a instanceof Object;
 export const isString = (a: unknown): a is string => typeof a === 'string';
@@ -12,6 +16,14 @@ export const debounce = <F extends (...args: unknown[]) => ReturnType<F>>(func: 
             timeout = window.setTimeout(() => resolve(func(...args)), waitFor);
         });
 };
+export const groupBy = <T>(xs: T[], fn: (x: T) => string) =>
+    xs.map(fn).reduce(
+        (acc, x, i) => {
+            acc[x] = (acc[x] || []).concat(xs[i]);
+            return acc;
+        },
+        {} as { [k: string]: T[] },
+    );
 
 export const updateList = <T>(items: T[], key: keyof T, value: T): T[] => {
     const index = items.findIndex((item) => item[key] === value[key]);

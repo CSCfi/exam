@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass, NgForOf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Output } from '@angular/core';
@@ -21,10 +11,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import type { Course, Exam, ExamSection, Tag } from 'src/app/exam/exam.model';
-import type { LibraryQuestion } from 'src/app/question/library/library.service';
+import type { Course, Exam, ExamSection } from 'src/app/exam/exam.model';
 import { LibraryService } from 'src/app/question/library/library.service';
-import type { User } from 'src/app/session/session.service';
+import { LibraryQuestion, Tag } from 'src/app/question/question.model';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import { UserService } from 'src/app/shared/user/user.service';

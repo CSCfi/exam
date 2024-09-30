@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
@@ -19,7 +9,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { concat, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import type { ClozeTestAnswer, EssayAnswer } from 'src/app/exam/exam.model';
+import { ClozeTestAnswer, EssayAnswer } from 'src/app/question/question.model';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
 @Injectable({ providedIn: 'root' })
@@ -228,9 +218,7 @@ export class ExaminationService {
     };
 
     private stripHtml = (text: string) => {
-        if (text && text.indexOf('math-tex') === -1) {
-            return String(text).replace(/<[^>]+>/gm, '');
-        }
-        return text;
+        if (text.includes('math-tex')) return text;
+        return new DOMParser().parseFromString(text, 'text/html').body.textContent || '';
     };
 }

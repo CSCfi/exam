@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <!-- Publish settings container -->
 <div class="row mx-2">
     <div class="col-md-12">
@@ -83,59 +89,7 @@
             </div>
         </div>
 
-        <!-- Examination events -->
-        @if (exam.implementation !== 'AQUARIUM') {
-            <div class="row mt-2">
-                <div class="col-md-3">
-                    {{ 'i18n_examination_events' | translate }}
-                    <sup
-                        triggers="mouseenter:mouseleave"
-                        ngbPopover="{{ 'i18n_examination_events_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    >
-                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                    </sup>
-                </div>
-                <div class="col-md-3">
-                    <button
-                        type="button"
-                        (click)="addExaminationEvent()"
-                        [disabled]="isPeriodOver()"
-                        class="btn btn-success"
-                    >
-                        {{ 'i18n_add_examination_event' | translate }}
-                    </button>
-                </div>
-                <div class="col-md-6 justify-content-center">
-                    <ul class="list-inline pt-2">
-                        @for (config of sortByString(exam.examinationEventConfigurations); track config) {
-                            <li class="list-inline-item mb-3">
-                                <span
-                                    title="{{ 'i18n_edit' | translate }}"
-                                    (click)="modifyExaminationEvent(config)"
-                                    class="pointer examination-event-list-item rounded-start"
-                                >
-                                    {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm'
-                                    }}<i class="bi-pencil ms-1"></i>
-                                </span>
-                                @if (config.examEnrolments.length === 0) {
-                                    <span (click)="removeExaminationEvent(config)" class="text text-danger pointer">
-                                        <i
-                                            title="{{ 'i18n_remove' | translate }}"
-                                            class="bi-x rounded-end background-gray p-1"
-                                        ></i
-                                    ></span>
-                                } @else {
-                                    <span class="rounded-end text text-muted background-gray p-1">
-                                        <i title="{{ 'i18n_event_enrolments_exist' | translate }}" class="bi-x"></i>
-                                    </span>
-                                }
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        }
+        <xm-examination-events [exam]="exam" />
 
         <!-- Exam length -->
         <div class="row mt-2">
@@ -226,65 +180,12 @@
             </div>
         </div>
 
-        @if (!collaborative()) {
-            <div class="row mt-2" [hidden]="exam.executionType.type === 'PUBLIC'">
-                <div class="col-md-3">
-                    {{ 'i18n_exam_add_participants_title' | translate }}
-                </div>
-                <div class="col-md-9 participant-selector-toggle">
-                    <label>
-                        <input
-                            type="radio"
-                            [ngModel]="visibleParticipantSelector()"
-                            (ngModelChange)="visibleParticipantSelector.set($event)"
-                            value="participant"
-                        />
-                        {{ 'i18n_exam_participant_selector_label' | translate }}
-                        <sup
-                            ngbPopover="{{ 'i18n_exam_participants_description' | translate }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            ><img src="/assets/images/icon_tooltip.svg" alt=""
-                        /></sup>
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            [ngModel]="visibleParticipantSelector()"
-                            (ngModelChange)="visibleParticipantSelector.set($event)"
-                            value="pre-participant"
-                        />
-                        {{ 'i18n_exam_pre_participant_selector_label' | translate }}
-                        <sup
-                            ngbPopover="{{ 'i18n_exam_pre_participants_description' | translate }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            ><img src="/assets/images/icon_tooltip.svg" alt=""
-                        /></sup>
-                    </label>
-                </div>
-            </div>
-        }
-
-        <!-- Exam participants -->
-        @if (
-            exam.executionType.type !== 'PUBLIC' && !collaborative() && visibleParticipantSelector() === 'participant'
-        ) {
-            <xm-exam-participant-selector [exam]="exam"></xm-exam-participant-selector>
-        }
-
-        <!-- Exam pre-participants -->
-        @if (
-            exam.executionType.type !== 'PUBLIC' &&
-            !collaborative() &&
-            visibleParticipantSelector() === 'pre-participant'
-        ) {
-            <xm-exam-pre-participant-selector [exam]="exam"></xm-exam-pre-participant-selector>
-        }
-
-        @if (collaborative()) {
-            <xm-collaborative-exam-owner-selector [exam]="exam"> </xm-collaborative-exam-owner-selector>
-            <xm-exam-organisation-selector [exam]="exam"></xm-exam-organisation-selector>
+        <!-- Participant selections -->
+        @if (exam.executionType.type !== 'PUBLIC') {
+            <xm-exam-publication-participants
+                [collaborative]="collaborative()"
+                [exam]="exam"
+            ></xm-exam-publication-participants>
         }
 
         <!-- Link to enrolment -->

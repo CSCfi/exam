@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
@@ -20,26 +10,21 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, from, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { CollaborativeParticipation } from 'src/app/exam/collaborative/collaborative-exam.service';
-import type {
-    CollaborativeExam,
-    Exam,
-    ExaminationEventConfiguration,
-    ExamParticipation,
-} from 'src/app/exam/exam.model';
+import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { isObject } from 'src/app/shared/miscellaneous/helpers';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/add-enrolment-information-dialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/select-examination-event-dialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/show-instructions-dialog.component';
-import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.model';
-
-export type ParticipationLike =
-    | (ExamParticipation & { noShow: boolean })
-    | (CollaborativeParticipation & { noShow: boolean })
-    | (ExamEnrolment & { started?: string; ended?: string; duration?: number });
+import type {
+    CollaborativeParticipation,
+    EnrolmentInfo,
+    ExamEnrolment,
+    ParticipationLike,
+    ReviewedExam,
+} from './enrolment.model';
 
 @Injectable({ providedIn: 'root' })
 export class EnrolmentService {

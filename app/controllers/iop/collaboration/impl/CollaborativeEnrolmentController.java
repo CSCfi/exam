@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.iop.collaboration.impl;
 
 import be.objectify.deadbolt.java.actions.Group;
@@ -12,11 +16,12 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.User;
-import models.json.CollaborativeExam;
+import miscellaneous.datetime.DateTimeHandler;
+import models.enrolment.ExamEnrolment;
+import models.exam.Exam;
+import models.exam.ExamExecutionType;
+import models.iop.CollaborativeExam;
+import models.user.User;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +31,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
 import security.Authenticated;
-import util.datetime.DateTimeHandler;
 
 public class CollaborativeEnrolmentController extends CollaborationController {
 
@@ -100,29 +104,27 @@ public class CollaborativeEnrolmentController extends CollaborationController {
             return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return downloadExam(ce)
-            .thenApplyAsync(result ->
-                checkExam(result.orElse(null), user)
-                    .map(e -> {
-                        DateTime now = dateTimeHandler.adjustDST(new DateTime());
-                        List<ExamEnrolment> enrolments = DB
-                            .find(ExamEnrolment.class)
-                            .where()
-                            .eq("user", user)
-                            .eq("collaborativeExam.id", id)
-                            .disjunction()
-                            .gt("reservation.endAt", now.toDate())
-                            .isNull("reservation")
-                            .endJunction()
-                            .or()
-                            .isNull("exam")
-                            .eq("exam.state", Exam.State.STUDENT_STARTED)
-                            .endOr()
-                            .findList();
-                        return ok(enrolments);
-                    })
-                    .getOrElseGet(Function.identity())
-            );
+        return downloadExam(ce).thenApplyAsync(result ->
+            checkExam(result.orElse(null), user)
+                .map(e -> {
+                    DateTime now = dateTimeHandler.adjustDST(new DateTime());
+                    List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
+                        .where()
+                        .eq("user", user)
+                        .eq("collaborativeExam.id", id)
+                        .disjunction()
+                        .gt("reservation.endAt", now.toDate())
+                        .isNull("reservation")
+                        .endJunction()
+                        .or()
+                        .isNull("exam")
+                        .eq("exam.state", Exam.State.STUDENT_STARTED)
+                        .endOr()
+                        .findList();
+                    return ok(enrolments);
+                })
+                .getOrElseGet(Function.identity())
+        );
     }
 
     private static ExamEnrolment makeEnrolment(CollaborativeExam exam, User user) {
@@ -164,8 +166,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
             // Take pessimistic lock for user to prevent multiple enrolments creating.
             DB.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
 
-            List<ExamEnrolment> enrolments = DB
-                .find(ExamEnrolment.class)
+            List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .where()
                 .eq("user.id", user.getId())
@@ -184,12 +185,11 @@ public class CollaborativeEnrolmentController extends CollaborationController {
             ) {
                 return forbidden("i18n_reservation_in_effect");
             }
-            return handleFutureReservations(enrolments, user, ce)
-                .orElseGet(() -> {
-                    ExamEnrolment newEnrolment = makeEnrolment(ce, user);
-                    tx.commit();
-                    return ok(newEnrolment);
-                });
+            return handleFutureReservations(enrolments, user, ce).orElseGet(() -> {
+                ExamEnrolment newEnrolment = makeEnrolment(ce, user);
+                tx.commit();
+                return ok(newEnrolment);
+            });
         }
     }
 
@@ -201,20 +201,19 @@ public class CollaborativeEnrolmentController extends CollaborationController {
             return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return downloadExam(ce)
-            .thenApplyAsync(result -> {
-                if (result.isEmpty()) {
-                    return notFound("i18n_error_exam_not_found");
-                }
-                Exam exam = result.get();
-                String homeOrg = configReader.getHomeOrganisationRef();
-                if (!isEnrollable(exam, homeOrg)) {
-                    return notFound("i18n_error_exam_not_found");
-                }
-                if (isAllowedToParticipate(exam, user)) {
-                    return doCreateEnrolment(ce, user);
-                }
-                return forbidden();
-            });
+        return downloadExam(ce).thenApplyAsync(result -> {
+            if (result.isEmpty()) {
+                return notFound("i18n_error_exam_not_found");
+            }
+            Exam exam = result.get();
+            String homeOrg = configReader.getHomeOrganisationRef();
+            if (!isEnrollable(exam, homeOrg)) {
+                return notFound("i18n_error_exam_not_found");
+            }
+            if (isAllowedToParticipate(exam, user)) {
+                return doCreateEnrolment(ce, user);
+            }
+            return forbidden();
+        });
     }
 }

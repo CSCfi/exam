@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -8,7 +12,7 @@ import base.RunAsAdmin;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.DB;
-import models.ExamRoom;
+import models.facility.ExamRoom;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
