@@ -20,6 +20,7 @@ import miscellaneous.config.ConfigReader;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
 
 public class OrganisationController extends BaseController {
@@ -42,7 +43,7 @@ public class OrganisationController extends BaseController {
 
         Function<WSResponse, Result> onSuccess = response -> {
             JsonNode root = response.asJson();
-            if (response.getStatus() != 200) {
+            if (response.getStatus() != Http.Status.OK) {
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
             if (root instanceof ArrayNode node) {
