@@ -1181,5 +1181,12 @@
     "i18n_datepicker": "Päivämäärävalitsin",
     "i18n_move_question": "Vaihda kysymysten järjestystä raahaamalla tästä",
     "i18n_no_maintenance_periods_this_week": "Ei huoltokatkoja tällä viikolla",
-  "i18n_no_exceptions_this_week": "Ei poikkeusaukioloaikoja tällä viikolla"
+  "i18n_no_exceptions_this_week": "Ei poikkeusaukioloaikoja tällä viikolla",
+  "i18n_finished_exam_participants": "Opiskelijat jotka ovat suorittaneet tentin",
+  "i18n_maturity_exam_participants_info": "Osallistujan voi poistaa tentistä vain ennen tentin julkaisua.",
+  "i18n_exam_published": "Tämä tentti on julkaistu.",
+  "i18n_exam_not_published": "Tätä tenttiä ei ole julkaistu.",
+  "i18n_show_participants": "Näytä osallistujat",
+  "i18n_hide_participants": "Piilota osallistujat",
+  "i18n_exam_owner_info": "Tentissä pitää olla vähintään yksi tentaattori."
 }

@@ -522,12 +522,9 @@ public class EnrolmentController extends BaseController {
             .eq("exam.state", Exam.State.DRAFT)
             .eq("exam.state", Exam.State.SAVED)
             .endJunction()
-            .disjunction()
-            .eq("exam.examOwners", user)
-            .eq("exam.creator", user)
-            .endJunction()
             .findOne();
-        if (enrolment == null) {
+
+        if (enrolment == null || (!user.hasRole(Role.Name.ADMIN) && !enrolment.getExam().isOwnedOrCreatedBy(user))) {
             return forbidden("i18n_not_possible_to_remove_participant");
         }
         enrolment.delete();

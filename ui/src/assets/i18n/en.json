@@ -1181,5 +1181,12 @@
     "i18n_datepicker": "Datepicker",
     "i18n_move_question": "Change the order of the exam sections by dragging",
     "i18n_no_maintenance_periods_this_week": "No service breaks this week",
-  "i18n_no_exceptions_this_week": "No exceptions this week"
+    "i18n_no_exceptions_this_week": "No exceptions this week",
+    "i18n_finished_exam_participants": "Students that have finished the exam",
+    "i18n_maturity_exam_participants_info": "Participant can be removed from the examination only before publication of the examination.",
+    "i18n_exam_published": "This exam is published.",
+    "i18n_exam_not_published": "This exam is not published.",
+    "i18n_show_participants": "Show participants",
+    "i18n_hide_participants": "Hide participants",
+    "i18n_exam_owner_info": "Exam needs to have at least one examiner."
 }
