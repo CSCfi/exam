@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Course, Exam, ExamSection } from 'src/app/exam/exam.model';
+import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 
 export interface Slot {
@@ -36,6 +37,7 @@ export type Organisation = {
     filtered: boolean;
     homeOrg: string;
     facilities: ExamRoom[];
+    maintenancePeriods: MaintenancePeriod[];
 };
 export type AvailableSlot = Slot & { availableMachines: number };
 

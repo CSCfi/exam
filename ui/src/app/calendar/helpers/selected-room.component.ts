@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
+import { DatePipe, NgClass, NgIf, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnChanges, OnInit, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -50,6 +50,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                             {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
                             {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
                             {{ period.description }}
+                            <span *ngIf="period.remote" class="text-danger">(remote)</span>
                         </div>
                     }
                 </div>
@@ -95,11 +96,11 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     `,
     styleUrls: ['../calendar.component.scss'],
     standalone: true,
-    imports: [NgClass, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
+    imports: [NgClass, NgIf, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
 })
 export class SelectedRoomComponent implements OnInit, OnChanges {
     @Input() room!: ExamRoom;
-    @Input() maintenancePeriods: MaintenancePeriod[] = [];
+    @Input() maintenancePeriods: (MaintenancePeriod & { remote: boolean })[] = [];
     @Input() viewStart = DateTime.now();
 
     openingHours = signal<OpeningHours[]>([]);

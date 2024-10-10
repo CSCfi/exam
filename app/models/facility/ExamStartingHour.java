@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.util.Date;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import models.base.GeneratedIdentityModel;
 import org.joda.time.LocalTime;
@@ -57,5 +58,17 @@ public class ExamStartingHour extends GeneratedIdentityModel implements Comparab
         return new LocalTime(startingHour)
             .plusMillis(timezoneOffset)
             .compareTo(new LocalTime(o.startingHour).plusMillis(timezoneOffset));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ExamStartingHour that)) return false;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

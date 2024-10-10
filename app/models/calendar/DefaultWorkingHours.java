@@ -10,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import java.util.Objects;
 import miscellaneous.datetime.DateTimeAdapter;
 import models.base.GeneratedIdentityModel;
 import models.facility.ExamRoom;
@@ -86,5 +87,17 @@ public class DefaultWorkingHours extends GeneratedIdentityModel {
         } else {
             return new Interval(startTime.withDate(LocalDate.now()), endTime.withDate(LocalDate.now()));
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DefaultWorkingHours that)) return false;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

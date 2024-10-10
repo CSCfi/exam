@@ -4,14 +4,19 @@
 
 package miscellaneous.scala
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.ebean.Model
-import play.api.mvc.Result
-import play.libs.{Json => JavaJson}
+import play.api.libs.json.jackson.PlayJsonMapperModule
+import play.api.libs.json.{JsValue, JsonConfig}
+import play.libs.Json as JavaJson
 
 trait JavaApiHelper:
 
-  extension [T <: Model](model: T) def toJson: String = JavaJson.toJson(model).toString
+  private val jsonSettings = JsonConfig.settings
+  private val mapper       = new ObjectMapper().registerModule(new PlayJsonMapperModule(jsonSettings))
 
-  extension [T <: Model](model: Iterable[T]) def toJson: String = JavaJson.toJson(model).toString
+  extension [T <: Model](model: T)
+    def asJson: JsValue = mapper.readValue(JavaJson.toJson(model).toString, classOf[JsValue])
 
-  extension (result: Result) def asJson: Result = result.as("application/json")
+  extension [T <: Model](model: Iterable[T])
+    def asJson: JsValue = mapper.readValue(JavaJson.toJson(model).toString, classOf[JsValue])

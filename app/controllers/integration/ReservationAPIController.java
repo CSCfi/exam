@@ -13,6 +13,7 @@ import io.ebean.text.PathProperties;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import miscellaneous.datetime.DateTimeHandler;
 import models.enrolment.Reservation;
@@ -115,7 +116,7 @@ public class ReservationAPIController extends BaseController {
                     LocalDate end = new LocalDate(ee.getEndDate()).dayOfMonth().withMaximumValue();
                     return !start.isAfter(searchDate) && !end.isBefore(searchDate);
                 })
-                .toList()
+                .collect(Collectors.toSet())
         );
         return ok(room, pp);
     }

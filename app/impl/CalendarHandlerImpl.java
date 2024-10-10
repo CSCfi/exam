@@ -6,6 +6,7 @@ package impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.collect.Lists;
 import controllers.admin.SettingsController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
@@ -369,7 +370,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         LocalDate date
     ) {
         Collection<Interval> intervals = new ArrayList<>();
-        List<ExamStartingHour> startingHours = room.getExamStartingHours();
+        List<ExamStartingHour> startingHours = Lists.newArrayList(room.getExamStartingHours());
         if (startingHours.isEmpty()) {
             // Default to 1 hour slots that start at the hour
             startingHours = createDefaultStartingHours(room.getLocalTimezone());

@@ -6,6 +6,7 @@ package miscellaneous.datetime;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -265,10 +266,14 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     public List<OpeningHours> getWorkingHoursForDate(LocalDate date, ExamRoom room) {
         List<OpeningHours> workingHours = getDefaultWorkingHours(date, room);
         List<Interval> extensionEvents = mergeSlots(
-            getExceptionEvents(room.getCalendarExceptionEvents(), date, RestrictionType.NON_RESTRICTIVE)
+            getExceptionEvents(
+                Lists.newArrayList(room.getCalendarExceptionEvents()),
+                date,
+                RestrictionType.NON_RESTRICTIVE
+            )
         );
         List<Interval> restrictionEvents = mergeSlots(
-            getExceptionEvents(room.getCalendarExceptionEvents(), date, RestrictionType.RESTRICTIVE)
+            getExceptionEvents(Lists.newArrayList(room.getCalendarExceptionEvents()), date, RestrictionType.RESTRICTIVE)
         );
         List<OpeningHours> availableHours = new ArrayList<>();
         if (!extensionEvents.isEmpty()) {

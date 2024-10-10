@@ -83,6 +83,7 @@ export class ExceptionDialogComponent {
             {
                 start: this.options.start,
                 end: this.options.end,
+                outOfService: this.outOfService,
             },
         ];
         if (this.isOverlapping(this.exceptions, result)) {
@@ -204,7 +205,7 @@ export class ExceptionDialogComponent {
     private isOverlapping = (existing: ExceptionWorkingHours[], fresh: { start: Date; end: Date }[]) => {
         const intervals = existing.map((oe) => ({ start: oe.startDate, end: oe.endDate }));
         const overlaps =
-            intervals.length > 0 && fresh.every((f) => !intervals.some((oi) => areIntervalsOverlapping(f, oi)));
+            intervals.length > 0 && fresh.some((f) => intervals.some((i) => areIntervalsOverlapping(f, i)));
         if (overlaps) {
             this.toast.error(this.translate.instant('i18n_room_closed_overlap'));
             return true;
