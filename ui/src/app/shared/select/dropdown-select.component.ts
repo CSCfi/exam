@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, SlicePipe } from '@angular/common';
+import { NgClass, NgIf, SlicePipe } from '@angular/common';
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -26,8 +26,9 @@ import { Option } from './select.model';
         </button>
         <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" aria-labelledby="dd1">
             @if (!noSearch) {
-                <div class="input-group" ngbDropdownItem>
+                <div class="input-group p-1">
                     <input
+                        type="text"
                         [(ngModel)]="searchFilter"
                         class="form-control"
                         (input)="filterOptions()"
@@ -40,11 +41,16 @@ import { Option } from './select.model';
                     </div>
                 </div>
             }
-            <button ngbDropdownItem (click)="clearSelection(); d.close()">
+            <button type="button" ngbDropdownItem *ngIf="allowClearing" (click)="clearSelection(); d.close()">
                 <i class="bi-x text text-danger"></i>
             </button>
             @for (opt of filteredOptions; track $index) {
-                <button ngbDropdownItem [ngClass]="getClasses(opt)" (click)="selectOption(opt); d.close()">
+                <button
+                    type="button"
+                    ngbDropdownItem
+                    [ngClass]="getClasses(opt)"
+                    (click)="selectOption(opt); d.close()"
+                >
                     @if (!opt.isHeader) {
                         <span>
                             {{ opt.label || '' | translate | slice: 0 : 40 }}
@@ -61,6 +67,7 @@ import { Option } from './select.model';
     imports: [
         NgbDropdown,
         NgbDropdownToggle,
+        NgIf,
         NgClass,
         NgbDropdownMenu,
         FormsModule,
@@ -72,10 +79,12 @@ import { Option } from './select.model';
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
     @Input() options: Option<V, I>[] = []; // everything
+    @Input() initial?: Option<V, I>;
     @Input() placeholder = 'i18n_choose';
     @Input() limitTo?: number;
     @Input() fullWidth = false;
     @Input() noSearch = false;
+    @Input() allowClearing = true;
     @Output() optionSelected = new EventEmitter<Option<V, I> | undefined>();
     filteredOptions: Option<V, I>[] = []; // filtered
     searchFilter = '';
@@ -83,6 +92,7 @@ export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
 
     ngOnInit() {
         this.filterOptions();
+        this.selected = this.initial;
     }
 
     ngOnChanges() {
