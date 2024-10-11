@@ -35,7 +35,6 @@ import models.user.Role;
 import models.user.User;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -164,34 +163,28 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN") })
-    public Result findAvailableMachines(Long reservationId) throws ExecutionException, InterruptedException {
+    public Result findAvailableMachines(Long reservationId, Long roomId)
+        throws ExecutionException, InterruptedException {
         var reservation = DB.find(Reservation.class, reservationId);
-        if (reservation == null) {
+        if (reservation == null || DB.find(ExamRoom.class, roomId) == null) {
             return notFound();
         }
         var props = PathProperties.parse("(id, name)");
         var query = DB.createQuery(ExamMachine.class);
         props.apply(query);
-
-        var candidates = query
-            .where()
-            .eq("room", reservation.getMachine().getRoom())
-            .ne("outOfService", true)
-            .ne("archived", true)
-            .findList();
+        var candidates = query.where().eq("room.id", roomId).ne("outOfService", true).ne("archived", true).findList();
 
         var exam = getReservationExam(reservation);
-        var it = candidates.listIterator();
-        while (it.hasNext()) {
-            var machine = it.next();
-            if (exam.isPresent() && !machine.hasRequiredSoftware(exam.get())) {
-                it.remove();
-            }
-            if (machine.isReservedDuring(reservation.toInterval())) {
-                it.remove();
-            }
-        }
-        return ok(candidates, props);
+        var available = candidates
+            .stream()
+            .filter(c -> {
+                if (exam.isPresent() && !c.hasRequiredSoftware(exam.get())) {
+                    return false;
+                }
+                return !c.isReservedDuring(reservation.toInterval());
+            })
+            .toList();
+        return ok(available, props);
     }
 
     @Restrict({ @Group("ADMIN") })
@@ -210,9 +203,6 @@ public class ReservationController extends BaseController {
         var machine = query.where().idEq(machineId).findOne();
         if (machine == null) {
             return notFound();
-        }
-        if (!machine.getRoom().equals(reservation.getMachine().getRoom())) {
-            return forbidden("Not allowed to change to use a machine from a different room");
         }
         var exam = getReservationExam(reservation);
         if (

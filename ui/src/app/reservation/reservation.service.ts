@@ -57,13 +57,14 @@ export class ReservationService {
             keyboard: false,
         });
         modalRef.componentInstance.reservation = reservation;
-        modalRef.result
-            .then((machine: ExamMachine) => {
+        from(modalRef.result).subscribe({
+            next: (machine: ExamMachine) => {
                 if (machine) {
                     reservation.machine = machine;
                 }
-            })
-            .catch(noop);
+            },
+            error: noop,
+        });
     };
 
     cancelReservation = (reservation: Reservation): Promise<void> => {
