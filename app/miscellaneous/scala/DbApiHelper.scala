@@ -4,10 +4,10 @@
 
 package miscellaneous.scala
 
-import io.ebean.{ExpressionList, Model}
+import io.ebean.{ExpressionList, Model, Query}
 
-import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
+import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 
 trait DbApiHelper:
   extension [T <: Model](el: ExpressionList[T])
@@ -19,3 +19,6 @@ trait DbApiHelper:
   // Apparently we can end up having Some(null) if not mapped like this.
   // As a result we get None as expected.
   extension [T](o: Option[T]) def nonNull: Option[T] = o.flatMap(Option(_))
+
+  extension [T <: Model](q: Query[T])
+    def distinct: Set[T] = q.findSet().asScala.toSet
