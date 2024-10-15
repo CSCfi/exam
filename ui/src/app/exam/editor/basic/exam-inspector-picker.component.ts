@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
@@ -19,7 +20,7 @@ import type { User } from 'src/app/session/session.model';
     selector: 'xm-exam-inspector-picker',
     templateUrl: './exam-inspector-picker.component.html',
     standalone: true,
-    imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
+    imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule, NgClass],
     styles: '.vbottom { vertical-align: bottom !important }',
 })
 export class ExamInspectorSelectorComponent implements OnInit {
