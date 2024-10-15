@@ -38,33 +38,55 @@ import { User } from 'src/app/session/session.model';
         </div>
 
         <div class="row mt-1">
-            <span class="col-md-9 offset-md-3">
-                <!-- Students not having finished the exam -->
-                @for (enrolment of exam.examEnrolments; track enrolment) {
-                    <button
-                        class="badge ms-1"
-                        [ngClass]="exam.state === 'PUBLISHED' ? 'bg-secondary' : 'bg-light text-dark'"
-                        [disabled]="exam.state === 'PUBLISHED'"
-                        (click)="removeParticipant(enrolment.id)"
-                        title="{{ 'i18n_remove' | translate }}"
-                    >
-                        {{ renderParticipantLabel(enrolment) }}
-                        @if (enrolment.user?.userIdentifier) {
-                            ({{ enrolment.user.userIdentifier }})
-                        }
-                    </button>
-                }
-                <!-- Students that have finished the exam -->
-                @for (participant of participants; track participant) {
-                    <button class="badge bg-light text-dark ms-1" [disabled]="true">
-                        {{ participant.firstName }} {{ participant.lastName }}
-                        @if (participant.userIdentifier) {
-                            ({{ participant.userIdentifier }})
-                        }
-                    </button>
+            <span class="row col-md-9 offset-md-3 w-auto text-break">
+                {{ 'i18n_maturity_exam_participants_info' | translate }}
+                @if (exam.state === 'PUBLISHED') {
+                    {{ 'i18n_exam_published' | translate }}
+                } @else {
+                    {{ 'i18n_exam_not_published' | translate }}
                 }
             </span>
-        </div> `,
+            @if (exam.examEnrolments.length > 0) {
+                <span class="row offset-md-3 mt-3 w-auto">
+                    {{ 'i18n_exam_participants' | translate }}:
+                    <!-- Students not having finished the exam, sorted alphabetically -->
+                    @for (enrolment of exam.examEnrolments; track enrolment) {
+                        <div class="ms-1 mt-1 row" [ngClass]="{ 'hover-grey': exam.state !== 'PUBLISHED' }">
+                            <div class="ms-1 col-8">
+                                {{ renderParticipantLabel(enrolment) }}
+                                @if (enrolment.user?.userIdentifier) {
+                                    ({{ enrolment.user.userIdentifier }})
+                                }
+                            </div>
+                            <!-- Remove button -->
+                            <button
+                                class="btn btn-danger btn-sm ms-1 w-auto"
+                                (click)="removeParticipant(enrolment.id)"
+                                [hidden]="exam.state === 'PUBLISHED'"
+                            >
+                                {{ 'i18n_remove' | translate }}
+                            </button>
+                        </div>
+                    }
+                </span>
+            }
+            @if (participants.length > 0) {
+                <span class="row col-md-9 offset-md-3 mt-3 ">
+                    {{ 'i18n_finished_exam_participants' | translate }}:
+                    <!-- Students that have finished the exam -->
+                    @for (participant of participants; track participant) {
+                        <div class="ms-1 row">
+                            <div class="ms-1 ">
+                                {{ participant.firstName }} {{ participant.lastName }}
+                                @if (participant.userIdentifier) {
+                                    ({{ participant.userIdentifier }})
+                                }
+                            </div>
+                        </div>
+                    }
+                </span>
+            }
+        </div>`,
     standalone: true,
     imports: [FormsModule, NgClass, TranslateModule],
 })
