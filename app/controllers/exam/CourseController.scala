@@ -35,7 +35,7 @@ class CourseController @Inject() (
   ): Future[Result] =
     (filterType, criteria) match
       case (Some("code"), Some(c)) =>
-        externalApi.getCoursesByCode(user, c).map(cs => Results.Ok(cs.toJson).asJson)
+        externalApi.getCoursesByCode(user, c).map(cs => Results.Ok(cs.asJson))
       case (Some("name"), Some(x)) if x.length >= 2 =>
         Future {
           DB.find(classOf[Course])
@@ -52,13 +52,13 @@ class CourseController @Inject() (
                 .getCourseValidityDate(new DateTime(c.getStartDate))
                 .isBeforeNow
             )
-        }.map(data => Results.Ok(data.toJson).asJson)
+        }.map(data => Results.Ok(data.asJson))
       case (Some("name"), Some(_)) =>
         throw new IllegalArgumentException("Too short criteria")
       case _ =>
         Future {
           DB.find(classOf[Course]).where.isNotNull("name").orderBy("code").list
-        }.map(data => Ok(data.toJson).asJson)
+        }.map(data => Ok(data.asJson))
 
   private def getUserCourses(
       user: User,
@@ -76,7 +76,7 @@ class CourseController @Inject() (
     if tagIds.getOrElse(Nil).nonEmpty then
       query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
     if ownerIds.getOrElse(Nil).nonEmpty then query = query.in("exams.examOwners.id", ownerIds.get.asJava)
-    Ok(query.orderBy("name desc").list.toJson).asJson
+    Ok(query.orderBy("name desc").list.asJson)
 
   // Actions ->
   def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] =
@@ -87,7 +87,7 @@ class CourseController @Inject() (
 
   def getCourse(id: Long): Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
-      Ok(DB.find(classOf[Course], id).toJson)
+      Ok(DB.find(classOf[Course], id).asJson)
     }
 
   def listUsersCourses(

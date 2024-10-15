@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.util.List;
+import java.util.Set;
 import models.base.GeneratedIdentityModel;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
@@ -43,14 +44,14 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     private MailAddress mailAddress;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room", fetch = FetchType.EAGER)
-    private List<DefaultWorkingHours> defaultWorkingHours;
+    private Set<DefaultWorkingHours> defaultWorkingHours;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
     @JsonManagedReference
-    private List<ExceptionWorkingHours> calendarExceptionEvents;
+    private Set<ExceptionWorkingHours> calendarExceptionEvents;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
-    private List<ExamStartingHour> examStartingHours;
+    private Set<ExamStartingHour> examStartingHours;
 
     // Accessibility info describes what accessibility issues there are regarding the room
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "examRoom")
@@ -112,27 +113,27 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
         this.mailAddress = mailAddress;
     }
 
-    public List<DefaultWorkingHours> getDefaultWorkingHours() {
+    public Set<DefaultWorkingHours> getDefaultWorkingHours() {
         return defaultWorkingHours;
     }
 
-    public void setDefaultWorkingHours(List<DefaultWorkingHours> defaultWorkingHours) {
+    public void setDefaultWorkingHours(Set<DefaultWorkingHours> defaultWorkingHours) {
         this.defaultWorkingHours = defaultWorkingHours;
     }
 
-    public List<ExceptionWorkingHours> getCalendarExceptionEvents() {
+    public Set<ExceptionWorkingHours> getCalendarExceptionEvents() {
         return calendarExceptionEvents;
     }
 
-    public void setCalendarExceptionEvents(List<ExceptionWorkingHours> calendarExceptionEvents) {
+    public void setCalendarExceptionEvents(Set<ExceptionWorkingHours> calendarExceptionEvents) {
         this.calendarExceptionEvents = calendarExceptionEvents;
     }
 
-    public List<ExamStartingHour> getExamStartingHours() {
+    public Set<ExamStartingHour> getExamStartingHours() {
         return examStartingHours;
     }
 
-    public void setExamStartingHours(List<ExamStartingHour> examStartingHours) {
+    public void setExamStartingHours(Set<ExamStartingHour> examStartingHours) {
         this.examStartingHours = examStartingHours;
     }
 
