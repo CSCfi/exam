@@ -236,7 +236,7 @@ GET           /app/reservations/exams                                          c
 GET           /app/reservations                                                controllers.enrolment.ReservationController.getReservations(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[String], end: java.util.Optional[String], externalRef: java.util.Optional[String], request: Request)
 GET           /app/events                                                      controllers.enrolment.ReservationController.getExaminationEvents(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[String], end: java.util.Optional[String], request: Request)
 DELETE        /app/reservations/:id                                            controllers.enrolment.ReservationController.removeReservation(id: Long, request: Request)
-GET           /app/reservations/:id/machines                                   controllers.enrolment.ReservationController.findAvailableMachines(id: Long)
+GET           /app/reservations/:reservationId/:roomId/machines                controllers.enrolment.ReservationController.findAvailableMachines(reservationId: Long, roomId: Long)
 PUT           /app/reservations/:id/machine                                    controllers.enrolment.ReservationController.updateMachine(id: Long, request: Request)
 
 ############### ExamMachines interface ###############
@@ -466,10 +466,10 @@ GET           /app/reports/responses                                            
 POST          /app/reports/questionreport/:id                                     controllers.admin.ReportController.exportExamQuestionScoresAsExcel(id: Long, request: Request)
 
 ################# Maintenance period interface ##################
-GET           /app/maintenance                                                    controllers.MaintenancePeriodController.listMaintenancePeriods
-POST          /app/maintenance                                                    controllers.MaintenancePeriodController.createMaintenancePeriod
-PUT           /app/maintenance/:id                                                controllers.MaintenancePeriodController.updateMaintenancePeriod(id: Long)
-DELETE        /app/maintenance/:id                                                controllers.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
+GET           /app/maintenance                                                    controllers.facility.MaintenancePeriodController.listMaintenancePeriods
+POST          /app/maintenance                                                    controllers.facility.MaintenancePeriodController.createMaintenancePeriod
+PUT           /app/maintenance/:id                                                controllers.facility.MaintenancePeriodController.updateMaintenancePeriod(id: Long)
+DELETE        /app/maintenance/:id                                                controllers.facility.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
 
 #######################################################
 GET           /attributes                                                         controllers.user.SessionController.getAttributes(request: Request)

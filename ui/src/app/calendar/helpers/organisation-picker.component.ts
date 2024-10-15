@@ -108,9 +108,10 @@ export class OrganisationPickerComponent implements OnInit {
     }
 
     setOrganisation = (organisation: Organisation) => {
-        const orgs = this.organisations().map((o) => ({ ...o, filtered: false }));
         const i = this.organisations().findIndex((o) => o._id === organisation._id);
-        this.organisations.set(orgs.splice(i, 1, { ...orgs[i], filtered: true }));
+        const orgs = this.organisations().map((o) => ({ ...o, filtered: false }));
+        orgs.splice(i, 1, { ...orgs[i], filtered: true });
+        this.organisations.set(orgs);
         this.selectedOrganisation.set({ ...organisation, filtered: true });
         this.selected.emit(organisation);
     };

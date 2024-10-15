@@ -26,7 +26,6 @@
 }
 
 .question-option-input {
-    height: 40px;
     border-radius: 4px;
     border: 1px solid #e0e0df;
     padding-left: 10px;
@@ -200,4 +199,8 @@
 }
 .warning-text-small {
     font-size: 14px;
+}
+
+textarea {
+  field-sizing: content;
 }
