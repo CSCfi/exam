@@ -91,6 +91,7 @@ import type { User } from 'src/app/session/session.model';
         </div>`,
     standalone: true,
     imports: [FormsModule, NgClass, NgbTypeahead, TranslateModule],
+    styleUrls: ['../../exam.shared.scss'],
 })
 export class ExamParticipantSelectorComponent implements OnInit {
     @Input() exam!: Exam;

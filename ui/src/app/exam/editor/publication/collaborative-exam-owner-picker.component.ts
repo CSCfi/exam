@@ -70,6 +70,7 @@ import { SessionService } from 'src/app/session/session.service';
         </div>`,
     standalone: true,
     imports: [NgClass, NgbPopover, FormsModule, TranslateModule],
+    styleUrls: ['../../exam.shared.scss'],
 })
 export class CollaborativeExamOwnerSelectorComponent {
     @Input() exam!: Exam;

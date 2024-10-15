@@ -22,6 +22,7 @@ import type { User } from 'src/app/session/session.model';
     standalone: true,
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule, NgClass],
     styles: '.vbottom { vertical-align: bottom !important }',
+    styleUrls: ['../../exam.shared.scss'],
 })
 export class ExamInspectorSelectorComponent implements OnInit {
     @Input() exam!: Exam;
