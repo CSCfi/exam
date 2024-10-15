@@ -51,20 +51,26 @@ import { SessionService } from 'src/app/session/session.service';
             <div class="col-md-9">
                 <!-- Owners for the exam -->
                 @for (owner of exam.examOwners; track owner) {
-                    {{ owner.email }}
-                    <button
-                        class="btn btn-sm btn-link px-0"
-                        [disabled]="!user.isAdmin"
-                        (click)="removeOwner(owner.id)"
-                        title="{{ 'i18n_remove' | translate }}"
-                    >
-                        <i class="bi bi-x-lg" [ngClass]="!user.isAdmin ? 'text-danger' : 'text-success'"></i>
-                    </button>
+                    <div class="ms-1 row" [ngClass]="{ 'hover-grey': !user.isAdmin }">
+                        <div class="row col-8">
+                            {{ owner.email }}
+                        </div>
+                        <!-- Remove button -->
+                        <button
+                            class="btn btn-danger btn-sm ms-1 w-auto m-1"
+                            (click)="removeOwner(owner.id)"
+                            [hidden]="!user.isAdmin"
+                            [attr.aria-label]="owner.email"
+                        >
+                            {{ 'i18n_remove' | translate }}
+                        </button>
+                    </div>
                 }
             </div>
         </div>`,
     standalone: true,
     imports: [NgClass, NgbPopover, FormsModule, TranslateModule],
+    styleUrls: ['../../exam.shared.scss'],
 })
 export class CollaborativeExamOwnerSelectorComponent {
     @Input() exam!: Exam;
