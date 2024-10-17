@@ -1188,5 +1188,6 @@
   "i18n_exam_not_published": "Tätä tenttiä ei ole julkaistu.",
   "i18n_show_participants": "Näytä osallistujat",
   "i18n_hide_participants": "Piilota osallistujat",
-  "i18n_exam_owner_info": "Tentissä pitää olla vähintään yksi tentaattori."
+  "i18n_exam_owner_info": "Tentissä pitää olla vähintään yksi tentaattori.",
+  "i18n_csv_uploading_cancelled": "CSV tiedoston tuonti peruutettu"
 }

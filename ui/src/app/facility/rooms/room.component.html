@@ -11,6 +11,49 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #content>
     <div class="row">
         <div class="col-md-12">
+            <div class="row">
+                <span class="col font-6">
+                    <span class="me-2" [hidden]="!showName" onclick="document.getElementById('name_field').select();">
+                        {{ room.name || 'i18n_no_name' | translate }}
+                        <button
+                            class="btn btn-link btn-lg text-body width-auto"
+                            (click)="showName = !showName"
+                            triggers="mouseenter:mouseleave"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            ngbPopover="{{ 'i18n_edit' | translate }}"
+                        >
+                            <i class="bi-pencil ms-2"></i>
+                        </button>
+                        <button
+                            class="btn btn-link btn-lg width-auto"
+                            (click)="disableRoom()"
+                            triggers="mouseenter:mouseleave"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
+                        >
+                            <i class="text-danger bi-trash"></i>
+                        </button>
+                    </span>
+                    <span [hidden]="showName">
+                        <div class="input-group">
+                            <input
+                                id="name_field"
+                                type="text"
+                                name="name"
+                                class="form-control input-lg"
+                                [(ngModel)]="room.name"
+                                required
+                                (blur)="showName = !showName"
+                            />
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" (click)="showName = !showName">
+                                    <i class="bi-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </span>
+                </span>
+            </div>
             <form
                 role="form"
                 #roomForm="ngForm"
@@ -19,53 +62,6 @@ SPDX-License-Identifier: EUPL-1.2
                 id="roomForm"
                 (ngSubmit)="validateAndUpdateRoom()"
             >
-                <div class="row">
-                    <span class="col font-6">
-                        <span
-                            class="me-2"
-                            [hidden]="!showName"
-                            onclick="document.getElementById('name_field').select();"
-                        >
-                            {{ room.name || 'i18n_no_name' | translate }}
-                            <button
-                                class="btn btn-link btn-lg text-body width-auto"
-                                (click)="showName = !showName"
-                                triggers="mouseenter:mouseleave"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                ngbPopover="{{ 'i18n_edit' | translate }}"
-                            >
-                                <i class="bi-pencil ms-2"></i>
-                            </button>
-                            <button
-                                class="btn btn-link btn-lg width-auto"
-                                (click)="disableRoom()"
-                                triggers="mouseenter:mouseleave"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
-                            >
-                                <i class="text-danger bi-trash"></i>
-                            </button>
-                        </span>
-                        <span [hidden]="showName">
-                            <div class="input-group">
-                                <input
-                                    id="name_field"
-                                    type="text"
-                                    name="name"
-                                    class="form-control input-lg"
-                                    [(ngModel)]="room.name"
-                                    required
-                                    (blur)="showName = !showName"
-                                />
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" (click)="showName = !showName">
-                                        <i class="bi-check"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </span>
-                    </span>
-                </div>
                 <!-- Room Code & Building name -->
                 <div class="row">
                     <div class="col-md-6">

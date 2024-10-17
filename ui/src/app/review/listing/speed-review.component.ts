@@ -185,7 +185,7 @@ export class SpeedReviewComponent implements OnInit {
                 this.toast.success(`${this.translate.instant('i18n_csv_uploaded_successfully')}`);
             })
             .catch(() => {
-                this.toast.error(`${this.translate.instant('i18n_csv_uploading_failed')}`);
+                this.toast.info(`${this.translate.instant('i18n_csv_uploading_cancelled')}`);
                 return noop;
             });
     };

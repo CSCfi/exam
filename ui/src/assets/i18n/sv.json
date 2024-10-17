@@ -1188,5 +1188,6 @@
   "i18n_exam_not_published": "Tentamen inte publicerad. SV",
   "i18n_show_participants": "Visa deltagare",
   "i18n_hide_participants": "Dölj deltagare",
-  "i18n_exam_owner_info": "Tentamen behöver minst en bedömare.SV"
+  "i18n_exam_owner_info": "Tentamen behöver minst en bedömare.SV",
+  "i18n_csv_uploading_cancelled": "Uppladdning av CSV-fil avbruten"
 }
