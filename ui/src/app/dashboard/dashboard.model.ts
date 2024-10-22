@@ -37,4 +37,5 @@ export interface ExtraData {
     property: keyof DashboardExam;
     link: string[];
     checkOwnership: boolean;
+    sliced?: boolean;
 }
