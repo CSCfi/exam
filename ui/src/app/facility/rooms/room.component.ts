@@ -11,7 +11,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { AccessibilitySelectorComponent } from 'src/app/facility/accessibility/accessibility-picker.component';
 import { AddressComponent } from 'src/app/facility/address/address.component';
-import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { AvailabilityComponent } from './availability.component';
@@ -66,35 +66,8 @@ export class RoomComponent implements OnInit {
         });
     }
 
-    addExceptions = (exceptions: ExceptionWorkingHours[]) => {
-        this.roomService.addExceptions([this.room.id], exceptions).then((data) => {
-            this.room.calendarExceptionEvents = [...this.room.calendarExceptionEvents, ...data];
-        });
-    };
-
-    deleteException = (exception: ExceptionWorkingHours) => {
-        this.roomService.deleteException(this.room.id, exception.id).then(() => {
-            this.room.calendarExceptionEvents = this.room.calendarExceptionEvents.splice(
-                this.room.calendarExceptionEvents.indexOf(exception),
-                1,
-            );
-        });
-    };
-
     disableRoom = () => {
         this.roomService.disableRoom(this.room);
-    };
-
-    enableRoom = () => {
-        this.roomService.enableRoom(this.room);
-    };
-
-    validateInputAndUpdateRoom = (event: FocusEvent & { target: HTMLInputElement | HTMLTextAreaElement }) => {
-        const { name } = event.target;
-        const ctrl = this.roomForm.controls[name];
-        if (ctrl.valid) {
-            this.updateRoom();
-        }
     };
 
     validateAndUpdateRoom = () => {
