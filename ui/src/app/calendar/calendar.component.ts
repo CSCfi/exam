@@ -167,7 +167,6 @@ export class CalendarComponent implements OnInit {
                         isCollaborative: this.isCollaborative,
                     },
                 }),
-            error: (err) => this.toast.error(err),
         });
     }
 

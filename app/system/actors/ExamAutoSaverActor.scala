@@ -79,6 +79,7 @@ class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private v
         participation.setDeadline(deadline)
         participation.save()
         logger.info(s"Setting exam ${exam.getId} state to REVIEW")
+        exam.setState(Exam.State.REVIEW)
         exam.save()
         if exam.isPrivate then
           // Notify teachers
