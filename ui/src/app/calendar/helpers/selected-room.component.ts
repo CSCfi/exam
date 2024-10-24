@@ -41,25 +41,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 }
             </div>
         </div>
-        @if (thisWeeksMaintenancePeriods().length > 0) {
-            <div class="row mt-2">
-                <div class="col-md-2 col-12">{{ 'i18n_maintenance_periods' | translate }}:</div>
-                <div class="col-md-10 col-12">
-                    @for (period of thisWeeksMaintenancePeriods() | orderBy: 'startsAt'; track period.id) {
-                        <div>
-                            {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
-                            {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
-                            {{ period.description }}
-                            <span *ngIf="period.remote" class="text-danger">(remote)</span>
-                        </div>
-                    }
-                </div>
-            </div>
-        } @else {
-            <div class="row mt-2">
-                <div class="">{{ 'i18n_no_maintenance_periods_this_week' | translate }}</div>
-            </div>
-        }
         @if (exceptionHours().length > 0) {
             <div class="row mt-2">
                 <div class="col-md-2 col-12">{{ 'i18n_exception_datetimes' | translate }}:</div>
@@ -79,6 +60,25 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         } @else {
             <div class="row mt-2">
                 <div class="">{{ 'i18n_no_exceptions_this_week' | translate }}</div>
+            </div>
+        }
+        @if (thisWeeksMaintenancePeriods().length > 0) {
+            <div class="row mt-2">
+                <div class="col-md-2 col-12">{{ 'i18n_maintenance_periods' | translate }}:</div>
+                <div class="col-md-10 col-12">
+                    @for (period of thisWeeksMaintenancePeriods() | orderBy: 'startsAt'; track period.id) {
+                        <div>
+                            {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
+                            {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+                            {{ period.description }}
+                            <span *ngIf="period.remote" class="text-danger">(remote)</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        } @else {
+            <div class="row mt-2">
+                <div class="">{{ 'i18n_no_maintenance_periods_this_week' | translate }}</div>
             </div>
         }
         @if (getRoomInstructions()) {
