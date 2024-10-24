@@ -38,6 +38,7 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="course.code"
                             text="i18n_course_code"
+                            [sliced]="true"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('course.code')"
@@ -67,6 +68,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="{{ column.property }}"
                                 text="{{ column.text }}"
+                                [sliced]="!!column.sliced"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate(column.property)"
@@ -82,8 +84,8 @@ SPDX-License-Identifier: EUPL-1.2
                             (click)="setPredicate('ownerAggregate')"
                         ></xm-table-sort>
                     </th>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
+                    <th class="with-top">{{ 'i18n_remove' | translate }}</th>
+                    <th class="with-top">{{ 'i18n_copy' | translate }}</th>
                 </tr>
             </thead>
 
@@ -160,25 +162,23 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <td class="text-center">
                             @if (isOwner(exam)) {
-                                <a (click)="deleteExam(exam)" class="pointer">
-                                    <i
-                                        class="bi-trash text-dark"
-                                        ngbPopover="{{ 'i18n_exam_remove' | translate }}"
-                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                        triggers="mouseenter:mouseleave"
-                                    ></i>
-                                </a>
+                                <button
+                                    (click)="deleteExam(exam)"
+                                    class="pointer btn btn-link"
+                                    [attr.aria-label]="'i18n_exam_remove' | translate"
+                                >
+                                    <i class="bi-trash text-dark" aria-hidden="true"></i>
+                                </button>
                             }
                         </td>
                         <td class="text-center">
-                            <a class="pointer" (click)="copyExam(exam)">
-                                <i
-                                    class="bi-files text-dark"
-                                    ngbPopover="{{ 'i18n_copy' | translate }}"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                ></i>
-                            </a>
+                            <button
+                                class="pointer btn btn-link"
+                                (click)="copyExam(exam)"
+                                [attr.aria-label]="'i18n_copy' | translate"
+                            >
+                                <i class="bi-files text-dark" aria-hidden="true"></i>
+                            </button>
                         </td>
                     </tr>
                 }
