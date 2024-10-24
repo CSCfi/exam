@@ -22,7 +22,7 @@ export class TableSortComponent {
     @Input() predicate = '';
     @Input() text = '';
     @Input() reverse = false;
-    @Input() sliced: boolean | string = false;
+    @Input() sliced = false;
 
     getSortClass = () =>
         this.by === this.predicate ? (this.reverse ? 'bi-sort-alpha-down' : 'bi-sort-alpha-up') : 'bi-arrow-down-up';

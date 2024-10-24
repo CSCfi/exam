@@ -106,6 +106,7 @@ export class TeacherDashboardComponent implements OnInit {
                 property: 'assessedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: true,
+                sliced: true,
             },
         ];
     }

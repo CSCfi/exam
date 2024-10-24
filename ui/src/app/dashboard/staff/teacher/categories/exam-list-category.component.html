@@ -38,7 +38,7 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="course.code"
                             text="i18n_course_code"
-                            sliced="{{ true }}"
+                            [sliced]="true"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('course.code')"
@@ -68,7 +68,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="{{ column.property }}"
                                 text="{{ column.text }}"
-                                sliced="{{ !!column.sliced }}"
+                                [sliced]="!!column.sliced"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate(column.property)"
