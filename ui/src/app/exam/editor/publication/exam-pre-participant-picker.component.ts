@@ -38,7 +38,7 @@ import { User } from 'src/app/session/session.model';
         </div>
 
         <div class="row mt-1">
-            <span class="row col-md-9 offset-md-3 w-auto text-break">
+            <span class="col-md-9 mt-2 offset-md-3 w-auto text-break">
                 {{ 'i18n_maturity_exam_participants_info' | translate }}
                 @if (exam.state === 'PUBLISHED') {
                     {{ 'i18n_exam_published' | translate }}

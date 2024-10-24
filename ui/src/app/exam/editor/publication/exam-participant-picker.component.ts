@@ -20,7 +20,7 @@ import type { User } from 'src/app/session/session.model';
 
 @Component({
     selector: 'xm-exam-participant-selector',
-    template: `<div class="row">
+    template: ` <div class="row">
             <div class="col-md-9 offset-md-3">
                 <input
                     type="text"
@@ -39,7 +39,7 @@ import type { User } from 'src/app/session/session.model';
         </div>
 
         <div class="row mt-1">
-            <span class="row col-md-9 w-auto text-break mt-3">
+            <span class="col-md-9 offset-md-3 w-auto text-break mt-2">
                 {{ 'i18n_maturity_exam_participants_info' | translate }}
                 @if (exam.state === 'PUBLISHED') {
                     {{ 'i18n_exam_published' | translate }}

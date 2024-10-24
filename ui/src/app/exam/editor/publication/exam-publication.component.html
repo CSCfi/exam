@@ -186,7 +186,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
 
         <!-- Participant selections -->
-        @if (exam.executionType.type !== 'PUBLIC') {
+        @if (exam.executionType.type !== 'PUBLIC' || collaborative()) {
             <xm-exam-publication-participants
                 [collaborative]="collaborative()"
                 [exam]="exam"

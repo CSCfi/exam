@@ -118,7 +118,6 @@ export class CollaborativeAssesmentService {
                 );
                 dialog.subscribe({
                     next: () => this.sendAssessment(newState, payload, messages, participation, id, ref),
-                    error: (err) => this.toast.error(err),
                 });
             }
         }
