@@ -8,26 +8,18 @@ import impl.mail.EmailComposer
 import io.ebean.DB
 import miscellaneous.config.ConfigReader
 import models.user.User
-import org.apache.pekko.actor.ActorRef
-import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.actor.Cancellable
-import org.joda.time.DateTime
-import org.joda.time.DateTimeConstants
-import org.joda.time.DateTimeZone
-import org.joda.time.Seconds
+import org.apache.pekko.actor.{ActorRef, ActorSystem, Cancellable}
+import org.joda.time.{DateTime, DateTimeConstants, DateTimeZone, Seconds}
 import play.api.inject.ApplicationLifecycle
 import play.api.{Environment, Logging, Mode}
 import repository.DatabaseExecutionContext
 
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Named
-import javax.inject.Singleton
+import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
-import scala.concurrent.duration.FiniteDuration
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.control.Exception.catching
 
 @Singleton

@@ -63,17 +63,16 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
                     </label>
                 </div>
             </div>
-        }
-        <!-- Exam participants -->
-        @if (visibleParticipantSelector() === 'participant') {
-            <xm-exam-participant-selector [exam]="exam()"></xm-exam-participant-selector>
-        }
+            <!-- Exam participants -->
+            @if (visibleParticipantSelector() === 'participant') {
+                <xm-exam-participant-selector [exam]="exam()"></xm-exam-participant-selector>
+            }
 
-        <!-- Exam pre-participants -->
-        @if (visibleParticipantSelector() === 'pre-participant') {
-            <xm-exam-pre-participant-selector [exam]="exam()"></xm-exam-pre-participant-selector>
+            <!-- Exam pre-participants -->
+            @if (visibleParticipantSelector() === 'pre-participant') {
+                <xm-exam-pre-participant-selector [exam]="exam()"></xm-exam-pre-participant-selector>
+            }
         }
-
         @if (collaborative()) {
             <xm-collaborative-exam-owner-selector [exam]="exam()"> </xm-collaborative-exam-owner-selector>
             <xm-exam-organisation-selector [exam]="exam()"></xm-exam-organisation-selector>
