@@ -9,8 +9,8 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'xm-table-sort',
     template: `
-        <span class="pointer"
-            >{{ text | translate }}&nbsp;
+        <span class="pointer" [attr.arial-label]="text | translate" [title]="text | translate">
+            {{ sliced ? (text | translate).slice(0, 3) + '.' : (text | translate) }}&nbsp;
             <i [ngClass]="getSortClass()"></i>
         </span>
     `,
@@ -22,6 +22,7 @@ export class TableSortComponent {
     @Input() predicate = '';
     @Input() text = '';
     @Input() reverse = false;
+    @Input() sliced = false;
 
     getSortClass = () =>
         this.by === this.predicate ? (this.reverse ? 'bi-sort-alpha-down' : 'bi-sort-alpha-up') : 'bi-arrow-down-up';

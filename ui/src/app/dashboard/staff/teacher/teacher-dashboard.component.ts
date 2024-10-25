@@ -68,12 +68,14 @@ export class TeacherDashboardComponent implements OnInit {
                 property: 'unassessedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
+                sliced: true,
             },
             {
                 text: 'i18n_participation_unfinished',
                 property: 'unfinishedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
+                sliced: true,
             },
             {
                 text: 'i18n_dashboard_title_waiting_reservation',
@@ -88,12 +90,14 @@ export class TeacherDashboardComponent implements OnInit {
                 property: 'unassessedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
+                sliced: true,
             },
             {
                 text: 'i18n_participation_unfinished',
                 property: 'unfinishedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
+                sliced: true,
             },
         ];
         this.archivedExtraData = [
@@ -102,6 +106,7 @@ export class TeacherDashboardComponent implements OnInit {
                 property: 'assessedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: true,
+                sliced: true,
             },
         ];
     }
