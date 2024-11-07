@@ -204,8 +204,9 @@ class ExternalCourseHandlerImpl @Inject (
       if date.isBeforeNow then Left("too late") else Right(Some(date))
 
   private def queryRequest(url: URL) =
-    val host  = url.toString.split("\\?").head
-    val query = url.getQuery.split("&").collectFirst { case s"$k=$v" => k -> v }
+    val host = url.toString.split("\\?").head
+    val query =
+      url.getQuery.split("&").collectFirst { case s"$k=$v" => k -> URLDecoder.decode(v, StandardCharsets.UTF_8) }
     val request = query match
       case None     => wsClient.url(host)
       case Some(qp) => wsClient.url(host).withQueryStringParameters(qp)
