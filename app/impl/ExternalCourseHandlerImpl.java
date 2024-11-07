@@ -21,10 +21,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import io.ebean.DB;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -144,7 +142,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         URL url = parseUrl(user);
         WSRequest request = wsClient.url(url.toString().split("\\?")[0]);
         if (url.getQuery() != null) {
-            request = request.setQueryString(url.getQuery());
+            // Ws Client does encode the query so we need to decode it back first, bit dumb though
+            request = request.setQueryString(URLDecoder.decode(url.getQuery(), Charset.defaultCharset()));
         }
         if (configReader.isApiKeyUsed()) {
             request = request.addHeader(configReader.getApiKeyName(), configReader.getApiKeyValue());
