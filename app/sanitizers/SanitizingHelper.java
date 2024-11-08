@@ -16,7 +16,8 @@ public final class SanitizingHelper {
     private static final Safelist SAFELIST = Safelist.relaxed()
         .addAttributes("a", "target")
         .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
-        .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption");
+        .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption")
+        .addAttributes("abbr", "title", "id");
 
     private SanitizingHelper() {}
 
@@ -56,7 +57,7 @@ public final class SanitizingHelper {
                 value = type.cast(field.toString());
             }
         }
-        return Optional.ofNullable(value);
+        return value == null ? Optional.empty() : Optional.of(value);
     }
 
     public static <T> T parse(String fieldName, JsonNode node, Class<T> type, T defaultValue) {

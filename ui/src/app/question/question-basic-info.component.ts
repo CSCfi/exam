@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
@@ -11,7 +11,7 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 
 @Component({
     standalone: true,
-    imports: [TranslateModule, FormsModule, NgClass, NgbPopoverModule, UpperCasePipe, CKEditorComponent],
+    imports: [TranslateModule, FormsModule, NgbPopoverModule, UpperCasePipe, CKEditorComponent],
     selector: 'xm-question-basic-info',
     styles: '.initial-width { width: initial !important; }',
     template: ` @if (questionId()) {
@@ -84,10 +84,9 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
                         name="editor"
                         rows="10"
                         cols="50"
-                        #ck="ngModel"
                         [enableClozeTest]="question()?.type === 'ClozeTestQuestion'"
-                        [ngModel]="question()?.question"
-                        (ngModelChange)="textChanged($event)"
+                        [data]="question()?.question || ''"
+                        (dataChange)="textChanged($event)"
                         [required]="true"
                     >
                     </xm-ckeditor>

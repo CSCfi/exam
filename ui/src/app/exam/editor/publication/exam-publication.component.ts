@@ -26,7 +26,6 @@ import { CollaborativeExamOwnerSelectorComponent } from './collaborative-exam-ow
 import { CustomDurationPickerDialogComponent } from './custom-duration-picker-dialog.component';
 import { ExamPublicationParticipantsComponent } from './exam-publication-participants.component';
 import { ExaminationEventsComponent } from './examination-events.component';
-import { OrganisationSelectorComponent } from './organisation-picker.component';
 import { PublicationDialogComponent } from './publication-dialog.component';
 import { PublicationErrorDialogComponent } from './publication-error-dialog.component';
 import { PublicationRevocationDialogComponent } from './publication-revocation-dialog.component';
@@ -42,7 +41,6 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
         NgClass,
         ExamPublicationParticipantsComponent,
         CollaborativeExamOwnerSelectorComponent,
-        OrganisationSelectorComponent,
         ExaminationEventsComponent,
         UpperCasePipe,
         DatePipe,
