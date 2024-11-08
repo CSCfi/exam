@@ -18,7 +18,7 @@
     "prepare": "lefthook install",
     "check-format": "prettier --check \"ui/src/app/**/*.{ts,html}\" --check \"{app,test}/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
     "check-lint": "ng lint",
-    "cp:assets": "cp -R node_modules/mathjax ui/src/assets/components/vendor"
+    "cp:assets": "cp -R node_modules/mathjax ui/src/assets/vendor && cp node_modules/@ckeditor/ckeditor5-inspector/build/inspector.js ui/src/assets/vendor"
   },
   "dependencies": {
     "@angular/animations": "^18.1.4",
@@ -31,6 +31,7 @@
     "@angular/platform-browser": "^18.1.4",
     "@angular/platform-browser-dynamic": "^18.1.4",
     "@angular/router": "^18.1.4",
+    "@ckeditor/ckeditor5-angular": "^9.0.0",
     "@fullcalendar/angular": "^6.1.15",
     "@fullcalendar/luxon2": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
@@ -41,6 +42,7 @@
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.4.3",
+    "ckeditor5": "^43.3.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "date-fns": "^3.6.0",
     "file-saver-es": "^2.0.5",
@@ -61,6 +63,7 @@
     "@angular-eslint/template-parser": "^18.2.0",
     "@angular/cli": "^18.1.4",
     "@angular/compiler-cli": "^18.1.4",
+    "@ckeditor/ckeditor5-inspector": "^4.1.0",
     "@types/ckeditor": "^4.9.10",
     "@types/file-saver-es": "^2.0.1",
     "@types/jasmine": "^3.10.0",
