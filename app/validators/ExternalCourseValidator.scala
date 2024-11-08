@@ -9,10 +9,10 @@ import play.api.libs.json.Reads._
 import play.api.libs.json._
 
 object ExternalCourseValidator:
-  val asInt: Reads[Int]       = implicitly[Reads[String]].map(_.toInt)
-  val asString: Reads[String] = implicitly[Reads[Int]].map(_.toString)
-  val readInt: Reads[String]  = implicitly[Reads[String]].orElse(asString)
-  val readString: Reads[Int]  = implicitly[Reads[Int]].orElse(asInt)
+  private val asInt: Reads[Int]       = implicitly[Reads[String]].map(_.toInt)
+  private val asString: Reads[String] = implicitly[Reads[Int]].map(_.toString)
+  private val readInt: Reads[String]  = implicitly[Reads[String]].orElse(asString)
+  private val readString: Reads[Int]  = implicitly[Reads[Int]].orElse(asInt)
 
   object Grade:
     val asBoolean: Reads[Boolean]  = implicitly[Reads[String]].map(_.toBoolean)
@@ -64,8 +64,8 @@ object ExternalCourseValidator:
   case class CreditLanguage(name: String)
 
   object CourseUnitInfo:
-    val asScales: Reads[Seq[GradeScale]]  = implicitly[Reads[GradeScale]].map(Seq(_))
-    val readScale: Reads[Seq[GradeScale]] = implicitly[Reads[Seq[GradeScale]]].orElse(asScales)
+    private val asScales: Reads[Seq[GradeScale]]  = implicitly[Reads[GradeScale]].map(Seq(_))
+    private val readScale: Reads[Seq[GradeScale]] = implicitly[Reads[Seq[GradeScale]]].orElse(asScales)
     implicit val cuiReads: Reads[CourseUnitInfo] = (
       (JsPath \ "identifier").read[String](readInt) and
         (JsPath \ "courseUnitCode").read[String] and

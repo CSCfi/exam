@@ -2,132 +2,308 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-/// <reference types="ckeditor" />
-
-import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
-import { Component, DOCUMENT, ElementRef, Input, NgZone, ViewChild, forwardRef, inject } from '@angular/core';
-import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
+import { NgIf } from '@angular/common';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+    BlurEvent,
+    ChangeEvent,
+    CKEditorModule,
+    CKEditorComponent as EditorComponent,
+} from '@ckeditor/ckeditor5-angular';
 import { TranslateService } from '@ngx-translate/core';
-import { debounce } from 'src/app/shared/miscellaneous/helpers';
+import {
+    AccessibilityHelp,
+    Alignment,
+    Autoformat,
+    AutoLink,
+    Autosave,
+    BalloonToolbar,
+    BlockQuote,
+    Bold,
+    ClassicEditor,
+    Code,
+    CodeBlock,
+    Editor,
+    EditorConfig,
+    Essentials,
+    FindAndReplace,
+    GeneralHtmlSupport,
+    Heading,
+    Highlight,
+    HorizontalLine,
+    Indent,
+    IndentBlock,
+    Italic,
+    Link,
+    List,
+    ListProperties,
+    Paragraph,
+    PasteFromOffice,
+    RemoveFormat,
+    SelectAll,
+    SourceEditing,
+    SpecialCharacters,
+    SpecialCharactersArrows,
+    SpecialCharactersCurrency,
+    SpecialCharactersEssentials,
+    SpecialCharactersLatin,
+    SpecialCharactersMathematical,
+    SpecialCharactersText,
+    Strikethrough,
+    Subscript,
+    Superscript,
+    Table,
+    TableCaption,
+    TableCellProperties,
+    TableColumnResize,
+    TableProperties,
+    TableToolbar,
+    TextTransformation,
+    TodoList,
+    Underline,
+    Undo,
+    WordCount,
+} from 'ckeditor5';
+import i18nEn from 'ckeditor5/translations/en.js';
+import i18nFi from 'ckeditor5/translations/fi.js';
+import i18nSv from 'ckeditor5/translations/sv.js';
+import Cloze from './plugins/clozetest/plugin';
 
 @Component({
     selector: 'xm-ckeditor',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => CKEditorComponent),
-            multi: true,
-        },
-    ],
-    template: ` <textarea #host [required]="required"></textarea> `,
+    template: `<div id="editor">
+        <ckeditor
+            *ngIf="isLayoutReady"
+            #cke
+            [required]="required"
+            [editor]="editor"
+            [config]="editorConfig"
+            tagName="textarea"
+            [(ngModel)]="data"
+            (ready)="onReady($event)"
+            (change)="onChange($event)"
+            (blur)="onBlur($event)"
+        ></ckeditor>
+        <div id="word-count"></div>
+    </div> `,
     standalone: true,
-    styles: [
-        `
-            .marker {
-                background-color: yellow;
-            }
-        `,
-    ],
+    imports: [FormsModule, NgIf, CKEditorModule],
 })
-export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDestroy, ControlValueAccessor {
-    @ViewChild('host', { static: false }) host!: ElementRef;
+export class CKEditorComponent implements AfterViewInit {
+    @Input() data = '';
     @Input() required = false;
     @Input() enableClozeTest = false;
+    @Output() dataChange = new EventEmitter<string>();
+    @ViewChild('cke') component!: EditorComponent;
 
-    instance!: CKEDITOR.editor | null;
-    _value = '';
-    onChange!: (_: string) => unknown;
-    onTouched!: () => unknown;
+    editor = ClassicEditor;
+    editorConfig!: EditorConfig;
 
-    private zone = inject(NgZone);
-    private translate = inject(TranslateService);
-    private document = inject<Document>(DOCUMENT);
+    isLayoutReady = false;
 
-    @Input()
-    get value(): string {
-        return this._value;
-    }
-    set value(v) {
-        if (v !== this._value) {
-            this._value = v;
-            this.onChange(v);
+    constructor(
+        private changeDetector: ChangeDetectorRef,
+        private Translate: TranslateService,
+    ) {}
+
+    ngAfterViewInit() {
+        const toolbarItems = [
+            'undo',
+            'redo',
+            'findAndReplace',
+            '|',
+            'link', // cloze plugin comes here if enabled
+            '|',
+            'heading',
+            '|',
+            'bold',
+            'italic',
+            'underline',
+            'strikethrough',
+            'subscript',
+            'superscript',
+            'code',
+            'removeFormat',
+            '|',
+            'specialCharacters',
+            'horizontalLine',
+            'insertTable',
+            'highlight',
+            'blockQuote',
+            'codeBlock',
+            '|',
+            'alignment',
+            '|',
+            'bulletedList',
+            'numberedList',
+            'todoList',
+            'outdent',
+            'indent',
+            '|',
+            'sourceEditing',
+        ];
+        if (this.enableClozeTest) {
+            toolbarItems.splice(5, 0, 'cloze');
         }
+        this.editorConfig = {
+            toolbar: {
+                items: toolbarItems,
+                shouldNotGroupWhenFull: true,
+            },
+            plugins: [
+                AccessibilityHelp,
+                Alignment,
+                Autoformat,
+                AutoLink,
+                Autosave,
+                BalloonToolbar,
+                BlockQuote,
+                Bold,
+                Code,
+                CodeBlock,
+                Essentials,
+                FindAndReplace,
+                GeneralHtmlSupport,
+                Heading,
+                Highlight,
+                HorizontalLine,
+                Indent,
+                IndentBlock,
+                Italic,
+                Link,
+                List,
+                ListProperties,
+                Paragraph,
+                PasteFromOffice,
+                RemoveFormat,
+                SelectAll,
+                SourceEditing,
+                SpecialCharacters,
+                SpecialCharactersArrows,
+                SpecialCharactersCurrency,
+                SpecialCharactersEssentials,
+                SpecialCharactersLatin,
+                SpecialCharactersMathematical,
+                SpecialCharactersText,
+                Strikethrough,
+                Subscript,
+                Superscript,
+                Table,
+                TableCaption,
+                TableCellProperties,
+                TableColumnResize,
+                TableProperties,
+                TableToolbar,
+                TextTransformation,
+                TodoList,
+                Underline,
+                Undo,
+                WordCount,
+                Cloze,
+            ],
+            balloonToolbar: ['bold', 'italic', '|', 'link', '|', 'bulletedList', 'numberedList'],
+            heading: {
+                options: [
+                    {
+                        model: 'paragraph',
+                        title: 'Paragraph',
+                        class: 'ck-heading_paragraph',
+                    },
+                    {
+                        model: 'heading1',
+                        view: 'h1',
+                        title: 'Heading 1',
+                        class: 'ck-heading_heading1',
+                    },
+                    {
+                        model: 'heading2',
+                        view: 'h2',
+                        title: 'Heading 2',
+                        class: 'ck-heading_heading2',
+                    },
+                    {
+                        model: 'heading3',
+                        view: 'h3',
+                        title: 'Heading 3',
+                        class: 'ck-heading_heading3',
+                    },
+                    {
+                        model: 'heading4',
+                        view: 'h4',
+                        title: 'Heading 4',
+                        class: 'ck-heading_heading4',
+                    },
+                    {
+                        model: 'heading5',
+                        view: 'h5',
+                        title: 'Heading 5',
+                        class: 'ck-heading_heading5',
+                    },
+                    {
+                        model: 'heading6',
+                        view: 'h6',
+                        title: 'Heading 6',
+                        class: 'ck-heading_heading6',
+                    },
+                ],
+            },
+            htmlSupport: {
+                allow: [
+                    {
+                        name: /^.*$/,
+                        styles: true,
+                        attributes: true,
+                        classes: true,
+                    },
+                ],
+            },
+            link: {
+                addTargetToExternalLinks: true,
+                defaultProtocol: 'https://',
+                decorators: {
+                    toggleDownloadable: {
+                        mode: 'manual',
+                        label: 'Downloadable',
+                        attributes: {
+                            download: 'file',
+                        },
+                    },
+                },
+            },
+            menuBar: {
+                isVisible: true,
+            },
+            language: { ui: this.Translate.currentLang },
+            placeholder: 'Type or paste your content here!',
+            table: {
+                contentToolbar: [
+                    'tableColumn',
+                    'tableRow',
+                    'mergeTableCells',
+                    'tableProperties',
+                    'tableCellProperties',
+                ],
+            },
+            translations: [i18nFi, i18nSv, i18nEn],
+        };
+        this.isLayoutReady = true;
+        this.changeDetector.detectChanges();
     }
 
-    updateValue(value: string) {
-        this.zone.run(() => {
-            this.onChange(value);
-            this.onTouched();
-            this.value = value;
-        });
+    onReady(e: Editor) {
+        const wordCountPlugin = e.plugins.get('WordCount');
+        const wordCountWrapper = document.getElementById('word-count') as HTMLElement;
+        wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
     }
 
-    editorInit() {
-        if (typeof CKEDITOR === 'undefined') {
-            console.warn('CKEditor 4.x is missing');
-        } else {
-            // Check textarea exists
-            if (this.instance || !this.documentContains(this.host.nativeElement)) {
-                return;
-            }
-            // We need to disable some paste tools when cloze test editing is ongoing. There's a risk that
-            // dysfunctional formatting gets pasted which can break the cloze test markup.
-            const removals = this.enableClozeTest ? 'Underline,Paste,PasteFromWord' : 'Underline,Cloze';
-            const config = { removeButtons: removals, language: this.translate.currentLang };
-
-            this.instance = CKEDITOR.replace(this.host.nativeElement, config);
-            this.instance.setData(this.value);
-            this.instance.on('instanceReady', () => {
-                // if value has changed while instance loading
-                // update instance with current component value
-                if (this.instance && this.instance.getData() !== this.value) {
-                    this.instance.setData(this.value);
-                }
-            });
-            const update = () => {
-                this.onTouched();
-                if (this.instance) this.updateValue(this.instance.getData());
-            };
-            setTimeout(() => {
-                this.instance?.on('change', debounce(update, 500));
-                this.instance?.on('dataReady', debounce(update, 500));
-                this.instance?.on('key', debounce(update, 500));
-                this.instance?.on('mode', update);
-            }, 500);
-        }
+    onChange({ editor }: ChangeEvent) {
+        const data = editor.getData();
+        this.dataChange.emit(data);
     }
 
-    ngAfterViewInit(): void {
-        this.editorInit();
+    onBlur({ editor }: BlurEvent) {
+        const data = editor.getData();
+        this.dataChange.emit(data);
     }
-
-    ngAfterViewChecked(): void {
-        this.editorInit();
-    }
-
-    ngOnDestroy() {
-        if (this.instance) {
-            this.instance.removeAllListeners();
-            CKEDITOR.instances[this.instance.name].destroy();
-            this.instance.destroy();
-            this.instance = null;
-        }
-    }
-
-    writeValue(value: string) {
-        this._value = value;
-        if (this.instance) {
-            this.instance.setData(value);
-        }
-    }
-
-    registerOnChange(fn: (_: unknown) => unknown): void {
-        this.onChange = fn;
-    }
-    registerOnTouched(fn: () => unknown): void {
-        this.onTouched = fn;
-    }
-
-    private documentContains = (n: Node) =>
-        this.document.contains ? this.document.contains(n) : this.document.body.contains(n);
 }

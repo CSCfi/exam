@@ -83,10 +83,9 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
                         name="editor"
                         rows="10"
                         cols="50"
-                        #ck="ngModel"
                         [enableClozeTest]="question()?.type === 'ClozeTestQuestion'"
-                        [ngModel]="question()?.question"
-                        (ngModelChange)="textChanged($event)"
+                        [data]="question()?.question || ''"
+                        (dataChange)="textChanged($event)"
                         [required]="true"
                     >
                     </xm-ckeditor>

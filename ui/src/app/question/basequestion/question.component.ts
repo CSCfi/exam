@@ -8,7 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { CanComponentDeactivate } from 'src/app/question/has-unsaved-changes.quard';
+import { CanComponentDeactivate } from 'src/app/question/has-unsaved-changes.guard';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
 import type { QuestionDraft } from 'src/app/question/question.model';
 import { ExamSectionQuestion, Question, ReverseQuestion } from 'src/app/question/question.model';

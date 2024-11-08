@@ -8,6 +8,9 @@
 @use 'bootstrap/scss/bootstrap';
 @use 'ngx-toastr/toastr';
 @use 'bootstrap-icons/font/bootstrap-icons.css';
+@use 'ckeditor5/ckeditor5.css';
+@use 'app/shared/ckeditor/ckeditor.styles.scss';
+
 /* fonts */
 @font-face {
     font-family: Arimo;
