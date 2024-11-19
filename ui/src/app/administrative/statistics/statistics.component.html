@@ -74,11 +74,7 @@ SPDX-License-Identifier: EUPL-1.2
                             class="form-control"
                             placeholder="{{ 'i18n_search' | translate }}"
                         />
-                        <div class="input-group-append">
-                            <span class="input-group-text">
-                                <i class="bi-search"></i>
-                            </span>
-                        </div>
+                        <div class="input-group-append bi-search search-append"></div>
                     </div>
                     @for (department of filteredDepartments; track department) {
                         <button

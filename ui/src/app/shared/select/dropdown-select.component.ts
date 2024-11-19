@@ -34,11 +34,7 @@ import { Option } from './select.model';
                         (input)="filterOptions()"
                         placeholder="{{ placeholder | translate }}"
                     />
-                    <div class="input-group-append">
-                        <span class="input-group-text">
-                            <i class="bi-search"></i>
-                        </span>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </div>
             }
             <button type="button" ngbDropdownItem *ngIf="allowClearing" (click)="clearSelection(); d.close()">
