@@ -7,18 +7,18 @@ import { ClozeCommand } from './command';
 
 export class ClozeEditing extends Plugin {
     init() {
-        this._defineSchema();
-        this._defineConverters();
+        this.defineSchema();
+        this.defineConverters();
         this.editor.commands.add('addCloze', new ClozeCommand(this.editor));
     }
-    _defineSchema() {
+    private defineSchema() {
         const schema = this.editor.model.schema;
 
         schema.extend('$text', {
             allowAttributes: ['ctCaseSensitive', 'ctNumeric', 'ctPrecision', 'ctId', 'ctCloze', 'ctClass'],
         });
     }
-    _defineConverters() {
+    private defineConverters() {
         const conversion = this.editor.conversion;
 
         // Conversion from a view element to a model attribute

@@ -14,15 +14,15 @@ export class ClozeCommand extends Command {
         if (selection.hasAttribute('ctCaseSensitive')) {
             const caseSensitiveValue = selection.getAttribute('ctCaseSensitive');
             const precisionValue = selection.getAttribute('ctPrecision');
-            const abbreviationRange = findAttributeRange(
+            const answerRange = findAttributeRange(
                 selection.getFirstPosition()!,
                 'ctCaseSensitive',
                 caseSensitiveValue,
                 model,
             );
             if (firstRange.isCollapsed) {
-                this.setValue(caseSensitiveValue, precisionValue, abbreviationRange);
-            } else if (abbreviationRange.containsRange(firstRange, true)) {
+                this.setValue(caseSensitiveValue, precisionValue, answerRange);
+            } else if (answerRange.containsRange(firstRange, true)) {
                 this.setValue(caseSensitiveValue, precisionValue, firstRange);
             } else {
                 this.value = null;
