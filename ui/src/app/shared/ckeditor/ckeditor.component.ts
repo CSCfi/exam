@@ -2,20 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-declare class CKEditorInspector {
-    static attach(editorOrConfig: Editor | Record<string, Editor>, options?: { isCollapsed?: boolean }): string[];
-}
-
 import { NgIf } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-    BlurEvent,
-    ChangeEvent,
-    CKEditorModule,
-    CKEditorComponent as EditorComponent,
-} from '@ckeditor/ckeditor5-angular';
-import '@ckeditor/ckeditor5-inspector';
+import { BlurEvent, ChangeEvent, CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { TranslateService } from '@ngx-translate/core';
 import {
     AccessibilityHelp,
@@ -100,7 +90,6 @@ export class CKEditorComponent implements AfterViewInit {
     @Input() required = false;
     @Input() enableClozeTest = false;
     @Output() dataChange = new EventEmitter<string>();
-    @ViewChild('cke') component!: EditorComponent;
 
     editor = ClassicEditor;
     editorConfig!: EditorConfig;
@@ -300,7 +289,7 @@ export class CKEditorComponent implements AfterViewInit {
         const wordCountPlugin = e.plugins.get('WordCount');
         const wordCountWrapper = document.getElementById('word-count') as HTMLElement;
         wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
-        CKEditorInspector.attach(e);
+        //CKEditorInspector.attach(e);
     }
 
     onChange({ editor }: ChangeEvent) {
