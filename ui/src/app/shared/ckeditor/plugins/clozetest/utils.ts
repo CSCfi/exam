@@ -10,6 +10,9 @@ import {
     Locale,
     Range,
 } from 'ckeditor5';
+import i18nEn from './lang/translations/en';
+import i18nFi from './lang/translations/fi';
+import i18nSv from './lang/translations/sv';
 
 export function getRangeText(range: Range) {
     return Array.from(range.getItems()).reduce((rangeText, node) => {
@@ -43,4 +46,15 @@ export function createButton(label: string, icon: string, className: string) {
     });
 
     return button;
+}
+
+export function _t(key: string, locale: Locale) {
+    switch (locale.uiLanguage) {
+        case 'fi':
+            return i18nFi[key];
+        case 'sv':
+            return i18nSv[key];
+        default:
+            return i18nEn[key];
+    }
 }

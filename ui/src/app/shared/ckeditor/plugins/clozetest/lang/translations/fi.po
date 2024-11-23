@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+#
+msgid ""
+msgstr ""
+"Language: fi\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgctxt "Tooltip text"
+msgid "Cloze Test"
+msgstr "Aukkotehtävä"
+
+msgctxt "Label for correct answer form field"
+msgid "Answer"
+msgstr "Oikea vastaus"
+
+msgctxt "Label for case-sensitivity selection slider"
+msgid "Case sensitive"
+msgstr "Onko pienillä ja isoilla kirjaimilla eroa (tekstimuotoisen vastauksen osalta)"
+
+msgctxt "Label for numeric type selection slider"
+msgid "Numeric"
+msgstr "Numeerinen vastaus"
+
+msgctxt "Label for answer precision form field"
+msgid "Precision"
+msgstr "Vaadittu tarkkuus (&plusmn; oikean vastauksen arvosta)"
+
+msgctxt "Tooltip for save button"
+msgid "Save"
+msgstr "Tallenna"
+
+msgctxt "Tooltip for cancel button"
+msgid "Cancel"
+msgstr "Peruuta"

@@ -7,7 +7,7 @@ import { Plugin } from 'ckeditor5';
 import { ClozeEditing } from './editing';
 import { ClozeUI } from './ui';
 
-export default class Cloze extends Plugin {
+export class Cloze extends Plugin {
     static get requires() {
         return [ClozeEditing, ClozeUI];
     }

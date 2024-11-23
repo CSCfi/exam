@@ -68,7 +68,7 @@ import {
 import i18nEn from 'ckeditor5/translations/en.js';
 import i18nFi from 'ckeditor5/translations/fi.js';
 import i18nSv from 'ckeditor5/translations/sv.js';
-import Cloze from './plugins/clozetest/plugin';
+import { Cloze } from './plugins/clozetest/plugin';
 
 @Component({
     selector: 'xm-ckeditor',
