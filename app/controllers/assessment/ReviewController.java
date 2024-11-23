@@ -422,8 +422,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Anonymous(filteredProperties = { "user" })
     public Result listNoShows(Long eid, Optional<Boolean> collaborative, Http.Request request) {
-        ExpressionList<ExamEnrolment> el = DB
-            .find(ExamEnrolment.class)
+        ExpressionList<ExamEnrolment> el = DB.find(ExamEnrolment.class)
             .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
             .fetch("collaborativeExam")
             .fetch("exam.executionType")

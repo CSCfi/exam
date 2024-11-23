@@ -18,7 +18,7 @@ import {
     icons,
     submitHandler,
 } from 'ckeditor5';
-import { createButton, createInput, createNumberInput } from './utils';
+import { _t, createButton, createInput, createNumberInput } from './utils';
 
 export class ClozeView extends View {
     answerInputView: LabeledFieldView<InputTextView>;
@@ -38,30 +38,30 @@ export class ClozeView extends View {
     constructor(locale: Locale) {
         super(locale);
 
-        this.answerInputView = createInput('Add answer', this.locale);
+        this.answerInputView = createInput(_t('Answer', locale), this.locale);
         this.caseInputView = new SwitchButtonView(this.locale);
         this.caseInputView.set({
-            label: 'Is the answer case sensitive',
+            label: _t('Case Sensitive', locale),
             withText: true,
         });
         this.caseInputView.on('execute', () => (this.caseInputView.isOn = !this.caseInputView.isOn));
         this.numericInputView = new SwitchButtonView(this.locale);
         this.numericInputView.set({
-            label: 'Is the answer of numeric type',
+            label: _t('Numeric', locale),
             withText: true,
         });
         this.numericInputView.on('execute', this.numericSettingChange);
 
-        this.precisionInputView = createNumberInput('Add precision', this.locale);
+        this.precisionInputView = createNumberInput(_t('Precision', locale), this.locale);
         // jos numeric päälle -> enabloi tarkkuus, disabloi case-sensitive
         // jos numeric pois päältä -> disabloi tarkkuus, enabloi case-sensitive
 
-        this.saveButtonView = createButton('Save', icons.check, 'ck-button-save');
+        this.saveButtonView = createButton(_t('Save', locale), icons.check, 'ck-button-save');
         // Submit type of the button will trigger the submit event on entire form when clicked
         // (see submitHandler() in render() below).
         this.saveButtonView.type = 'submit';
 
-        this.cancelButtonView = createButton('Cancel', icons.cancel, 'ck-button-cancel');
+        this.cancelButtonView = createButton(_t('Cancel', locale), icons.cancel, 'ck-button-cancel');
 
         // Delegate ButtonView#execute to FormView#cancel
         this.cancelButtonView.delegate('execute').to(this, 'cancel');

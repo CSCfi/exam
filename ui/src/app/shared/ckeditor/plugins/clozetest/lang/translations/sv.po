@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+#
+msgid ""
+msgstr ""
+"Language: sv\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgctxt "Tooltip text"
+msgid "Cloze Test"
+msgstr "Lucktest"
+
+msgctxt "Label for correct answer form field"
+msgid "Answer"
+msgstr "Rätt svar"
+
+msgctxt "Label for case-sensitivity selection slider"
+msgid "Case sensitive"
+msgstr "Är det skillnad mellan stor och liten bokstav (gäller endast svar i textform)"
+
+msgctxt "Label for numeric type selection slider"
+msgid "Numeric"
+msgstr "Numeriskt svar"
+
+msgctxt "Label for answer precision form field"
+msgid "Precision"
+msgstr "Krav på svarets precision (&plusmn; av värdet på det korrekta svaret)"
+
+msgctxt "Tooltip for save button"
+msgid "Save"
+msgstr "Spara"
+
+msgctxt "Tooltip for cancel button"
+msgid "Cancel"
+msgstr "Avbryt"
