@@ -18,7 +18,7 @@
         "prepare": "lefthook install",
         "check-format": "prettier --check \"ui/src/app/**/*.{ts,html}\" --check \"{app,test}/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
         "check-lint": "ng lint",
-        "cp:assets": "cp -R node_modules/mathjax ui/src/assets/vendor/mathjax && cp node_modules/@ckeditor/ckeditor5-inspector/build/inspector.js ui/src/assets/vendor"
+        "cp:assets": "cp -R node_modules/mathjax ui/src/assets/vendor/mathjax"
     },
     "dependencies": {
         "@angular/animations": "^18.1.4",
@@ -63,7 +63,6 @@
         "@angular-eslint/template-parser": "^18.2.0",
         "@angular/cli": "^18.1.4",
         "@angular/compiler-cli": "^18.1.4",
-        "@ckeditor/ckeditor5-inspector": "^4.1.0",
         "@types/ckeditor": "^4.9.10",
         "@types/file-saver-es": "^2.0.1",
         "@types/jasmine": "^3.10.0",

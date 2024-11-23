@@ -14,12 +14,9 @@ SPDX-License-Identifier: EUPL-1.2
             <label for="editor">{{ 'i18n_user_agreement' | translate }}</label>
             <xm-ckeditor
                 id="editor"
-                #ck="ngModel"
                 name="editor"
-                ck-editor
-                rows="10"
-                cols="80"
-                [(ngModel)]="config.eula"
+                [data]="config.eula"
+                (dataChange)="eulaChanged($event)"
             ></xm-ckeditor>
         </div>
     </div>

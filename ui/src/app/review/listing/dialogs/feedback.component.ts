@@ -23,9 +23,8 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
                 @if (exam.examFeedback !== null) {
                     <div class="col-md-12 ps-0">
                         <xm-ckeditor
-                            rows="10"
-                            #ck="ngModel"
-                            [(ngModel)]="exam.examFeedback.comment"
+                            [data]="exam.examFeedback.comment"
+                            (dataChange)="commentChanged($event)"
                             autofocus
                         ></xm-ckeditor>
                     </div>
@@ -55,6 +54,8 @@ export class SpeedReviewFeedbackComponent implements OnInit {
             this.exam.examFeedback = { comment: '' };
         }
     }
+
+    commentChanged = (event: string) => (this.exam.examFeedback.comment = event);
 
     ok = () => {
         if (!this.exam.examFeedback) {

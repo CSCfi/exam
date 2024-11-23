@@ -123,6 +123,8 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
         });
     };
 
+    enrollInstructionsChanged = (event: string) => (this.exam.enrollInstruction = event);
+
     getExecutionTypeTranslation = () => !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType);
 
     getExaminationTypeName = () => {

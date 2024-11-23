@@ -60,7 +60,7 @@ export interface LibraryQuestion extends ReverseQuestion {
 export interface EssayAnswer {
     id?: number;
     evaluatedScore?: number;
-    answer?: string;
+    answer: string;
     objectVersion?: number;
     attachment?: Attachment;
 }
