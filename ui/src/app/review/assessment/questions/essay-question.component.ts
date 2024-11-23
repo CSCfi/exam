@@ -68,10 +68,19 @@ export class EssayQuestionComponent implements OnInit {
 
     set scoreValue(value: number | undefined) {
         this._score = value;
+        const answer = this.sectionQuestion.essayAnswer!.answer;
         if (!this.form || this.form.valid) {
-            this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: value };
+            this.sectionQuestion.essayAnswer = {
+                ...this.sectionQuestion.essayAnswer,
+                evaluatedScore: value,
+                answer: answer,
+            };
         } else {
-            this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: undefined };
+            this.sectionQuestion.essayAnswer = {
+                ...this.sectionQuestion.essayAnswer,
+                evaluatedScore: undefined,
+                answer: answer,
+            };
         }
     }
 
@@ -79,7 +88,7 @@ export class EssayQuestionComponent implements OnInit {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
         if (!this.sectionQuestion.essayAnswer) {
-            this.sectionQuestion.essayAnswer = { id: 0 };
+            this.sectionQuestion.essayAnswer = { answer: '' };
         }
         this.scoreValue = this.sectionQuestion.essayAnswer.evaluatedScore;
     }

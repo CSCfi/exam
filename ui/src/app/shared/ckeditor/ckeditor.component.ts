@@ -3,14 +3,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgIf } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-    BlurEvent,
-    ChangeEvent,
-    CKEditorModule,
-    CKEditorComponent as EditorComponent,
-} from '@ckeditor/ckeditor5-angular';
+import { BlurEvent, ChangeEvent, CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { TranslateService } from '@ngx-translate/core';
 import {
     AccessibilityHelp,
@@ -95,17 +90,14 @@ export class CKEditorComponent implements AfterViewInit {
     @Input() required = false;
     @Input() enableClozeTest = false;
     @Output() dataChange = new EventEmitter<string>();
-    @ViewChild('cke') component!: EditorComponent;
 
     editor = ClassicEditor;
     editorConfig!: EditorConfig;
 
     isLayoutReady = false;
 
-    constructor(
-        private changeDetector: ChangeDetectorRef,
-        private Translate: TranslateService,
-    ) {}
+    private changeDetector = inject(ChangeDetectorRef);
+    private Translate = inject(TranslateService);
 
     ngAfterViewInit() {
         const toolbarItems = [
@@ -295,6 +287,7 @@ export class CKEditorComponent implements AfterViewInit {
         const wordCountPlugin = e.plugins.get('WordCount');
         const wordCountWrapper = document.getElementById('word-count') as HTMLElement;
         wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+        //CKEditorInspector.attach(e);
     }
 
     onChange({ editor }: ChangeEvent) {

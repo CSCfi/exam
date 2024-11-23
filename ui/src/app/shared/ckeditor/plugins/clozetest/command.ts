@@ -14,6 +14,7 @@ export class ClozeCommand extends Command {
         if (selection.hasAttribute('ctCaseSensitive')) {
             const caseSensitiveValue = selection.getAttribute('ctCaseSensitive');
             const precisionValue = selection.getAttribute('ctPrecision');
+            const numericValue = selection.getAttribute('ctNumeric');
             const answerRange = findAttributeRange(
                 selection.getFirstPosition()!,
                 'ctCaseSensitive',
@@ -21,9 +22,9 @@ export class ClozeCommand extends Command {
                 model,
             );
             if (firstRange.isCollapsed) {
-                this.setValue(caseSensitiveValue, precisionValue, answerRange);
+                this.setValue(caseSensitiveValue, precisionValue, numericValue, answerRange);
             } else if (answerRange.containsRange(firstRange, true)) {
-                this.setValue(caseSensitiveValue, precisionValue, firstRange);
+                this.setValue(caseSensitiveValue, precisionValue, numericValue, firstRange);
             } else {
                 this.value = null;
             }
@@ -38,11 +39,9 @@ export class ClozeCommand extends Command {
 
     override execute({ text, caseSensitive, numeric, precision }: CommandValue) {
         const model = this.editor.model;
-        const hasId = model.document.selection.hasAttribute('ckId');
-        console.log(hasId);
         model.change((writer) => {
             model.insertContent(
-                writer.createText(text, {
+                writer.createText(text.trim(), {
                     ctCaseSensitive: caseSensitive,
                     ctPrecision: precision || 0,
                     ctNumeric: numeric,
@@ -55,11 +54,12 @@ export class ClozeCommand extends Command {
             writer.insertText(' ', model.document.selection.getFirstPosition()!);
         });
     }
-    private setValue = (caseSensitive: unknown, precision: unknown, range: Range) =>
+    private setValue = (caseSensitive: unknown, precision: unknown, numeric: unknown, range: Range) =>
         (this.value = {
             text: getRangeText(range),
             caseSensitive: caseSensitive,
             precision: precision,
+            numeric: numeric,
             range: range,
         });
 

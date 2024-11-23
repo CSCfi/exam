@@ -45,12 +45,9 @@ import { FileService } from 'src/app/shared/file/file.service';
             <div class="row mt-2 mb-1">
                 <div class="col-md-12">
                     <xm-ckeditor
-                        [enableClozeTest]="false"
-                        [(ngModel)]="exam.languageInspection.statement.comment"
-                        #ck="ngModel"
+                        [data]="exam.languageInspection.statement.comment"
+                        (dataChange)="commentChanged($event)"
                         name="ck"
-                        rows="10"
-                        cols="80"
                     ></xm-ckeditor>
                 </div>
             </div>
@@ -92,6 +89,8 @@ export class StatementComponent {
     get fixPosition() {
         return this.Assessment.fixPosition;
     }
+
+    commentChanged = (event: string) => (this.exam.languageInspection.statement.comment = event);
 
     hasGoneThroughLanguageInspection = () => this.exam.languageInspection?.finishedAt;
 

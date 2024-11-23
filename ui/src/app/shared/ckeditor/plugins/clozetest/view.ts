@@ -22,8 +22,8 @@ import { _t, createButton, createInput, createNumberInput } from './utils';
 
 export class ClozeView extends View {
     answerInputView: LabeledFieldView<InputTextView>;
-    caseInputView: SwitchButtonView;
-    numericInputView: SwitchButtonView;
+    caseButtonView: SwitchButtonView;
+    numericButtonView: SwitchButtonView;
     precisionInputView: LabeledFieldView<InputNumberView>;
 
     saveButtonView: ButtonView;
@@ -35,41 +35,38 @@ export class ClozeView extends View {
     focusCycler: FocusCycler;
     keystrokes = new KeystrokeHandler();
 
+    _error = false;
+
     constructor(locale: Locale) {
         super(locale);
 
-        this.answerInputView = createInput(_t('Answer', locale), this.locale);
-        this.caseInputView = new SwitchButtonView(this.locale);
-        this.caseInputView.set({
-            label: _t('Case Sensitive', locale),
+        this.answerInputView = createInput(_t('answerLabel', locale), locale);
+        this.caseButtonView = new SwitchButtonView(this.locale);
+        this.caseButtonView.set({
+            label: _t('caseSensitiveLabel', locale),
+            tooltip: _t('caseSensitiveTip', locale),
             withText: true,
         });
-        this.caseInputView.on('execute', () => (this.caseInputView.isOn = !this.caseInputView.isOn));
-        this.numericInputView = new SwitchButtonView(this.locale);
-        this.numericInputView.set({
-            label: _t('Numeric', locale),
+        this.caseButtonView.on('execute', () => (this.caseButtonView.isOn = !this.caseButtonView.isOn));
+        this.numericButtonView = new SwitchButtonView(this.locale);
+        this.numericButtonView.set({
+            label: _t('numericLabel', locale),
             withText: true,
         });
-        this.numericInputView.on('execute', this.numericSettingChange);
+        this.numericButtonView.on('execute', this.numericSettingChange);
+        this.precisionInputView = createNumberInput(_t('precisionLabel', locale), locale, _t('precisionTip', locale));
 
-        this.precisionInputView = createNumberInput(_t('Precision', locale), this.locale);
-        // jos numeric päälle -> enabloi tarkkuus, disabloi case-sensitive
-        // jos numeric pois päältä -> disabloi tarkkuus, enabloi case-sensitive
-
-        this.saveButtonView = createButton(_t('Save', locale), icons.check, 'ck-button-save');
-        // Submit type of the button will trigger the submit event on entire form when clicked
-        // (see submitHandler() in render() below).
-        this.saveButtonView.type = 'submit';
-
-        this.cancelButtonView = createButton(_t('Cancel', locale), icons.cancel, 'ck-button-cancel');
-
-        // Delegate ButtonView#execute to FormView#cancel
+        this.saveButtonView = createButton(_t('save', locale), icons.check, 'ck-button-save');
+        this.saveButtonView.type = 'submit'; // (see submitHandler() in render() below).
+        // unfortunately it seems that input view value changes do not fire events, pretty hard to do validation :(
+        this.saveButtonView.bind('isEnabled').to(this.answerInputView, 'errorText', (e) => e === null);
+        this.cancelButtonView = createButton(_t('cancel', locale), icons.cancel, 'ck-button-cancel');
         this.cancelButtonView.delegate('execute').to(this, 'cancel');
 
         this.childViews = this.createCollection([
             this.answerInputView,
-            this.caseInputView,
-            this.numericInputView,
+            this.caseButtonView,
+            this.numericButtonView,
             this.precisionInputView,
             this.saveButtonView,
             this.cancelButtonView,
@@ -79,20 +76,12 @@ export class ClozeView extends View {
             focusables: this.childViews,
             focusTracker: this.focusTracker,
             keystrokeHandler: this.keystrokes,
-            actions: {
-                // Navigate form fields backwards using the Shift + Tab keystroke.
-                focusPrevious: 'shift + tab',
-                // Navigate form fields forwards using the Tab key.
-                focusNext: 'tab',
-            },
+            actions: { focusPrevious: 'shift + tab', focusNext: 'tab' },
         });
 
         this.setTemplate({
             tag: 'form',
-            attributes: {
-                class: ['ck', 'ck-cloze-form'],
-                tabindex: '-1',
-            },
+            attributes: { class: ['ck', 'ck-cloze-form'], tabindex: '-1' },
             children: this.childViews,
         });
     }
@@ -101,9 +90,7 @@ export class ClozeView extends View {
         super.render();
 
         // Submit the form when the user clicked the save button or pressed enter in the input.
-        submitHandler({
-            view: this,
-        });
+        submitHandler({ view: this });
 
         this.childViews.forEach((view) => this.focusTracker.add(view.element as HTMLElement));
         this.keystrokes.listenTo(this.element!);
@@ -119,21 +106,27 @@ export class ClozeView extends View {
         if (this.answerInputView.isEnabled) {
             this.answerInputView.focus();
         } else {
-            this.caseInputView.focus();
+            this.caseButtonView.focus();
         }
     }
 
     private numericSettingChange = () => {
-        const isNumeric = !this.numericInputView.isOn;
-        this.numericInputView.isOn = isNumeric;
+        const isNumeric = !this.numericButtonView.isOn;
+        this.numericButtonView.isOn = isNumeric;
         if (isNumeric) {
             this.precisionInputView.isEnabled = true;
-            this.caseInputView.isOn = false;
-            this.caseInputView.isEnabled = false;
+            this.caseButtonView.isOn = false;
+            this.caseButtonView.isEnabled = false;
+            if (isNaN(+(this.answerInputView.fieldView.element?.value as string))) {
+                this.answerInputView.errorText = _t('numericError', this.locale!);
+            } else {
+                this.answerInputView.errorText = null;
+            }
         } else {
             this.precisionInputView.isEnabled = false;
             this.precisionInputView.fieldView.value = '0';
-            this.caseInputView.isEnabled = true;
+            this.caseButtonView.isEnabled = true;
+            this.answerInputView.errorText = null;
         }
     };
 }

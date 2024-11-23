@@ -81,8 +81,6 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
                     <xm-ckeditor
                         id="editor"
                         name="editor"
-                        rows="10"
-                        cols="50"
                         [enableClozeTest]="question()?.type === 'ClozeTestQuestion'"
                         [data]="question()?.question || ''"
                         (dataChange)="textChanged($event)"

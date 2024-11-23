@@ -255,15 +255,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 </sup>
                             </div>
                             <div class="col-md-9">
-                                <xm-ckeditor
-                                    rows="4"
-                                    cols="150"
-                                    [enableClozeTest]="false"
-                                    [(ngModel)]="exam.instruction"
-                                    (onBlur)="updateExam(false)"
-                                    #ck="ngModel"
-                                    name="ck"
-                                ></xm-ckeditor>
+                                <xm-ckeditor [data]="exam.instruction" (dataChange)="updateExam(false)" />
                             </div>
                         </div>
                     </div>
@@ -291,13 +283,8 @@ SPDX-License-Identifier: EUPL-1.2
                             }
                             <div class="col-md-9">
                                 <xm-ckeditor
-                                    rows="4"
-                                    cols="150"
-                                    [enableClozeTest]="false"
-                                    [(ngModel)]="exam.enrollInstruction"
-                                    (onBlur)="updateExam(false)"
-                                    #ck="ngModel"
-                                    name="ck"
+                                    [data]="exam.enrollInstruction"
+                                    (dataChange)="enrollInstructionsChanged($event)"
                                 ></xm-ckeditor>
                             </div>
                         </div>

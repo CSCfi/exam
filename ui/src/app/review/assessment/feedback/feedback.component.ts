@@ -43,12 +43,9 @@ import { FileService } from 'src/app/shared/file/file.service';
                 <div class="col-md-12">
                     <xm-ckeditor
                         id="feedback-editor"
-                        [enableClozeTest]="false"
-                        [(ngModel)]="exam.examFeedback.comment"
-                        #ck="ngModel"
+                        [data]="exam.examFeedback.comment"
+                        (dataChange)="commentChanged($event)"
                         name="ck"
-                        rows="10"
-                        cols="80"
                     ></xm-ckeditor>
                 </div>
             </div>
@@ -144,6 +141,8 @@ export class FeedbackComponent implements OnInit {
             this.Attachment.removeFeedbackAttachment(this.exam);
         }
     };
+
+    commentChanged = (event: string) => (this.exam.examFeedback.comment = event);
 
     private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
 

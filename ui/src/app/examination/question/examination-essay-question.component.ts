@@ -42,6 +42,8 @@ export class ExaminationEssayQuestionComponent implements OnInit {
         const decodedString = doc.documentElement.innerText;
         this.questionTitle = decodedString;
     }
+
+    answerChanged = (event: string) => (this.sq.essayAnswer.answer = event);
     saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.exam?.hash || '', false, false).subscribe();
 
     removeQuestionAnswerAttachment = () => {

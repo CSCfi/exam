@@ -54,6 +54,8 @@ export class SettingsComponent implements OnInit {
     updateReservationWindow = () =>
         this.Settings.updateReservationWindow$(this.config).subscribe({ next: this.onSuccess, error: this.onError });
 
+    eulaChanged = (event: string) => (this.config.eula = event);
+
     private onSuccess = () =>
         this.toast.info(this.translate.instant('i18n_settings') + ' ' + this.translate.instant('i18n_updated'));
 
