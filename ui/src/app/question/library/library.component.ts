@@ -27,10 +27,14 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
         <xm-page-content [content]="content" />
         <ng-template #buttons>
             <div class="float-end pe-3">
-                <button (click)="import()" class="btn btn-success me-3">
+                <button (click)="import()" class="btn btn-success me-3 mb-3">
                     {{ 'i18n_toolbar_import_questions' | translate }}
                 </button>
-                <button [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="btn btn-success">
+                <button
+                    [routerLink]="['new']"
+                    [queryParams]="{ nextState: 'questions' }"
+                    class="btn btn-success align-top"
+                >
                     {{ 'i18n_toolbar_new_question' | translate }}
                 </button>
             </div>
@@ -45,6 +49,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"
                             class="ms-2"
+                            tabindex="0"
                         >
                             <img src="/assets/images/icon_tooltip.svg" alt="" />
                         </span>
@@ -72,38 +77,38 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                                 <li
                                     ngbDropdownItem
                                     role="presentation"
-                                    ngbDropdownItem
                                     [disabled]="selections.length === 0"
                                     (click)="openOwnerSelection()"
+                                    tabindex="0"
                                 >
-                                    <a role="menuitem">{{ 'i18n_add_question_owner' | translate }}</a>
+                                    {{ 'i18n_add_question_owner' | translate }}
                                 </li>
                                 <li
                                     ngbDropdownItem
                                     role="presentation"
-                                    ngbDropdownItem
                                     [disabled]="selections.length === 0"
                                     (click)="openTagSelection()"
+                                    tabindex="0"
                                 >
-                                    <a role="menuitem">{{ 'i18n_tag_questions' | translate }}</a>
+                                    {{ 'i18n_tag_questions' | translate }}
                                 </li>
                                 <li
                                     ngbDropdownItem
                                     role="presentation"
-                                    ngbDropdownItem
                                     [disabled]="selections.length === 0"
                                     (click)="openFileTransfer()"
+                                    tabindex="0"
                                 >
-                                    <a role="menuitem">{{ 'i18n_transfer_questions' | translate }}</a>
+                                    {{ 'i18n_transfer_questions' | translate }}
                                 </li>
                                 <li
                                     ngbDropdownItem
                                     role="presentation"
-                                    ngbDropdownItem
                                     [disabled]="selections.length === 0"
                                     (click)="export()"
+                                    tabindex="0"
                                 >
-                                    <a role="menuitem">{{ 'i18n_export_questions' | translate }}</a>
+                                    {{ 'i18n_export_questions' | translate }}
                                 </li>
                             </ul>
                         </span>
