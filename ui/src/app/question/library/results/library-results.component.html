@@ -125,12 +125,13 @@ SPDX-License-Identifier: EUPL-1.2
                             <div>
                                 <span>
                                     @if (!disableLinks) {
-                                        <a
-                                            class="pointer"
+                                        <button
+                                            class="pointer btn btn-link btn-sm"
                                             [routerLink]="[question.id, 'edit']"
                                             [queryParams]="{ nextState: 'questions' }"
-                                            >{{ question.id }}</a
                                         >
+                                            {{ question.id }}
+                                        </button>
                                     }
                                     @if (disableLinks) {
                                         <span>#{{ question.id }}</span>
@@ -184,9 +185,9 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <td>
                             @if (question.attachment) {
-                                <a class="pointer" (click)="downloadQuestionAttachment(question)">
+                                <button class="btn btn-link btn-sm" (click)="downloadQuestionAttachment(question)">
                                     <i class="bi-paperclip"></i>{{ question.attachment.fileName }}
-                                </a>
+                                </button>
                             }
                         </td>
                         <td>{{ printTags(question) }}</td>
@@ -211,25 +212,25 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <td class="td-center-align">
                             @if (question.allowedToRemove) {
-                                <a (click)="deleteQuestion(question)" class="pointer">
+                                <button (click)="deleteQuestion(question)" class="btn btn-link text-black">
                                     <i
                                         class="bi-trash"
                                         popoverTitle="{{ 'i18n_instructions' | translate }}"
                                         triggers="mouseenter:mouseleave"
                                         ngbPopover="{{ 'i18n_exam_remove' | translate }}"
                                     ></i>
-                                </a>
+                                </button>
                             }
                         </td>
                         <td class="td-center-align">
-                            <a (click)="copyQuestion(question)">
+                            <button (click)="copyQuestion(question)" class="btn btn-link text-black">
                                 <i
                                     class="bi-files"
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
                                     ngbPopover="{{ 'i18n_copy' | translate }}"
                                 ></i>
-                            </a>
+                            </button>
                         </td>
                         <td class="td-center-align">
                             {{ question.examSectionQuestions.length }}

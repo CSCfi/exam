@@ -73,7 +73,7 @@
     "eslint-plugin-deprecation": "^3.0.0",
     "eslint-plugin-no-relative-import-paths": "^1.5.5",
     "karma": "^6.4.4",
-    "lefthook": "^1.6.1",
+    "lefthook": "^1.8.4",
     "prettier": "^3.3.3",
     "prettier-plugin-java": "^2.6.4",
     "prettier-plugin-organize-imports": "^4.0.0",
