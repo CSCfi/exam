@@ -77,13 +77,13 @@ import { ExamSectionQuestionOption } from 'src/app/question/question.model';
                                     [disabled]="lotteryOn()"
                                 />
                             </div>
-                            <div
-                                class="col-md-1 question-option-trash pointer"
+                            <button
+                                class="col-md-1 question-option-trash pointer btn btn-link"
                                 [hidden]="lotteryOn()"
                                 (click)="removeOption(option)"
                             >
                                 <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
-                            </div>
+                            </button>
                         </div>
                     }
                     <div class="row">
@@ -98,10 +98,10 @@ import { ExamSectionQuestionOption } from 'src/app/question/question.model';
         </div>
         <div class="row mt-2">
             <div class="col-md-12">
-                <a (click)="addNewOption()" class="attachment-link pointer">
+                <button (click)="addNewOption()" class="attachment-link pointer btn btn-sm btn-link">
                     <i class="bi-plus"></i>
                     {{ 'i18n_question_add_new_option' | translate }}
-                </a>
+                </button>
             </div>
         </div>
     `,
