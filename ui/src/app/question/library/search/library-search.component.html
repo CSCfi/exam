@@ -114,11 +114,14 @@ SPDX-License-Identifier: EUPL-1.2
                     ngbDropdownItem
                     [attr.aria-label]="'i18n_pick_tag' + ' ' + tag.name"
                 >
-                    @if (tag.usage && tag.usage > 0) {
-                        <div role="menuitem" class="text" title="{{ 'i18n_category' | translate }}">
-                            {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
-                        </div>
-                    }
+                    <div
+                        *ngIf="tag.usage && tag.usage > 0"
+                        role="menuitem"
+                        class="text"
+                        title="{{ 'i18n_category' | translate }}"
+                    >
+                        {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
+                    </div>
                 </button>
             </ul>
         </span>
