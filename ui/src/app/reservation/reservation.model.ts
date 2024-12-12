@@ -105,6 +105,8 @@ export interface Reservation {
     externalRef?: string;
     externalReservation?: ExternalReservation;
     externalUserRef?: string;
+    externalOrgRef?: string;
+    externalOrgName?: string;
     machine: ExamMachine;
     startAt: string;
     endAt: string;

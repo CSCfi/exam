@@ -1175,11 +1175,15 @@
     "i18n_more_hidden": "Add as hidden",
     "i18n_exam_question_in_use": "Exams where this question is used",
     "i18n_reviewed_questions": "Graded questions",
-    "i18n_unanswered_questions_remain": "There is still unanswered questions in this section",
+    "i18n_unanswered_questions_remain": "There are still unanswered questions in this section",
     "i18n_unsaved_changes": "Unsaved changes",
     "i18n_type_to_start_search": "Type to start search",
     "i18n_datepicker": "Datepicker",
     "i18n_move_question": "Change the order of the exam sections by dragging",
     "i18n_no_maintenance_periods_this_week": "No service breaks this week",
-  "i18n_no_exceptions_this_week": "No exceptions this week"
+    "i18n_no_exceptions_this_week": "No exceptions this week",
+    "i18n_iop_reservations": "Tenttivierailut EN",
+    "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset EN",
+    "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset EN",
+    "i18n_unused_reservation": "Käyttämätön varaus EN"
 }

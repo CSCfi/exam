@@ -458,6 +458,7 @@ GET           /app/reports/participations                              controlle
 GET           /app/reports/departments                                 controllers.ReportController.listDepartments
 GET           /app/reports/exams                                       controllers.ReportController.getPublishedExams(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/reports/reservations                                controllers.ReportController.getReservations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
+GET           /app/reports/reservations/iop                            controllers.ReportController.getIopReservations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/reports/responses                                   controllers.ReportController.getResponses(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 POST          /app/reports/questionreport/:id                          controllers.ReportController.exportExamQuestionScoresAsExcel(id: Long, request: Request)
 

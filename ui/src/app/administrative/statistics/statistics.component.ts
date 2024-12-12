@@ -31,6 +31,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { ExamStatisticsComponent } from './categories/exam-statistics.component';
+import { IopReservationStatisticsComponent } from './categories/iop-reservation-statistics.component';
 import { ReservationStatisticsComponent } from './categories/reservation-statistics.component';
 import { ResponseStatisticsComponent } from './categories/response-statistics.component';
 import { RoomStatisticsComponent } from './categories/room-statistics.component';
@@ -46,6 +47,7 @@ enum Tab {
     ROOMS = 'ROOMS',
     EXAMS = 'EXAMS',
     RESERVATIONS = 'RESERVATIONS',
+    IOP_RESERVATIONS = 'IOP_RESERVATIONS',
 }
 
 @Component({
@@ -64,6 +66,7 @@ enum Tab {
         FormsModule,
         NgbDropdownItem,
         NgClass,
+        IopReservationStatisticsComponent,
         RoomStatisticsComponent,
         ReservationStatisticsComponent,
         ResponseStatisticsComponent,

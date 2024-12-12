@@ -1181,5 +1181,9 @@
     "i18n_datepicker": "Päivämäärävalitsin",
     "i18n_move_question": "Vaihda kysymysten järjestystä raahaamalla tästä",
     "i18n_no_maintenance_periods_this_week": "Ei huoltokatkoja tällä viikolla",
-  "i18n_no_exceptions_this_week": "Ei poikkeusaukioloaikoja tällä viikolla"
+    "i18n_no_exceptions_this_week": "Ei poikkeusaukioloaikoja tällä viikolla",
+    "i18n_iop_reservations": "Tenttivierailut",
+    "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset",
+    "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset",
+    "i18n_unused_reservation": "Käyttämätön varaus"
 }

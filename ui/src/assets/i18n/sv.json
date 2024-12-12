@@ -1180,6 +1180,10 @@
     "i18n_type_to_start_search": "Skriv för att börja söka",
     "i18n_datepicker": "Välj datum",
     "i18n_move_question": "Ändra ordningsföljden på frågorna genom att dra",
-  "i18n_no_maintenance_periods_this_week": "Inga avvikande öppettider denna vecka",
-  "i18n_no_exceptions_this_week": "Inga avvikande öppettider denna vecka"
+    "i18n_no_maintenance_periods_this_week": "Inga avvikande öppettider denna vecka",
+    "i18n_no_exceptions_this_week": "Inga avvikande öppettider denna vecka",
+    "i18n_iop_reservations": "Tenttivierailut SV",
+    "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset SV",
+    "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset SV",
+    "i18n_unused_reservation": "Käyttämätön varaus SV"
 }
