@@ -8,14 +8,18 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-12">
         <!-- question text -->
         <div class="float-end">
-            <a class="float-end" (click)="reviewExpanded = !reviewExpanded" [attr.aria-expanded]="reviewExpanded">
+            <button
+                class="float-end btn btn-link"
+                (click)="reviewExpanded = !reviewExpanded"
+                [attr.aria-expanded]="reviewExpanded"
+            >
                 @if (!reviewExpanded) {
                     <img src="/assets/images/icon_list_show_right.svg" alt="" />
                 }
                 @if (reviewExpanded) {
                     <img src="/assets/images/icon_list_show_down.svg" alt="" />
                 }
-            </a>
+            </button>
             <!-- grade -->
             <div class="pe-3 me-2">
                 <!-- grade -->

@@ -47,7 +47,8 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 }
                 <!--chevron -->
-                <a
+                <button
+                    class="float-end btn btn-link"
                     (click)="reviewExpanded = !reviewExpanded"
                     [attr.aria-label]="reviewExpanded ? ('i18n_collapse' | translate) : ('i18n_expand' | translate)"
                 >
@@ -57,7 +58,7 @@ SPDX-License-Identifier: EUPL-1.2
                     @if (reviewExpanded) {
                         <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
-                </a>
+                </button>
             </div>
         </div>
 
