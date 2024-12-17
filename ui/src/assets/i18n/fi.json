@@ -1189,5 +1189,8 @@
     "i18n_show_participants": "Näytä osallistujat",
     "i18n_hide_participants": "Piilota osallistujat",
     "i18n_exam_owner_info": "Tentissä pitää olla vähintään yksi tentaattori.",
-    "i18n_csv_uploading_cancelled": "CSV tiedoston tuonti peruutettu"
+    "i18n_csv_uploading_cancelled": "CSV tiedoston tuonti peruutettu",
+  "i18n_view_assessment": "Näytä arviointi",
+  "i18n_assign_assessments_to_me": "Arvioi suoritus",
+  "i18n_view_feedback": "Näytä palaute"
 }
