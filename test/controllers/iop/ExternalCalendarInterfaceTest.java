@@ -339,6 +339,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
                 .put("start", ISODateTimeFormat.dateTime().print(start))
                 .put("end", ISODateTimeFormat.dateTime().print(end))
                 .put("user", "studentone@uni.org")
+                .put("orgRef", "1234")
+                .put("orgName", "1234")
         );
         assertThat(result.status()).isEqualTo(201);
         Reservation reservation = DB.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
