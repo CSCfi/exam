@@ -1189,5 +1189,9 @@
     "i18n_show_participants": "Näytä osallistujat",
     "i18n_hide_participants": "Piilota osallistujat",
     "i18n_exam_owner_info": "Tentissä pitää olla vähintään yksi tentaattori.",
-    "i18n_csv_uploading_cancelled": "CSV tiedoston tuonti peruutettu"
+    "i18n_csv_uploading_cancelled": "CSV tiedoston tuonti peruutettu",
+    "i18n_iop_reservations": "Tenttivierailut",
+    "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset",
+    "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset",
+    "i18n_unused_reservation": "Käyttämätön varaus"
 }

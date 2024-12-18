@@ -5,6 +5,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ExamInfo, Participations, QueryParams } from 'src/app/administrative/administrative.model';
+import { Reservation } from 'src/app/reservation/reservation.model';
 
 @Injectable({ providedIn: 'root' })
 export class StatisticsService {
@@ -20,4 +21,6 @@ export class StatisticsService {
         });
     listParticipations$ = (params: QueryParams) =>
         this.http.get<Participations>('/app/reports/participations', { params: params });
+    listIopReservations$ = (params: QueryParams) =>
+        this.http.get<Reservation[]>('/app/reports/reservations/iop', { params: params });
 }

@@ -55,6 +55,8 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     private String externalRef;
 
     private String externalUserRef;
+    private String externalOrgRef;
+    private String externalOrgName;
 
     @OneToOne(cascade = CascadeType.ALL)
     private ExternalReservation externalReservation;
@@ -123,10 +125,6 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
         this.externalRef = externalRef;
     }
 
-    public String getExternalUserRef() {
-        return externalUserRef;
-    }
-
     public ExternalReservation getExternalReservation() {
         return externalReservation;
     }
@@ -135,8 +133,28 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
         this.externalReservation = externalReservation;
     }
 
+    public String getExternalUserRef() {
+        return externalUserRef;
+    }
+
     public void setExternalUserRef(String externalUserRef) {
         this.externalUserRef = externalUserRef;
+    }
+
+    public String getExternalOrgRef() {
+        return externalOrgRef;
+    }
+
+    public void setExternalOrgRef(String externalOrgRef) {
+        this.externalOrgRef = externalOrgRef;
+    }
+
+    public String getExternalOrgName() {
+        return externalOrgName;
+    }
+
+    public void setExternalOrgName(String externalOrgName) {
+        this.externalOrgName = externalOrgName;
     }
 
     public Interval toInterval() {
