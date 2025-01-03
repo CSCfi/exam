@@ -38,8 +38,7 @@ export class NavigationService {
         const languageInspector = user.isTeacher && user.isLanguageInspector;
 
         // Do not show if waiting for exam to begin
-        const regex = /waitingroom|wrongmachine|wrongroom/;
-        const hideDashboard = regex.test(this.router.url);
+        const hidden = /waitingroom|wrongmachine|wrongroom|early/.test(this.router.url);
 
         // Change the menu item title if student
         const nameForDashboard = student ? 'i18n_user_enrolled_exams_title' : 'i18n_dashboard';
@@ -77,7 +76,7 @@ export class NavigationService {
         return [
             {
                 route: student ? 'dashboard' : admin ? 'staff/admin' : 'staff/teacher',
-                visible: !hideDashboard,
+                visible: !hidden,
                 name: nameForDashboard,
                 iconPng: 'icon_enrols.svg',
                 submenu: teacherCollaborativeExamsSubmenu,
@@ -200,14 +199,14 @@ export class NavigationService {
             },
             {
                 route: 'exams',
-                visible: student && !hideDashboard,
+                visible: student && !hidden,
                 name: 'i18n_exams',
                 iconPng: 'icon_exams.png',
                 submenu: studentCollaborativeExamsSubmenu,
             },
             {
                 route: 'participations',
-                visible: student && !hideDashboard,
+                visible: student && !hidden,
                 name: 'i18n_exam_responses',
                 iconPng: 'icon_finished.png',
                 submenu: {

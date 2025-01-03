@@ -7,7 +7,7 @@ import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, from } from 'rxjs';
@@ -37,7 +37,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
         RouterLink,
         CourseCodeComponent,
         TeacherListComponent,
-        NgbPopover,
         DatePipe,
         TranslateModule,
         OrderByPipe,

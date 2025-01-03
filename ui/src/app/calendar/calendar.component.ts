@@ -16,9 +16,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
-import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
 import { ExamInfo, Organisation } from './calendar.model';
 import { CalendarService } from './calendar.service';
 import { CalendarExamInfoComponent } from './helpers/exam-info.component';
@@ -32,8 +30,6 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
     styleUrls: ['./calendar.component.scss'],
     standalone: true,
     imports: [
-        HistoryBackComponent,
-        AutoFocusDirective,
         CalendarExamInfoComponent,
         OptionalSectionsComponent,
         OrganisationPickerComponent,

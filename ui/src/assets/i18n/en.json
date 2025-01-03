@@ -1197,5 +1197,6 @@
     "i18n_iop_reservations": "Tenttivierailut EN",
     "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset EN",
     "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset EN",
-    "i18n_unused_reservation": "Käyttämätön varaus EN"
+    "i18n_unused_reservation": "Käyttämätön varaus EN",
+    "i18n_you_are_early_for_examination": "Olet ennenaikaisesti kirjautunut tenttikoneelle. Sinut ohjataan varsinaiseen tentin käynnistykseen viisi minuuttia ennen sen alkamisaikaa, joka on klo EN"
 }
