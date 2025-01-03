@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Component } from '@angular/core';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -39,7 +38,7 @@ import { FileService } from 'src/app/shared/file/file.service';
     `,
     selector: 'xm-answers-report',
     standalone: true,
-    imports: [DatePickerComponent, NgbPopover, TranslateModule],
+    imports: [DatePickerComponent, TranslateModule],
 })
 export class AnswersReportComponent {
     startDate: Date | null = null;

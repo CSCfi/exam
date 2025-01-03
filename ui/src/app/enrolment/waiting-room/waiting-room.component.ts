@@ -22,8 +22,8 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
-type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
-type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
+export type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
+export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     reservation: WaitingReservation;
 };
 

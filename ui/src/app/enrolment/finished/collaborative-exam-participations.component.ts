@@ -14,7 +14,6 @@ import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
-import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ExamParticipationComponent } from './exam-participation.component';
 
@@ -24,7 +23,6 @@ import { ExamParticipationComponent } from './exam-participation.component';
     standalone: true,
     imports: [
         FormsModule,
-        AutoFocusDirective,
         NgbDropdown,
         NgbDropdownToggle,
         NgbDropdownMenu,
