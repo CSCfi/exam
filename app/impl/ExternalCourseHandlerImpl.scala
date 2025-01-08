@@ -7,7 +7,7 @@ package impl
 import io.ebean.DB
 import miscellaneous.config.ConfigReader
 import miscellaneous.scala.DbApiHelper
-import models._
+import models.*
 import models.exam.{Course, Grade, GradeScale}
 import models.facility.Organisation
 import models.user.User
@@ -18,15 +18,15 @@ import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.mvc.Http
-import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale => ExtGradeScale}
+import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale as ExtGradeScale}
 
-import java.net._
+import java.net.*
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import javax.inject.Inject
 import scala.collection.immutable.TreeSet
 import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ExternalCourseHandlerImpl @Inject (
     private val wsClient: WSClient,
@@ -229,7 +229,7 @@ class ExternalCourseHandlerImpl @Inject (
     val path = configReader.getString(configPath.getOrElse(""))
     if (!path.contains(COURSE_CODE_PLACEHOLDER))
       throw new RuntimeException("exam.integration.courseUnitInfo.url is malformed")
-    val url = path.replace(COURSE_CODE_PLACEHOLDER, courseCode)
+    val url = path.replace(COURSE_CODE_PLACEHOLDER, URLEncoder.encode(courseCode, StandardCharsets.UTF_8))
     URI.create(url).toURL
 
   private def parseUrl(user: User) =
