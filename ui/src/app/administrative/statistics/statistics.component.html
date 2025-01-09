@@ -23,6 +23,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <li [ngbNavItem]="'RESERVATIONS'">
                     <a ngbNavLink>{{ 'i18n_reservations' | translate }}</a>
                 </li>
+                <li [ngbNavItem]="'IOP_RESERVATIONS'">
+                    <a ngbNavLink>{{ 'i18n_iop_reservations' | translate }}</a>
+                </li>
             </ul>
         </div>
     </div>
@@ -60,12 +63,7 @@ SPDX-License-Identifier: EUPL-1.2
                 >
                     {{ 'i18n_choose' | translate }}&nbsp;<span class="caret"></span>
                 </button>
-                <div
-                    ngbDropdownMenu
-                    style="padding-left: 0; min-width: 17em"
-                    role="menu"
-                    aria-labelledby="dropDownMenu1"
-                >
+                <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
                     <div role="presentation" class="input-group">
                         <input
                             [ngModel]="limitations.department"
@@ -111,6 +109,9 @@ SPDX-License-Identifier: EUPL-1.2
     }
     @if (view === 'RESERVATIONS') {
         <xm-reservation-statistics [queryParams]="queryParams"> </xm-reservation-statistics>
+    }
+    @if (view === 'IOP_RESERVATIONS') {
+        <xm-iop-reservation-statistics [queryParams]="queryParams"> </xm-iop-reservation-statistics>
     }
     @if (view === 'RESPONSES') {
         <xm-response-statistics [queryParams]="queryParams"></xm-response-statistics>

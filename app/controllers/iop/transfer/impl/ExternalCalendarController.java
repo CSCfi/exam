@@ -109,6 +109,8 @@ public class ExternalCalendarController extends CalendarController {
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("start").asText());
         DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("end").asText());
         String userEppn = node.get("user").asText();
+        String orgRef = node.get("orgRef").asText();
+        String orgName = node.get("orgName").asText();
         if (start.isBeforeNow() || end.isBefore(start)) {
             return badRequest("invalid dates");
         }
@@ -133,6 +135,8 @@ public class ExternalCalendarController extends CalendarController {
         reservation.setStartAt(start);
         reservation.setMachine(machine.get());
         reservation.setExternalUserRef(userEppn);
+        reservation.setExternalOrgRef(orgRef);
+        reservation.setExternalOrgName(orgName);
         reservation.save();
         PathProperties pp = PathProperties.parse("(*, machine(*, room(*, mailAddress(*))))");
 
