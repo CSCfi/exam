@@ -26,17 +26,18 @@ SPDX-License-Identifier: EUPL-1.2
                         placeholder="{{ 'i18n_search_course_hint' | translate }}"
                         aria-describedby="search-icon-1"
                     />
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <i id="search-icon-1" class="bi-search" width="46" height="38"></i>
-                        </div>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (course of filteredCourses; track course) {
-                    <li [hidden]="course.filtered" role="presentation" (click)="applyFilter(course)" ngbDropdownItem>
-                        <a role="menuitem">{{ formatCourse(course) }} {{ course.name }}</a>
-                    </li>
-                }
+                <button
+                    *ngFor="let course of filteredCourses"
+                    [hidden]="course.filtered"
+                    role="presentation"
+                    ngbDropdownItem
+                    (click)="applyFilter(course)"
+                    [attr.aria-label]="'i18n_pick_course' + ' ' + course.name"
+                >
+                    {{ formatCourse(course) }} {{ course.name }}
+                </button>
             </ul>
         </span>
         <span class="m-1" ngbDropdown [autoClose]="'outside'">
@@ -64,16 +65,18 @@ SPDX-License-Identifier: EUPL-1.2
                         </div>
                     </div>
                 </li>
-                @for (exam of filteredExams; track exam) {
-                    <li [hidden]="exam.filtered" role="presentation" (click)="applyFilter(exam)" ngbDropdownItem>
-                        <a role="menuitem"
-                            >{{ formatCourse(exam) }} {{ exam.name }}
-                            @if (exam.period) {
-                                <small class="text-muted">({{ exam.period }})</small>
-                            }
-                        </a>
-                    </li>
-                }
+                <button
+                    *ngFor="let exam of filteredExams"
+                    [hidden]="exam.filtered"
+                    role="presentation"
+                    (click)="applyFilter(exam)"
+                    ngbDropdownItem
+                    tabindex="0"
+                    [attr.aria-label]="'i18n_pick_exam' + ' ' + exam.name"
+                >
+                    {{ formatCourse(exam) }} {{ exam.name }}
+                    <small *ngIf="exam.period" class="text-muted">({{ exam.period }})</small>
+                </button>
             </ul>
         </span>
 
@@ -103,15 +106,23 @@ SPDX-License-Identifier: EUPL-1.2
                         </div>
                     </div>
                 </li>
-                @for (tag of filteredTags; track tag) {
-                    <li [hidden]="tag.filtered" role="presentation" (click)="applyFilter(tag)" ngbDropdownItem>
-                        @if (tag.usage && tag.usage > 0) {
-                            <div role="menuitem" class="text" title="{{ 'i18n_category' | translate }}">
-                                {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
-                            </div>
-                        }
-                    </li>
-                }
+                <button
+                    *ngFor="let tag of filteredExams"
+                    [hidden]="tag.filtered"
+                    role="presentation"
+                    (click)="applyFilter(tag)"
+                    ngbDropdownItem
+                    [attr.aria-label]="'i18n_pick_tag' + ' ' + tag.name"
+                >
+                    <div
+                        *ngIf="tag.usage && tag.usage > 0"
+                        role="menuitem"
+                        class="text"
+                        title="{{ 'i18n_category' | translate }}"
+                    >
+                        {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
+                    </div>
+                </button>
             </ul>
         </span>
 
@@ -141,13 +152,19 @@ SPDX-License-Identifier: EUPL-1.2
                         </div>
                     </div>
                 </li>
-                @for (section of filteredSections; track section) {
-                    <li [hidden]="section.filtered" role="presentation" (click)="applyFilter(section)" ngbDropdownItem>
-                        <div role="menuitem" class="text" title="{{ 'i18n_exam_section' | translate }}">
-                            {{ section.name }}
-                        </div>
-                    </li>
-                }
+
+                <button
+                    *ngFor="let section of filteredExams"
+                    [hidden]="section.filtered"
+                    role="presentation"
+                    (click)="applyFilter(section)"
+                    ngbDropdownItem
+                    [attr.aria-label]="'i18n_pick_section' + ' ' + section.name"
+                >
+                    <div role="menuitem" class="text" title="{{ 'i18n_exam_section' | translate }}">
+                        {{ section.name }}
+                    </div>
+                </button>
             </ul>
         </span>
         <span class="m-1" ngbDropdown [autoClose]="'outside'">
@@ -176,17 +193,18 @@ SPDX-License-Identifier: EUPL-1.2
                         </div>
                     </div>
                 </li>
-                <li
+                <button
                     *ngFor="let owner of filteredOwners"
                     [hidden]="owner.filtered"
                     role="presentation"
                     (click)="applyFilter(owner)"
                     ngbDropdownItem
+                    [attr.aria-label]="'i18n_pick_owner' + ' ' + owner.name"
                 >
                     <div role="menuitem" class="text" title="{{ 'i18n_owner' | translate }}">
                         {{ owner.name }}
                     </div>
-                </li>
+                </button>
             </ul>
         </span>
     </div>
