@@ -53,9 +53,13 @@ import { ExamSectionQuestionOption } from 'src/app/question/question.model';
                             />
                         }
                     </div>
-                    <div [hidden]="lotteryOn()" (click)="removeOption(option)" class="col-md-1 question-option-trash">
+                    <button
+                        [hidden]="lotteryOn()"
+                        (click)="removeOption(option)"
+                        class="col-md-1 question-option-trash btn btn-link"
+                    >
                         <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
-                    </div>
+                    </button>
                 </div>
             }
             <div class="row mt-2">
