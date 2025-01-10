@@ -89,10 +89,10 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
         }
         <div class="row mt-3">
             <div class="col-md-12">
-                <a (click)="addNewOption()" class="attachment-link pointer">
+                <button (click)="addNewOption()" class="attachment-link pointer btn btn-sm btn-link">
                     <i class="bi-plus"></i>
                     {{ 'i18n_question_add_new_option' | translate }}
-                </a>
+                </button>
             </div>
         </div>
     `,

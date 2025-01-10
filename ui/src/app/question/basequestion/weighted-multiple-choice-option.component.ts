@@ -46,9 +46,13 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
                         [disabled]="lotteryOn"
                     />
                 </div>
-                <div class="col-md-1 question-option-trash pointer" [hidden]="lotteryOn" (click)="removeOption()">
+                <button
+                    class="col-md-1 question-option-trash pointer btn btn-link "
+                    [hidden]="lotteryOn"
+                    (click)="removeOption()"
+                >
                     <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
-                </div>
+                </button>
             </div>
         </div>
     `,
