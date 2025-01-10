@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import miscellaneous.excel.ExcelBuilder;
 import models.enrolment.ExamEnrolment;
+import models.enrolment.Reservation;
 import models.exam.Course;
 import models.exam.Exam;
 import models.facility.ExamRoom;
@@ -228,19 +229,44 @@ public class ReportController extends BaseController {
     @Restrict({ @Group("ADMIN") })
     public Result getReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
         ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class).where();
-        query =
-                applyFilters(
-                        query,
-                        "exam.course",
-                        "reservation.startAt",
-                        dept.orElse(null),
-                        start.orElse(null),
-                        end.orElse(null)
-                );
+        query = applyFilters(
+            query,
+            "exam.course",
+            "reservation.startAt",
+            dept.orElse(null),
+            start.orElse(null),
+            end.orElse(null)
+        );
         Set<ExamEnrolment> enrolments = query.findSet();
         long noShows = enrolments.stream().filter(ExamEnrolment::isNoShow).count();
         long appearances = enrolments.size() - noShows;
         return ok(Json.newObject().put("noShows", noShows).put("appearances", appearances));
+    }
+
+    @Restrict({ @Group("ADMIN") })
+    public Result getIopReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
+        ExpressionList<Reservation> query = DB.find(Reservation.class)
+            .fetch("externalReservation")
+            .fetch("enrolment")
+            .where()
+            .or()
+            .isNotNull("externalRef")
+            .isNotNull("externalReservation.orgName")
+            .endOr();
+        query = applyFilters(
+            query,
+            "examEnrolment.exam.course",
+            "startAt",
+            dept.orElse(null),
+            start.orElse(null),
+            end.orElse(null)
+        );
+        Set<Reservation> reservations = query
+            .findSet()
+            .stream()
+            .filter(r -> r.getExternalOrgName() != null || (r.getExternalReservation() != null))
+            .collect(Collectors.toSet());
+        return ok(reservations);
     }
 
     @Restrict({ @Group("ADMIN") })
@@ -272,8 +298,7 @@ public class ReportController extends BaseController {
                 )
             )
             .count();
-        JsonNode node = Json
-            .newObject()
+        JsonNode node = Json.newObject()
             .put("aborted", aborted)
             .put("assessed", assessed)
             .put("unAssessed", unAssessed);

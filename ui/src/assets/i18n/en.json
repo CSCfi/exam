@@ -1190,5 +1190,9 @@
     "i18n_hide_participants": "Hide participants",
     "i18n_exam_owner_info": "Exam needs to have at least one examiner.",
     "i18n_csv_uploading_cancelled": "CSV file upload cancelled",
-    "i18n_exam_last_owner_info": "Exam needs to have at least one owner. The last owner can't be removed."
+    "i18n_exam_last_owner_info": "Exam needs to have at least one owner. The last owner can't be removed.",
+    "i18n_iop_reservations": "Tenttivierailut EN",
+    "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset EN",
+    "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset EN",
+    "i18n_unused_reservation": "Käyttämätön varaus EN"
 }
