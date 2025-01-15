@@ -283,7 +283,7 @@ export class ExamPublicationComponent implements OnInit {
 
     private errorsPreventingPublication(): string[] {
         const errors: string[] = this.errorsPreventingPrePublication();
-        if (!this.exam.course && !this.collaborative) {
+        if (!this.exam.course && !this.collaborative()) {
             errors.push('i18n_course_missing');
         }
         if (this.countQuestions() === 0) {
