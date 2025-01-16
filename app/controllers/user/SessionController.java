@@ -76,7 +76,9 @@ public class SessionController extends BaseController {
         "x-exam-wrong-room",
         "wrongRoomData",
         "x-exam-wrong-agent-config",
-        "wrongAgent"
+        "wrongAgent",
+        "x-exam-aquarium-login",
+        "aquariumLogin"
     );
 
     @Inject

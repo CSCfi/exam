@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Component, Input } from '@angular/core';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
@@ -53,7 +52,7 @@ import { Option } from 'src/app/shared/select/select.model';
     `,
     selector: 'xm-rooms-report',
     standalone: true,
-    imports: [DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
+    imports: [DropdownSelectComponent, DatePickerComponent, TranslateModule],
 })
 export class RoomsReportComponent {
     @Input() rooms: Option<ExamRoom, number>[] = [];
