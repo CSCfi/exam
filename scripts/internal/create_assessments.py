@@ -11,7 +11,7 @@ from psycopg2 import connect
 import random
 import string
 
-conn_string = "host='localhost' dbname='sitnet' user='sitnet' password='sitnet'"
+conn_string = "host='localhost' dbname='exam' user='exam' password='exam'"
 conn = connect(conn_string)
 cursor = conn.cursor()
 
