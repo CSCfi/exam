@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Component, Input } from '@angular/core';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -36,7 +35,7 @@ import { Option } from 'src/app/shared/select/select.model';
     `,
     selector: 'xm-enrolments-report',
     standalone: true,
-    imports: [DropdownSelectComponent, NgbPopover, TranslateModule],
+    imports: [DropdownSelectComponent, TranslateModule],
 })
 export class EnrolmentsReportComponent {
     @Input() examNames: Option<string, number>[] = [];

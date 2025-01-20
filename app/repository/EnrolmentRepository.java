@@ -288,6 +288,11 @@ public class EnrolmentRepository {
             if (
                 enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.AQUARIUM
             ) {
+                // If user is on a correct aquarium machine then always set a header
+                headers.put(
+                    "x-exam-aquarium-login",
+                    String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
+                );
                 // Aquarium exam, don't set headers unless it starts in 5 minutes
                 DateTime threshold = DateTime.now().plusMinutes(5);
                 DateTime start = dateTimeHandler.normalize(

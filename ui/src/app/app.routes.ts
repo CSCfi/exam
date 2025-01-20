@@ -12,13 +12,7 @@ import { LogoutComponent } from './session/logout/logout.component';
 const buildTitle = (key: string, extraPart = ''): Observable<string> => {
     const tx = inject(TranslateService);
     const extra = extraPart ? ` ${extraPart}` : '';
-    return tx.get(key).pipe(
-        map(
-            () =>
-                `${tx.instant(key)}${extra}
-     - EXAM`,
-        ),
-    );
+    return tx.get(key).pipe(map(() => `${tx.instant(key)}${extra}- EXAM`));
 };
 
 export const APP_ROUTES: Route[] = [
@@ -56,6 +50,14 @@ export const APP_ROUTES: Route[] = [
         path: 'waitingroom',
         loadComponent: () =>
             import('./enrolment/waiting-room/waiting-room.component').then((mod) => mod.WaitingRoomComponent),
+        title: () => buildTitle('i18n_waiting_room_title'),
+    },
+    {
+        path: 'early/:id/:hash',
+        loadComponent: () =>
+            import('./enrolment/waiting-room/waiting-room-early.component').then(
+                (mod) => mod.WaitingRoomEarlyComponent,
+            ),
         title: () => buildTitle('i18n_waiting_room_title'),
     },
     {

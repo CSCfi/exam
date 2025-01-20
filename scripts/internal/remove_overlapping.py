@@ -5,16 +5,18 @@
 # SPDX-License-Identifier: EUPL-1.2
 
 from datetime import datetime
-from psycopg2 import connect
+from psycopg import connect  # pip install "psycopg[binary]"
 
 conn_string = "host='localhost' dbname='exam' user='exam' password='exam'"
 conn = connect(conn_string)
 cursor = conn.cursor()
 
-def select(unique=False):
+
+def select():
     names = [desc[0] for desc in cursor.description]
     result = map(dict, [[(names[i], row[i]) for (i, name) in enumerate(names)] for row in cursor])
-    return list(result)[0] if unique else list(result)
+    return list(result)
+
 
 def delete(ids):
     ids = ','.join([str(id) for id in ids])
@@ -22,12 +24,14 @@ def delete(ids):
     cursor.execute('UPDATE exam_participation SET reservation_id = NULL where reservation_id IN (%s)' % ids)
     cursor.execute('DELETE FROM reservation WHERE id IN (%s)' % ids)
 
+
 def reservations():
     cursor.execute("""
         SELECT r.*, ep.id AS ep_id FROM reservation AS r 
         LEFT JOIN exam_participation AS ep ON ep.reservation_id = r.id WHERE r.machine_id IS NOT NULL
         """)
     return select()
+
 
 def find_overlapping(rs):
     overlapping_pairs = []
@@ -43,13 +47,16 @@ def find_overlapping(rs):
                 overlapping_pairs.append((res1, res2))
     return overlapping_pairs
 
+
 def main():
-    print("Following overlapping reservation pairs found:")
     rs, removed, unresolved = reservations(), set(), set()
+    print("Following overlapping reservation pairs found:")
     for r1, r2 in find_overlapping(rs):
-        print("r1_id: {id1} r2_id:{id2} r1_machine_id: {mid1} r2_machine_id: {mid2} r1_period: {s1} - {e1} r2_period {s2} - {e2}".format(
-            id1=r1['id'], id2=r2['id'], mid1=r1['machine_id'], mid2=r2['machine_id'], s1=r1['start_at'], e1=r1['end_at'], s2=r2['start_at'], e2=r2['end_at']
-        ))
+        print(
+            "r1_id: {id1} r2_id:{id2} r1_machine_id: {mid1} r2_machine_id: {mid2} r1_period: {s1} - {e1} r2_period {s2} - {e2}".format(
+                id1=r1['id'], id2=r2['id'], mid1=r1['machine_id'], mid2=r2['machine_id'], s1=r1['start_at'],
+                e1=r1['end_at'], s2=r2['start_at'], e2=r2['end_at']
+            ))
         if r1['ep_id'] and not r2['ep_id']:
             print('Reservation #%s will be removed' % r2['id'])
             removed.add(r2['id'])
@@ -61,7 +68,8 @@ def main():
             print('Reservation #%s will be removed' % r2['id'])
             removed.update([r1['id'], r2['id']])
         else:
-            print('Cannot automatically remove reservations #%s and #%s' % (r1['id'], r2['id']))
+            print('Will not automatically remove reservations #%s and #%s as both are linked to some participation'
+                  % (r1['id'], r2['id']))
             unresolved.update([r1['id'], r2['id']])
     print('Conclusion')
     print('The following reservations will be removed: \n%s' % removed)
@@ -69,6 +77,7 @@ def main():
     if len(removed) > 0:
         delete(removed)
     conn.commit()
+
 
 if __name__ == "__main__":
     main()

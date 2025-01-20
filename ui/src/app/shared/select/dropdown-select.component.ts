@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, NgIf, SlicePipe } from '@angular/common';
+import { NgClass, SlicePipe } from '@angular/common';
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -41,9 +41,11 @@ import { Option } from './select.model';
                     </div>
                 </div>
             }
-            <button type="button" ngbDropdownItem *ngIf="allowClearing" (click)="clearSelection(); d.close()">
-                <i class="bi-x text text-danger"></i>
-            </button>
+            @if (allowClearing) {
+                <button type="button" ngbDropdownItem (click)="clearSelection(); d.close()">
+                    <i class="bi-x text text-danger"></i>
+                </button>
+            }
             @for (opt of filteredOptions; track $index) {
                 <button
                     type="button"
@@ -67,7 +69,6 @@ import { Option } from './select.model';
     imports: [
         NgbDropdown,
         NgbDropdownToggle,
-        NgIf,
         NgClass,
         NgbDropdownMenu,
         FormsModule,
