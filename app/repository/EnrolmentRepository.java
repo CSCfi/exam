@@ -288,11 +288,6 @@ public class EnrolmentRepository {
             if (
                 enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.AQUARIUM
             ) {
-                // If user is on a correct aquarium machine then always set a header
-                headers.put(
-                    "x-exam-aquarium-login",
-                    String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
-                );
                 // Aquarium exam, don't set headers unless it starts in 5 minutes
                 DateTime threshold = DateTime.now().plusMinutes(5);
                 DateTime start = dateTimeHandler.normalize(
@@ -327,22 +322,22 @@ public class EnrolmentRepository {
         int delay = ee.getDelay();
         return (
             (reservation != null &&
-                reservation.getStartAt().plusSeconds(delay).isBefore(latest) &&
+                reservation.getStartAt().plusMillis(delay).isBefore(latest) &&
                 reservation.getEndAt().isAfter(earliest)) ||
             (event != null &&
-                event.getStart().plusSeconds(delay).isBefore(latest) &&
+                event.getStart().plusMillis(delay).isBefore(latest) &&
                 event.getStart().plusMinutes(ee.getExam().getDuration()).isAfter(earliest))
         );
     }
 
     private DateTime getStartTime(ExamEnrolment enrolment) {
         return enrolment.getReservation() != null
-            ? enrolment.getReservation().getStartAt().plusSeconds(enrolment.getDelay())
+            ? enrolment.getReservation().getStartAt().plusMillis(enrolment.getDelay())
             : enrolment
                 .getExaminationEventConfiguration()
                 .getExaminationEvent()
                 .getStart()
-                .plusSeconds(enrolment.getDelay());
+                .plusMillis(enrolment.getDelay());
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {
