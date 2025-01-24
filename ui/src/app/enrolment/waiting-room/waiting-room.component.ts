@@ -102,7 +102,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     private startScheduled = () => {
         window.clearTimeout(this.startTimerId);
         const offset = Math.ceil(
-            DateTime.fromJSDate(this.getStart()).plus({ seconds: this.enrolment.delay }).toSeconds() -
+            DateTime.fromJSDate(this.getStart()).plus({ milliseconds: this.enrolment.delay }).toSeconds() -
                 DateTime.now().toSeconds(),
         );
         this.delayTimerId = window.setTimeout(this.Session.checkSession, Math.max(0, offset * 1000));
