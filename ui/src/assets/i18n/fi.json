@@ -1197,5 +1197,10 @@
     "i18n_iop_reservations": "Tenttivierailut",
     "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset",
     "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset",
-    "i18n_unused_reservation": "Käyttämätön varaus"
+    "i18n_unused_reservation": "Käyttämätön varaus",
+    "i18n_no_reservations_found" : "Nykyisellä haulla ei löytynyt varauksia",
+    "i18n_access_forbidden": "Toiminto estetty - ei oikeuksia",
+    "i18n_open_assessment": "Avaa arviointi",
+    "i18n_open_exam": "Avaa tentti",
+    "i18n_monthly_language_inspection_info": "Valitse kuukausi ja vuosi valikosta ja napsauta Print-nappulaa luodaksesi kielitarkastuksen raportin valitulle ajankohtalle"
 }

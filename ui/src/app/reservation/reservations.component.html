@@ -148,7 +148,11 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
 
-    @if (reservations) {
+    @if (reservations && reservations.length > 0) {
         <xm-reservation-details [reservations]="reservations" [isAdminView]="isAdminView()"> </xm-reservation-details>
+    } @else {
+        <div class="mt-3" aria-live="polite">
+            {{ 'i18n_no_reservations_found' | translate }}
+        </div>
     }
 </ng-template>

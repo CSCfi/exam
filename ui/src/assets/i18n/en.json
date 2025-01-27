@@ -1197,5 +1197,8 @@
     "i18n_iop_reservations": "Tenttivierailut EN",
     "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset EN",
     "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset EN",
-    "i18n_unused_reservation": "Käyttämätön varaus EN"
+    "i18n_unused_reservation": "Käyttämätön varaus EN",
+    "i18n_no_reservations_found" : "No reservations found with current search",
+    "i18n_access_forbidden": "Access forbidden",
+    "i18n_monthly_language_inspection_info": "Select month and year from the dropdowns and click Print to generate a language inspection report for the selected period"
 }
