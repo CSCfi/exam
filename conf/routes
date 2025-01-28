@@ -473,7 +473,7 @@ PUT           /app/maintenance/:id                                              
 DELETE        /app/maintenance/:id                                                controllers.facility.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
 
 #######################################################
-GET           /attributes                                                         controllers.user.SessionController.getAttributes(request: Request)
+GET           /app/attributes                                                     controllers.user.SessionController.getAttributes(request: Request)
 
 # static assets
 GET           /*path                                                              controllers.assets.FrontendController.assetOrDefault(path)
