@@ -1202,5 +1202,6 @@
     "i18n_access_forbidden": "Toiminto estetty - ei oikeuksia",
     "i18n_open_assessment": "Avaa arviointi",
     "i18n_open_exam": "Avaa tentti",
-    "i18n_monthly_language_inspection_info": "Valitse kuukausi ja vuosi valikosta ja napsauta Print-nappulaa luodaksesi kielitarkastuksen raportin valitulle ajankohtalle"
+    "i18n_monthly_language_inspection_info": "Valitse kuukausi ja vuosi valikosta ja napsauta Print-nappulaa luodaksesi kielitarkastuksen raportin valitulle ajankohtalle",
+    "i18n_you_are_early_for_examination": "Olet ennenaikaisesti kirjautunut tenttikoneelle. Sinut ohjataan varsinaiseen tentin käynnistykseen viisi minuuttia ennen sen alkamisaikaa, joka on klo"
 }

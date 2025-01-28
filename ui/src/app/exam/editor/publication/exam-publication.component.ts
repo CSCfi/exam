@@ -22,11 +22,9 @@ import { SessionService } from 'src/app/session/session.service';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
-import { CollaborativeExamOwnerSelectorComponent } from './collaborative-exam-owner-picker.component';
 import { CustomDurationPickerDialogComponent } from './custom-duration-picker-dialog.component';
 import { ExamPublicationParticipantsComponent } from './exam-publication-participants.component';
 import { ExaminationEventsComponent } from './examination-events.component';
-import { OrganisationSelectorComponent } from './organisation-picker.component';
 import { PublicationDialogComponent } from './publication-dialog.component';
 import { PublicationErrorDialogComponent } from './publication-error-dialog.component';
 import { PublicationRevocationDialogComponent } from './publication-revocation-dialog.component';
@@ -41,8 +39,6 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
         NgbPopover,
         NgClass,
         ExamPublicationParticipantsComponent,
-        CollaborativeExamOwnerSelectorComponent,
-        OrganisationSelectorComponent,
         ExaminationEventsComponent,
         UpperCasePipe,
         DatePipe,
@@ -287,7 +283,7 @@ export class ExamPublicationComponent implements OnInit {
 
     private errorsPreventingPublication(): string[] {
         const errors: string[] = this.errorsPreventingPrePublication();
-        if (!this.exam.course && !this.collaborative) {
+        if (!this.exam.course && !this.collaborative()) {
             errors.push('i18n_course_missing');
         }
         if (this.countQuestions() === 0) {

@@ -13,20 +13,12 @@ import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 
 @Component({
     selector: 'xm-new-exam',
     templateUrl: './new-exam.component.html',
     standalone: true,
-    imports: [
-        HistoryBackComponent,
-        FormsModule,
-        NgbPopover,
-        TranslateModule,
-        PageHeaderComponent,
-        PageContentComponent,
-    ],
+    imports: [FormsModule, NgbPopover, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class NewExamComponent implements OnInit {
     executionTypes: (ExamExecutionType & { name: string })[] = [];

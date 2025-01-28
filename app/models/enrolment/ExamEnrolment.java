@@ -33,7 +33,7 @@ import org.joda.time.DateTime;
 @Entity
 public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {
 
-    private static final int DELAY_MAX = 30;
+    private static final int DELAY_MAX = 30 * 1000;
 
     @ManyToOne
     @JsonManagedReference
