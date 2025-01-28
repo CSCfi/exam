@@ -32,6 +32,7 @@ import { SettingsService } from './settings.service';
 export class SettingsComponent implements OnInit {
     config!: AppConfig;
     attributes: string[] = [];
+    majorAgreementUpdate = false;
 
     constructor(
         private Settings: SettingsService,
@@ -45,7 +46,10 @@ export class SettingsComponent implements OnInit {
     }
 
     updateAgreement = () =>
-        this.Settings.updateAgreement$(this.config).subscribe({ next: this.onSuccess, error: this.onError });
+        this.Settings.updateAgreement$(this.config, this.majorAgreementUpdate).subscribe({
+            next: this.onSuccess,
+            error: this.onError,
+        });
 
     updateDeadline = () =>
         this.Settings.updateDeadline$(this.config).subscribe({ next: this.onSuccess, error: this.onError });

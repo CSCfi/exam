@@ -24,10 +24,16 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <div class="row mt-2">
-        <div class="col-12">
+        <div class="col-1">
             <button (click)="updateAgreement()" class="btn btn-success">
                 {{ 'i18n_button_save' | translate }}
             </button>
+        </div>
+        <div class="col form-check mt-2">
+            <label class="form-check-label ms-2" for="exclude-update">{{
+                'i18n_minor_agreement_update' | translate
+            }}</label>
+            <input id="exclude-update" class="form-check-input" type="checkbox" [(ngModel)]="majorAgreementUpdate" />
         </div>
     </div>
 
