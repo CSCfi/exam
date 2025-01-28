@@ -1238,5 +1238,6 @@
     "i18n_language_inspection_reports_title": "Språkgranskningsrapporter SV",
     "i18n_login_title": "Logga in SV",
     "i18n_logout_title": "Logga ut SV",
-    "i18n_assessment_questions_title": "Bedömningsfrågor SV"
+    "i18n_assessment_questions_title": "Bedömningsfrågor SV",
+    "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille SV"
 }

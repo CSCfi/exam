@@ -130,16 +130,16 @@ public class SettingsController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result updateUserAgreement(Http.Request request) {
-        DynamicForm df = formFactory.form().bindFromRequest(request);
-        String eula = df.get("value");
+        JsonNode body = request.body().asJson();
+        String eula = body.get("value").asText();
         GeneralSettings gs = getOrCreateSettings("eula", eula, null);
-
-        // Since the EULA has changed, force users to accept it again.
-        String updStatement = "update app_user set user_agreement_accepted = :hasNot";
-        Update<User> update = DB.createUpdate(User.class, updStatement);
-        update.set("hasNot", false);
-        update.execute();
-
+        if (!body.get("majorUpdate").asBoolean()) {
+            // Since the EULA has changed, force users to accept it again.
+            String updStatement = "update app_user set user_agreement_accepted = :hasNot";
+            Update<User> update = DB.createUpdate(User.class, updStatement);
+            update.set("hasNot", false);
+            update.execute();
+        }
         return ok(Json.toJson(gs));
     }
 
