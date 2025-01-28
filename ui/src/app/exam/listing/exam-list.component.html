@@ -104,6 +104,9 @@ SPDX-License-Identifier: EUPL-1.2
                                 ></xm-table-sort>
                             </th>
                             <th>
+                                <!-- Function space -->
+                            </th>
+                            <th>
                                 <xm-table-sort
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
@@ -157,14 +160,18 @@ SPDX-License-Identifier: EUPL-1.2
                                 </td>
                                 <td>
                                     @if (exam.name) {
-                                        <a [routerLink]="['/staff/exams', exam.id, '1']"
-                                            ><strong>{{ exam.name }}</strong></a
-                                        >
+                                        <strong>{{ exam.name }}</strong>
                                     } @else {
-                                        <a class="text-danger" [routerLink]="['/staff/exams', exam.id, '1']">
-                                            <strong>{{ 'i18n_no_name' | translate }}</strong>
-                                        </a>
+                                        <strong>{{ 'i18n_no_name' | translate }}</strong>
                                     }
+                                </td>
+                                <td>
+                                    <button
+                                        [routerLink]="['/staff/exams', exam.id, '1']"
+                                        class="btn btn-sm btn-outline-secondary"
+                                    >
+                                        {{ 'i18n_view_assessment' | translate }}
+                                    </button>
                                 </td>
                                 <td>
                                     {{ getExecutionTypeTranslation(exam) | translate | uppercase }}
@@ -188,14 +195,22 @@ SPDX-License-Identifier: EUPL-1.2
                                 </td>
                                 <td class="text-center">
                                     <!-- todo: make a modal component out of this -->
-                                    <a (click)="copyExam(exam)" class="pointer">
+                                    <button
+                                        (click)="copyExam(exam)"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        [attr.aria-label]="'i18n_copy' | translate"
+                                    >
                                         <i class="bi-files"></i>
-                                    </a>
+                                    </button>
                                 </td>
                                 <td class="text-center">
-                                    <a (click)="deleteExam(exam)" class="pointer">
+                                    <button
+                                        (click)="deleteExam(exam)"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        [attr.aria-label]="'i18n_remove' | translate"
+                                    >
                                         <i class="bi-x sitnet-red"></i>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         }

@@ -102,6 +102,9 @@ SPDX-License-Identifier: EUPL-1.2
                         </xm-table-sort>
                     </th>
                     <th class="with-top">
+                        <!--This is empty on purpose. We want to have empty column for function-->
+                    </th>
+                    <th class="with-top">
                         <xm-table-sort
                             by="ownerAggregate"
                             text="i18n_teachers"
@@ -195,9 +198,15 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <!-- 3 -->
                         <td>
-                            <a [routerLink]="['/staff/assessments', inspection.exam.id]">
-                                {{ inspection.exam.name }}
-                            </a>
+                            {{ inspection.exam.name }}
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-sm btn-outline-secondary"
+                                [routerLink]="['/staff/assessments', inspection.exam.id]"
+                            >
+                                {{ 'i18n_view_assessment' | translate }}
+                            </button>
                         </td>
                         <!-- 4 -->
                         <td>

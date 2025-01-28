@@ -33,19 +33,22 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                                 @for (type of executionTypes; track type) {
                                     <div>
                                         @if (type.examinationTypes.length > 0) {
-                                            <a
-                                                class="pointer"
+                                            <button
+                                                class="btn btn-sm btn-outline-secondary mb-1"
                                                 [ngClass]="{ 'selected-type': selectedType === type }"
                                                 (click)="selectType(type)"
                                                 autofocus
                                             >
                                                 {{ type.name | translate }}
-                                            </a>
+                                            </button>
                                         }
                                         @if (type.examinationTypes.length === 0) {
-                                            <a class="pointer" (click)="selectConfig(type.type)">
+                                            <button
+                                                class="btn btn-sm btn-outline-secondary mb-1"
+                                                (click)="selectConfig(type.type)"
+                                            >
                                                 {{ type.name | translate }}
-                                            </a>
+                                            </button>
                                         }
                                     </div>
                                 }
@@ -67,9 +70,12 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                             <ng-template>
                                 @for (et of selectedType.examinationTypes; track et) {
                                     <div>
-                                        <a class="pointer" (click)="selectConfig(selectedType.type, et.type)">
+                                        <button
+                                            class="btn btn-sm btn-outline-secondary mb-1"
+                                            (click)="selectConfig(selectedType.type, et.type)"
+                                        >
                                             {{ et.name | translate }}
-                                        </a>
+                                        </button>
                                     </div>
                                 }
                             </ng-template>

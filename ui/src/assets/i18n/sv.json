@@ -1188,7 +1188,8 @@
     "i18n_exam_not_published": "Tentamen inte publicerad. SV",
     "i18n_show_participants": "Visa deltagare",
     "i18n_hide_participants": "Dölj deltagare",
-    "i18n_exam_owner_info": "Tentamen behöver minst en bedömare.SV",
+    "i18n_exam_last_owner_info": "Tentissä pitää olla vähintään yksi omistaja. Viimeistä tentaattoria ei voi poistaa. SV",
+    "i18n_exam_owner_info": "Tentamen behöver minst en bedömare. SV",
     "i18n_csv_uploading_cancelled": "CSV file upload cancelled",
     "i18n_exam_last_owner_info": "Tentamen behöver minst en bedömare. SV",
     "i18n_view_assessment": "Visa bedöm SV",
@@ -1198,5 +1199,9 @@
     "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset SV",
     "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset SV",
     "i18n_unused_reservation": "Käyttämätön varaus SV",
+    "i18n_csv_uploading_cancelled": "Uppladdning av CSV-fil avbruten",
+    "i18n_no_reservations_found": "Inga bokningar hittades med nuvarande sökning SV",
+    "i18n_access_forbidden": "Åtkomst nekad SV",
+    "i18n_monthly_language_inspection_info": "Valitse kuukausi och år från valikorna och klicka på Print för att generera en kieltäckningsrapport för det valda perioden SV",
     "i18n_you_are_early_for_examination": "Olet ennenaikaisesti kirjautunut tenttikoneelle. Sinut ohjataan varsinaiseen tentin käynnistykseen viisi minuuttia ennen sen alkamisaikaa, joka on klo SV"
 }
