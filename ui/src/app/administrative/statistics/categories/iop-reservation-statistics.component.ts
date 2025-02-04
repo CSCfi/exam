@@ -82,7 +82,7 @@ export class IopReservationStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};
 
     reservations: Reservation[] = [];
-    grouped!: Record<string, Reservation[]>;
+    grouped: Record<string, Reservation[]> = {};
 
     constructor(private Statistics: StatisticsService) {}
 
