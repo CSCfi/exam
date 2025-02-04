@@ -257,6 +257,34 @@ public class ReportController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN") })
+    public Result getIopReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
+        ExpressionList<Reservation> query = DB
+            .find(Reservation.class)
+            .fetch("externalReservation")
+            .fetch("enrolment")
+            .where()
+            .or()
+            .isNotNull("externalRef")
+            .isNotNull("externalReservation.orgName")
+            .endOr();
+        query =
+            applyFilters(
+                query,
+                "enrolment.exam.course",
+                "startAt",
+                dept.orElse(null),
+                start.orElse(null),
+                end.orElse(null)
+            );
+        Set<Reservation> reservations = query
+            .findSet()
+            .stream()
+            .filter(r -> r.getExternalOrgName() != null || (r.getExternalReservation() != null))
+            .collect(Collectors.toSet());
+        return ok(reservations);
+    }
+
+    @Restrict({ @Group("ADMIN") })
     public Result getResponses(Optional<String> dept, Optional<String> start, Optional<String> end) {
         ExpressionList<Exam> query = DB.find(Exam.class).where().isNotNull("parent").isNotNull("course");
         query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
