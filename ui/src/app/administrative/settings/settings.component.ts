@@ -32,7 +32,7 @@ import { SettingsService } from './settings.service';
 export class SettingsComponent implements OnInit {
     config!: AppConfig;
     attributes: string[] = [];
-    majorAgreementUpdate = false;
+    minorAgreementUpdate = false;
 
     constructor(
         private Settings: SettingsService,
@@ -46,7 +46,7 @@ export class SettingsComponent implements OnInit {
     }
 
     updateAgreement = () =>
-        this.Settings.updateAgreement$(this.config, this.majorAgreementUpdate).subscribe({
+        this.Settings.updateAgreement$(this.config, this.minorAgreementUpdate).subscribe({
             next: this.onSuccess,
             error: this.onError,
         });

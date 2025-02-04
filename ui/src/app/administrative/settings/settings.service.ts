@@ -11,7 +11,7 @@ export class SettingsService {
     constructor(private http: HttpClient) {}
 
     updateAgreement$ = (config: AppConfig, bypassAgreementUpdate = false) =>
-        this.http.put('/app/settings/agreement', { value: config.eula, majorUpdate: bypassAgreementUpdate });
+        this.http.put('/app/settings/agreement', { value: config.eula, minorUpdate: bypassAgreementUpdate });
 
     updateDeadline$ = (config: AppConfig) => this.http.put('/app/settings/deadline', { value: config.reviewDeadline });
 
