@@ -7,8 +7,7 @@ import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { groupBy } from 'ramda';
-import { QueryParams } from 'src/app/administrative/administrative.model';
-import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
+import { QueryParams, StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 import { Reservation } from 'src/app/reservation/reservation.model';
 
 @Component({
