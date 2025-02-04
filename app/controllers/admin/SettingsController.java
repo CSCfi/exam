@@ -133,7 +133,7 @@ public class SettingsController extends BaseController {
         JsonNode body = request.body().asJson();
         String eula = body.get("value").asText();
         GeneralSettings gs = getOrCreateSettings("eula", eula, null);
-        if (!body.get("majorUpdate").asBoolean()) {
+        if (!body.get("minorUpdate").asBoolean()) {
             // Since the EULA has changed, force users to accept it again.
             String updStatement = "update app_user set user_agreement_accepted = :hasNot";
             Update<User> update = DB.createUpdate(User.class, updStatement);
