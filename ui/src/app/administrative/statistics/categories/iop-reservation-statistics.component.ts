@@ -82,7 +82,7 @@ export class IopReservationStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};
 
     reservations: Reservation[] = [];
-    grouped!: Record<string, Reservation[]>;
+    grouped: Record<string, Reservation[]> = {};
 
     constructor(private Statistics: StatisticsService) {}
 
@@ -104,20 +104,13 @@ export class IopReservationStatisticsComponent implements OnInit {
         this.grouped[org].filter((r) => r.externalReservation?.orgName && !r.enrolment?.noShow).length;
     outgoingNoShowsTo = (org: keyof typeof this.grouped): number =>
         this.grouped[org].filter((r) => r.externalReservation?.orgName && r.enrolment?.noShow === true).length;
-    totalIncoming = () =>
+    totalIncoming = () => this.reduce(this.incomingFrom);
+    totalOutgoing = () => this.reduce(this.outgoingTo);
+    totalIncomingNoShows = () => this.reduce(this.incomingNoShowsFrom);
+    totalOutgoingNoShows = () => this.reduce(this.outgoingNoShowsTo);
+
+    private reduce = (fn: (org: keyof typeof this.grouped) => number) =>
         Object.keys(this.grouped)
-            .map((k) => this.incomingFrom(k))
-            .reduce((a, b) => a + b);
-    totalOutgoing = () =>
-        Object.keys(this.grouped)
-            .map((k) => this.outgoingTo(k))
-            .reduce((a, b) => a + b);
-    totalIncomingNoShows = () =>
-        Object.keys(this.grouped)
-            .map((k) => this.incomingNoShowsFrom(k))
-            .reduce((a, b) => a + b);
-    totalOutgoingNoShows = () =>
-        Object.keys(this.grouped)
-            .map((k) => this.outgoingNoShowsTo(k))
-            .reduce((a, b) => a + b);
+            .map(fn)
+            .reduce((a, b) => a + b, 0);
 }
