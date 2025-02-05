@@ -80,7 +80,7 @@ import { Cloze } from './plugins/clozetest/plugin';
             (change)="onChange($event)"
             (blur)="onBlur($event)"
         ></ckeditor>
-        <div id="word-count"></div>
+        <div [id]="id"></div>
     </div> `,
     standalone: true,
     imports: [FormsModule, NgIf, CKEditorModule],
@@ -89,6 +89,7 @@ export class CKEditorComponent implements AfterViewInit {
     @Input() data = '';
     @Input() required = false;
     @Input() enableClozeTest = false;
+    @Input() id = 'word-count-id';
     @Output() dataChange = new EventEmitter<string>();
 
     editor = ClassicEditor;
@@ -267,7 +268,7 @@ export class CKEditorComponent implements AfterViewInit {
                 isVisible: true,
             },
             language: { ui: this.Translate.currentLang },
-            placeholder: 'Type or paste your content here!',
+            placeholder: this.Translate.instant('i18n_content_goes_here'),
             table: {
                 contentToolbar: [
                     'tableColumn',
@@ -285,7 +286,7 @@ export class CKEditorComponent implements AfterViewInit {
 
     onReady(e: Editor) {
         const wordCountPlugin = e.plugins.get('WordCount');
-        const wordCountWrapper = document.getElementById('word-count') as HTMLElement;
+        const wordCountWrapper = document.getElementById(this.id) as HTMLElement;
         wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
         //CKEditorInspector.attach(e);
     }

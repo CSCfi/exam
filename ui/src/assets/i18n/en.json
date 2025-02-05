@@ -1241,6 +1241,8 @@
     "i18n_login_title": "Login",
     "i18n_logout_title": "Logged out",
     "i18n_assessment_questions_title": "Assessment questions",
+    "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille",
+    "i18n_content_goes_here": "Kirjoita tai lisää tekstisisältö tänne EN",
     "i18n_exam_reservation_canceled": "Exam reservation cancelled",
     "i18n_confirm_delete_exam_reservation": "Do you want to delete the exam reservation?",
     "i18n_error_disallowed_login_with_external_domain_credentials": "Kirjautuminen ulkopuolisen organisaation tunnuksilla ei sallittu EN",
