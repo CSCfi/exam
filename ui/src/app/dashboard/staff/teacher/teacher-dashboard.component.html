@@ -23,7 +23,7 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #content>
     <div class="row">
         <div class="col-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs" [keyboard]="false">
                 <li [ngbNavItem]="1">
                     <a ngbNavLink>
                         <div class="make-inline me-2">{{ 'i18n_active_exams_title' | translate }}</div>
