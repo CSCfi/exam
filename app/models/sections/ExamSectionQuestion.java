@@ -67,7 +67,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     @JoinColumn(name = "question_id")
     private Question question;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "examSectionQuestion")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "examSectionQuestion")
     private Set<ExamSectionQuestionOption> options;
 
     @Column
