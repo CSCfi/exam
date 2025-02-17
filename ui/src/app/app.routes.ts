@@ -12,13 +12,7 @@ import { LogoutComponent } from './session/logout/logout.component';
 const buildTitle = (key: string, extraPart = ''): Observable<string> => {
     const tx = inject(TranslateService);
     const extra = extraPart ? ` ${extraPart}` : '';
-    return tx.get(key).pipe(
-        map(
-            () =>
-                `${tx.instant(key)}${extra}
-     - EXAM`,
-        ),
-    );
+    return tx.get(key).pipe(map(() => `${tx.instant(key)}${extra} - EXAM`));
 };
 
 export const APP_ROUTES: Route[] = [
@@ -26,7 +20,7 @@ export const APP_ROUTES: Route[] = [
         path: '',
         component: AppComponent,
         pathMatch: 'full',
-        title: 'EXAM',
+        title: () => buildTitle('i18n_login_title'),
     },
     {
         path: 'dashboard',
@@ -37,6 +31,7 @@ export const APP_ROUTES: Route[] = [
     {
         path: 'logout',
         component: LogoutComponent,
+        title: () => buildTitle('i18n_logout_title'),
     },
     {
         path: 'exam/:hash',
@@ -56,6 +51,14 @@ export const APP_ROUTES: Route[] = [
         path: 'waitingroom',
         loadComponent: () =>
             import('./enrolment/waiting-room/waiting-room.component').then((mod) => mod.WaitingRoomComponent),
+        title: () => buildTitle('i18n_waiting_room_title'),
+    },
+    {
+        path: 'early/:id/:hash',
+        loadComponent: () =>
+            import('./enrolment/waiting-room/waiting-room-early.component').then(
+                (mod) => mod.WaitingRoomEarlyComponent,
+            ),
         title: () => buildTitle('i18n_waiting_room_title'),
     },
     {
@@ -113,7 +116,7 @@ export const APP_ROUTES: Route[] = [
         path: 'enrolments/:id',
         loadComponent: () =>
             import('./enrolment/exams/exam-enrolments.component').then((mod) => mod.ExamEnrolmentsComponent),
-        title: (route) => buildTitle('i18n_enrolment_title', `#${route.params.id}`),
+        title: () => buildTitle('i18n_enrolment_title'),
     },
     {
         path: 'calendar/:id',
@@ -122,7 +125,7 @@ export const APP_ROUTES: Route[] = [
             isExternal: false,
             isCollaborative: false,
         },
-        title: (route) => buildTitle('i18n_reservation_title', `#${route.params.id}`),
+        title: () => buildTitle('i18n_reservation_title'),
     },
     {
         path: 'calendar/:id/external',
@@ -130,7 +133,7 @@ export const APP_ROUTES: Route[] = [
         data: {
             isExternal: true,
         },
-        title: (route) => buildTitle('i18n_external_reservation_title', `#${route.params.id}`),
+        title: () => buildTitle('i18n_external_reservation_title'),
     },
     {
         path: 'calendar/:id/collaborative',
@@ -139,7 +142,7 @@ export const APP_ROUTES: Route[] = [
             isExternal: false,
             isCollaborative: true,
         },
-        title: (route) => buildTitle('i18n_collaborative_reservation_title', `#${route.params.id}`),
+        title: () => buildTitle('i18n_collaborative_reservation_title'),
     },
     {
         path: 'staff',

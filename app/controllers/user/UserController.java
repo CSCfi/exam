@@ -214,7 +214,6 @@ public class UserController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("STUDENT") })
     public Result updateUserAgreementAccepted(Http.Request request) {
         Result result;
         User user = DB.find(User.class)

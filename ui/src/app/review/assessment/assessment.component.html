@@ -19,14 +19,14 @@ SPDX-License-Identifier: EUPL-1.2
             <xm-course-code [course]="exam.course"></xm-course-code> -
         }
         {{ exam.name }}
-        <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
+        <button class="pointer btn btn-link" (click)="hideGeneralInfo = !hideGeneralInfo">
             @if (hideGeneralInfo) {
                 <img src="/assets/images/icon_list_show_right.svg" alt="" />
             }
             @if (!hideGeneralInfo) {
                 <img src="/assets/images/icon_list_show_down.svg" alt="" />
             }
-        </a>
+        </button>
     </h3>
     <!-- General Information -->
     <div class="row" [ngbCollapse]="hideGeneralInfo">
@@ -57,12 +57,12 @@ SPDX-License-Identifier: EUPL-1.2
     <h4 class="row mt-2">
         <div class="col-12">
             {{ 'i18n_grading_info' | translate }}
-            <a (click)="hideGradeInfo = !hideGradeInfo">
+            <button class="btn btn-link" (click)="hideGradeInfo = !hideGradeInfo">
                 @if (hideGradeInfo) {
                     <img src="/assets/images/icon_list_show_right.svg" alt="" />
                 }
                 <img [hidden]="hideGradeInfo" src="/assets/images/icon_list_show_down.svg" alt="" />
-            </a>
+            </button>
         </div>
     </h4>
 

@@ -16,7 +16,7 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #content>
     <div class="row">
         <div class="col-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs" [keyboard]="false">
                 <li [ngbNavItem]="'PUBLISHED'">
                     <a ngbNavLink>
                         {{ 'i18n_published_joint_exams' | translate }}

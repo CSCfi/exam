@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, NgForOf } from '@angular/common';
+import { NgForOf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -33,16 +33,7 @@ interface Filterable<T> {
     selector: 'xm-library-search',
     templateUrl: './library-search.component.html',
     standalone: true,
-    imports: [
-        NgClass,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        FormsModule,
-        TranslateModule,
-        NgForOf,
-    ],
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, FormsModule, TranslateModule, NgForOf],
 })
 export class LibrarySearchComponent implements OnInit {
     @Output() updated: EventEmitter<LibraryQuestion[]> = new EventEmitter<LibraryQuestion[]>();

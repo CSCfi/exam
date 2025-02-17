@@ -8,17 +8,17 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-6">
         {{ 'i18n_processed_language_inspections' | translate }}
         @if (inspections.length > 0) {
-            <a (click)="hideItems = !hideItems" class="pointer ms-1">
+            <button (click)="hideItems = !hideItems" class="btn btn-link ms-1">
                 <img [hidden]="!hideItems" src="/assets/images/icon_list_show_right.svg" alt="" />
                 <img [hidden]="hideItems" src="/assets/images/icon_list_show_down.svg" alt="" />
-            </a>
+            </button>
         }
     </div>
     <div class="col-md-6">
         <small class="float-end">
-            <a [routerLink]="['/staff/inspections/reports']">{{
-                'i18n_language_inspection_report_link' | translate
-            }}</a>
+            <button class="btn btn-primary" [routerLink]="['/staff/inspections/reports']">
+                {{ 'i18n_language_inspection_report_link' | translate }}
+            </button>
         </small>
     </div>
 </div>
@@ -98,6 +98,9 @@ SPDX-License-Identifier: EUPL-1.2
                             (click)="setPredicate('exam.name')"
                         >
                         </xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <!--This is empty on purpose. We want to have empty column for function-->
                     </th>
                     <th class="with-top">
                         <xm-table-sort
@@ -193,9 +196,15 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <!-- 3 -->
                         <td>
-                            <a [routerLink]="['/staff/assessments', inspection.exam.id]">
-                                {{ inspection.exam.name }}
-                            </a>
+                            {{ inspection.exam.name }}
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-sm btn-outline-secondary"
+                                [routerLink]="['/staff/assessments', inspection.exam.id]"
+                            >
+                                {{ 'i18n_view_assessment' | translate }}
+                            </button>
                         </td>
                         <!-- 4 -->
                         <td>
@@ -246,9 +255,12 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <!-- 11 -->
                         <td>
-                            <a class="pointer" (click)="showStatement(inspection.statement)">{{
-                                'i18n_view' | translate
-                            }}</a>
+                            <button
+                                class="btn btn-sm btn-outline-secondary"
+                                (click)="showStatement(inspection.statement)"
+                            >
+                                {{ 'i18n_view_feedback' | translate }}
+                            </button>
                         </td>
                     </tr>
                 }

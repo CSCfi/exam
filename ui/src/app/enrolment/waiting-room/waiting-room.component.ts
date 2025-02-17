@@ -22,8 +22,8 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
-type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
-type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
+export type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
+export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     reservation: WaitingReservation;
 };
 
@@ -102,7 +102,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     private startScheduled = () => {
         window.clearTimeout(this.startTimerId);
         const offset = Math.ceil(
-            DateTime.fromJSDate(this.getStart()).plus({ seconds: this.enrolment.delay }).toSeconds() -
+            DateTime.fromJSDate(this.getStart()).plus({ milliseconds: this.enrolment.delay }).toSeconds() -
                 DateTime.now().toSeconds(),
         );
         this.delayTimerId = window.setTimeout(this.Session.checkSession, Math.max(0, offset * 1000));

@@ -4,6 +4,8 @@
 
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, Route } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { map, Observable } from 'rxjs';
 import { ReportsComponent } from 'src/app/administrative/reports/reports.component';
 import { SettingsComponent } from 'src/app/administrative/settings/settings.component';
 import { StatisticsComponent } from 'src/app/administrative/statistics/statistics.component';
@@ -46,6 +48,12 @@ import { AdminDashboardComponent } from './admin/admin-dashboard.component';
 import { StaffDashboardComponent } from './staff-dashboard.component';
 import { TeacherDashboardComponent } from './teacher/teacher-dashboard.component';
 
+const buildTitle = (key: string, extraPart = ''): Observable<string> => {
+    const tx = inject(TranslateService);
+    const extra = extraPart ? ` ${extraPart}` : '';
+    return tx.get(key).pipe(map(() => `${tx.instant(key)}${extra} - EXAM`));
+};
+
 const reviewListResolver = (route: ActivatedRouteSnapshot) => {
     const id = route.pathFromRoot[3].params.id; // hacky yes
     const isCollab = inject(ExamTabService).isCollaborative() || route.queryParamMap.get('collaborative') === 'true';
@@ -57,10 +65,10 @@ export const STAFF_ROUTES: Route[] = [
         path: '',
         component: StaffDashboardComponent,
         children: [
-            { path: 'teacher', component: TeacherDashboardComponent },
-            { path: 'admin', component: AdminDashboardComponent },
+            { path: 'teacher', component: TeacherDashboardComponent, title: () => buildTitle('i18n_dashboard_title') },
+            { path: 'admin', component: AdminDashboardComponent, title: () => buildTitle('i18n_dashboard_title') },
 
-            { path: 'questions', component: LibraryComponent },
+            { path: 'questions', component: LibraryComponent, title: () => buildTitle('i18n_question_bank_title') },
             {
                 path: 'questions/:id/edit',
                 component: QuestionComponent,
@@ -69,15 +77,17 @@ export const STAFF_ROUTES: Route[] = [
                     nextState: 'questions',
                 },
                 canDeactivate: [hasUnsavedChangesGuard],
+                title: () => buildTitle('i18n_edit_question_title'),
             },
             {
                 path: 'questions/new',
                 component: QuestionComponent,
                 data: { newQuestion: true },
                 canDeactivate: [hasUnsavedChangesGuard],
+                title: () => buildTitle('i18n_new_question_title'),
             },
 
-            { path: 'exams', component: NewExamComponent },
+            { path: 'exams', component: NewExamComponent, title: () => buildTitle('i18n_create_exam_title') },
             {
                 path: 'exams/:id',
                 component: ExamTabsComponent,
@@ -91,16 +101,37 @@ export const STAFF_ROUTES: Route[] = [
                     },
                 },
                 children: [
-                    { path: '1', component: BasicExamInfoComponent },
-                    { path: '2', component: SectionsComponent },
-                    { path: '3', component: ExamAssessmentComponent },
-                    { path: '4', component: ExamPublicationComponent },
+                    {
+                        path: '1',
+                        component: BasicExamInfoComponent,
+                        title: () => buildTitle('i18n_exam_basic_info_title'),
+                    },
+                    {
+                        path: '2',
+                        component: SectionsComponent,
+                        title: () => buildTitle('i18n_exam_sections_title'),
+                    },
+                    {
+                        path: '3',
+                        component: ExamAssessmentComponent,
+                        title: () => buildTitle('i18n_exam_assessment_settings_title'),
+                    },
+                    {
+                        path: '4',
+                        component: ExamPublicationComponent,
+                        title: () => buildTitle('i18n_exam_publication_settings_title'),
+                    },
                     {
                         path: '5',
                         component: ReviewListComponent,
                         resolve: { reviews: reviewListResolver },
+                        title: () => buildTitle('i18n_exam_reviews_title'),
                     },
-                    { path: '6', component: QuestionReviewsComponent },
+                    {
+                        path: '6',
+                        component: QuestionReviewsComponent,
+                        title: () => buildTitle('i18n_exam_question_reviews_title'),
+                    },
                     {
                         path: '7',
                         loadComponent: () =>
@@ -108,10 +139,15 @@ export const STAFF_ROUTES: Route[] = [
                                 (mod) => mod.ExamSummaryComponent,
                             ),
                         resolve: { reviews: reviewListResolver },
+                        title: () => buildTitle('i18n_exam_summary_title'),
                     },
                 ],
             },
-            { path: 'exams/:id/course', component: CourseSelectionComponent },
+            {
+                path: 'exams/:id/course',
+                component: CourseSelectionComponent,
+                title: () => buildTitle('i18n_create_exam_title'),
+            },
             {
                 path: 'exams/:id/preview', // Hox tab qp
                 component: ExaminationComponent,
@@ -127,48 +163,89 @@ export const STAFF_ROUTES: Route[] = [
                 path: 'exams/:id/printout',
                 component: PrintoutComponent,
             },
-            { path: 'printouts', component: PrintoutListingComponent },
-            { path: 'collaborative', component: CollaborativeExamListingComponent },
-            { path: 'examinationevents', component: ExaminationEventSearchComponent },
+            {
+                path: 'printouts',
+                component: PrintoutListingComponent,
+                title: () => buildTitle('i18n_printouts_title'),
+            },
+            {
+                path: 'collaborative',
+                component: CollaborativeExamListingComponent,
+                title: () => buildTitle('i18n_collaborative_exams_title'),
+            },
+            {
+                path: 'examinationevents',
+                component: ExaminationEventSearchComponent,
+                title: () => buildTitle('i18n_examination_events_title'),
+            },
             {
                 path: 'assessments/:id',
                 component: AssessmentComponent,
                 data: { collaborative: false },
+                title: () => buildTitle('i18n_assessment_title'),
             },
             {
                 path: 'assessments/:id/collaborative/:ref',
                 component: AssessmentComponent,
                 data: { collaborative: true },
+                title: () => buildTitle('i18n_collaborative_assessment_title'),
             },
             {
                 path: 'assessments/:id/questions',
                 component: QuestionAssessmentComponent,
+                title: () => buildTitle('i18n_assessment_questions_title'),
             },
-            { path: 'assessments/:id/speedreview', component: SpeedReviewComponent },
+            {
+                path: 'assessments/:id/speedreview',
+                component: SpeedReviewComponent,
+                title: () => buildTitle('i18n_speed_review_title'),
+            },
             {
                 path: 'assessments/:id/print',
                 component: PrintedAssessmentComponent,
                 data: { collaborative: false },
+                title: () => buildTitle('i18n_assessment_print_title'),
             },
             {
                 path: 'assessments/:id/print/:ref',
                 component: PrintedAssessmentComponent,
                 data: { collaborative: true },
+                title: () => buildTitle('i18n_collaborative_assessment_print_title'),
             },
-            { path: 'inspections', component: LanguageInspectionsComponent },
-            { path: 'inspections/reports', component: MaturityReportingComponent },
-            { path: 'adminexams', component: ExamListingComponent },
-            { path: 'reservations', component: ReservationsComponent },
+            {
+                path: 'inspections',
+                component: LanguageInspectionsComponent,
+                title: () => buildTitle('i18n_language_inspections_title'),
+            },
+            {
+                path: 'inspections/reports',
+                component: MaturityReportingComponent,
+                title: () => buildTitle('i18n_language_inspection_reports_title'),
+            },
+            {
+                path: 'adminexams',
+                component: ExamListingComponent,
+                title: () => buildTitle('i18n_admin_exams_title'),
+            },
+            {
+                path: 'reservations',
+                component: ReservationsComponent,
+                title: () => buildTitle('i18n_reservations_title'),
+            },
             { path: 'reservations/:eid', component: ReservationsComponent },
-            { path: 'rooms', component: FacilityComponent },
-            { path: 'rooms/:id', component: RoomComponent },
-            { path: 'rooms/:id/availability', component: AvailabilityComponent },
-            { path: 'settings', component: SettingsComponent },
-            { path: 'users', component: UsersComponent },
-            { path: 'multiroom', component: MultiRoomComponent },
-            { path: 'machines/:id', component: MachineComponent },
-            { path: 'reports', component: ReportsComponent },
-            { path: 'statistics', component: StatisticsComponent },
+            { path: 'rooms', component: FacilityComponent, title: () => buildTitle('i18n_exam_rooms_title') },
+            { path: 'rooms/:id', component: RoomComponent, title: () => buildTitle('i18n_exam_room_title') },
+            {
+                path: 'rooms/:id/availability',
+                component: AvailabilityComponent,
+                title: () => buildTitle('i18n_room_availability_title'),
+            },
+            { path: 'settings', component: SettingsComponent, title: () => buildTitle('i18n_settings_title') },
+            { path: 'users', component: UsersComponent, title: () => buildTitle('i18n_users_title') },
+            { path: 'multiroom', component: MultiRoomComponent, title: () => buildTitle('i18n_multiroom_title') },
+            { path: 'machines/:id', component: MachineComponent, title: () => buildTitle('i18n_machine_title') },
+            { path: 'reports', component: ReportsComponent, title: () => buildTitle('i18n_reports_title') },
+            { path: 'statistics', component: StatisticsComponent, title: () => buildTitle('i18n_statistics_title') },
         ],
     },
 ];

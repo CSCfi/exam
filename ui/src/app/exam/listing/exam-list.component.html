@@ -15,7 +15,7 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- TAB NAVIGATION -->
     <div class="row">
         <div class="col-md-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs" [keyboard]="false">
                 <li role="presentation" [ngbNavItem]="0">
                     <a ngbNavLink>
                         {{ 'i18n_published_exams' | translate }}
@@ -60,7 +60,7 @@ SPDX-License-Identifier: EUPL-1.2
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 />
-                <div class="input-group-append bi-search search-append"></div>
+              <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
     </div>
@@ -99,6 +99,9 @@ SPDX-License-Identifier: EUPL-1.2
                                     text="i18n_exam_name"
                                     (click)="setPredicate('name')"
                                 ></xm-table-sort>
+                            </th>
+                            <th>
+                                <!-- Function space -->
                             </th>
                             <th>
                                 <xm-table-sort
@@ -154,14 +157,18 @@ SPDX-License-Identifier: EUPL-1.2
                                 </td>
                                 <td>
                                     @if (exam.name) {
-                                        <a [routerLink]="['/staff/exams', exam.id, '1']"
-                                            ><strong>{{ exam.name }}</strong></a
-                                        >
+                                        <strong>{{ exam.name }}</strong>
                                     } @else {
-                                        <a class="text-danger" [routerLink]="['/staff/exams', exam.id, '1']">
-                                            <strong>{{ 'i18n_no_name' | translate }}</strong>
-                                        </a>
+                                        <strong>{{ 'i18n_no_name' | translate }}</strong>
                                     }
+                                </td>
+                                <td>
+                                    <button
+                                        [routerLink]="['/staff/exams', exam.id, '1']"
+                                        class="btn btn-sm btn-outline-secondary"
+                                    >
+                                        {{ 'i18n_view_assessment' | translate }}
+                                    </button>
                                 </td>
                                 <td>
                                     {{ getExecutionTypeTranslation(exam) | translate | uppercase }}
@@ -185,14 +192,22 @@ SPDX-License-Identifier: EUPL-1.2
                                 </td>
                                 <td class="text-center">
                                     <!-- todo: make a modal component out of this -->
-                                    <a (click)="copyExam(exam)" class="pointer">
+                                    <button
+                                        (click)="copyExam(exam)"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        [attr.aria-label]="'i18n_copy' | translate"
+                                    >
                                         <i class="bi-files"></i>
-                                    </a>
+                                    </button>
                                 </td>
                                 <td class="text-center">
-                                    <a (click)="deleteExam(exam)" class="pointer">
+                                    <button
+                                        (click)="deleteExam(exam)"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        [attr.aria-label]="'i18n_remove' | translate"
+                                    >
                                         <i class="bi-x sitnet-red"></i>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         }

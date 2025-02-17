@@ -28,6 +28,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     links: Link[] = [];
     mobileMenuOpen = false;
     user?: User;
+    stateInitialized = false;
     private ngUnsubscribe = new Subject();
 
     constructor(
@@ -37,13 +38,18 @@ export class NavigationComponent implements OnInit, OnDestroy {
         private ExaminationStatus: ExaminationStatusService,
     ) {
         this.user = this.Session.getUser();
-        this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.getLinks(false);
-        });
-        this.ExaminationStatus.upcomingExam$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => this.getLinks(false));
-        this.ExaminationStatus.wrongLocation$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.getLinks(false);
-        });
+        this.ExaminationStatus.examinationStarting$
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => this.getLinks(false, false));
+        this.ExaminationStatus.upcomingExam$
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => this.getLinks(false, false));
+        this.ExaminationStatus.wrongLocation$
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => this.getLinks(false, false));
+        this.ExaminationStatus.aquariumLoggedIn$
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => this.getLinks(false, false));
         this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user: User | undefined) => {
             this.user = user;
             this.getLinks(true);
@@ -51,22 +57,22 @@ export class NavigationComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.user = this.Session.getUser();
-        if (this.user && this.user.isAdmin) {
-            this.Navigation.getAppVersion$().subscribe({
-                next: (resp) => (this.appVersion = resp.appVersion),
-                error: (err) => this.toast.error(err),
-            });
-            this.getLinks(true, true);
-        } else if (this.user) {
-            this.getLinks(true);
-        } else {
-            this.getLinks(false);
-        }
-    }
-
-    isActive(link: Link): boolean {
-        return window.location.href.includes(link.route);
+        // Add a small timeout because there is some race condition/view update problem with initial link
+        // loading if there is an examination starting or started. To be fixed properly if solution found.
+        window.setTimeout(() => {
+            this.user = this.Session.getUser();
+            if (this.user?.isAdmin) {
+                this.Navigation.getAppVersion$().subscribe({
+                    next: (resp) => (this.appVersion = resp.appVersion),
+                    error: (err) => this.toast.error(err),
+                });
+                this.getLinks(true, true);
+            } else if (this.user) {
+                this.getLinks(true);
+            } else {
+                this.getLinks(false);
+            }
+        }, 200);
     }
 
     ngOnDestroy() {
@@ -74,9 +80,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    getSkipLinkPath = (skipTarget: string) => {
-        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
-    };
+    isActive = (link: Link) => window.location.href.includes(link.route);
+
+    getSkipLinkPath = (skipTarget: string) =>
+        window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
 
     openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
 

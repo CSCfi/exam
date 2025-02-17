@@ -28,10 +28,16 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (course of filteredCourses; track course) {
-                    <li [hidden]="course.filtered" role="presentation" (click)="applyFilter(course)" ngbDropdownItem>
-                        <a role="menuitem">{{ formatCourse(course) }} {{ course.name }}</a>
-                    </li>
+                @for (course of filteredCourses; track course.id) {
+                    <button
+                        [hidden]="course.filtered"
+                        role="presentation"
+                        ngbDropdownItem
+                        (click)="applyFilter(course)"
+                        [attr.aria-label]="'i18n_pick_course' + ' ' + course.name"
+                    >
+                        {{ formatCourse(course) }} {{ course.name }}
+                    </button>
                 }
             </ul>
         </span>
@@ -56,15 +62,20 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (exam of filteredExams; track exam) {
-                    <li [hidden]="exam.filtered" role="presentation" (click)="applyFilter(exam)" ngbDropdownItem>
-                        <a role="menuitem"
-                            >{{ formatCourse(exam) }} {{ exam.name }}
-                            @if (exam.period) {
-                                <small class="text-muted">({{ exam.period }})</small>
-                            }
-                        </a>
-                    </li>
+                @for (exam of filteredExams; track exam.id) {
+                    <button
+                        [hidden]="exam.filtered"
+                        role="presentation"
+                        (click)="applyFilter(exam)"
+                        ngbDropdownItem
+                        tabindex="0"
+                        [attr.aria-label]="'i18n_pick_exam' + ' ' + exam.name"
+                    >
+                        {{ formatCourse(exam) }} {{ exam.name }}
+                        @if (exam.period) {
+                            <small class="text-muted">({{ exam.period }})</small>
+                        }
+                    </button>
                 }
             </ul>
         </span>
@@ -91,14 +102,20 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (tag of filteredTags; track tag) {
-                    <li [hidden]="tag.filtered" role="presentation" (click)="applyFilter(tag)" ngbDropdownItem>
+                @for (tag of filteredTags; track tag.id) {
+                    <button
+                        [hidden]="tag.filtered"
+                        role="presentation"
+                        (click)="applyFilter(tag)"
+                        ngbDropdownItem
+                        [attr.aria-label]="'i18n_pick_tag' + ' ' + tag.name"
+                    >
                         @if (tag.usage && tag.usage > 0) {
                             <div role="menuitem" class="text" title="{{ 'i18n_category' | translate }}">
                                 {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
                             </div>
                         }
-                    </li>
+                    </button>
                 }
             </ul>
         </span>
@@ -125,12 +142,18 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (section of filteredSections; track section) {
-                    <li [hidden]="section.filtered" role="presentation" (click)="applyFilter(section)" ngbDropdownItem>
+                @for (section of filteredSections; track section.id) {
+                    <button
+                        [hidden]="section.filtered"
+                        role="presentation"
+                        (click)="applyFilter(section)"
+                        ngbDropdownItem
+                        [attr.aria-label]="'i18n_pick_section' + ' ' + section.name"
+                    >
                         <div role="menuitem" class="text" title="{{ 'i18n_exam_section' | translate }}">
                             {{ section.name }}
                         </div>
-                    </li>
+                    </button>
                 }
             </ul>
         </span>
@@ -156,17 +179,19 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
-                <li
-                    *ngFor="let owner of filteredOwners"
-                    [hidden]="owner.filtered"
-                    role="presentation"
-                    (click)="applyFilter(owner)"
-                    ngbDropdownItem
-                >
-                    <div role="menuitem" class="text" title="{{ 'i18n_owner' | translate }}">
-                        {{ owner.name }}
-                    </div>
-                </li>
+                @for (owner of filteredOwners; track owner.id) {
+                    <button
+                        [hidden]="owner.filtered"
+                        role="presentation"
+                        (click)="applyFilter(owner)"
+                        ngbDropdownItem
+                        [attr.aria-label]="'i18n_pick_owner' + ' ' + owner.name"
+                    >
+                        <div role="menuitem" class="text" title="{{ 'i18n_owner' | translate }}">
+                            {{ owner.name }}
+                        </div>
+                    </button>
+                }
             </ul>
         </span>
     </div>

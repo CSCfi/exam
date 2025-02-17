@@ -462,6 +462,7 @@ GET           /app/reports/participations                                       
 GET           /app/reports/departments                                            controllers.admin.ReportController.listDepartments
 GET           /app/reports/exams                                                  controllers.admin.ReportController.getPublishedExams(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/reports/reservations                                           controllers.admin.ReportController.getReservations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
+GET           /app/reports/reservations/iop                                       controllers.admin.ReportController.getIopReservations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/reports/responses                                              controllers.admin.ReportController.getResponses(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 POST          /app/reports/questionreport/:id                                     controllers.admin.ReportController.exportExamQuestionScoresAsExcel(id: Long, request: Request)
 
@@ -472,7 +473,7 @@ PUT           /app/maintenance/:id                                              
 DELETE        /app/maintenance/:id                                                controllers.facility.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
 
 #######################################################
-GET           /attributes                                                         controllers.user.SessionController.getAttributes(request: Request)
+GET           /app/attributes                                                     controllers.user.SessionController.getAttributes(request: Request)
 
 # static assets
 GET           /*path                                                              controllers.assets.FrontendController.assetOrDefault(path)

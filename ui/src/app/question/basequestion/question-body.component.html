@@ -155,26 +155,32 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="ms-1 row" [hidden]="currentOwners.length !== 1">
+                        {{ 'i18n_exam_last_owner_info' | translate }}
+                    </div>
+                    <div class="col-md-12 mt-3">
                         @for (user of currentOwners; track user.id) {
-                            {{ user.firstName }} {{ user.lastName }}
-                            <button
-                                class="btn btn-sm btn-link"
-                                [disabled]="removeOwnerDisabled(user)"
-                                (click)="removeOwner(user)"
-                                title="{{ 'i18n_remove' | translate }}"
-                            >
-                                <i
-                                    class="bi bi-x"
-                                    [ngClass]="removeOwnerDisabled(user) ? 'text-danger' : 'text-success'"
-                                ></i>
-                            </button>
+                            <div class="ms-1 row" [ngClass]="{ 'hover-grey': currentOwners.length !== 1 }">
+                                <div class="row col-8">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</div>
+                                <!-- Remove button -->
+                                <button
+                                    class="btn btn-danger btn-sm ms-1 w-auto m-1"
+                                    (click)="removeOwner(user)"
+                                    [hidden]="currentOwners.length === 1"
+                                    [disabled]="removeOwnerDisabled(user)"
+                                    [attr.aria-label]="user.firstName + ' ' + user.lastName"
+                                >
+                                    {{ 'i18n_remove' | translate }}
+                                </button>
+                            </div>
                         }
                     </div>
                 </div>
             } @else {
                 @for (user of currentOwners; track user.id) {
-                    <span class="label label-default pe-2">{{ user.firstName }} {{ user.lastName }}</span>
+                    <div class="ms-1 row">
+                        <div class="row col-8">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</div>
+                    </div>
                 }
             }
         </div>

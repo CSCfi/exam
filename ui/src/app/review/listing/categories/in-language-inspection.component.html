@@ -6,14 +6,14 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="xm-paragraph-title">
     {{ 'i18n_await_inspection' | translate }}
-    <a (click)="view.toggle = !view.toggle" class="pointer">
+    <button (click)="view.toggle = !view.toggle" class="btn btn-link text-black">
         @if (!view.toggle) {
             <img src="/assets/images/icon_list_show_right.svg" alt="" />
         }
         @if (view.toggle) {
             <img src="/assets/images/icon_list_show_down.svg" alt="" />
         }
-    </a>
+    </button>
 </div>
 
 <div [ngbCollapse]="!view.toggle" [hidden]="view.items.length === 0">
@@ -42,6 +42,7 @@ SPDX-License-Identifier: EUPL-1.2
                             (click)="setPredicate('displayName')"
                         ></xm-table-sort>
                     </th>
+                    <th></th>
                     <th class="with-top">
                         <xm-table-sort
                             by="examParticipation.user.email"
@@ -118,13 +119,19 @@ SPDX-License-Identifier: EUPL-1.2
                         @if (showId()) {
                             <td>{{ review.examParticipation.exam.id }}</td>
                         }
-                        <td class=" ">
-                            <a class="pointer" [routerLink]="['/staff/assessments', review.examParticipation.exam.id]">
-                                {{ review.displayName }}
-                                @if (review.examParticipation.user.userIdentifier) {
-                                    <span> <br />({{ review.examParticipation.user.userIdentifier }})</span>
-                                }
-                            </a>
+                        <td>
+                            {{ review.displayName }}
+                            @if (review.examParticipation.user.userIdentifier) {
+                                <span> <br />({{ review.examParticipation.user.userIdentifier }})</span>
+                            }
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-sm btn-outline-secondary"
+                                [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
+                            >
+                                {{ 'i18n_view_assessment' | translate }}
+                            </button>
                         </td>
                         <td>
                             <a class="pointer" href="mailto:{{ review.examParticipation.user.email }}">{{

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
@@ -11,10 +15,6 @@ import { AutoEvaluationConfig, Exam, ExamFeedbackConfig, ExamType, GradeScale } 
 import { ExamService } from 'src/app/exam/exam.service';
 import { AutoEvaluationComponent } from './auto-evaluation.component';
 import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
-
-// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
-//
-// SPDX-License-Identifier: EUPL-1.2
 
 @Component({
     selector: 'xm-exam-assessment',
