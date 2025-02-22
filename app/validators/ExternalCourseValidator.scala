@@ -28,12 +28,12 @@ object ExternalCourseValidator:
 
   object GradeScale:
     implicit val scaleReads: Reads[GradeScale] = (
-      (JsPath \ "name").read[String] and
+      (JsPath \ "name").readNullable[String] and
         (JsPath \ "type").read[String] and
-        (JsPath \ "code").read[String](readInt) and
-        (JsPath \ "grades").read[Map[String, Grade]]
-    )(GradeScale.apply )
-  case class GradeScale(name: String, `type`: String, code: String, grades: Map[String, Grade])
+        (JsPath \ "code").readNullable[String](readInt) and
+        (JsPath \ "grades").readNullable[Map[String, Grade]]
+    )(GradeScale.apply)
+  case class GradeScale(name: Option[String], `type`: String, code: Option[String], grades: Option[Map[String, Grade]])
 
   object Organisation:
     implicit val organisationReads: Reads[Organisation] = Json.reads[Organisation]
