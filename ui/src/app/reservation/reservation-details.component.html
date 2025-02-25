@@ -217,7 +217,7 @@ SPDX-License-Identifier: EUPL-1.2
                             r.enrolment.exam.implementation === 'AQUARIUM' &&
                             !reservationIsInPast(r)
                         ) {
-                            <button (click)="removeReservation(r)" class="btn btn-sm btn-primary float-start">
+                            <button (click)="removeReservation(r)" class="btn btn-sm btn-outline-danger float-start">
                                 {{ 'i18n_remove_reservation' | translate }}
                             </button>
                         }
@@ -229,7 +229,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <button
                                 (click)="permitRetrial(r.enrolment)"
                                 [disabled]="!r.enrolment.exam.trialCount || r.enrolment.retrialPermitted"
-                                class="btn btn-sm btn-primary float-start"
+                                class="btn btn-sm btn-outline-primary float-start"
                             >
                                 {{
                                     !r.enrolment.exam.trialCount || r.enrolment.retrialPermitted
