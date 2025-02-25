@@ -1239,5 +1239,6 @@
     "i18n_language_inspection_reports_title": "Language inspection reports",
     "i18n_login_title": "Login",
     "i18n_logout_title": "Logged out",
-    "i18n_assessment_questions_title": "Assessment questions"
+    "i18n_assessment_questions_title": "Assessment questions",
+    "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille"
 }
