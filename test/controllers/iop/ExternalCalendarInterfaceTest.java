@@ -571,7 +571,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     @Test
     public void testLoginAsTemporalStudentVisitorWrongMachine() throws Exception {
         initialize(null);
-        String eppn = "newuser@test.org";
+        String eppn = "newuser@other.org";
         assertThat(user).isNull();
 
         ExamMachine machine = room.getExamMachines().get(0);

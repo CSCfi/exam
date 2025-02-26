@@ -1198,7 +1198,7 @@
     "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset EN",
     "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset EN",
     "i18n_unused_reservation": "Käyttämätön varaus EN",
-    "i18n_no_reservations_found" : "No reservations found with current search",
+    "i18n_no_reservations_found": "No reservations found with current search",
     "i18n_access_forbidden": "Access forbidden",
     "i18n_open_assessment": "Open assessment",
     "i18n_open_exam": "Open exam",
@@ -1239,5 +1239,8 @@
     "i18n_login_title": "Login",
     "i18n_logout_title": "Logged out",
     "i18n_assessment_questions_title": "Assessment questions",
-    "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille"
+    "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille",
+    "i18n_error_disallowed_login_with_external_domain_credentials": "Kirjautuminen ulkopuolisen organisaation tunnuksilla ei sallittu EN",
+    "i18n_external_organisation_login": "Olet kirjautumassa ulkopuolisen organisaation tunnuksella EN ",
+    "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen. EN"
 }
