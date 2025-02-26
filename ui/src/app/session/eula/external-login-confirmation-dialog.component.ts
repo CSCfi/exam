@@ -2,21 +2,21 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { User } from 'src/app/session/session.model';
 
 @Component({
     standalone: true,
     imports: [TranslateModule],
     template: `
         <div class="modal-header">
-            <h1 class="xm-modal-title">{{ 'i18n_accept_useragreement' | translate }}</h1>
+            <h1 class="xm-modal-title">{{ 'i18n_status_notice' | translate }}</h1>
         </div>
         <div class="modal-body">
-            <div [innerHtml]="settings.eula.value"></div>
+            {{ 'i18n_external_organisation_login' | translate }} <strong>{{ user.externalUserOrg }}</strong>
+            {{ 'i18n_external_organisation_login_description' | translate }}
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-success" (click)="activeModal.close()" autofocus>
@@ -28,17 +28,8 @@ import { TranslateModule } from '@ngx-translate/core';
         </div>
     `,
 })
-export class EulaDialogComponent implements OnInit {
-    settings = { eula: { value: '' } };
+export class ExternalLoginConfirmationDialogComponent {
+    @Input() user!: User;
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient,
-    ) {}
-
-    ngOnInit() {
-        this.http
-            .get<{ value: string }>('/app/settings/agreement')
-            .subscribe((resp) => (this.settings = { eula: { value: resp.value } }));
-    }
+    constructor(public activeModal: NgbActiveModal) {}
 }
