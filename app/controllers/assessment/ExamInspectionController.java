@@ -50,6 +50,9 @@ public class ExamInspectionController extends BaseController {
         if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
             return forbidden("i18n_error_access_forbidden");
         }
+        if (isInspectorOf(recipient, exam)) {
+            return forbidden("already an inspector");
+        }
         Optional<String> comment = request.attrs().getOptional(Attrs.COMMENT);
         // Exam name required before adding inspectors that are to receive an email notification
         if ((exam.getName() == null || exam.getName().isEmpty()) && comment.isPresent()) {
