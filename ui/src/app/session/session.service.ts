@@ -179,8 +179,7 @@ export class SessionService implements OnDestroy {
 
     private processLogin$(user: User): Observable<User> {
         const userAgreementConfirmation$ = (u: User): Observable<User> =>
-            //    switchMap((u: User) => (u.isStudent && !u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
-            defer(() => (u.isStudent && !u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
+            defer(() => (!u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
         return user.loginRole
             ? userAgreementConfirmation$(user)
             : this.openRoleSelectModal$(user).pipe(switchMap((u) => userAgreementConfirmation$(u)));

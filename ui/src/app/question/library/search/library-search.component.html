@@ -60,11 +60,7 @@ SPDX-License-Identifier: EUPL-1.2
                         placeholder="{{ 'i18n_search_exam_hint' | translate }}"
                         aria-describedby="search-icon-2"
                     />
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <i id="search-icon-2" class="bi-search"></i>
-                        </div>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </li>
                 @for (exam of filteredExams; track exam.id) {
                     <button
@@ -104,11 +100,7 @@ SPDX-License-Identifier: EUPL-1.2
                         placeholder="{{ 'i18n_search' | translate }}"
                         aria-describedby="search-icon-3"
                     />
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <i id="search-icon-3" class="bi-search"></i>
-                        </div>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </li>
                 @for (tag of filteredTags; track tag.id) {
                     <button
@@ -148,11 +140,7 @@ SPDX-License-Identifier: EUPL-1.2
                         placeholder="{{ 'i18n_search' | translate }}"
                         aria-describedby="search-icon-3"
                     />
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <i id="search-icon-3" class="bi-search"></i>
-                        </div>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </li>
                 @for (section of filteredSections; track section.id) {
                     <button
@@ -189,11 +177,7 @@ SPDX-License-Identifier: EUPL-1.2
                         placeholder="{{ 'i18n_search' | translate }}"
                         aria-describedby="search-icon-3"
                     />
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <i id="search-icon-3" class="bi-search"></i>
-                        </div>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </li>
                 @for (owner of filteredOwners; track owner.id) {
                     <button
@@ -222,9 +206,7 @@ SPDX-License-Identifier: EUPL-1.2
                         [(ngModel)]="filter.text"
                         placeholder="{{ 'i18n_search_by_question_text' | translate }}"
                     />
-                    <div class="input-group-text p-0">
-                        <img src="/assets/images/icon_search.png" width="46" height="38" />
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </div>
             </form>
         </div>

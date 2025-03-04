@@ -15,7 +15,7 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- TAB NAVIGATION -->
     <div class="row">
         <div class="col-md-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs" [keyboard]="false">
                 <li role="presentation" [ngbNavItem]="0">
                     <a ngbNavLink>
                         {{ 'i18n_published_exams' | translate }}
@@ -60,10 +60,7 @@ SPDX-License-Identifier: EUPL-1.2
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 />
-
-                <div class="input-group-append search">
-                    <img src="/assets/images/icon_search.png" alt="search-icon" width="45" height="38" />
-                </div>
+              <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
     </div>

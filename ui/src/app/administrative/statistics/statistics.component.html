@@ -10,7 +10,7 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- TAB NAVIGATION -->
     <div class="row">
         <div class="col-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs" [keyboard]="false">
                 <li [ngbNavItem]="'RESPONSES'">
                     <a ngbNavLink>{{ 'i18n_exam_responses' | translate }}</a>
                 </li>
@@ -72,11 +72,7 @@ SPDX-License-Identifier: EUPL-1.2
                             class="form-control"
                             placeholder="{{ 'i18n_search' | translate }}"
                         />
-                        <div class="input-group-append">
-                            <span class="input-group-text">
-                                <i class="bi-search"></i>
-                            </span>
-                        </div>
+                        <div class="input-group-append bi-search search-append"></div>
                     </div>
                     @for (department of filteredDepartments; track department) {
                         <button

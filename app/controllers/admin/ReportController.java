@@ -255,7 +255,7 @@ public class ReportController extends BaseController {
             .endOr();
         query = applyFilters(
             query,
-            "examEnrolment.exam.course",
+            "enrolment.exam.course",
             "startAt",
             dept.orElse(null),
             start.orElse(null),

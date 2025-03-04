@@ -39,9 +39,7 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
                             class="form-control"
                             placeholder="{{ 'i18n_search' | translate }}"
                         />
-                        <div class="input-group-append search">
-                            <img src="/assets/images/icon_search.png" alt="search-icon" width="49" height="40" />
-                        </div>
+                        <div class="input-group-append bi-search search-append"></div>
                     </div>
                 </div>
             </div>
