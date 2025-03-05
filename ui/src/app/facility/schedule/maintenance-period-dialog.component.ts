@@ -59,10 +59,10 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
             </form>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-primary" [disabled]="periodForm.invalid" (click)="ok()">
+            <button class="btn btn-success" [disabled]="periodForm.invalid" (click)="ok()">
                 {{ 'i18n_button_save' | translate }}
             </button>
-            <button class="btn btn-danger float-end me-3" (click)="cancel()">
+            <button class="btn btn-outline-secondary float-end me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>

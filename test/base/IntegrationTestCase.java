@@ -73,7 +73,6 @@ public class IntegrationTestCase extends WithApplication {
 
     public IntegrationTestCase() {
         HAKA_HEADERS.put("displayName", "George%20Lazenby");
-        HAKA_HEADERS.put("eppn", "george.lazenby@funet.fi");
         HAKA_HEADERS.put("sn", "Lazenby");
         HAKA_HEADERS.put("preferredLanguage", "de"); // use an unsupported UI language
         HAKA_HEADERS.put("Shib-Session-ID", "_5d9a583a894275c15edef02c5602c4d7");
@@ -202,6 +201,12 @@ public class IntegrationTestCase extends WithApplication {
 
     protected void login(String eppn) {
         login(eppn, Collections.emptyMap());
+    }
+
+    protected void loginExpectFailure(String eppn) {
+        HAKA_HEADERS.put("eppn", eppn);
+        Result result = request(Helpers.POST, "/app/session", null, HAKA_HEADERS, false);
+        assertThat(result.status()).isEqualTo(Http.Status.BAD_REQUEST);
     }
 
     protected void login(String eppn, Map<String, String> headers) {

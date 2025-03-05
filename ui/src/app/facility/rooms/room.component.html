@@ -129,7 +129,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <button type="submit" [disabled]="!roomForm.valid" class="btn btn-primary">
+                        <button type="submit" [disabled]="!roomForm.valid" class="btn btn-success">
                             {{ 'i18n_save' | translate }}
                         </button>
                     </div>
@@ -227,7 +227,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="row mt-2">
         <div class="col-md-12">
-            <button class="btn btn-primary" (click)="updateRoom()">{{ 'i18n_save' | translate }}</button>
+            <button class="btn btn-success" (click)="updateRoom()">{{ 'i18n_save' | translate }}</button>
         </div>
     </div>
     <!-- Postal address-->
@@ -276,7 +276,7 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- Button row -->
     <div class="row mt-2">
         <div class="col-md-12">
-            <button [disabled]="!roomForm.valid" (click)="saveRoom()" class="btn btn-primary">
+            <button [disabled]="!roomForm.valid" (click)="saveRoom()" class="btn btn-success">
                 {{ 'i18n_save' | translate }}
             </button>
         </div>

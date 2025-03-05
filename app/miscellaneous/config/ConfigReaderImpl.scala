@@ -102,5 +102,9 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
   override def getMultiStudentOrganisations: String = config.getString("exam.user.studentIds.multiple.organisations")
   override def getCsrfCookie: String                = config.getString("play.filters.csrf.cookie.name")
   override def getSupportedLanguages: List[String]  = config.getStringList("play.i18n.langs").asScala.toList
-  override def hasPath(path: String): Boolean       = config.hasPath(path)
-  override def getString(path: String): String      = config.getString(path)
+  override def getHomeOrganisations: List[String] =
+    config.getStringList("exam.integration.iop.visit.restrict.homeOrganisations").asScala.toList
+  override def isHomeOrganisationRequired: Boolean =
+    config.getBoolean("exam.integration.iop.visit.restrict.disallowExternal")
+  override def hasPath(path: String): Boolean  = config.hasPath(path)
+  override def getString(path: String): String = config.getString(path)

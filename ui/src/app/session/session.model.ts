@@ -25,7 +25,7 @@ export interface User {
     lastName: string;
     email: string;
     lang: string;
-    loginRole: string | null;
+    loginRole: Role | null;
     roles: Role[];
     userAgreementAccepted: boolean;
     userIdentifier: string;
@@ -37,4 +37,5 @@ export interface User {
     employeeNumber: string | null;
     lastLogin: string | null;
     canCreateByodExam: boolean;
+    externalUserOrg?: string;
 }
