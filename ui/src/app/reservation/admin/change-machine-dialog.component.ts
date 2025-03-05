@@ -51,10 +51,10 @@ import { Option } from 'src/app/shared/select/select.model';
                 </div>
             </form>
             <div class="d-flex flex-row-reverse flex-align-r m-3">
-                <button class="btn btn-sm btn-primary" (click)="ok()" [disabled]="!machine?.id">
+                <button class="btn btn-sm btn-success" (click)="ok()" [disabled]="!machine?.id">
                     {{ 'i18n_button_save' | translate }}
                 </button>
-                <button class="btn btn-sm btn-danger me-3" (click)="cancel()">
+                <button class="btn btn-sm btn-outline-secondary me-3" (click)="cancel()">
                     {{ 'i18n_button_cancel' | translate }}
                 </button>
             </div>

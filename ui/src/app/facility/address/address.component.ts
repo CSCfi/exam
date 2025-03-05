@@ -76,7 +76,7 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
             </div>
             <div class="row mt-4">
                 <div class="col-md-12">
-                    <button type="submit" [disabled]="addressForm.invalid" class="btn btn-primary">
+                    <button type="submit" [disabled]="addressForm.invalid" class="btn btn-success">
                         {{ 'i18n_save' | translate }}
                     </button>
                 </div>
