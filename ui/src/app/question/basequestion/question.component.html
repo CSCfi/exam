@@ -1,12 +1,22 @@
 @if (newQuestion) {
-    <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
+    @if (!isPopup) {
+        <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
+    } @else {
+        <xm-page-header text="i18n_toolbar_new_question" />
+    }
 } @else {
-    <xm-page-header text="i18n_questions_edit" [prependTemplate]="linkBack" />
+    @if (!isPopup) {
+        <xm-page-header text="i18n_questions_edit" [prependTemplate]="linkBack" />
+    } @else {
+        <xm-page-header text="i18n_questions_edit" />
+    }
 }
 <xm-page-content [content]="content" />
+
 <ng-template #linkBack>
     <xm-history-back></xm-history-back>
 </ng-template>
+
 <ng-template #content>
     <div class="row">
         <!-- Question body //-->

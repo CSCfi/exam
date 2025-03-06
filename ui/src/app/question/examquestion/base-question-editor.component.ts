@@ -36,6 +36,7 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
                 [lotteryOn]="lotteryOn"
                 [examId]="examId"
                 [sectionQuestion]="sectionQuestion"
+                [isPopup]="isPopup"
                 autofocus
             ></xm-question>
         </div>
@@ -50,6 +51,7 @@ export class BaseQuestionEditorComponent {
     @Input() lotteryOn = false;
     @Input() examId = 0;
     @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() isPopup = false;
 
     constructor(
         public modal: NgbActiveModal,

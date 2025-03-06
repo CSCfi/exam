@@ -35,9 +35,10 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { noop } from 'rxjs';
+import { from, noop } from 'rxjs';
 import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
 import { QuestionSelectorComponent } from 'src/app/question/picker/question-picker.component';
 import { QuestionService } from 'src/app/question/question.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
@@ -335,8 +336,16 @@ export class SectionComponent {
         }
     };
 
-    private openBaseQuestionEditor = () =>
-        this.Question.openBaseQuestionEditor(true, this.collaborative).subscribe((resp) =>
-            this.insertExamQuestion(resp, this.section.sectionQuestions.length),
-        );
+    private openBaseQuestionEditor = () => {
+        const modal = this.modal.open(BaseQuestionEditorComponent, {
+            backdrop: 'static',
+            keyboard: false,
+            windowClass: 'question-editor-modal',
+            size: 'xl',
+        });
+        modal.componentInstance.newQuestion = true;
+        modal.componentInstance.collaborative = this.collaborative;
+        modal.componentInstance.isPopup = true;
+        from(modal.result).subscribe((resp) => this.insertExamQuestion(resp, this.section.sectionQuestions.length));
+    };
 }
