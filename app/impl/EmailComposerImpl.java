@@ -264,7 +264,7 @@ class EmailComposerImpl implements EmailComposer {
             .filter(e -> e.getValue().amount > 0)
             .forEach(e -> {
                 Map<String, String> stringValues = new HashMap<>();
-                stringValues.put("exam_link", String.format("%s/staff/exams/%d/4", hostName, e.getKey().getId()));
+                stringValues.put("exam_link", String.format("%s/staff/exams/%d/5", hostName, e.getKey().getId()));
                 stringValues.put("exam_name", e.getKey().getName());
                 Course course = e.getKey().getCourse();
                 stringValues.put("course_code", course == null ? "" : course.getCode().split("_")[0]);
@@ -580,8 +580,7 @@ class EmailComposerImpl implements EmailComposer {
 
         Map<String, String> values = new HashMap<>();
 
-        List<Exam> exams = DB
-            .find(Exam.class)
+        List<Exam> exams = DB.find(Exam.class)
             .where()
             .eq("parent.id", exam.getId())
             .eq("state", Exam.State.REVIEW)
@@ -884,23 +883,21 @@ class EmailComposerImpl implements EmailComposer {
         if (exam.getState() == Exam.State.ABORTED) {
             templatePath = getTemplatesRoot() + "examAborted.html";
             subject = messaging.get(lang, templatePrefix + "exam.aborted.subject");
-            message =
-                messaging.get(
-                    lang,
-                    templatePrefix + "exam.aborted.message",
-                    String.format("%s %s <%s>", student.getFirstName(), student.getLastName(), student.getEmail()),
-                    String.format("%s (%s)", exam.getName(), exam.getCourse().getCode().split("_")[0])
-                );
+            message = messaging.get(
+                lang,
+                templatePrefix + "exam.aborted.message",
+                String.format("%s %s <%s>", student.getFirstName(), student.getLastName(), student.getEmail()),
+                String.format("%s (%s)", exam.getName(), exam.getCourse().getCode().split("_")[0])
+            );
         } else {
             templatePath = getTemplatesRoot() + "examEnded.html";
             subject = messaging.get(lang, templatePrefix + "exam.returned.subject");
-            message =
-                messaging.get(
-                    lang,
-                    templatePrefix + "exam.returned.message",
-                    String.format("%s %s <%s>", student.getFirstName(), student.getLastName(), student.getEmail()),
-                    String.format("%s (%s)", exam.getName(), exam.getCourse().getCode().split("_")[0])
-                );
+            message = messaging.get(
+                lang,
+                templatePrefix + "exam.returned.message",
+                String.format("%s %s <%s>", student.getFirstName(), student.getLastName(), student.getEmail()),
+                String.format("%s (%s)", exam.getName(), exam.getCourse().getCode().split("_")[0])
+            );
             String reviewLinkUrl = String.format("%s/staff/assessments/%d", hostName, exam.getId());
             String reviewLinkText = messaging.get(lang, "email.template.exam.returned.link");
             stringValues.put("review_link", reviewLinkUrl);
@@ -1054,8 +1051,7 @@ class EmailComposerImpl implements EmailComposer {
     private String createEnrolmentBlock(User teacher, Lang lang) {
         String enrolmentTemplatePath = getTemplatesRoot() + "weeklySummary/enrollmentInfo.html";
         String enrolmentTemplate = fileHandler.read(enrolmentTemplatePath);
-        List<Exam> exams = DB
-            .find(Exam.class)
+        List<Exam> exams = DB.find(Exam.class)
             .fetch("course")
             .fetch("examEnrolments")
             .fetch("examEnrolments.reservation")
@@ -1082,11 +1078,10 @@ class EmailComposerImpl implements EmailComposer {
                 String subTemplate;
                 if (t._2.isEmpty()) {
                     String noEnrolments = messaging.get(lang, "email.enrolment.no.enrolments");
-                    subTemplate =
-                        String.format(
-                            "<li><a href=\"{{exam_link}}\">{{exam_name}} - {{course_code}}</a>: %s</li>",
-                            noEnrolments
-                        );
+                    subTemplate = String.format(
+                        "<li><a href=\"{{exam_link}}\">{{exam_name}} - {{course_code}}</a>: %s</li>",
+                        noEnrolments
+                    );
                 } else {
                     ExamEnrolment first = t._2.getFirst();
                     DateTime date = first.getReservation() != null
@@ -1108,8 +1103,7 @@ class EmailComposerImpl implements EmailComposer {
 
     // return exams in review state where teacher is either owner or inspector
     private static List<ExamParticipation> getReviews(User teacher) {
-        return DB
-            .find(ExamParticipation.class)
+        return DB.find(ExamParticipation.class)
             .fetch("exam.course")
             .where()
             .disjunction()
