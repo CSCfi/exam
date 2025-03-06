@@ -41,6 +41,7 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
     @Input() collaborative = false;
     @Input() examId = 0;
     @Input() sectionQuestion?: ExamSectionQuestion;
+    @Input() isPopup = false;
 
     @Output() saved = new EventEmitter<Question | QuestionDraft>();
     @Output() cancelled = new EventEmitter<void>();
