@@ -59,5 +59,7 @@ trait ConfigReader:
   def isMultiStudentIdEnabled: Boolean
   def getMultiStudentOrganisations: String
   def getSupportedLanguages: List[String]
+  def getHomeOrganisations: List[String]
+  def isHomeOrganisationRequired: Boolean
   def hasPath(path: String): Boolean
   def getString(path: String): String

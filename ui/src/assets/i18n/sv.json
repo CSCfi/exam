@@ -1240,5 +1240,8 @@
     "i18n_login_title": "Logga in SV",
     "i18n_logout_title": "Logga ut SV",
     "i18n_assessment_questions_title": "Bedömningsfrågor SV",
-    "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille SV"
+    "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille SV",
+    "i18n_error_disallowed_login_with_external_domain_credentials": "Kirjautuminen ulkopuolisen organisaation tunnuksilla ei sallittu SV",
+    "i18n_external_organisation_login": "Olet kirjautumassa ulkopuolisen organisaation tunnuksella SV",
+    "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen. SV"
 }
