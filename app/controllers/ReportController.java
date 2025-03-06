@@ -41,7 +41,6 @@ import models.Course;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamRoom;
-import models.Reservation;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
@@ -254,34 +253,6 @@ public class ReportController extends BaseController {
         long noShows = enrolments.stream().filter(ExamEnrolment::isNoShow).count();
         long appearances = enrolments.size() - noShows;
         return ok(Json.newObject().put("noShows", noShows).put("appearances", appearances));
-    }
-
-    @Restrict({ @Group("ADMIN") })
-    public Result getIopReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Reservation> query = DB
-            .find(Reservation.class)
-            .fetch("externalReservation")
-            .fetch("enrolment")
-            .where()
-            .or()
-            .isNotNull("externalRef")
-            .isNotNull("externalReservation.orgName")
-            .endOr();
-        query =
-            applyFilters(
-                query,
-                "enrolment.exam.course",
-                "startAt",
-                dept.orElse(null),
-                start.orElse(null),
-                end.orElse(null)
-            );
-        Set<Reservation> reservations = query
-            .findSet()
-            .stream()
-            .filter(r -> r.getExternalOrgName() != null || (r.getExternalReservation() != null))
-            .collect(Collectors.toSet());
-        return ok(reservations);
     }
 
     @Restrict({ @Group("ADMIN") })
