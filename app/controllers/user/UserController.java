@@ -199,9 +199,7 @@ public class UserController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamInspectorsByRoleFilter(String role, Long eid, String criteria) {
-        List<ExamInspection> inspections = DB.find(ExamInspection.class).where().eq("exam.id", eid).findList();
         List<User> users = findUsersByRoleAndName(role, criteria);
-        users.removeAll(inspections.stream().map((ExamInspection::getUser)).toList());
         return ok(Json.toJson(asArray(users)));
     }
 

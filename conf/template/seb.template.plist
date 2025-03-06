@@ -85,7 +85,7 @@
         <key>allowedDisplayBuiltin</key>
         <true/>
         <key>allowedDisplayBuiltinEnforce</key>
-        <true/>
+        <false/>
         <key>allowedDisplayBuiltinExceptDesktop</key>
         <true/>
         <key>allowedDisplaysIgnoreFailure</key>

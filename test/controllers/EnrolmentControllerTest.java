@@ -102,7 +102,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testPreEnrollWithEmail() throws Exception {
-        String eppn = "student@uni.org";
+        String eppn = "student@test.org";
         String email = "student@foo.bar";
         exam.setExecutionType(
             DB.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
@@ -131,7 +131,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testPreEnrollWithEppn() throws Exception {
-        String eppn = "student@uni.org";
+        String eppn = "student@test.org";
         exam.setExecutionType(
             DB.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
         );

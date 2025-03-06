@@ -29,7 +29,6 @@ import models.facility.Organisation;
 import models.user.User;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHandler;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -118,6 +117,25 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
 
     @Test
     @RunAsTeacher
+    public void testGetCourseInternalGradeScale() {
+        setUserOrg(null);
+        CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo4.json"));
+        Result result = get("/app/courses?filter=code&q=2121219");
+        assertThat(result.status()).isEqualTo(200);
+        JsonNode node = Json.parse(contentAsString(result));
+        assertThat(node).hasSize(1);
+        Course course = deserialize(Course.class, node.get(0));
+        assertThat(course.getCode()).isEqualTo("2121219_abcdefghijklmnop");
+        assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.ZERO_TO_FIVE);
+        assertThat(course.getGradeScale().getDisplayName()).isNull();
+        assertThat(course.getGradeScale().getExternalRef()).isNull();
+        assertThat(course.getCreditsLanguage()).isEqualTo("fi");
+        // Check that the imported course got into db
+        assertThat(DB.find(Course.class).where().eq("code", "2121219_abcdefghijklmnop").findOne()).isNotNull();
+    }
+
+    @Test
+    @RunAsTeacher
     public void testGetCourseDefaultOrganisation2() {
         setUserOrg(null);
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo3.json"));
@@ -170,7 +188,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         // This is to make sure that we can import a course that shares the same prefix and has shorter code than a
         // course already found in db
         // remote code = 2121219_abcdefghijklmnop
-        // local code = 21212190_abcdefghijklmnopq
+        // local code =  2121219_abcdefghijklmnopq
         setUserOrg(null);
 
         Course course = new Course();

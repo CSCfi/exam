@@ -104,7 +104,7 @@ class ExternalCourseHandlerImpl @Inject (
   private def downloadCourses(url: URL) =
     queryRequest(url)
       .get()
-      .map(response => {
+      .map(response =>
         val status = response.status
         if status == Http.Status.OK then
           val root = stripBom(response)
@@ -112,7 +112,7 @@ class ExternalCourseHandlerImpl @Inject (
         else
           logger.info(s"Non-OK response received for URL: %url. Status: $status")
           Seq.empty
-      })
+      )
       .recover { case e: Exception =>
         logger.error("Unable to download course data due to exception in network connection", e)
         Seq.empty
@@ -157,38 +157,34 @@ class ExternalCourseHandlerImpl @Inject (
       case _ => None
 
   private def importScales(cui: CourseUnitInfo) =
-    val externals = cui.gradeScales match
-      case Some(xs) => xs.filter(_.`type` == "OTHER").map(importScale)
-      case _        => Seq()
-    val locals = cui.gradeScales match
-      case Some(xs) =>
-        xs.filterNot(_.`type` == "OTHER").flatMap(gs => DB.find(classOf[GradeScale]).where.eq("type", gs.`type`).find)
-      case _ => Seq()
-    externals ++ locals
+    val (ext, loc) = cui.gradeScales.map(_.partition(_.`type` == "OTHER")).getOrElse((Seq.empty, Seq.empty))
+    ext.flatMap(importScale) ++ loc.flatMap(gs => DB.find(classOf[GradeScale]).where.eq("description", gs.`type`).find)
 
-  private def importScale(gs: ExtGradeScale) =
-    DB.find(classOf[GradeScale]).where.eq("externalRef", gs.code).find.getOrElse {
-      val model = new GradeScale
-      model.setDescription(GradeScale.Type.OTHER.toString)
-      model.setExternalRef(gs.code)
-      model.setDisplayName(gs.name)
-      logger.info(s"saving scale ${gs.code}")
-      model.save()
-      model.setGrades(
-        gs.grades.values
-          .map(g =>
-            val g2 = new Grade
-            g2.setName(g.description)
-            g2.setMarksRejection(g.isFailed)
-            g2.setGradeScale(model)
-            g2.save()
-            g2
-          )
-          .toSet
-          .asJava
-      )
-      model
-    }
+  private def importScale(gs: ExtGradeScale) = gs match
+    case ExtGradeScale(Some(name), "OTHER", Some(code), Some(grades)) =>
+      DB.find(classOf[GradeScale]).where.eq("externalRef", code).find.orElse {
+        val model = new GradeScale
+        model.setDescription(GradeScale.Type.OTHER.toString)
+        model.setExternalRef(code)
+        model.setDisplayName(name)
+        logger.info(s"saving scale $code")
+        model.save()
+        model.setGrades(
+          grades.values
+            .map(g =>
+              val g2 = new Grade
+              g2.setName(g.description)
+              g2.setMarksRejection(g.isFailed)
+              g2.setGradeScale(model)
+              g2.save()
+              g2
+            )
+            .toSet
+            .asJava
+        )
+        Some(model)
+      }
+    case _ => None
 
   private def validateStart(date: Option[String]) = date match
     case None => Right(None)
