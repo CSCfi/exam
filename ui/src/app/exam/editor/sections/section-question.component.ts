@@ -130,6 +130,7 @@ export class SectionQuestionComponent {
             windowClass: 'xm-xxl-modal',
             size: 'xl',
         });
+        modal.componentInstance.isPopup = true;
         modal.componentInstance.lotteryOn = this.lotteryOn;
         modal.componentInstance.questionDraft = { ...this.sectionQuestion.question, examSectionQuestions: [] };
         modal.componentInstance.collaborative = this.collaborative;
