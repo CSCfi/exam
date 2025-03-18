@@ -44,8 +44,9 @@ export interface Option<V, I> {
         </button>
         <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" aria-labelledby="dd1">
             @if (!noSearch) {
-                <div class="input-group" ngbDropdownItem>
+                <div class="input-group p-1">
                     <input
+                        type="text"
                         [(ngModel)]="searchFilter"
                         class="form-control"
                         (input)="filterOptions()"
@@ -58,11 +59,18 @@ export interface Option<V, I> {
                     </div>
                 </div>
             }
-            <button ngbDropdownItem (click)="clearSelection(); d.close()">
-                <i class="bi-x text text-danger"></i>
-            </button>
+            @if (allowClearing) {
+                <button type="button" ngbDropdownItem (click)="clearSelection(); d.close()">
+                    <i class="bi-x text text-danger"></i>
+                </button>
+            }
             @for (opt of filteredOptions; track $index) {
-                <button ngbDropdownItem [ngClass]="getClasses(opt)" (click)="selectOption(opt); d.close()">
+                <button
+                    type="button"
+                    ngbDropdownItem
+                    [ngClass]="getClasses(opt)"
+                    (click)="selectOption(opt); d.close()"
+                >
                     @if (!opt.isHeader) {
                         <span>
                             {{ opt.label || '' | translate | slice: 0 : 40 }}
@@ -90,10 +98,12 @@ export interface Option<V, I> {
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
     @Input() options: Option<V, I>[] = []; // everything
+    @Input() initial?: Option<V, I>;
     @Input() placeholder = 'i18n_choose';
     @Input() limitTo?: number;
     @Input() fullWidth = false;
     @Input() noSearch = false;
+    @Input() allowClearing = true;
     @Output() optionSelected = new EventEmitter<Option<V, I> | undefined>();
     filteredOptions: Option<V, I>[] = []; // filtered
     searchFilter = '';
@@ -101,6 +111,7 @@ export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
 
     ngOnInit() {
         this.filterOptions();
+        this.selected = this.initial;
     }
 
     ngOnChanges() {
