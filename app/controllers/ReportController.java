@@ -243,8 +243,8 @@ public class ReportController extends BaseController {
         query =
             applyFilters(
                 query,
-                "enrolment.exam.course",
-                "startAt",
+                "exam.course",
+                "reservation.startAt",
                 dept.orElse(null),
                 start.orElse(null),
                 end.orElse(null)
