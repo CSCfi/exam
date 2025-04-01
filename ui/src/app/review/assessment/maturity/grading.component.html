@@ -107,6 +107,26 @@ SPDX-License-Identifier: EUPL-1.2
             </textarea>
         </div>
     </div>
+    <div class="row mt-2 align-items-center" [hidden]="!isReadOnly() || !isOwnerOrAdmin()">
+        <div class="col-md-4">
+            {{ 'i18n_additional_info_for_student' | translate }}:
+            <sup
+                ngbPopover="{{ 'i18n_additional_info_for_student_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                ><img src="/assets/images/icon_tooltip.svg" alt=""
+            /></sup>
+        </div>
+        <div class="col-md-6">
+            <textarea class="form-control" name="assessmentInfo" [(ngModel)]="exam.assessmentInfo" rows="3"> </textarea>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-success" [disabled]="!exam.assessmentInfo" (click)="saveAssessmentInfo()">
+                {{ 'i18n_save' | translate }}
+            </button>
+        </div>
+    </div>
+
     <div class="row pe-3 mt-4">
         <!-- This stuff could form a component of its own -->
         <div class="col-md-3 grading-title">
