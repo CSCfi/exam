@@ -35,7 +35,6 @@ import miscellaneous.config.ConfigReader;
 import miscellaneous.datetime.DateTimeHandler;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.Reservation;
-import models.facility.ExamMachine;
 import models.facility.Organisation;
 import models.user.Language;
 import models.user.Permission;
@@ -399,12 +398,14 @@ public class SessionController extends BaseController {
         payload.put("id", user.getId().toString());
         payload.put("email", user.getEmail());
         if (!user.getPermissions().isEmpty()) {
-            // For now, we support just a single permission
-            payload.put("permissions", user.getPermissions().getFirst().getValue());
+            payload.put(
+                "permissions",
+                user.getPermissions().stream().map(Permission::getValue).collect(Collectors.joining(","))
+            );
         }
-        // If (regular) user has just one role, set it as the one used for login
+        // If (regular) user has just one role, set it as the one used for logins
         var isLocalUser = isLocalUser(user.getEppn());
-        List<Role> roles = isTemporaryVisitor || !isLocalUser || user.getRoles().size() == 1
+        List<Role> roles = isTemporaryVisitor || !isLocalUser
             ? DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
             : user.getRoles();
         if (user.getRoles().size() == 1 && !isTemporaryVisitor) {
