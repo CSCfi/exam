@@ -194,7 +194,7 @@ export interface ExamImpl {
     grade?: SelectableGrade;
     gradedTime?: Date;
     contentGrade?: string;
-    gradeless: boolean;
+    gradingType: GradingType;
     credit: number;
     creditType?: { type: string; id: number };
     customCredit: number;
@@ -213,6 +213,8 @@ export interface ExamImpl {
     organisations?: string;
     externalRef?: string;
 }
+
+export type GradingType = 'GRADED' | 'NOT_GRADED' | 'POINT_GRADED';
 
 export interface Exam extends ExamImpl {
     answerLanguage?: string;

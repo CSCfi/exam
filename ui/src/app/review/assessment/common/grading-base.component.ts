@@ -36,10 +36,14 @@ export abstract class GradingBaseComponent {
         const exam = this.getExam();
         if (this.selections.grade && (isRealGrade(this.selections.grade) || this.selections.grade.type === 'NONE')) {
             exam.grade = this.selections.grade;
-            exam.gradeless = this.selections.grade.type === 'NONE';
+            if (this.selections.grade.type === 'NONE') {
+                exam.gradingType = 'NOT_GRADED';
+            } else {
+                exam.gradingType = 'GRADED';
+            }
         } else {
             delete exam.grade;
-            exam.gradeless = false;
+            exam.gradingType = 'NOT_GRADED';
         }
     };
 
@@ -75,7 +79,7 @@ export abstract class GradingBaseComponent {
             type: 'NONE',
             marksRejection: false,
         };
-        if (exam.gradeless && !this.selections.grade) {
+        if (exam.gradingType === 'NOT_GRADED' && !this.selections.grade) {
             this.selections.grade = noGrade;
         }
         this.grades.push(noGrade);
