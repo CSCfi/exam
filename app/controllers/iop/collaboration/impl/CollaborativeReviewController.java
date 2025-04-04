@@ -226,7 +226,7 @@ public class CollaborativeReviewController extends CollaborationController {
     private boolean isFinished(JsonNode exam) {
         return (
             exam.get("state").asText().equals(Exam.State.GRADED_LOGGED.toString()) &&
-            !exam.path("gradeless").asBoolean() &&
+            exam.path("gradingType").asText().equals("GRADED") &&
             exam.get("grade").has("name") &&
             exam.has("gradedByUser") &&
             exam.has("customCredit")
@@ -466,13 +466,13 @@ public class CollaborativeReviewController extends CollaborationController {
                             .anyMatch(i -> i == grade.get("id").asInt());
                         if (validGrade) {
                             ((ObjectNode) examNode).set("grade", grade);
-                            ((ObjectNode) examNode).put("gradeless", false);
+                            ((ObjectNode) examNode).put("gradingType", Grade.Type.GRADED.toString());
                         } else {
                             return wrapAsPromise(badRequest("Invalid grade for this grade scale"));
                         }
-                    } else if (body.path("gradeless").asBoolean(false)) {
+                    } else if (body.has("gradingType")) {
                         ((ObjectNode) examNode).set("grade", NullNode.getInstance());
-                        ((ObjectNode) examNode).put("gradeless", true);
+                        ((ObjectNode) examNode).put("gradingType", Grade.Type.NOT_GRADED.toString());
                     } else {
                         ((ObjectNode) examNode).set("grade", NullNode.getInstance());
                     }
@@ -645,14 +645,18 @@ public class CollaborativeReviewController extends CollaborationController {
                                 if (revision == null) {
                                     return wrapAsPromise(badRequest());
                                 }
-                                boolean gradeless = body.path("gradeless").asBoolean(false);
+                                Grade.Type gradingType = Grade.Type.valueOf(body.path("gradingType").asText());
                                 Function<WSResponse, CompletionStage<Result>> onSuccess = response ->
                                     getResponse(response)
                                         .map(r -> {
                                             JsonNode root = r.asJson();
                                             JsonNode examNode = root.get("exam");
                                             Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
-                                            return validateExamState(exam, !gradeless, user).orElseGet(() -> {
+                                            return validateExamState(
+                                                exam,
+                                                gradingType == Grade.Type.GRADED,
+                                                user
+                                            ).orElseGet(() -> {
                                                 ((ObjectNode) examNode).put(
                                                         "state",
                                                         Exam.State.GRADED_LOGGED.toString()
@@ -664,8 +668,11 @@ public class CollaborativeReviewController extends CollaborationController {
                                                     // Automatically graded by system, set graded by user at this point.
                                                     ((ObjectNode) examNode).set("gradedByUser", serialize(user));
                                                 }
-                                                if (gradeless) {
-                                                    ((ObjectNode) examNode).put("gradeless", true);
+                                                if (gradingType == Grade.Type.NOT_GRADED) {
+                                                    ((ObjectNode) examNode).put(
+                                                            "gradingType",
+                                                            Grade.Type.NOT_GRADED.toString()
+                                                        );
                                                     ((ObjectNode) examNode).set("grade", NullNode.getInstance());
                                                 }
                                                 ((ObjectNode) root).put("rev", revision);

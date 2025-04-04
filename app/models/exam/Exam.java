@@ -251,7 +251,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Temporal(TemporalType.TIMESTAMP)
     private DateTime autoEvaluationNotified;
 
-    private boolean gradeless;
+    private Grade.Type gradingType;
 
     private Boolean subjectToLanguageInspection;
 
@@ -781,12 +781,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.autoEvaluationNotified = autoEvaluationNotified;
     }
 
-    public boolean isGradeless() {
-        return gradeless;
+    public Grade.Type getGradingType() {
+        return gradingType;
     }
 
-    public void setGradeless(boolean gradeless) {
-        this.gradeless = gradeless;
+    public void setGradingType(Grade.Type gradingType) {
+        this.gradingType = gradingType;
     }
 
     public Boolean getSubjectToLanguageInspection() {

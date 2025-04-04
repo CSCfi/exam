@@ -215,7 +215,7 @@ public class StudentActionsController extends CollaborationController {
     public Result getFinishedExams(Optional<String> filter, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamParticipation> query = DB.find(ExamParticipation.class)
-            .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous, gradeless")
+            .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous, gradingType")
             .fetch("exam.creator", "id")
             .fetch("exam.course", "code, name")
             .fetch("exam.parent.examOwners", "firstName, lastName, id")

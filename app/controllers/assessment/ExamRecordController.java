@@ -25,6 +25,7 @@ import models.assessment.ExamRecord;
 import models.assessment.LanguageInspection;
 import models.enrolment.ExamParticipation;
 import models.exam.Exam;
+import models.exam.Grade;
 import models.exam.GradeScale;
 import models.facility.Organisation;
 import models.user.Permission;
@@ -145,7 +146,7 @@ public class ExamRecordController extends BaseController {
         return validateExamState(exam, false, user).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.setGrade(null);
-            exam.setGradeless(true);
+            exam.setGradingType(Grade.Type.NOT_GRADED);
             exam.update();
             return ok();
         });
