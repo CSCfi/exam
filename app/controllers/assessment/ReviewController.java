@@ -177,7 +177,7 @@ public class ReviewController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties pp = PathProperties.parse(
             "(" +
-            "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
+            "id, name, anonymous, state, gradedTime, customCredit, creditType, gradingType(*), answerLanguage, trialCount, " +
             "implementation, gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
             "course(code, name, gradeScale(grades(*))), " +
             "examSections(name, sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
@@ -344,13 +344,13 @@ public class ReviewController extends BaseController {
             GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
             if (scale.getGrades().contains(examGrade)) {
                 exam.setGrade(examGrade);
-                exam.setGradeless(false);
+                exam.setGradingType(Grade.Type.GRADED);
             } else {
                 return badRequest("Invalid grade for this grade scale");
             }
-        } else if (df.get("gradeless") != null && df.get("gradeless").equals("true")) {
+        } else if (df.get("gradingType") == Grade.Type.NOT_GRADED.toString()) {
             exam.setGrade(null);
-            exam.setGradeless(true);
+            exam.setGradingType(Grade.Type.NOT_GRADED);
         } else {
             exam.setGrade(null);
         }
@@ -422,8 +422,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Anonymous(filteredProperties = { "user" })
     public Result listNoShows(Long eid, Optional<Boolean> collaborative, Http.Request request) {
-        ExpressionList<ExamEnrolment> el = DB
-            .find(ExamEnrolment.class)
+        ExpressionList<ExamEnrolment> el = DB.find(ExamEnrolment.class)
             .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
             .fetch("collaborativeExam")
             .fetch("exam.executionType")
@@ -625,7 +624,7 @@ public class ReviewController extends BaseController {
         return DB.find(ExamParticipation.class)
             .fetch(
                 "exam",
-                "state, name, additionalInfo, gradedTime, gradeless, assessmentInfo, subjectToLanguageInspection, answerLanguage, customCredit"
+                "state, name, additionalInfo, gradedTime, gradingType, assessmentInfo, subjectToLanguageInspection, answerLanguage, customCredit"
             )
             .fetch("exam.course")
             .fetch("exam.course.organisation")
