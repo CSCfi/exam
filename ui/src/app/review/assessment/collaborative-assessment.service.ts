@@ -20,7 +20,7 @@ interface Payload {
     id: number;
     state: string;
     grade?: SelectableGrade;
-    gradeless: boolean;
+    gradingType: string;
     customCredit: number;
     creditType?: { type: string };
     answerLanguage?: string;
@@ -81,8 +81,8 @@ export class CollaborativeAssesmentService {
         return {
             id: exam.id,
             state: state || exam.state,
-            grade: exam.gradeless ? undefined : exam.grade,
-            gradeless: exam.gradeless,
+            grade: exam.gradingType === 'NOT_GRADED' ? undefined : exam.grade,
+            gradingType: exam.gradingType,
             customCredit: exam.customCredit,
             creditType: exam.creditType,
             answerLanguage: exam.answerLanguage,
@@ -131,12 +131,13 @@ export class CollaborativeAssesmentService {
         if (messages.length > 0) {
             messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
         } else {
-            const dialogNote = participation.exam.gradeless
-                ? this.translate.instant('i18n_confirm_archiving_without_grade')
-                : this.Assessment.getRecordReviewConfirmationDialogContent(
-                      (participation.exam.examFeedback as Feedback).comment,
-                      false,
-                  );
+            const dialogNote =
+                participation.exam.gradingType === 'NOT_GRADED'
+                    ? this.translate.instant('i18n_confirm_archiving_without_grade')
+                    : this.Assessment.getRecordReviewConfirmationDialogContent(
+                          (participation.exam.examFeedback as Feedback).comment,
+                          false,
+                      );
             const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
             this.dialogs.open$(this.translate.instant('i18n_confirm'), dialogNote).subscribe({
                 next: () => this.register(participation, examId, ref, payload),

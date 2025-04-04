@@ -199,7 +199,9 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 }
 @if (
-    !collaborative && (assessment.state === 'GRADED_LOGGED' || assessment.state === 'ARCHIVED') && !assessment.gradeless
+    !collaborative &&
+    (assessment.state === 'GRADED_LOGGED' || assessment.state === 'ARCHIVED') &&
+    assessment.gradingType !== 'NOT_GRADED'
 ) {
     <div>
         <div class="row mt-2">
@@ -228,7 +230,7 @@ SPDX-License-Identifier: EUPL-1.2
     !collaborative &&
     assessment.executionType.type !== 'MATURITY' &&
     (assessment.state === 'GRADED_LOGGED' || assessment.state === 'ARCHIVED') &&
-    !assessment.gradeless
+    assessment.gradingType !== 'NOT_GRADED'
 ) {
     <div class="row mt-2">
         <div class="col-12">

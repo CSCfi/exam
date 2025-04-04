@@ -29,7 +29,6 @@ import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
 import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
-import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
@@ -43,7 +42,6 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
     templateUrl: './speed-review.component.html',
     standalone: true,
     imports: [
-        HistoryBackComponent,
         TableSortComponent,
         RouterLink,
         NgClass,
@@ -276,15 +274,14 @@ export class SpeedReviewComponent implements OnInit {
         if (messages.length === 0) {
             let grade: SelectableGrade | undefined;
             if (review.selectedGrade?.type === 'NONE') {
-                exam.gradeless = true;
+                exam.gradingType = 'NOT_GRADED';
             } else {
                 grade = review.selectedGrade?.id ? review.selectedGrade : exam.grade;
-                exam.gradeless = false;
+                exam.gradingType = 'GRADED';
             }
             const data = {
                 id: exam.id,
                 state: 'GRADED',
-                gradeless: exam.gradeless,
                 grade: grade ? grade.id : undefined,
                 customCredit: exam.customCredit,
                 creditType: exam.creditType ? exam.creditType.type : exam.examType.type,
