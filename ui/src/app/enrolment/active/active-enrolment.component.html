@@ -132,6 +132,15 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
             </div>
         </div>
+        @if (enrolment().reservationCanceled) {
+            <div class="row mt-2 justify-content-start">
+                <div class="col">
+                    <div class="text-danger">
+                        {{ 'i18n_exam_reservation_canceled' | translate }}
+                    </div>
+                </div>
+            </div>
+        }
     } @else {
         <div>
             <div class="row mt-3">
@@ -206,15 +215,6 @@ SPDX-License-Identifier: EUPL-1.2
                             {{ getRoomInstruction() }}
                         </div>
                     </div>
-                </div>
-            }
-        </div>
-    }
-    @if (!reservation && enrolment().reservationCanceled) {
-        <div class="row mt-3 justify-content-start">
-            @if (enrolment().reservationCanceled) {
-                <div class="text-danger">
-                    {{ 'i18n_canceled' | translate }}
                 </div>
             }
         </div>

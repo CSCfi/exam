@@ -1239,5 +1239,6 @@
     "i18n_login_title": "Kirjautuminen",
     "i18n_logout_title": "Kirjattu ulos",
     "i18n_assessment_questions_title": "Arvioinnin kysymykset",
-    "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille"
+    "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille",
+    "i18n_exam_reservation_canceled": "Tenttivaraus peruttu"
 }
