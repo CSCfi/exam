@@ -1240,5 +1240,6 @@
     "i18n_logout_title": "Logga ut SV",
     "i18n_assessment_questions_title": "Bedömningsfrågor SV",
     "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille SV",
-    "i18n_exam_reservation_canceled": "Tentamensreservation avbokad"
+    "i18n_exam_reservation_canceled": "Tentamensreservation avbokad",
+    "i18n_confirm_delete_exam_reservation": "Vill du ta bort tentamensbokningen?"
 }

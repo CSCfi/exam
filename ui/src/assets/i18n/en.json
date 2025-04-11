@@ -1240,5 +1240,6 @@
     "i18n_logout_title": "Logged out",
     "i18n_assessment_questions_title": "Assessment questions",
     "i18n_minor_agreement_update": "Change that does not need to be communicated to users",
-    "i18n_exam_reservation_canceled": "Exam reservation cancelled"
+    "i18n_exam_reservation_canceled": "Exam reservation cancelled",
+    "i18n_confirm_delete_exam_reservation": "Do you want to delete the exam reservation?"
 }
