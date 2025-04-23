@@ -69,10 +69,7 @@ export class InLanguageInspectionReviewsComponent implements OnInit {
         this.view.predicate = predicate;
     };
 
-    private translateGrade = (exam: Exam) => {
-        const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.CommonExam.getExamGradeDisplayName(grade);
-    };
+    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
 
     private handleGradedReviews = (r: Review) => {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection

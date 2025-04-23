@@ -142,10 +142,7 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
         this.selections = { all: false, page: false };
     }
 
-    private translateGrade = (exam: Exam) => {
-        const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.CommonExam.getExamGradeDisplayName(grade);
-    };
+    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
 
     private handleGradedReviews = (r: Review) => {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection

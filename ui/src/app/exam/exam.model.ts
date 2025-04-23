@@ -18,10 +18,10 @@ export interface Grade {
 }
 
 export type TypedGrade = Grade & { type: string };
-export type NoGrade = Omit<TypedGrade, 'id'> & { id?: number; type: 'NONE' };
+export type NoGrade = Omit<TypedGrade, 'id'> & { id?: number; type: 'NOT_GRADED' | 'POINT_GRADED' };
 export type SelectableGrade = TypedGrade | NoGrade;
 export function isRealGrade(grade: SelectableGrade): grade is TypedGrade {
-    return grade.type !== 'NONE';
+    return grade.type !== 'NOT_GRADED';
 }
 
 export interface GradeEvaluation {

@@ -34,10 +34,17 @@ export abstract class GradingBaseComponent {
 
     setGrade = () => {
         const exam = this.getExam();
-        if (this.selections.grade && (isRealGrade(this.selections.grade) || this.selections.grade.type === 'NONE')) {
+        if (
+            this.selections.grade &&
+            (isRealGrade(this.selections.grade) ||
+                this.selections.grade.type === 'NOT_GRADED' ||
+                this.selections.grade.type === 'POINT_GRADED')
+        ) {
             exam.grade = this.selections.grade;
-            if (this.selections.grade.type === 'NONE') {
+            if (this.selections.grade.type === 'NOT_GRADED') {
                 exam.gradingType = 'NOT_GRADED';
+            } else if (this.selections.grade.type === 'POINT_GRADED') {
+                exam.gradingType = 'POINT_GRADED';
             } else {
                 exam.gradingType = 'GRADED';
             }
@@ -73,16 +80,27 @@ export abstract class GradingBaseComponent {
             .filter((g) => exam.grade && isRealGrade(g) && isRealGrade(exam.grade) && exam.grade.id === g.id)
             .forEach(this._setGrade);
 
-        // The "no grade" option
-        const noGrade: NoGrade = {
-            name: this.CommonExam.getExamGradeDisplayName('NONE'),
-            type: 'NONE',
+        // The "not graded" option
+        const notGraded: NoGrade = {
+            name: this.CommonExam.getExamGradeDisplayName('NOT_GRADED'),
+            type: 'NOT_GRADED',
             marksRejection: false,
         };
+
+        // The "point graded" option
+        const pointGraded: NoGrade = {
+            name: this.CommonExam.getExamGradeDisplayName('POINT_GRADED'),
+            type: 'POINT_GRADED',
+            marksRejection: false,
+        };
+
         if (exam.gradingType === 'NOT_GRADED' && !this.selections.grade) {
-            this.selections.grade = noGrade;
+            this.selections.grade = notGraded;
+        } else if (exam.gradingType === 'POINT_GRADED' && !this.selections.grade) {
+            this.selections.grade = pointGraded;
         }
-        this.grades.push(noGrade);
+
+        this.grades.push(notGraded, pointGraded);
     };
 
     protected initCreditTypes = () => {

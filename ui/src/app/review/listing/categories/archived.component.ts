@@ -108,8 +108,5 @@ export class ArchivedReviewsComponent implements OnInit {
         );
     };
 
-    private translateGrade = (exam: Exam) => {
-        const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.CommonExam.getExamGradeDisplayName(grade);
-    };
+    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
 }

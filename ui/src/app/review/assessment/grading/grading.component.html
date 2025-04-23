@@ -176,19 +176,28 @@ SPDX-License-Identifier: EUPL-1.2
                     <label for="creditType" class="form-label grading-title">
                         {{ 'i18n_exam_choose_credit_type' | translate | uppercase }}
                     </label>
-                    <select
-                        id="creditType"
-                        name="creditType"
-                        class="form-select"
-                        [(ngModel)]="selections.type"
-                        (ngModelChange)="setCreditType()"
-                        [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-                        required
-                    >
-                        @for (type of creditTypes; track type) {
-                            <option [ngValue]="type">{{ type.name }}</option>
-                        }
-                    </select>
+                    @if (exam.gradingType !== 'POINT_GRADED') {
+                        <select
+                            id="creditType"
+                            name="creditType"
+                            class="form-select"
+                            [(ngModel)]="selections.type"
+                            (ngModelChange)="setCreditType()"
+                            [disabled]="isReadOnly() || !isOwnerOrAdmin()"
+                            required
+                        >
+                            @for (type of creditTypes; track type) {
+                                <option [ngValue]="type">{{ type.name }}</option>
+                            }
+                        </select>
+                    } @else {
+                        <input
+                            type="text"
+                            class="form-control"
+                            disabled
+                            value="{{ 'i18n_exam_credit_type_partial' | translate }}"
+                        />
+                    }
                 </div>
                 <div class="col-md-3">
                     <label for="answerLanguage" class="form-label grading-title">

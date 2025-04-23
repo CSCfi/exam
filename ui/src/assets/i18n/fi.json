@@ -1243,5 +1243,6 @@
     "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille",
     "i18n_error_disallowed_login_with_external_domain_credentials": "Kirjautuminen ulkopuolisen organisaation tunnuksilla ei sallittu",
     "i18n_external_organisation_login": "Olet kirjautumassa ulkopuolisen organisaation tunnuksella ",
-    "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen."
+    "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen.",
+    "i18n_point_graded": "Pisteytetty arviointi"
 }
