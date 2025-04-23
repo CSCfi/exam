@@ -77,8 +77,5 @@ export class RejectedReviewsComponent implements OnInit {
         this.view.predicate = predicate;
     };
 
-    private translateGrade = (exam: Exam) => {
-        const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.CommonExam.getExamGradeDisplayName(grade);
-    };
+    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
 }

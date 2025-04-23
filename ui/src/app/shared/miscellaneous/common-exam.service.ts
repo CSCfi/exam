@@ -56,7 +56,10 @@ export class CommonExamService {
     getExamGradeDisplayName = (grade: string): string => {
         let name;
         switch (grade) {
-            case 'NONE':
+            case 'POINT_GRADED':
+                name = this.translate.instant('i18n_point_graded');
+                break;
+            case 'NOT_GRADED':
                 name = this.translate.instant('i18n_no_grading');
                 break;
             case 'I':

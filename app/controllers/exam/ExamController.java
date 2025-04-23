@@ -28,6 +28,7 @@ import models.exam.Course;
 import models.exam.Exam;
 import models.exam.ExamExecutionType;
 import models.exam.ExamType;
+import models.exam.Grade;
 import models.exam.GradeScale;
 import models.facility.ExamMachine;
 import models.facility.Software;
@@ -483,6 +484,7 @@ public class ExamController extends BaseController {
         } else if (configReader.isAnonymousReviewEnabled()) {
             copy.setAnonymous(true);
         }
+        copy.setGradingType(Grade.Type.GRADED);
         copy.save();
         return ok(copy);
     }
@@ -515,6 +517,7 @@ public class ExamController extends BaseController {
             exam.setAnonymous(configReader.isAnonymousReviewEnabled());
         }
         exam.setCreatorWithDate(user);
+        exam.setGradingType(Grade.Type.GRADED);
         exam.save();
 
         ExamSection examSection = new ExamSection();

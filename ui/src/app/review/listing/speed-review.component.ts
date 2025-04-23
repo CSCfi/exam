@@ -142,7 +142,7 @@ export class SpeedReviewComponent implements OnInit {
                 this.examReviews.filter(
                     (r) =>
                         r.selectedGrade &&
-                        (isRealGrade(r.selectedGrade) || r.selectedGrade.type === 'NONE') &&
+                        (isRealGrade(r.selectedGrade) || r.selectedGrade.type === 'NOT_GRADED') &&
                         this.isGradeable(r),
                 ).length > 0
             );
@@ -236,13 +236,19 @@ export class SpeedReviewComponent implements OnInit {
                 };
             })
             .filter(isRealGrade);
-        // The "no grade" option
-        const noGrade: NoGrade = {
-            name: this.CommonExam.getExamGradeDisplayName('NONE'),
-            type: 'NONE',
+        // The "not graded" option
+        const notGraded: NoGrade = {
+            name: this.CommonExam.getExamGradeDisplayName('NOT_GRADED'),
+            type: 'NOT_GRADED',
             marksRejection: false,
         };
-        return [...grades, noGrade];
+        // The "point graded" option
+        const pointGraded: NoGrade = {
+            name: this.CommonExam.getExamGradeDisplayName('POINT_GRADED'),
+            type: 'POINT_GRADED',
+            marksRejection: false,
+        };
+        return [...grades, notGraded, pointGraded];
     };
 
     private getErrors = (review: Review) => {
@@ -273,8 +279,10 @@ export class SpeedReviewComponent implements OnInit {
         messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
         if (messages.length === 0) {
             let grade: SelectableGrade | undefined;
-            if (review.selectedGrade?.type === 'NONE') {
+            if (review.selectedGrade?.type === 'NOT_GRADED') {
                 exam.gradingType = 'NOT_GRADED';
+            } else if (review.selectedGrade?.type === 'POINT_GRADED') {
+                exam.gradingType = 'POINT_GRADED';
             } else {
                 grade = review.selectedGrade?.id ? review.selectedGrade : exam.grade;
                 exam.gradingType = 'GRADED';
@@ -286,6 +294,7 @@ export class SpeedReviewComponent implements OnInit {
                 customCredit: exam.customCredit,
                 creditType: exam.creditType ? exam.creditType.type : exam.examType.type,
                 answerLanguage: this.getAnswerLanguage(review),
+                gradingType: exam.gradingType,
             };
             return this.http.put<void>(`/app/review/${exam.id}`, data).pipe(
                 tap(() => {

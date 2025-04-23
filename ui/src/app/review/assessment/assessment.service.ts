@@ -274,7 +274,7 @@ export class AssessmentService {
 
     getErrors = (exam: Exam) => {
         const messages: string[] = [];
-        if (!exam.grade?.id && exam.gradingType !== 'NOT_GRADED') {
+        if (!exam.grade?.id && exam.gradingType === 'GRADED') {
             messages.push('i18n_participation_unreviewed');
         }
         if (!exam.creditType?.type) {

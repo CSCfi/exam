@@ -339,6 +339,9 @@ public class ReviewController extends BaseController {
         }
         Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo");
+        Grade.Type gradingType = Grade.Type.valueOf(df.get("gradingType"));
+        ExamType examType = DB.find(ExamType.class).where().eq("type", df.get("creditType")).findOne();
+        exam.setCreditType(examType);
         if (grade != null) {
             Grade examGrade = DB.find(Grade.class, grade);
             GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
@@ -348,23 +351,16 @@ public class ReviewController extends BaseController {
             } else {
                 return badRequest("Invalid grade for this grade scale");
             }
-        } else if (df.get("gradingType") == Grade.Type.NOT_GRADED.toString()) {
+        } else if (gradingType == Grade.Type.NOT_GRADED) {
             exam.setGrade(null);
             exam.setGradingType(Grade.Type.NOT_GRADED);
+        } else if (gradingType == Grade.Type.POINT_GRADED) {
+            exam.setGrade(null);
+            exam.setGradingType(Grade.Type.POINT_GRADED);
+            // Forced partial credit type
+            exam.setCreditType(DB.find(ExamType.class).where().eq("type", "PARTIAL").findOne());
         } else {
             exam.setGrade(null);
-        }
-        String creditType = df.get("creditType.type");
-        if (creditType == null) {
-            creditType = df.get("creditType");
-        }
-        if (creditType != null) {
-            ExamType eType = DB.find(ExamType.class).where().eq("type", creditType).findOne();
-            if (eType != null) {
-                exam.setCreditType(eType);
-            }
-        } else {
-            exam.setCreditType(null);
         }
         exam.setAdditionalInfo(additionalInfo);
         exam.setAnswerLanguage(df.get("answerLanguage"));

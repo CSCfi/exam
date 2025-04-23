@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.user.Permission;
@@ -53,7 +54,7 @@ class AuthorizationHandler implements DeadboltHandler {
             .map(Arrays::stream)
             .map(stream -> stream.map(Permission::withValue))
             .map(stream -> stream.flatMap(Optional::stream))
-            .map(stream -> stream.toList())
+            .map(Stream::toList)
             .ifPresent(user::setPermissions);
 
         return CompletableFuture.completedFuture(Optional.of(user));

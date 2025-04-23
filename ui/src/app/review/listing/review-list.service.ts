@@ -10,7 +10,9 @@ import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import { Exam } from 'src/app/exam/exam.model';
 import type { Review, ReviewListView } from 'src/app/review/review.model';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 type Selection = { [k: string]: boolean };
 
@@ -20,6 +22,7 @@ export class ReviewListService {
         private http: HttpClient,
         private translate: TranslateService,
         private toast: ToastrService,
+        private CommonExam: CommonExamService,
     ) {}
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
@@ -120,6 +123,17 @@ export class ReviewListService {
     diffInMinutes = (from: string, to: string) => {
         const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
         return Math.round(diff);
+    };
+
+    translateGrade = (exam: Exam) => {
+        if (exam.gradingType === 'GRADED' && exam.grade?.name) {
+            return this.CommonExam.getExamGradeDisplayName(exam.grade.name);
+        } else if (exam.gradingType === 'NOT_GRADED') {
+            return this.translate.instant('i18n_no_grading');
+        } else if (exam.gradingType === 'POINT_GRADED') {
+            return this.translate.instant('i18n_point_graded');
+        }
+        return '';
     };
 
     private resetSelections = (scope: Selection, view: string) => {
