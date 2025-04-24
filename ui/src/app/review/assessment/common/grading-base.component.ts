@@ -66,7 +66,7 @@ export abstract class GradingBaseComponent {
     setLanguage = () =>
         (this.getExam().answerLanguage = this.selections.language ? this.selections.language.code : undefined);
 
-    protected initGrade = () => {
+    protected initGrades = (isMaturity: boolean = false) => {
         const scale = this.resolveGradeScale();
         this.grades = scale.grades.map((grade) => {
             return {
@@ -99,8 +99,8 @@ export abstract class GradingBaseComponent {
         } else if (exam.gradingType === 'POINT_GRADED' && !this.selections.grade) {
             this.selections.grade = pointGraded;
         }
-
-        this.grades.push(notGraded, pointGraded);
+        const extraGrades = isMaturity ? [notGraded] : [notGraded, pointGraded];
+        this.grades.push(...extraGrades);
     };
 
     protected initCreditTypes = () => {
