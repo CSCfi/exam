@@ -219,7 +219,7 @@ export class SessionService implements OnDestroy {
         return from(modalRef.result).pipe(
             switchMap((role: Role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
             map((role: Role) => {
-                user.loginRole = role;
+                user.loginRole = role.name;
                 user.isAdmin = role.name === 'ADMIN';
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';
@@ -248,17 +248,17 @@ export class SessionService implements OnDestroy {
             }
         });
 
-        const loginRole = user.roles.length === 1 ? user.roles[0] : null;
-        const isTeacher = loginRole?.name === 'TEACHER';
+        const loginRole = user.roles.length === 1 ? user.roles[0].name : null;
+        const isTeacher = loginRole === 'TEACHER';
         return this.translate$(user.lang).pipe(
             map(() => ({
                 ...user,
                 loginRole: loginRole,
                 isTeacher: isTeacher,
-                isAdmin: loginRole?.name === 'ADMIN',
-                isStudent: loginRole?.name === 'STUDENT',
+                isAdmin: loginRole === 'ADMIN',
+                isStudent: loginRole === 'STUDENT',
                 isLanguageInspector: isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
-                canCreateByodExam: loginRole?.name !== 'STUDENT' && this.hasPermission(user, 'CAN_CREATE_BYOD_EXAM'),
+                canCreateByodExam: loginRole !== 'STUDENT' && this.hasPermission(user, 'CAN_CREATE_BYOD_EXAM'),
             })),
         );
     }
@@ -288,8 +288,8 @@ export class SessionService implements OnDestroy {
             this.router.navigate(['staff/inspections']);
         } else if (url === '/') {
             let state;
-            if (user.loginRole?.name === 'STUDENT') state = 'dashboard';
-            else if (user.loginRole?.name === 'TEACHER') state = 'staff/teacher';
+            if (user.loginRole === 'STUDENT') state = 'dashboard';
+            else if (user.loginRole === 'TEACHER') state = 'staff/teacher';
             else state = 'staff/admin';
             this.router.navigate([state]);
         }

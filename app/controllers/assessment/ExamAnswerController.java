@@ -68,7 +68,7 @@ public class ExamAnswerController extends BaseController {
             .idEq(eid)
             .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
             .isNotNull("parent.examFeedbackConfig")
-            .eq("gradingType", Grade.Type.GRADED)
+            .ne("gradingType", Grade.Type.NOT_GRADED)
             .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
             .findOneOrEmpty();
         if (oe.isEmpty() || !canReleaseAnswers(oe.get())) {

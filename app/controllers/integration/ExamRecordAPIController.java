@@ -27,6 +27,7 @@ public class ExamRecordAPIController extends BaseController {
         return DB.find(ExamRecord.class)
             .fetch("examScore")
             .where()
+            .eq("releasable", true)
             .gt("timeStamp", start)
             .findList()
             .stream()

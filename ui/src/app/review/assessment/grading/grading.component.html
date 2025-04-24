@@ -155,8 +155,13 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="row">
                 <div class="col-md-3">
                     <label for="examGrade" class="form-label grading-title">
-                        {{ 'i18n_exam_grade' | translate | uppercase }}
-                    </label>
+                        {{ 'i18n_exam_grade' | translate | uppercase }} </label
+                    >&nbsp;<sup
+                        ngbPopover="{{ 'i18n_grade_selection_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        ><img src="/assets/images/icon_tooltip.svg" alt=""
+                    /></sup>
                     <select
                         id="examGrade"
                         name="examGrade"

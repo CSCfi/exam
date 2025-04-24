@@ -92,7 +92,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
             .subscribe();
         this.examCreated.pipe(exhaustMap(() => this.CollaborativeExam.createExam$())).subscribe({
             next: (exam: CollaborativeExam) => {
-                toast.info(this.translate.instant('i18n_exam_created'));
+                toast.info(this.translate.instant('i18n_exam_added'));
                 this.router.navigate(['/staff/exams', exam.id, '1'], { queryParams: { collaborative: true } });
             },
             error: (err) => this.toast.error(err),
