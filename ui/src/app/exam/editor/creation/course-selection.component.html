@@ -53,6 +53,7 @@
                     class="form-control w-50"
                     [(ngModel)]="exam.name"
                     (blur)="updateExamName()"
+                    (keydown.enter)="$event.preventDefault()"
                     required
                 />
                 <label class="form-label" for="examLanguage" class="mt-2">
