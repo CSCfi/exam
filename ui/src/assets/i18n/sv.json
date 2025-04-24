@@ -1244,5 +1244,6 @@
     "i18n_error_disallowed_login_with_external_domain_credentials": "Kirjautuminen ulkopuolisen organisaation tunnuksilla ei sallittu SV",
     "i18n_external_organisation_login": "Olet kirjautumassa ulkopuolisen organisaation tunnuksella SV",
     "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen. SV",
-    "i18n_point_graded": "Pisteytetty arviointi SV"
+    "i18n_point_graded": "Pisteytetty arviointi SV",
+    "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan. SV"
 }

@@ -25,7 +25,7 @@ export interface User {
     lastName: string;
     email: string;
     lang: string;
-    loginRole: Role | null;
+    loginRole: string | null;
     roles: Role[];
     userAgreementAccepted: boolean;
     userIdentifier: string;

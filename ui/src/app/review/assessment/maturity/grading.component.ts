@@ -59,7 +59,7 @@ export class MaturityGradingComponent extends GradingBaseComponent implements On
     }
 
     ngOnInit() {
-        this.initGrade();
+        this.initGrades(true);
         this.initCreditTypes();
         this.initLanguages();
 

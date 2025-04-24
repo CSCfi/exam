@@ -38,6 +38,8 @@ public class ExamRecord extends GeneratedIdentityModel {
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime timeStamp;
 
+    private boolean releasable;
+
     public User getTeacher() {
         return teacher;
     }
@@ -76,5 +78,13 @@ public class ExamRecord extends GeneratedIdentityModel {
 
     public void setTimeStamp(DateTime timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public boolean isReleasable() {
+        return releasable;
+    }
+
+    public void setReleasable(boolean releasable) {
+        this.releasable = releasable;
     }
 }

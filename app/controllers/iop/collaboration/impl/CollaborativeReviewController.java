@@ -668,7 +668,7 @@ public class CollaborativeReviewController extends CollaborationController {
                                                     // Automatically graded by system, set graded by user at this point.
                                                     ((ObjectNode) examNode).set("gradedByUser", serialize(user));
                                                 }
-                                                if (gradingType == Grade.Type.NOT_GRADED) {
+                                                if (gradingType != Grade.Type.GRADED) {
                                                     ((ObjectNode) examNode).put(
                                                             "gradingType",
                                                             Grade.Type.NOT_GRADED.toString()
