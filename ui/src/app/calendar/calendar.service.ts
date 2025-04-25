@@ -177,7 +177,7 @@ export class CalendarService {
             .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
             .map((d) => this.normalize(d.start as DateTime));
 
-        return DateTime.min(...regularOpenings.concat(extraOpenings)).toJSDate();
+        return (DateTime.min(...regularOpenings.concat(extraOpenings)) ?? DateTime.now()).toJSDate();
     }
 
     getLatestClosing(room: ExamRoom, start: string, end: string): Date {
@@ -194,7 +194,7 @@ export class CalendarService {
             .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
             .map((d) => this.normalize(d.end as DateTime));
 
-        return DateTime.max(...regularClosings.concat(extraClosings)).toJSDate();
+        return (DateTime.max(...regularClosings.concat(extraClosings)) ?? DateTime.now()).toJSDate();
     }
 
     getClosedWeekdays(room: ExamRoom, start: string, end: string): number[] {

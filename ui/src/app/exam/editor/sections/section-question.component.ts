@@ -32,7 +32,7 @@ import { Observable, from, noop, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/exam/exam.model';
 import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
-import { ExamQuestionEditorComponent } from 'src/app/question/examquestion/exam-question-editor.component';
+import { ExamQuestionDialogComponent } from 'src/app/question/examquestion/exam-question-dialog.component';
 import { QuestionService } from 'src/app/question/question.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
@@ -188,10 +188,10 @@ export class SectionQuestionComponent {
     };
 
     private openDistributedQuestionEditor = () => {
-        const modal = this.modal.open(ExamQuestionEditorComponent, {
+        const modal = this.modal.open(ExamQuestionDialogComponent, {
             backdrop: 'static',
             keyboard: true,
-            windowClass: 'question-editor-modal',
+            windowClass: 'xm-xxl-modal',
             size: 'xl',
         });
         modal.componentInstance.examQuestion = { ...this.sectionQuestion };
