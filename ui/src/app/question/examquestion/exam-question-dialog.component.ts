@@ -11,7 +11,6 @@ import { ExamQuestionComponent } from './exam-question.component';
 
 // This component is used for editing distributed exam questions.
 @Component({
-    selector: 'xm-exam-question-editor',
     standalone: true,
     imports: [ExamQuestionComponent],
     template: `
@@ -26,7 +25,7 @@ import { ExamQuestionComponent } from './exam-question.component';
         }
     `,
 })
-export class ExamQuestionEditorComponent {
+export class ExamQuestionDialogComponent {
     @Input() examQuestion!: ExamSectionQuestion;
     @Input() lotteryOn = false;
 
