@@ -43,17 +43,17 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
                     </span>
                 </div>
             </div>
-            @for (opt of question.options; track opt.id) {
+            @for (opt of question.options; track opt.id; let index = $index) {
                 <div class="row ms-2 w-50 question-editor-claim-choice-option" [ngClass]="getOptionClass(opt)">
                     <div class="col-9">
                         <textarea
                             name="{{ opt.claimChoiceType }}-question"
-                            [(ngModel)]="opt.option"
+                            [value]="opt.option"
+                            (input)="updateOptionText(opt, $event, index)"
                             type="text"
                             rows="1"
                             class="question-option-input form-control"
                             required
-                            (change)="updateOptionTypes()"
                             [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
                         ></textarea>
                     </div>
@@ -64,9 +64,9 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
                             type="number"
                             lang="en"
                             xmFixedPrecision
-                            [(ngModel)]="opt.defaultScore"
+                            [value]="opt.defaultScore"
+                            (input)="updateOptionScore(opt, $event, index)"
                             required
-                            (change)="updateOptionTypes()"
                             [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
                         />
                     </div>
@@ -78,12 +78,12 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
         </div>
         <div class="row">
             <div class="col-md-9 col-md-offset-3 claim-choice-warning-wrapper">
-                @if (missingOptions.length > 0) {
+                @if (missingOption) {
                     <div class="claim-choice-warning">
                         <i class="bi-exclamation-triangle" style="color:#E8172F;"></i>
                         <span style="color:#E8172F;">
                             {{ 'i18n_claim_choice_missing_options_warning' | translate }}
-                            <span>{{ displayMissingOptions() }}</span>
+                            <span>{{ missingOption | translate }}</span>
                         </span>
                     </div>
                 }
@@ -95,13 +95,11 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     imports: [FormsModule, NgClass, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
 })
 export class ClaimChoiceEditorComponent implements OnInit {
-    @Input() option!: MultipleChoiceOption;
     @Input() question!: Question | QuestionDraft;
     @Input() lotteryOn = false;
     @Input() showWarning = false;
 
-    missingOptions: string[] = [];
-
+    missingOption: string = '';
     defaultOptions = {
         correct: {
             option: this.translate.instant('i18n_claim_choice_default_correct'),
@@ -131,11 +129,10 @@ export class ClaimChoiceEditorComponent implements OnInit {
     ngOnInit() {
         const { state, question } = this.question;
         if (state === 'NEW' && question === '') {
-            this.resetOptions();
+            const { correct, wrong, skip } = this.defaultOptions;
+            this.question.options = [correct, wrong, skip];
         }
     }
-
-    displayMissingOptions = () => this.missingOptions.map(this.translate.instant).join();
 
     getOptionDescriptionTranslation = (option: MultipleChoiceOption): string =>
         this.Question.determineOptionDescriptionTranslation(option.claimChoiceType as string);
@@ -143,33 +140,26 @@ export class ClaimChoiceEditorComponent implements OnInit {
     getOptionClass = (option: MultipleChoiceOption) =>
         this.Question.determineClaimChoiceOptionClass(option.claimChoiceType as string);
 
-    updateOptionTypes = () => {
-        this.question.options.forEach((opt, index) => {
-            if (opt.claimChoiceType === 'SkipOption') {
-                return;
-            }
-            if (opt.defaultScore === undefined) {
-                this.question.options[index].correctOption = false;
-                delete this.question.options[index].claimChoiceType;
-            }
-            if (opt.defaultScore <= 0) {
-                this.question.options[index].correctOption = false;
-                this.question.options[index].claimChoiceType = 'IncorrectOption';
-            } else if (opt.defaultScore > 0) {
-                this.question.options[index].correctOption = true;
-                this.question.options[index].claimChoiceType = 'CorrectOption';
-            }
-        });
-        this.validate();
+    updateOptionText = (opt: MultipleChoiceOption, event: Event, index: number) => {
+        const textarea = event.target as HTMLTextAreaElement;
+        this.question.options[index].option = textarea.value;
     };
 
-    private resetOptions = () => {
-        const { correct, wrong, skip } = this.defaultOptions;
-        this.question.options = [correct, wrong, skip];
-    };
+    updateOptionScore = (opt: MultipleChoiceOption, event: Event, index: number) => {
+        const input = event.target as HTMLInputElement;
+        const score = parseFloat(input.value);
 
-    private validate = () =>
-        (this.missingOptions = this.Question.getInvalidClaimOptionTypes(this.question.options)
+        this.question.options[index].defaultScore = score;
+        if (score <= 0) {
+            this.question.options[index].correctOption = false;
+            this.question.options[index].claimChoiceType = 'IncorrectOption';
+        } else {
+            this.question.options[index].correctOption = true;
+            this.question.options[index].claimChoiceType = 'CorrectOption';
+        }
+
+        this.missingOption = this.Question.getInvalidClaimOptionTypes(this.question.options)
             .filter((type) => type !== 'SkipOption')
-            .map((optionType) => this.Question.getOptionTypeTranslation(optionType)));
+            .map((type) => this.Question.getOptionTypeTranslation(type))[0];
+    };
 }
