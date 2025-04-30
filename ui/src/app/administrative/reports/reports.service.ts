@@ -4,6 +4,9 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 
 interface ExamName {
     id: number;
@@ -17,7 +20,13 @@ interface ExamName {
 
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
-    constructor(private http: HttpClient) {}
+    constructor(
+        private http: HttpClient,
+        private errorHandler: ErrorHandlingService,
+    ) {}
 
-    examNames = () => this.http.get<ExamName[]>('/app/statistics/examnames');
+    examNames = (): Observable<ExamName[]> =>
+        this.http
+            .get<ExamName[]>('/app/statistics/examnames')
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'ReportsService.examNames')));
 }

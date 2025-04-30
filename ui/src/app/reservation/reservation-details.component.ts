@@ -8,9 +8,9 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { noop } from 'rxjs';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
@@ -51,6 +51,7 @@ export class ReservationDetailsComponent implements OnChanges {
         private translate: TranslateService,
         private toast: ToastrService,
         private Reservation: ReservationService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     ngOnChanges() {
@@ -68,12 +69,13 @@ export class ReservationDetailsComponent implements OnChanges {
     };
 
     removeReservation(reservation: ReservationDetail) {
-        this.Reservation.cancelReservation(reservation)
-            .then(() => {
+        this.Reservation.cancelReservation$(reservation).subscribe({
+            next: () => {
                 this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
                 this.toast.info(this.translate.instant('i18n_reservation_removed'));
-            })
-            .catch(noop);
+            },
+            error: (err) => this.errorHandler.handle(err, 'ReservationDetailsComponent.removeReservation'),
+        });
     }
 
     permitRetrial(enrolment: ExamEnrolment) {
@@ -82,7 +84,7 @@ export class ReservationDetailsComponent implements OnChanges {
                 enrolment.retrialPermitted = true;
                 this.toast.info(this.translate.instant('i18n_retrial_permitted'));
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.errorHandler.handle(err, 'ReservationDetailsComponent.permitRetrial'),
         });
     }
 

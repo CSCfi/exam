@@ -6,12 +6,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable } from 'rxjs';
-import { of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
 import type { Review, ReviewListView } from 'src/app/review/review.model';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 type Selection = { [k: string]: boolean };
@@ -23,6 +23,7 @@ export class ReviewListService {
         private translate: TranslateService,
         private toast: ToastrService,
         private CommonExam: CommonExamService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
@@ -117,8 +118,10 @@ export class ReviewListService {
     sendToArchive$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'ARCHIVED', examId);
     sendToRegistry$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'GRADED_LOGGED', examId);
 
-    getReviews$ = (examId: number, collaborative = false) =>
-        this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative));
+    getReviews$ = (examId: number, collaborative = false): Observable<ExamParticipation[]> =>
+        this.http
+            .get<ExamParticipation[]>(this.getResource(examId, collaborative))
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'ReviewListService.getReviews$')));
 
     diffInMinutes = (from: string, to: string) => {
         const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
@@ -169,12 +172,15 @@ export class ReviewListService {
             };
             if (examId) {
                 const url = `/app/iop/reviews/${examId}/${review._id}/record`;
-                return this.http
-                    .put<ExamParticipation & { rev: string }>(url, examToRecord)
-                    .pipe(map((resp) => ({ ...review, _rev: resp.rev })));
+                return this.http.put<ExamParticipation & { rev: string }>(url, examToRecord).pipe(
+                    map((resp) => ({ ...review, _rev: resp.rev })),
+                    catchError((err) => this.errorHandler.handle(err, 'ReviewListService.send$.record')),
+                );
             } else {
                 const resource = exam.gradingType === 'NOT_GRADED' ? '/app/exam/register' : 'app/exam/record';
-                return this.http.post<ExamParticipation>(resource, examToRecord);
+                return this.http
+                    .post<ExamParticipation>(resource, examToRecord)
+                    .pipe(catchError((err) => this.errorHandler.handle(err, 'ReviewListService.send$.register')));
             }
         } else {
             this.toast.error(this.translate.instant('i18n_failed_to_record_review'));

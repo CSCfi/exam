@@ -1,0 +1,20 @@
+<!-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium -->
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="mt-4 mb-4 p-5 bg-body-secondary rounded-3">
+                <div class="container-fluid py-5">
+                    <h1 class="display-5 fw-bold">{{ 'i18n_waiting_room' | translate }}</h1>
+                    @if (route.snapshot.queryParams['error'] === 'seb_config_mismatch') {
+                        <div class="alert alert-danger mt-3">
+                            {{ 'i18n_seb_config_mismatch' | translate }}
+                        </div>
+                    }
+                    <p class="fs-4">{{ 'i18n_waiting_room_message' | translate }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

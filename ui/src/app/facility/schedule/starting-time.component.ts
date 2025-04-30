@@ -9,8 +9,10 @@ import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
+import { catchError } from 'rxjs/operators';
 import { WorkingHour } from 'src/app/facility/facility.model';
 import { RoomService } from 'src/app/facility/rooms/room.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 
 @Component({
     selector: 'xm-starting-time',
@@ -93,7 +95,10 @@ export class StartingTimeComponent implements OnInit {
     examStartingHourOffset = 0;
     unsavedProgress = false;
 
-    constructor(private Room: RoomService) {}
+    constructor(
+        private Room: RoomService,
+        private errorHandler: ErrorHandlingService,
+    ) {}
 
     ngOnInit() {
         this.examStartingHours = [...Array(24)].map(function (x, i) {
@@ -113,11 +118,13 @@ export class StartingTimeComponent implements OnInit {
     }
 
     updateStartingHours = () => {
-        this.Room.updateStartingHours(this.examStartingHours, this.examStartingHourOffset, this.roomIds).then(() => {
-            if (this.startingHours) {
-                this.startingHours = this.examStartingHours;
-            }
-        });
+        this.Room.updateStartingHours$(this.examStartingHours, this.examStartingHourOffset, this.roomIds)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'StartingTimeComponent.updateStartingHours')))
+            .subscribe(() => {
+                if (this.startingHours) {
+                    this.startingHours = this.examStartingHours;
+                }
+            });
     };
 
     toggleAllExamStartingHours = () => {

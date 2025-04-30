@@ -17,10 +17,12 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { SoftwareComponent } from 'src/app/software/software.component';
 import { AccessibilityComponent } from './accessibility/accessibility.component';
@@ -61,22 +63,29 @@ export class FacilityComponent implements OnInit {
         private session: SessionService,
         private toast: ToastrService,
         private room: RoomService,
+        private errorHandler: ErrorHandlingService,
     ) {
         this.user = this.session.getUser();
     }
 
     ngOnInit() {
-        this.room.listMaintenancePeriods$().subscribe((periods) => (this.maintenancePeriods = periods));
+        this.room
+            .listMaintenancePeriods$()
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'FacilityComponent.ngOnInit')))
+            .subscribe((periods) => (this.maintenancePeriods = periods));
     }
 
     createExamRoom = () => {
-        this.room.getDraft$().subscribe({
-            next: (room) => {
-                this.toast.info(this.translate.instant('i18n_room_draft_created'));
-                this.router.navigate(['/staff/rooms', room.id]);
-            },
-            error: (err) => this.toast.error(err),
-        });
+        this.room
+            .getDraft$()
+            .pipe(
+                tap((room) => {
+                    this.toast.info(this.translate.instant('i18n_room_draft_created'));
+                    this.router.navigate(['/staff/rooms', room.id]);
+                }),
+                catchError((err) => this.errorHandler.handle(err, 'FacilityComponent.createExamRoom')),
+            )
+            .subscribe();
     };
 
     createPeriod = () => {
@@ -85,17 +94,23 @@ export class FacilityComponent implements OnInit {
             keyboard: true,
             size: 'lg',
         });
-        from(modalRef.result).subscribe({
-            next: (res: MaintenancePeriod) => {
-                this.room.createMaintenancePeriod$(res).subscribe({
-                    next: (mp) => {
-                        this.toast.info(this.translate.instant('i18n_maintenance_period_created'));
-                        this.maintenancePeriods.push(mp);
-                    },
-                    error: (err) => this.toast.error(err),
-                });
-            },
-        });
+        from(modalRef.result)
+            .pipe(
+                tap((res: MaintenancePeriod) => {
+                    this.room
+                        .createMaintenancePeriod$(res)
+                        .pipe(
+                            tap((mp) => {
+                                this.toast.info(this.translate.instant('i18n_maintenance_period_created'));
+                                this.maintenancePeriods.push(mp);
+                            }),
+                            catchError((err) => this.errorHandler.handle(err, 'FacilityComponent.createPeriod')),
+                        )
+                        .subscribe();
+                }),
+                catchError((err) => this.errorHandler.handle(err, 'FacilityComponent.createPeriod.modal')),
+            )
+            .subscribe();
     };
 
     updatePeriod = (period: MaintenancePeriod) => {
@@ -105,28 +120,37 @@ export class FacilityComponent implements OnInit {
             size: 'lg',
         });
         modalRef.componentInstance.period = period;
-        from(modalRef.result).subscribe({
-            next: (res: MaintenancePeriod) => {
-                this.room.updateMaintenancePeriod$(res).subscribe({
-                    next: () => {
-                        this.toast.info(this.translate.instant('i18n_maintenance_period_updated'));
-                        const index = this.maintenancePeriods.indexOf(period);
-                        this.maintenancePeriods.splice(index, 1, res);
-                    },
-                    error: (err) => this.toast.error(err),
-                });
-            },
-        });
+        from(modalRef.result)
+            .pipe(
+                tap((res: MaintenancePeriod) => {
+                    this.room
+                        .updateMaintenancePeriod$(res)
+                        .pipe(
+                            tap(() => {
+                                this.toast.info(this.translate.instant('i18n_maintenance_period_updated'));
+                                const index = this.maintenancePeriods.indexOf(period);
+                                this.maintenancePeriods.splice(index, 1, res);
+                            }),
+                            catchError((err) => this.errorHandler.handle(err, 'FacilityComponent.updatePeriod')),
+                        )
+                        .subscribe();
+                }),
+                catchError((err) => this.errorHandler.handle(err, 'FacilityComponent.updatePeriod.modal')),
+            )
+            .subscribe();
     };
 
     removePeriod = (period: MaintenancePeriod) => {
-        this.room.removeMaintenancePeriod$(period).subscribe({
-            next: () => {
-                this.toast.info(this.translate.instant('i18n_maintenance_period_removed'));
-                this.maintenancePeriods.splice(this.maintenancePeriods.indexOf(period), 1);
-            },
-            error: (err) => this.toast.error(err),
-        });
+        this.room
+            .removeMaintenancePeriod$(period)
+            .pipe(
+                tap(() => {
+                    this.toast.info(this.translate.instant('i18n_maintenance_period_removed'));
+                    this.maintenancePeriods.splice(this.maintenancePeriods.indexOf(period), 1);
+                }),
+                catchError((err) => this.errorHandler.handle(err, 'FacilityComponent.removePeriod')),
+            )
+            .subscribe();
     };
 
     editMultipleRooms = () => this.router.navigate(['/staff/multiroom']);

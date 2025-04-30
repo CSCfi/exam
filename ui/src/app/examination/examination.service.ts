@@ -8,8 +8,10 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { concat, Observable, of, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { ClozeTestAnswer, EssayAnswer } from 'src/app/question/question.model';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
+import { SebApiService } from 'src/app/shared/services/seb-api.service';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
 @Injectable({ providedIn: 'root' })
@@ -21,6 +23,8 @@ export class ExaminationService {
         private http: HttpClient,
         private translate: TranslateService,
         private toast: ToastrService,
+        private errorHandler: ErrorHandlingService,
+        private SebApi: SebApiService,
     ) {}
 
     getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
@@ -43,6 +47,20 @@ export class ExaminationService {
                     return of(e);
                 }
             }),
+            tap((exam) => {
+                if (exam.implementation === 'CLIENT_AUTH') {
+                    this.http.get<{ configKey: string }>(`/app/exam/${exam.id}/examinationevents/key`).subscribe({
+                        next: (response) => {
+                            this.SebApi.setExpectedConfigKey(response.configKey);
+                        },
+                        error: () => {
+                            // If we can't get the config key, we'll still proceed but SEB validation will fail
+                            console.error('Failed to get SEB configuration key');
+                        },
+                    });
+                }
+            }),
+            catchError((error) => this.errorHandler.handle(error, 'ExaminationService.startExam$')),
         );
     }
 
@@ -55,7 +73,7 @@ export class ExaminationService {
         const type = esq.question.type;
         const answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
         if (!answerObj) {
-            throw new Error('no answer object in question');
+            return throwError(() => new Error('no answer object in question'));
         }
         esq.questionStatus = this.translate.instant('i18n_answer_saved');
         const url = this.getResource(
@@ -72,19 +90,17 @@ export class ExaminationService {
             map((a) => {
                 if (autosave) {
                     esq.autosaved = new Date();
-                } else {
-                    if (!canFail) {
-                        this.toast.info(this.translate.instant('i18n_answer_saved'));
-                    }
+                } else if (!canFail) {
+                    this.toast.info(this.translate.instant('i18n_answer_saved'));
                 }
                 answerObj.objectVersion = a.objectVersion;
                 return esq;
             }),
-            catchError((err) => {
+            catchError((error) => {
                 if (!canFail) {
-                    this.toast.error(err);
+                    return this.errorHandler.handle(error, 'ExaminationService.saveTextualAnswer$');
                 }
-                return throwError(() => new Error(err));
+                return throwError(() => error);
             }),
         );
     };
@@ -98,12 +114,21 @@ export class ExaminationService {
     ) => {
         const questions = section.sectionQuestions.filter((esq) => this.isTextualAnswer(esq, allowEmpty));
         const tasks = questions.map((q) => this.saveTextualAnswer$(q, hash, autosave, canFail));
-        return concat(...tasks);
+        return concat(...tasks).pipe(
+            catchError((error) => {
+                if (!canFail) {
+                    return this.errorHandler.handle(error, 'ExaminationService.saveAllTextualAnswersOfSection$');
+                }
+                return throwError(() => error);
+            }),
+        );
     };
 
     saveAllTextualAnswersOfExam$ = (exam: Examination) =>
         concat(
             ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, true)),
+        ).pipe(
+            catchError((error) => this.errorHandler.handle(error, 'ExaminationService.saveAllTextualAnswersOfExam$')),
         );
 
     isAnswered = (sq: ExaminationQuestion) => {
@@ -153,14 +178,17 @@ export class ExaminationService {
         }
         if (!preview) {
             const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
-            this.http.post(url, { oids: ids }).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('i18n_answer_saved'));
-                    sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
-                    this.setAnswerStatus(sq);
-                },
-                error: (err) => this.toast.error(err),
-            });
+            this.http
+                .post(url, { oids: ids })
+                .pipe(
+                    map(() => {
+                        this.toast.info(this.translate.instant('i18n_answer_saved'));
+                        sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
+                        this.setAnswerStatus(sq);
+                    }),
+                    catchError((error) => this.errorHandler.handle(error, 'ExaminationService.saveOption')),
+                )
+                .subscribe();
         } else {
             this.setAnswerStatus(sq);
         }
@@ -181,7 +209,9 @@ export class ExaminationService {
 
     abort$ = (hash: string): Observable<void> => {
         const url = this.getResource('/app/student/exam/abort/' + hash);
-        return this.http.put<void>(url, {});
+        return this.http
+            .put<void>(url, {})
+            .pipe(catchError((error) => this.errorHandler.handle(error, 'ExaminationService.abort$')));
     };
 
     logout = (msg: string, hash: string, quitLinkEnabled: boolean, canFail: boolean) => {
@@ -192,13 +222,19 @@ export class ExaminationService {
             });
         };
         const url = this.getResource('/app/student/exam/' + hash);
-        this.http.put<void>(url, {}).subscribe({
-            next: ok,
-            error: (resp) => {
-                if (!canFail) this.toast.error(this.translate.instant(resp));
-                else ok();
-            },
-        });
+        this.http
+            .put<void>(url, {})
+            .pipe(
+                map(() => ok()),
+                catchError((error) => {
+                    if (!canFail) {
+                        return this.errorHandler.handle(error, 'ExaminationService.logout');
+                    }
+                    ok();
+                    return of(undefined);
+                }),
+            )
+            .subscribe();
     };
 
     private isTextualAnswer = (esq: ExaminationQuestion, allowEmpty: boolean) => {

@@ -7,7 +7,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NgbDropdownModule, NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { from, noop, tap } from 'rxjs';
+import { from, switchMap, tap } from 'rxjs';
 import { Question, Tag } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
@@ -27,7 +27,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
         <xm-page-content [content]="content" />
         <ng-template #buttons>
             <div class="float-end pe-3">
-                <button (click)="import()" class="btn btn-success me-3 mb-3">
+                <button (click)="importQuestions()" class="btn btn-success me-3 mb-3">
                     {{ 'i18n_toolbar_import_questions' | translate }}
                 </button>
                 <button
@@ -140,8 +140,6 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
         NgbDropdownModule,
         NgbPopoverModule,
         LibrarySearchComponent,
-        LibraryOwnersDialogComponent,
-        LibraryTransferDialogComponent,
         LibraryResultsComponent,
         TranslateModule,
         PageHeaderComponent,
@@ -175,16 +173,18 @@ export class LibraryComponent {
         this.router.navigate(['/staff/questions', copy.id, 'edit']);
     }
 
-    import() {
-        this.Attachment.selectFile(false, {}, 'i18n_import_questions_detail')
-            .then((result) => {
-                this.Files.upload('/app/questions/import', result.$value.attachmentFile, {}, undefined, () =>
-                    this.reload(),
-                );
-                this.toast.success(`${this.translate.instant('i18n_questions_imported_successfully')}`);
-            })
-            .catch(noop);
-    }
+    importQuestions = () => {
+        this.Attachment.selectFile$(false, {}, 'i18n_import_questions_detail').subscribe({
+            next: (data) => {
+                if (data.$value.attachmentFile) {
+                    this.Files.upload$('/app/questions/import', data.$value.attachmentFile, {}).subscribe(() => {
+                        this.toast.success(this.translate.instant('i18n_questions_imported'));
+                        this.reload();
+                    });
+                }
+            },
+        });
+    };
 
     export() {
         if (this.selections.length === 0) {
@@ -249,7 +249,7 @@ export class LibraryComponent {
     }
 
     private reload = () =>
-        this.router
-            .navigateByUrl('/', { skipLocationChange: true })
-            .then(() => this.router.navigate(['/staff/questions']));
+        from(this.router.navigateByUrl('/', { skipLocationChange: true }))
+            .pipe(switchMap(() => from(this.router.navigate(['/staff/questions']))))
+            .subscribe();
 }

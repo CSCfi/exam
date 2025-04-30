@@ -7,8 +7,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { catchError } from 'rxjs/operators';
 import { CoursePickerComponent } from 'src/app/exam/editor/common/course-picker.component';
 import type { Course, Exam } from 'src/app/exam/exam.model';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 @Component({
@@ -65,6 +67,7 @@ export class ExamCourseComponent {
         private translate: TranslateService,
         private toast: ToastrService,
         private Exam: CommonExamService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     displayGradeScale = () =>
@@ -73,9 +76,14 @@ export class ExamCourseComponent {
             : null;
 
     setCourse = (course: Course) =>
-        this.http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).subscribe(() => {
-            this.toast.success(this.translate.instant('i18n_exam_associated_with_course'));
-            this.exam.course = course;
-            this.updated.emit(course);
-        });
+        this.http
+            .put(`/app/exams/${this.exam.id}/course/${course.id}`, {})
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'ExamCourseComponent.setCourse')))
+            .subscribe({
+                next: () => {
+                    this.toast.success(this.translate.instant('i18n_exam_associated_with_course'));
+                    this.exam.course = course;
+                    this.updated.emit(course);
+                },
+            });
 }

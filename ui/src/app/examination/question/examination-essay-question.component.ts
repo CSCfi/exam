@@ -57,26 +57,16 @@ export class ExaminationEssayQuestionComponent implements OnInit {
     };
 
     selectFile = () => {
-        if (this.isPreview || !this.exam) {
-            return;
-        }
-        this.Attachment.selectFile(false).then((data) => {
-            if (this.exam?.external) {
-                this.Files.uploadAnswerAttachment(
-                    '/app/iop/attachment/question/answer',
-                    data.$value.attachmentFile,
-                    { questionId: this.sq.id.toString(), examId: this.exam.hash },
-                    this.sq.essayAnswer,
-                );
-                return;
+        this.Attachment.selectFile$(false).subscribe((data) => {
+            if (data.$value.attachmentFile) {
+                this.sq.essayAnswer.attachment = {
+                    fileName: data.$value.attachmentFile.name,
+                    size: data.$value.attachmentFile.size,
+                    file: data.$value.attachmentFile,
+                    removed: false,
+                    modified: true,
+                };
             }
-            const params = { questionId: this.sq.id.toString() };
-            this.Files.uploadAnswerAttachment(
-                '/app/attachment/question/answer',
-                data.$value.attachmentFile,
-                this.sq.essayAnswer.id ? { ...params, answerId: this.sq.essayAnswer.id.toString() } : params,
-                this.sq.essayAnswer,
-            );
         });
     };
 }

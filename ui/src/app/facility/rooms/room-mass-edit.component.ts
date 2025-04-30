@@ -13,6 +13,7 @@ import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.com
 import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { RoomService } from './room.service';
 
 type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
@@ -122,6 +123,7 @@ export class MultiRoomComponent implements OnInit {
         private toast: ToastrService,
         private roomService: RoomService,
         private translate: TranslateService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     ngOnInit() {
@@ -130,17 +132,23 @@ export class MultiRoomComponent implements OnInit {
 
     addExceptions = (exceptions: ExceptionWorkingHours[]) =>
         this.roomService
-            .addExceptions(
+            .addExceptions$(
                 this.rooms.filter((r) => r.selected).map((r) => r.id),
                 exceptions,
             )
-            .then(() => {
-                this.loadRooms();
+            .subscribe({
+                next: () => {
+                    this.loadRooms();
+                },
+                error: (err) => this.errorHandler.handle(err, 'MultiRoomComponent.addExceptions'),
             });
 
     deleteException = (exception: ExceptionWorkingHours, room: ExamRoom) => {
-        this.roomService.deleteException(room.id, exception.id).then(() => {
-            this.loadRooms();
+        this.roomService.deleteException$(room.id, exception.id).subscribe({
+            next: () => {
+                this.loadRooms();
+            },
+            error: (err) => this.errorHandler.handle(err, 'MultiRoomComponent.deleteException'),
         });
     };
 
@@ -178,7 +186,7 @@ export class MultiRoomComponent implements OnInit {
                         ),
                     }))
                     .sort((a, b) => (a.name < b.name ? -1 : 1))),
-            error: (err) => this.toast.error(err),
+            error: (err) => this.errorHandler.handle(err, 'MultiRoomComponent.loadRooms'),
         });
     };
 }

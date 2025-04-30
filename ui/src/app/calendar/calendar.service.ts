@@ -5,7 +5,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateTime, Interval } from 'luxon';
-import type { Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type {
@@ -16,6 +17,7 @@ import type {
 } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { AvailableSlot, ExamInfo, OpeningHours, Organisation, Slot } from './calendar.model';
 
 type WeekdayNames = Record<string, { ord: number; name: string }>;
@@ -26,6 +28,7 @@ export class CalendarService {
         private http: HttpClient,
         private DateTimeService: DateTimeService,
         private Session: SessionService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     reserve$(
@@ -37,7 +40,7 @@ export class CalendarService {
         org: { _id: string | null },
         collaborative = false,
         sectionIds: number[] = [],
-    ) {
+    ): Observable<void> {
         const slot: Slot = {
             start: this.adjustBack(start),
             end: this.adjustBack(end),
@@ -47,9 +50,13 @@ export class CalendarService {
             sectionIds: sectionIds,
         };
         if (org._id !== null) {
-            return this.reserveExternal$(slot, collaborative);
+            return this.reserveExternal$(slot, collaborative).pipe(
+                catchError((err) => this.errorHandler.handle(err, 'CalendarService.reserve$')),
+            );
         } else {
-            return this.reserveInternal$(slot, accs, collaborative);
+            return this.reserveInternal$(slot, accs, collaborative).pipe(
+                catchError((err) => this.errorHandler.handle(err, 'CalendarService.reserve$')),
+            );
         }
     }
 
@@ -97,7 +104,10 @@ export class CalendarService {
         return openingHours.sort((a, b) => a.ord - b.ord);
     }
 
-    listMaintenancePeriods$ = () => this.http.get<MaintenancePeriod[]>('/app/maintenance');
+    listMaintenancePeriods$ = (): Observable<MaintenancePeriod[]> =>
+        this.http
+            .get<MaintenancePeriod[]>('/app/maintenance')
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.listMaintenancePeriods$')));
 
     getExceptionHours(
         room: ExamRoom,
@@ -166,11 +176,28 @@ export class CalendarService {
         return Array.from(closedDays);
     }
 
-    listRooms$ = () => this.http.get<ExamRoom[]>('/app/rooms');
-    listAccessibilityCriteria$ = () => this.http.get<Accessibility[]>('/app/accessibility');
-    listOrganisations$ = () => this.http.get<Organisation[]>('/app/iop/organisations');
+    listRooms$ = (): Observable<ExamRoom[]> =>
+        this.http
+            .get<ExamRoom[]>('/app/rooms')
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.listRooms$')));
 
-    listSlots$ = (external: boolean, collaborative: boolean, room: ExamRoom, examId: number, params: HttpParams) => {
+    listAccessibilityCriteria$ = (): Observable<Accessibility[]> =>
+        this.http
+            .get<Accessibility[]>('/app/accessibility')
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.listAccessibilityCriteria$')));
+
+    listOrganisations$ = (): Observable<Organisation[]> =>
+        this.http
+            .get<Organisation[]>('/app/iop/organisations')
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.listOrganisations$')));
+
+    listSlots$ = (
+        external: boolean,
+        collaborative: boolean,
+        room: ExamRoom,
+        examId: number,
+        params: HttpParams,
+    ): Observable<AvailableSlot[]> => {
         let url: string;
         if (external) {
             url = collaborative
@@ -179,14 +206,30 @@ export class CalendarService {
         } else {
             url = collaborative ? `/app/iop/exams/${examId}/calendar/${room.id}` : `/app/calendar/${examId}/${room.id}`;
         }
-        return this.http.get<AvailableSlot[]>(url, { params: params });
+        return this.http
+            .get<AvailableSlot[]>(url, { params: params })
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.listSlots$')));
     };
 
-    getReservationiWindowSize$ = () => this.http.get<{ value: number }>('/app/settings/reservationWindow');
-    getExamVisitSupportStatus$ = () => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit');
-    getCurrentEnrolment$ = (id: number) => this.http.get<ExamEnrolment | null>(`/app/calendar/enrolment/${id}/current`);
-    getExamInfo$ = (collaborative: boolean, id: number) =>
-        this.http.get<ExamInfo>(collaborative ? `/app/iop/exams/${id}/info` : `/app/student/exam/${id}/info`);
+    getReservationiWindowSize$ = (): Observable<{ value: number }> =>
+        this.http
+            .get<{ value: number }>('/app/settings/reservationWindow')
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.getReservationiWindowSize$')));
+
+    getExamVisitSupportStatus$ = (): Observable<{ isExamVisitSupported: boolean }> =>
+        this.http
+            .get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit')
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.getExamVisitSupportStatus$')));
+
+    getCurrentEnrolment$ = (id: number): Observable<ExamEnrolment | null> =>
+        this.http
+            .get<ExamEnrolment | null>(`/app/calendar/enrolment/${id}/current`)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.getCurrentEnrolment$')));
+
+    getExamInfo$ = (collaborative: boolean, id: number): Observable<ExamInfo> =>
+        this.http
+            .get<ExamInfo>(collaborative ? `/app/iop/exams/${id}/info` : `/app/student/exam/${id}/info`)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.getExamInfo$')));
 
     private daysBetween = (start: DateTime, end: DateTime) => Interval.fromDateTimes(start, end).splitBy({ day: 1 });
     private normalize = (d: DateTime) => DateTime.now().set({ hour: d.hour, minute: d.minute, second: d.second });
@@ -206,12 +249,16 @@ export class CalendarService {
     private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {
         slot.aids = accs.map((item) => item.id);
         const url = collaborative ? '/app/iop/calendar/reservation' : '/app/calendar/reservation';
-        return this.http.post<void>(url, slot);
+        return this.http
+            .post<void>(url, slot)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.reserveInternal$')));
     };
 
-    private reserveExternal$ = (slot: Slot, collaborative = false) => {
+    private reserveExternal$ = (slot: Slot, collaborative = false): Observable<void> => {
         const url = collaborative ? '/app/iop/calendar/external/reservation' : '/app/iop/reservations/external';
-        return this.http.post<void>(url, slot);
+        return this.http
+            .post<void>(url, slot)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'CalendarService.reserveExternal$')));
     };
 
     private findOpeningHours = (dwh: DefaultWorkingHours, items: OpeningHours[]) =>

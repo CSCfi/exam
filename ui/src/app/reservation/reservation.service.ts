@@ -6,10 +6,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { addMinutes, parseISO } from 'date-fns';
-import { debounceTime, distinctUntilChanged, exhaustMap, forkJoin, from, map, noop, Observable, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, exhaustMap, forkJoin, from, map, Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { CollaborativeExam, Exam } from 'src/app/exam/exam.model';
 import { User } from 'src/app/session/session.model';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { ChangeMachineDialogComponent } from './admin/change-machine-dialog.component';
 import { RemoveReservationDialogComponent } from './admin/remove-reservation-dialog.component';
 import {
@@ -32,6 +34,7 @@ export class ReservationService {
     constructor(
         private http: HttpClient,
         private modal: NgbModal,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     printExamState = (reservation: {
@@ -63,17 +66,19 @@ export class ReservationService {
                     reservation.machine = machine;
                 }
             },
-            error: noop,
+            error: (err) => this.errorHandler.handle(err, 'ReservationService.changeMachine'),
         });
     };
 
-    cancelReservation = (reservation: Reservation): Promise<void> => {
+    cancelReservation$ = (reservation: Reservation): Observable<void> => {
         const modalRef = this.modal.open(RemoveReservationDialogComponent, {
             backdrop: 'static',
             keyboard: false,
         });
         modalRef.componentInstance.reservation = reservation;
-        return modalRef.result;
+        return from(modalRef.result).pipe(
+            catchError((err) => this.errorHandler.handle(err, 'ReservationService.cancelReservation$')),
+        );
     };
 
     listReservations$ = (params: Selection) => {
@@ -82,8 +87,24 @@ export class ReservationService {
         const eventRequest =
             params.roomId || params.machineId || params.externalRef || params.state?.startsWith('EXTERNAL_')
                 ? of([])
-                : this.http.get<ExamEnrolment[]>('/app/events', { params: params });
-        return forkJoin([this.http.get<Reservation[]>('/app/reservations', { params: params }), eventRequest]).pipe(
+                : this.http
+                      .get<ExamEnrolment[]>('/app/events', { params: params })
+                      .pipe(
+                          catchError((err) =>
+                              this.errorHandler.handle(err, 'ReservationService.listReservations$.eventRequest'),
+                          ),
+                      );
+
+        return forkJoin([
+            this.http
+                .get<Reservation[]>('/app/reservations', { params: params })
+                .pipe(
+                    catchError((err) =>
+                        this.errorHandler.handle(err, 'ReservationService.listReservations$.reservations'),
+                    ),
+                ),
+            eventRequest,
+        ]).pipe(
             map(([reservations, enrolments]) => {
                 const events: Partial<Reservation>[] = enrolments.map((ee) => {
                     return {
@@ -192,9 +213,13 @@ export class ReservationService {
             exhaustMap((term) =>
                 term.length < 2
                     ? from([])
-                    : this.http.get<(User & { name: string })[]>('/app/reservations/students', {
-                          params: { filter: term },
-                      }),
+                    : this.http
+                          .get<(User & { name: string })[]>('/app/reservations/students', {
+                              params: { filter: term },
+                          })
+                          .pipe(
+                              catchError((err) => this.errorHandler.handle(err, 'ReservationService.searchStudents$')),
+                          ),
             ),
             map((ss) => ss.sort((a, b) => a.firstName.localeCompare(b.firstName)).slice(0, 100)),
         );
@@ -206,9 +231,11 @@ export class ReservationService {
             exhaustMap((term) =>
                 term.length < 2
                     ? from([])
-                    : this.http.get<(User & { name: string })[]>('/app/reservations/teachers', {
-                          params: { filter: term },
-                      }),
+                    : this.http
+                          .get<(User & { name: string })[]>('/app/reservations/teachers', {
+                              params: { filter: term },
+                          })
+                          .pipe(catchError((err) => this.errorHandler.handle(err, 'ReservationService.searchOwners$'))),
             ),
             map((ss) => ss.sort((a, b) => a.lastName.localeCompare(b.lastName)).slice(0, 100)),
         );
@@ -216,11 +243,19 @@ export class ReservationService {
     searchExams$ = (text$: Observable<string>, includeCollaboratives = false) => {
         const listExams$ = (text: string) => {
             const examObservables: Observable<Exam[] | CollaborativeExam[]>[] = [
-                this.http.get<Exam[]>('/app/reservations/exams', { params: { filter: text } }),
+                this.http
+                    .get<Exam[]>('/app/reservations/exams', { params: { filter: text } })
+                    .pipe(catchError((err) => this.errorHandler.handle(err, 'ReservationService.searchExams$.exams'))),
             ];
             if (includeCollaboratives) {
                 examObservables.push(
-                    this.http.get<CollaborativeExam[]>('/app/iop/exams', { params: { filter: text } }),
+                    this.http
+                        .get<CollaborativeExam[]>('/app/iop/exams', { params: { filter: text } })
+                        .pipe(
+                            catchError((err) =>
+                                this.errorHandler.handle(err, 'ReservationService.searchExams$.collaborativeExams'),
+                            ),
+                        ),
                 );
             }
             return forkJoin(examObservables).pipe(map((exams) => exams.flat()));

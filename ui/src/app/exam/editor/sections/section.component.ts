@@ -317,13 +317,18 @@ export class SectionComponent {
         }
 
         if (attachment.modified && attachment.file) {
-            this.Files.upload(
+            this.Files.upload$(
                 '/app/iop/collab/attachment/question',
                 attachment.file,
                 { examId: this.examId.toString(), questionId: data.id.toString() },
-                question,
-                callback,
-            );
+                { attachment: question.attachment },
+            ).subscribe({
+                next: () => {
+                    if (callback) {
+                        callback();
+                    }
+                },
+            });
         }
     };
 

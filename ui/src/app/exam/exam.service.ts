@@ -8,11 +8,12 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { SessionService } from 'src/app/session/session.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import type {
     Exam,
@@ -50,6 +51,7 @@ export class ExamService {
         private QuestionScore: QuestionScoringService,
         private Session: SessionService,
         private ConfirmationDialog: ConfirmationDialogService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     getReviewablesCount = (exam: Exam) =>
@@ -60,16 +62,14 @@ export class ExamService {
     getProcessedCount = (exam: Exam) =>
         exam.children.filter((child) => ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1).length;
 
-    createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
-        this.http
+    createExam$ = (executionType: string, examinationType: Implementation = 'AQUARIUM'): Observable<Exam> => {
+        return this.http
             .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
-            .subscribe({
-                next: (response) => {
-                    this.toast.info(this.translate.instant('i18n_exam_added'));
-                    this.router.navigate(['/staff/exams', response.id, 'course']);
-                },
-                error: (err) => this.toast.error(err),
-            });
+            .pipe(
+                tap(() => this.toast.info(this.translate.instant('i18n_exam_added'))),
+                tap((response) => this.router.navigate(['/staff/exams', response.id, 'course'])),
+                catchError((err) => this.errorHandler.handle(err, 'ExamService.createExam$')),
+            );
     };
 
     updateExam$ = (exam: Exam, overrides = {}, collaborative = false): Observable<Exam> => {
@@ -97,7 +97,9 @@ export class ExamService {
         };
         Object.assign(data, overrides);
         const url = collaborative ? '/app/iop/exams' : '/app/exams';
-        return this.http.put<Exam>(`${url}/${exam.id}`, data);
+        return this.http
+            .put<Exam>(`${url}/${exam.id}`, data)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'ExamService.updateExam$')));
     };
 
     refreshExamTypes$ = (): Observable<(ExamType & { name: string })[]> =>
@@ -108,6 +110,7 @@ export class ExamService {
                     name: this.CommonExam.getExamTypeDisplayName(et.type),
                 })),
             ),
+            catchError((err) => this.errorHandler.handle(err, 'ExamService.refreshExamTypes$')),
         );
 
     refreshGradeScales$ = (isCollaborative: boolean): Observable<GradeScale[]> => {
@@ -120,6 +123,7 @@ export class ExamService {
                     }),
                 ),
             ),
+            catchError((err) => this.errorHandler.handle(err, 'ExamService.refreshGradeScales$')),
         );
     };
 
@@ -147,6 +151,7 @@ export class ExamService {
                     }),
                 ),
             ),
+            catchError((err) => this.errorHandler.handle(err, 'ExamService.listExecutionTypes$')),
         );
 
     hasQuestions = (exam: SectionContainer) => exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0) > 0;
@@ -171,25 +176,22 @@ export class ExamService {
         return exam && user && (user.isAdmin || this.isOwner(exam, collaborative));
     };
 
-    removeExam = (exam: Exam, collaborative = false, isAdmin = false) => {
-        if (this.isAllowedToUnpublishOrRemove(exam, collaborative)) {
-            this.ConfirmationDialog.open$(
-                this.translate.instant('i18n_confirm'),
-                this.translate.instant('i18n_remove_exam'),
-            ).subscribe({
-                next: () =>
-                    this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe({
-                        next: () => {
-                            this.toast.success(this.translate.instant('i18n_exam_removed'));
-                            this.router.navigate(['/staff', isAdmin ? 'admin' : 'teacher']);
-                        },
-                        error: (err) => this.toast.error(err),
-                    }),
-                error: (err) => this.toast.error(err),
-            });
-        } else {
+    removeExam$ = (exam: Exam, collaborative = false, isAdmin = false): Observable<void> => {
+        if (!this.isAllowedToUnpublishOrRemove(exam, collaborative)) {
             this.toast.warning(this.translate.instant('i18n_exam_removal_not_possible'));
+            return new Observable<void>();
         }
+        return this.ConfirmationDialog.open$(
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_remove_exam'),
+        ).pipe(
+            switchMap(() => this.http.delete<void>(this.getResource(`/app/exams/${exam.id}`, collaborative))),
+            tap(() => {
+                this.toast.success(this.translate.instant('i18n_exam_removed'));
+                this.router.navigate(['/staff', isAdmin ? 'admin' : 'teacher']);
+            }),
+            catchError((err) => this.errorHandler.handle(err, 'ExamService.removeExam$')),
+        );
     };
 
     getResource = (url: string, collaborative = false) =>
@@ -216,33 +218,46 @@ export class ExamService {
     };
 
     reorderSections$ = (from: number, to: number, exam: Exam, collaborative: boolean): Observable<void> =>
-        this.http.put<void>(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from: from, to: to });
+        this.http
+            .put<void>(this.getResource(`/app/exams/${exam.id}/reorder`, collaborative), { from: from, to: to })
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'ExamService.reorderSections$')));
 
     addSection$ = (exam: Exam, collaborative: boolean): Observable<ExamSection> =>
-        this.http.post<ExamSection>(this.getResource(`/app/exams/${exam.id}/sections`, collaborative), {});
+        this.http
+            .post<ExamSection>(this.getResource(`/app/exams/${exam.id}/sections`, collaborative), {})
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'ExamService.addSection$')));
 
     removeSection$ = (exam: Exam, section: ExamSection): Observable<void> =>
-        this.http.delete<void>(this.getResource(`/app/exams/${exam.id}/sections/${section.id}`));
+        this.http
+            .delete<void>(this.getResource(`/app/exams/${exam.id}/sections/${section.id}`))
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'ExamService.removeSection$')));
 
     addExaminationEvent$ = (
         examId: number,
         config: ExaminationEventConfigurationInput,
     ): Observable<ExaminationEventConfiguration> =>
-        this.http.post<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents`, config);
+        this.http
+            .post<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents`, config)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'ExamService.addExaminationEvent$')));
 
     updateExaminationEvent$ = (
         examId: number,
         config: ExaminationEventConfigurationInput,
     ): Observable<ExaminationEventConfiguration> =>
-        this.http.put<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents/${config.id}`, config);
-
-    removeExaminationEvent$ = (examId: number, config: ExaminationEventConfiguration) =>
-        this.http.delete<void>(`/app/exam/${examId}/examinationevents/${config.id}`);
-
-    downloadExam$ = (id: number) =>
         this.http
-            .get<Exam>(`/app/exams/${id}`)
-            .pipe(map((exam) => ({ ...exam, hasEnrolmentsInEffect: this.hasEffectiveEnrolments(exam) })));
+            .put<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents/${config.id}`, config)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'ExamService.updateExaminationEvent$')));
+
+    removeExaminationEvent$ = (examId: number, config: ExaminationEventConfiguration): Observable<void> =>
+        this.http
+            .delete<void>(`/app/exam/${examId}/examinationevents/${config.id}`)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'ExamService.removeExaminationEvent$')));
+
+    downloadExam$ = (id: number): Observable<Exam> =>
+        this.http.get<Exam>(`/app/exams/${id}`).pipe(
+            map((exam) => ({ ...exam, hasEnrolmentsInEffect: this.hasEffectiveEnrolments(exam) })),
+            catchError((err) => this.errorHandler.handle(err, 'ExamService.downloadExam$')),
+        );
 
     getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
 

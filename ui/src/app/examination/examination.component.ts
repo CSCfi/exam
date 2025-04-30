@@ -5,10 +5,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { SessionService } from 'src/app/session/session.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
+import { SebApiService } from 'src/app/shared/services/seb-api.service';
 import type { Examination, ExaminationSection, NavigationPage } from './examination.model';
 import { ExaminationService } from './examination.service';
 import { ExaminationPageHeaderComponent } from './header/examination-header.component';
@@ -32,16 +33,18 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
 })
 export class ExaminationComponent implements OnInit, OnDestroy {
     isCollaborative = false;
+    isPreview = false;
     exam!: Examination;
     activeSection?: ExaminationSection;
-    isPreview = false;
 
     constructor(
-        private router: Router,
         private route: ActivatedRoute,
+        private router: Router,
         private Examination: ExaminationService,
-        private Session: SessionService,
         private Enrolment: EnrolmentService,
+        private Session: SessionService,
+        private errorHandler: ErrorHandlingService,
+        private SebApi: SebApiService,
     ) {}
 
     ngOnInit() {
@@ -66,10 +69,14 @@ export class ExaminationComponent implements OnInit, OnDestroy {
                 if (!this.isPreview) {
                     this.Session.disableSessionCheck(); // we don't need this here and it might cause unwanted forwarding to another states
                 }
+                if (this.exam.implementation === 'CLIENT_AUTH') {
+                    this.validateSebConfig();
+                }
             },
-            error: (err) => {
-                console.log(JSON.stringify(err));
-                this.router.navigate(['/dashboard']);
+            error: (error) => {
+                this.errorHandler.handle(error, 'ExaminationComponent.ngOnInit').subscribe(() => {
+                    this.router.navigate(['/dashboard']);
+                });
             },
         });
     }
@@ -84,10 +91,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
         // Save all textual answers regardless of empty or not
         this.Examination.saveAllTextualAnswersOfExam$(this.exam)
             .pipe(
-                catchError((err) => {
-                    if (err) console.log(err);
-                    return of(err);
-                }),
+                catchError((error) => this.errorHandler.handle(error, 'ExaminationComponent.timedOut')),
                 finalize(() => this.logout('i18n_exam_time_is_up', true)),
             )
             .subscribe();
@@ -127,4 +131,12 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     private onUnload = (event: BeforeUnloadEvent) => {
         event.preventDefault();
     };
+
+    private validateSebConfig(): void {
+        if (!this.SebApi.validateSebConfig()) {
+            this.router.navigate(['/waitingroom'], {
+                queryParams: { error: 'seb_config_mismatch' },
+            });
+        }
+    }
 }

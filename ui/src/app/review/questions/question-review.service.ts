@@ -4,14 +4,19 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import type { QuestionReview, ReviewQuestion } from 'src/app/review/review.model';
 import type { User } from 'src/app/session/session.model';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionReviewService {
-    constructor(private http: HttpClient) {}
+    constructor(
+        private http: HttpClient,
+        private errorHandler: ErrorHandlingService,
+    ) {}
 
     questionsApi = (id: number) => `/app/exam/${id}/questions`;
 
@@ -38,7 +43,9 @@ export class QuestionReviewService {
         !review ? 0 : review.answers.filter((a) => a.essayAnswer && isNumber(a.essayAnswer.evaluatedScore)).length;
 
     getReviews$ = (examId: number, ids: string[] = []): Observable<QuestionReview[]> =>
-        this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids: ids } });
+        this.http
+            .get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids: ids } })
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'QuestionReviewService.getReviews$')));
 
     getProcessedAnswerCount = (review?: QuestionReview, user?: User) => {
         if (!review || !user) {

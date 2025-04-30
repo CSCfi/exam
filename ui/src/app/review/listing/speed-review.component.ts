@@ -12,7 +12,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import { forkJoin, noop, throwError } from 'rxjs';
+import { catchError, forkJoin, from, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Course, Exam, Grade, GradeScale, NoGrade, SelectableGrade } from 'src/app/exam/exam.model';
@@ -20,6 +20,7 @@ import { isRealGrade } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Review } from 'src/app/review/review.model';
 import type { User } from 'src/app/session/session.model';
+import { FileResult } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
@@ -28,6 +29,7 @@ import { DateTimeService } from 'src/app/shared/date/date.service';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
 import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
@@ -86,6 +88,7 @@ export class SpeedReviewComponent implements OnInit {
         private Attachment: AttachmentService,
         private DateTime: DateTimeService,
         private CourseCode: CourseCodeService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     ngOnInit() {
@@ -177,15 +180,11 @@ export class SpeedReviewComponent implements OnInit {
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, {}, 'i18n_import_grades_from_csv')
-            .then((result) => {
-                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, () => this.reload());
-                this.toast.success(`${this.translate.instant('i18n_csv_uploaded_successfully')}`);
-            })
-            .catch(() => {
-                this.toast.info(`${this.translate.instant('i18n_csv_uploading_cancelled')}`);
-                return noop;
-            });
+        this.Attachment.selectFile$(false, {}, 'i18n_import_grades_from_csv').subscribe({
+            next: (result: FileResult) => {
+                this.Files.upload$('/app/gradeimport', result.$value.attachmentFile, {}).subscribe(() => this.reload());
+            },
+        });
     };
 
     createGradingTemplate = () => {
@@ -208,10 +207,23 @@ export class SpeedReviewComponent implements OnInit {
         saveAs(blob, 'grading.csv', { autoBom: false });
     };
 
+    uploadFeedback = (review: Review) => {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.pdf,.doc,.docx,.txt,.rtf';
+        fileInput.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (file) {
+                this.Files.upload$(`/app/review/${review.examParticipation.exam.id}/feedback`, file, {}).subscribe();
+            }
+        };
+        fileInput.click();
+    };
+
     private reload = () =>
-        this.router
-            .navigateByUrl('/', { skipLocationChange: true })
-            .then(() => this.router.navigate(['/staff/assessments', this.examId, 'speedreview']));
+        from(this.router.navigateByUrl('/', { skipLocationChange: true }))
+            .pipe(switchMap(() => from(this.router.navigate(['/staff/assessments', this.examId, 'speedreview']))))
+            .subscribe();
 
     private resolveGradeScale = (exam: Exam): GradeScale => {
         if (exam.gradeScale) {
@@ -302,9 +314,10 @@ export class SpeedReviewComponent implements OnInit {
                     exam.gradedTime = new Date();
                     exam.grade = grade;
                 }),
+                catchError((error) => this.errorHandler.handle(error, 'SpeedReviewComponent.gradeExam$')),
             );
         } else {
-            return throwError(() => 'no can do');
+            return throwError(() => new Error('Cannot grade exam with errors'));
         }
     };
 }

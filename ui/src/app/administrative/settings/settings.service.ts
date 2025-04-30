@@ -4,21 +4,40 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AppConfig } from 'src/app/administrative/administrative.model';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
-    constructor(private http: HttpClient) {}
+    constructor(
+        private http: HttpClient,
+        private errorHandler: ErrorHandlingService,
+    ) {}
 
-    updateAgreement$ = (config: AppConfig, bypassAgreementUpdate = false) =>
-        this.http.put('/app/settings/agreement', { value: config.eula, minorUpdate: bypassAgreementUpdate });
+    updateAgreement$ = (config: AppConfig, bypassAgreementUpdate = false): Observable<unknown> =>
+        this.http
+            .put('/app/settings/agreement', { value: config.eula, minorUpdate: bypassAgreementUpdate })
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'SettingsService.updateAgreement$')));
 
-    updateDeadline$ = (config: AppConfig) => this.http.put('/app/settings/deadline', { value: config.reviewDeadline });
+    updateDeadline$ = (config: AppConfig): Observable<unknown> =>
+        this.http
+            .put('/app/settings/deadline', { value: config.reviewDeadline })
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'SettingsService.updateDeadline$')));
 
-    updateReservationWindow$ = (config: AppConfig) =>
-        this.http.put('/app/settings/reservationWindow', { value: config.reservationWindowSize });
+    updateReservationWindow$ = (config: AppConfig): Observable<unknown> =>
+        this.http
+            .put('/app/settings/reservationWindow', { value: config.reservationWindowSize })
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'SettingsService.updateReservationWindow$')));
 
-    listAttributes$ = () => this.http.get<string[]>('/app/attributes');
+    listAttributes$ = (): Observable<string[]> =>
+        this.http
+            .get<string[]>('/app/attributes')
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'SettingsService.listAttributes$')));
 
-    getConfig$ = () => this.http.get<AppConfig>('/app/config');
+    getConfig$ = (): Observable<AppConfig> =>
+        this.http
+            .get<AppConfig>('/app/config')
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'SettingsService.getConfig$')));
 }

@@ -18,8 +18,10 @@ import type { Exam, ExamType, GradeScale } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
+import { FileResult } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { ExamCourseComponent } from './exam-course.component';
 import { ExamInspectorSelectorComponent } from './exam-inspector-picker.component';
@@ -69,6 +71,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
         private Files: FileService,
         private Session: SessionService,
         private Tabs: ExamTabService,
+        private errorHandler: ErrorHandlingService,
     ) {
         this.user = this.Session.getUser();
     }
@@ -109,7 +112,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
                     initScale: false,
                 });
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.errorHandler.handle(err, 'BasicExamInfoComponent.updateExam'),
         });
     };
 
@@ -147,9 +150,16 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
         this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled);
 
     selectAttachmentFile = () => {
-        this.Attachment.selectFile(true, {}).then((data) => {
-            const url = this.collaborative ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
-            this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }, this.exam);
+        this.Attachment.selectFile$(true, {}).subscribe({
+            next: (data: FileResult) => {
+                const url = this.collaborative ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
+                this.Files.upload$(
+                    url,
+                    data.$value.attachmentFile,
+                    { examId: this.exam.id.toString() },
+                    { attachment: this.exam.attachment },
+                ).subscribe();
+            },
         });
     };
 
@@ -157,9 +167,9 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
 
     downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.collaborative);
 
-    removeExamAttachment = () => this.Attachment.removeExamAttachment(this.exam, this.collaborative);
+    removeExamAttachment = () => this.Attachment.removeExamAttachment$(this.exam, this.collaborative);
 
-    removeExam = () => this.Exam.removeExam(this.exam, this.collaborative, this.Session.getUser().isAdmin);
+    removeExam = () => this.Exam.removeExam$(this.exam, this.collaborative, this.Session.getUser().isAdmin).subscribe();
 
     nextTab = () => {
         this.Tabs.notifyTabChange(2);

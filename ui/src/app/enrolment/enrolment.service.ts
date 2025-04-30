@@ -14,6 +14,7 @@ import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from 'src
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import type { User } from 'src/app/session/session.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { isObject } from 'src/app/shared/miscellaneous/helpers';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/add-enrolment-information-dialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/select-examination-event-dialog.component';
@@ -35,6 +36,7 @@ export class EnrolmentService {
         private ngbModal: NgbModal,
         private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     removeExaminationEvent = (enrolment: ExamEnrolment) => {
@@ -43,13 +45,16 @@ export class EnrolmentService {
             this.translate.instant('i18n_are_you_sure'),
         ).subscribe({
             next: () =>
-                this.http.delete(`/app/enrolments/${enrolment.id}/examination`).subscribe({
-                    next: () => {
-                        this.toast.info(this.translate.instant('i18n_examination_event_removed'));
-                        delete enrolment.examinationEventConfiguration;
-                    },
-                    error: (err) => this.toast.error(err),
-                }),
+                this.http
+                    .delete(`/app/enrolments/${enrolment.id}/examination`)
+                    .pipe(
+                        tap(() => {
+                            this.toast.info(this.translate.instant('i18n_examination_event_removed'));
+                            delete enrolment.examinationEventConfiguration;
+                        }),
+                        catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.removeExaminationEvent')),
+                    )
+                    .subscribe(),
         });
     };
 
@@ -62,7 +67,6 @@ export class EnrolmentService {
             delete enrolment.reservation;
             enrolment.reservationCanceled = true;
         };
-        const errorFn = (resp: { data: string }) => this.toast.error(resp.data);
         const url = externalRef
             ? `/app/iop/reservations/external/${externalRef}`
             : `/app/calendar/reservation/${enrolment.reservation.id}`;
@@ -70,7 +74,14 @@ export class EnrolmentService {
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_are_you_sure'),
         ).subscribe({
-            next: () => this.http.delete(url).subscribe({ next: successFn, error: errorFn }),
+            next: () =>
+                this.http
+                    .delete(url)
+                    .pipe(
+                        tap(successFn),
+                        catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.removeReservation')),
+                    )
+                    .subscribe(),
         });
     }
 
@@ -92,10 +103,13 @@ export class EnrolmentService {
                         this.router.navigate(path);
                     }
                 }),
+                catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.enroll')),
             );
 
     getEnrolments = (examId: number, collaborative = false): Observable<ExamEnrolment[]> =>
-        this.http.get<ExamEnrolment[]>(this.getResource(`exam/${examId}`, collaborative));
+        this.http
+            .get<ExamEnrolment[]>(this.getResource(`exam/${examId}`, collaborative))
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.getEnrolments')));
 
     checkAndEnroll$ = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
         this.http.get<ExamEnrolment[]>(this.getResource(`exam/${exam.id}`, collaborative)).pipe(
@@ -104,17 +118,15 @@ export class EnrolmentService {
                     ? this.enroll(exam, collaborative)
                     : throwError(() => new Error(this.translate.instant('i18n_already_enrolled'))),
             ),
-            catchError((err) => {
-                this.toast.error(err);
-                return throwError(() => new Error(err));
-            }),
+            catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.checkAndEnroll$')),
         );
 
     enrollStudent$ = (exam: Exam, student: Partial<User>): Observable<ExamEnrolment> => {
         const data = { uid: student.id, email: student.email };
-        return this.http
-            .post<ExamEnrolment>(`/app/enrolments/student/${exam.id}`, data)
-            .pipe(tap(() => this.toast.success(this.translate.instant('i18n_student_enrolled_to_exam'))));
+        return this.http.post<ExamEnrolment>(`/app/enrolments/student/${exam.id}`, data).pipe(
+            tap(() => this.toast.success(this.translate.instant('i18n_student_enrolled_to_exam'))),
+            catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.enrollStudent$')),
+        );
     };
 
     getEnrolmentInfo$ = (code: string, id: number): Observable<EnrolmentInfo> =>
@@ -170,15 +182,22 @@ export class EnrolmentService {
         );
 
     listStudentParticipations$ = (): Observable<CollaborativeParticipation[]> =>
-        this.http.get<CollaborativeParticipation[]>('/app/iop/student/finishedExams');
+        this.http
+            .get<CollaborativeParticipation[]>('/app/iop/student/finishedExams')
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.listStudentParticipations$')));
 
     searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
         const paramStr = searchTerm ? `?filter=${encodeURIComponent(searchTerm)}` : '';
         const path = `/app/iop/enrolment${paramStr}`;
-        return this.http.get<CollaborativeExam[]>(path);
+        return this.http
+            .get<CollaborativeExam[]>(path)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.searchExams$')));
     };
 
-    removeEnrolment$ = (enrolment: ExamEnrolment) => this.http.delete<void>(`/app/enrolments/${enrolment.id}`);
+    removeEnrolment$ = (enrolment: ExamEnrolment) =>
+        this.http
+            .delete<void>(`/app/enrolments/${enrolment.id}`)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.removeEnrolment$')));
 
     addEnrolmentInformation = (enrolment: ExamEnrolment): void => {
         const modalRef = this.ngbModal.open(AddEnrolmentInformationDialogComponent, {
@@ -187,18 +206,25 @@ export class EnrolmentService {
         });
         modalRef.componentInstance.information = enrolment.information;
         modalRef.result.then((information: string) => {
-            this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe({
-                next: () => {
-                    this.toast.success(this.translate.instant('i18n_saved'));
-                    enrolment.information = information;
-                },
-                error: (err) => this.toast.error(err),
-            });
+            this.http
+                .put(`/app/enrolments/${enrolment.id}`, { information: information })
+                .pipe(
+                    tap(() => {
+                        this.toast.success(this.translate.instant('i18n_saved'));
+                        enrolment.information = information;
+                    }),
+                    catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.addEnrolmentInformation')),
+                )
+                .subscribe();
         });
     };
 
     removeAllEventEnrolmentConfigs$ = (config: ExaminationEventConfiguration) =>
-        this.http.delete<void>(`/app/enrolments/configs/${config.id}`);
+        this.http
+            .delete<void>(`/app/enrolments/configs/${config.id}`)
+            .pipe(
+                catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.removeAllEventEnrolmentConfigs$')),
+            );
 
     setCommentRead = (exam: Exam | ReviewedExam) => {
         if (!this.isCommentRead(exam)) {
@@ -207,21 +233,29 @@ export class EnrolmentService {
             };
             this.http
                 .put<void>(`/app/review/${exam.id}/comment/${exam.examFeedback?.id}/feedbackstatus`, examFeedback)
-                .subscribe(() => {
-                    if (exam.examFeedback) {
-                        exam.examFeedback.feedbackStatus = true;
-                    }
-                });
+                .pipe(
+                    tap(() => {
+                        if (exam.examFeedback) {
+                            exam.examFeedback.feedbackStatus = true;
+                        }
+                    }),
+                    catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.setCommentRead')),
+                )
+                .subscribe();
         }
     };
 
     setCommentRead$(examId: string, examRef: string, revision: string) {
         const url = `/app/iop/reviews/${examId}/${examRef}/comment`;
-        return this.http.post(url, { rev: revision });
+        return this.http
+            .post(url, { rev: revision })
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.setCommentRead$')));
     }
 
     getRoomInstructions$ = (hash: string): Observable<ExamRoom> =>
-        this.http.get<ExamRoom>(`/app/enrolments/room/${hash}`);
+        this.http
+            .get<ExamRoom>(`/app/enrolments/room/${hash}`)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.getRoomInstructions$')));
 
     showInstructions = (enrolment: ExamEnrolment): void => {
         const modalRef = this.ngbModal.open(ShowInstructionsDialogComponent, {
@@ -265,10 +299,18 @@ export class EnrolmentService {
         }
     };
 
-    loadFeedback$ = (id: number) => this.http.get<ReviewedExam>(`/app/feedback/exams/${id}`);
-    loadScore$ = (id: number) => this.http.get<ReviewedExam>(`/app/feedback/exams/${id}/score`);
+    loadFeedback$ = (id: number) =>
+        this.http
+            .get<ReviewedExam>(`/app/feedback/exams/${id}`)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.loadFeedback$')));
+    loadScore$ = (id: number) =>
+        this.http
+            .get<ReviewedExam>(`/app/feedback/exams/${id}/score`)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.loadScore$')));
     loadParticipations$ = (filter: string) =>
-        this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: filter } });
+        this.http
+            .get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: filter } })
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.loadParticipations$')));
 
     private selectExaminationEvent = (exam: Exam, enrolment: ExamEnrolment, nextState?: string) => {
         const modalRef = this.ngbModal.open(SelectExaminationEventDialogComponent, {
@@ -281,15 +323,18 @@ export class EnrolmentService {
             : undefined;
         from(modalRef.result).subscribe({
             next: (data: ExaminationEventConfiguration) => {
-                this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe({
-                    next: () => {
-                        enrolment.examinationEventConfiguration = data;
-                        if (nextState) {
-                            this.router.navigate([nextState]);
-                        }
-                    },
-                    error: (err) => this.toast.error(err),
-                });
+                this.http
+                    .post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {})
+                    .pipe(
+                        tap(() => {
+                            enrolment.examinationEventConfiguration = data;
+                            if (nextState) {
+                                this.router.navigate([nextState]);
+                            }
+                        }),
+                        catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.selectExaminationEvent')),
+                    )
+                    .subscribe();
             },
         });
     };
@@ -303,9 +348,10 @@ export class EnrolmentService {
         }
         const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
         const ref = external ? `&ref=${exam.hash}` : '';
-        return this.http
-            .get<{ value: string }>(`/app/settings/maturityInstructions?lang=${lang}${ref}`)
-            .pipe(map((data) => data.value));
+        return this.http.get<{ value: string }>(`/app/settings/maturityInstructions?lang=${lang}${ref}`).pipe(
+            map((data) => data.value),
+            catchError((err) => this.errorHandler.handle(err, 'EnrolmentService.getMaturityInstructions$')),
+        );
     };
 
     private getResource = (path: string, collaborative: boolean) =>

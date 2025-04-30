@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { catchError } from 'rxjs/operators';
 import { CanComponentDeactivate } from 'src/app/question/has-unsaved-changes.quard';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
 import type { QuestionDraft } from 'src/app/question/question.model';
@@ -74,13 +75,13 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
             this.question = { ...this.questionDraft, examSectionQuestions: [] };
             this.currentOwners = [...this.question.questionOwners];
         } else {
-            this.Question.getQuestion(this.questionId || Number(id)).subscribe({
-                next: (question: ReverseQuestion) => {
-                    this.question = question;
+            this.Question.getQuestion$(this.questionId || Number(id)).subscribe({
+                next: (question: Question) => {
+                    this.question = question as ReverseQuestion | QuestionDraft;
                     this.currentOwners = [...this.question.questionOwners];
                     window.addEventListener('beforeunload', this.onUnload);
                 },
-                error: (err) => this.toast.error(err),
+                error: (err: Error) => this.toast.error(err.message),
             });
         }
     }
@@ -126,12 +127,23 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
         if (this.collaborative) {
             fn(this.question);
         } else if (this.newQuestion) {
-            this.Question.createQuestion(this.question as QuestionDraft).then(fn, (error) => this.toast.error(error));
+            this.Question.createQuestion$(this.question as QuestionDraft)
+                .pipe(
+                    catchError((error) => {
+                        this.toast.error(error);
+                        throw error;
+                    }),
+                )
+                .subscribe(fn);
         } else {
-            this.Question.updateQuestion(this.question as Question).then(
-                () => fn(this.question),
-                (error) => this.toast.error(error),
-            );
+            this.Question.updateQuestion$(this.question as Question)
+                .pipe(
+                    catchError((error) => {
+                        this.toast.error(error);
+                        throw error;
+                    }),
+                )
+                .subscribe(() => fn(this.question));
         }
     };
 

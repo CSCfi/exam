@@ -159,17 +159,17 @@ export class SectionQuestionComponent {
                                 return;
                             }
                             if (attachment.modified && attachment.file) {
-                                this.Files.upload(
+                                this.Files.upload$(
                                     '/app/iop/collab/attachment/question',
                                     attachment.file,
                                     { examId: this.examId.toString(), questionId: this.sectionQuestion.id.toString() },
-                                    this.sectionQuestion.question,
-                                );
+                                    { attachment: this.sectionQuestion.question.attachment },
+                                ).subscribe();
                             } else if (attachment.removed) {
-                                this.Attachment.eraseCollaborativeQuestionAttachment(
+                                this.Attachment.eraseCollaborativeQuestionAttachment$(
                                     this.examId,
                                     this.sectionQuestion.id,
-                                ).then(() => {
+                                ).subscribe(() => {
                                     delete this.sectionQuestion.question.attachment;
                                 });
                             }
@@ -189,8 +189,8 @@ export class SectionQuestionComponent {
         });
         modal.componentInstance.examQuestion = { ...this.sectionQuestion };
         modal.componentInstance.lotteryOn = this.lotteryOn;
-        modal.result
-            .then((data: { question: Question; examQuestion: ExamSectionQuestion }) => {
+        from(modal.result).subscribe({
+            next: (data: { question: Question; examQuestion: ExamSectionQuestion }) => {
                 this.Question.updateDistributedExamQuestion$(
                     data.question,
                     data.examQuestion,
@@ -205,7 +205,8 @@ export class SectionQuestionComponent {
                     },
                     error: (err) => this.toast.error(err),
                 });
-            })
-            .catch(noop);
+            },
+            error: noop,
+        });
     };
 }

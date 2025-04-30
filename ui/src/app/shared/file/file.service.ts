@@ -8,8 +8,11 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { EssayAnswer } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 
 type Container = { attachment?: Attachment; objectVersion?: number };
 
@@ -20,74 +23,104 @@ export class FileService {
         private http: HttpClient,
         private translate: TranslateService,
         private toast: ToastrService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
-    download(url: string, filename: string, params?: Record<string, string | string[]>, post?: boolean) {
+    download(
+        url: string,
+        filename: string,
+        params?: Record<string, string | string[]>,
+        post?: boolean,
+    ): Observable<void> {
         const method = post ? 'POST' : 'GET';
-        this.http
+        return this.http
             .request(method, url, {
                 responseType: 'text',
                 observe: 'response',
                 params: method === 'GET' ? params : undefined,
                 body: method === 'POST' ? { params } : undefined,
             })
-            .subscribe({
-                next: (resp: HttpResponse<string>) => {
+            .pipe(
+                tap((resp: HttpResponse<string>) => {
                     if (resp.body) {
                         const contentType = resp.headers.get('Content-Type');
                         if (contentType) {
                             this.saveFile(resp.body, filename, contentType.split(';')[0]);
                         }
                     }
-                },
-                error: (resp) => {
-                    console.log('error ' + JSON.stringify(resp));
-                    this.toast.error(resp.body || resp);
-                },
-            });
+                }),
+                map(() => void 0),
+                catchError((error) => this.errorHandler.handle(error, 'FileService.download')),
+            );
     }
 
-    getMaxFilesize(): Promise<{ filesize: number }> {
-        return new Promise((resolve, reject) => {
-            if (this.maxFileSize) {
-                resolve({ filesize: this.maxFileSize });
-            } else {
-                this.http.get<{ filesize: number }>('/app/settings/maxfilesize').subscribe({
-                    next: (resp) => {
-                        this.maxFileSize = resp.filesize;
-                        resolve(resp);
-                    },
-                    error: reject,
-                });
+    getMaxFilesize$(): Observable<{ filesize: number }> {
+        if (this.maxFileSize) {
+            return of({ filesize: this.maxFileSize });
+        }
+        return this.http.get<{ filesize: number }>('/app/settings/maxfilesize').pipe(
+            tap((resp) => {
+                this.maxFileSize = resp.filesize;
+            }),
+            catchError((error) => this.errorHandler.handle(error, 'FileService.getMaxFilesize$')),
+        );
+    }
+
+    upload$(
+        url: string,
+        file: File,
+        params: Record<string, string>,
+        parent?: Container,
+    ): Observable<Attachment | EssayAnswer> {
+        if (this.isFileTooBig(file)) {
+            return throwError(() => new Error(this.translate.instant('i18n_file_too_large')));
+        }
+
+        const fd = new FormData();
+        fd.append('file', file);
+        for (const k in params) {
+            if (Object.prototype.hasOwnProperty.call(params, k)) {
+                fd.append(k, params[k]);
             }
-        });
-    }
+        }
 
-    upload(url: string, file: File, params: Record<string, string>, parent?: Container, callback?: () => void): void {
-        this.doUpload(url, file, params)
-            .then((resp) => {
+        return this.http.post<Attachment | EssayAnswer>(url, fd).pipe(
+            tap((resp) => {
                 if (parent) {
-                    parent.attachment = resp as Attachment;
+                    if (this.isAttachment(resp)) {
+                        parent.attachment = resp;
+                    } else {
+                        parent.objectVersion = resp.objectVersion;
+                        parent.attachment = resp.attachment;
+                    }
                 }
-                if (callback) {
-                    callback();
-                }
-            })
-            .catch((resp) => this.toast.error(this.translate.instant(resp.data)));
+            }),
+            catchError((error) => this.errorHandler.handle(error, 'FileService.upload$')),
+        );
     }
 
-    uploadAnswerAttachment(url: string, file: File, params: Record<string, string>, parent: Container): void {
-        this.doUpload(url, file, params)
-            .then((resp) => {
-                parent.objectVersion = resp.objectVersion;
-                parent.attachment = !this.isAttachment(resp) ? resp.attachment : resp;
-            })
-            .catch((resp) => this.toast.error(this.translate.instant(resp.data)));
+    uploadAnswerAttachment$(
+        url: string,
+        file: File,
+        params: Record<string, string>,
+        parent: Container,
+    ): Observable<Attachment | EssayAnswer> {
+        return this.upload$(url, file, params, parent).pipe(
+            tap((resp) => {
+                if (this.isAttachment(resp)) {
+                    parent.attachment = resp;
+                } else {
+                    parent.objectVersion = resp.objectVersion;
+                    parent.attachment = resp.attachment;
+                }
+            }),
+            catchError((error) => this.errorHandler.handle(error, 'FileService.uploadAnswerAttachment$')),
+        );
     }
 
     private isAttachment = (obj: EssayAnswer | Attachment): obj is Attachment => obj.objectVersion === undefined;
 
-    private saveFile(data: string, fileName: string, contentType: string) {
+    private saveFile(data: string, fileName: string, contentType: string): void {
         let blob: Blob;
         try {
             const byteString = window.atob(data);
@@ -111,25 +144,5 @@ export class FileService {
             return true;
         }
         return false;
-    }
-
-    private doUpload(url: string, file: File, params: Record<string, string>): Promise<Attachment | EssayAnswer> {
-        return new Promise<Attachment | EssayAnswer>((resolve, reject) => {
-            if (this.isFileTooBig(file)) {
-                reject({ data: 'i18n_file_too_large' });
-            } else {
-                const fd = new FormData();
-                fd.append('file', file);
-                for (const k in params) {
-                    if (Object.prototype.hasOwnProperty.call(params, k)) {
-                        fd.append(k, params[k]);
-                    }
-                }
-                this.http.post<Attachment>(url, fd).subscribe({
-                    next: (resp) => resolve(resp),
-                    error: (resp) => reject(resp),
-                });
-            }
-        });
     }
 }

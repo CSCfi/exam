@@ -20,7 +20,6 @@ import { TagPickerComponent } from 'src/app/question/tags/tag-picker.component';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { ClaimChoiceEditorComponent } from './claim-choice.component';
 import { EssayEditorComponent } from './essay.component';
 import { MultipleChoiceEditorComponent } from './multiple-choice.component';
@@ -34,7 +33,6 @@ import { MultipleChoiceEditorComponent } from './multiple-choice.component';
         FormsModule,
         NgbPopover,
         NgClass,
-        CKEditorComponent,
         EssayEditorComponent,
         MultipleChoiceEditorComponent,
         ClaimChoiceEditorComponent,
@@ -134,17 +132,21 @@ export class QuestionBodyComponent implements OnInit {
         this.currentOwners.splice(this.currentOwners.indexOf(user), 1);
     };
 
-    selectFile = () =>
-        this.Attachment.selectFile(true).then((data) => {
-            this.question.attachment = {
-                ...this.question.attachment,
-                modified: true,
-                fileName: data.$value.attachmentFile.name,
-                size: data.$value.attachmentFile.size,
-                file: data.$value.attachmentFile,
-                removed: false,
-            };
+    selectFile = () => {
+        this.Attachment.selectFile$(true).subscribe({
+            next: (data) => {
+                if (data.$value.attachmentFile) {
+                    this.question.attachment = {
+                        fileName: data.$value.attachmentFile.name,
+                        size: data.$value.attachmentFile.size,
+                        file: data.$value.attachmentFile,
+                        removed: false,
+                        modified: true,
+                    };
+                }
+            },
         });
+    };
 
     downloadQuestionAttachment = () => {
         if (this.question.attachment && this.question.attachment.externalId && this.sectionQuestion) {

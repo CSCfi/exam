@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -11,10 +10,11 @@ import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-boots
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import { of, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
 import type { Exam, ExamInspection } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
+import { ExamInspectorService } from './exam-inspector.service';
 
 @Component({
     selector: 'xm-exam-inspector-picker',
@@ -36,8 +36,8 @@ export class ExamInspectorSelectorComponent implements OnInit {
     };
 
     constructor(
-        private http: HttpClient,
         private toast: ToastrService,
+        private inspectorService: ExamInspectorService,
     ) {
         this.newInspector = {};
     }
@@ -52,15 +52,9 @@ export class ExamInspectorSelectorComponent implements OnInit {
             debounceTime(500),
             distinctUntilChanged(),
             exhaustMap((text) =>
-                text.length < 2
-                    ? of([])
-                    : this.http.get<User[]>(`/app/users/filter/TEACHER/${this.exam.id}`, { params: { q: text } }),
+                text.length < 2 ? of([]) : this.inspectorService.searchTeachers$(this.exam.id, text),
             ),
             take(15),
-            catchError((err) => {
-                this.toast.error(err);
-                return throwError(() => new Error(err));
-            }),
         );
 
     nameFormatter = (data: { name: string; email: string }) => `${data.name} ${data.email}`;
@@ -69,24 +63,25 @@ export class ExamInspectorSelectorComponent implements OnInit {
 
     addInspector = () => {
         if (this.newInspector.id) {
-            this.http
-                .post(`/app/exams/${this.exam.id}/inspector/${this.newInspector.id}`, {
-                    comment: this.newInspector.comment,
-                })
-                .subscribe(() => {
-                    this.getInspectors();
-                    this.newInspector = {};
+            this.inspectorService
+                .addInspector$(this.exam.id, this.newInspector.id, this.newInspector.comment)
+                .subscribe({
+                    next: () => {
+                        this.getInspectors();
+                        this.newInspector = {};
+                    },
                 });
         }
     };
 
     removeInspector = (id: number) =>
-        this.http
-            .delete(`/app/exams/inspector/${id}`)
-            .subscribe({ next: this.getInspectors, error: (err) => this.toast.error(err) });
+        this.inspectorService.removeInspector$(id).subscribe({
+            next: this.getInspectors,
+            error: (err) => this.toast.error(err),
+        });
 
     private getInspectors = () =>
-        this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe({
+        this.inspectorService.getInspections$(this.exam.id).subscribe({
             next: (inspections) => (this.examInspections = inspections),
             error: (err) => this.toast.error(err),
         });

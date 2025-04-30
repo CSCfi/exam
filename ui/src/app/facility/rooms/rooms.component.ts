@@ -20,6 +20,7 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 import { RoomService } from './room.service';
 
@@ -58,6 +59,7 @@ export class RoomListComponent implements OnInit {
         private roomService: RoomService,
         private translate: TranslateService,
         private timeDateService: DateTimeService,
+        private errorHandler: ErrorHandlingService,
     ) {
         this.user = this.session.getUser();
     }
@@ -65,44 +67,47 @@ export class RoomListComponent implements OnInit {
     ngOnInit() {
         if (this.user.isAdmin) {
             if (!this.route.snapshot.params.id) {
-                this.roomService.getRooms$().subscribe((rooms) => {
-                    const roomsWithVisibility = rooms as ExtendedRoom[];
-                    this.rooms = roomsWithVisibility.map((r) => {
-                        const extendedDWH = r.defaultWorkingHours as DefaultWorkingHoursWithEditing[];
-                        return {
-                            ...r,
-                            addressVisible: false,
-                            availabilityVisible: false,
-                            extendedDWH: extendedDWH.map((wh) => {
-                                return {
-                                    ...wh,
-                                    editing: false,
-                                    pickStartingTime: {
-                                        hour: new Date(wh.startTime).getHours(),
-                                        minute: new Date(wh.startTime).getMinutes(),
-                                        second: 0,
-                                        millisecond: 0,
-                                    },
-                                    pickEndingTime: {
-                                        hour: new Date(wh.endTime).getHours(),
-                                        minute: new Date(wh.endTime).getMinutes(),
-                                        second: 0,
-                                        millisecond: 0,
-                                    },
-                                };
-                            }),
-                        };
-                    });
-                    this.rooms.forEach((room) => {
-                        room.examMachines = room.examMachines.filter((machine) => {
-                            return !machine.archived;
+                this.roomService.getRooms$().subscribe({
+                    next: (rooms) => {
+                        const roomsWithVisibility = rooms as ExtendedRoom[];
+                        this.rooms = roomsWithVisibility.map((r) => {
+                            const extendedDWH = r.defaultWorkingHours as DefaultWorkingHoursWithEditing[];
+                            return {
+                                ...r,
+                                addressVisible: false,
+                                availabilityVisible: false,
+                                extendedDWH: extendedDWH.map((wh) => {
+                                    return {
+                                        ...wh,
+                                        editing: false,
+                                        pickStartingTime: {
+                                            hour: new Date(wh.startTime).getHours(),
+                                            minute: new Date(wh.startTime).getMinutes(),
+                                            second: 0,
+                                            millisecond: 0,
+                                        },
+                                        pickEndingTime: {
+                                            hour: new Date(wh.endTime).getHours(),
+                                            minute: new Date(wh.endTime).getMinutes(),
+                                            second: 0,
+                                            millisecond: 0,
+                                        },
+                                    };
+                                }),
+                            };
                         });
-                    });
-                    const roomsWithNoName = this.rooms.filter((r) => !r.name);
-                    this.rooms = this.rooms
-                        .filter((r) => r.name)
-                        .sort((a, b) => (a.name > b.name ? 1 : -1))
-                        .concat(roomsWithNoName);
+                        this.rooms.forEach((room) => {
+                            room.examMachines = room.examMachines.filter((machine) => {
+                                return !machine.archived;
+                            });
+                        });
+                        const roomsWithNoName = this.rooms.filter((r) => !r.name);
+                        this.rooms = this.rooms
+                            .filter((r) => r.name)
+                            .sort((a, b) => (a.name > b.name ? 1 : -1))
+                            .concat(roomsWithNoName);
+                    },
+                    error: (err) => this.errorHandler.handle(err, 'RoomListComponent.ngOnInit'),
                 });
             }
         } else {
@@ -122,19 +127,24 @@ export class RoomListComponent implements OnInit {
     enableRoom = (room: ExamRoom) => this.roomService.enableRoom(room);
 
     addExceptions = (exceptions: ExceptionWorkingHours[], examRoom: ExamRoom) => {
-        this.roomService.addExceptions([examRoom.id], exceptions).then((data) => {
-            const dataList: ExceptionWorkingHours[] = [];
-            data.forEach((d) => {
-                if (!dataList.map((e) => e.id).includes(d.id)) {
-                    dataList.push(d);
-                }
-            });
-            examRoom.calendarExceptionEvents = [...dataList];
+        this.roomService.addExceptions$([examRoom.id], exceptions).subscribe({
+            next: (data: ExceptionWorkingHours[]) => {
+                const dataList: ExceptionWorkingHours[] = [];
+                data.forEach((d) => {
+                    if (!dataList.map((e) => e.id).includes(d.id)) {
+                        dataList.push(d);
+                    }
+                });
+                examRoom.calendarExceptionEvents = [...dataList];
+            },
+            error: (err) => this.errorHandler.handle(err, 'RoomListComponent.addExceptions'),
         });
     };
 
     deleteException = (exception: ExceptionWorkingHours, examRoom: ExamRoom) => {
-        this.roomService.deleteException(examRoom.id, exception.id);
+        this.roomService.deleteException$(examRoom.id, exception.id).subscribe({
+            error: (err) => this.errorHandler.handle(err, 'RoomListComponent.deleteException'),
+        });
     };
     getNextExceptionEvent(ees: ExceptionWorkingHours[]): ExceptionWorkingHours[] {
         return ees
@@ -155,13 +165,13 @@ export class RoomListComponent implements OnInit {
             (x: DefaultWorkingHours) => `${timePart(x.startTime)} - ${timePart(x.endTime)}`,
         );
         return Object.keys(mapping).map((k) => {
-            const days = mapping[k]
-                .sort((a, b) => {
+            const days = mapping[k as keyof typeof mapping]
+                .sort((a: DefaultWorkingHours, b: DefaultWorkingHours) => {
                     const day1 = a.weekday.toLowerCase();
                     const day2 = b.weekday.toLowerCase();
                     return sorter.indexOf(day1) - sorter.indexOf(day2);
                 })
-                .map((v) => capitalize(this.timeDateService.translateWeekdayName(v.weekday)))
+                .map((v: DefaultWorkingHours) => capitalize(this.timeDateService.translateWeekdayName(v.weekday)))
                 .join(', ');
             return `${days}: ${k}`;
         });

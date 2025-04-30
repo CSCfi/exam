@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +16,7 @@ import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { CourseSelectionService } from './course-selection.service';
 
 @Component({
     selector: 'xm-course-selection',
@@ -39,14 +39,15 @@ export class CourseSelectionComponent implements OnInit {
         private translate: TranslateService,
         private route: ActivatedRoute,
         private router: Router,
-        private http: HttpClient,
         private toast: ToastrService,
         private Exam: ExamService,
         private Session: SessionService,
+        private courseSelectionService: CourseSelectionService,
     ) {}
 
     ngOnInit() {
-        this.http.get<Exam>(`/app/exams/${this.route.snapshot.params.id}`).subscribe((exam) => (this.exam = exam));
+        const examId = Number(this.route.snapshot.params.id);
+        this.courseSelectionService.getExam$(examId).subscribe((exam) => (this.exam = exam));
     }
 
     getExecutionTypeTranslation = () => !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType);
@@ -63,15 +64,19 @@ export class CourseSelectionComponent implements OnInit {
         });
 
     onCourseSelected = (course: Course) =>
-        this.http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).subscribe(() => {
-            this.toast.success(this.translate.instant('i18n_exam_associated_with_course'));
-            this.exam.course = course;
+        this.courseSelectionService.associateCourse$(this.exam.id, course.id).subscribe({
+            next: () => {
+                this.toast.success(this.translate.instant('i18n_exam_associated_with_course'));
+                this.exam.course = course;
+            },
         });
 
     cancelNewExam = () =>
-        this.http.delete(`/app/exams/${this.exam.id}`).subscribe(() => {
-            this.toast.success(this.translate.instant('i18n_exam_removed'));
-            this.router.navigate(['/staff', this.Session.getUser()?.isAdmin ? 'admin' : 'teacher']);
+        this.courseSelectionService.deleteExam$(this.exam.id).subscribe({
+            next: () => {
+                this.toast.success(this.translate.instant('i18n_exam_removed'));
+                this.router.navigate(['/staff', this.Session.getUser()?.isAdmin ? 'admin' : 'teacher']);
+            },
         });
 
     continueToExam = () => this.router.navigate(['/staff/exams', this.exam.id, 1]);

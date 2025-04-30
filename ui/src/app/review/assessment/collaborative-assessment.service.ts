@@ -9,11 +9,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam, SelectableGrade } from 'src/app/exam/exam.model';
 import { Feedback } from 'src/app/review/review.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { AssessmentService } from './assessment.service';
 
 interface Payload {
@@ -37,6 +38,7 @@ export class CollaborativeAssesmentService {
         private toast: ToastrService,
         private dialogs: ConfirmationDialogService,
         private Assessment: AssessmentService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     saveAssessmentInfo$ = (
@@ -52,6 +54,9 @@ export class CollaborativeAssesmentService {
                     participation._rev = data.rev;
                     return participation;
                 }),
+                catchError((error) =>
+                    this.errorHandler.handle(error, 'CollaborativeAssesmentService.saveAssessmentInfo$'),
+                ),
             );
         }
         return of(participation);
@@ -59,7 +64,13 @@ export class CollaborativeAssesmentService {
 
     sendEmailMessage$ = (examId: number, examRef: string, message: string): Observable<void> => {
         const url = `/app/iop/reviews/${examId}/${examRef}/mail`;
-        return this.http.post<void>(url, { msg: message });
+        return this.http
+            .post<void>(url, { msg: message })
+            .pipe(
+                catchError((error) =>
+                    this.errorHandler.handle(error, 'CollaborativeAssesmentService.sendEmailMessage$'),
+                ),
+            );
     };
 
     saveFeedback$(examId: number, examRef: string, participation: ExamParticipation): Observable<ExamParticipation> {
@@ -74,6 +85,7 @@ export class CollaborativeAssesmentService {
                 participation._rev = data.rev;
                 return participation;
             }),
+            catchError((error) => this.errorHandler.handle(error, 'CollaborativeAssesmentService.saveFeedback$')),
         );
     }
 
@@ -155,58 +167,68 @@ export class CollaborativeAssesmentService {
         examRef: string,
     ) => {
         const url = `/app/iop/reviews/${examId}/${examRef}`;
-        this.http.put<{ rev: string }>(url, payload).subscribe({
-            next: (data) => {
-                participation._rev = data.rev;
-                this.saveFeedback$(examId, examRef, participation).subscribe({
-                    next: () => {
-                        if (newState === 'REVIEW_STARTED') {
-                            messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
-                            window.setTimeout(() => this.toast.info(this.translate.instant('i18n_review_saved')), 1000);
-                        } else {
-                            this.toast.info(this.translate.instant('i18n_review_graded'));
-                            const state = this.Assessment.getExitStateById(examId, true);
-                            this.router.navigate(state.fragments, { queryParams: state.params });
-                        }
-                    },
-                    error: (err) => this.toast.error(err),
-                });
-            },
-            error: (err) => this.toast.error(err),
-        });
+        this.http
+            .put<{ rev: string }>(url, payload)
+            .pipe(
+                switchMap((data) => {
+                    participation._rev = data.rev;
+                    return this.saveFeedback$(examId, examRef, participation);
+                }),
+                tap(() => {
+                    if (newState === 'REVIEW_STARTED') {
+                        messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
+                        window.setTimeout(() => this.toast.info(this.translate.instant('i18n_review_saved')), 1000);
+                    } else {
+                        this.toast.info(this.translate.instant('i18n_review_graded'));
+                        const state = this.Assessment.getExitStateById(examId, true);
+                        this.router.navigate(state.fragments, { queryParams: state.params });
+                    }
+                }),
+                catchError((error) => this.errorHandler.handle(error, 'CollaborativeAssesmentService.sendAssessment')),
+            )
+            .subscribe();
     };
 
     private sendToRegistry = (payload: Payload, examId: number, ref: string, participation: ExamParticipation) => {
         payload.state = 'GRADED_LOGGED';
         const url = `/app/iop/reviews/${examId}/${ref}/record`;
-        this.http.put<{ rev: string }>(url, payload).subscribe({
-            next: (data) => {
-                participation._rev = data.rev;
-                this.toast.info(this.translate.instant('i18n_review_recorded'));
-                const state = this.Assessment.getExitStateById(examId, true);
-                this.router.navigate(state.fragments, { queryParams: state.params });
-            },
-            error: (err) => this.toast.error(err),
-        });
+        this.http
+            .put<{ rev: string }>(url, payload)
+            .pipe(
+                tap((data) => {
+                    participation._rev = data.rev;
+                    this.toast.info(this.translate.instant('i18n_review_recorded'));
+                    const state = this.Assessment.getExitStateById(examId, true);
+                    this.router.navigate(state.fragments, { queryParams: state.params });
+                }),
+                catchError((error) => this.errorHandler.handle(error, 'CollaborativeAssesmentService.sendToRegistry')),
+            )
+            .subscribe();
     };
 
     private register = (participation: ExamParticipation, examId: number, ref: string, payload: Payload) => {
-        this.saveFeedback$(examId, ref, participation).subscribe({
-            next: () => {
-                payload.rev = participation._rev as string;
-                const url = `/app/iop/reviews/${examId}/${ref}`;
-                this.http.put<{ rev: string }>(url, payload).subscribe({
-                    next: (data) => {
-                        payload.rev = participation._rev = data.rev;
-                        if (participation.exam.state !== 'GRADED') {
-                            this.toast.info(this.translate.instant('i18n_review_graded'));
-                        }
-                        this.sendToRegistry(payload, examId, ref, participation);
-                    },
-                    error: (err) => this.toast.error(err),
-                });
-            },
-            error: (err) => this.toast.error(err),
-        });
+        this.saveFeedback$(examId, ref, participation)
+            .pipe(
+                switchMap(() => {
+                    payload.rev = participation._rev as string;
+                    const url = `/app/iop/reviews/${examId}/${ref}`;
+                    return this.http
+                        .put<{ rev: string }>(url, payload)
+                        .pipe(
+                            catchError((error) =>
+                                this.errorHandler.handle(error, 'CollaborativeAssesmentService.register.put'),
+                            ),
+                        );
+                }),
+                tap((data) => {
+                    payload.rev = participation._rev = data.rev;
+                    if (participation.exam.state !== 'GRADED') {
+                        this.toast.info(this.translate.instant('i18n_review_graded'));
+                    }
+                    this.sendToRegistry(payload, examId, ref, participation);
+                }),
+                catchError((error) => this.errorHandler.handle(error, 'CollaborativeAssesmentService.register')),
+            )
+            .subscribe();
     };
 }

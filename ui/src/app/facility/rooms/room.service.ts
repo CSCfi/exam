@@ -8,12 +8,14 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { format, formatISO, parseISO, setHours, setMinutes } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { noop } from 'rxjs';
+import { from, noop, Observable } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Address, Availability, MaintenancePeriod, WorkingHour } from 'src/app/facility/facility.model';
 import { ExceptionDialogComponent } from 'src/app/facility/schedule/exception-dialog.component';
 import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
@@ -24,13 +26,17 @@ export class RoomService {
         private toast: ToastrService,
         private dialogs: ConfirmationDialogService,
         private DateTime: DateTimeService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     roomsApi = (id?: number) => (id ? `/app/rooms/${id}` : '/app/rooms');
     availabilityApi = (roomId: number, date: string) => `/app/availability/${roomId}/${date}`;
     exceptionApi = (roomId: number, exceptionId: number) => `/app/rooms/${roomId}/exception/${exceptionId}`;
 
-    getRooms$ = () => this.http.get<ExamRoom[]>(this.roomsApi());
+    getRooms$ = (): Observable<ExamRoom[]> =>
+        this.http
+            .get<ExamRoom[]>(this.roomsApi())
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'RoomService.getRooms$')));
 
     getRoom$ = (id: number) => this.http.get<ExamRoom>(this.roomsApi(id));
 
@@ -58,42 +64,39 @@ export class RoomService {
 
     isAnyExamMachines = (room: ExamRoom) => room.examMachines && room.examMachines.length > 0;
 
-    disableRoom = (room: ExamRoom) =>
-        this.dialogs
-            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_confirm_room_inactivation'))
-            .subscribe({
-                next: () =>
-                    this.inactivateRoom$(room.id).subscribe({
-                        next: () => {
-                            this.toast.info(this.translate.instant('i18n_room_inactivated'));
-                            room.state = 'INACTIVE';
-                        },
-                        error: (err) => this.toast.error(err),
-                    }),
-            });
+    disableRoom = (room: ExamRoom) => {
+        this.http
+            .put<void>(`/app/rooms/${room.id}/state`, { active: false })
+            .pipe(
+                tap(() => {
+                    room.state = 'INACTIVE';
+                    this.toast.info(this.translate.instant('i18n_room_disabled'));
+                }),
+                catchError((err) => this.errorHandler.handle(err, 'RoomService.disableRoom')),
+            )
+            .subscribe();
+    };
 
-    enableRoom = (room: ExamRoom) =>
-        this.activateRoom$(room.id).subscribe({
-            next: () => {
-                this.toast.info(this.translate.instant('i18n_room_activated'));
-                room.state = 'ACTIVE';
-            },
-            error: (err) => this.toast.error(err),
-        });
+    enableRoom = (room: ExamRoom) => {
+        this.http
+            .put<void>(`/app/rooms/${room.id}/state`, { active: true })
+            .pipe(
+                tap(() => {
+                    room.state = 'ACTIVE';
+                    this.toast.info(this.translate.instant('i18n_room_enabled'));
+                }),
+                catchError((err) => this.errorHandler.handle(err, 'RoomService.enableRoom')),
+            )
+            .subscribe();
+    };
 
-    addExceptions = (ids: number[], exceptions: ExceptionWorkingHours[]) =>
-        new Promise<ExceptionWorkingHours[]>((resolve, reject) => {
-            this.updateExceptions$(ids, exceptions).subscribe({
-                next: (data: ExceptionWorkingHours[]) => {
-                    this.toast.info(this.translate.instant('i18n_exception_time_added'));
-                    resolve(data);
-                },
-                error: (error) => {
-                    this.toast.error(error);
-                    reject();
-                },
-            });
-        });
+    addExceptions$ = (roomIds: number[], exceptions: ExceptionWorkingHours[]): Observable<ExceptionWorkingHours[]> =>
+        this.http
+            .post<ExceptionWorkingHours[]>('/app/calendar/exception', { roomIds: roomIds, exceptionEvents: exceptions })
+            .pipe(
+                tap(() => this.toast.info(this.translate.instant('i18n_exception_added'))),
+                catchError((err) => this.errorHandler.handle(err, 'RoomService.addExceptions$')),
+            );
 
     openExceptionDialog = (
         callBack: (exception: ExceptionWorkingHours[]) => void,
@@ -107,47 +110,35 @@ export class RoomService {
         });
         modalRef.componentInstance.outOfService = outOfService;
         modalRef.componentInstance.exceptions = exceptions;
-        modalRef.result
-            .then((exceptions: ExceptionWorkingHours[]) => {
+        from(modalRef.result).subscribe({
+            next: (exceptions: ExceptionWorkingHours[]) => {
                 callBack(exceptions);
-            })
-            .catch(noop);
-    };
-    deleteException = (roomId: number, exceptionId: number) =>
-        new Promise<void>((resolve, reject) => {
-            this.removeException$(roomId, exceptionId).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('i18n_exception_time_removed'));
-                    resolve();
-                },
-                error: (error) => {
-                    this.toast.error(error);
-                    reject(error);
-                },
-            });
+            },
+            error: noop,
         });
+    };
+    deleteException$ = (roomId: number, exceptionId: number) =>
+        this.removeException$(roomId, exceptionId).pipe(
+            tap(() => {
+                this.toast.info(this.translate.instant('i18n_exception_time_removed'));
+            }),
+        );
 
     formatExceptionEvent = (event: ExceptionWorkingHours) => {
         event.startDate = formatISO(parseISO(event.startDate));
         event.endDate = formatISO(parseISO(event.endDate));
     };
 
-    updateStartingHours = (hours: WorkingHour[], offset: number, roomIds: number[]) =>
-        new Promise<void>((resolve, reject) => {
-            const selected = hours.filter((hour) => hour.selected).map((hour) => this.formatTime(hour.startingHour));
-            const data = { hours: selected, offset, roomIds };
+    updateStartingHours$ = (hours: WorkingHour[], offset: number, roomIds: number[]) => {
+        const selected = hours.filter((hour) => hour.selected).map((hour) => this.formatTime(hour.startingHour));
+        const data = { hours: selected, offset, roomIds };
 
-            this.updateExamStartingHours$(data).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('i18n_exam_starting_hours_updated'));
-                    resolve();
-                },
-                error: (error) => {
-                    this.toast.error(error.data);
-                    reject();
-                },
-            });
-        });
+        return this.updateExamStartingHours$(data).pipe(
+            tap(() => {
+                this.toast.info(this.translate.instant('i18n_exam_starting_hours_updated'));
+            }),
+        );
+    };
 
     updateWorkingHours$ = (hours: DefaultWorkingHours, ids: number[]) =>
         this.http.post<{ id: number }>('/app/workinghours', { workingHours: hours, roomIds: ids });

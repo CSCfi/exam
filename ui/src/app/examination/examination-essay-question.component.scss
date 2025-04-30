@@ -1,0 +1,25 @@
+.essay-question {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .answer-content {
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            resize: vertical;
+        }
+    }
+
+    .attachment-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .attachment-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    }
+} 

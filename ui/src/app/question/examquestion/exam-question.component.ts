@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -20,9 +19,6 @@ import type {
 } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
-import { PageContentComponent } from 'src/app/shared/components/page-content.component';
-import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 import { ClaimChoiceComponent } from './claim-choice.component';
 import { EssayComponent } from './essay.component';
@@ -38,10 +34,7 @@ import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
     imports: [
         FormsModule,
         NgbPopover,
-        CKEditorComponent,
-        NgClass,
         FixedPrecisionValidatorDirective,
-        UpperCasePipe,
         TranslateModule,
         QuestionBasicInfoComponent,
         QuestionUsageComponent,
@@ -49,8 +42,6 @@ import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
         WeightedMultiChoiceComponent,
         MultiChoiceComponent,
         ClaimChoiceComponent,
-        PageHeaderComponent,
-        PageContentComponent,
     ],
 })
 export class ExamQuestionComponent implements OnInit, OnDestroy {
@@ -119,20 +110,21 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     updateWordCount = ($event: number) => (this.examQuestion.expectedWordCount = $event);
     updateEvaluationCriteria = ($event: string) => (this.examQuestion.evaluationCriteria = $event);
 
-    selectFile = () =>
-        this.Attachment.selectFile(true).then((data) => {
-            if (!this.question) {
-                return;
-            }
-            this.question.attachment = {
-                ...this.question.attachment,
-                modified: true,
-                fileName: data.$value.attachmentFile.name,
-                size: data.$value.attachmentFile.size,
-                file: data.$value.attachmentFile,
-                removed: false,
-            };
+    selectFile = () => {
+        this.Attachment.selectFile$(true).subscribe({
+            next: (data) => {
+                if (data.$value.attachmentFile && this.question) {
+                    this.question.attachment = {
+                        fileName: data.$value.attachmentFile.name,
+                        size: data.$value.attachmentFile.size,
+                        file: data.$value.attachmentFile,
+                        removed: false,
+                        modified: true,
+                    };
+                }
+            },
         });
+    };
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.question as ReverseQuestion);
 

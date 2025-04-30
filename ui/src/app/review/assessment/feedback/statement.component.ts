@@ -11,7 +11,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { MaturityService } from 'src/app/review/assessment/maturity/maturity.service';
-import { FileResult } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -101,18 +100,21 @@ export class StatementComponent {
 
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
 
-    removeStatementAttachment = () => this.Attachment.removeStatementAttachment(this.exam);
+    removeStatementAttachment = () => this.Attachment.removeStatementAttachment$(this.exam).subscribe();
 
     selectFile = () => {
-        this.Attachment.selectFile(false, {}).then((res: FileResult) =>
-            this.Maturity.saveInspectionStatement$(this.exam).subscribe(() => {
-                this.Files.upload(
-                    `/app/attachment/exam/${this.exam.id}/statement`,
-                    res.$value.attachmentFile,
-                    { examId: this.exam.id.toString() },
-                    this.exam.languageInspection?.statement,
-                );
-            }),
-        );
+        this.Attachment.selectFile$(false, {}).subscribe({
+            next: (data) => {
+                if (data.$value.attachmentFile) {
+                    this.exam.languageInspection.statement.attachment = {
+                        fileName: data.$value.attachmentFile.name,
+                        size: data.$value.attachmentFile.size,
+                        file: data.$value.attachmentFile,
+                        removed: false,
+                        modified: true,
+                    };
+                }
+            },
+        });
     };
 }

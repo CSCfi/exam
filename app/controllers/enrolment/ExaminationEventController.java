@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import miscellaneous.config.ByodConfigHandler;
 import miscellaneous.config.ConfigReader;
 import models.calendar.MaintenancePeriod;
+import models.enrolment.ExamEnrolment;
 import models.enrolment.ExaminationEvent;
 import models.enrolment.ExaminationEventConfiguration;
 import models.exam.Exam;
@@ -28,6 +29,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -244,6 +246,20 @@ public class ExaminationEventController extends BaseController {
             eec.getExaminationEvent().delete();
         }
         return ok();
+    }
+
+    @Restrict({ @Group("STUDENT") })
+    public Result getConfigurationKey(Long eid) {
+        Optional<ExamEnrolment> oee = DB.find(ExamEnrolment.class).where().eq("exam.id", eid).findOneOrEmpty();
+        if (oee.isEmpty()) {
+            return notFound("exam not found");
+        }
+        ExamEnrolment enrolment = oee.get();
+        ExaminationEventConfiguration eec = enrolment.getExaminationEventConfiguration();
+        if (eec == null) {
+            return notFound("event not found");
+        }
+        return ok(Json.newObject().put("key", eec.getConfigKey()));
     }
 
     private void encryptSettingsPassword(ExaminationEventConfiguration eec, String password, String quitPassword) {

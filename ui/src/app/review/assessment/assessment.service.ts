@@ -18,6 +18,7 @@ import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { Feedback } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 type Payload = {
@@ -46,6 +47,7 @@ export class AssessmentService {
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
         private Exam: CommonExamService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     saveFeedback$ = (exam: Exam, silent = false): Observable<Feedback> => {
@@ -60,6 +62,7 @@ export class AssessmentService {
                 }
                 Object.assign(exam.examFeedback, { id: comment.id });
             }),
+            catchError((error) => this.errorHandler.handle(error, 'AssessmentService.saveFeedback$')),
         );
     };
 
@@ -149,7 +152,13 @@ export class AssessmentService {
         if (!exam.parent?.id || !exam.parent.examFeedbackConfig) {
             return of({ status: 'nothing' });
         }
-        return this.http.get<{ status: 'nothing' | 'everything' }>(`/app/review/${exam.parent.id}/locked`);
+        return this.http
+            .get<{ status: 'nothing' | 'everything' }>(`/app/review/${exam.parent.id}/locked`)
+            .pipe(
+                catchError((error) =>
+                    this.errorHandler.handle(error, 'AssessmentService.doesPreviouslyLockedAssessmentsExist$'),
+                ),
+            );
     };
 
     isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
@@ -159,7 +168,9 @@ export class AssessmentService {
             return throwError(() => new Error(this.translate.instant('i18n_error_score_input')));
         }
         const url = `/app/review/examquestion/${question.id}/score`;
-        return this.http.put<void>(url, { evaluatedScore: question.essayAnswer.evaluatedScore });
+        return this.http
+            .put<void>(url, { evaluatedScore: question.essayAnswer.evaluatedScore })
+            .pipe(catchError((error) => this.errorHandler.handle(error, 'AssessmentService.saveEssayScore$')));
     };
 
     saveCollaborativeEssayScore$ = (
@@ -172,14 +183,21 @@ export class AssessmentService {
             return throwError(() => new Error(this.translate.instant('i18n_error_score_input')));
         }
         const url = `/app/iop/reviews/${examId}/${examRef}/question/${question.id}`;
-        return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
+        return this.http
+            .put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev })
+            .pipe(
+                catchError((error) =>
+                    this.errorHandler.handle(error, 'AssessmentService.saveCollaborativeEssayScore$'),
+                ),
+            );
     };
 
     saveAssessmentInfo$ = (exam: Exam): Observable<void> => {
         if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED') {
-            return this.http
-                .put<void>(`/app/review/${exam.id}/info`, { assessmentInfo: exam.assessmentInfo })
-                .pipe(tap(() => this.toast.info(this.translate.instant('i18n_saved'))));
+            return this.http.put<void>(`/app/review/${exam.id}/info`, { assessmentInfo: exam.assessmentInfo }).pipe(
+                tap(() => this.toast.info(this.translate.instant('i18n_saved'))),
+                catchError((error) => this.errorHandler.handle(error, 'AssessmentService.saveAssessmentInfo$')),
+            );
         }
         return of();
     };
@@ -219,16 +237,28 @@ export class AssessmentService {
 
     saveForcedScore = (question: ExamSectionQuestion) => {
         const url = `/app/review/examquestion/${question.id}/score/force`;
-        return this.http.put<void>(url, { forcedScore: question.forcedScore });
+        return this.http
+            .put<void>(url, { forcedScore: question.forcedScore })
+            .pipe(catchError((error) => this.errorHandler.handle(error, 'AssessmentService.saveForcedScore')));
     };
     saveCollaborativeForcedScore$ = (question: ExamSectionQuestion, examId: number, examRef: string, rev: string) => {
         const url = `/app/iop/reviews/${examId}/${examRef}/question/${question.id}/force`;
-        return this.http.put<{ rev: string }>(url, { forcedScore: question.forcedScore, rev: rev });
+        return this.http
+            .put<{ rev: string }>(url, { forcedScore: question.forcedScore, rev: rev })
+            .pipe(
+                catchError((error) =>
+                    this.errorHandler.handle(error, 'AssessmentService.saveCollaborativeForcedScore$'),
+                ),
+            );
     };
 
     rejectMaturity$ = (exam: Exam, askConfirmation = false): Observable<void> => {
         const reject: Observable<void> = this.saveFeedback$(exam).pipe(
-            switchMap(() => this.http.put<void>(`/app/review/${exam.id}`, this.getPayload(exam, 'REJECTED'))),
+            switchMap(() =>
+                this.http
+                    .put<void>(`/app/review/${exam.id}`, this.getPayload(exam, 'REJECTED'))
+                    .pipe(catchError((error) => this.errorHandler.handle(error, 'AssessmentService.rejectMaturity$'))),
+            ),
         );
 
         if (askConfirmation) {
@@ -267,7 +297,7 @@ export class AssessmentService {
                         this.router.navigate(state.fragments, { queryParams: state.params });
                     }
                 }),
-                catchError(async (resp) => this.toast.error(resp)),
+                catchError((error) => this.errorHandler.handle(error, 'AssessmentService.sendAssessment')),
             )
             .subscribe();
     };
@@ -287,11 +317,17 @@ export class AssessmentService {
     };
 
     sendToRegistry$ = (payload: Payload, res: string): Observable<void> =>
-        this.http.post<void>(res, { ...payload, state: 'GRADED_LOGGED' });
+        this.http
+            .post<void>(res, { ...payload, state: 'GRADED_LOGGED' })
+            .pipe(catchError((error) => this.errorHandler.handle(error, 'AssessmentService.sendToRegistry$')));
 
     register$ = (exam: Exam, res: string, payload: Payload): Observable<void> => {
         return this.saveFeedback$(exam).pipe(
-            switchMap(() => this.http.put(`/app/review/${exam.id}`, payload)),
+            switchMap(() =>
+                this.http
+                    .put(`/app/review/${exam.id}`, payload)
+                    .pipe(catchError((error) => this.errorHandler.handle(error, 'AssessmentService.register$.put'))),
+            ),
             tap(() => {
                 if (exam.state !== 'GRADED') {
                     this.toast.info(this.translate.instant('i18n_review_graded'));

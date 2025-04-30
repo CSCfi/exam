@@ -12,8 +12,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable, Unsubscribable } from 'rxjs';
-import { Subject, defer, from, interval, of, throwError } from 'rxjs';
+import { Subject, defer, from, interval, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { ExternalLoginConfirmationDialogComponent } from './eula/external-login-confirmation-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
@@ -43,6 +44,7 @@ export class SessionService implements OnDestroy {
         @Inject(DOCUMENT) private document: Document,
         private modal: NgbModal,
         private toast: ToastrService,
+        private errorHandler: ErrorHandlingService,
     ) {
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
@@ -63,6 +65,7 @@ export class SessionService implements OnDestroy {
         this.http.get<Env>('/app/settings/environment').pipe(
             tap((env) => this.webStorageService.set('EXAM-ENV', env)),
             map((env) => (env.isProd ? 'PROD' : 'DEV')),
+            catchError((error) => this.errorHandler.handle(error, 'SessionService.getEnv$')),
         );
 
     getEnv = (): Env | undefined => this.webStorageService.get('EXAM-ENV');
@@ -74,7 +77,7 @@ export class SessionService implements OnDestroy {
                 // delete this.user;
                 this.onLogoutSuccess(resp);
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.errorHandler.handle(err, 'SessionService.logout'),
         });
     }
 
@@ -94,7 +97,7 @@ export class SessionService implements OnDestroy {
                     this.webStorageService.set('EXAM_USER', user);
                     this.translate$(lang).subscribe();
                 },
-                error: () => this.toast.error('failed to switch language'),
+                error: (err) => this.errorHandler.handle(err, 'SessionService.switchLanguage'),
             });
         }
     }
@@ -133,7 +136,7 @@ export class SessionService implements OnDestroy {
                                         timeOut: 2000,
                                     });
                                 },
-                                error: (resp) => this.toast.error(resp),
+                                error: (err) => this.errorHandler.handle(err, 'SessionService.checkSession.extend'),
                             });
                         });
                 } else if (resp === 'no_session') {
@@ -142,7 +145,7 @@ export class SessionService implements OnDestroy {
                     this.logout();
                 }
             },
-            error: (resp) => this.toast.error(resp),
+            error: (err) => this.errorHandler.handle(err, 'SessionService.checkSession'),
         });
     };
 
@@ -159,6 +162,11 @@ export class SessionService implements OnDestroy {
                     this.webStorageService.set('EXAM_USER', u);
                     this.http
                         .get<{ prefix: string }>('/app/settings/coursecodeprefix')
+                        .pipe(
+                            catchError((error) =>
+                                this.errorHandler.handle(error, 'SessionService.login$.getCourseCodePrefix'),
+                            ),
+                        )
                         .subscribe((data) => this.webStorageService.set('COURSE_CODE_PREFIX', data.prefix));
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
@@ -169,10 +177,9 @@ export class SessionService implements OnDestroy {
                     }
                     this.redirect(u);
                 }),
-                catchError((resp) => {
-                    if (resp) this.toast.error(this.i18n.instant(resp));
+                catchError((error) => {
                     this.logout();
-                    return throwError(() => new Error(resp));
+                    return this.errorHandler.handle(error, 'SessionService.login$');
                 }),
             );
 
@@ -208,7 +215,15 @@ export class SessionService implements OnDestroy {
             size: 'lg',
         });
         return from(modalRef.result).pipe(
-            switchMap(() => this.http.put('/app/users/agreement', {})),
+            switchMap(() =>
+                this.http
+                    .put('/app/users/agreement', {})
+                    .pipe(
+                        catchError((error) =>
+                            this.errorHandler.handle(error, 'SessionService.openUserAgreementModal$'),
+                        ),
+                    ),
+            ),
             map(() => ({ ...user, userAgreementAccepted: true })),
         );
     }
@@ -217,7 +232,13 @@ export class SessionService implements OnDestroy {
         const modalRef = this.modal.open(SelectRoleDialogComponent);
         modalRef.componentInstance.user = user;
         return from(modalRef.result).pipe(
-            switchMap((role: Role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
+            switchMap((role: Role) =>
+                this.http
+                    .put<Role>(`/app/users/roles/${role.name}`, {})
+                    .pipe(
+                        catchError((error) => this.errorHandler.handle(error, 'SessionService.openRoleSelectModal$')),
+                    ),
+            ),
             map((role: Role) => {
                 user.loginRole = role.name;
                 user.isAdmin = role.name === 'ADMIN';

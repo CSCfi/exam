@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import {
@@ -17,6 +16,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam } from 'src/app/exam/exam.model';
 import { Software } from 'src/app/facility/facility.model';
+import { SoftwarePickerService } from './software-picker.service';
 
 @Component({
     selector: 'xm-software-picker',
@@ -71,14 +71,14 @@ export class SoftwareSelectorComponent implements OnInit {
     software: Software[] = [];
 
     constructor(
-        private http: HttpClient,
         private translate: TranslateService,
         private toast: ToastrService,
+        private softwareService: SoftwarePickerService,
     ) {}
 
     ngOnInit() {
         this.exam.softwares ||= [];
-        this.http.get<Software[]>('/app/softwares').subscribe((data) => (this.software = data));
+        this.softwareService.getSoftwares$().subscribe((data) => (this.software = data));
     }
 
     selectedSoftware = () =>
@@ -89,7 +89,7 @@ export class SoftwareSelectorComponent implements OnInit {
     isSelected = (sw: Software) => this.exam.softwares.some((es) => es.id === sw.id);
 
     updateExamSoftware = (sw: Software) => {
-        this.http.put(`/app/exam/${this.exam.id}/software/${sw.id}`, {}).subscribe({
+        this.softwareService.updateExamSoftware$(this.exam.id, sw.id).subscribe({
             next: () => {
                 if (this.isSelected(sw)) {
                     const index = this.exam.softwares.map((es) => es.id).indexOf(sw.id);
@@ -99,7 +99,6 @@ export class SoftwareSelectorComponent implements OnInit {
                 }
                 this.toast.info(this.translate.instant('i18n_exam_software_updated'));
             },
-            error: (err) => this.toast.error(err),
         });
     };
 }

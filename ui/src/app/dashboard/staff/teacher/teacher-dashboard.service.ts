@@ -4,13 +4,13 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
-import { forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { forkJoin, Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Dashboard } from 'src/app/dashboard/dashboard.model';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { ReservationService } from 'src/app/reservation/reservation.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 
 @Injectable({ providedIn: 'root' })
 export class TeacherDashboardService {
@@ -18,6 +18,7 @@ export class TeacherDashboardService {
         private http: HttpClient,
         private Exam: ExamService,
         private Reservation: ReservationService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     populate$ = (): Observable<Dashboard> =>
@@ -109,6 +110,7 @@ export class TeacherDashboardService {
                 });
                 return dashboard;
             }),
+            catchError((err) => this.errorHandler.handle(err, 'TeacherDashboardService.populate$')),
         );
 
     getQueryParams(url: string): { [k: string]: string } {
@@ -121,9 +123,15 @@ export class TeacherDashboardService {
         return params;
     }
 
-    copyExam$ = (id: number, type: string, examinationType: string) =>
-        this.http.post<Exam>(`/app/exams/${id}`, { type: type, examinationType: examinationType });
-    deleteExam$ = (id: number) => this.http.delete(`/app/exams/${id}`);
+    copyExam$ = (id: number, type: string, examinationType: string): Observable<Exam> =>
+        this.http
+            .post<Exam>(`/app/exams/${id}`, { type: type, examinationType: examinationType })
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'TeacherDashboardService.copyExam$')));
+
+    deleteExam$ = (id: number): Observable<unknown> =>
+        this.http
+            .delete(`/app/exams/${id}`)
+            .pipe(catchError((err) => this.errorHandler.handle(err, 'TeacherDashboardService.deleteExam$')));
 
     // Exam is private and has unfinished participants
     private participationsInFuture = (exam: Exam) =>

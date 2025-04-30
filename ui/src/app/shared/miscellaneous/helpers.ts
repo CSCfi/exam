@@ -2,32 +2,36 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
+import { Observable, timer } from 'rxjs';
+import { map, take } from 'rxjs/operators';
+
 export const isNumber = (a: unknown): a is number => typeof a === 'number';
 export const isObject = (a: unknown): a is Record<string, unknown> => a instanceof Object;
 export const isString = (a: unknown): a is string => typeof a === 'string';
 export const isBoolean = (a: unknown): a is boolean => a === !!a;
 export const debounce = <F extends (...args: unknown[]) => ReturnType<F>>(func: F, waitFor: number) => {
-    let timeout: number;
-    return (...args: Parameters<F>): Promise<ReturnType<F>> =>
-        new Promise((resolve) => {
-            if (timeout) {
-                window.clearTimeout(timeout);
-            }
-            timeout = window.setTimeout(() => resolve(func(...args)), waitFor);
-        });
+    return (...args: Parameters<F>): Observable<ReturnType<F>> => {
+        return timer(waitFor).pipe(
+            map(() => func(...args)),
+            take(1),
+        );
+    };
 };
-export const groupBy = <T>(xs: T[], fn: (x: T) => string) =>
-    xs.map(fn).reduce(
-        (acc, x, i) => {
-            acc[x] = (acc[x] || []).concat(xs[i]);
+export const groupBy = <T, K extends string>(xs: T[], fn: (x: T) => K): Record<K, T[]> =>
+    xs.reduce(
+        (acc, x) => {
+            const key = fn(x);
+            acc[key] = (acc[key] || []).concat(x);
             return acc;
         },
-        {} as { [k: string]: T[] },
+        {} as Record<K, T[]>,
     );
 
-export const updateList = <T>(items: T[], key: keyof T, value: T): T[] => {
+export const updateList = <T extends Record<K, unknown>, K extends keyof T>(items: T[], key: K, value: T): T[] => {
     const index = items.findIndex((item) => item[key] === value[key]);
-    items.splice(index, 1, value);
+    if (index !== -1) {
+        items.splice(index, 1, value);
+    }
     return items;
 };
 export const deduplicate = <T>(items: T[], key: keyof T) =>

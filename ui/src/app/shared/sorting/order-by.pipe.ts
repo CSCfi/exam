@@ -12,15 +12,14 @@ import { path } from 'ramda';
 })
 @Injectable({ providedIn: 'root' })
 export class OrderByPipe implements PipeTransform {
-    transform<T>(input: T[], path: string, reverse = false, lowercase = true): T[] {
-        return input.length < 2 ? input : input.sort((a, b) => this.compare(reverse, lowercase, a, b, path));
+    transform<T>(input: T[], property: string | keyof T, reverse = false, lowercase = true): T[] {
+        return input.length < 2 ? input : input.sort((a, b) => this.compare(reverse, lowercase, a, b, property));
     }
 
-    compare<T>(reverse: boolean, lowercase: boolean, a: T, b: T, property: string): number {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const f1 = path<any>(property.split('.'), a);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const f2 = path<any>(property.split('.'), b);
+    compare<T>(reverse: boolean, lowercase: boolean, a: T, b: T, property: string | keyof T): number {
+        const propertyPath = String(property).split('.');
+        const f1 = path<T[keyof T]>(propertyPath, a);
+        const f2 = path<T[keyof T]>(propertyPath, b);
         if (typeof f1 === 'number' && typeof f2 === 'string') {
             return reverse ? -1 : 1;
         }
@@ -31,18 +30,15 @@ export class OrderByPipe implements PipeTransform {
             const order = f1.toLowerCase() < f2.toLowerCase() ? -1 : 1;
             return reverse ? -order : order;
         }
-        if (f1 < f2 && reverse === false) {
-            return -1;
-        }
-        if (f1 > f2 && reverse === false) {
-            return 1;
-        }
-        if (f1 < f2 && reverse === true) {
-            return 1;
-        }
-        if (f1 > f2 && reverse === true) {
-            return -1;
-        }
+
+        // Handle null/undefined values
+        if (f1 == null && f2 == null) return 0;
+        if (f1 == null) return reverse ? 1 : -1;
+        if (f2 == null) return reverse ? -1 : 1;
+
+        // Compare non-null values
+        if (f1 < f2) return reverse ? 1 : -1;
+        if (f1 > f2) return reverse ? -1 : 1;
         return 0;
     }
 }

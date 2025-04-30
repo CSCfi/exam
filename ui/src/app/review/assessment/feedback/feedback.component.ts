@@ -113,16 +113,18 @@ export class FeedbackComponent implements OnInit {
     };
 
     selectFile = () => {
-        this.Attachment.selectFile(false, {}).then((res: FileResult) => {
-            if (this.collaborative) {
-                this._saveCollaborativeFeedback$().subscribe(() =>
-                    this._upload(res, `/app/iop/collab/attachment/exam/${this.id}/${this.ref}/feedback`),
-                );
-            } else {
-                this._saveFeedback$().subscribe(() =>
-                    this._upload(res, `/app/attachment/exam/${this.exam.id}/feedback`),
-                );
-            }
+        this.Attachment.selectFile$(false, {}).subscribe({
+            next: (data) => {
+                if (data.$value.attachmentFile) {
+                    this.exam.examFeedback.attachment = {
+                        fileName: data.$value.attachmentFile.name,
+                        size: data.$value.attachmentFile.size,
+                        file: data.$value.attachmentFile,
+                        removed: false,
+                        modified: true,
+                    };
+                }
+            },
         });
     };
 
@@ -138,9 +140,13 @@ export class FeedbackComponent implements OnInit {
 
     removeFeedbackAttachment = () => {
         if (this.collaborative) {
-            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, this.participation);
+            this.Attachment.removeCollaborativeExamFeedbackAttachment$(
+                this.id,
+                this.ref,
+                this.participation,
+            ).subscribe();
         } else {
-            this.Attachment.removeFeedbackAttachment(this.exam);
+            this.Attachment.removeFeedbackAttachment$(this.exam).subscribe();
         }
     };
 
@@ -150,15 +156,16 @@ export class FeedbackComponent implements OnInit {
         this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation);
 
     private _upload = (res: FileResult, url: string) =>
-        this.Files.upload(
+        this.Files.upload$(
             url,
             res.$value.attachmentFile,
             { examId: this.exam.id.toString() },
             this.exam.examFeedback,
-            () => {
+        ).subscribe({
+            next: () => {
                 // kinda hacky, but let's do this mangling for time being
                 this.participation._rev = this.exam.examFeedback?.attachment?.rev;
                 delete this.exam.examFeedback?.attachment?.rev;
             },
-        );
+        });
 }

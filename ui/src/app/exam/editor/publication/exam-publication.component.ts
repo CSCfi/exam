@@ -13,13 +13,14 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { Duration } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, from, throwError } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { AutoEvaluationConfig, Exam, ExaminationDate } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { CustomDurationPickerDialogComponent } from './custom-duration-picker-dialog.component';
@@ -65,6 +66,7 @@ export class ExamPublicationComponent implements OnInit {
         private Session: SessionService,
         private Exam: ExamService,
         private Tabs: ExamTabService,
+        private errorHandler: ErrorHandlingService,
     ) {
         this.hostName.set(window.location.origin);
         this.isAdmin.set(this.Session.getUser().isAdmin);
@@ -158,81 +160,59 @@ export class ExamPublicationComponent implements OnInit {
     };
 
     saveAndPublishExam = () => {
-        const errors: string[] = this.isDraftCollaborativeExam()
-            ? this.errorsPreventingPrePublication()
-            : this.errorsPreventingPublication();
-
+        const errors = this.errorsPreventingPublication();
         if (errors.length > 0) {
-            const modal = this.modal.open(PublicationErrorDialogComponent, {
+            this.modal.open(PublicationErrorDialogComponent, {
                 backdrop: 'static',
-                keyboard: true,
-            });
-            modal.componentInstance.errors = errors;
-        } else {
-            const modal = this.modal.open(PublicationDialogComponent, {
-                backdrop: 'static',
-                keyboard: true,
-            });
-            modal.componentInstance.exam = this.exam;
-            modal.componentInstance.prePublication = this.isDraftCollaborativeExam();
-            from(modal.result).subscribe({
-                next: () => {
-                    const state = {
-                        state: this.isDraftCollaborativeExam() ? 'PRE_PUBLISHED' : 'PUBLISHED',
-                    };
-                    // OK button clicked
-                    this.updateExam$(true, state).subscribe({
-                        next: () => {
-                            const text = this.isDraftCollaborativeExam()
-                                ? 'i18n_exam_saved_and_pre_published'
-                                : 'i18n_exam_saved_and_published';
-                            this.toast.success(this.translate.instant(text));
-                            this.router.navigate(['/staff', this.isAdmin() ? 'admin' : 'teacher']);
-                        },
-                        error: (err) => this.toast.error(err),
-                    });
-                },
-            });
+                keyboard: false,
+            }).componentInstance.errors = errors;
+            return;
         }
+
+        this.updateExam$(true)
+            .pipe(
+                tap(() => {
+                    this.modal.open(PublicationDialogComponent, {
+                        backdrop: 'static',
+                        keyboard: false,
+                    }).componentInstance.exam = this.exam;
+                }),
+                catchError((error) => this.errorHandler.handle(error, 'ExamPublicationComponent.saveAndPublishExam')),
+            )
+            .subscribe();
     };
 
     isDraftCollaborativeExam = () => this.collaborative() && this.exam.state === 'DRAFT';
 
     // TODO: how should this work when it comes to private exams?
     unpublishExam = () => {
-        if (this.isAllowedToUnpublishOrRemove()) {
-            this.modal
-                .open(PublicationRevocationDialogComponent, {
-                    backdrop: 'static',
-                    keyboard: true,
-                })
-                .result.then(() =>
-                    this.updateExam$(true, {
-                        state: this.collaborative() ? 'PRE_PUBLISHED' : 'DRAFT',
-                    }).subscribe({
-                        next: () => {
-                            this.toast.success(this.translate.instant('i18n_exam_unpublished'));
-                            this.exam.state = 'DRAFT';
-                        },
-                        error: (err) => this.toast.error(err),
-                    }),
-                );
-        } else {
-            this.toast.warning(this.translate.instant('i18n_unpublish_not_possible'));
+        if (!this.isAllowedToUnpublishOrRemove()) {
+            this.toast.error(this.translate.instant('i18n_cannot_unpublish_exam'));
+            return;
         }
+
+        this.http
+            .post<void>(`/app/exams/${this.exam.id}/unpublish`, {})
+            .pipe(
+                tap(() => {
+                    this.modal.open(PublicationRevocationDialogComponent, {
+                        backdrop: 'static',
+                        keyboard: false,
+                    }).componentInstance.exam = this.exam;
+                }),
+                catchError((error) => this.errorHandler.handle(error, 'ExamPublicationComponent.unpublishExam')),
+            )
+            .subscribe();
     };
 
     private updateExam$ = (silent?: boolean, overrides?: Record<string, string>): Observable<Exam> => {
-        return this.Exam.updateExam$(this.exam, overrides, this.collaborative()).pipe(
-            tap(() => {
-                if (!silent) {
-                    this.toast.info(this.translate.instant('i18n_exam_saved'));
-                }
+        const data = { ...this.exam, ...overrides };
+        return this.http.put<Exam>(`/app/exams/${this.exam.id}`, data).pipe(
+            tap((exam) => {
+                this.exam = exam;
+                if (!silent) this.toast.success(this.translate.instant('i18n_exam_updated'));
             }),
-            catchError((err) => {
-                this.toast.error(err);
-                return throwError(() => new Error(err));
-            }),
+            catchError((error) => this.errorHandler.handle(error, 'ExamPublicationComponent.updateExam')),
         );
     };
 

@@ -1,0 +1,25 @@
+<div class="essay-question">
+    <div class="answer-content">
+        <textarea
+            [(ngModel)]="answer.text"
+            (ngModelChange)="answerChange.emit(answer)"
+            class="form-control"
+            rows="5"
+            placeholder="{{ 'i18n_enter_your_answer' | translate }}"
+        >
+        </textarea>
+    </div>
+
+    <div class="attachment-section">
+        <button class="btn btn-outline-primary" (click)="selectFile()" *ngIf="!answer.attachment">
+            {{ 'i18n_attach_file' | translate }}
+        </button>
+
+        <div class="attachment-info" *ngIf="answer.attachment">
+            <span class="attachment-name">{{ answer.attachment?.fileName }}</span>
+            <button class="btn btn-link text-danger" (click)="removeAttachment()">
+                {{ 'i18n_remove_attachment' | translate }}
+            </button>
+        </div>
+    </div>
+</div>

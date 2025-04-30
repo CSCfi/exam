@@ -9,7 +9,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
@@ -18,6 +17,7 @@ import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
@@ -48,12 +48,16 @@ export class ExaminationToolbarComponent implements OnInit {
         private Examination: ExaminationService,
         private Attachment: AttachmentService,
         private Enrolment: EnrolmentService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     ngOnInit() {
         this.tab = this.route.snapshot.queryParams.tab;
         if (!this.isPreview && this.exam.implementation === 'AQUARIUM') {
-            this.http.get<ExamRoom>('/app/enrolments/room/' + this.exam.hash).subscribe((resp) => (this.room = resp));
+            this.http.get<ExamRoom>('/app/enrolments/room/' + this.exam.hash).subscribe({
+                next: (resp) => (this.room = resp),
+                error: (error) => this.errorHandler.handle(error, 'ExaminationToolbarComponent.ngOnInit').subscribe(),
+            });
         }
     }
 
@@ -75,10 +79,7 @@ export class ExaminationToolbarComponent implements OnInit {
                 // Save all textual answers regardless of empty or not
                 this.Examination.saveAllTextualAnswersOfExam$(this.exam)
                     .pipe(
-                        catchError((err) => {
-                            if (err) console.log(err);
-                            return of(err);
-                        }),
+                        catchError((error) => this.errorHandler.handle(error, 'ExaminationToolbarComponent.turnExam')),
                         finalize(() =>
                             this.Examination.logout(
                                 'i18n_exam_returned',
@@ -107,7 +108,8 @@ export class ExaminationToolbarComponent implements OnInit {
                             },
                         });
                     },
-                    error: (err) => this.toast.error(err),
+                    error: (error) =>
+                        this.errorHandler.handle(error, 'ExaminationToolbarComponent.abortExam').subscribe(),
                 }),
         });
 

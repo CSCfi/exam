@@ -70,6 +70,7 @@ PUT           /app/exam/:eid/examinationevents/:eecid                         co
 DELETE        /app/exam/:eid/examinationevents/:eecid                         controllers.enrolment.ExaminationEventController.removeExaminationEvent(eid: Long, eecid: Long)
 GET           /app/examinationevents                                          controllers.enrolment.ExaminationEventController.listExaminationEvents(start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/examinationevents/conflicting                              controllers.enrolment.ExaminationEventController.listOverlappingExaminationEvents(start: String, duration: Int)
+GET           /app/exam/:eid/examinationevents/key                            controllers.enrolment.ExaminationEventController.getConfigurationKey(eid: Long)
 
 ############### Question review interface ###############
 GET           /app/exam/:id/questions                                         controllers.assessment.QuestionReviewController.getEssays(id: Long, ids: java.util.Optional[LongList], request: Request)

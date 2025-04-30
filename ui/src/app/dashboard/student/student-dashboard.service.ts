@@ -5,18 +5,20 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateTime } from 'luxon';
-import type { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { DashboardEnrolment, Occasion } from 'src/app/dashboard/dashboard.model';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+import { ErrorHandlingService } from 'src/app/shared/error/error-handler-service';
 
 @Injectable({ providedIn: 'root' })
 export class StudentDashboardService {
     constructor(
         private http: HttpClient,
         private DateTime: DateTimeService,
+        private errorHandler: ErrorHandlingService,
     ) {}
 
     listEnrolments$ = (): Observable<DashboardEnrolment[]> =>
@@ -32,6 +34,7 @@ export class StudentDashboardService {
                     };
                 }),
             ),
+            catchError((err) => this.errorHandler.handle(err, 'StudentDashboardService.listEnrolments$')),
         );
 
     private getOccasion(reservation: Reservation): Occasion {

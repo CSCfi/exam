@@ -110,7 +110,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
         return this.subject.next(e.value);
     };
 
-    createExam = (executionType: Implementation) => this.Exam.createExam(executionType);
+    createExam = (executionType: Implementation) => this.Exam.createExam$(executionType);
 
     copyExam = (exam: Exam) =>
         from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
