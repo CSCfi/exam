@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
 # Instructions to run simulations
 
 Test configurations can be found in file `src/test/resources/application.conf`. 
