@@ -1,3 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- SPDX-FileCopyrightText: 2024. The members of the EXAM Consortium -->
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
+
 <configuration>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
