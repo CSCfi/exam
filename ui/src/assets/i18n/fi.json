@@ -421,7 +421,7 @@
     "i18n_continue": "Jatka",
     "i18n_no_suitable_enrolment_found": "Sinulla on jo varaus tähän tenttiin. Voit tehdä uuden varauksen vasta, kun olet käynyt tentissä tai perunut varauksen.",
     "i18n_added_to_categories": "Kysymystä kuvaavat avainsanat",
-    "i18n_reservation": "Varaus",
+    "i18n_reservation": "Tenttivaraus",
     "i18n_add_all": "Lisää kaikki",
     "i18n_exam_not_active_now": "Tenttiperiodi ei kata valitsemaasi päivää",
     "i18n_exam_owner": "Tentaattori",

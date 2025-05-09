@@ -421,7 +421,7 @@
     "i18n_continue": "Continue",
     "i18n_no_suitable_enrolment_found": "You already have one reservation for this exam. You can make a new reservation only after taking the exam or by cancelling the reservation.",
     "i18n_added_to_categories": "Tags attached to the question",
-    "i18n_reservation": "Booking",
+    "i18n_reservation": "Exam reservation",
     "i18n_add_all": "Add all",
     "i18n_exam_not_active_now": "The exam period does not cover the day you selected",
     "i18n_exam_owner": "Examiner",

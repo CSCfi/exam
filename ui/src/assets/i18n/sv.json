@@ -421,7 +421,7 @@
     "i18n_continue": "Fortsätt",
     "i18n_no_suitable_enrolment_found": "Du har redan en bokning till den här tentamen. Du kan göra en ny bokning efter att du inhiberat den nuvarande bokningen, eller efter att du tenterat.",
     "i18n_added_to_categories": "Nyckelord som är kombinerade med frågan",
-    "i18n_reservation": "Bokning",
+    "i18n_reservation": "Tentreservation",
     "i18n_add_all": "Sätt till alla",
     "i18n_exam_not_active_now": "Tentamensperioden täcker inte datumet du valt",
     "i18n_exam_owner": "Ansvarig lärare",
