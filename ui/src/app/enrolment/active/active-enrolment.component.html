@@ -37,9 +37,14 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="col">
                     @if (exam) {
                         <h2>
-                            <a [routerLink]="['/enrolments', exam.id]" [queryParams]="{ code: exam.course?.code }">
+                            <button
+                                class="exam-title-button mt-2"
+                                [routerLink]="['/enrolments', exam.id]"
+                                [queryParams]="{ code: exam.course?.code }"
+                            >
                                 {{ exam.name }}
-                            </a>
+                                <img class="arrow_icon" alt="" src="/assets/images/arrow_right.svg" />
+                            </button>
                         </h2>
                     }
                     @if (collabExam) {
