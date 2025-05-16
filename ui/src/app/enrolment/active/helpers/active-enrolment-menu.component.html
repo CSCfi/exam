@@ -9,86 +9,79 @@ SPDX-License-Identifier: EUPL-1.2
 @let collaborativeExam = enrolment().collaborativeExam;
 @let eventConfig = enrolment().examinationEventConfiguration;
 @let exam = enrolment().exam;
-<div ngbDropdown class="xm-no-caret flex justify-content-end">
-    <button ngbDropdownToggle class="btn btn-outline-secondary">
-        <i class="bi-pencil me-2"></i>{{ 'i18n_edit_enrolment' | translate }}
-    </button>
-    <div ngbDropdownMenu>
-        <!-- enrolment with reservation, allow changing -->
-        @if (reservation && canChangeReservation(reservation)) {
-            <!-- collaborative exam taken here -->
-            @if (reservation.machine && collaborativeExam) {
-                <a
-                    ngbDropdownItem
-                    class="btn btn-outline-secondary"
-                    [routerLink]="['/calendar', collaborativeExam.id, 'collaborative']"
-                    >{{ 'i18n_student_change_reservation' | translate }}
-                </a>
-            }
-            <!-- regular exam taken here -->
-            @if (reservation.machine && !collaborativeExam) {
-                <a ngbDropdownItem class="btn btn-outline-secondary" [routerLink]="['/calendar', exam.id]"
-                    >{{ 'i18n_student_change_reservation' | translate }}
-                </a>
-            }
-            <!-- regular exam taken elsewhere -->
-            @if (reservation.externalReservation && exam) {
-                <a ngbDropdownItem class="btn btn-outline-secondary" [routerLink]="['/calendar', exam.id, 'external']"
-                    >{{ 'i18n_student_change_reservation' | translate }}
-                </a>
-            }
-            <!-- collaborative exam taken elsewhere -->
-            @if (reservation.externalReservation && collaborativeExam) {
-                <a
-                    ngbDropdownItem
-                    class="btn btn-outline-secondary"
-                    [routerLink]="['/calendar', collaborativeExam.id, 'external']"
-                    [queryParams]="{ isCollaborative: true }"
-                    >{{ 'i18n_student_change_reservation' | translate }}
-                </a>
-            }
+<div class="flex justify-content-end">
+    <!-- enrolment with reservation, allow changing -->
+    @if (reservation && canChangeReservation(reservation)) {
+        <!-- collaborative exam taken here -->
+        @if (reservation.machine && collaborativeExam) {
+            <a
+                class="btn btn-outline-secondary me-2 mb-2"
+                [routerLink]="['/calendar', collaborativeExam.id, 'collaborative']"
+                >{{ 'i18n_student_change_reservation' | translate }}
+            </a>
         }
-        <!-- enrolment with examination event, allow changing -->
-        @if (eventConfig && hasUpcomingAlternativeEvents()) {
-            <button ngbDropdownItem class="btn btn-outline-secondary" (click)="makeReservation()">
-                {{ 'i18n_student_change_reservation' | translate }}
-            </button>
+        <!-- regular exam taken here -->
+        @if (reservation.machine && !collaborativeExam) {
+            <a class="btn btn-outline-secondary me-2 mb-2" [routerLink]="['/calendar', exam.id]"
+                >{{ 'i18n_student_change_reservation' | translate }}
+            </a>
         }
-        <!-- enrolment with reservation, allow reservation removal -->
-        @if (reservation && canChangeReservation(reservation)) {
-            <button ngbDropdownItem class="btn btn-outline-danger" (click)="removeReservation()">
-                {{ 'i18n_student_remove_reservation' | translate }}
-            </button>
+        <!-- regular exam taken elsewhere -->
+        @if (reservation.externalReservation && exam) {
+            <a class="btn btn-outline-secondary me-2 mb-2" [routerLink]="['/calendar', exam.id, 'external']"
+                >{{ 'i18n_student_change_reservation' | translate }}
+            </a>
         }
-        <!-- reservation in progress, inform with a disabled item -->
-        @if (reservation && !canChangeReservation(reservation)) {
-            <button ngbDropdownItem class="btn btn-outline-danger" [disabled]="true" (click)="removeReservation()">
-                {{ 'i18n_not_allowed_to_modify_reservation' | translate }}
-            </button>
+        <!-- collaborative exam taken elsewhere -->
+        @if (reservation.externalReservation && collaborativeExam) {
+            <a
+                class="btn btn-outline-secondary me-2 mb-2"
+                [routerLink]="['/calendar', collaborativeExam.id, 'external']"
+                [queryParams]="{ isCollaborative: true }"
+                >{{ 'i18n_student_change_reservation' | translate }}
+            </a>
         }
-        <!-- enrolment with examination event, allow event removal -->
-        @if (eventConfig) {
-            <button ngbDropdownItem class="btn btn-outline-danger" (click)="removeReservation()">
-                {{ 'i18n_student_remove_reservation' | translate }}
-            </button>
-        }
-        <!-- enrolment without reservation or examination event, allow unenrolling (if other conditions pass) -->
-        @if (!reservation && !eventConfig && (exam?.executionType?.type === 'PUBLIC' || collaborativeExam)) {
-            <button ngbDropdownItem (click)="removeEnrolment()" class="btn btn-outline-danger">
-                {{ 'i18n_student_remove_enrolment' | translate }}
-            </button>
-        }
-        <!-- enrolment without reservation, allow making reservation -->
-        @if ((!reservation && exam?.implementation === 'AQUARIUM') || collaborativeExam) {
-            <button ngbDropdownItem (click)="makeReservation()" class="btn btn-outline-secondary">
-                {{ 'i18n_student_new_reservation' | translate }}
-            </button>
-        }
-        <!-- enrolment without examination event, allow making reservation -->
-        @if (!eventConfig && exam?.implementation !== 'AQUARIUM' && hasUpcomingAlternativeEvents()) {
-            <button ngbDropdownItem class="btn btn-outline-secondary" (click)="makeReservation()">
-                {{ 'i18n_student_new_reservation' | translate }}
-            </button>
-        }
-    </div>
+    }
+    <!-- enrolment with examination event, allow changing -->
+    @if (eventConfig && hasUpcomingAlternativeEvents()) {
+        <button class="btn btn-outline-secondary me-2 mb-2" (click)="makeReservation()">
+            {{ 'i18n_student_change_reservation' | translate }}
+        </button>
+    }
+    <!-- enrolment with reservation, allow reservation removal -->
+    @if (reservation && canChangeReservation(reservation)) {
+        <button class="btn btn-outline-danger me-2 mb-2" (click)="removeReservation()">
+            {{ 'i18n_student_remove_reservation' | translate }}
+        </button>
+    }
+    <!-- reservation in progress, inform with a disabled item -->
+    @if (reservation && !canChangeReservation(reservation)) {
+        <button class="btn btn-outline-danger me-2 mb-2" [disabled]="true">
+            {{ 'i18n_not_allowed_to_modify_reservation' | translate }}
+        </button>
+    }
+    <!-- enrolment with examination event, allow event removal -->
+    @if (eventConfig) {
+        <button class="btn btn-outline-danger me-2 mb-2" (click)="removeReservation()">
+            {{ 'i18n_student_remove_reservation' | translate }}
+        </button>
+    }
+    <!-- enrolment without reservation or examination event, allow unenrolling (if other conditions pass) -->
+    @if (!reservation && !eventConfig && (exam?.executionType?.type === 'PUBLIC' || collaborativeExam)) {
+        <button class="btn btn-outline-danger me-2 mb-2" (click)="removeEnrolment()">
+            {{ 'i18n_student_remove_enrolment' | translate }}
+        </button>
+    }
+    <!-- enrolment without reservation, allow making reservation -->
+    @if ((!reservation && exam?.implementation === 'AQUARIUM') || collaborativeExam) {
+        <button class="btn btn-success me-2 mb-2" (click)="makeReservation()">
+            {{ 'i18n_student_new_reservation' | translate }}
+        </button>
+    }
+    <!-- enrolment without examination event, allow making reservation -->
+    @if (!eventConfig && exam?.implementation !== 'AQUARIUM' && hasUpcomingAlternativeEvents()) {
+        <button class="btn btn-success me-2 mb-2" (click)="makeReservation()">
+            {{ 'i18n_student_new_reservation' | translate }}
+        </button>
+    }
 </div>

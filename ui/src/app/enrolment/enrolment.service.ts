@@ -68,7 +68,7 @@ export class EnrolmentService {
             : `/app/calendar/reservation/${enrolment.reservation.id}`;
         this.Confirmation.open$(
             this.translate.instant('i18n_confirm'),
-            this.translate.instant('i18n_are_you_sure'),
+            this.translate.instant('i18n_confirm_delete_exam_reservation'),
         ).subscribe({
             next: () => this.http.delete(url).subscribe({ next: successFn, error: errorFn }),
         });
