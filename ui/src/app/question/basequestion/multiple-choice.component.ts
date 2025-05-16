@@ -4,6 +4,7 @@
 
 import { UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
@@ -15,6 +16,25 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
     selector: 'xm-multiple-choice-editor',
     template: `
         @if (question.type === 'WeightedMultipleChoiceQuestion') {
+            <div class="row mt-2">
+                <div class="col-md-6 col-sm-12">{{ 'i18n_weighted_multiple_choice_description' | translate }}</div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            name="negativeScore"
+                            type="checkbox"
+                            [(ngModel)]="question.defaultNegativeScoreAllowed"
+                            id="negativeScore"
+                        />
+                        <label class="form-check-label" for="negativeScore">{{
+                            'i18n_allow_negative_score' | translate
+                        }}</label>
+                    </div>
+                </div>
+            </div>
             <div class="row mt-2">
                 <div class="col-md-6">
                     <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
@@ -84,6 +104,8 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
                 <div class="col-md-12 question-option-title">
                     {{ 'i18n_max_score' | translate | uppercase }}:
                     {{ calculateDefaultMaxPoints() }}
+                    {{ 'i18n_min_score' | translate | uppercase }}:
+                    {{ calculateDefaultMinPoints() }}
                 </div>
             </div>
         }
@@ -99,6 +121,7 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
     styleUrls: ['../question.shared.scss'],
     standalone: true,
     imports: [
+        FormsModule,
         MultipleChoiceOptionEditorComponent,
         WeightedMultipleChoiceOptionEditorComponent,
         UpperCasePipe,
@@ -136,4 +159,5 @@ export class MultipleChoiceEditorComponent implements OnInit {
     };
 
     calculateDefaultMaxPoints = () => this.QuestionScore.calculateDefaultMaxPoints(this.question as Question);
+    calculateDefaultMinPoints = () => this.QuestionScore.calculateDefaultMinPoints(this.question as Question);
 }

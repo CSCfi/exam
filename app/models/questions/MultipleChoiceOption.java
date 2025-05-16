@@ -92,6 +92,17 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         this.examSectionQuestionOptions = examSectionQuestionOptions;
     }
 
+    public boolean isLegitMaxScore() {
+        return defaultScore != null && defaultScore > 0;
+    }
+
+    public boolean isLegitMinScore(boolean allowNegative) {
+        if (defaultScore == null || !allowNegative) {
+            return false;
+        }
+        return defaultScore < 0;
+    }
+
     public MultipleChoiceOption copy() {
         MultipleChoiceOption option = new MultipleChoiceOption();
         BeanUtils.copyProperties(this, option, "id", "examSectionQuestionOptions");

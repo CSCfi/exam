@@ -1247,5 +1247,8 @@
     "i18n_external_organisation_login": "Olet kirjautumassa ulkopuolisen organisaation tunnuksella ",
     "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen.",
     "i18n_point_graded": "Pisteytetty arviointi",
-    "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan."
+    "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan.",
+    "i18n_allow_negative_score": "Salli negatiivinen kokonaispistemäärä",
+    "i18n_weighted_multiple_choice_description": "Monivalintakysymyksen kuvaus...",
+    "i18n_min_score": "Minimipisteet"
 }

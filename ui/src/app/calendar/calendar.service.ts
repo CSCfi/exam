@@ -120,9 +120,10 @@ export class CalendarService {
     }
 
     getEarliestOpening(room: ExamRoom, start: string, end: string): Date {
+        const dayBegins = DateTime.now().startOf('day').toJSDate();
         // if we have an extra opening that spans midnight then it's 24h
         if (this.hasMultiDayExceptionalOpeningDuring(room.calendarExceptionEvents, start, end)) {
-            return DateTime.now().startOf('day').toJSDate();
+            return dayBegins;
         }
         const tz = room.localTimezone;
         const regularOpenings = room.defaultWorkingHours.map((dwh) =>
@@ -133,13 +134,14 @@ export class CalendarService {
             .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
             .map((d) => this.normalize(d.start as DateTime));
 
-        return DateTime.min(...regularOpenings.concat(extraOpenings)).toJSDate();
+        return DateTime.min(...regularOpenings.concat(extraOpenings))?.toJSDate() || dayBegins;
     }
 
     getLatestClosing(room: ExamRoom, start: string, end: string): Date {
+        const dayEnds = DateTime.now().endOf('day').toJSDate();
         // if we have an extra opening that spans midnight then it's 24h
         if (this.hasMultiDayExceptionalOpeningDuring(room.calendarExceptionEvents, start, end)) {
-            return DateTime.now().endOf('day').toJSDate();
+            return dayEnds;
         }
         const tz = room.localTimezone;
         const regularClosings = room.defaultWorkingHours.map((dwh) =>
@@ -150,7 +152,7 @@ export class CalendarService {
             .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
             .map((d) => this.normalize(d.end as DateTime));
 
-        return DateTime.max(...regularClosings.concat(extraClosings)).toJSDate();
+        return DateTime.max(...regularClosings.concat(extraClosings))?.toJSDate() || dayEnds;
     }
 
     getClosedWeekdays(room: ExamRoom, start: string, end: string): number[] {
