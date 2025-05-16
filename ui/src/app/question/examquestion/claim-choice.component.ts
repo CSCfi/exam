@@ -29,20 +29,28 @@ import { QuestionService } from 'src/app/question/question.service';
                     </ul>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-12 m-1 claim-choice-option-labels">
-                    <div class="claim-choice-option-label">
-                        <span class="question-option-title">{{ 'i18n_question_options' | translate | uppercase }}</span>
-                    </div>
-                    <div class="claim-choice-option-label points">
-                        <span class="question-option-title">
-                            {{ 'i18n_word_points' | translate | uppercase }}
-                        </span>
+            <div class="row mx-2">
+                <div class="col-md-11 claim-choice-option-labels">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="claim-choice-option-label">
+                                <span class="question-option-title">{{
+                                    'i18n_question_options' | translate | uppercase
+                                }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="claim-choice-option-label points">
+                                <span class="question-option-title">
+                                    {{ 'i18n_word_points' | translate | uppercase }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-12 m-1">
+            <div class="row mx-2">
+                <div class="col-md-11">
                     @for (opt of options(); track opt.id; let index = $index) {
                         <div class="question-editor-claim-choice-option row" [ngClass]="getOptionClass(opt)">
                             @if (opt.option) {

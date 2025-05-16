@@ -37,4 +37,5 @@ export interface User {
     employeeNumber: string | null;
     lastLogin: string | null;
     canCreateByodExam: boolean;
+    externalUserOrg?: string;
 }

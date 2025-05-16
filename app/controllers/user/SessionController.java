@@ -51,6 +51,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.EnrolmentRepository;
+import scala.jdk.javaapi.CollectionConverters;
 
 public class SessionController extends BaseController {
 
@@ -111,8 +112,12 @@ public class SessionController extends BaseController {
             return wrapAsPromise(badRequest("No credentials!"));
         }
         String eppn = id.get();
-        Reservation externalReservation = getUpcomingExternalReservation(eppn);
+        Reservation externalReservation = getUpcomingExternalReservation(eppn, request.remoteAddress());
         boolean isTemporaryVisitor = externalReservation != null;
+        boolean isLocalUser = isLocalUser(eppn);
+        if (!isTemporaryVisitor && !isLocalUser && configReader.isHomeOrganisationRequired()) {
+            return wrapAsPromise(badRequest("i18n_error_disallowed_login_with_external_domain_credentials"));
+        }
         User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
         try {
             if (user == null) {
@@ -157,7 +162,7 @@ public class SessionController extends BaseController {
         user.setLastLogin(new Date());
         user.update();
         // In dev environment we will not fiddle with the role definitions here regarding visitor status
-        Reservation externalReservation = getUpcomingExternalReservation(user.getEppn());
+        Reservation externalReservation = getUpcomingExternalReservation(user.getEppn(), request.remoteAddress());
         return handleExternalReservationAndCreateSession(user, externalReservation, request);
     }
 
@@ -198,7 +203,16 @@ public class SessionController extends BaseController {
             });
     }
 
-    private Reservation getUpcomingExternalReservation(String eppn) {
+    private Reservation getUpcomingExternalReservation(String eppn, String remoteAddress) {
+        // FIXME: Disable this check for now. It might bring unwanted functionality in some cases.
+        /*boolean onExamMachine = DB.find(ExamMachine.class)
+            .where()
+            .eq("ipAddress", remoteAddress)
+            .findOneOrEmpty()
+            .isPresent();
+        if (!onExamMachine) {
+            return null;
+        }*/
         DateTime now = dateTimeHandler.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
         DateTime future = now.plusMinutes(lookAheadMinutes);
@@ -362,36 +376,48 @@ public class SessionController extends BaseController {
         return user;
     }
 
+    private boolean isLocalUser(String eppn) {
+        var userDomain = eppn.split("@")[1];
+        var homeDomains = CollectionConverters.asJava(configReader.getHomeOrganisations());
+        return homeDomains.isEmpty() || homeDomains.stream().anyMatch(hd -> hd.equals(userDomain));
+    }
+
     private CompletionStage<Result> createSession(User user, boolean isTemporaryVisitor, Http.Request request) {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("since", ISODateTimeFormat.dateTime().print(DateTime.now()));
-        payload.put("id", user.getId().toString());
-        payload.put("email", user.getEmail());
-        if (!user.getPermissions().isEmpty()) {
-            // For now, we support just a single permission
-            payload.put("permissions", user.getPermissions().getFirst().getValue());
-        }
-        // If (regular) user has just one role, set it as the one used for login
-        if (user.getRoles().size() == 1 && !isTemporaryVisitor) {
-            payload.put("role", user.getRoles().getFirst().getName());
-        }
-        List<Role> roles = isTemporaryVisitor
-            ? DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
-            : user.getRoles();
-        if (isTemporaryVisitor) {
-            payload.put("visitingStudent", "true");
-            payload.put("role", roles.getFirst().getName()); // forced login as student
-        }
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
         result.put("firstName", user.getFirstName());
         result.put("lastName", user.getLastName());
         result.put("lang", user.getLanguage().getCode());
-        result.set("roles", Json.toJson(roles));
         result.set("permissions", Json.toJson(user.getPermissions()));
         result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());
         result.put("email", user.getEmail());
+
+        Map<String, String> payload = new HashMap<>();
+        payload.put("since", ISODateTimeFormat.dateTime().print(DateTime.now()));
+        payload.put("id", user.getId().toString());
+        payload.put("email", user.getEmail());
+        if (!user.getPermissions().isEmpty()) {
+            payload.put(
+                "permissions",
+                user.getPermissions().stream().map(Permission::getValue).collect(Collectors.joining(","))
+            );
+        }
+        // If (regular) user has just one role, set it as the one used for logins
+        var isLocalUser = isLocalUser(user.getEppn());
+        List<Role> roles = isTemporaryVisitor || !isLocalUser
+            ? DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
+            : user.getRoles();
+        if (user.getRoles().size() == 1 && !isTemporaryVisitor) {
+            payload.put("role", user.getRoles().getFirst().getName());
+        } else if (isTemporaryVisitor) {
+            payload.put("visitingStudent", "true");
+            payload.put("role", roles.getFirst().getName()); // forced login as student
+        } else if (!isLocalUser(user.getEppn())) {
+            result.put("externalUserOrg", user.getEppn().split("@")[1]);
+            payload.put("role", roles.getFirst().getName()); // forced login as student
+        }
+        result.set("roles", Json.toJson(roles));
         return checkStudentSession(request, new Http.Session(payload), ok(result));
     }
 

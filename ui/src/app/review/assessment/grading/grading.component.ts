@@ -85,7 +85,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     ngOnInit() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        this.initGrade();
+        this.initGrades(false, this.collaborative);
         this.initCreditTypes();
         this.initLanguages();
 

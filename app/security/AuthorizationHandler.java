@@ -7,10 +7,12 @@ package security;
 import be.objectify.deadbolt.java.DeadboltHandler;
 import be.objectify.deadbolt.java.DynamicResourceHandler;
 import be.objectify.deadbolt.java.models.Subject;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.user.Permission;
@@ -43,13 +45,18 @@ class AuthorizationHandler implements DeadboltHandler {
             return CompletableFuture.completedFuture(Optional.empty());
         }
         User user = new User();
-        session.get("role").ifPresent(r -> user.setRoles(List.of(Role.withName(session.get("role").get()))));
+
+        session.get("role").map(Role::withName).map(List::of).ifPresent(user::setRoles);
+
         session
             .get("permissions")
-            .ifPresent(p -> {
-                Optional<Permission> permission = Permission.withValue(p);
-                permission.ifPresent(value -> user.setPermissions(List.of(value)));
-            });
+            .map(permissions -> permissions.split(","))
+            .map(Arrays::stream)
+            .map(stream -> stream.map(Permission::withValue))
+            .map(stream -> stream.flatMap(Optional::stream))
+            .map(Stream::toList)
+            .ifPresent(user::setPermissions);
+
         return CompletableFuture.completedFuture(Optional.of(user));
     }
 

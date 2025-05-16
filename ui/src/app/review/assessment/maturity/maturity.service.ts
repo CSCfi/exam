@@ -141,7 +141,7 @@ export class MaturityService {
 
     isAwaitingInspection = (exam: Exam) => exam.languageInspection && !exam.languageInspection.finishedAt;
 
-    isGraded = (exam: Exam) => exam.grade || exam.gradeless;
+    isGraded = (exam: Exam) => exam.grade || exam.gradingType === 'NOT_GRADED';
 
     saveInspectionStatement$ = (exam: Exam) => {
         const inspection = exam.languageInspection as LanguageInspection;
@@ -211,7 +211,7 @@ export class MaturityService {
             return StateName.AWAIT_INSPECTION;
         }
         const grade = exam.grade;
-        const disapproved = (!grade && !exam.gradeless) || grade?.marksRejection;
+        const disapproved = (!grade && exam.gradingType !== 'NOT_GRADED') || grade?.marksRejection;
 
         return disapproved ? StateName.REJECT_STRAIGHTAWAY : StateName.LANGUAGE_INSPECT;
     };

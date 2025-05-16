@@ -59,7 +59,7 @@ export class MaturityGradingComponent extends GradingBaseComponent implements On
     }
 
     ngOnInit() {
-        this.initGrade();
+        this.initGrades(true);
         this.initCreditTypes();
         this.initLanguages();
 
@@ -102,4 +102,5 @@ export class MaturityGradingComponent extends GradingBaseComponent implements On
             error: (err) => this.toast.error(err),
         });
     };
+    saveAssessmentInfo = () => this.Assessment.saveAssessmentInfo$(this.exam).subscribe();
 }

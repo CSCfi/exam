@@ -141,7 +141,7 @@ class EmailComposerImpl @Inject() (
               lang
             )
           val values = Map(
-            "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/4",
+            "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5",
             "exam_name"      -> exam.getName,
             "course_code"    -> Option(exam.getCourse).map(_.getCode).nonNull.map(_.split("_").head).getOrElse(""),
             "review_summary" -> summary

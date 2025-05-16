@@ -13,6 +13,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import models.assessment.ExamFeedbackConfig;
 import models.exam.Exam;
+import models.exam.Grade;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
 import models.user.User;
@@ -67,7 +68,7 @@ public class ExamAnswerController extends BaseController {
             .idEq(eid)
             .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
             .isNotNull("parent.examFeedbackConfig")
-            .eq("gradeless", false)
+            .ne("gradingType", Grade.Type.NOT_GRADED)
             .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
             .findOneOrEmpty();
         if (oe.isEmpty() || !canReleaseAnswers(oe.get())) {

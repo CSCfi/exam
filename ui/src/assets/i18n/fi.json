@@ -15,6 +15,7 @@
     "i18n_button_decline": "Hylkää",
     "i18n_button_ok": "OK",
     "i18n_button_save": "Tallenna",
+    "i18n_button_return": "Palaa",
     "i18n_calendar": "Varaustiedot",
     "i18n_calendar_phase_1": "Tentti",
     "i18n_calendar_phase_2": "Valitse tenttitila",
@@ -1198,7 +1199,7 @@
     "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset",
     "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset",
     "i18n_unused_reservation": "Käyttämätön varaus",
-    "i18n_no_reservations_found" : "Nykyisellä haulla ei löytynyt varauksia",
+    "i18n_no_reservations_found": "Nykyisellä haulla ei löytynyt varauksia",
     "i18n_access_forbidden": "Toiminto estetty - ei oikeuksia",
     "i18n_open_assessment": "Avaa arviointi",
     "i18n_open_exam": "Avaa tentti",
@@ -1241,5 +1242,10 @@
     "i18n_assessment_questions_title": "Arvioinnin kysymykset",
     "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille",
     "i18n_exam_reservation_canceled": "Tenttivaraus peruttu",
-    "i18n_confirm_delete_exam_reservation": "Haluatko poistaa tenttiajanvarauksen?"
+    "i18n_confirm_delete_exam_reservation": "Haluatko poistaa tenttiajanvarauksen?",
+    "i18n_error_disallowed_login_with_external_domain_credentials": "Kirjautuminen ulkopuolisen organisaation tunnuksilla ei sallittu",
+    "i18n_external_organisation_login": "Olet kirjautumassa ulkopuolisen organisaation tunnuksella ",
+    "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen.",
+    "i18n_point_graded": "Pisteytetty arviointi",
+    "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan."
 }

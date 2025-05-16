@@ -177,7 +177,7 @@ public class ReviewController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties pp = PathProperties.parse(
             "(" +
-            "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
+            "id, name, anonymous, state, gradedTime, customCredit, creditType, gradingType(*), answerLanguage, trialCount, " +
             "implementation, gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
             "course(code, name, gradeScale(grades(*))), " +
             "examSections(name, sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
@@ -339,32 +339,28 @@ public class ReviewController extends BaseController {
         }
         Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo");
+        Grade.Type gradingType = Grade.Type.valueOf(df.get("gradingType"));
+        ExamType examType = DB.find(ExamType.class).where().eq("type", df.get("creditType")).findOne();
+        exam.setCreditType(examType);
         if (grade != null) {
             Grade examGrade = DB.find(Grade.class, grade);
             GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
             if (scale.getGrades().contains(examGrade)) {
                 exam.setGrade(examGrade);
-                exam.setGradeless(false);
+                exam.setGradingType(Grade.Type.GRADED);
             } else {
                 return badRequest("Invalid grade for this grade scale");
             }
-        } else if (df.get("gradeless") != null && df.get("gradeless").equals("true")) {
+        } else if (gradingType == Grade.Type.NOT_GRADED) {
             exam.setGrade(null);
-            exam.setGradeless(true);
+            exam.setGradingType(Grade.Type.NOT_GRADED);
+        } else if (gradingType == Grade.Type.POINT_GRADED) {
+            exam.setGrade(null);
+            exam.setGradingType(Grade.Type.POINT_GRADED);
+            // Forced partial credit type
+            exam.setCreditType(DB.find(ExamType.class).where().eq("type", "PARTIAL").findOne());
         } else {
             exam.setGrade(null);
-        }
-        String creditType = df.get("creditType.type");
-        if (creditType == null) {
-            creditType = df.get("creditType");
-        }
-        if (creditType != null) {
-            ExamType eType = DB.find(ExamType.class).where().eq("type", creditType).findOne();
-            if (eType != null) {
-                exam.setCreditType(eType);
-            }
-        } else {
-            exam.setCreditType(null);
         }
         exam.setAdditionalInfo(additionalInfo);
         exam.setAnswerLanguage(df.get("answerLanguage"));
@@ -422,8 +418,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Anonymous(filteredProperties = { "user" })
     public Result listNoShows(Long eid, Optional<Boolean> collaborative, Http.Request request) {
-        ExpressionList<ExamEnrolment> el = DB
-            .find(ExamEnrolment.class)
+        ExpressionList<ExamEnrolment> el = DB.find(ExamEnrolment.class)
             .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
             .fetch("collaborativeExam")
             .fetch("exam.executionType")
@@ -625,7 +620,7 @@ public class ReviewController extends BaseController {
         return DB.find(ExamParticipation.class)
             .fetch(
                 "exam",
-                "state, name, additionalInfo, gradedTime, gradeless, assessmentInfo, subjectToLanguageInspection, answerLanguage, customCredit"
+                "state, name, additionalInfo, gradedTime, gradingType, assessmentInfo, subjectToLanguageInspection, answerLanguage, customCredit"
             )
             .fetch("exam.course")
             .fetch("exam.course.organisation")

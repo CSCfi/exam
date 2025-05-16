@@ -112,7 +112,11 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="row my-3">
                     <div class="col-12">
                         <!-- Archived -->
-                        <xm-rl-archived [reviews]="archivedReviews"></xm-rl-archived>
+                        <xm-rl-archived
+                            [exam]="exam"
+                            [collaborative]="collaborative"
+                            [reviews]="archivedReviews"
+                        ></xm-rl-archived>
                     </div>
                 </div>
             }

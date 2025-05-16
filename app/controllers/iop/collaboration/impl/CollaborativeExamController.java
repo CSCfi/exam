@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import models.exam.Exam;
 import models.exam.ExamExecutionType;
 import models.exam.ExamType;
+import models.exam.Grade;
 import models.exam.GradeScale;
 import models.iop.CollaborativeExam;
 import models.sections.ExamSection;
@@ -83,6 +84,7 @@ public class CollaborativeExamController extends CollaborationController {
 
         exam.setTrialCount(1);
         exam.setAnonymous(true);
+        exam.setGradingType(Grade.Type.GRADED);
 
         return exam;
     }

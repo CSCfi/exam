@@ -25,6 +25,7 @@ import models.assessment.ExamRecord;
 import models.assessment.LanguageInspection;
 import models.enrolment.ExamParticipation;
 import models.exam.Exam;
+import models.exam.Grade;
 import models.exam.GradeScale;
 import models.facility.Organisation;
 import models.user.Permission;
@@ -95,7 +96,8 @@ public class ExamRecordController extends BaseController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam exam = optionalExam.get();
-        return validateExamState(exam, true, user).orElseGet(() -> {
+        var gradeRequired = exam.getGradingType() == Grade.Type.GRADED;
+        return validateExamState(exam, gradeRequired, user).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.update();
             ExamParticipation participation = DB.find(ExamParticipation.class)
@@ -107,7 +109,7 @@ public class ExamRecordController extends BaseController {
                 return notFound();
             }
 
-            ExamRecord record = createRecord(exam, participation);
+            ExamRecord record = createRecord(exam, participation, gradeRequired);
             ExamScore score = createScore(record, participation.getEnded());
             score.save();
             record.setExamScore(score);
@@ -145,7 +147,7 @@ public class ExamRecordController extends BaseController {
         return validateExamState(exam, false, user).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.setGrade(null);
-            exam.setGradeless(true);
+            exam.setGradingType(Grade.Type.NOT_GRADED);
             exam.update();
             return ok();
         });
@@ -240,7 +242,7 @@ public class ExamRecordController extends BaseController {
         return Optional.empty();
     }
 
-    private ExamRecord createRecord(Exam exam, ExamParticipation participation) {
+    private ExamRecord createRecord(Exam exam, ExamParticipation participation, boolean releasable) {
         User student = participation.getUser();
         User teacher = exam.getGradedByUser();
         ExamRecord record = new ExamRecord();
@@ -248,6 +250,7 @@ public class ExamRecordController extends BaseController {
         record.setStudent(student);
         record.setTeacher(teacher);
         record.setTimeStamp(DateTime.now());
+        record.setReleasable(releasable);
         return record;
     }
 
@@ -287,7 +290,8 @@ public class ExamRecordController extends BaseController {
         } else {
             score.setGradeScale(scale.getDescription());
         }
-        score.setStudentGrade(exam.getGrade().getName());
+        Grade grade = exam.getGrade();
+        score.setStudentGrade(grade != null ? grade.getName() : "POINT_GRADED");
         Organisation organisation = exam.getCourse().getOrganisation();
         score.setInstitutionName(organisation == null ? null : organisation.getName());
         return score;

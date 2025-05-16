@@ -15,6 +15,7 @@ import type { Observable, Unsubscribable } from 'rxjs';
 import { Subject, defer, from, interval, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
+import { ExternalLoginConfirmationDialogComponent } from './eula/external-login-confirmation-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
 import { SessionExpireWarningComponent } from './session-timeout-toastr';
 import { Role, User } from './session.model';
@@ -177,12 +178,27 @@ export class SessionService implements OnDestroy {
 
     translate$ = (lang: string) => this.i18n.use(lang).pipe(tap(() => (this.document.documentElement.lang = lang)));
 
-    private processLogin$(user: User): Observable<User> {
+    private processLogin$ = (user: User): Observable<User> => {
+        const externalLoginConfirmation$ = (u: User): Observable<User> =>
+            defer(() => (u.externalUserOrg ? this.openExernalLoginConfirmationModal$(u) : of(u)));
         const userAgreementConfirmation$ = (u: User): Observable<User> =>
             defer(() => (!u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
-        return user.loginRole
-            ? userAgreementConfirmation$(user)
-            : this.openRoleSelectModal$(user).pipe(switchMap((u) => userAgreementConfirmation$(u)));
+        const roleSelectionConfirmation$ = (u: User): Observable<User> =>
+            defer(() => (!u.loginRole ? this.openRoleSelectModal$(u) : of(u)));
+        return externalLoginConfirmation$(user).pipe(
+            switchMap(roleSelectionConfirmation$),
+            switchMap(userAgreementConfirmation$),
+        );
+    };
+
+    private openExernalLoginConfirmationModal$(user: User): Observable<User> {
+        const modalRef = this.modal.open(ExternalLoginConfirmationDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'm',
+        });
+        modalRef.componentInstance.user = user;
+        return from(modalRef.result).pipe(map(() => user));
     }
 
     private openUserAgreementModal$(user: User): Observable<User> {
@@ -233,14 +249,14 @@ export class SessionService implements OnDestroy {
         });
 
         const loginRole = user.roles.length === 1 ? user.roles[0].name : null;
-        const isTeacher = loginRole != null && loginRole === 'TEACHER';
+        const isTeacher = loginRole === 'TEACHER';
         return this.translate$(user.lang).pipe(
             map(() => ({
                 ...user,
                 loginRole: loginRole,
                 isTeacher: isTeacher,
-                isAdmin: loginRole != null && loginRole === 'ADMIN',
-                isStudent: loginRole != null && loginRole === 'STUDENT',
+                isAdmin: loginRole === 'ADMIN',
+                isStudent: loginRole === 'STUDENT',
                 isLanguageInspector: isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
                 canCreateByodExam: loginRole !== 'STUDENT' && this.hasPermission(user, 'CAN_CREATE_BYOD_EXAM'),
             })),

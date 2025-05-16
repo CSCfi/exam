@@ -85,7 +85,7 @@
         <key>allowedDisplayBuiltin</key>
         <true/>
         <key>allowedDisplayBuiltinEnforce</key>
-        <true/>
+        <false/>
         <key>allowedDisplayBuiltinExceptDesktop</key>
         <true/>
         <key>allowedDisplaysIgnoreFailure</key>
@@ -171,7 +171,7 @@
         <key>browserWindowTitleSuffix</key>
         <string></string>
         <key>browserWindowWebView</key>
-        <integer>2</integer>
+        <integer>3</integer>
         <key>chooseFileToUploadPolicy</key>
         <integer>0</integer>
         <key>configFileCreateIdentity</key>

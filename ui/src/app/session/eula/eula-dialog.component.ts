@@ -9,7 +9,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-    selector: 'xm-xm-eula-dialog',
     standalone: true,
     imports: [TranslateModule],
     template: `

@@ -24,11 +24,11 @@ type Payload = {
     id: number;
     state: string;
     grade?: number;
-    gradeless: boolean;
     customCredit: number;
     creditType?: string;
     answerLanguage?: string;
     additionalInfo: string;
+    gradingType?: string;
 };
 
 type Link = {
@@ -126,10 +126,14 @@ export class AssessmentService {
             messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
             return of();
         } else {
-            const content = exam.gradeless
-                ? this.translate.instant('i18n_confirm_archiving_without_grade')
-                : this.getRecordReviewConfirmationDialogContent((exam.examFeedback as Feedback).comment, needsWarning);
-            const resource = exam.gradeless ? '/app/exam/register' : '/app/exam/record';
+            const content =
+                exam.gradingType === 'NOT_GRADED'
+                    ? this.translate.instant('i18n_confirm_archiving_without_grade')
+                    : this.getRecordReviewConfirmationDialogContent(
+                          (exam.examFeedback as Feedback).comment,
+                          needsWarning,
+                      );
+            const resource = exam.gradingType === 'NOT_GRADED' ? '/app/exam/register' : '/app/exam/record';
             const payload = this.getPayload(exam, 'GRADED');
             if (needsConfirmation) {
                 return this.Confirmation.open$(this.translate.instant('i18n_confirm'), content).pipe(
@@ -241,11 +245,11 @@ export class AssessmentService {
         id: exam.id,
         state: state || exam.state,
         grade: exam.grade && isRealGrade(exam.grade) ? exam.grade.id : undefined,
-        gradeless: exam.gradeless,
         customCredit: exam.customCredit,
         creditType: exam.creditType ? exam.creditType.type : undefined,
         answerLanguage: exam.answerLanguage,
         additionalInfo: exam.additionalInfo,
+        gradingType: exam.gradingType,
     });
 
     sendAssessment = (newState: string, payload: Payload, messages: string[], exam: Exam) => {
@@ -270,7 +274,7 @@ export class AssessmentService {
 
     getErrors = (exam: Exam) => {
         const messages: string[] = [];
-        if (!exam.grade?.id && !exam.gradeless) {
+        if (!exam.grade?.id && exam.gradingType === 'GRADED') {
             messages.push('i18n_participation_unreviewed');
         }
         if (!exam.creditType?.type) {

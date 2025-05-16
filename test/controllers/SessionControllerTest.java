@@ -16,8 +16,8 @@ import org.junit.Test;
 public class SessionControllerTest extends IntegrationTestCase {
 
     @Test
-    public void testLoginAsNewUser() {
-        String eppn = "newuser@test.org";
+    public void testLoginAsNewLocalUser() {
+        String eppn = "newuser@funet.fi";
         User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(user).isNull();
 
@@ -32,6 +32,18 @@ public class SessionControllerTest extends IntegrationTestCase {
         assertThat(user.getLastName()).isEqualTo("Lazenby");
         assertThat(user.getUserIdentifier()).isEqualTo("org1.org:11111 org2.org:22222 org3.org:33333");
         assertThat(user.getLanguage().getCode()).isEqualTo("en"); // was de originally, but not supported
+    }
+
+    @Test
+    public void testLoginAsNewExternalUser() {
+        String eppn = "newuser@other.org";
+        User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNull();
+
+        loginExpectFailure(eppn);
+
+        user = DB.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNull();
     }
 
     @Test

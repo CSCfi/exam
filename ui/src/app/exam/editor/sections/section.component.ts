@@ -336,6 +336,7 @@ export class SectionComponent {
         });
         modal.componentInstance.newQuestion = true;
         modal.componentInstance.collaborative = this.collaborative;
+        modal.componentInstance.isPopup = true;
         from(modal.result).subscribe((resp) => this.insertExamQuestion(resp, this.section.sectionQuestions.length));
     };
 }

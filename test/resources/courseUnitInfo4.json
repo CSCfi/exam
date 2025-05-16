@@ -1,0 +1,41 @@
+{
+  "CourseUnitInfo" : {
+    "identifier" : 28587861,
+    "courseUnitCode" : "2121219_abcdefghijklmnop",
+    "courseUnitTitle" : "Lähisukukielet",
+    "courseUnitLevel" : 2,
+    "courseUnitType" : 1,
+    "courseImplementation": "abcdefghijklmnop",
+    "credits" : 3,
+    "creditsLanguage" : [
+      {
+        "name" : "fi"
+      }
+    ],
+    "gradeScale": [
+      {
+        "type" : "ZERO_TO_FIVE"
+      }
+    ],
+    "lecturer" : [
+      {
+        "name" : "Eskelinen-Leppänen Elisa Tuulikki"
+      }
+    ],
+    "institutionName" : "Itä-Suomen yliopisto",
+    "department" : [
+      {
+        "name" : "Suomen kieli ja kulttuuritieteet (J)"
+      }
+    ],
+    "campus" : [
+      {
+        "name" : "Joensuu"
+      }
+    ],
+    "startDate" : "20110101",
+    "endDate" : "20991228"
+  },
+  "status" : "OK",
+  "description" : ""
+}

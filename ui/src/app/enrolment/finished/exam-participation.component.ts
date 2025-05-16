@@ -106,20 +106,26 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
     private loadReview = (exam: Exam) => this.Enrolment.loadFeedback$(exam.id).subscribe(this.prepareReview);
 
     private prepareReview = (exam: ReviewedExam) => {
-        if (!exam.grade) {
+        if (exam.gradingType === 'NOT_GRADED') {
             exam.grade = {
-                name: 'NONE',
-                displayName: '',
+                name: 'NOT_GRADED',
+                displayName: this.translate.instant('i18n_not_graded'),
+            };
+        }
+        if (exam.gradingType === 'POINT_GRADED') {
+            exam.grade = {
+                name: 'POINT_GRADED',
+                displayName: this.translate.instant('i18n_point_graded'),
             };
         }
         if (exam.languageInspection) {
-            exam.grade.displayName = this.translate.instant(
+            exam.grade!.displayName = this.translate.instant(
                 exam.languageInspection.approved ? 'i18n_approved' : 'i18n_rejected',
             );
-            exam.contentGrade = this.Exam.getExamGradeDisplayName(exam.grade.name);
+            exam.contentGrade = this.Exam.getExamGradeDisplayName(exam.grade!.name);
             exam.gradedTime = exam.languageInspection.finishedAt;
         } else {
-            exam.grade.displayName = this.Exam.getExamGradeDisplayName(exam.grade.name);
+            exam.grade!.displayName = this.Exam.getExamGradeDisplayName(exam.grade!.name);
         }
         const credit = this.Exam.getCredit(exam);
         exam.credit = credit;

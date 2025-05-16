@@ -44,7 +44,9 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
                 @for (user of examOwners; track user) {
                     <div class="ms-1 row" [ngClass]="{ 'hover-grey': examOwners.length !== 1 }">
-                        <div class="row col-8">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</div>
+                        <div class="col-7">
+                            <small>{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</small>
+                        </div>
                         <!-- Remove button -->
                         <button
                             class="btn btn-danger btn-sm ms-1 w-auto m-1"

@@ -6,12 +6,22 @@ package models.exam;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.Model;
+import io.ebean.annotation.EnumValue;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 public class Grade extends Model {
+
+    public enum Type {
+        @EnumValue("1")
+        GRADED,
+        @EnumValue("2")
+        NOT_GRADED,
+        @EnumValue("3")
+        POINT_GRADED,
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

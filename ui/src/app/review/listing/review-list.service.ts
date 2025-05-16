@@ -10,7 +10,9 @@ import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import { Exam } from 'src/app/exam/exam.model';
 import type { Review, ReviewListView } from 'src/app/review/review.model';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 type Selection = { [k: string]: boolean };
 
@@ -20,6 +22,7 @@ export class ReviewListService {
         private http: HttpClient,
         private translate: TranslateService,
         private toast: ToastrService,
+        private CommonExam: CommonExamService,
     ) {}
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
@@ -122,6 +125,17 @@ export class ReviewListService {
         return Math.round(diff);
     };
 
+    translateGrade = (exam: Exam) => {
+        if (exam.gradingType === 'GRADED' && exam.grade?.name) {
+            return this.CommonExam.getExamGradeDisplayName(exam.grade.name);
+        } else if (exam.gradingType === 'NOT_GRADED') {
+            return this.translate.instant('i18n_no_grading');
+        } else if (exam.gradingType === 'POINT_GRADED') {
+            return this.translate.instant('i18n_point_graded');
+        }
+        return '';
+    };
+
     private resetSelections = (scope: Selection, view: string) => {
         let [prev, next] = [false, false];
         for (const k in scope) {
@@ -142,7 +156,7 @@ export class ReviewListService {
 
     private send$ = (review: ExamParticipation, state: string, examId?: number): Observable<ExamParticipation> => {
         const exam = review.exam;
-        if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
+        if ((exam.grade || exam.gradingType === 'NOT_GRADED') && exam.creditType && exam.answerLanguage) {
             const examToRecord = {
                 id: exam.id,
                 state: state,
@@ -159,7 +173,7 @@ export class ReviewListService {
                     .put<ExamParticipation & { rev: string }>(url, examToRecord)
                     .pipe(map((resp) => ({ ...review, _rev: resp.rev })));
             } else {
-                const resource = exam.gradeless ? '/app/exam/register' : 'app/exam/record';
+                const resource = exam.gradingType === 'NOT_GRADED' ? '/app/exam/register' : 'app/exam/record';
                 return this.http.post<ExamParticipation>(resource, examToRecord);
             }
         } else {
