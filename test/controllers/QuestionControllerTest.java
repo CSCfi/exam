@@ -225,6 +225,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
             .put("id", question.getId())
             .put("type", "WeightedMultipleChoiceQuestion")
             .put("question", question.getQuestion())
+            .put("defaultNegativeScoreAllowed", true)
             .set(
                 "options",
                 Json.newArray()

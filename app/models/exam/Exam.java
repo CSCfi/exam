@@ -322,7 +322,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public Double getTotalScore() {
         double totalScore = toFixed(examSections.stream().map(ExamSection::getTotalScore).reduce(0.0, Double::sum));
-
         return Math.max(totalScore, 0.0);
     }
 
@@ -880,7 +879,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 esq.setDerivedMaxScore();
                 // Also set min scores, if question is claim choice question
                 Optional<Question.Type> type = Optional.ofNullable(esq.getQuestion()).map(Question::getType);
-                if (type.isPresent() && type.get() == Question.Type.ClaimChoiceQuestion) {
+                if (
+                    type.isPresent() &&
+                    (type.get() == Question.Type.ClaimChoiceQuestion ||
+                        type.get() == Question.Type.WeightedMultipleChoiceQuestion)
+                ) {
                     esq.setDerivedMinScore();
                 }
                 esq.getOptions().forEach(o -> o.setScore(null));
