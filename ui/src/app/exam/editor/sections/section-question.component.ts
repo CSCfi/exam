@@ -70,8 +70,8 @@ export class SectionQuestionComponent {
         private Files: FileService,
     ) {}
 
-    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion.options);
-
+    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion);
+    calculateWeightedMinPoints = () => this.QuestionScore.calculateWeightedMinPoints(this.sectionQuestion);
     getCorrectClaimChoiceOptionScore = () => this.QuestionScore.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 
     getMinimumOptionScore = () => this.QuestionScore.getMinimumOptionScore(this.sectionQuestion);

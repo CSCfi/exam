@@ -65,6 +65,7 @@ export class QuestionService {
             questionOwners: [this.Session.getUser()],
             state: 'NEW',
             tags: [],
+            defaultNegativeScoreAllowed: false,
         };
     }
 
@@ -129,6 +130,7 @@ export class QuestionService {
             maxScore: sectionQuestion.maxScore,
             answerInstructions: sectionQuestion.answerInstructions,
             evaluationCriteria: sectionQuestion.evaluationCriteria,
+            negativeScoreAllowed: sectionQuestion.negativeScoreAllowed,
             options: sectionQuestion.options,
             question: question,
         };
@@ -306,6 +308,7 @@ export class QuestionService {
             shared: question.shared,
             defaultAnswerInstructions: question.defaultAnswerInstructions,
             defaultEvaluationCriteria: question.defaultEvaluationCriteria,
+            defaultNegativeScoreAllowed: question.defaultNegativeScoreAllowed,
             questionOwners: question.questionOwners,
             tags: question.tags,
             options: question.options,
