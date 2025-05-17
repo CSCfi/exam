@@ -15,8 +15,8 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
         <div ngModelGroup="claimChoice" name="claimChoice">
-            <div class="row">
-                <div class="col-md-9 col-md-offset-3">
+            <div class="row mt-2">
+                <div class="col-md-6 col-sm-12">
                     <p>{{ 'i18n_claim_choice_question_instruction' | translate }}</p>
                     <p>{{ 'i18n_claim_choice_options_description' | translate }}</p>
                     <ul>
@@ -77,7 +77,7 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
             }
         </div>
         <div class="row">
-            <div class="col-md-9 col-md-offset-3 claim-choice-warning-wrapper">
+            <div class="col-md-9 claim-choice-warning-wrapper">
                 @if (missingOption) {
                     <div class="claim-choice-warning">
                         <i class="bi-exclamation-triangle" style="color:#E8172F;"></i>

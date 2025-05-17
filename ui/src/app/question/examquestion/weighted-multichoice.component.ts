@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, model, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
-import { ExamSectionQuestionOption } from 'src/app/question/question.model';
+import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question/question.model';
 
 @Component({
     selector: 'xm-eq-weighted-mc',
@@ -19,6 +19,28 @@ import { ExamSectionQuestionOption } from 'src/app/question/question.model';
     styleUrls: ['../question.shared.scss'],
     template: `
         <div ngModelGroup="weightedMcq" id="weightedMcq">
+            <div class="row mt-2">
+                <div class="col-md-6 col-sm-12">
+                    {{ 'i18n_weighted_multiple_choice_description' | translate }}
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            name="negativeScore"
+                            type="checkbox"
+                            [(ngModel)]="question().negativeScoreAllowed"
+                            (ngModelChange)="updateNegativeScoreSetting($event)"
+                            id="negativeScore"
+                        />
+                        <label class="form-check-label" for="negativeScore">{{
+                            'i18n_allow_negative_score' | translate
+                        }}</label>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-6">
                     <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
@@ -29,7 +51,7 @@ import { ExamSectionQuestionOption } from 'src/app/question/question.model';
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    @for (option of options(); track option; let index = $index) {
+                    @for (option of question().options; track option; let index = $index) {
                         <div class="row form-horizontal m-0 p-0 mb-3">
                             @if (option.option) {
                                 <div
@@ -57,9 +79,9 @@ import { ExamSectionQuestionOption } from 'src/app/question/question.model';
                             <div
                                 class="col-md-2 question-option-empty-radio"
                                 [ngClass]="
-                                    option.score.valueOf() > 0
+                                    option.score > 0
                                         ? 'question-correct-option-radio'
-                                        : option.score.valueOf() < 0
+                                        : option.score < 0
                                           ? 'question-incorrect-option-radio'
                                           : ''
                                 "
@@ -87,10 +109,11 @@ import { ExamSectionQuestionOption } from 'src/app/question/question.model';
                         </div>
                     }
                     <div class="row">
-                        <div class="col-md-6">&nbsp;</div>
-                        <div class="col-md-2 question-option-title">
+                        <div class="col-md-12 question-option-title">
                             {{ 'i18n_max_score' | translate | uppercase }}:
                             {{ maxScore() }}
+                            {{ 'i18n_min_score' | translate | uppercase }}:
+                            {{ minScore() }}
                         </div>
                     </div>
                 </div>
@@ -107,11 +130,13 @@ import { ExamSectionQuestionOption } from 'src/app/question/question.model';
     `,
 })
 export class WeightedMultiChoiceComponent {
-    options = input<ExamSectionQuestionOption[]>([]);
+    question = model.required<ExamSectionQuestion>();
     lotteryOn = input(false);
     isInPublishedExam = input(false);
     optionsChanged = output<ExamSectionQuestionOption[]>();
-    maxScore = computed<number>(() => this.QuestionScore.calculateWeightedMaxPoints(this.options()));
+    negativeScoreSettingChanged = output<boolean>();
+    maxScore = computed<number>(() => this.QuestionScore.calculateWeightedMaxPoints(this.question()));
+    minScore = computed<number>(() => this.QuestionScore.calculateWeightedMinPoints(this.question()));
 
     constructor(
         private TranslateService: TranslateService,
@@ -120,17 +145,23 @@ export class WeightedMultiChoiceComponent {
     ) {}
 
     updateScore = (score: number, index: number) => {
-        const newOption = { ...this.options()[index], score: score };
-        const next = this.options();
+        const newOption = { ...this.question().options[index], score: score };
+        const next = this.question().options;
         next[index] = newOption;
         this.optionsChanged.emit(next);
+        this.question.update((q) => ({ ...q, options: next }));
     };
 
     updateText = (text: string, index: number) => {
-        const newOption = { ...this.options()[index].option, option: text };
-        const next = this.options();
+        const newOption = { ...this.question().options[index].option, option: text };
+        const next = this.question().options;
         next[index].option = newOption;
         this.optionsChanged.emit(next);
+    };
+
+    updateNegativeScoreSetting = (setting: boolean) => {
+        this.negativeScoreSettingChanged.emit(setting);
+        this.question.update((q) => ({ ...q, negativeScoreAllowed: setting }));
     };
 
     addNewOption = () => {
@@ -148,7 +179,7 @@ export class WeightedMultiChoiceComponent {
             score: 0,
             answered: false,
         };
-        this.optionsChanged.emit([...this.options(), newOption]);
+        this.optionsChanged.emit([...this.question().options, newOption]);
     };
 
     removeOption = (option: ExamSectionQuestionOption) => {
@@ -158,7 +189,7 @@ export class WeightedMultiChoiceComponent {
         }
 
         const hasCorrectAnswer =
-            this.options().filter(
+            this.question().options.filter(
                 (o) =>
                     o.id !== option.id &&
                     (o.option?.correctOption || (o.option?.defaultScore && o.option.defaultScore > 0)),
@@ -166,7 +197,7 @@ export class WeightedMultiChoiceComponent {
 
         // Either not published exam or correct answer exists
         if (!this.isInPublishedExam() || hasCorrectAnswer) {
-            this.optionsChanged.emit(this.options().filter((o) => o.id !== option.id));
+            this.optionsChanged.emit(this.question().options.filter((o) => o.id !== option.id));
         } else {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_minimum_options'));
         }

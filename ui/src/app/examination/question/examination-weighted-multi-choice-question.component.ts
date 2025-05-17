@@ -30,7 +30,10 @@ import { ExaminationService } from 'src/app/examination/examination.service';
             </fieldset>
         </div>
 
-        <div class="ps-0 question-type-text">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
+        <div class="ps-0 question-type-text">
+            {{ 'i18n_max_points' | translate }} {{ sq.derivedMaxScore }}, {{ 'i18n_min_points' | translate }}
+            {{ sq.derivedMinScore }}
+        </div>
     `,
     standalone: true,
     imports: [FormsModule, TranslateModule],

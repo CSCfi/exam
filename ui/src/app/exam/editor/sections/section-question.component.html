@@ -32,7 +32,10 @@ SPDX-License-Identifier: EUPL-1.2
                     </span>
                 }
                 @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
-                    <span> 0 / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }} </span>
+                    <span>
+                        {{ calculateWeightedMinPoints() }} / {{ calculateWeightedMaxPoints() }}
+                        {{ 'i18n_unit_points' | translate }}
+                    </span>
                 }
                 @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
                     <span>
