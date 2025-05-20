@@ -5,112 +5,112 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <div class="xm-study-item-container review-view">
-    <div class="col-md-12">
-        <!-- question text -->
-        <div class="float-end">
-            <button
-                class="float-end btn btn-link"
-                (click)="reviewExpanded = !reviewExpanded"
-                [attr.aria-expanded]="reviewExpanded"
-            >
-                @if (!reviewExpanded) {
-                    <img src="/assets/images/icon_list_show_right.svg" alt="" />
-                }
-                @if (reviewExpanded) {
-                    <img src="/assets/images/icon_list_show_down.svg" alt="" />
-                }
-            </button>
-            <!-- grade -->
-            <div class="pe-3 me-2">
-                <!-- grade -->
+    <div class="row">
+        <div class="col-md-12">
+            <!-- question text -->
+            <div class="d-flex justify-content-between">
+                <div class="" [xmMathJax]="sectionQuestion.question.question"></div>
                 <div>
-                    <strong>{{ 'i18n_multiplechoice_question_correct' | translate }}:</strong>
-                    {{ sectionQuestion.clozeTestAnswer?.score?.correctAnswers }} /
-                    {{
-                        (sectionQuestion.clozeTestAnswer?.score?.correctAnswers || 0) +
-                            (sectionQuestion.clozeTestAnswer?.score?.incorrectAnswers || 0)
-                    }}
-                    &nbsp;<strong>{{ 'i18n_word_points' | translate }}: </strong>
-                    <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
-                        {{ displayAchievedScore() }}
-                    </span>
-                    @if (hasForcedScore()) {
-                        <span class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
+                    <!-- points -->
+                    <div class="d-inline-block pe-3">
+                        <strong>{{ 'i18n_multiplechoice_question_correct' | translate }}:</strong>
+                        {{ sectionQuestion.clozeTestAnswer?.score?.correctAnswers }} /
+                        {{
+                            (sectionQuestion.clozeTestAnswer?.score?.correctAnswers || 0) +
+                                (sectionQuestion.clozeTestAnswer?.score?.incorrectAnswers || 0)
+                        }}
+                        &nbsp;<strong>{{ 'i18n_word_points' | translate }}: </strong>
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                            {{ displayAchievedScore() }}
                         </span>
-                    }
-                    / {{ sectionQuestion.maxScore }}
-                </div>
-            </div>
-        </div>
-
-        <div class="" [xmMathJax]="sectionQuestion.question.question"></div>
-
-        <!-- question attachment -->
-        @if (reviewExpanded && sectionQuestion.question.attachment) {
-            <div class="ps-0 mt-2 mb-3 notice-text">
-                {{ 'i18n_question_attachment' | translate }}:
-                <a class="pointer" (click)="downloadQuestionAttachment()">
-                    {{ sectionQuestion.question.attachment?.fileName }}</a
-                >
-            </div>
-        }
-
-        <!-- question instructions -->
-        @if (reviewExpanded && sectionQuestion.answerInstructions) {
-            <div class="ps-0 mt-2 mb-3 notice-text" role="note">
-                <img src="/assets/images/icon_info.svg" alt="" />
-                <span class="ps-2">{{ 'i18n_instructions' | translate }}:</span>
-                <span [innerHtml]="sectionQuestion.answerInstructions"></span>
-            </div>
-        }
-
-        <!-- answer -->
-        @if (reviewExpanded) {
-            <div class="mt-2">
-                <hr />
-            </div>
-        }
-
-        @if (reviewExpanded) {
-            <div class="mb-2">
-                <div>
-                    <span>{{ 'i18n_exam_answer' | translate | uppercase }}</span>
-                </div>
-                <div [innerHtml]="sectionQuestion.clozeTestAnswer?.question"></div>
-                @if (participation.exam.executionType.type !== 'MATURITY') {
-                    <div class="make-inline pe-3 mt-2">
-                        <div>
-                            <span class="text text-danger"
-                                >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
-                                <small>[0 &hellip; {{ sectionQuestion.maxScore.toFixed(2) }}]</small></span
-                            >
-                        </div>
-                        <form #forcedPoints="ngForm" name="forcedPoints">
-                            <input
-                                name="score"
-                                type="number"
-                                lang="en"
-                                class="form-control"
-                                [(ngModel)]="scoreValue"
-                                xmFixedPrecision
-                                (blur)="forcedPoints.valid && insertForcedScore()"
-                                onclick="this.focus()"
-                                [disabled]="!isScorable"
-                                [min]="0"
-                                [max]="sectionQuestion.maxScore"
-                            />
-                            @if (forcedPoints.invalid) {
-                                <small class="alert-danger">
-                                    <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                        'i18n_error_score_input' | translate
-                                    }}
-                                </small>
-                            }
-                        </form>
+                        @if (hasForcedScore()) {
+                            <span class="text text-danger">
+                                {{ sectionQuestion.forcedScore }}
+                            </span>
+                        }
+                        / {{ sectionQuestion.maxScore }}
                     </div>
-                }
+                    <button
+                        class="d-inline-block btn btn-link"
+                        (click)="reviewExpanded = !reviewExpanded"
+                        [attr.aria-expanded]="reviewExpanded"
+                    >
+                        @if (!reviewExpanded) {
+                            <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                        }
+                        @if (reviewExpanded) {
+                            <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                        }
+                    </button>
+                </div>
             </div>
-        }
+
+            <!-- question attachment -->
+            @if (reviewExpanded && sectionQuestion.question.attachment) {
+                <div class="ps-0 mt-2 mb-3 notice-text">
+                    {{ 'i18n_question_attachment' | translate }}:
+                    <a class="pointer" (click)="downloadQuestionAttachment()">
+                        {{ sectionQuestion.question.attachment?.fileName }}</a
+                    >
+                </div>
+            }
+
+            <!-- question instructions -->
+            @if (reviewExpanded && sectionQuestion.answerInstructions) {
+                <div class="ps-0 mt-2 mb-3 notice-text" role="note">
+                    <img src="/assets/images/icon_info.svg" alt="" />
+                    <span class="ps-2">{{ 'i18n_instructions' | translate }}:</span>
+                    <span [innerHtml]="sectionQuestion.answerInstructions"></span>
+                </div>
+            }
+
+            <!-- answer -->
+            @if (reviewExpanded) {
+                <div class="mt-2">
+                    <hr />
+                </div>
+            }
+
+            @if (reviewExpanded) {
+                <div class="mb-2">
+                    <div>
+                        <span>{{ 'i18n_exam_answer' | translate | uppercase }}</span>
+                    </div>
+                    <div [innerHtml]="sectionQuestion.clozeTestAnswer?.question"></div>
+                    @if (participation.exam.executionType.type !== 'MATURITY') {
+                        <div class="make-inline pe-3 mt-2">
+                            <div>
+                                <span class="text text-danger"
+                                    >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
+                                    <small>[0 &hellip; {{ sectionQuestion.maxScore.toFixed(2) }}]</small></span
+                                >
+                            </div>
+                            <form #forcedPoints="ngForm" name="forcedPoints">
+                                <input
+                                    name="score"
+                                    type="number"
+                                    lang="en"
+                                    class="form-control"
+                                    [(ngModel)]="scoreValue"
+                                    xmFixedPrecision
+                                    (blur)="forcedPoints.valid && insertForcedScore()"
+                                    onclick="this.focus()"
+                                    [disabled]="!isScorable"
+                                    [min]="0"
+                                    [max]="sectionQuestion.maxScore"
+                                />
+                                @if (forcedPoints.invalid) {
+                                    <small class="alert-danger">
+                                        <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                            'i18n_error_score_input' | translate
+                                        }}
+                                    </small>
+                                }
+                            </form>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
     </div>
 </div>

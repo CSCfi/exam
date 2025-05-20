@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import java.beans.Transient;
 import models.base.GeneratedIdentityModel;
 import models.questions.MultipleChoiceOption;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -58,6 +59,11 @@ public class ExamSectionQuestionOption extends GeneratedIdentityModel {
 
     public void setScore(Double score) {
         this.score = score;
+    }
+
+    @Transient
+    public boolean isLegitScore(boolean allowNegative) {
+        return score != null && (allowNegative || score > 0);
     }
 
     ExamSectionQuestionOption copy() {

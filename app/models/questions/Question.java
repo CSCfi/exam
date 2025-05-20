@@ -91,6 +91,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
     @Column
     private Integer defaultExpectedWordCount;
 
+    @Column
+    private boolean defaultNegativeScoreAllowed;
+
     @ManyToOne
     private Question parent;
 
@@ -195,6 +198,14 @@ public class Question extends OwnedModel implements AttachmentContainer {
 
     public void setDefaultExpectedWordCount(Integer defaultExpectedWordCount) {
         this.defaultExpectedWordCount = defaultExpectedWordCount;
+    }
+
+    public boolean isDefaultNegativeScoreAllowed() {
+        return defaultNegativeScoreAllowed;
+    }
+
+    public void setDefaultNegativeScoreAllowed(boolean defaultNegativeScoreAllowed) {
+        this.defaultNegativeScoreAllowed = defaultNegativeScoreAllowed;
     }
 
     public Question getParent() {
@@ -420,8 +431,8 @@ public class Question extends OwnedModel implements AttachmentContainer {
             case WeightedMultipleChoiceQuestion -> {
                 return options
                     .stream()
+                    .filter(MultipleChoiceOption::isLegitMaxScore)
                     .map(MultipleChoiceOption::getDefaultScore)
-                    .filter(score -> score != null && score > 0)
                     .reduce(0.0, Double::sum);
             }
             case ClaimChoiceQuestion -> {
@@ -435,8 +446,8 @@ public class Question extends OwnedModel implements AttachmentContainer {
         if (getType() == Type.WeightedMultipleChoiceQuestion) {
             return options
                 .stream()
+                .filter(mco -> mco.isLegitMinScore(defaultNegativeScoreAllowed))
                 .map(MultipleChoiceOption::getDefaultScore)
-                .filter(score -> score != null && score < 0)
                 .reduce(0.0, Double::sum);
         } else if (getType() == Type.ClaimChoiceQuestion) {
             return options.stream().mapToDouble(MultipleChoiceOption::getDefaultScore).min().orElse(0.0);

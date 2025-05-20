@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Exam, ExamSection } from 'src/app/exam/exam.model';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
-import { ExamSectionQuestion, ExamSectionQuestionOption, Question, QuestionAmounts } from './question.model';
+import { ExamSectionQuestion, Question, QuestionAmounts } from './question.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionScoringService {
@@ -38,11 +38,20 @@ export class QuestionScoringService {
     calculateDefaultMaxPoints = (question: Question) =>
         question.options.filter((o) => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
 
+    calculateDefaultMinPoints = (question: Question): number => {
+        if (!question.defaultNegativeScoreAllowed) {
+            return 0;
+        }
+        const points = question.options.filter((o) => o.defaultScore < 0).reduce((a, b) => a + b.defaultScore, 0);
+        return parseFloat(points.toFixed(2));
+    };
+
     getMinimumOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
         const optionScores = sectionQuestion.options.map((o) => o.score);
         const scores = [0, ...optionScores]; // Make sure 0 is included
-        return sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'
-            ? Math.max(0, Math.min(...scores)) // Weighted mcq mustn't have a negative min score
+        return sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion' &&
+            !sectionQuestion.negativeScoreAllowed
+            ? Math.max(0, Math.min(...scores)) // Weighted mcq can force a positive min score
             : Math.min(...scores);
     };
 
@@ -73,7 +82,8 @@ export class QuestionScoringService {
             return sectionQuestion.forcedScore;
         }
         const score = sectionQuestion.options.filter((o) => o.answered).reduce((a, b) => a + b.score, 0);
-        return Math.max(0, score);
+        const minScore = sectionQuestion.negativeScoreAllowed ? score : 0;
+        return Math.max(minScore, score);
     };
 
     // For non-weighted mcq
@@ -89,7 +99,6 @@ export class QuestionScoringService {
         if (answered.length !== 1) {
             console.error('multiple options selected for a MultiChoice answer!');
         }
-
         return answered[0].option.correctOption ? sectionQuestion.maxScore : 0;
     };
 
@@ -138,8 +147,16 @@ export class QuestionScoringService {
         }
     };
 
-    calculateWeightedMaxPoints = (options: ExamSectionQuestionOption[]): number => {
-        const points = options.filter((o) => o.score > 0).reduce((a, b) => a + b.score, 0);
+    calculateWeightedMaxPoints = (question: ExamSectionQuestion): number => {
+        const points = question.options.filter((o) => o.score > 0).reduce((a, b) => a + b.score, 0);
+        return parseFloat(points.toFixed(2));
+    };
+
+    calculateWeightedMinPoints = (question: ExamSectionQuestion): number => {
+        if (!question.negativeScoreAllowed) {
+            return 0;
+        }
+        const points = question.options.filter((o) => o.score < 0).reduce((a, b) => a + b.score, 0);
         return parseFloat(points.toFixed(2));
     };
 
@@ -158,7 +175,7 @@ export class QuestionScoringService {
             return question.maxScore;
         }
         if (type === 'WeightedMultipleChoiceQuestion') {
-            return this.calculateWeightedMaxPoints(question.options);
+            return this.calculateWeightedMaxPoints(question);
         }
         if (type === 'ClaimChoiceQuestion') {
             return this.getCorrectClaimChoiceOptionScore(question);
