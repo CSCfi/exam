@@ -533,7 +533,7 @@
     "i18n_exam_aborted": "Keskeytit tenttisi, jolloin suoritus ei siirry arvioitavaksi.",
     "i18n_log_out_will_commence": "Sinut kirjataan hetken kuluttua ulos järjestelmästä.",
     "i18n_exam_teachers": "Tentaattorit",
-    "i18n_exam_endtime": "Suoritusaika",
+    "i18n_exam_endtime": "Suorituspäivä",
     "i18n_exam_contains_unnamed_sections": "Kaikilla tentin aihealueilla ei ole nimiä",
     "i18n_users": "Käyttäjät",
     "i18n_user_administration": "Käyttäjien hallinta",
