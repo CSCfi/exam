@@ -1248,5 +1248,6 @@
     "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen.",
     "i18n_point_graded": "Pisteytetty arviointi",
     "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan.",
-    "i18n_assessment_date": "Arviointipäivä"
+    "i18n_assessment_date": "Arviointipäivä",
+    "i18n_download_report_excel": "Lataa raportti kysymyskohtaisista pisteistä (Excel)"
 }
