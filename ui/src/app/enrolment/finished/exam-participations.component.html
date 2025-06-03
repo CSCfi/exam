@@ -53,7 +53,23 @@ SPDX-License-Identifier: EUPL-1.2
         }
         <div class="col-8" ngbDropdown>
             <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
-                {{ 'i18n_set_ordering' | translate }}
+                {{ 'i18n_set_ordering' | translate }}:
+                @switch (filter.ordering) {
+                    @case ('exam.name') {
+                        {{ (filter.reverse ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending') | translate }}
+                    }
+                    @case ('ended') {
+                        {{
+                            (filter.reverse
+                                ? 'i18n_exam_participation_ascending'
+                                : 'i18n_exam_participation_descending'
+                            ) | translate
+                        }}
+                    }
+                    @default {
+                        <!-- empty -->
+                    }
+                }
             </button>
             <div ngbDropdownMenu role="menu">
                 <button
