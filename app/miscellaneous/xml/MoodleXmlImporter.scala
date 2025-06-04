@@ -8,4 +8,10 @@ import models.questions.Question
 import models.user.User
 
 trait MoodleXmlImporter:
-  def convert(questions: String, user: User): Seq[Question]
+  case class ConversionResult(
+      question: Option[Question] = None,
+      error: Option[String] = None,
+      questionType: Option[String] = None
+  )
+
+  def convert(questions: String, user: User): (Seq[Question], Seq[ConversionResult])
