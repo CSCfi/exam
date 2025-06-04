@@ -1249,5 +1249,8 @@
     "i18n_point_graded": "Pisteytetty arviointi",
     "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan.",
     "i18n_assessment_date": "Arviointipäivä",
-    "i18n_download_report_excel": "Lataa raportti kysymyskohtaisista pisteistä (Excel)"
+    "i18n_download_report_excel": "Lataa raportti kysymyskohtaisista pisteistä (Excel)",
+    "i18n_allow_negative_score": "Salli negatiivinen kokonaispistemäärä",
+    "i18n_weighted_multiple_choice_description": "Monivalintakysymyksen kuvaus...",
+    "i18n_min_score": "Minimipisteet"
 }

@@ -447,6 +447,7 @@ question-weighted-multiple-choice:
       question: Kumpi vai kampi
       creator: *olli
       created: 2014-01-18 12:30:05.123
+      defaultNegativeScoreAllowed: true
       options:
           - &kampi !!models.questions.MultipleChoiceOption {option: Kampi, defaultScore: 1}
           - &kumpi !!models.questions.MultipleChoiceOption {option: Kumpi, defaultScore: 1}
@@ -1209,6 +1210,7 @@ section-questions:
     examSection: *osio2
     question: *weighted1
     sequenceNumber: 2
+    negativeScoreAllowed: true
     options:
       - !!models.sections.ExamSectionQuestionOption {option: *kumpi, score: 2}
       - !!models.sections.ExamSectionQuestionOption {option: *kampi, score: 2}
@@ -1218,6 +1220,7 @@ section-questions:
     examSection: *claimsection
     question: *claim1
     sequenceNumber: 0
+    negativeScoreAllowed: true
     options:
       - !!models.sections.ExamSectionQuestionOption {option: *tosi, score: -1}
       - !!models.sections.ExamSectionQuestionOption {option: *epatosi, score: 1}

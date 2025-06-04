@@ -246,9 +246,10 @@ export class ExamService {
 
     getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
 
-    getTotalScore = (exam: SectionContainer): string => {
+    getTotalScore = (exam: SectionContainer): number => {
         const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalNumericScore(es), 0).toFixed(2);
-        return parseFloat(score) > 0 ? score : '0';
+        // total score cannot be negative as for now
+        return Math.max(0, parseFloat(score) > 0 ? parseFloat(score) : 0);
     };
 
     getSectionTotalNumericScore = (section: ExamSection): number => {

@@ -195,6 +195,11 @@ public class QuestionController extends BaseController implements SectionQuestio
             null
         );
         String defaultCriteria = SanitizingHelper.parse("defaultEvaluationCriteria", node, String.class).orElse(null);
+        boolean defaultNegativeScoreAllowed = SanitizingHelper.parse(
+            "defaultNegativeScoreAllowed",
+            node,
+            Boolean.class
+        ).orElse(false);
         Question.Type type = SanitizingHelper.parseEnum("type", node, Question.Type.class).orElse(null);
 
         Question question = existing == null ? new Question() : existing;
@@ -205,6 +210,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         question.setDefaultEvaluationType(defaultEvaluationType);
         question.setDefaultAnswerInstructions(defaultInstructions);
         question.setDefaultEvaluationCriteria(defaultCriteria);
+        question.setDefaultNegativeScoreAllowed(defaultNegativeScoreAllowed);
         if (question.getState() == null || !question.getState().equals(QuestionState.DELETED.toString())) {
             question.setState(QuestionState.SAVED.toString());
         }
