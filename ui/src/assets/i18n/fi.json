@@ -1250,5 +1250,6 @@
     "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan.",
     "i18n_allow_negative_score": "Salli negatiivinen kokonaispistemäärä",
     "i18n_weighted_multiple_choice_description": "Monivalintakysymyksen kuvaus...",
-    "i18n_min_score": "Minimipisteet"
+    "i18n_min_score": "Minimipisteet",
+    "i18n_questions_imported_with_errors": "Kaikkia kysymyksiä ei voitu tuoda virheiden takia. Virheellisten kysymysten määrä:"
 }

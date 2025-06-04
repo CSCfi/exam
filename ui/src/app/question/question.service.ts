@@ -9,6 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SessionService } from 'src/app/session/session.service';
+import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import {
@@ -79,13 +80,12 @@ export class QuestionService {
                 next: (response) => {
                     this.toast.info(this.translate.instant('i18n_question_added'));
                     if (question.attachment && question.attachment.file && question.attachment.modified) {
-                        this.Files.upload(
-                            '/app/attachment/question',
-                            question.attachment.file,
-                            { questionId: response.id.toString() },
-                            question,
-                            () => resolve(response),
-                        );
+                        this.Files.upload<Attachment>('/app/attachment/question', question.attachment.file, {
+                            questionId: response.id.toString(),
+                        }).then((resp) => {
+                            question.attachment = resp;
+                            resolve(response);
+                        });
                     } else {
                         resolve(response);
                     }
@@ -101,13 +101,12 @@ export class QuestionService {
             this.http.put<Question>(this.questionsApi(question.id), body).subscribe((response) => {
                 this.toast.info(this.translate.instant('i18n_question_saved'));
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
-                    this.Files.upload(
-                        '/app/attachment/question',
-                        question.attachment.file,
-                        { questionId: question.id.toString() },
-                        question,
-                        () => resolve,
-                    );
+                    this.Files.upload<Attachment>('/app/attachment/question', question.attachment.file, {
+                        questionId: question.id.toString(),
+                    }).then((resp) => {
+                        question.attachment = resp;
+                        resolve(response);
+                    });
                 } else if (question.attachment && question.attachment.removed) {
                     this.Attachment.eraseQuestionAttachment(question).then(function () {
                         resolve(response);
@@ -151,13 +150,12 @@ export class QuestionService {
                 map((response) => {
                     Object.assign(response.question, question);
                     if (question.attachment && question.attachment.modified && question.attachment.file) {
-                        this.Files.upload(
-                            '/app/attachment/question',
-                            question.attachment.file,
-                            { questionId: question.id.toString() },
-                            question,
-                            () => (response.question.attachment = question.attachment),
-                        );
+                        this.Files.upload<Attachment>('/app/attachment/question', question.attachment.file, {
+                            questionId: question.id.toString(),
+                        }).then((resp) => {
+                            question.attachment = resp;
+                            response.question.attachment = question.attachment;
+                        });
                     } else if (question.attachment && question.attachment.removed) {
                         this.Attachment.eraseQuestionAttachment(question).then(() => {
                             delete response.question.attachment;

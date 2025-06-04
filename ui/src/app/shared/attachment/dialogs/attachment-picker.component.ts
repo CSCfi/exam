@@ -82,7 +82,7 @@ export class AttachmentSelectorComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.Files.getMaxFilesize().then((data) => (this.maxFileSize = data.filesize));
+        this.Files.getMaxFilesize$().subscribe((data) => (this.maxFileSize = data.filesize));
     }
 
     confirmed() {

@@ -1243,7 +1243,6 @@
     "i18n_minor_agreement_update": "Change that does not need to be communicated to users",
     "i18n_exam_reservation_canceled": "Exam reservation cancelled",
     "i18n_confirm_delete_exam_reservation": "Do you want to delete the exam reservation?",
-    "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille EN",
     "i18n_error_disallowed_login_with_external_domain_credentials": "Kirjautuminen ulkopuolisen organisaation tunnuksilla ei sallittu EN",
     "i18n_external_organisation_login": "Olet kirjautumassa ulkopuolisen organisaation tunnuksella EN ",
     "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen. EN",
@@ -1251,5 +1250,6 @@
     "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan. EN",
     "i18n_allow_negative_score": "Salli negatiivinen kokonaispistemäärä EN",
     "i18n_weighted_multiple_choice_description": "Monivalintakysymyksen kuvaus... EN",
-    "i18n_min_score": "Minimipisteet EN"
+    "i18n_min_score": "Minimipisteet EN",
+    "i18n_questions_imported_with_errors": "All questions could not be imported due to errors. Number of erroneous questions:EN"
 }
