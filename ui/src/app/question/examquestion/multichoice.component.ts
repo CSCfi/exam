@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, input, model, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { ExamSectionQuestionOption } from 'src/app/question/question.model';
+import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question/question.model';
 
 @Component({
     selector: 'xm-eq-unweighted-mc',
@@ -18,7 +18,25 @@ import { ExamSectionQuestionOption } from 'src/app/question/question.model';
     styleUrls: ['../question.shared.scss'],
     template: `
         <div ngModelGroup="unweightedMc" id="unweightedMc">
-            @for (option of options(); track option.id; let index = $index) {
+            <div class="row my-2">
+                <div class="col-md-12">
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            name="optionShuffling"
+                            type="checkbox"
+                            [(ngModel)]="question().optionShufflingOn"
+                            (ngModelChange)="updateShufflingSetting($event)"
+                            id="optionShuffling"
+                        />
+                        <label class="form-check-label" for="optionShuffling">{{
+                            'i18n_shuffle_options' | translate
+                        }}</label>
+                    </div>
+                </div>
+            </div>
+
+            @for (option of question().options; track option.id; let index = $index) {
                 <div class="row">
                     <div
                         class="col-md-6 question-option-empty"
@@ -74,10 +92,11 @@ import { ExamSectionQuestionOption } from 'src/app/question/question.model';
     `,
 })
 export class MultiChoiceComponent {
-    options = input<ExamSectionQuestionOption[]>([]);
+    question = model.required<ExamSectionQuestion>();
     lotteryOn = input(false);
     isInPublishedExam = input(false);
     optionsChanged = output<ExamSectionQuestionOption[]>();
+    shufflingSettingChanged = output<boolean>();
 
     constructor(
         private TranslateService: TranslateService,
@@ -85,19 +104,24 @@ export class MultiChoiceComponent {
     ) {}
 
     updateCorrectAnswer = (index: number) => {
-        const status = !this.options()[index].option.correctOption;
-        const newOption = { ...this.options()[index].option, correctOption: status };
-        const next = this.options();
+        const status = !this.question().options[index].option.correctOption;
+        const newOption = { ...this.question().options[index].option, correctOption: status };
+        const next = this.question().options;
         next[index].option = newOption;
         next.filter((o, i) => i != index).forEach((o) => (o.option.correctOption = false));
         this.optionsChanged.emit(next);
     };
 
     updateText = (text: string, index: number) => {
-        const newOption = { ...this.options()[index].option, option: text };
-        const next = this.options();
+        const newOption = { ...this.question().options[index].option, option: text };
+        const next = this.question().options;
         next[index].option = newOption;
         this.optionsChanged.emit(next);
+    };
+
+    updateShufflingSetting = (setting: boolean) => {
+        this.shufflingSettingChanged.emit(setting);
+        this.question.update((q) => ({ ...q, optionShufflingOn: setting }));
     };
 
     addNewOption = () => {
@@ -115,7 +139,7 @@ export class MultiChoiceComponent {
             score: 0,
             answered: false,
         };
-        this.optionsChanged.emit([...this.options(), newOption]);
+        this.optionsChanged.emit([...this.question().options, newOption]);
     };
 
     removeOption = (option: ExamSectionQuestionOption) => {
@@ -125,7 +149,7 @@ export class MultiChoiceComponent {
         }
 
         const hasCorrectAnswer =
-            this.options().filter(
+            this.question().options.filter(
                 (o) =>
                     o.id !== option.id &&
                     (o.option?.correctOption || (o.option?.defaultScore && o.option.defaultScore > 0)),
@@ -133,7 +157,7 @@ export class MultiChoiceComponent {
 
         // Either not published exam or correct answer exists
         if (!this.isInPublishedExam() || hasCorrectAnswer) {
-            this.optionsChanged.emit(this.options().filter((o) => o.id !== option.id));
+            this.optionsChanged.emit(this.question().options.filter((o) => o.id !== option.id));
         } else {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_minimum_options'));
         }
