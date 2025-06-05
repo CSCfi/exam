@@ -681,7 +681,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             // Shuffle question options before saving
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
                 Optional<Question.Type> type = Optional.ofNullable(esq.getQuestion()).map(Question::getType);
-                if (type.isPresent() && type.get() == Question.Type.ClaimChoiceQuestion) {
+                if (
+                    !esq.isOptionShufflingOn() || (type.isPresent() && type.get() == Question.Type.ClaimChoiceQuestion)
+                ) {
                     continue;
                 }
                 List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());

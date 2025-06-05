@@ -71,6 +71,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     private boolean negativeScoreAllowed;
 
     @Column
+    private boolean optionShufflingOn;
+
+    @Column
     private Double forcedScore;
 
     @Transient
@@ -151,6 +154,14 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     public void setNegativeScoreAllowed(boolean negativeScoreAllowed) {
         this.negativeScoreAllowed = negativeScoreAllowed;
+    }
+
+    public boolean isOptionShufflingOn() {
+        return optionShufflingOn;
+    }
+
+    public void setOptionShufflingOn(boolean optionShufflingOn) {
+        this.optionShufflingOn = optionShufflingOn;
     }
 
     public Double getDerivedMaxScore() {
@@ -281,7 +292,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             // associated with both question and exam section question options :)
             Map<Long, MultipleChoiceOption> optionMap;
 
-            if (question.getType() == Question.Type.ClaimChoiceQuestion) {
+            if (question.getType() == Question.Type.ClaimChoiceQuestion || !isOptionShufflingOn()) {
                 optionMap = new TreeMap<>();
             } else {
                 optionMap = new HashMap<>();

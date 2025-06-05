@@ -41,6 +41,22 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
                     </div>
                 </div>
             </div>
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            name="optionShuffling"
+                            type="checkbox"
+                            [(ngModel)]="question().optionShufflingOn"
+                            id="optionShuffling"
+                        />
+                        <label class="form-check-label" for="optionShuffling">{{
+                            'i18n_shuffle_options' | translate
+                        }}</label>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-6">
                     <span class="question-option-title">{{ 'i18n_option' | translate }}</span>

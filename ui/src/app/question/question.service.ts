@@ -66,6 +66,7 @@ export class QuestionService {
             state: 'NEW',
             tags: [],
             defaultNegativeScoreAllowed: false,
+            defaultOptionShufflingOn: true,
         };
     }
 
@@ -131,6 +132,7 @@ export class QuestionService {
             answerInstructions: sectionQuestion.answerInstructions,
             evaluationCriteria: sectionQuestion.evaluationCriteria,
             negativeScoreAllowed: sectionQuestion.negativeScoreAllowed,
+            optionShufflingOn: sectionQuestion.optionShufflingOn,
             options: sectionQuestion.options,
             question: question,
         };
@@ -309,6 +311,7 @@ export class QuestionService {
             defaultAnswerInstructions: question.defaultAnswerInstructions,
             defaultEvaluationCriteria: question.defaultEvaluationCriteria,
             defaultNegativeScoreAllowed: question.defaultNegativeScoreAllowed,
+            defaultOptionShufflingOn: question.defaultOptionShufflingOn,
             questionOwners: question.questionOwners,
             tags: question.tags,
             options: question.options,

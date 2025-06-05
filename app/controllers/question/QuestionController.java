@@ -200,6 +200,11 @@ public class QuestionController extends BaseController implements SectionQuestio
             node,
             Boolean.class
         ).orElse(false);
+        boolean defaultOptionShufflingOn = SanitizingHelper.parse(
+            "defaultOptionShufflingOn",
+            node,
+            Boolean.class
+        ).orElse(true);
         Question.Type type = SanitizingHelper.parseEnum("type", node, Question.Type.class).orElse(null);
 
         Question question = existing == null ? new Question() : existing;
@@ -211,6 +216,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         question.setDefaultAnswerInstructions(defaultInstructions);
         question.setDefaultEvaluationCriteria(defaultCriteria);
         question.setDefaultNegativeScoreAllowed(defaultNegativeScoreAllowed);
+        question.setDefaultOptionShufflingOn(defaultOptionShufflingOn);
         if (question.getState() == null || !question.getState().equals(QuestionState.DELETED.toString())) {
             question.setState(QuestionState.SAVED.toString());
         }
