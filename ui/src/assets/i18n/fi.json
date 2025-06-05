@@ -1253,5 +1253,6 @@
     "i18n_allow_negative_score": "Salli negatiivinen kokonaispistemäärä",
     "i18n_weighted_multiple_choice_description": "Monivalintakysymyksen kuvaus...",
     "i18n_min_score": "Minimipisteet",
-    "i18n_questions_imported_with_errors": "Kaikkia kysymyksiä ei voitu tuoda virheiden takia. Virheellisten kysymysten määrä:"
+    "i18n_questions_imported_with_errors": "Kaikkia kysymyksiä ei voitu tuoda virheiden takia. Virheellisten kysymysten määrä:",
+    "i18n_shuffle_options": "Sekoita vastausvaihtoehdot opiskelijaa varten"
 }
