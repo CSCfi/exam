@@ -1252,5 +1252,6 @@
     "i18n_download_report_excel": "Ladda ned rapport över poäng per fråga (Excel) SV",
     "i18n_allow_negative_score": "Salli negatiivinen kokonaispistemäärä SV",
     "i18n_weighted_multiple_choice_description": "Monivalintakysymyksen kuvaus... SV",
-    "i18n_min_score": "Minimipisteet SV"
+    "i18n_min_score": "Minimipisteet SV",
+    "i18n_questions_imported_with_errors": "Kaikkia kysymyksiä ei voitu tuoda virheiden takia. Virheellisten kysymysten määrä:SV"
 }

@@ -8,6 +8,7 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
+import { firstValueFrom, of, tap } from 'rxjs';
 import { EssayAnswer } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 
@@ -47,37 +48,28 @@ export class FileService {
             });
     }
 
-    getMaxFilesize(): Promise<{ filesize: number }> {
-        return new Promise((resolve, reject) => {
-            if (this.maxFileSize) {
-                resolve({ filesize: this.maxFileSize });
-            } else {
-                this.http.get<{ filesize: number }>('/app/settings/maxfilesize').subscribe({
-                    next: (resp) => {
-                        this.maxFileSize = resp.filesize;
-                        resolve(resp);
-                    },
-                    error: reject,
-                });
-            }
-        });
+    getMaxFilesize$() {
+        if (this.maxFileSize) {
+            return of({ filesize: this.maxFileSize });
+        }
+        return this.http
+            .get<{ filesize: number }>('/app/settings/maxfilesize')
+            .pipe(tap((resp) => (this.maxFileSize = resp.filesize)));
     }
 
-    upload(url: string, file: File, params: Record<string, string>, parent?: Container, callback?: () => void): void {
-        this.doUpload(url, file, params)
-            .then((resp) => {
-                if (parent) {
-                    parent.attachment = resp as Attachment;
-                }
-                if (callback) {
-                    callback();
-                }
-            })
-            .catch((resp) => this.toast.error(this.translate.instant(resp.data)));
+    async upload<A>(url: string, file: File, params: Record<string, string>): Promise<A> {
+        try {
+            return await this.doUpload<A>(url, file, params);
+        } catch (resp: unknown) {
+            if (resp && typeof resp === 'object' && 'data' in resp) {
+                this.toast.error(this.translate.instant((resp as { data: string }).data));
+            }
+            throw resp;
+        }
     }
 
     uploadAnswerAttachment(url: string, file: File, params: Record<string, string>, parent: Container): void {
-        this.doUpload(url, file, params)
+        this.doUpload<EssayAnswer>(url, file, params)
             .then((resp) => {
                 parent.objectVersion = resp.objectVersion;
                 parent.attachment = !this.isAttachment(resp) ? resp.attachment : resp;
@@ -88,48 +80,29 @@ export class FileService {
     private isAttachment = (obj: EssayAnswer | Attachment): obj is Attachment => obj.objectVersion === undefined;
 
     private saveFile(data: string, fileName: string, contentType: string) {
-        let blob: Blob;
         try {
-            const byteString = window.atob(data);
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
+            const binary = atob(data);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
             }
-            blob = new Blob([ia], { type: contentType });
+            const blob = new Blob([bytes], { type: contentType });
+            saveAs(blob, fileName, { autoBom: false });
         } catch {
-            // Maybe this isn't base64, try plaintext approaches
+            // Fallback for non-base64 data
             const text = contentType === 'application/json' ? JSON.stringify(data, null, 2) : data;
-            blob = new Blob([text], { type: contentType });
+            saveAs(new Blob([text], { type: contentType }), fileName, { autoBom: false });
         }
-        saveAs(blob, fileName, { autoBom: false });
     }
 
-    private isFileTooBig(file: File): boolean {
+    private async doUpload<A>(url: string, file: File, params: Record<string, string>): Promise<A> {
         if (file.size > this.maxFileSize) {
             this.toast.error(this.translate.instant('i18n_file_too_large'));
-            return true;
+            throw { data: 'i18n_file_too_large' };
         }
-        return false;
-    }
-
-    private doUpload(url: string, file: File, params: Record<string, string>): Promise<Attachment | EssayAnswer> {
-        return new Promise<Attachment | EssayAnswer>((resolve, reject) => {
-            if (this.isFileTooBig(file)) {
-                reject({ data: 'i18n_file_too_large' });
-            } else {
-                const fd = new FormData();
-                fd.append('file', file);
-                for (const k in params) {
-                    if (Object.prototype.hasOwnProperty.call(params, k)) {
-                        fd.append(k, params[k]);
-                    }
-                }
-                this.http.post<Attachment>(url, fd).subscribe({
-                    next: (resp) => resolve(resp),
-                    error: (resp) => reject(resp),
-                });
-            }
-        });
+        const formData = new FormData();
+        formData.append('file', file);
+        Object.entries(params).forEach(([key, value]) => formData.append(key, value));
+        return firstValueFrom(this.http.post<A>(url, formData));
     }
 }
