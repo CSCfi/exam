@@ -67,6 +67,10 @@ public interface CalendarHandler {
 
     DateTime normalizeMaintenanceTime(DateTime dateTime);
 
+    Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user, Collection<Long> sectionIds);
+
+    ExamEnrolment getEnrolment(Long examId, User user);
+
     class TimeSlot {
 
         Interval interval;

@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import miscellaneous.datetime.DateTimeHandler;
+import miscellaneous.user.UserHandler;
 import models.base.GeneratedIdentityModel;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.ExamParticipation;
@@ -45,17 +46,26 @@ import system.interceptors.Anonymous;
 
 public class ReservationController extends BaseController {
 
-    @Inject
-    protected EmailComposer emailComposer;
+    private final EmailComposer emailComposer;
+    private final CollaborativeExamLoader collaborativeExamLoader;
+    private final ExternalReservationHandler externalReservationHandler;
+    private final DateTimeHandler dateTimeHandler;
+    private final UserHandler userHandler;
 
     @Inject
-    protected CollaborativeExamLoader collaborativeExamLoader;
-
-    @Inject
-    protected ExternalReservationHandler externalReservationHandler;
-
-    @Inject
-    protected DateTimeHandler dateTimeHandler;
+    public ReservationController(
+        EmailComposer emailComposer,
+        CollaborativeExamLoader collaborativeExamLoader,
+        ExternalReservationHandler externalReservationHandler,
+        DateTimeHandler dateTimeHandler,
+        UserHandler userHandler
+    ) {
+        this.emailComposer = emailComposer;
+        this.collaborativeExamLoader = collaborativeExamLoader;
+        this.externalReservationHandler = externalReservationHandler;
+        this.dateTimeHandler = dateTimeHandler;
+        this.userHandler = userHandler;
+    }
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
@@ -113,7 +123,7 @@ public class ReservationController extends BaseController {
         var el = DB.find(User.class).where().eq("roles.name", "STUDENT");
         if (filter.isPresent()) {
             el = el.or().ilike("userIdentifier", String.format("%%%s%%", filter.get()));
-            el = applyUserFilter(null, el, filter.get()).endOr();
+            el = userHandler.applyNameSearch(null, el, filter.get()).endOr();
         }
         return ok(Json.toJson(asJson(el.findList())));
     }
@@ -122,7 +132,7 @@ public class ReservationController extends BaseController {
     public Result getTeachers(Optional<String> filter) {
         var el = DB.find(User.class).where().eq("roles.name", "TEACHER");
         if (filter.isPresent()) {
-            el = applyUserFilter(null, el.or(), filter.get()).endOr();
+            el = userHandler.applyNameSearch(null, el.or(), filter.get()).endOr();
         }
         return ok(Json.toJson(asJson(el.findList())));
     }

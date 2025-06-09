@@ -10,9 +10,11 @@ import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import controllers.calendar.CalendarController;
+import controllers.base.BaseController;
+import controllers.iop.transfer.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
 import impl.CalendarHandler;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.net.MalformedURLException;
@@ -56,19 +58,31 @@ import sanitizers.ExternalCalendarReservationSanitizer;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 
-public class ExternalCalendarController extends CalendarController {
+public class ExternalCalendarController extends BaseController {
+
+    private final WSClient wsClient;
+    private final CalendarHandler calendarHandler;
+    private final EmailComposer emailComposer;
+    private final ConfigReader configReader;
+    private final DateTimeHandler dateTimeHandler;
+    private final ExternalReservationHandler externalReservationHandler;
 
     @Inject
-    private WSClient wsClient;
-
-    @Inject
-    private CalendarHandler calendarHandler;
-
-    @Inject
-    private ConfigReader configReader;
-
-    @Inject
-    private DateTimeHandler dateTimeHandler;
+    public ExternalCalendarController(
+        WSClient wsClient,
+        CalendarHandler calendarHandler,
+        EmailComposer emailComposer,
+        ConfigReader configReader,
+        DateTimeHandler dateTimeHandler,
+        ExternalReservationHandler externalReservationHandler
+    ) {
+        this.wsClient = wsClient;
+        this.calendarHandler = calendarHandler;
+        this.emailComposer = emailComposer;
+        this.configReader = configReader;
+        this.dateTimeHandler = dateTimeHandler;
+        this.externalReservationHandler = externalReservationHandler;
+    }
 
     private URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
         throws MalformedURLException {
@@ -291,7 +305,7 @@ public class ExternalCalendarController extends CalendarController {
             return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
         }
         ExamEnrolment enrolment = oe.get();
-        Optional<Result> error = checkEnrolment(enrolment, user, sectionIds);
+        Optional<Result> error = calendarHandler.checkEnrolment(enrolment, user, sectionIds);
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }
@@ -396,7 +410,7 @@ public class ExternalCalendarController extends CalendarController {
         if (org.isPresent() && date.isPresent()) {
             // First check that exam exists
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            ExamEnrolment ee = getEnrolment(examId, user);
+            ExamEnrolment ee = calendarHandler.getEnrolment(examId, user);
             // For now do not allow making an external reservation for collaborative exam
             if (ee == null || ee.getCollaborativeExam() != null) {
                 return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));

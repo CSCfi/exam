@@ -17,6 +17,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
 import miscellaneous.datetime.DateTimeHandler;
+import miscellaneous.enrolment.EnrolmentHandler;
 import models.enrolment.ExamEnrolment;
 import models.exam.Exam;
 import models.exam.ExamExecutionType;
@@ -35,10 +36,12 @@ import security.Authenticated;
 public class CollaborativeEnrolmentController extends CollaborationController {
 
     private final DateTimeHandler dateTimeHandler;
+    private final EnrolmentHandler enrolmentHandler;
 
     @Inject
-    public CollaborativeEnrolmentController(DateTimeHandler dateTimeHandler) {
+    public CollaborativeEnrolmentController(DateTimeHandler dateTimeHandler, EnrolmentHandler enrolmentHandler) {
         this.dateTimeHandler = dateTimeHandler;
+        this.enrolmentHandler = enrolmentHandler;
     }
 
     private final Logger logger = LoggerFactory.getLogger(CollaborativeEnrolmentController.class);
@@ -63,7 +66,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         if (exam == null || !isEnrollable(exam, homeOrg)) {
             return Either.left(notFound("i18n_error_exam_not_found"));
         }
-        if (!isAllowedToParticipate(exam, user)) {
+        if (!enrolmentHandler.isAllowedToParticipate(exam, user)) {
             return Either.left(forbidden("i18n_no_trials_left"));
         }
         return Either.right(exam);
@@ -210,7 +213,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
             if (!isEnrollable(exam, homeOrg)) {
                 return notFound("i18n_error_exam_not_found");
             }
-            if (isAllowedToParticipate(exam, user)) {
+            if (enrolmentHandler.isAllowedToParticipate(exam, user)) {
                 return doCreateEnrolment(ce, user);
             }
             return forbidden();

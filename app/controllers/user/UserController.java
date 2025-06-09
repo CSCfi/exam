@@ -6,8 +6,6 @@ package controllers.user;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
@@ -17,7 +15,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import models.assessment.ExamInspection;
+import javax.inject.Inject;
+import miscellaneous.user.UserHandler;
 import models.enrolment.ExamEnrolment;
 import models.questions.Question;
 import models.user.Language;
@@ -25,7 +24,6 @@ import models.user.Permission;
 import models.user.Role;
 import models.user.User;
 import play.data.DynamicForm;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -35,6 +33,13 @@ import security.Authenticated;
 import validators.JsonValidator;
 
 public class UserController extends BaseController {
+
+    private final UserHandler userHandler;
+
+    @Inject
+    public UserController(UserHandler userHandler) {
+        this.userHandler = userHandler;
+    }
 
     @Restrict({ @Group("ADMIN") })
     public Result listPermissions() {
@@ -83,14 +88,14 @@ public class UserController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN") })
-    public Result findUsers(Optional<String> filter) {
+    public Result listUsers(Optional<String> filter) {
         PathProperties pp = PathProperties.parse("(*, roles(*), permissions(*))");
         Query<User> query = DB.find(User.class);
         pp.apply(query);
         List<User> results;
         if (filter.isPresent()) {
             ExpressionList<User> el = query.where().disjunction();
-            el = applyUserFilter(null, el, filter.get());
+            el = userHandler.applyNameSearch(null, el, filter.get());
             String condition = String.format("%%%s%%", filter.get());
             results = el
                 .ilike("email", condition)
@@ -140,50 +145,16 @@ public class UserController extends BaseController {
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
-    public Result getUsersByRole(String role) {
+    public Result listUsersByRole(String role) {
         PathProperties pp = PathProperties.parse("(*, roles(*), permissions(*))");
         List<User> users = DB.find(User.class).where().eq("roles.name", role).orderBy("lastName").findList();
         return ok(users, pp);
     }
 
-    private static ArrayNode asArray(List<User> users) {
-        ArrayNode array = Json.newArray();
-        array.addAll(
-            users
-                .stream()
-                .map(u -> {
-                    ObjectNode part = Json.newObject();
-                    part.put("id", u.getId());
-                    String uid = u.getUserIdentifier();
-                    String uidString = uid != null && !uid.isEmpty()
-                        ? String.format(" (%s)", u.getUserIdentifier())
-                        : "";
-                    part.put("name", String.format("%s %s%s", u.getFirstName(), u.getLastName(), uidString));
-                    part.put("firstName", u.getFirstName());
-                    part.put("lastName", u.getLastName());
-                    part.put("email", u.getEmail());
-                    return part;
-                })
-                .toList()
-        );
-        return array;
-    }
-
-    private List<User> findUsersByRoleAndName(String role, String nameFilter) {
-        ExpressionList<User> el = DB.find(User.class).where().eq("roles.name", role).disjunction();
-        el = applyUserFilter(null, el, nameFilter);
-        return el.endJunction().findList();
-    }
-
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
-    public Result getQuestionOwnersByRoleFilter(
-        String role,
-        String criteria,
-        Optional<Long> qid,
-        Http.Request request
-    ) {
-        List<User> users = findUsersByRoleAndName(role, criteria);
+    public Result listQuestionOwners(String role, String criteria, Optional<Long> qid, Http.Request request) {
+        List<User> users = listUsersByRoleAndName(role, criteria);
         Set<User> owners = new HashSet<>();
         owners.add(request.attrs().get(Attrs.AUTHENTICATED_USER));
         if (qid.isPresent()) {
@@ -194,21 +165,20 @@ public class UserController extends BaseController {
             owners.addAll(question.getQuestionOwners());
         }
         users.removeAll(owners);
-        return ok(Json.toJson(asArray(users)));
+        return ok(users);
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
-    public Result getExamInspectorsByRoleFilter(String role, Long eid, String criteria) {
-        List<User> users = findUsersByRoleAndName(role, criteria);
-        return ok(Json.toJson(asArray(users)));
+    public Result listTeachers(String criteria) {
+        return ok(listUsersByRoleAndName(Role.Name.TEACHER.toString(), criteria));
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
-    public Result getUnenrolledStudents(Long eid, String criteria) {
+    public Result listUnenrolledStudents(Long eid, String criteria) {
         List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class).where().eq("exam.id", eid).findList();
-        List<User> users = findUsersByRoleAndName("STUDENT", criteria);
+        List<User> users = listUsersByRoleAndName("STUDENT", criteria);
         users.removeAll(enrolments.stream().map((ExamEnrolment::getUser)).toList());
-        return ok(Json.toJson(asArray(users)));
+        return ok(users);
     }
 
     @Authenticated
@@ -244,5 +214,11 @@ public class UserController extends BaseController {
         user.setLanguage(language);
         user.update();
         return ok();
+    }
+
+    private List<User> listUsersByRoleAndName(String role, String nameFilter) {
+        ExpressionList<User> el = DB.find(User.class).where().eq("roles.name", role).disjunction();
+        el = userHandler.applyNameSearch(null, el, nameFilter);
+        return el.endJunction().findList();
     }
 }

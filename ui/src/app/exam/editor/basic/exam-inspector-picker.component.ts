@@ -15,6 +15,7 @@ import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
 import type { Exam, ExamInspection } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
+import { UserService } from 'src/app/shared/user/user.service';
 
 @Component({
     selector: 'xm-exam-inspector-picker',
@@ -38,6 +39,7 @@ export class ExamInspectorSelectorComponent implements OnInit {
     constructor(
         private http: HttpClient,
         private toast: ToastrService,
+        private User: UserService,
     ) {
         this.newInspector = {};
     }
@@ -52,9 +54,7 @@ export class ExamInspectorSelectorComponent implements OnInit {
             debounceTime(500),
             distinctUntilChanged(),
             exhaustMap((text) =>
-                text.length < 2
-                    ? of([])
-                    : this.http.get<User[]>(`/app/users/filter/TEACHER/${this.exam.id}`, { params: { q: text } }),
+                text.length < 2 ? of([]) : this.http.get<User[]>(`/app/users/teachers`, { params: { q: text } }),
             ),
             take(15),
             catchError((err) => {
@@ -63,7 +63,7 @@ export class ExamInspectorSelectorComponent implements OnInit {
             }),
         );
 
-    nameFormatter = (data: { name: string; email: string }) => `${data.name} ${data.email}`;
+    nameFormatter = (data: User) => `${data.firstName} ${data.lastName} <${data.email}>`;
 
     setInspector = (event: NgbTypeaheadSelectItemEvent) => (this.newInspector.id = event.item.id);
 

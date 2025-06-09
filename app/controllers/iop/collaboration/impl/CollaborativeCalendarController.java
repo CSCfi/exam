@@ -20,6 +20,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import miscellaneous.datetime.DateTimeHandler;
+import miscellaneous.enrolment.EnrolmentHandler;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.Reservation;
 import models.exam.Exam;
@@ -54,6 +55,9 @@ public class CollaborativeCalendarController extends CollaborationController {
     @Inject
     DateTimeHandler dateTimeHandler;
 
+    @Inject
+    EnrolmentHandler enrolmentHandler;
+
     private final Logger logger = LoggerFactory.getLogger(CollaborativeCalendarController.class);
 
     @Restrict({ @Group("STUDENT") })
@@ -84,7 +88,7 @@ public class CollaborativeCalendarController extends CollaborationController {
         // No previous reservation or it's in the future
         // If no previous reservation, check if allowed to participate. This check is skipped if user already
         // has a reservation to this exam so that change of reservation is always possible.
-        if (oldReservation == null && !isAllowedToParticipate(exam, user)) {
+        if (oldReservation == null && !enrolmentHandler.isAllowedToParticipate(exam, user)) {
             return Optional.of(forbidden("i18n_no_trials_left"));
         }
         return Optional.empty();

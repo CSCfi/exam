@@ -9,7 +9,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import impl.ExamUpdater;
-import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
@@ -24,6 +23,7 @@ import java.util.TreeSet;
 import javax.inject.Inject;
 import miscellaneous.config.ByodConfigHandler;
 import miscellaneous.config.ConfigReader;
+import miscellaneous.user.UserHandler;
 import models.exam.Course;
 import models.exam.Exam;
 import models.exam.ExamExecutionType;
@@ -37,7 +37,6 @@ import models.user.Language;
 import models.user.Permission;
 import models.user.Role;
 import models.user.User;
-import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.Json;
@@ -51,29 +50,22 @@ import system.interceptors.Anonymous;
 
 public class ExamController extends BaseController {
 
-    protected final EmailComposer emailComposer;
-
-    protected final ActorSystem actor;
-
     private final ExamUpdater examUpdater;
-
     private final ConfigReader configReader;
-
     private final ByodConfigHandler byodConfigHandler;
+    private final UserHandler userHandler;
 
     @Inject
     public ExamController(
-        EmailComposer emailComposer,
-        ActorSystem actor,
         ExamUpdater examUpdater,
         ConfigReader configReader,
-        ByodConfigHandler byodConfigHandler
+        ByodConfigHandler byodConfigHandler,
+        UserHandler userHandler
     ) {
-        this.emailComposer = emailComposer;
-        this.actor = actor;
         this.examUpdater = examUpdater;
         this.configReader = configReader;
         this.byodConfigHandler = byodConfigHandler;
+        this.userHandler = userHandler;
     }
 
     private static ExpressionList<Exam> createPrototypeQuery() {
@@ -97,7 +89,7 @@ public class ExamController extends BaseController {
         ExpressionList<Exam> query = createPrototypeQuery();
         if (filter != null) {
             query = query.disjunction();
-            query = applyUserFilter("examOwners", query, filter);
+            query = userHandler.applyNameSearch("examOwners", query, filter);
             String condition = String.format("%%%s%%", filter);
             query = query.ilike("name", condition).ilike("course.code", condition).endJunction();
         }

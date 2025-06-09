@@ -30,6 +30,7 @@ import miscellaneous.config.ByodConfigHandler;
 import miscellaneous.config.ConfigReader;
 import miscellaneous.excel.ExcelBuilder;
 import miscellaneous.file.FileHandler;
+import miscellaneous.user.UserHandler;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.ExamParticipation;
 import models.enrolment.ExaminationEventConfiguration;
@@ -58,6 +59,7 @@ public class StudentActionsController extends CollaborationController {
     private final ExternalCourseHandler externalCourseHandler;
     private final EnrolmentRepository enrolmentRepository;
     private final ByodConfigHandler byodConfigHandler;
+    private final UserHandler userHandler;
     private final FileHandler fileHandler;
     private final ExcelBuilder excelBuilder;
     private final MessagesApi messagesApi;
@@ -70,6 +72,7 @@ public class StudentActionsController extends CollaborationController {
         EnrolmentRepository enrolmentRepository,
         ConfigReader configReader,
         ByodConfigHandler byodConfigHandler,
+        UserHandler userHandler,
         FileHandler fileHandler,
         ExcelBuilder excelBuilder,
         MessagesApi messagesApi
@@ -78,6 +81,7 @@ public class StudentActionsController extends CollaborationController {
         this.externalCourseHandler = courseHandler;
         this.enrolmentRepository = enrolmentRepository;
         this.byodConfigHandler = byodConfigHandler;
+        this.userHandler = userHandler;
         this.fileHandler = fileHandler;
         this.excelBuilder = excelBuilder;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
@@ -406,8 +410,8 @@ public class StudentActionsController extends CollaborationController {
         if (filter != null) {
             String condition = String.format("%%%s%%", filter);
             query = query.disjunction();
-            applyUserFilter("examOwners", query, filter);
-            applyUserFilter("examInspections.user", query, filter);
+            query = userHandler.applyNameSearch("examOwners", query, filter);
+            query = userHandler.applyNameSearch("examInspections.user", query, filter);
             query = query
                 .ilike("name", condition)
                 .ilike("course.code", condition)
