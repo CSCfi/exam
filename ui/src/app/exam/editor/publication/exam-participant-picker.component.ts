@@ -20,7 +20,8 @@ import type { User } from 'src/app/session/session.model';
 
 @Component({
     selector: 'xm-exam-participant-selector',
-    template: ` <div class="row">
+    template: `
+        <div class="row">
             <div class="col-md-9 offset-md-3">
                 <input
                     type="text"
@@ -47,48 +48,49 @@ import type { User } from 'src/app/session/session.model';
                     {{ 'i18n_exam_not_published' | translate }}
                 }
             </span>
-            @if (exam.examEnrolments.length > 0) {
-                <span class="row mt-3 w-auto">
-                    {{ 'i18n_exam_participants' | translate }}:
-                    <!-- Students not having finished the exam, sorted alphabetically -->
-                    @for (enrolment of exam.examEnrolments; track enrolment) {
-                        <div class="ms-1 row" [ngClass]="{ 'hover-grey': exam.state !== 'PUBLISHED' }">
-                            <div class="ms-1 col-8">
-                                {{ renderParticipantLabel(enrolment) }}
-                                @if (enrolment.user?.userIdentifier) {
-                                    ({{ enrolment.user.userIdentifier }})
-                                }
-                            </div>
-                            <!-- Remove button -->
-                            <button
-                                class="btn btn-danger btn-sm ms-1 w-auto m-1"
-                                (click)="removeParticipant(enrolment.id)"
-                                [hidden]="exam.state === 'PUBLISHED'"
-                                [attr.aria-label]="renderParticipantLabel(enrolment)"
-                            >
-                                {{ 'i18n_remove' | translate }}
-                            </button>
-                        </div>
-                    }
-                </span>
+        </div>
+        @if (exam.examEnrolments.length > 0) {
+            <div class="row mt-3">
+                <div class="col-md-12">{{ 'i18n_exam_participants' | translate }}:</div>
+            </div>
+            <!-- Students not having finished the exam, sorted alphabetically -->
+            @for (enrolment of exam.examEnrolments; track enrolment) {
+                <div class="row" [ngClass]="{ 'hover-grey': exam.state !== 'PUBLISHED' }">
+                    <div class="col-md-12">
+                        &hyphen; {{ renderParticipantLabel(enrolment) }} <small><{{ enrolment.user?.email }}></small>
+                        @if (enrolment.user?.userIdentifier) {
+                            <small> ({{ enrolment.user.userIdentifier }})</small>
+                        }
+                        <button
+                            class="btn btn-danger btn-sm ms-1 w-auto m-1"
+                            (click)="removeParticipant(enrolment.id)"
+                            [hidden]="exam.state === 'PUBLISHED'"
+                            [attr.aria-label]="renderParticipantLabel(enrolment)"
+                        >
+                            {{ 'i18n_remove' | translate }}
+                        </button>
+                    </div>
+                </div>
             }
-            @if (participants.length > 0) {
-                <span class="row col-md-9 mt-3">
-                    {{ 'i18n_finished_exam_participants' | translate }}:
-                    <!-- Students that have finished the exam -->
-                    @for (participant of participants; track participant) {
-                        <div class="ms-1 row">
-                            <div class="ms-1">
-                                {{ participant.firstName }} {{ participant.lastName }}
-                                @if (participant.userIdentifier) {
-                                    ({{ participant.userIdentifier }})
-                                }
-                            </div>
-                        </div>
-                    }
-                </span>
+        }
+        @if (participants.length > 0) {
+            <div class="row mt-3">
+                <div class="col-md-12">{{ 'i18n_finished_exam_participants' | translate }}:</div>
+            </div>
+            <!-- Students that have finished the exam -->
+            @for (participant of participants; track participant) {
+                <div class="row">
+                    <div class="col-md-12">
+                        &hyphen; {{ participant.firstName }} {{ participant.lastName }}
+                        <small><{{ participant.email }}></small>
+                        @if (participant.userIdentifier) {
+                            ({{ participant.userIdentifier }})
+                        }
+                    </div>
+                </div>
             }
-        </div>`,
+        }
+    `,
     standalone: true,
     imports: [FormsModule, NgClass, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
@@ -122,8 +124,9 @@ export class ExamParticipantSelectorComponent implements OnInit {
         );
 
     idFormat = (u: User) => u.id;
-    nameFormat = (u: User & { name: string }) => {
-        return u.name;
+    nameFormat = (u: User) => {
+        const uid = u.userIdentifier ? ` (${u.userIdentifier})` : '';
+        return `${u.firstName} ${u.lastName} <${u.email}>${uid}`;
     };
 
     setExamParticipant = (event: NgbTypeaheadSelectItemEvent) => {

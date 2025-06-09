@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
-import miscellaneous.config.ConfigReader;
 import miscellaneous.datetime.DateTimeHandler;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.Reservation;
@@ -45,23 +44,26 @@ import security.Authenticated;
 
 public class CalendarController extends BaseController {
 
-    @Inject
-    protected CalendarHandler calendarHandler;
+    private final CalendarHandler calendarHandler;
+    private final EmailComposer emailComposer;
+    private final ActorSystem system;
+    private final DateTimeHandler dateTimeHandler;
+    private final ExternalReservationHandler externalReservationHandler;
 
     @Inject
-    protected EmailComposer emailComposer;
-
-    @Inject
-    protected ActorSystem system;
-
-    @Inject
-    protected ConfigReader configReader;
-
-    @Inject
-    protected DateTimeHandler dateTimeHandler;
-
-    @Inject
-    protected ExternalReservationHandler externalReservationHandler;
+    public CalendarController(
+        CalendarHandler calendarHandler,
+        EmailComposer emailComposer,
+        ActorSystem system,
+        DateTimeHandler dateTimeHandler,
+        ExternalReservationHandler externalReservationHandler
+    ) {
+        this.calendarHandler = calendarHandler;
+        this.emailComposer = emailComposer;
+        this.system = system;
+        this.dateTimeHandler = dateTimeHandler;
+        this.externalReservationHandler = externalReservationHandler;
+    }
 
     private final Logger logger = LoggerFactory.getLogger(CalendarController.class);
 
@@ -111,45 +113,6 @@ public class CalendarController extends BaseController {
                 system.dispatcher()
             );
         return ok();
-    }
-
-    protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user, Collection<Long> sectionIds) {
-        if (enrolment.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
-            return Optional.of(forbidden("SEB exam does not take reservations"));
-        }
-        // Removal not permitted if old reservation is in the past or if exam is already started
-        Reservation oldReservation = enrolment.getReservation();
-        if (
-            enrolment.getExam().getState() == Exam.State.STUDENT_STARTED ||
-            (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))
-        ) {
-            return Optional.of(forbidden("i18n_reservation_in_effect"));
-        }
-        // No previous reservation or it's in the future
-        // If no previous reservation, check if allowed to participate. This check is skipped if user already
-        // has a reservation to this exam so that change of reservation is always possible.
-        if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user)) {
-            return Optional.of(forbidden("i18n_no_trials_left"));
-        }
-        // Check that at least one section will end up in the exam
-        Set<ExamSection> sections = enrolment.getExam().getExamSections();
-        if (sections.stream().allMatch(ExamSection::isOptional)) {
-            if (sections.stream().noneMatch(es -> sectionIds.contains(es.getId()))) {
-                return Optional.of(forbidden("No optional sections selected. At least one needed"));
-            }
-        }
-        if (
-            oldReservation != null &&
-            oldReservation.getExternalRef() != null &&
-            !oldReservation.getStartAt().isAfter(dateTimeHandler.adjustDST(DateTime.now())) &&
-            !enrolment.isNoShow() &&
-            enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
-        ) {
-            // External reservation, assessment not returned yet. We must wait for it to arrive first
-            return Optional.of(forbidden("i18n_enrolment_assessment_not_received"));
-        }
-
-        return Optional.empty();
     }
 
     @Authenticated
@@ -204,7 +167,7 @@ public class CalendarController extends BaseController {
                 return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
             }
             ExamEnrolment enrolment = optionalEnrolment.get();
-            Optional<Result> badEnrolment = checkEnrolment(enrolment, user, sectionIds);
+            Optional<Result> badEnrolment = calendarHandler.checkEnrolment(enrolment, user, sectionIds);
             if (badEnrolment.isPresent()) {
                 return wrapAsPromise(badEnrolment.get());
             }
@@ -304,27 +267,12 @@ public class CalendarController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getSlots(Long examId, Long roomId, String day, Optional<List<Integer>> aids, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExamEnrolment ee = getEnrolment(examId, user);
+        ExamEnrolment ee = calendarHandler.getEnrolment(examId, user);
         // Sanity check so that we avoid accidentally getting reservations for SEB exams
         if (ee == null || ee.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return forbidden("i18n_error_enrolment_not_found");
         }
         List<Integer> accessibilityIds = aids.orElse(Collections.emptyList());
         return calendarHandler.getSlots(user, ee.getExam(), roomId, day, accessibilityIds);
-    }
-
-    protected ExamEnrolment getEnrolment(Long examId, User user) {
-        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        return DB.find(ExamEnrolment.class)
-            .fetch("exam")
-            .where()
-            .eq("user", user)
-            .eq("exam.id", examId)
-            .eq("exam.state", Exam.State.PUBLISHED)
-            .disjunction()
-            .isNull("reservation")
-            .gt("reservation.startAt", now.toDate())
-            .endJunction()
-            .findOne();
     }
 }
