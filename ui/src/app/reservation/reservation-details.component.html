@@ -81,7 +81,7 @@ SPDX-License-Identifier: EUPL-1.2
             @if (isAdminView) {
                 <th class="reservation-search wrap">{{ 'i18n_remove_reservation' | translate }}</th>
             }
-            @if (isAdminView) {
+            @if (isAdminView || isSupportView) {
                 <th class="reservation-search wrap">
                     {{ 'i18n_change_reservation_machine' | translate }}
                 </th>
@@ -132,7 +132,7 @@ SPDX-License-Identifier: EUPL-1.2
                             @if (
                                 !r.enrolment.collaborativeExam &&
                                 r.enrolment.exam.id &&
-                                (isAdminView || r.enrolment.exam.state !== 'ABORTED')
+                                (isAdminView || isSupportView || r.enrolment.exam.state !== 'ABORTED')
                             ) {
                                 <button
                                     class="btn btn-sm btn-outline-secondary"
@@ -240,7 +240,7 @@ SPDX-License-Identifier: EUPL-1.2
                         }
                     </td>
                 }
-                @if (isAdminView) {
+                @if (isAdminView || isSupportView) {
                     <td class="reservation-search">
                         @if (
                             r.enrolment.exam.state === 'PUBLISHED' &&

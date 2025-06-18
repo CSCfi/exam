@@ -1254,5 +1254,6 @@
     "i18n_weighted_multiple_choice_description": "Monivalintakysymyksen kuvaus... SV",
     "i18n_min_score": "Minimipisteet SV",
     "i18n_questions_imported_with_errors": "Kaikkia kysymyksiä ei voitu tuoda virheiden takia. Virheellisten kysymysten määrä:SV",
-    "i18n_shuffle_options": "Sekoita vastausvaihtoehdot opiskelijaa varten SV"
+    "i18n_shuffle_options": "Sekoita vastausvaihtoehdot opiskelijaa varten SV",
+    "i18n_support_person": "Tukihenkilö SV"
 }

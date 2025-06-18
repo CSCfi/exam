@@ -119,6 +119,8 @@ export class ReservationsComponent implements OnInit {
 
     isAdminView = () => this.user.isAdmin;
 
+    isSupportView = () => this.user.isSupport;
+
     studentSelected(event: NgbTypeaheadSelectItemEvent<User & { name: string }>) {
         this.student = event.item;
         this.query();

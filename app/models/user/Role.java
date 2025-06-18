@@ -15,6 +15,7 @@ public class Role extends GeneratedIdentityModel implements be.objectify.deadbol
         STUDENT,
         TEACHER,
         ADMIN,
+        SUPPORT,
     }
 
     private String name;

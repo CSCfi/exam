@@ -39,7 +39,7 @@ public class ExamInspectionController extends BaseController {
 
     @Authenticated
     @With(CommentSanitizer.class)
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result addInspection(Long eid, Long uid, Http.Request request) {
         User recipient = DB.find(User.class, uid);
         Exam exam = DB.find(Exam.class, eid);
@@ -47,7 +47,7 @@ public class ExamInspectionController extends BaseController {
             return notFound();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
+        if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) && !exam.isOwnedOrCreatedBy(user)) {
             return forbidden("i18n_error_access_forbidden");
         }
         if (isInspectorOf(recipient, exam)) {
@@ -101,7 +101,7 @@ public class ExamInspectionController extends BaseController {
         return exam.getExamInspections().stream().anyMatch(ei -> ei.getUser().equals(user));
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result getExamInspections(Long id) {
         Set<ExamInspection> inspections = DB.find(ExamInspection.class)
             .fetch("user", "id, email, firstName, lastName")
@@ -111,7 +111,7 @@ public class ExamInspectionController extends BaseController {
         return ok(inspections);
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result setInspectionOutcome(Long id, Http.Request request) {
         boolean ready = Boolean.parseBoolean(formFactory.form().bindFromRequest(request).get("ready"));
         ExamInspection inspection = DB.find(ExamInspection.class, id);
@@ -125,7 +125,7 @@ public class ExamInspectionController extends BaseController {
         return ok();
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result deleteInspection(Long id) {
         ExamInspection inspection = DB.find(ExamInspection.class, id);
         if (inspection == null) {
