@@ -1253,5 +1253,6 @@
     "i18n_weighted_multiple_choice_description": "Monivalintakysymyksen kuvaus... EN",
     "i18n_min_score": "Minimipisteet EN",
     "i18n_questions_imported_with_errors": "All questions could not be imported due to errors. Number of erroneous questions:EN",
-    "i18n_shuffle_options": "Sekoita vastausvaihtoehdot opiskelijaa varten EN"
+    "i18n_shuffle_options": "Sekoita vastausvaihtoehdot opiskelijaa varten EN",
+    "i18n_support_person": "Tukihenkilö EN"
 }

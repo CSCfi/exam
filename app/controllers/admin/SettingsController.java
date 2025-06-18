@@ -87,7 +87,7 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(gs));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
     public CompletionStage<Result> getMaturityInstructions(String lang, Optional<String> hash) throws IOException {
         Language language = DB.find(Language.class, lang);
         if (language == null) {
@@ -159,21 +159,21 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(gs));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
     public Result getHostname() {
         ObjectNode node = Json.newObject();
         node.put("hostname", configReader.getHostName());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
     public Result getMaxFilesize() {
         ObjectNode node = Json.newObject();
         node.put("filesize", configReader.getMaxFileSize());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     public Result getExamDurations() {
         ObjectNode node = Json.newObject();
         ArrayNode durations = node.putArray("examDurations");
@@ -181,21 +181,21 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(node));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     public Result getExamMaxDuration() {
         ObjectNode node = Json.newObject();
         node.put("maxDuration", configReader.getExamMaxDuration());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     public Result getExamMinDuration() {
         ObjectNode node = Json.newObject();
         node.put("minDuration", configReader.getExamMinDuration());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     public Result isExamGradeScaleOverridable() {
         ObjectNode node = Json.newObject();
         node.put("overridable", configReader.isCourseGradeScaleOverridable());
@@ -307,14 +307,14 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(node));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
     public Result getCourseCodePrefix() {
         ObjectNode node = Json.newObject();
         node.put("prefix", configReader.getCourseCodePrefix());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     public Result getByodMaxParticipants() {
         ObjectNode node = Json.newObject();
         node.put("max", configReader.getMaxByodExaminationParticipantCount());

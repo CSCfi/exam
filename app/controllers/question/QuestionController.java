@@ -68,7 +68,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result getQuestions(
         List<Long> examIds,
         List<Long> courseIds,
@@ -79,7 +79,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (
-            user.hasRole(Role.Name.ADMIN) &&
+            user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) &&
             Stream.of(examIds, courseIds, tagIds, sectionIds, ownerIds).allMatch(List::isEmpty)
         ) {
             return ok(Collections.emptySet());
@@ -133,7 +133,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result getQuestion(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Query<Question> query = DB.find(Question.class);
@@ -155,7 +155,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result copyQuestion(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Question> query = DB.find(Question.class).fetch("questionOwners").where().idEq(id);
@@ -268,7 +268,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     @BodyParser.Of(BodyParser.Json.class)
     @Authenticated
     @With(QuestionTextSanitizer.class)
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result createQuestion(Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Question question = parseFromBody(request, user, null);
@@ -288,7 +288,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     @BodyParser.Of(BodyParser.Json.class)
     @With(QuestionTextSanitizer.class)
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateQuestion(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Question> query = DB.find(Question.class).where().idEq(id);
@@ -318,7 +318,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result deleteQuestion(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Question> expr = DB.find(Question.class).where().idEq(id);
@@ -403,7 +403,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result addOwner(Long uid, Http.Request request) {
         User newOwner = DB.find(User.class)
             .select("id, firstName, lastName, userIdentifier")
@@ -439,7 +439,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         question.update();
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result exportQuestions(Http.Request request) {
         JsonNode body = request.body().asJson();
         ArrayNode node = (ArrayNode) body.get("params").get("ids");
@@ -462,7 +462,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result importQuestions(Http.Request request) throws IOException {
         Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
         Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = body.getFile("file");
@@ -494,7 +494,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result getQuestionPreview(Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Question> el = DB.find(Question.class)
@@ -533,7 +533,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result getExamSectionQuestionPreview(Long esqId, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamSectionQuestion> el = DB.find(ExamSectionQuestion.class)

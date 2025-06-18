@@ -44,11 +44,11 @@ class ReviewDocumentsController @Inject() (
 
   def importGrades: Action[MultipartFormData[Files.TemporaryFile]] =
     authenticated(parse.multipartFormData)
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
+      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
         request.body.file("file") match
           case Some(file) =>
             val user = request.attrs(Auth.ATTR_USER)
-            val role = if user.hasRole(Role.Name.ADMIN) then Role.Name.ADMIN else Role.Name.TEACHER
+            val role = if user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then Role.Name.ADMIN else Role.Name.TEACHER
             try csvBuilder.parseGrades(file.ref.toFile, user, role)
             catch
               case e: Exception =>
@@ -63,7 +63,7 @@ class ReviewDocumentsController @Inject() (
       start: Option[String],
       end: Option[String]
   ): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
+    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
       DB.find(classOf[Exam]).where().idEq(eid).find match
         case Some(exam) =>
           val df = new SimpleDateFormat("dd.MM.yyyy")

@@ -35,6 +35,7 @@ export class NavigationService {
         const admin = user.isAdmin;
         const student = user.isStudent;
         const teacher = user.isTeacher;
+        const support = user.isSupport;
         const languageInspector = user.isTeacher && user.isLanguageInspector;
 
         // Do not show if waiting for exam to begin
@@ -48,7 +49,7 @@ export class NavigationService {
             items: [
                 {
                     route: student ? 'exams/collaborative' : 'staff/collaborative',
-                    visible: true,
+                    visible: !support,
                     name: 'i18n_collaborative_exams',
                     iconPng: 'icon_admin_exams.png',
                     submenu: { hidden: true, items: [] },
@@ -90,7 +91,7 @@ export class NavigationService {
             },
             {
                 route: 'staff/adminexams',
-                visible: admin,
+                visible: admin || support,
                 name: 'i18n_exams',
                 iconPng: 'icon_admin_exams.png',
                 submenu: {
@@ -98,35 +99,35 @@ export class NavigationService {
                     items: [
                         {
                             route: 'staff/inspections',
-                            visible: true,
+                            visible: admin,
                             name: 'i18n_language_inspections',
                             iconPng: 'icon_admin_lang_inspection.png',
                             submenu: { hidden: true, items: [] },
                         },
                         {
                             route: 'staff/printouts',
-                            visible: true,
+                            visible: admin,
                             name: 'i18n_printout_exams',
                             iconPng: 'icon_printouts.png',
                             submenu: { hidden: true, items: [] },
                         },
                         {
                             route: 'staff/collaborative',
-                            visible: interoperable,
+                            visible: admin && interoperable,
                             name: 'i18n_collaborative_exams',
                             iconPng: 'icon_admin_exams.png',
                             submenu: { hidden: true, items: [] },
                         },
                         {
                             route: 'staff/examinationevents',
-                            visible: hasByod,
+                            visible: admin && hasByod,
                             name: 'i18n_byod_exams',
                             iconPng: 'icon_admin_exams.png',
                             submenu: { hidden: true, items: [] },
                         },
                         {
                             route: 'staff/questions',
-                            visible: true,
+                            visible: admin,
                             name: 'i18n_library_new',
                             iconPng: 'icon_questions.png',
                             submenu: { hidden: true, items: [] },
@@ -168,7 +169,7 @@ export class NavigationService {
             },
             {
                 route: 'staff/users',
-                visible: admin,
+                visible: admin || support,
                 name: 'i18n_users',
                 iconPng: 'icon_users.png',
                 submenu: {

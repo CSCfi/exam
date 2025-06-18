@@ -107,7 +107,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok(attachment));
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> addAttachmentToQuestion(Http.Request request) {
         MultipartForm mf = getForm(request);
@@ -130,7 +130,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return replaceAndFinish(question, filePart, newFilePath);
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Override
     public Result deleteQuestionAttachment(Long id) {
         Question question = DB.find(Question.class, id);
@@ -142,7 +142,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -171,7 +171,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> deleteExamAttachment(Long id, Http.Request request) {
         Exam exam = DB.find(Exam.class, id);
@@ -187,7 +187,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok());
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> deleteFeedbackAttachment(Long id, Http.Request request) {
         Exam exam = DB.find(Exam.class, id);
@@ -213,7 +213,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> addAttachmentToExam(Http.Request request) {
         MultipartForm mf = getForm(request);
@@ -237,7 +237,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> addFeedbackAttachment(Long id, Http.Request request) {
         Exam exam = DB.find(Exam.class, id);
@@ -289,7 +289,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> downloadQuestionAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -310,7 +310,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, Http.Request request) {
         // TODO: Authorization?
@@ -323,7 +323,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return serveAttachment(question.getEssayAnswer().getAttachment());
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> downloadExamAttachment(Long id, Http.Request request) {
         // TODO: Authorization?
@@ -335,7 +335,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> downloadFeedbackAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -352,7 +352,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
     @Override
     public CompletionStage<Result> downloadStatementAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);

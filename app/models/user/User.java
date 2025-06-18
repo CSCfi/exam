@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import models.assessment.ExamInspection;
@@ -222,8 +223,8 @@ public class User extends GeneratedIdentityModel implements Subject {
         this.lastLogin = lastLogin;
     }
 
-    public boolean hasRole(Role.Name name) {
-        return loginRole == name;
+    public boolean hasRole(Role.Name... roles) {
+        return Arrays.asList(roles).contains(loginRole);
     }
 
     public boolean hasPermission(Permission.Type type) {
