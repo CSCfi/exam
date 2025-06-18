@@ -910,7 +910,8 @@
     "i18n_author": "Tekijä",
     "i18n_select_optional_section": "Haluan suorittaa aihealueen",
     "i18n_select_at_least_one_section": "Valitse vähintään yksi aihealue",
-    "i18n_confirm_external_reservation": "HUOM! Kun varaat tenttiajan toisen korkeakoulun tenttitilaan, hyväksyt vierailukorkeakoulun EXAM-käyttöehdot sekä valvontakäytännöt. Käyttöehdot ja ohjeet ovat luettavissa jokaisen korkeakoulun omilla www-sivuilla. Tenttivierailussa mukana olevat korkeakoulut ja linkit korkeakoulukohtaisiin ohjeisiin ja käyttöehtoihin löydät osoitteesta: https://e-exam.fi/exam-tenttivierailu/",
+    "i18n_confirm_external_reservation": "Kun varaat tenttivierailuajan, hyväksyt kohdekorkeakoulun EXAM-käyttöehdot sekä valvontakäytännöt. Korkekoulukohtaiset käyttöehdot ja tenttivierailuohjeet ovat luettavissa jokaisen korkeakoulun omilla nettisivuilla.",
+    "i18n_external_reservation_link_text": "Tutustu ohjeisiin ja käyttöehtoihin (e-exam.fi)",
     "i18n_save_and_pre_publish": "Tallenna ja esijulkaise",
     "i18n_exam_owner_missing": "Tentaattori puuttuu",
     "i18n_exam_editor_materials": "Tenttimateriaalit",
@@ -1247,5 +1248,6 @@
     "i18n_external_organisation_login": "Olet kirjautumassa ulkopuolisen organisaation tunnuksella ",
     "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen.",
     "i18n_point_graded": "Pisteytetty arviointi",
-    "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan."
+    "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan.",
+    "i18n_continue_to_external_reservation": "Jatka tenttivierailuajan varaukseen"
 }

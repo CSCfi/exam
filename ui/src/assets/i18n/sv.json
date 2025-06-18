@@ -910,7 +910,8 @@
     "i18n_author": "Upphovsman",
     "i18n_select_optional_section": "Jag vill tentera sektionen",
     "i18n_select_at_least_one_section": "Välj åtminstone en valfri sektion",
-    "i18n_confirm_external_reservation": "OBS! När du bokar en tentamenstid i en annan högskolas tentamensutrymme så godkänner du den mottagande högskolans EXAM-användarvillkor och videoövervakningsrutiner. Användarvillkoren och anvisningar hittas på varje högskolas egna webbsidor. Lista över de högskolor som tar emot tentander från andra högskolor och länkar till de högskolespecifika anvisningarna och användarvillkoren hittas på adressen https://e-exam.fi/pa-svenska/tentamenbesok/",
+    "i18n_confirm_external_reservation": "När du bokar en tentamenstid för tentamenbesök godkänner du målhögskolans EXAM-användarvillkor och övervakningsrutiner. Högskolespecifika användarvillkor och tentamenbesöksinstruktioner finns tillgängliga på varje högskolas webbsidor.",
+    "i18n_external_reservation_link_text": "Läs instruktioner och användarvillkor (e-exam.fi)",
     "i18n_save_and_pre_publish": "Spara och förhandspublicera",
     "i18n_exam_owner_missing": "Tentator saknas",
     "i18n_exam_editor_materials": "Tentamensmaterial",
@@ -1247,5 +1248,6 @@
     "i18n_external_organisation_login": "Olet kirjautumassa ulkopuolisen organisaation tunnuksella SV",
     "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen. SV",
     "i18n_point_graded": "Pisteytetty arviointi SV",
-    "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan. SV"
+    "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan. SV",
+    "i18n_continue_to_external_reservation": "Fortsätt till extern reservation SV"
 }
