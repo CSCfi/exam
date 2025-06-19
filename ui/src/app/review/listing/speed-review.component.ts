@@ -177,15 +177,17 @@ export class SpeedReviewComponent implements OnInit {
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, {}, 'i18n_import_grades_from_csv')
-            .then((result) => {
-                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, () => this.reload());
-                this.toast.success(`${this.translate.instant('i18n_csv_uploaded_successfully')}`);
-            })
-            .catch(() => {
-                this.toast.info(`${this.translate.instant('i18n_csv_uploading_cancelled')}`);
-                return noop;
-            });
+        this.Attachment.selectFile(false, {}, 'i18n_import_grades_from_csv').then((result) => {
+            this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {})
+                .then(() => {
+                    this.toast.success(`${this.translate.instant('i18n_csv_uploaded_successfully')}`);
+                    this.reload();
+                })
+                .catch(() => {
+                    this.toast.info(`${this.translate.instant('i18n_csv_uploading_cancelled')}`);
+                    return noop;
+                });
+        });
     };
 
     createGradingTemplate = () => {

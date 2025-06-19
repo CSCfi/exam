@@ -109,6 +109,8 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
 
     negativeScoreSettingChanged = ($event: boolean) => (this.examQuestion.negativeScoreAllowed = $event);
 
+    shufflingSettingChanged = ($event: boolean) => (this.examQuestion.optionShufflingOn = $event);
+
     updateEvaluationType = ($event: string) => {
         this.examQuestion.evaluationType = $event;
         if ($event === 'Selection') {

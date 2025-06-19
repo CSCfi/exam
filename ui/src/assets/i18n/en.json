@@ -1240,7 +1240,6 @@
     "i18n_login_title": "Login",
     "i18n_logout_title": "Logged out",
     "i18n_assessment_questions_title": "Assessment questions",
-    "i18n_minor_agreement_update": "Change that does not need to be communicated to users",
     "i18n_exam_reservation_canceled": "Exam reservation cancelled",
     "i18n_confirm_delete_exam_reservation": "Do you want to delete the exam reservation?",
     "i18n_error_disallowed_login_with_external_domain_credentials": "Kirjautuminen ulkopuolisen organisaation tunnuksilla ei sallittu EN",
@@ -1252,5 +1251,7 @@
     "i18n_download_report_excel": "Download report of points per question (Excel) EN",
     "i18n_allow_negative_score": "Salli negatiivinen kokonaispistemäärä EN",
     "i18n_weighted_multiple_choice_description": "Monivalintakysymyksen kuvaus... EN",
-    "i18n_min_score": "Minimipisteet EN"
+    "i18n_min_score": "Minimipisteet EN",
+    "i18n_questions_imported_with_errors": "All questions could not be imported due to errors. Number of erroneous questions:EN",
+    "i18n_shuffle_options": "Sekoita vastausvaihtoehdot opiskelijaa varten EN"
 }

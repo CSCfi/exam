@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.libs.Files;
+import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -200,6 +201,11 @@ public class QuestionController extends BaseController implements SectionQuestio
             node,
             Boolean.class
         ).orElse(false);
+        boolean defaultOptionShufflingOn = SanitizingHelper.parse(
+            "defaultOptionShufflingOn",
+            node,
+            Boolean.class
+        ).orElse(true);
         Question.Type type = SanitizingHelper.parseEnum("type", node, Question.Type.class).orElse(null);
 
         Question question = existing == null ? new Question() : existing;
@@ -211,6 +217,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         question.setDefaultAnswerInstructions(defaultInstructions);
         question.setDefaultEvaluationCriteria(defaultCriteria);
         question.setDefaultNegativeScoreAllowed(defaultNegativeScoreAllowed);
+        question.setDefaultOptionShufflingOn(defaultOptionShufflingOn);
         if (question.getState() == null || !question.getState().equals(QuestionState.DELETED.toString())) {
             question.setState(QuestionState.SAVED.toString());
         }
@@ -463,8 +470,10 @@ public class QuestionController extends BaseController implements SectionQuestio
             throw new IllegalArgumentException("file not found");
         }
         String content = java.nio.file.Files.readString(filePart.getRef().path());
-        xmlImporter.convert(content, request.attrs().get(Attrs.AUTHENTICATED_USER));
-        return ok();
+        var result = xmlImporter.convert(content, request.attrs().get(Attrs.AUTHENTICATED_USER));
+        var successes = CollectionConverters.asJava(result._1);
+        var errors = CollectionConverters.asJava(result._2);
+        return ok(Json.newObject().put("errorCount", errors.size()).put("successCount", successes.size()));
     }
 
     private Result processPreview(ExamSectionQuestion esq) {

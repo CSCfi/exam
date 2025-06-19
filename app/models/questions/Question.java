@@ -94,6 +94,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
     @Column
     private boolean defaultNegativeScoreAllowed;
 
+    @Column
+    private boolean defaultOptionShufflingOn;
+
     @ManyToOne
     private Question parent;
 
@@ -206,6 +209,14 @@ public class Question extends OwnedModel implements AttachmentContainer {
 
     public void setDefaultNegativeScoreAllowed(boolean defaultNegativeScoreAllowed) {
         this.defaultNegativeScoreAllowed = defaultNegativeScoreAllowed;
+    }
+
+    public boolean isDefaultOptionShufflingOn() {
+        return defaultOptionShufflingOn;
+    }
+
+    public void setDefaultOptionShufflingOn(boolean defaultOptionShufflingOn) {
+        this.defaultOptionShufflingOn = defaultOptionShufflingOn;
     }
 
     public Question getParent() {
