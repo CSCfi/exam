@@ -70,11 +70,9 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-9 claim-choice-warning-wrapper">
         @if (missingOption) {
             <div class="claim-choice-warning">
-                <i class="bi-exclamation-triangle" style="color: #e8172f"></i>
-                <span style="color: #e8172f">
-                    {{ 'i18n_claim_choice_missing_options_warning' | translate }}
-                    <span>{{ missingOption | translate }}</span>
-                </span>
+                <i class="bi-exclamation-triangle"></i>
+                {{ 'i18n_claim_choice_missing_options_warning' | translate }}
+                {{ missingOption | translate }}
             </div>
         }
     </div>

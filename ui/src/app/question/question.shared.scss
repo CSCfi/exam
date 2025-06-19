@@ -173,11 +173,11 @@
 .claim-choice-warning-wrapper {
     min-height: 40px;
 }
-
 .claim-choice-warning {
     background-color: rgba($color: red, $alpha: 0.1);
     border-left: 6px solid red;
     padding: 10px;
+    color: #e8172f;
 }
 .edit-warning-container {
     display: flex;
