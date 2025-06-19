@@ -23,7 +23,6 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
 @Component({
     selector: 'xm-reservation-details',
     templateUrl: './reservation-details.component.html',
-    standalone: true,
     imports: [
         TableSortComponent,
         RouterLink,

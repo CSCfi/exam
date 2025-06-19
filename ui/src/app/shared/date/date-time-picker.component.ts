@@ -35,7 +35,6 @@ import { DatePickerComponent } from './date-picker.component';
         </div>
     `,
     styleUrls: ['./date-time-picker.component.scss'],
-    standalone: true,
     imports: [NgClass, DatePickerComponent, NgbTimepicker, FormsModule],
 })
 export class DateTimePickerComponent implements OnInit, OnChanges {

@@ -14,7 +14,6 @@ import { Question } from 'src/app/question/question.model';
 
 @Component({
     selector: 'xm-question-selector',
-    standalone: true,
     imports: [TranslateModule, LibrarySearchComponent, LibraryResultsComponent],
     template: `
         <!-- title row and add new question button -->

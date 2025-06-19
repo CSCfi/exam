@@ -33,7 +33,6 @@ type AutoEvaluationConfigurationTemplate = {
     selector: 'xm-auto-evaluation',
     templateUrl: './auto-evaluation.component.html',
     styleUrls: ['./auto-evaluation.component.scss'],
-    standalone: true,
     imports: [
         NgbPopover,
         NgbCollapse,

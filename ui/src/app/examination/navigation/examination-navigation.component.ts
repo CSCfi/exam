@@ -40,7 +40,6 @@ import type { Examination, ExaminationSection, NavigationPage } from 'src/app/ex
                 }
             </span>
         </div>`,
-    standalone: true,
     imports: [TranslateModule],
     styles: [
         `

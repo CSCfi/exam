@@ -37,7 +37,6 @@ import { FileService } from 'src/app/shared/file/file.service';
         </div>
     `,
     selector: 'xm-answers-report',
-    standalone: true,
     imports: [DatePickerComponent, TranslateModule],
 })
 export class AnswersReportComponent {

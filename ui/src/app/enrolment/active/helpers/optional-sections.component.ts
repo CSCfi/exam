@@ -9,7 +9,6 @@ import { ExamSection } from 'src/app/exam/exam.model';
 
 @Component({
     selector: 'xm-optional-sections',
-    standalone: true,
     imports: [TranslateModule, LowerCasePipe, UpperCasePipe],
     template: `<div class="row mt-2 enrollment-card-dropdown">
         <div class="col col-md-12">

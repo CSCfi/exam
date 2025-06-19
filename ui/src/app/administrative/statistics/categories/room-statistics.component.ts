@@ -70,7 +70,6 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
         </div>
     `,
     selector: 'xm-room-statistics',
-    standalone: true,
     imports: [DatePipe, TranslateModule],
 })
 export class RoomStatisticsComponent {

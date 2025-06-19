@@ -23,7 +23,6 @@ import { ExamSummaryService } from './exam-summary.service';
 @Component({
     selector: 'xm-exam-summary',
     templateUrl: './exam-summary.component.html',
-    standalone: true,
     imports: [NgbPopover, DecimalPipe, DatePipe, KeyValuePipe, TranslateModule],
 })
 export class ExamSummaryComponent implements OnInit, OnChanges {

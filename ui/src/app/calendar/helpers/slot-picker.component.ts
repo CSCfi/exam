@@ -30,7 +30,6 @@ type AvailableSlot = Slot & { availableMachines: number };
     templateUrl: './slot-picker.component.html',
     styleUrls: ['../calendar.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    standalone: true,
     imports: [
         NgClass,
         NgbDropdown,

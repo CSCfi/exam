@@ -21,7 +21,6 @@ import { OptionalSectionsComponent } from './helpers/optional-sections.component
 @Component({
     selector: 'xm-active-enrolment',
     templateUrl: './active-enrolment.component.html',
-    standalone: true,
     imports: [
         RouterLink,
         ActiveEnrolmentMenuComponent,

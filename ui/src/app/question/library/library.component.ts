@@ -135,14 +135,11 @@ type FileResult = { errorCount: number; successCount: number };
             </div>
         </ng-template>
     `,
-    standalone: true,
     imports: [
         RouterLink,
         NgbDropdownModule,
         NgbPopoverModule,
         LibrarySearchComponent,
-        LibraryOwnersDialogComponent,
-        LibraryTransferDialogComponent,
         LibraryResultsComponent,
         TranslateModule,
         PageHeaderComponent,

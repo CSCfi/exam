@@ -9,7 +9,6 @@ import type { Exam } from 'src/app/exam/exam.model';
 
 @Component({
     selector: 'xm-publication-dialog',
-    standalone: true,
     imports: [TranslateModule],
     template: `
         <div class="modal-header">

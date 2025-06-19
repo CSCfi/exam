@@ -13,7 +13,6 @@ import { AccessibilityService } from './accessibility.service';
 @Component({
     templateUrl: './accessibility.component.html',
     selector: 'xm-accessibility',
-    standalone: true,
     imports: [FormsModule, TranslateModule],
 })
 export class AccessibilityComponent implements OnInit {

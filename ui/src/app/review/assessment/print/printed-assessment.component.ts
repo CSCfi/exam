@@ -31,7 +31,6 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
 @Component({
     selector: 'xm-printed-assessment',
     templateUrl: './printed-assessment.component.html',
-    standalone: true,
     imports: [
         CourseCodeComponent,
         MathJaxDirective,

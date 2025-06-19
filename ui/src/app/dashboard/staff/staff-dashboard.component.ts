@@ -8,7 +8,6 @@ import { RouterOutlet } from '@angular/router';
 @Component({
     selector: 'xm-staff-dashboard',
     template: `<router-outlet></router-outlet>`,
-    standalone: true,
     imports: [RouterOutlet],
 })
 export class StaffDashboardComponent {}

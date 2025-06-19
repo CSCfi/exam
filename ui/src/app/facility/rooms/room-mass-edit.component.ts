@@ -101,7 +101,6 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
             </div>
         </ng-template>
     `,
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,

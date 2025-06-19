@@ -9,7 +9,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import type { User } from 'src/app/session/session.model';
 
 @Component({
-    standalone: true,
     imports: [TranslateModule, NgClass, NgbDropdownModule],
     template: `
         <div class="modal-header">

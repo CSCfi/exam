@@ -45,7 +45,6 @@ import { Question, QuestionDraft } from 'src/app/question/question.model';
         </div>
     `,
     styleUrls: ['../question.shared.scss'],
-    standalone: true,
     imports: [FormsModule, TranslateModule],
 })
 export class EssayEditorComponent implements OnInit {

@@ -27,7 +27,6 @@ interface RoomWithAddressVisibility extends ExamRoom {
 @Component({
     selector: 'xm-opening-hours',
     templateUrl: './opening-hours.component.html',
-    standalone: true,
     imports: [NgbTimepicker, FormsModule, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem],
 })
 export class OpenHoursComponent implements OnInit, OnChanges {

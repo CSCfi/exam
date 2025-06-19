@@ -82,7 +82,6 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                 </button>
             </div>
         </div>`,
-    standalone: true,
     imports: [FormsModule, NgClass, TranslateModule, NgbPopover],
 })
 export class StartingTimeComponent implements OnInit {

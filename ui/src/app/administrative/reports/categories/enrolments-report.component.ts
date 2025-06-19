@@ -34,7 +34,6 @@ import { Option } from 'src/app/shared/select/select.model';
         </div>
     `,
     selector: 'xm-enrolments-report',
-    standalone: true,
     imports: [DropdownSelectComponent, TranslateModule],
 })
 export class EnrolmentsReportComponent {

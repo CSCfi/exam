@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-@import '../../../shared/definitions.scss';
+@use '../../../shared/definitions.scss' as shared;
 
 .wrapper {
     padding: 1em;
@@ -16,7 +16,7 @@
     background: rgba(255, 255, 255, 0.7);
     width: 620px;
     margin: 2px;
-    @media (max-width: $mobile-width) {
+    @media (max-width: shared.$mobile-width) {
         width: auto;
     }
 }

@@ -38,7 +38,6 @@ import { CalendarService } from './calendar.service';
             </div>
         }
     `,
-    standalone: true,
     imports: [FullCalendarModule],
 })
 export class BookingCalendarComponent implements OnInit, AfterViewInit {
