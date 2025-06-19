@@ -57,7 +57,6 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
         </div>
     `,
     styleUrls: ['../question.shared.scss'],
-    standalone: true,
     imports: [FormsModule, NgClass, FixedPrecisionValidatorDirective, TranslateModule],
 })
 export class WeightedMultipleChoiceOptionEditorComponent {

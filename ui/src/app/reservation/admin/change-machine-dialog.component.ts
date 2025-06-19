@@ -15,7 +15,6 @@ import { Option } from 'src/app/shared/select/select.model';
 
 @Component({
     selector: 'xm-change-machine-dialog',
-    standalone: true,
     imports: [TranslateModule, DropdownSelectComponent],
     template: `
         <div class="modal-header">

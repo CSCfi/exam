@@ -11,7 +11,6 @@ import { ExamQuestionComponent } from './exam-question.component';
 
 // This component is used for editing distributed exam questions.
 @Component({
-    standalone: true,
     imports: [ExamQuestionComponent],
     template: `
         @if (examQuestion) {

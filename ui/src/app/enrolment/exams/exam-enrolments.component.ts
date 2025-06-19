@@ -41,7 +41,6 @@ import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
             }
         }
     `,
-    standalone: true,
     imports: [EnrolmentDetailsComponent, ExamSearchResultComponent, TranslateModule],
 })
 export class ExamEnrolmentsComponent implements OnInit {

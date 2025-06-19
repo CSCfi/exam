@@ -79,7 +79,6 @@ import { MaturityService } from './maturity.service';
                 }
             </div>
         }`,
-    standalone: true,
     imports: [RouterLink, NgClass, TranslateModule],
 })
 export class MaturityToolbarComponent {

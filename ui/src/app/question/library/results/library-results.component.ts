@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass, SlicePipe } from '@angular/common';
+import { DatePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
@@ -29,9 +29,7 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
 @Component({
     selector: 'xm-library-results',
     templateUrl: './library-results.component.html',
-    standalone: true,
     imports: [
-        NgClass,
         FormsModule,
         NgbPopover,
         TableSortComponent,

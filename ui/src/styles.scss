@@ -5,9 +5,9 @@
  */
 
 /* You can add global styles to this file, and also import other style files */
-@import 'bootstrap/scss/bootstrap';
-@import 'ngx-toastr/toastr';
-@import 'bootstrap-icons/font/bootstrap-icons.css';
+@use 'bootstrap/scss/bootstrap';
+@use 'ngx-toastr/toastr';
+@use 'bootstrap-icons/font/bootstrap-icons.css';
 /* fonts */
 @font-face {
     font-family: Arimo;

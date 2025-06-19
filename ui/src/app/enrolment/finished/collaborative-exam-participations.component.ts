@@ -20,7 +20,6 @@ import { ExamParticipationComponent } from './exam-participation.component';
 @Component({
     selector: 'xm-collaborative-exam-participations',
     templateUrl: './exam-participations.component.html',
-    standalone: true,
     imports: [
         FormsModule,
         NgbDropdown,

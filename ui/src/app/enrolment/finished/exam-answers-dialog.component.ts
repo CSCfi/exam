@@ -17,7 +17,6 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
 @Component({
     selector: 'xm-exam-answers-dialog',
     templateUrl: './exam-answers-dialog.component.html',
-    standalone: true,
     imports: [TranslateModule, MathJaxDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
 })
 export class ExamAnswersDialogComponent implements OnInit {

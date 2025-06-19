@@ -31,7 +31,6 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
         </div>
     `,
     selector: 'xm-reservation-statistics',
-    standalone: true,
     imports: [TranslateModule],
 })
 export class ReservationStatisticsComponent implements OnInit {

@@ -33,7 +33,6 @@ import { ExaminationService } from 'src/app/examination/examination.service';
                 </button>
             </div>
         </div>`,
-    standalone: true,
     imports: [DatePipe, TranslateModule],
 })
 export class ExaminationClozeTestComponent {

@@ -17,7 +17,6 @@ import { FileService } from 'src/app/shared/file/file.service';
 @Component({
     selector: 'xm-examination-essay-question',
     templateUrl: './examination-essay-question.component.html',
-    standalone: true,
     imports: [FormsModule, TranslateModule, UpperCasePipe, DatePipe, CKEditorComponent],
     styleUrls: ['../examination.shared.scss', './question.shared.scss'],
 })

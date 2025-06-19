@@ -4,7 +4,6 @@
 
 import { Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
@@ -16,8 +15,7 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 @Component({
     selector: 'xm-active-enrolment-menu',
     templateUrl: './active-enrolment-menu.component.html',
-    standalone: true,
-    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, RouterLink, TranslateModule],
+    imports: [RouterLink, TranslateModule],
 })
 export class ActiveEnrolmentMenuComponent {
     enrolment = input.required<ExamEnrolment>();

@@ -21,7 +21,6 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
 @Component({
     selector: 'xm-course-selection',
     templateUrl: './course-selection.component.html',
-    standalone: true,
     imports: [
         NgbPopover,
         ExamCourseComponent,

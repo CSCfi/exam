@@ -40,7 +40,6 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 @Component({
     selector: 'xm-speed-review',
     templateUrl: './speed-review.component.html',
-    standalone: true,
     imports: [
         TableSortComponent,
         RouterLink,

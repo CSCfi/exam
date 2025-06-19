@@ -13,7 +13,6 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
 
 @Component({
     selector: 'xm-examination-type-selector',
-    standalone: true,
     imports: [TranslateModule, NgbAccordionModule, NgClass],
     template: `
         <div class="modal-header">

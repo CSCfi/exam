@@ -47,7 +47,6 @@ interface UserWithOptions extends User {
 @Component({
     templateUrl: './users.component.html',
     selector: 'xm-users',
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,

@@ -19,7 +19,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 @Component({
     selector: 'xm-enrolment-details',
     templateUrl: './exam-enrolment-details.component.html',
-    standalone: true,
     imports: [
         CourseCodeComponent,
         TeacherListComponent,

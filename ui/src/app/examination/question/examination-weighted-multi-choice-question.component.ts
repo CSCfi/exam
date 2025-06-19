@@ -35,7 +35,6 @@ import { ExaminationService } from 'src/app/examination/examination.service';
             {{ sq.derivedMinScore }}
         </div>
     `,
-    standalone: true,
     imports: [FormsModule, TranslateModule],
     styleUrls: ['./question.shared.scss'],
 })

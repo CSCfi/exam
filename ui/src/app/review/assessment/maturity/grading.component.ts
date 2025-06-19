@@ -25,7 +25,6 @@ import { MaturityToolbarComponent } from './toolbar.component';
     selector: 'xm-r-maturity-grading',
     templateUrl: './grading.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    standalone: true,
     imports: [
         NgClass,
         InspectionCommentsComponent,

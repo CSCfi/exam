@@ -22,7 +22,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     selector: 'xm-reviewed-inspections',
     templateUrl: './reviewed-inspections.component.html',
     styleUrls: ['../maturity.shared.scss'],
-    standalone: true,
     imports: [
         RouterLink,
         FormsModule,
