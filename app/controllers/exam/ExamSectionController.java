@@ -248,6 +248,12 @@ public class ExamSectionController extends BaseController implements SectionQues
         sectionQuestion.setExpectedWordCount(
             SanitizingHelper.parse("expectedWordCount", body, Integer.class).orElse(null)
         );
+        sectionQuestion.setNegativeScoreAllowed(
+            SanitizingHelper.parse("negativeScoreAllowed", body, Boolean.class).orElse(false)
+        );
+        sectionQuestion.setOptionShufflingOn(
+            SanitizingHelper.parse("optionShufflingOn", body, Boolean.class).orElse(true)
+        );
     }
 
     private Optional<Result> insertQuestion(Exam exam, ExamSection section, Question question, User user, Integer seq) {

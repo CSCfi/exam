@@ -7,8 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+import { TranslateModule } from '@ngx-translate/core';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
 import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
 import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
@@ -69,8 +68,6 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
         private Question: QuestionService,
         private Attachment: AttachmentService,
         private modal: NgbModal,
@@ -109,6 +106,10 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     showWarning = () => this.examNames && this.examNames.length > 1;
 
     optionsChanged = ($event: ExamSectionQuestionOption[]) => (this.examQuestion.options = [...$event]);
+
+    negativeScoreSettingChanged = ($event: boolean) => (this.examQuestion.negativeScoreAllowed = $event);
+
+    shufflingSettingChanged = ($event: boolean) => (this.examQuestion.optionShufflingOn = $event);
 
     updateEvaluationType = ($event: string) => {
         this.examQuestion.evaluationType = $event;

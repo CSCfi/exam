@@ -31,6 +31,7 @@ import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 import miscellaneous.config.ConfigReader;
 import miscellaneous.datetime.DateTimeHandler;
+import miscellaneous.enrolment.EnrolmentHandler;
 import models.calendar.MaintenancePeriod;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.ExternalReservation;
@@ -71,13 +72,16 @@ public class CalendarHandlerImpl implements CalendarHandler {
     private ExternalReservationHandler externalReservationHandler;
 
     @Inject
-    protected EmailComposer emailComposer;
+    private EmailComposer emailComposer;
 
     @Inject
-    protected ActorSystem system;
+    private ActorSystem system;
 
     @Inject
-    protected DateTimeHandler dateTimeHandler;
+    private DateTimeHandler dateTimeHandler;
+
+    @Inject
+    private EnrolmentHandler enrolmentHandler;
 
     @Override
     public Result getSlots(User user, Exam exam, Long roomId, String day, Collection<Integer> aids) {
@@ -570,6 +574,62 @@ public class CalendarHandlerImpl implements CalendarHandler {
     public DateTime normalizeMaintenanceTime(DateTime dateTime) {
         DateTimeZone dtz = configReader.getDefaultTimeZone();
         return dtz.isStandardOffset(dateTime.getMillis()) ? dateTime : dateTime.plusHours(1);
+    }
+
+    @Override
+    public Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user, Collection<Long> sectionIds) {
+        if (enrolment.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
+            return Optional.of(Results.forbidden("SEB exam does not take reservations"));
+        }
+        // Removal not permitted if old reservation is in the past or if exam is already started
+        Reservation oldReservation = enrolment.getReservation();
+        if (
+            enrolment.getExam().getState() == Exam.State.STUDENT_STARTED ||
+            (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))
+        ) {
+            return Optional.of(Results.forbidden("i18n_reservation_in_effect"));
+        }
+        // No previous reservation or it's in the future
+        // If no previous reservation, check if allowed to participate. This check is skipped if user already
+        // has a reservation to this exam so that change of reservation is always possible.
+        if (oldReservation == null && !enrolmentHandler.isAllowedToParticipate(enrolment.getExam(), user)) {
+            return Optional.of(Results.forbidden("i18n_no_trials_left"));
+        }
+        // Check that at least one section will end up in the exam
+        Set<ExamSection> sections = enrolment.getExam().getExamSections();
+        if (sections.stream().allMatch(ExamSection::isOptional)) {
+            if (sections.stream().noneMatch(es -> sectionIds.contains(es.getId()))) {
+                return Optional.of(Results.forbidden("No optional sections selected. At least one needed"));
+            }
+        }
+        if (
+            oldReservation != null &&
+            oldReservation.getExternalRef() != null &&
+            !oldReservation.getStartAt().isAfter(dateTimeHandler.adjustDST(DateTime.now())) &&
+            !enrolment.isNoShow() &&
+            enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
+        ) {
+            // External reservation, assessment not returned yet. We must wait for it to arrive first
+            return Optional.of(Results.forbidden("i18n_enrolment_assessment_not_received"));
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public ExamEnrolment getEnrolment(Long examId, User user) {
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
+        return DB.find(ExamEnrolment.class)
+            .fetch("exam")
+            .where()
+            .eq("user", user)
+            .eq("exam.id", examId)
+            .eq("exam.state", Exam.State.PUBLISHED)
+            .disjunction()
+            .isNull("reservation")
+            .gt("reservation.startAt", now.toDate())
+            .endJunction()
+            .findOne();
     }
 
     private void postProcessRemoval(Reservation reservation, Exam exam, User user, JsonNode node) {

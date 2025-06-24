@@ -25,6 +25,7 @@ import { ExamQuestionDialogComponent } from 'src/app/question/examquestion/exam-
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
+import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -70,8 +71,8 @@ export class SectionQuestionComponent {
         private Files: FileService,
     ) {}
 
-    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion.options);
-
+    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion);
+    calculateWeightedMinPoints = () => this.QuestionScore.calculateWeightedMinPoints(this.sectionQuestion);
     getCorrectClaimChoiceOptionScore = () => this.QuestionScore.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 
     getMinimumOptionScore = () => this.QuestionScore.getMinimumOptionScore(this.sectionQuestion);
@@ -159,12 +160,12 @@ export class SectionQuestionComponent {
                                 return;
                             }
                             if (attachment.modified && attachment.file) {
-                                this.Files.upload(
-                                    '/app/iop/collab/attachment/question',
-                                    attachment.file,
-                                    { examId: this.examId.toString(), questionId: this.sectionQuestion.id.toString() },
-                                    this.sectionQuestion.question,
-                                );
+                                this.Files.upload<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
+                                    examId: this.examId.toString(),
+                                    questionId: this.sectionQuestion.id.toString(),
+                                }).then((resp) => {
+                                    this.sectionQuestion.question.attachment = resp;
+                                });
                             } else if (attachment.removed) {
                                 this.Attachment.eraseCollaborativeQuestionAttachment(
                                     this.examId,

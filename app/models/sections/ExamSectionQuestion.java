@@ -66,6 +66,13 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     @Column
     private Double maxScore;
 
+    // applies to weighted multiple choice questions
+    @Column
+    private boolean negativeScoreAllowed;
+
+    @Column
+    private boolean optionShufflingOn;
+
     @Column
     private Double forcedScore;
 
@@ -139,6 +146,22 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     public void setForcedScore(Double forcedScore) {
         this.forcedScore = forcedScore;
+    }
+
+    public boolean isNegativeScoreAllowed() {
+        return negativeScoreAllowed;
+    }
+
+    public void setNegativeScoreAllowed(boolean negativeScoreAllowed) {
+        this.negativeScoreAllowed = negativeScoreAllowed;
+    }
+
+    public boolean isOptionShufflingOn() {
+        return optionShufflingOn;
+    }
+
+    public void setOptionShufflingOn(boolean optionShufflingOn) {
+        this.optionShufflingOn = optionShufflingOn;
     }
 
     public Double getDerivedMaxScore() {
@@ -269,7 +292,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             // associated with both question and exam section question options :)
             Map<Long, MultipleChoiceOption> optionMap;
 
-            if (question.getType() == Question.Type.ClaimChoiceQuestion) {
+            if (question.getType() == Question.Type.ClaimChoiceQuestion || !isOptionShufflingOn()) {
                 optionMap = new TreeMap<>();
             } else {
                 optionMap = new HashMap<>();
@@ -371,8 +394,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                     .filter(esq -> esq.isAnswered() && esq.getScore() != null)
                     .map(ExamSectionQuestionOption::getScore)
                     .reduce(0.0, Double::sum);
-                // ATM minimum score is zero
-                return Math.max(0.0, evaluation);
+                return negativeScoreAllowed ? evaluation : Math.max(0.0, evaluation);
             }
             case ClozeTestQuestion -> {
                 if (forcedScore != null) {
@@ -423,8 +445,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             case WeightedMultipleChoiceQuestion -> {
                 return options
                     .stream()
+                    .filter(esqo -> esqo.isLegitScore(negativeScoreAllowed))
                     .map(ExamSectionQuestionOption::getScore)
-                    .filter(score -> score != null && score > 0)
+                    .filter(s -> s >= 0)
                     .reduce(0.0, Double::sum);
             }
             case ClaimChoiceQuestion -> {
@@ -443,8 +466,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         if (question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
             return options
                 .stream()
+                .filter(esqo -> esqo.isLegitScore(negativeScoreAllowed))
                 .map(ExamSectionQuestionOption::getScore)
-                .filter(score -> score != null && score < 0)
+                .filter(s -> s <= 0)
                 .reduce(0.0, Double::sum);
         } else if (question.getType() == Question.Type.ClaimChoiceQuestion) {
             return options

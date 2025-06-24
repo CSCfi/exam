@@ -40,6 +40,8 @@ export interface Question {
     defaultEvaluationCriteria?: string;
     defaultExpectedWordCount?: number;
     defaultEvaluationType?: string;
+    defaultNegativeScoreAllowed: boolean;
+    defaultOptionShufflingOn: boolean;
 }
 
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
@@ -107,6 +109,8 @@ export interface ExamSectionQuestion {
     answerInstructions: string;
     evaluationCriteria: string;
     expectedWordCount?: number;
+    negativeScoreAllowed: boolean;
+    optionShufflingOn: boolean;
     sequenceNumber: number;
     expanded: boolean;
     derivedMaxScore?: number;

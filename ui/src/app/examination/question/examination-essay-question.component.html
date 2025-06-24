@@ -7,7 +7,7 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="row" [hidden]="!sq.expectedWordCount">
     <div class="col-md-12">
         <small
-            >{{ 'i18n_essay_length_recommendation' | translate }}:&nbsp; {{ sq.expectedWordCount }} ({{
+            >{{ 'i18n_essay_length_recommendation' | translate }}: {{ sq.expectedWordCount }} ({{
                 'i18n_approximately' | translate
             }}
             {{ (sq.expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})

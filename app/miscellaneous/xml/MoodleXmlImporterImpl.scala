@@ -20,15 +20,15 @@ import java.io.{BufferedOutputStream, File}
 import java.nio.file.{Files, Path}
 import java.util.Base64
 import javax.inject.Inject
-import scala.xml._
+import scala.xml.*
 
 class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
     extends MoodleXmlImporter
     with DbApiHelper
     with Logging:
 
-  import scala.jdk.CollectionConverters._
-  import scala.jdk.StreamConverters._
+  import scala.jdk.CollectionConverters.*
+  import scala.jdk.StreamConverters.*
 
   private def tags(src: Node, user: User): Seq[Tag] =
     (src \\ "tag" \ "text")
@@ -42,7 +42,7 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
           case h :: _ => h
           case _ =>
             val t = new Tag
-            t.setName(node.text.toLowerCase)
+            t.setName(node.text.toLowerCase.take(32)) // max tag length in exam
             t.setCreator(user)
             t
       )
@@ -115,12 +115,17 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
       parseMedia(html, el, attr)(fn)
     }
 
+  private def isHtml(text: String): Boolean =
+    val htmlTagPattern = """<[^>]+>""".r
+    htmlTagPattern.findFirstIn(text).isDefined
+
   private def convertCommon(src: Node, user: User, mode: String): Question =
-    val srcText = src \ "questiontext"
-    val format  = srcText.head.attribute("format").get.text
+    val srcText  = src \ "questiontext"
+    val format   = srcText.head.attribute("format").get.text
+    val textNode = srcText \ "text"
     val questionText = format match
-      case "html" => (srcText \ "text").text
-      case _      => "<p>" + (srcText \ "text").text + "</p>"
+      case "html" if isHtml(textNode.text) => textNode.text
+      case _                               => "<p>" + textNode.text + "</p>"
     val question = new Question
     question.setQuestion(stripAttachmentTags(questionText))
     question.setTags(tags(src, user).asJava)
@@ -155,7 +160,7 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
       case _      => (src \ "text").text
 
   private def convertOption(src: Node): MultipleChoiceOption =
-    val isCorrect = src.attribute("fraction").get.text.toInt == 100
+    val isCorrect = src.attribute("fraction").get.text.toDouble == 100d
     val option    = new MultipleChoiceOption
     option.setOption(optionText(src))
     option.setCorrectOption(isCorrect)
@@ -201,13 +206,21 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
         val question = convertCommon(src, user, mode = "weighted-multichoice")
         convertWeightedMultiChoice(src, question)
 
-  private def convertQuestion(src: Node, user: User): Question =
-    src.attribute("type").get.text match
-      case "essay"       => convertEssay(src, user)
-      case "multichoice" => convertMultiChoice(src, user)
-      case _ =>
-        logger.warn("unknown question type")
-        throw new NoSuchElementException
+  private def convertQuestion(src: Node, user: User): ConversionResult =
+    try {
+      src.attribute("type").get.text match
+        case "essay"       => ConversionResult(Some(convertEssay(src, user)), None, Some("essay"))
+        case "multichoice" => ConversionResult(Some(convertMultiChoice(src, user)), None, Some("multichoice"))
+        case t =>
+          logger.warn(s"unknown question type: $t")
+          ConversionResult(None, Some(s"Unknown question type: $t"), Some(t))
+    } catch {
+      case e: Exception =>
+        logger.error(s"Error converting question: ${e.getMessage}", e)
+        ConversionResult(None, Some(e.getMessage), src.attribute("type").map(_.text))
+    }
 
-  override def convert(data: String, user: User): Seq[Question] =
-    (XML.loadString(data) \ "question").map(convertQuestion(_, user))
+  override def convert(data: String, user: User): (Seq[Question], Seq[ConversionResult]) = {
+    val results = (XML.loadString(data) \ "question").map(convertQuestion(_, user))
+    (results.flatMap(_.question), results.filter(_.error.isDefined))
+  }

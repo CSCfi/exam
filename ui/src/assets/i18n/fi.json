@@ -533,7 +533,7 @@
     "i18n_exam_aborted": "Keskeytit tenttisi, jolloin suoritus ei siirry arvioitavaksi.",
     "i18n_log_out_will_commence": "Sinut kirjataan hetken kuluttua ulos järjestelmästä.",
     "i18n_exam_teachers": "Tentaattorit",
-    "i18n_exam_endtime": "Suoritusaika",
+    "i18n_exam_endtime": "Suorituspäivä",
     "i18n_exam_contains_unnamed_sections": "Kaikilla tentin aihealueilla ei ole nimiä",
     "i18n_users": "Käyttäjät",
     "i18n_user_administration": "Käyttäjien hallinta",
@@ -1249,5 +1249,12 @@
     "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen.",
     "i18n_point_graded": "Pisteytetty arviointi",
     "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan.",
-    "i18n_continue_to_external_reservation": "Jatka tenttivierailuajan varaukseen"
+    "i18n_continue_to_external_reservation": "Jatka tenttivierailuajan varaukseen",
+    "i18n_assessment_date": "Arviointipäivä",
+    "i18n_download_report_excel": "Lataa raportti kysymyskohtaisista pisteistä (Excel)",
+    "i18n_allow_negative_score": "Salli negatiivinen kokonaispistemäärä",
+    "i18n_weighted_multiple_choice_description": "Monivalintakysymyksen kuvaus...",
+    "i18n_min_score": "Minimipisteet",
+    "i18n_questions_imported_with_errors": "Kaikkia kysymyksiä ei voitu tuoda virheiden takia. Virheellisten kysymysten määrä:",
+    "i18n_shuffle_options": "Sekoita vastausvaihtoehdot opiskelijaa varten"
 }

@@ -162,6 +162,8 @@ public interface SectionQuestionHandler {
         );
         sectionQuestion.setEvaluationType(question.getDefaultEvaluationType());
         sectionQuestion.setExpectedWordCount(question.getDefaultExpectedWordCount());
+        sectionQuestion.setNegativeScoreAllowed(question.isDefaultNegativeScoreAllowed());
+        sectionQuestion.setOptionShufflingOn(question.isDefaultOptionShufflingOn());
         updateOptions(sectionQuestion, question);
     }
 }
