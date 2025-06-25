@@ -22,7 +22,6 @@ import { ExamParticipationComponent } from './exam-participation.component';
 @Component({
     selector: 'xm-exam-participations',
     templateUrl: './exam-participations.component.html',
-    standalone: true,
     imports: [
         FormsModule,
         NgbDropdown,

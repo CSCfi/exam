@@ -49,7 +49,6 @@ import { Option } from 'src/app/shared/select/select.model';
         </div>
     `,
     selector: 'xm-students-report',
-    standalone: true,
     imports: [DropdownSelectComponent, DatePickerComponent, TranslateModule],
 })
 export class StudentsReportComponent {

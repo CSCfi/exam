@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-@import '../definitions.scss';
+@use '../definitions.scss' as shared;
 .paginator {
     list-style: none;
     margin: 15px;
@@ -29,14 +29,14 @@
         }
         a:hover {
             color: white;
-            background: $exam-medium-green;
+            background: shared.$exam-medium-green;
             border-radius: 50%;
         }
         &.active {
             a,
             a:focus {
                 color: white;
-                background: $exam-medium-green;
+                background: shared.$exam-medium-green;
                 border-radius: 50%;
             }
         }

@@ -23,7 +23,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     selector: 'xm-maturity-reporting',
     templateUrl: './maturity-reporting.component.html',
     styleUrls: ['./maturity-reporting.component.scss'],
-    standalone: true,
     imports: [
         FormsModule,
         DropdownSelectComponent,

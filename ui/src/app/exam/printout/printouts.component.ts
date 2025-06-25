@@ -90,7 +90,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
             </div>
         </ng-template>
     `,
-    standalone: true,
     imports: [
         TableSortComponent,
         CourseCodeComponent,

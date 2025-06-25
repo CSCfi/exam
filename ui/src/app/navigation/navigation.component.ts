@@ -19,7 +19,6 @@ import { NavigationService } from './navigation.service';
 @Component({
     selector: 'xm-navigation',
     templateUrl: './navigation.component.html',
-    standalone: true,
     imports: [RouterLinkActive, RouterLink, NgbCollapse, TranslateModule],
     styleUrl: './navigation.component.scss',
 })

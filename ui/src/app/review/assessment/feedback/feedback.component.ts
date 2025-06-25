@@ -72,7 +72,6 @@ import { FileService } from 'src/app/shared/file/file.service';
             </div>
         </div>
     </div>`,
-    standalone: true,
     imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })

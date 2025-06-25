@@ -20,7 +20,6 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
 @Component({
     selector: 'xm-examination',
     templateUrl: './examination.component.html',
-    standalone: true,
     imports: [
         ExaminationPageHeaderComponent,
         ExaminationSectionComponent,

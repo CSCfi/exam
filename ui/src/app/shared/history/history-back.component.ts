@@ -17,7 +17,6 @@ import { TranslateModule } from '@ngx-translate/core';
             <img class="pointer arrow_icon h-80 align-self-center" src="/assets/images/icon_history.png" alt="" />
         </button>
     `,
-    standalone: true,
     imports: [TranslateModule],
 })
 export class HistoryBackComponent {

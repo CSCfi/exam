@@ -34,7 +34,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 @Component({
     selector: 'xm-rl-graded-logged',
     templateUrl: './graded-logged.component.html',
-    standalone: true,
     imports: [
         NgbPopover,
         FormsModule,

@@ -25,7 +25,6 @@ type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
     selector: 'xm-r-general-info',
     templateUrl: './general-info.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    standalone: true,
     imports: [ParticipationComponent, NoShowComponent, MathJaxDirective, DatePipe, TranslateModule, ApplyDstPipe],
 })
 export class GeneralInfoComponent implements OnInit {

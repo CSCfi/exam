@@ -16,7 +16,6 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 @Component({
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
-    standalone: true,
     imports: [RouterLink, MathJaxDirective, FormsModule, UpperCasePipe, NgbCollapse, TranslateModule],
 })
 export class EssayAnswerComponent implements OnInit {

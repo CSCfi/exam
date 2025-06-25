@@ -15,7 +15,6 @@ import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 @Component({
-    standalone: true,
     imports: [NgbPopoverModule, TranslateModule, DatePipe],
     selector: 'xm-examination-events',
     template: `

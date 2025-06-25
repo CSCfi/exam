@@ -30,7 +30,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     selector: 'xm-exam-list-category',
     templateUrl: './exam-list-category.component.html',
     styleUrls: ['./exam-list-category.component.scss'],
-    standalone: true,
     imports: [
         FormsModule,
         TableSortComponent,

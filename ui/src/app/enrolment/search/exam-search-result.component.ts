@@ -93,7 +93,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
         </div>
     </div>`,
     styleUrls: ['./exam-search.component.scss'],
-    standalone: true,
     imports: [NgClass, RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class ExamSearchResultComponent {

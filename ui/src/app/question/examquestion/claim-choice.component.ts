@@ -13,7 +13,6 @@ import { QuestionService } from 'src/app/question/question.service';
 @Component({
     selector: 'xm-eq-claim-choice',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    standalone: true,
     imports: [FormsModule, NgClass, NgbPopoverModule, TranslateModule, UpperCasePipe],
     styleUrls: ['../question.shared.scss'],
     templateUrl: './claim-choice.component.html',

@@ -54,7 +54,6 @@ import { SessionService } from './session/session.service';
             }
         `,
     ],
-    standalone: true,
     imports: [DevLoginComponent, NavigationComponent, NgClass, RouterOutlet],
 })
 export class AppComponent implements OnInit, OnDestroy {

@@ -75,7 +75,6 @@ import { Reservation } from 'src/app/reservation/reservation.model';
         }
     `,
     selector: 'xm-iop-reservation-statistics',
-    standalone: true,
     imports: [KeyValuePipe, TranslateModule],
 })
 export class IopReservationStatisticsComponent implements OnInit {

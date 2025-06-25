@@ -21,7 +21,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     selector: 'xm-unfinished-inspections',
     templateUrl: './unfinished-inspections.component.html',
     styleUrls: ['../maturity.shared.scss'],
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,

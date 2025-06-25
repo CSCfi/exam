@@ -28,7 +28,6 @@ type Scores = {
 @Component({
     selector: 'xm-exam-participation',
     templateUrl: './exam-participation.component.html',
-    standalone: true,
     imports: [
         NgClass,
         CourseCodeComponent,

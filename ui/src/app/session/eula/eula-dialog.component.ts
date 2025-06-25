@@ -9,7 +9,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-    standalone: true,
     imports: [TranslateModule],
     template: `
         <div class="modal-header">

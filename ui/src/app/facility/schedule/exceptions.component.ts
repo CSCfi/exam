@@ -57,7 +57,6 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
             </div>
         }
     `,
-    standalone: true,
     imports: [TranslateModule, FilterByPipe],
 })
 export class ExceptionListComponent implements OnInit, OnChanges {

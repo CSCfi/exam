@@ -11,7 +11,6 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 
 @Component({
     selector: 'xm-archive-download',
-    standalone: true,
     imports: [TranslateModule, DatePickerComponent],
     template: `
         <div class="modal-header">

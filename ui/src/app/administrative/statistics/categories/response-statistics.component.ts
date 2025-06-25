@@ -35,7 +35,6 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
         </div>
     `,
     selector: 'xm-response-statistics',
-    standalone: true,
     imports: [TranslateModule],
 })
 export class ResponseStatisticsComponent implements OnInit {

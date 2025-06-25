@@ -37,7 +37,6 @@ import { EssayAnswerComponent } from './essay-answer.component';
             }
         </div>
     `,
-    standalone: true,
     imports: [EssayAnswerComponent, TranslateModule],
 })
 export class EssayAnswerListComponent {

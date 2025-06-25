@@ -24,7 +24,6 @@ interface SoftwareWithClass extends Software {
     templateUrl: './machine.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],
     selector: 'xm-machine',
-    standalone: true,
     imports: [FormsModule, NgClass, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class MachineComponent implements OnInit {

@@ -12,7 +12,6 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
 
 @Component({
     selector: 'xm-remove-reservation-dialog',
-    standalone: true,
     imports: [FormsModule, TranslateModule],
     template: `
         <div class="modal-header">

@@ -49,7 +49,6 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
             </div>
         </div>
     `,
-    standalone: true,
     imports: [CourseCodeComponent, MathJaxDirective, TranslateModule],
     styleUrls: ['../examination.shared.scss'],
 })

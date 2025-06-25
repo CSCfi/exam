@@ -62,7 +62,6 @@ import { Software } from 'src/app/facility/facility.model';
             </div>
         </div>
     </div>`,
-    standalone: true,
     imports: [NgbPopover, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass, TranslateModule],
 })
 export class SoftwareSelectorComponent implements OnInit {

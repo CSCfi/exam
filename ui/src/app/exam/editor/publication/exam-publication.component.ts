@@ -32,7 +32,6 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
 @Component({
     selector: 'xm-exam-publication',
     templateUrl: './exam-publication.component.html',
-    standalone: true,
     imports: [
         DatePickerComponent,
         FormsModule,

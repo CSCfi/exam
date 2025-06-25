@@ -22,7 +22,6 @@ import { RoomService } from './room.service';
     templateUrl: './room.component.html',
     styleUrls: ['./rooms.component.scss'],
     selector: 'xm-room',
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,

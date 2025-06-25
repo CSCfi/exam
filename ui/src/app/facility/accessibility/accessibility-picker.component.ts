@@ -50,7 +50,6 @@ import { AccessibilityService } from './accessibility.service';
             </div>
         </div>
     </div>`,
-    standalone: true,
     imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass, TranslateModule],
 })
 export class AccessibilitySelectorComponent implements OnInit {

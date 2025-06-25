@@ -20,7 +20,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 @Component({
     selector: 'xm-wrong-location',
     templateUrl: './wrong-location.component.html',
-    standalone: true,
     imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
     styles: [
         `

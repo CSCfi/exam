@@ -23,7 +23,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 @Component({
     selector: 'xm-rl-in-language-inspection',
     templateUrl: './in-language-inspection.component.html',
-    standalone: true,
     imports: [
         FormsModule,
         TableSortComponent,

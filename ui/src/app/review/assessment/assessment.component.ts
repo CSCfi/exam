@@ -32,7 +32,6 @@ import { ExamSectionComponent } from './sections/section.component';
 @Component({
     selector: 'xm-assessment',
     templateUrl: './assessment.component.html',
-    standalone: true,
     imports: [
         CourseCodeComponent,
         NgbCollapse,

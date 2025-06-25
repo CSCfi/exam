@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-@import '../../shared/definitions.scss';
+@use '../../shared/definitions.scss' as shared;
 
 .right-column-box {
     border: 2px solid #ededed;
@@ -36,7 +36,7 @@
 .phase-box {
     border-radius: 4px;
     border: 2px solid #ededed;
-    border-left: $exam-medium-green 4px solid;
+    border-left: shared.$exam-medium-green 4px solid;
     padding: 10px;
     &.notactive {
         border-left: #b1b1b1 4px solid;
@@ -44,7 +44,7 @@
 }
 
 .phase-box:hover {
-    border-left: $exam-medium-green 4px solid;
+    border-left: shared.$exam-medium-green 4px solid;
 }
 
 .right-title {

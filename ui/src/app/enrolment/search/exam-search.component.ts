@@ -14,7 +14,6 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
 import { ExamSearchResultComponent } from './exam-search-result.component';
 import { ExamSearchService } from './exam-search.service';
 
@@ -86,15 +85,7 @@ import { ExamSearchService } from './exam-search.service';
         ]),
     ],
     styleUrls: ['./exam-search.component.scss'],
-    standalone: true,
-    imports: [
-        FormsModule,
-        AutoFocusDirective,
-        ExamSearchResultComponent,
-        TranslateModule,
-        PageHeaderComponent,
-        PageContentComponent,
-    ],
+    imports: [FormsModule, ExamSearchResultComponent, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class ExamSearchComponent implements OnInit, OnDestroy {
     exams: EnrolmentInfo[] = [];

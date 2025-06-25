@@ -19,7 +19,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 
 @Component({
     selector: 'xm-aborted-exams',
-    standalone: true,
     imports: [
         TranslateModule,
         DatePipe,

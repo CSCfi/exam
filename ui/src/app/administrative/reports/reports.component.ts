@@ -43,7 +43,6 @@ enum UserRole {
             <div class="report-category"><xm-teachers-report [teachers]="teachers" /></div>
         </ng-template>
     `,
-    standalone: true,
     imports: [
         RoomsReportComponent,
         ExamsReportComponent,

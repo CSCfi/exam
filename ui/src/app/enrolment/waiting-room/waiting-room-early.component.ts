@@ -29,7 +29,6 @@ import { WaitingEnrolment, WaitingReservation } from './waiting-room.component';
         </ng-template>
     `,
     styleUrls: ['../enrolment.shared.scss'],
-    standalone: true,
     imports: [DatePipe, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class WaitingRoomEarlyComponent implements OnInit {

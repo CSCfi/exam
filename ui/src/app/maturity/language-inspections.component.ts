@@ -38,7 +38,6 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
             </div>
         </ng-template>
     `,
-    standalone: true,
     imports: [
         UnfinishedInspectionsComponent,
         ReviewedInspectionsComponent,

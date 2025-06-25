@@ -15,7 +15,6 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     templateUrl: './claim-choice.component.html',
     styleUrls: ['../question.shared.scss'],
-    standalone: true,
     imports: [FormsModule, NgClass, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
 })
 export class ClaimChoiceEditorComponent implements OnInit {

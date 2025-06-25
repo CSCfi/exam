@@ -53,7 +53,6 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
                 {{ displayGradeScale() }}
             </div>
         </div> `,
-    standalone: true,
     imports: [NgbPopover, CoursePickerComponent, TranslateModule],
 })
 export class ExamCourseComponent {

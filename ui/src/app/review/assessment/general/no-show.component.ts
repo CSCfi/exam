@@ -13,7 +13,6 @@ import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
         <div class="col-md-10 text-danger">
             {{ 'i18n_exam_status_no_show' | translate }}
         </div>`,
-    standalone: true,
     imports: [DatePipe, TranslateModule],
 })
 export class NoShowComponent implements OnInit {

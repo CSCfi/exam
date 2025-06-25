@@ -46,7 +46,6 @@ import type { User } from 'src/app/session/session.model';
                 </div>
             </div>
         }`,
-    standalone: true,
     imports: [FormsModule, TranslateModule],
 })
 export class InspectionComponent implements OnInit {

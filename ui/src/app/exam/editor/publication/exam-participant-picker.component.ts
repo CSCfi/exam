@@ -91,7 +91,6 @@ import type { User } from 'src/app/session/session.model';
             }
         }
     `,
-    standalone: true,
     imports: [FormsModule, NgClass, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
 })

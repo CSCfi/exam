@@ -19,7 +19,6 @@ import type { User } from 'src/app/session/session.model';
 @Component({
     selector: 'xm-exam-owner-picker',
     templateUrl: './exam-owner-picker.component.html',
-    standalone: true,
     imports: [NgClass, NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
 })

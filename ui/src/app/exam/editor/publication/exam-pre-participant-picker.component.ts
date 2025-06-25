@@ -87,7 +87,6 @@ import { User } from 'src/app/session/session.model';
                 </span>
             }
         </div>`,
-    standalone: true,
     imports: [FormsModule, NgClass, TranslateModule],
 })
 export class ExamPreParticipantSelectorComponent implements OnInit {

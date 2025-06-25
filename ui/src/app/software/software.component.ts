@@ -13,7 +13,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 @Component({
     selector: 'xm-software',
     templateUrl: './software.component.html',
-    standalone: true,
     imports: [FormsModule, TranslateModule, OrderByPipe],
 })
 export class SoftwareComponent implements OnInit {

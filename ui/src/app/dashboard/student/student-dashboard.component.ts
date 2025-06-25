@@ -14,7 +14,6 @@ import { StudentDashboardService } from './student-dashboard.service';
 
 @Component({
     selector: 'xm-student-dashboard',
-    standalone: true,
     imports: [ActiveEnrolmentComponent, TranslateModule, OrderByPipe, PageHeaderComponent, PageContentComponent],
     template: `<xm-page-header text="i18n_user_enrolled_exams_title" />
         <xm-page-content [content]="content"></xm-page-content>

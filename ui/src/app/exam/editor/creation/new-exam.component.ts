@@ -17,7 +17,6 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
 @Component({
     selector: 'xm-new-exam',
     templateUrl: './new-exam.component.html',
-    standalone: true,
     imports: [FormsModule, NgbPopover, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class NewExamComponent implements OnInit {

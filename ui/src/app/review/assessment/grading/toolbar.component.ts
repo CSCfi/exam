@@ -69,7 +69,6 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
                 </button>
             </div>
         </div>`,
-    standalone: true,
     imports: [RouterLink, NgbPopover, TranslateModule],
 })
 export class ToolbarComponent implements OnInit {

@@ -8,7 +8,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-inspection-statement-dialog',
-    standalone: true,
     imports: [TranslateModule],
     template: `
         <div class="modal-header">

@@ -22,7 +22,6 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
 @Component({
     selector: 'xm-printout',
     templateUrl: './printout.component.html',
-    standalone: true,
     imports: [CourseCodeComponent, TeacherListComponent, MathJaxDirective, DatePipe, TranslateModule, OrderByPipe],
     styleUrl: './printout.component.scss',
 })

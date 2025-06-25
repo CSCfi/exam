@@ -11,7 +11,6 @@ import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 
 @Component({
-    standalone: true,
     imports: [FormsModule, TranslateModule, DateTimePickerComponent],
     template: `<div>
         <div class="modal-header">

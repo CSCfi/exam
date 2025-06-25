@@ -19,7 +19,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     selector: 'xm-r-section',
     templateUrl: './section.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    standalone: true,
     imports: [MultiChoiceQuestionComponent, EssayQuestionComponent, ClozeTestComponent, TranslateModule, OrderByPipe],
 })
 export class ExamSectionComponent implements OnInit, AfterViewInit {

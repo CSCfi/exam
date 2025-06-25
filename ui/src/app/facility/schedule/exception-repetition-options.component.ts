@@ -23,7 +23,6 @@ const ORDINAL_MAP = Object.values(ORDINAL).map((o, i) => ({ name: o, ord: i + 1 
 
 @Component({
     selector: 'xm-repetition-options',
-    standalone: true,
     imports: [CommonModule, FormsModule, TranslateModule, NgbDropdownModule, DateTimePickerComponent],
     templateUrl: './exception-repetition-options.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],

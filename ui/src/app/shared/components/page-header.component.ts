@@ -9,7 +9,6 @@ import { HistoryBackComponent } from 'src/app/shared/history/history-back.compon
 
 @Component({
     selector: 'xm-page-header',
-    standalone: true,
     imports: [NgTemplateOutlet, NgClass, TranslateModule, HistoryBackComponent],
     template: `
         <div class="row mx-3 mt-4 mb-2 align-items-center">

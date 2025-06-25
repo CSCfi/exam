@@ -35,7 +35,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 @Component({
     selector: 'xm-section-question',
     templateUrl: './section-question.component.html',
-    standalone: true,
     imports: [
         CdkDragHandle,
         NgbPopover,

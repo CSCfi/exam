@@ -10,7 +10,6 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'xm-eq-essay',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    standalone: true,
     imports: [FormsModule, NgbPopoverModule, TranslateModule],
     styleUrls: ['../question.shared.scss'],
     template: `

@@ -17,7 +17,6 @@ import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
 @Component({
     selector: 'xm-exam-feedback',
     templateUrl: './exam-feedback.component.html',
-    standalone: true,
     imports: [NgClass, DatePipe, TranslateModule],
     styles: [
         `

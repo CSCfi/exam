@@ -8,7 +8,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { User } from 'src/app/session/session.model';
 
 @Component({
-    standalone: true,
     imports: [TranslateModule],
     template: `
         <div class="modal-header">

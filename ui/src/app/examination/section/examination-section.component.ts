@@ -78,7 +78,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 }
             </div>
         </div>`,
-    standalone: true,
     imports: [ExaminationQuestionComponent, TranslateModule, OrderByPipe],
     styleUrls: ['../examination.shared.scss', './examination-section.component.scss'],
 })

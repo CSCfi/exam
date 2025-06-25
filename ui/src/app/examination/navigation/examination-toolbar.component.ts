@@ -24,7 +24,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     selector: 'xm-examination-toolbar',
     templateUrl: './examination-toolbar.component.html',
     styleUrls: ['../examination.shared.scss', './examination-toolbar.component.scss'],
-    standalone: true,
     imports: [NgClass, NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
 })
 export class ExaminationToolbarComponent implements OnInit {

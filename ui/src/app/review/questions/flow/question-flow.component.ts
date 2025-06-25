@@ -35,7 +35,6 @@ import { QuestionFlowCategoryComponent } from './question-flow-category.componen
             </xm-question-flow-category>
         }`,
     styleUrls: ['./question-flow.component.scss'],
-    standalone: true,
     imports: [QuestionFlowCategoryComponent, TranslateModule],
 })
 export class QuestionFlowComponent implements OnInit, OnChanges {

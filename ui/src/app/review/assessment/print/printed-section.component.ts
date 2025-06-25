@@ -35,7 +35,6 @@ import { PrintedMultiChoiceComponent } from './printed-multi-choice.component';
         }
     `,
     styleUrls: ['./print.shared.scss'],
-    standalone: true,
     imports: [PrintedMultiChoiceComponent, PrintedEssayComponent, PrintedClozeTestComponent, OrderByPipe],
 })
 export class PrintedSectionComponent {

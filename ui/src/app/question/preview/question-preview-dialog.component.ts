@@ -32,7 +32,6 @@ import { Question } from 'src/app/question/question.model';
             </div>
         </div>
     `,
-    standalone: true,
     imports: [ExaminationQuestionComponent, TranslateModule],
 })
 export class QuestionPreviewDialogComponent implements OnInit {

@@ -53,7 +53,6 @@ import { QuestionService } from 'src/app/question/question.service';
         </div>
     `,
     styleUrls: ['../question.shared.scss'],
-    standalone: true,
     imports: [FormsModule, NgClass, TranslateModule],
 })
 export class MultipleChoiceOptionEditorComponent {

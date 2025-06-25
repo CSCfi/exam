@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
@@ -10,8 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 
 @Component({
-    standalone: true,
-    imports: [TranslateModule, FormsModule, NgClass, NgbPopoverModule, UpperCasePipe, CKEditorComponent],
+    imports: [TranslateModule, FormsModule, NgbPopoverModule, UpperCasePipe, CKEditorComponent],
     selector: 'xm-question-basic-info',
     styles: '.initial-width { width: initial !important; }',
     template: ` @if (questionId()) {

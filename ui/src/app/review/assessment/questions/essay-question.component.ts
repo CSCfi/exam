@@ -23,7 +23,6 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     selector: 'xm-r-essay-question',
     templateUrl: './essay-question.component.html',
     styleUrls: ['../assessment.shared.scss', './essay-question.component.scss'],
-    standalone: true,
     imports: [
         MathJaxDirective,
         NgbCollapse,

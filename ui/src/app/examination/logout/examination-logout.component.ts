@@ -25,7 +25,6 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
             </div>
         </div>
     `,
-    standalone: true,
     imports: [TranslateModule],
 })
 export class ExaminationLogoutComponent implements OnInit {

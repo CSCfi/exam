@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-@import '../../shared/definitions.scss';
+@use '../../shared/definitions.scss' as shared;
 
 .student-exam-all-required {
-    color: $exam-medium-green;
+    color: shared.$exam-medium-green;
     font-size: 16px;
     padding-right: 3px;
 }

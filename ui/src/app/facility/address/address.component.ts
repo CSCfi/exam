@@ -84,7 +84,6 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
         </form>
     </div> `,
     styleUrls: ['../rooms/rooms.component.scss'],
-    standalone: true,
     imports: [FormsModule, NgbPopover, TranslateModule],
 })
 export class AddressComponent {

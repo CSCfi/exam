@@ -24,7 +24,6 @@ import { WeightedMultiChoiceAnswerComponent } from './weighted-multi-choice-answ
     selector: 'xm-r-multi-choice-question',
     templateUrl: './multi-choice-question.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    standalone: true,
     imports: [
         MathJaxDirective,
         NgStyle,

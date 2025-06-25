@@ -64,7 +64,6 @@ export class DatePickerI18n extends NgbDatepickerI18n {
         { provide: NgbDateParserFormatter, useClass: DatePickerFormatter },
         { provide: NgbDatepickerI18n, useClass: DatePickerI18n },
     ],
-    standalone: true,
     imports: [FormsModule, NgbInputDatepicker, TranslateModule],
 })
 export class DatePickerComponent implements OnInit, OnChanges {

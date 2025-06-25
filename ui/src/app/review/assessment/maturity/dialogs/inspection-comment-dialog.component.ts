@@ -9,7 +9,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-r-inspection-comment',
-    standalone: true,
     imports: [FormsModule, TranslateModule],
     template: `
         <div class="modal-header">

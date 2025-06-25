@@ -14,7 +14,6 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
 @Component({
     selector: 'xm-eq-weighted-mc',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    standalone: true,
     imports: [FormsModule, NgClass, NgbPopoverModule, TranslateModule, UpperCasePipe],
     styleUrls: ['../question.shared.scss'],
     template: `

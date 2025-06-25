@@ -26,7 +26,6 @@ import { ReservationService, Selection } from './reservation.service';
 
 @Component({
     selector: 'xm-reservations',
-    standalone: true,
     imports: [
         FormsModule,
         TranslateModule,

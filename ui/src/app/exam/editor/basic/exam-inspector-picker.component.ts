@@ -20,7 +20,6 @@ import { UserService } from 'src/app/shared/user/user.service';
 @Component({
     selector: 'xm-exam-inspector-picker',
     templateUrl: './exam-inspector-picker.component.html',
-    standalone: true,
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule, NgClass],
     styles: '.vbottom { vertical-align: bottom !important }',
     styleUrls: ['../../exam.shared.scss'],

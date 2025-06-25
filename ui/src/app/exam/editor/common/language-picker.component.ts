@@ -32,7 +32,6 @@ import { LanguageService } from 'src/app/shared/language/language.service';
             }
         </div>
     </div>`,
-    standalone: true,
     imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass],
 })
 export class LanguageSelectorComponent implements OnInit {

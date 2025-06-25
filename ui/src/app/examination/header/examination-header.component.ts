@@ -35,7 +35,6 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
             </div>
         </div>
     </div>`,
-    standalone: true,
     imports: [CourseCodeComponent, ExaminationClockComponent],
     styleUrls: ['../examination.shared.scss', './examination-header.component.scss'],
 })

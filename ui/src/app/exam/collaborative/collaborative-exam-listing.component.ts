@@ -37,7 +37,6 @@ interface ListedCollaborativeExam extends CollaborativeExam {
 @Component({
     selector: 'xm-collaborative-exam-listing',
     templateUrl: './collaborative-exam-listing.component.html',
-    standalone: true,
     imports: [
         NgbNav,
         NgbNavItem,

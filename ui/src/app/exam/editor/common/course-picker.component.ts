@@ -18,7 +18,6 @@ import { CoursePickerService } from './course-picker.service';
     selector: 'xm-course-picker',
     templateUrl: './course-picker.component.html',
     styleUrls: ['../../exam.shared.scss'],
-    standalone: true,
     imports: [FormsModule, NgbTypeahead, NgbHighlight, NgbPopover, TranslateModule],
 })
 export class CoursePickerComponent implements OnInit {

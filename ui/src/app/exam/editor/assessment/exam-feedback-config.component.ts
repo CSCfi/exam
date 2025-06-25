@@ -28,7 +28,6 @@ type ExamFeedbackConfigTemplate = {
     selector: 'xm-exam-feedback-config',
     templateUrl: './exam-feedback-config.component.html',
     styleUrls: ['./exam-feedback-config.component.scss'],
-    standalone: true,
     imports: [
         NgbPopover,
         NgbCollapse,

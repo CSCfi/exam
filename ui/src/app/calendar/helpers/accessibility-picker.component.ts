@@ -63,7 +63,6 @@ import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
         </div>
     </div> `,
     styleUrls: ['../calendar.component.scss'],
-    standalone: true,
     imports: [NgbCollapse, TranslateModule],
 })
 export class AccessibilityPickerComponent {

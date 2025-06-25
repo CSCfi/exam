@@ -42,7 +42,6 @@ import { ExaminationService } from 'src/app/examination/examination.service';
             </div>
         }
     `,
-    standalone: true,
     imports: [FormsModule, TranslateModule],
     styleUrls: ['./question.shared.scss'],
 })

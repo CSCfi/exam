@@ -42,7 +42,6 @@ import { SectionQuestionComponent } from './section-question.component';
     selector: 'xm-section',
     encapsulation: ViewEncapsulation.None,
     templateUrl: './section.component.html',
-    standalone: true,
     imports: [
         NgbPopover,
         NgbDropdown,

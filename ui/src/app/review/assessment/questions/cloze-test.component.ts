@@ -19,7 +19,6 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
 @Component({
     selector: 'xm-r-cloze-test',
     templateUrl: './cloze-test.component.html',
-    standalone: true,
     imports: [NgStyle, MathJaxDirective, FormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
     styleUrls: ['../assessment.shared.scss'],
 })

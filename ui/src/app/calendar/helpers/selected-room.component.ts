@@ -97,7 +97,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         }
     `,
     styleUrls: ['../calendar.component.scss'],
-    standalone: true,
     imports: [NgClass, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
 })
 export class SelectedRoomComponent implements OnInit, OnChanges {

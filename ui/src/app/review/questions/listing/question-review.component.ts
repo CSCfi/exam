@@ -82,7 +82,6 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
             </div>
         }
     </div>`,
-    standalone: true,
     styleUrls: ['./question-review.component.scss'],
     imports: [FormsModule, MathJaxDirective, LowerCasePipe, TranslateModule],
 })

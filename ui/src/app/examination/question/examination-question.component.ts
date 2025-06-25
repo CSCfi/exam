@@ -22,7 +22,6 @@ type ClozeTestAnswer = { [key: string]: string };
 @Component({
     selector: 'xm-examination-question',
     templateUrl: './examination-question.component.html',
-    standalone: true,
     imports: [
         NgClass,
         MathJaxDirective,

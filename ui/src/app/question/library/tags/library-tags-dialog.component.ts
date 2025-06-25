@@ -44,7 +44,6 @@ import { Tag } from 'src/app/question/question.model';
             </button>
         </div>
     `,
-    standalone: true,
     imports: [NgbTypeaheadModule, TranslateModule],
 })
 export class LibraryTagsDialogComponent implements OnInit {

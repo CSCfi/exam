@@ -87,7 +87,6 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    standalone: true,
     imports: [NgClass, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
 })
 export class OrganisationPickerComponent implements OnInit {

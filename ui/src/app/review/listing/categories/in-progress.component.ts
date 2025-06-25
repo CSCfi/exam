@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, LowerCasePipe, NgClass, NgStyle, SlicePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -26,14 +26,12 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 @Component({
     selector: 'xm-rl-in-progress',
     templateUrl: './in-progress.component.html',
-    standalone: true,
     imports: [
         NgbPopover,
         FormsModule,
         RouterLink,
         TableSortComponent,
         NgClass,
-        NgStyle,
         PaginatorComponent,
         LowerCasePipe,
         SlicePipe,

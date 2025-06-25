@@ -14,7 +14,6 @@ import { isNumber } from 'src/app/shared/miscellaneous/helpers';
     selector: 'xm-printed-multi-choice',
     templateUrl: './templates/multi-choice.component.html',
     styleUrls: ['./print.shared.scss'],
-    standalone: true,
     imports: [MathJaxDirective, NgClass, NgStyle, TranslateModule],
 })
 export class PrintedMultiChoiceComponent {

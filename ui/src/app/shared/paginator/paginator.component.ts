@@ -25,7 +25,6 @@ import { range as _range } from 'ramda';
         </ul>
     `,
     styleUrls: ['./paginator.component.scss'],
-    standalone: true,
     imports: [NgClass],
 })
 export class PaginatorComponent implements OnChanges {

@@ -11,7 +11,6 @@ import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 @Component({
-    standalone: true,
     imports: [QuestionComponent],
     template: `
         <div class="modal-body">

@@ -12,7 +12,6 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 
 @Component({
     selector: 'xm-speed-review-feedback',
-    standalone: true,
     imports: [FormsModule, TranslateModule, CKEditorComponent],
     template: `
         <div class="modal-header">

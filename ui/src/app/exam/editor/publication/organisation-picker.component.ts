@@ -79,7 +79,6 @@ type Organisation = {
                 </div>
             </div>
         }`,
-    standalone: true,
     imports: [NgClass, NgbPopover, NgbDropdownModule, TranslateModule],
 })
 export class OrganisationSelectorComponent implements OnInit {

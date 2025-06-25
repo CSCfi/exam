@@ -25,7 +25,6 @@ import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { EssayAnswerListComponent } from './essay-answers.component';
@@ -34,9 +33,7 @@ import { EssayAnswerListComponent } from './essay-answers.component';
     selector: 'xm-question-assessment',
     templateUrl: './question-assessment.component.html',
     styleUrls: ['./question-assessment.component.scss'],
-    standalone: true,
     imports: [
-        HistoryBackComponent,
         NgClass,
         MathJaxDirective,
         NgbNav,

@@ -20,7 +20,6 @@ import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
     selector: 'xm-exam-assessment',
     templateUrl: './exam-assessment.component.html',
     styleUrls: ['../../exam.shared.scss'],
-    standalone: true,
     imports: [NgbPopover, NgClass, AutoEvaluationComponent, ExamFeedbackConfigComponent, TranslateModule],
 })
 export class ExamAssessmentComponent implements OnInit, OnDestroy {

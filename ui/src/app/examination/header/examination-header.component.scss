@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-@import '../../shared/definitions.scss';
+@use '../../shared/definitions.scss' as shared;
 
 .exam-header {
     background-color: black;
@@ -20,7 +20,7 @@
     img {
         align-self: center;
     }
-    @media (max-width: $mobile-width) {
+    @media (max-width: shared.$mobile-width) {
     }
 }
 .exam-mobile-header {
@@ -44,7 +44,7 @@
     min-width: 100px;
     align-content: flex-start;
     justify-content: flex-end;
-    @media (max-width: $mobile-width) {
+    @media (max-width: shared.$mobile-width) {
         align-content: flex-start;
         justify-content: flex-start;
         margin: 10px;

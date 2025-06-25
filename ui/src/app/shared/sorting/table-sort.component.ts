@@ -14,7 +14,6 @@ import { TranslateModule } from '@ngx-translate/core';
             <i [ngClass]="getSortClass()"></i>
         </span>
     `,
-    standalone: true,
     imports: [NgClass, TranslateModule],
 })
 export class TableSortComponent {

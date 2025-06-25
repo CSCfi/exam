@@ -18,7 +18,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-examination-event-dialog',
-    standalone: true,
     imports: [NgClass, FormsModule, DatePipe, TranslateModule, DateTimePickerComponent, OrderByPipe],
     templateUrl: './examination-event-dialog.component.html',
 })
