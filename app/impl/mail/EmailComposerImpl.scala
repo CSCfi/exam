@@ -141,7 +141,7 @@ class EmailComposerImpl @Inject() (
               lang
             )
           val values = Map(
-            "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5",
+            "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5?collaborative=false",
             "exam_name"      -> exam.getName,
             "course_code"    -> Option(exam.getCourse).map(_.getCode).nonNull.map(_.split("_").head).getOrElse(""),
             "review_summary" -> summary
@@ -149,12 +149,14 @@ class EmailComposerImpl @Inject() (
           replaceAll(inspectionTemplate, values)
         )
         .mkString
+      val na = messaging("email.template.weekly.report.none")(lang)
       val values = Map(
-        "enrolments_title"      -> messaging("email.template.weekly.report.enrolments")(lang),
-        "enrolments_info_title" -> messaging("email.template.weekly.report.enrolments.info")(lang),
-        "enrolment_info"        -> (if enrolmentBlock.isEmpty then "N/A" else enrolmentBlock),
-        "inspections_title"     -> messaging("email.template.weekly.report.inspections.info", totalUngradedExams)(lang),
-        "inspection_info_own"   -> (if assessmentBlock.isEmpty then "N/A" else assessmentBlock)
+        "enrolments_title"     -> messaging("email.template.weekly.report.enrolments")(lang),
+        "enrolment_info_title" -> messaging("email.template.weekly.report.enrolments.info")(lang),
+        "enrolment_info"       -> (if enrolmentBlock.isEmpty then na else enrolmentBlock),
+        "inspections_title"    -> messaging("email.template.weekly.report.inspections")(lang),
+        "inspections_info"     -> messaging("email.template.weekly.report.inspections.info", totalUngradedExams)(lang),
+        "inspection_info_own"  -> (if assessmentBlock.isEmpty then na else assessmentBlock)
       )
       val content = replaceAll(template, values)
       emailSender.send(Mail(teacher.getEmail, systemAccount, subject, content))
@@ -734,7 +736,7 @@ class EmailComposerImpl @Inject() (
       .gt("periodEnd", new Date)
       .list
       .map(e => (e, getEnrolments(e)))
-      .filter((e, ees) => e.isPrivate || ees.isEmpty)
+      .filterNot((_, ees) => ees.isEmpty)
       .map((exam, enrolments) =>
         val commonValues = Map(
           "exam_link"   -> s"$hostName/staff/reservations/${exam.getId}",

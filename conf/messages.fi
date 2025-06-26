@@ -37,6 +37,7 @@ email.template.weekly.report.enrolments=Tenttiajanvaraukset
 email.template.weekly.report.enrolments.info=Opiskelijat ovat varanneet tenttiaikoja tentteihisi seuraavasti:
 email.template.weekly.report.inspections=Arvioimattomat suoritukset
 email.template.weekly.report.inspections.info=Sinulla on {0} arvioimatonta vastausta näissä tenteissä:
+email.template.weekly.report.none=Ei yhtään
 email.template.reservation.cancel.message.student=Olet perunut varaamasi ajan seuraavaan tenttiin:
 email.template.reservation.cancel.message.student.new.time=Voit varata uuden ajan tenttiin tästä
 email.template.participant.notification.subject=Sinulle on luotu henkilökohtainen tentti {0}
