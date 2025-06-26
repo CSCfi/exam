@@ -37,6 +37,7 @@ email.template.weekly.report.enrolments=Bokningar
 email.template.weekly.report.enrolments.info=Studerandena har bokat följande tider för dina tentamina
 email.template.weekly.report.inspections=Obedömda prestationer
 email.template.weekly.report.inspections.info=Du har {0} obedömda svar i följande tentamina
+email.template.weekly.report.none=Det finns inga
 email.template.reservation.cancel.message.student=Du har avbokat din tid till följande tentamen:
 email.template.reservation.cancel.message.student.new.time=Du kan boka en ny tid till tentamen här
 email.template.participant.notification.subject=Personlig tentamen {0}
