@@ -36,7 +36,7 @@ export class EssayAnswerComponent implements OnInit {
         this.name = this.answer.examSection.exam.creator
             ? `${this.answer.examSection.exam.creator.lastName} ${this.answer.examSection.exam.creator.firstName}`
             : this.answer.examSection.exam.id.toString();
-        this.answer.expanded = true;
+        this.answer.expanded = false;
         this.answer.essayAnswer = this.answer.essayAnswer || {};
         this.answer.essayAnswer.temporaryScore = this.answer.essayAnswer.evaluatedScore;
     }

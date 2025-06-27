@@ -61,6 +61,7 @@ export class QuestionAssessmentComponent implements OnInit {
     assessedAnswers: ReviewQuestion[] = [];
     unassessedAnswers: ReviewQuestion[] = [];
     lockedAnswers: ReviewQuestion[] = [];
+    allAnswersExpanded = true;
 
     constructor(
         private route: ActivatedRoute,
@@ -108,6 +109,22 @@ export class QuestionAssessmentComponent implements OnInit {
         forkJoin(answers.map(this.saveEvaluation$)).subscribe(() => (this.reviews = [...this.reviews]));
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
+
+    toggleAllAnswers = () => {
+        const allAnswers = [...this.assessedAnswers, ...this.unassessedAnswers, ...this.lockedAnswers];
+
+        if (this.allAnswersExpanded) {
+            allAnswers.forEach((answer) => {
+                answer.expanded = true;
+            });
+            this.allAnswersExpanded = false;
+        } else {
+            allAnswers.forEach((answer) => {
+                answer.expanded = false;
+            });
+            this.allAnswersExpanded = true;
+        }
+    };
 
     setSelectedReview = (review: QuestionReview) => {
         this.selectedReview = { ...review, expanded: true };
