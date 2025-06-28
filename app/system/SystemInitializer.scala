@@ -78,7 +78,7 @@ class SystemInitializer @Inject() (
     )
 
   private def scheduleWeeklyReport(): Unit =
-    val delay = Duration.create(secondsUntilNextMondayRun(), TimeUnit.SECONDS)
+    val delay = Duration.create( /*secondsUntilNextMondayRun()*/ 10, TimeUnit.SECONDS)
     if reporter.nonEmpty then reporter.get.cancel()
     val newTask = system.scheduler.scheduleOnce(
       delay,

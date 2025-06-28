@@ -121,42 +121,26 @@ class EmailComposerImpl @Inject() (
   override def composeWeeklySummary(teacher: User): Unit =
     val lang           = getLang(teacher)
     val enrolmentBlock = createEnrolmentBlock(teacher, lang)
-    val reviews        = getReviews(teacher)
-    if enrolmentBlock.nonEmpty || reviews.nonEmpty then
+    val ungraded       = getReviews(teacher, Seq(Exam.State.REVIEW, Exam.State.REVIEW_STARTED))
+    val graded         = getReviews(teacher, Seq(Exam.State.GRADED))
+    if enrolmentBlock.nonEmpty || ungraded.nonEmpty || graded.nonEmpty then
       logger.info(s"Sending weekly report to: ${teacher.getEmail}")
-      val templatePath           = s"${templateRoot}weeklySummary/weeklySummary.html"
-      val inspectionTemplatePath = s"${templateRoot}weeklySummary/inspectionInfoSimple.html"
-      val template               = fileHandler.read(templatePath)
-      val inspectionTemplate     = fileHandler.read(inspectionTemplatePath)
-      val subject                = messaging("email.weekly.report.subject")(lang)
-      val totalUngradedExams     = reviews.length
-      val assessments = reviews.groupBy(_.getExam).map((k, v) => k -> (v.length, v.minBy(_.getDeadline).getDeadline))
-      val assessmentBlock = assessments.toSeq
-        .filter(_._2._1 > 0)
-        .sortBy(_._2._2)
-        .map(as =>
-          val (exam, (amount, deadline)) = (as._1, (as._2._1, as._2._2))
-          val summary =
-            messaging("email.weekly.report.review.summary", amount, EmailComposerImpl.DF.print(new DateTime(deadline)))(
-              lang
-            )
-          val values = Map(
-            "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5?collaborative=false",
-            "exam_name"      -> exam.getName,
-            "course_code"    -> Option(exam.getCourse).map(_.getCode).nonNull.map(_.split("_").head).getOrElse(""),
-            "review_summary" -> summary
-          )
-          replaceAll(inspectionTemplate, values)
-        )
-        .mkString
-      val na = messaging("email.template.weekly.report.none")(lang)
+      val templatePath = s"${templateRoot}weeklySummary/weeklySummary.html"
+      val template     = fileHandler.read(templatePath)
+      val subject      = messaging("email.weekly.report.subject")(lang)
+      val none         = messaging("email.template.weekly.report.none")(lang)
       val values = Map(
-        "enrolments_title"     -> messaging("email.template.weekly.report.enrolments")(lang),
+        "enrolment_title"      -> messaging("email.template.weekly.report.enrolments")(lang),
         "enrolment_info_title" -> messaging("email.template.weekly.report.enrolments.info")(lang),
-        "enrolment_info"       -> (if enrolmentBlock.isEmpty then na else enrolmentBlock),
-        "inspections_title"    -> messaging("email.template.weekly.report.inspections")(lang),
-        "inspections_info"     -> messaging("email.template.weekly.report.inspections.info", totalUngradedExams)(lang),
-        "inspection_info_own"  -> (if assessmentBlock.isEmpty then na else assessmentBlock)
+        "enrolment_info"       -> (if enrolmentBlock.isEmpty then none else enrolmentBlock),
+        "ungraded_title"       -> messaging("email.template.weekly.report.ungraded")(lang),
+        "ungraded_info"        -> messaging("email.template.weekly.report.ungraded.info", ungraded.length)(lang),
+        "ungraded_info_own" -> createAssessmentBlock(ungraded, lang).getOrElse(
+          none
+        ),
+        "graded_title"    -> messaging("email.template.weekly.report.graded")(lang),
+        "graded_info"     -> messaging("email.template.weekly.report.graded.info", graded.length)(lang),
+        "graded_info_own" -> createAssessmentBlock(graded, lang).getOrElse(none)
       )
       val content = replaceAll(template, values)
       emailSender.send(Mail(teacher.getEmail, systemAccount, subject, content))
@@ -762,7 +746,7 @@ class EmailComposerImpl @Inject() (
       .mkString
 
 // return exams in review state where teacher is either owner or inspector
-  private def getReviews(teacher: User) = DB
+  private def getReviews(teacher: User, states: Seq[Exam.State]) = DB
     .find(classOf[ExamParticipation])
     .fetch("exam.course")
     .where
@@ -770,11 +754,32 @@ class EmailComposerImpl @Inject() (
     .eq("exam.parent.examOwners", teacher)
     .eq("exam.examInspections.user", teacher)
     .endJunction
-    .disjunction
-    .eq("exam.state", Exam.State.REVIEW)
-    .eq("exam.state", Exam.State.REVIEW_STARTED)
-    .endJunction
+    .in("exam.state", states.asJava)
     .list
+
+  private def createAssessmentBlock(assessments: Seq[ExamParticipation], lang: Lang) =
+    val templatePath = s"${templateRoot}weeklySummary/inspectionInfoSimple.html"
+    val template     = fileHandler.read(templatePath)
+    val grouped =
+      assessments.groupBy(_.getExam).map((k, v) => k -> (v.length, v.minBy(_.getDeadline).getDeadline))
+    val values = grouped.toSeq
+      .filter(_._2._1 > 0)
+      .sortBy(_._2._2)
+      .map(as =>
+        val (exam, (amount, deadline)) = (as._1, (as._2._1, as._2._2))
+        val summary =
+          messaging("email.weekly.report.review.summary", amount, EmailComposerImpl.DF.print(new DateTime(deadline)))(
+            lang
+          )
+        val values = Map(
+          "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5?collaborative=false",
+          "exam_name"      -> exam.getName,
+          "course_code"    -> Option(exam.getCourse).map(_.getCode).nonNull.map(_.split("_").head).getOrElse(""),
+          "review_summary" -> summary
+        )
+        replaceAll(template, values)
+      )
+    if values.nonEmpty then Some(values.mkString) else None
 
   private def replaceAll(original: String, values: Map[String, String]) =
     values.foldLeft(original)((acc, kv) =>
