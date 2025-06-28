@@ -7,6 +7,7 @@ package controllers.admin;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
+import be.objectify.deadbolt.java.actions.SubjectPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -69,7 +70,7 @@ public class SettingsController extends BaseController {
         return gs;
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
+    @SubjectPresent
     public Result getUserAgreement() {
         GeneralSettings gs = getOrCreateSettings("eula", null, null);
         return ok(Json.toJson(gs));
@@ -87,7 +88,7 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(gs));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
+    @SubjectPresent
     public CompletionStage<Result> getMaturityInstructions(String lang, Optional<String> hash) throws IOException {
         Language language = DB.find(Language.class, lang);
         if (language == null) {
@@ -159,14 +160,14 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(gs));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
+    @SubjectPresent
     public Result getHostname() {
         ObjectNode node = Json.newObject();
         node.put("hostname", configReader.getHostName());
         return ok(Json.toJson(node));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
+    @SubjectPresent
     public Result getMaxFilesize() {
         ObjectNode node = Json.newObject();
         node.put("filesize", configReader.getMaxFileSize());
@@ -307,7 +308,7 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(node));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
+    @SubjectPresent
     public Result getCourseCodePrefix() {
         ObjectNode node = Json.newObject();
         node.put("prefix", configReader.getCourseCodePrefix());
