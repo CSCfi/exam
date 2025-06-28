@@ -7,6 +7,7 @@ package controllers.attachment;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectPresent;
 import controllers.base.BaseController;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
@@ -289,7 +290,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
+    @SubjectPresent
     @Override
     public CompletionStage<Result> downloadQuestionAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -310,7 +311,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
+    @SubjectPresent
     @Override
     public CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, Http.Request request) {
         // TODO: Authorization?
@@ -323,7 +324,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return serveAttachment(question.getEssayAnswer().getAttachment());
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
+    @SubjectPresent
     @Override
     public CompletionStage<Result> downloadExamAttachment(Long id, Http.Request request) {
         // TODO: Authorization?
@@ -335,7 +336,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
+    @SubjectPresent
     @Override
     public CompletionStage<Result> downloadFeedbackAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -352,7 +353,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
+    @SubjectPresent
     @Override
     public CompletionStage<Result> downloadStatementAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
