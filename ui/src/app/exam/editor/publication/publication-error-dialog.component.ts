@@ -8,7 +8,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-publication-error-dialog',
-    standalone: true,
     imports: [TranslateModule],
     template: `<div role="dialog" aria-modal="true">
         <div class="modal-header">

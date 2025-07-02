@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -19,9 +18,6 @@ import type {
 } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
-import { PageContentComponent } from 'src/app/shared/components/page-content.component';
-import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 import { ClaimChoiceComponent } from './claim-choice.component';
 import { EssayComponent } from './essay.component';
@@ -33,14 +29,10 @@ import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
     selector: 'xm-exam-question',
     templateUrl: './exam-question.component.html',
     styleUrls: ['../question.shared.scss'],
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,
-        CKEditorComponent,
-        NgClass,
         FixedPrecisionValidatorDirective,
-        UpperCasePipe,
         TranslateModule,
         QuestionBasicInfoComponent,
         QuestionUsageComponent,
@@ -48,8 +40,6 @@ import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
         WeightedMultiChoiceComponent,
         MultiChoiceComponent,
         ClaimChoiceComponent,
-        PageHeaderComponent,
-        PageContentComponent,
     ],
 })
 export class ExamQuestionComponent implements OnInit, OnDestroy {

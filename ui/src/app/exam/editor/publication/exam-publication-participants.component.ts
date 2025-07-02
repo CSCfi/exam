@@ -13,7 +13,6 @@ import { ExamPreParticipantSelectorComponent } from './exam-pre-participant-pick
 import { OrganisationSelectorComponent } from './organisation-picker.component';
 
 @Component({
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopoverModule,

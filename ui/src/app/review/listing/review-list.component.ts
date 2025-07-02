@@ -25,7 +25,6 @@ import { ReviewListService } from './review-list.service';
 @Component({
     selector: 'xm-review-list',
     templateUrl: './review-list.component.html',
-    standalone: true,
     imports: [
         NgbPopover,
         InProgressReviewsComponent,

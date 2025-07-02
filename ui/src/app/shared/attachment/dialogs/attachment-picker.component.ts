@@ -20,7 +20,6 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-attachment-selector',
-    standalone: true,
     imports: [TranslateModule],
     template: `
         <div class="modal-header">

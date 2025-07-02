@@ -40,7 +40,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             }
         </div>
     }`,
-    standalone: true,
     imports: [NgClass, TranslateModule, OrderByPipe],
     styleUrl: './multi-choice-answers.shared.scss',
 })

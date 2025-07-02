@@ -31,7 +31,6 @@ import { SoftwareSelectorComponent } from './software-picker.component';
     selector: 'xm-basic-exam-info',
     templateUrl: './basic-exam-info.component.html',
     styleUrls: ['../../exam.shared.scss'],
-    standalone: true,
     imports: [
         ExamCourseComponent,
         NgbPopover,

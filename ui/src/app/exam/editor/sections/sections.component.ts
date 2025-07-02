@@ -15,7 +15,6 @@ import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, tap } from 'rxjs/operators';
@@ -29,17 +28,7 @@ import { SectionComponent } from './section.component';
 @Component({
     selector: 'xm-sections',
     templateUrl: './sections.component.html',
-    standalone: true,
-    imports: [
-        CdkDropList,
-        CdkDrag,
-        CdkDragPlaceholder,
-        CdkDragPreview,
-        SectionComponent,
-        NgbPopover,
-        TranslateModule,
-        OrderByPipe,
-    ],
+    imports: [CdkDropList, CdkDrag, CdkDragPlaceholder, CdkDragPreview, SectionComponent, TranslateModule, OrderByPipe],
     styleUrls: ['../../exam.shared.scss', './sections.component.scss', './sections.shared.scss'],
 })
 export class SectionsComponent implements OnInit, OnChanges {

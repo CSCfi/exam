@@ -16,7 +16,6 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetition-options.component';
 
 @Component({
-    standalone: true,
     imports: [TranslateModule, ExceptionDialogRepetitionOptionsComponent, NgbDropdownModule],
     templateUrl: './exception-dialog.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],

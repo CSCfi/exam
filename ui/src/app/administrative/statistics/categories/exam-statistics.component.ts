@@ -56,7 +56,6 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
         }
     `,
     selector: 'xm-exam-statistics',
-    standalone: true,
     imports: [TranslateModule],
 })
 export class ExamStatisticsComponent implements OnInit {

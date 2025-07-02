@@ -8,7 +8,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-confirmation-dialog',
-    standalone: true,
     imports: [TranslateModule],
     template: `
         <div class="modal-header">
@@ -17,10 +16,10 @@ import { TranslateModule } from '@ngx-translate/core';
         <div class="modal-body" [innerHTML]="description"></div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-success" (click)="activeModal.close(true)" autofocus>
-                {{ 'i18n_button_accept' | translate }}
+                {{ getConfirmButtonText() | translate }}
             </button>
             <button class="btn btn-secondary me-3" (click)="activeModal.dismiss(false)">
-                {{ 'i18n_button_decline' | translate }}
+                {{ getCancelButtonText() | translate }}
             </button>
         </div>
     `,
@@ -28,6 +27,16 @@ import { TranslateModule } from '@ngx-translate/core';
 export class ConfirmationDialogComponent {
     title = '';
     description = '';
+    confirmButtonText?: string;
+    cancelButtonText?: string;
 
     constructor(public activeModal: NgbActiveModal) {}
+
+    getConfirmButtonText(): string {
+        return this.confirmButtonText || 'i18n_button_accept';
+    }
+
+    getCancelButtonText(): string {
+        return this.cancelButtonText || 'i18n_button_decline';
+    }
 }

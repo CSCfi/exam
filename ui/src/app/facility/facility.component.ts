@@ -32,7 +32,6 @@ import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-
 @Component({
     templateUrl: './facility.component.html',
     selector: 'xm-facility',
-    standalone: true,
     imports: [
         NgbNav,
         NgbNavItem,

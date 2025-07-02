@@ -92,7 +92,6 @@ import type { ExamInfo } from 'src/app/calendar/calendar.model';
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    standalone: true,
     imports: [NgClass, FormsModule, UpperCasePipe, TranslateModule],
 })
 export class OptionalSectionsComponent {

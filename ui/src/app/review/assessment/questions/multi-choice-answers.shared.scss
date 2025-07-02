@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-@import '../../../shared/definitions.scss';
+@use '../../../shared/definitions.scss' as shared;
 .exam-answered-correct {
-    border: 1px solid $exam-dark-green;
+    border: 1px solid shared.$exam-dark-green;
     background-color: #f3fff5;
     padding: 5px;
     border-radius: 4px;

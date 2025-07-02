@@ -85,7 +85,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         }
         @if (getRoomInstructions()) {
             <div class="row mt-2">
-                <div class="col-md-2 col-12">{{ 'i18n_instructions' | translate }}:</div>
+                <div class="col-md-2 col-12">{{ 'i18n_room_guidance' | translate }}:</div>
                 <div class="col-md-10 col-12">{{ getRoomInstructions() }}</div>
             </div>
         }
@@ -97,7 +97,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         }
     `,
     styleUrls: ['../calendar.component.scss'],
-    standalone: true,
     imports: [NgClass, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
 })
 export class SelectedRoomComponent implements OnInit, OnChanges {

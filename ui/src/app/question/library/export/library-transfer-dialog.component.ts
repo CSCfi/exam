@@ -25,7 +25,6 @@ type Organisation = {
 @Component({
     selector: 'xm-library-transfer',
     templateUrl: './library-transfer-dialog.component.html',
-    standalone: true,
     imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
 })
 export class LibraryTransferDialogComponent implements OnInit {

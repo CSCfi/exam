@@ -25,7 +25,6 @@ import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { EssayAnswerListComponent } from './essay-answers.component';
@@ -34,9 +33,7 @@ import { EssayAnswerListComponent } from './essay-answers.component';
     selector: 'xm-question-assessment',
     templateUrl: './question-assessment.component.html',
     styleUrls: ['./question-assessment.component.scss'],
-    standalone: true,
     imports: [
-        HistoryBackComponent,
         NgClass,
         MathJaxDirective,
         NgbNav,
@@ -61,6 +58,7 @@ export class QuestionAssessmentComponent implements OnInit {
     assessedAnswers: ReviewQuestion[] = [];
     unassessedAnswers: ReviewQuestion[] = [];
     lockedAnswers: ReviewQuestion[] = [];
+    allAnswersExpanded = true;
 
     constructor(
         private route: ActivatedRoute,
@@ -108,6 +106,14 @@ export class QuestionAssessmentComponent implements OnInit {
         forkJoin(answers.map(this.saveEvaluation$)).subscribe(() => (this.reviews = [...this.reviews]));
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
+
+    toggleAllAnswers = () => {
+        const allAnswers = [...this.assessedAnswers, ...this.unassessedAnswers, ...this.lockedAnswers];
+        this.allAnswersExpanded = !this.allAnswersExpanded;
+        allAnswers.forEach((answer) => {
+            answer.expanded = this.allAnswersExpanded;
+        });
+    };
 
     setSelectedReview = (review: QuestionReview) => {
         this.selectedReview = { ...review, expanded: true };

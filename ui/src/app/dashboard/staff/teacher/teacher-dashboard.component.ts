@@ -27,7 +27,6 @@ import { TeacherDashboardService } from './teacher-dashboard.service';
 @Component({
     selector: 'xm-teacher-dashboard',
     templateUrl: './teacher-dashboard.component.html',
-    standalone: true,
     imports: [
         RouterLink,
         NgbNav,

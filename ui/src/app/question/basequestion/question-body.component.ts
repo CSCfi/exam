@@ -20,7 +20,6 @@ import { TagPickerComponent } from 'src/app/question/tags/tag-picker.component';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { ClaimChoiceEditorComponent } from './claim-choice.component';
 import { EssayEditorComponent } from './essay.component';
 import { MultipleChoiceEditorComponent } from './multiple-choice.component';
@@ -29,12 +28,10 @@ import { MultipleChoiceEditorComponent } from './multiple-choice.component';
     selector: 'xm-question-body',
     templateUrl: './question-body.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,
         NgClass,
-        CKEditorComponent,
         EssayEditorComponent,
         MultipleChoiceEditorComponent,
         ClaimChoiceEditorComponent,

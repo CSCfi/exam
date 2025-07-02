@@ -44,7 +44,6 @@ enum Tab {
 @Component({
     templateUrl: './statistics.component.html',
     selector: 'xm-statistics',
-    standalone: true,
     imports: [
         NgbNav,
         NgbNavItem,

@@ -13,7 +13,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 
 @Component({
     selector: 'xm-no-shows-component',
-    standalone: true,
     imports: [TranslateModule, ApplyDstPipe, OrderByPipe, DatePipe, TableSortComponent],
     templateUrl: './no-shows.component.html',
     styleUrls: ['../review-list.component.scss'],

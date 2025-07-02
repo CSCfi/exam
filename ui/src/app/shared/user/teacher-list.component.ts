@@ -18,7 +18,6 @@ type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
             }
         </span>
     `,
-    standalone: true,
     imports: [],
 })
 export class TeacherListComponent implements OnInit {
