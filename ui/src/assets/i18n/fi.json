@@ -1251,7 +1251,7 @@
     "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan.",
     "i18n_expand_all": "Avaa kaikki",
     "i18n_collapse_all": "Sulje kaikki",
-    "i18n_move_individual": "Siirrä yksittäinen"
+    "i18n_move_individual": "Siirrä yksittäinen",
     "i18n_continue_to_external_reservation": "Jatka tenttivierailuajan varaukseen",
     "i18n_assessment_date": "Arviointipäivä",
     "i18n_download_report_excel": "Lataa raportti kysymyskohtaisista pisteistä (Excel)",

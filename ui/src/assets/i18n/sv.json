@@ -1251,7 +1251,7 @@
     "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan. SV",
     "i18n_expand_all": "Visa alla SV",
     "i18n_collapse_all": "Dölj alla SV",
-    "i18n_move_individual": "Flytta enskild SV"
+    "i18n_move_individual": "Flytta enskild SV",
     "i18n_continue_to_external_reservation": "Fortsätt till extern reservation SV",
     "i18n_assessment_date": "Bedömningsdatum SV",
     "i18n_download_report_excel": "Ladda ned rapport över poäng per fråga (Excel) SV",
