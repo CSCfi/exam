@@ -1248,6 +1248,9 @@
     "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua näin? Siinä tapauksessa ainoastaan opiskelijan rooli tulee kyseeseen. EN",
     "i18n_point_graded": "Pisteytetty arviointi EN",
     "i18n_grade_selection_description": "Arvioijat voivat valita tästä listasta arvosanan, jolla opiskelijan tentti arvioidaan. EN",
+    "i18n_expand_all": "Expand All EN",
+    "i18n_collapse_all": "Collapse All EN",
+    "i18n_move_individual": "Move individual EN"
     "i18n_continue_to_external_reservation": "Continue to external reservation EN",
     "i18n_assessment_date": "Assessment date EN",
     "i18n_download_report_excel": "Download report of points per question (Excel) EN",
