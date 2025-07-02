@@ -40,14 +40,18 @@
         </div>
         @if (selectedReview && selectedReview.question.defaultAnswerInstructions) {
             <div class="col-md-1">
-                <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">
+                <button
+                    type="button"
+                    class="btn btn-link p-0"
+                    (click)="selectedReview.expanded = !selectedReview.expanded"
+                >
                     @if (!selectedReview.expanded) {
                         <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
                     @if (selectedReview.expanded) {
                         <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
-                </a>
+                </button>
             </div>
         }
     </div>
@@ -134,6 +138,17 @@
                     </ng-template>
                 </li>
             </ul>
+            <div class="row mb-3 mt-3">
+                <div class="col-md-12">
+                    <button class="btn btn-outline-secondary" (click)="toggleAllAnswers()">
+                        @if (allAnswersExpanded) {
+                            {{ 'i18n_collapse_all' | translate }}
+                        } @else {
+                            {{ 'i18n_expand_all' | translate }}
+                        }
+                    </button>
+                </div>
+            </div>
             <div [ngbNavOutlet]="nav"></div>
         </div>
     </div>

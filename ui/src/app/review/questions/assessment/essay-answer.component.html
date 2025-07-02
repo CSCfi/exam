@@ -6,12 +6,12 @@
             </span>
         </div>
     }
-    <div class="row m-2 pb-2">
+    <div class="row m-1 pb-1">
         <div class="col-12">
             <strong>{{ 'i18n_assessee_information' | translate | uppercase }}</strong>
         </div>
     </div>
-    <div class="row m-2 pb-2">
+    <div class="row m-1 pb-1">
         <div class="col-12">
             <a [routerLink]="['/staff/assessments', answer.examSection.exam.id]" target="_blank">
                 {{ name }}
@@ -19,24 +19,24 @@
                     <span>({{ answer.examSection.exam.creator.userIdentifier }})</span>
                 }
             </a>
-            <a class="pointer-hand ps-2" (click)="answer.expanded = !answer.expanded">
+            <button type="button" class="btn btn-link ms-1" (click)="answer.expanded = !answer.expanded">
                 @if (answer.expanded) {
-                    <img src="/assets/images/icon_list_show_right.svg" alt="" />
-                } @else {
                     <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                } @else {
+                    <img src="/assets/images/icon_list_show_right.svg" alt="" />
                 }
-            </a>
+            </button>
         </div>
     </div>
-    <div [ngbCollapse]="answer.expanded">
-        <div class="row m-2">
+    <div [ngbCollapse]="!answer.expanded">
+        <div class="row m-1">
             <div class="col-12">
                 <strong>{{ 'i18n_exam_answer' | translate | uppercase }}</strong>
             </div>
         </div>
-        <div class="row ms-2"><div class="col-12" [xmMathJax]="answer.essayAnswer.answer || ''"></div></div>
+        <div class="row ms-1"><div class="col-12" [xmMathJax]="answer.essayAnswer.answer || ''"></div></div>
         @if (answer.essayAnswer.attachment) {
-            <div class="row ms-2">
+            <div class="row ms-1">
                 <div class="col-12">
                     <strong>{{ 'i18n_answer_attachment' | translate | uppercase }}</strong>
                 </div>
@@ -49,19 +49,19 @@
                 </div>
             </div>
         }
-        <div class="row m-2">
+        <div class="row m-1">
             <div class="col-12">
                 <strong>{{ 'i18n_answer_length' | translate | uppercase }}</strong>
             </div>
         </div>
-        <div class="row ms-2">
+        <div class="row ms-1">
             <div class="col-12">
                 {{ getWordCount() }} {{ 'i18n_words' | translate }}, {{ 'i18n_approximately' | translate }}
                 {{ getCharacterCount() }} {{ 'i18n_characters' | translate }}
             </div>
         </div>
         @if ((answer.expectedWordCount || 0) > 0) {
-            <div class="row ms-2">
+            <div class="row ms-1">
                 <div class="col-12">
                     {{ 'i18n_essay_length_recommendation' | translate }}: {{ answer.expectedWordCount }} ({{
                         'i18n_approximately' | translate
@@ -70,7 +70,7 @@
                 </div>
             </div>
         }
-        <div class="row m-2">
+        <div class="row m-1">
             <div class="col-12">
                 <strong
                     >{{ 'i18n_word_points' | translate | uppercase }} &nbsp;<small
@@ -79,7 +79,7 @@
                 </strong>
             </div>
         </div>
-        <div class="row ms-2">
+        <div class="row ms-1">
             <div class="col-2">
                 @if (answer.evaluationType === 'Points') {
                     <form #essayPoints="ngForm" name="essayPoints">
@@ -115,7 +115,7 @@
             }
         </div>
 
-        <div class="row m-2">
+        <div class="row m-1">
             <div class="col-12">
                 <span class="checkbox">
                     <label>
@@ -123,7 +123,9 @@
                         {{ action | translate }}
                     </label>
                     @if (editable && isAssessed() && answer.selected) {
-                        <i class="ms-1 pointer bi bi-arrow-return-right text-success" (click)="saveScore()"></i>
+                        <button type="button" class="btn btn-success btn-sm ms-2" (click)="saveScore()">
+                            {{ 'i18n_move_individual' | translate }}
+                        </button>
                     }
                 </span>
             </div>

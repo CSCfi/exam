@@ -1185,5 +1185,8 @@
     "i18n_iop_reservations": "Tenttivierailut SV",
     "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset SV",
     "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset SV",
-    "i18n_unused_reservation": "Käyttämätön varaus SV"
+    "i18n_unused_reservation": "Käyttämätön varaus SV",
+    "i18n_expand_all": "Visa alla SV",
+    "i18n_collapse_all": "Dölj alla SV",
+    "i18n_move_individual": "Flytta enskild SV"
 }

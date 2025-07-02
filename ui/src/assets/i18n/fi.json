@@ -1185,5 +1185,8 @@
     "i18n_iop_reservations": "Tenttivierailut",
     "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset",
     "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset",
-    "i18n_unused_reservation": "Käyttämätön varaus"
+    "i18n_unused_reservation": "Käyttämätön varaus",
+    "i18n_expand_all": "Avaa kaikki",
+    "i18n_collapse_all": "Sulje kaikki",
+    "i18n_move_individual": "Siirrä yksittäinen"
 }
