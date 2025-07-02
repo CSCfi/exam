@@ -14,7 +14,6 @@ import { isNumber } from 'src/app/shared/miscellaneous/helpers';
     selector: 'xm-printed-multi-choice',
     templateUrl: './templates/multi-choice.component.html',
     styleUrls: ['./print.shared.scss'],
-    standalone: true,
     imports: [MathJaxDirective, NgClass, NgStyle, TranslateModule],
 })
 export class PrintedMultiChoiceComponent {
@@ -43,7 +42,7 @@ export class PrintedMultiChoiceComponent {
         return this.QuestionScore.scoreClaimChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
     };
 
-    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion.options);
+    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion);
 
     calculateMultiChoiceMaxPoints = () =>
         Number.isInteger(this.sectionQuestion.maxScore)

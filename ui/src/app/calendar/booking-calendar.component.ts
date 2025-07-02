@@ -24,6 +24,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { CalendarService } from './calendar.service';
+
 @Component({
     selector: 'xm-booking-calendar',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,7 +39,6 @@ import { CalendarService } from './calendar.service';
             </div>
         }
     `,
-    standalone: true,
     imports: [FullCalendarModule],
 })
 export class BookingCalendarComponent implements OnInit, AfterViewInit {
@@ -69,9 +69,9 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
             plugins: [luxon2Plugin, timeGridPlugin],
             initialView: 'timeGridWeek',
             firstDay: 1,
-            dayHeaderFormat: 'EEEE d.L',
             locale: this.translate.currentLang,
             locales: [fiLocale, svLocale, enLocale],
+            ...this.getFormatOverrides(this.translate.currentLang),
             allDaySlot: false,
             height: 'auto',
             nowIndicator: true,
@@ -80,9 +80,13 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
             events: this.refetch,
             eventClick: this.eventClicked.bind(this),
         });
-        this.translate.onLangChange.subscribe((event) =>
-            this.calendarOptions.set({ ...this.calendarOptions(), locale: event.lang }),
-        );
+        this.translate.onLangChange.subscribe((event) => {
+            this.calendarOptions.set({
+                ...this.calendarOptions(),
+                locale: event.lang,
+                ...this.getFormatOverrides(event.lang),
+            });
+        });
         // Change detection ->
         toObservable(this.room).subscribe((room) => {
             const earliestOpening = this.Calendar.getEarliestOpening(room, this.searchStart, this.searchEnd);
@@ -150,5 +154,34 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
         if (arg.event.extendedProps?.availableMachines > 0) {
             this.eventSelected.emit(arg.event);
         }
+    }
+
+    private getFormatOverrides(lang: string) {
+        return {
+            dayHeaderFormat:
+                lang === 'fi'
+                    ? 'cccc d.L.'
+                    : {
+                          weekday: 'short' as const,
+                          month: 'numeric' as const,
+                          day: 'numeric' as const,
+                          omitCommas: true,
+                      },
+            titleFormat:
+                lang === 'fi'
+                    ? (info: { start: { marker: Date }; end?: { marker: Date } }) => {
+                          const start = new Date(info.start.marker);
+                          if (!info.end) return start.toLocaleDateString('fi');
+                          const end = new Date(info.end.marker);
+                          end.setDate(end.getDate() - 1);
+
+                          if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+                              return `${start.getDate()}. – ${end.getDate()}.${start.getMonth() + 1}.${start.getFullYear()}`;
+                          } else {
+                              return `${start.getDate()}.${start.getMonth() + 1}. – ${end.getDate()}.${end.getMonth() + 1}.${end.getFullYear()}`;
+                          }
+                      }
+                    : { year: 'numeric' as const, month: 'short' as const, day: 'numeric' as const },
+        };
     }
 }

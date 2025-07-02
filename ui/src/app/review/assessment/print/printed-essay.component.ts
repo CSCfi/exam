@@ -12,7 +12,6 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
     selector: 'xm-printed-essay',
     templateUrl: './templates/essay.component.html',
     styleUrls: ['./print.shared.scss'],
-    standalone: true,
     imports: [MathJaxDirective, TranslateModule],
 })
 export class PrintedEssayComponent {

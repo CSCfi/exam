@@ -51,7 +51,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     private ExamUpdaterImpl examUpdater;
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result insertSection(Long id, Http.Request request) {
         Optional<Exam> oe = DB.find(Exam.class)
             .fetch("examOwners")
@@ -69,7 +69,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         if (optionalSectionsExist && !examUpdater.isAllowedToUpdate(exam, user)) {
             return forbidden("i18n_error_future_reservations_exist");
         }
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             ExamSection section = new ExamSection();
             section.setLotteryItemCount(1);
             section.setExam(exam);
@@ -86,7 +86,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result removeSection(Long eid, Long sid, Http.Request request) {
         Optional<Exam> oe = DB.find(Exam.class)
             .fetch("examOwners")
@@ -105,7 +105,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         if (optionalSectionsExist && !examUpdater.isAllowedToUpdate(exam, user)) {
             return forbidden("i18n_error_future_reservations_exist");
         }
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             exam.getExamSections().remove(section);
             // Decrease sequences for the entries above the inserted one
             int seq = section.getSequenceNumber();
@@ -124,7 +124,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateSection(Long eid, Long sid, Http.Request request) {
         Optional<Exam> oe = DB.find(Exam.class)
             .fetch("examOwners")
@@ -137,7 +137,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             return notFound("i18n_error_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!oe.get().isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN)) {
+        if (!oe.get().isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             return unauthorized("i18n_error_access_forbidden");
         }
 
@@ -173,7 +173,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result reorderSections(Long eid, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         int from = Integer.parseInt(df.get("from"));
@@ -184,7 +184,7 @@ public class ExamSectionController extends BaseController implements SectionQues
                 return notFound("i18n_error_exam_not_found");
             }
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+            if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
                 // Reorder by sequenceNumber (TreeSet orders the collection based on it)
                 List<ExamSection> sections = new ArrayList<>(new TreeSet<>(exam.getExamSections()));
                 ExamSection prev = sections.get(from);
@@ -204,7 +204,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result reorderSectionQuestions(Long eid, Long sid, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         int from = Integer.parseInt(df.get("from"));
@@ -215,7 +215,7 @@ public class ExamSectionController extends BaseController implements SectionQues
                 return notFound("i18n_error_exam_not_found");
             }
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+            if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
                 ExamSection section = DB.find(ExamSection.class, sid);
                 if (section == null) {
                     return notFound("section not found");
@@ -247,6 +247,12 @@ public class ExamSectionController extends BaseController implements SectionQues
         );
         sectionQuestion.setExpectedWordCount(
             SanitizingHelper.parse("expectedWordCount", body, Integer.class).orElse(null)
+        );
+        sectionQuestion.setNegativeScoreAllowed(
+            SanitizingHelper.parse("negativeScoreAllowed", body, Boolean.class).orElse(false)
+        );
+        sectionQuestion.setOptionShufflingOn(
+            SanitizingHelper.parse("optionShufflingOn", body, Boolean.class).orElse(true)
         );
     }
 
@@ -286,7 +292,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result insertQuestion(Long eid, Long sid, Long qid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         ExamSection section = DB.find(ExamSection.class, sid);
@@ -298,7 +304,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             return forbidden("i18n_error_autoevaluation_essay_question");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN)) {
+        if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             return forbidden("i18n_error_access_forbidden");
         }
         Integer seq = request.body().asJson().get("sequenceNumber").asInt();
@@ -306,7 +312,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Transactional
     public Result insertMultipleQuestions(Long eid, Long sid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
@@ -315,7 +321,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             return notFound();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN)) {
+        if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             return forbidden("i18n_error_access_forbidden");
         }
         int sequence = request.body().asJson().get("sequenceNumber").asInt();
@@ -338,7 +344,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result removeQuestion(Long eid, Long sid, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamSectionQuestion sectionQuestion = DB.find(ExamSectionQuestion.class)
@@ -354,7 +360,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         }
         ExamSection section = sectionQuestion.getExamSection();
         Exam exam = section.getExam();
-        if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN)) {
+        if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             return forbidden("i18n_error_access_forbidden");
         }
         section.getSectionQuestions().remove(sectionQuestion);
@@ -377,7 +383,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result clearQuestions(Long eid, Long sid, Http.Request request) {
         ExamSection section = DB.find(ExamSection.class)
             .fetch("exam.creator")
@@ -391,7 +397,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             return notFound("i18n_error_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+        if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             section
                 .getSectionQuestions()
                 .forEach(sq -> {
@@ -501,7 +507,7 @@ public class ExamSectionController extends BaseController implements SectionQues
 
     @Authenticated
     @With(SectionQuestionSanitizer.class)
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateDistributedExamQuestion(Long eid, Long sid, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamSectionQuestion> query = DB.find(ExamSectionQuestion.class).where().idEq(qid);
@@ -555,7 +561,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateUndistributedExamQuestion(Long eid, Long sid, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamSectionQuestion> query = DB.find(ExamSectionQuestion.class).where().idEq(qid);
@@ -577,7 +583,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         return ok(examSectionQuestion, pp);
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result getQuestionDistribution(Long id) {
         ExamSectionQuestion esq = DB.find(ExamSectionQuestion.class, id);
         if (esq == null) {
@@ -594,7 +600,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result listSections(
         Optional<String> filter,
         Optional<List<Long>> courseIds,
@@ -605,7 +611,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamSection> query = DB.find(ExamSection.class).where();
-        if (!user.hasRole(Role.Name.ADMIN)) {
+        if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             query = query.where().eq("creator.id", user.getId());
         }
         if (filter.isPresent()) {

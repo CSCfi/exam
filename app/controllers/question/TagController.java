@@ -27,7 +27,7 @@ import security.Authenticated;
 public class TagController extends BaseController {
 
     @Authenticated
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result listTags(
         Optional<String> filter,
         Optional<List<Long>> courseIds,
@@ -38,7 +38,7 @@ public class TagController extends BaseController {
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Tag> query = DB.find(Tag.class).where();
-        if (!user.hasRole(Role.Name.ADMIN)) {
+        if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             query = query.where().eq("creator.id", user.getId());
         }
         if (filter.isPresent()) {
@@ -61,7 +61,7 @@ public class TagController extends BaseController {
         return ok(tags, PathProperties.parse("(*, creator(id), questions(id))"));
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result addTagToQuestions(Http.Request request) {
         JsonNode body = request.body().asJson();
         List<Long> questionIds = StreamSupport.stream(body.get("questionIds").spliterator(), false)

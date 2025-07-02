@@ -26,7 +26,6 @@ import { ReservationService, Selection } from './reservation.service';
 
 @Component({
     selector: 'xm-reservations',
-    standalone: true,
     imports: [
         FormsModule,
         TranslateModule,
@@ -118,6 +117,8 @@ export class ReservationsComponent implements OnInit {
     }
 
     isAdminView = () => this.user.isAdmin;
+
+    isSupportView = () => this.user.isSupport;
 
     studentSelected(event: NgbTypeaheadSelectItemEvent<User & { name: string }>) {
         this.student = event.item;

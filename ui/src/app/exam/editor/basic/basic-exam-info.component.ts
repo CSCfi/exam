@@ -18,6 +18,7 @@ import type { Exam, ExamType, GradeScale } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
+import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -30,7 +31,6 @@ import { SoftwareSelectorComponent } from './software-picker.component';
     selector: 'xm-basic-exam-info',
     templateUrl: './basic-exam-info.component.html',
     styleUrls: ['../../exam.shared.scss'],
-    standalone: true,
     imports: [
         ExamCourseComponent,
         NgbPopover,
@@ -149,7 +149,11 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
     selectAttachmentFile = () => {
         this.Attachment.selectFile(true, {}).then((data) => {
             const url = this.collaborative ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
-            this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }, this.exam);
+            this.Files.upload<Attachment>(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }).then(
+                (resp) => {
+                    this.exam.attachment = resp;
+                },
+            );
         });
     };
 

@@ -214,13 +214,18 @@ export class SessionService implements OnDestroy {
     }
 
     private openRoleSelectModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(SelectRoleDialogComponent);
+        const modalRef = this.modal.open(SelectRoleDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'm',
+        });
         modalRef.componentInstance.user = user;
         return from(modalRef.result).pipe(
             switchMap((role: Role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
             map((role: Role) => {
                 user.loginRole = role.name;
                 user.isAdmin = role.name === 'ADMIN';
+                user.isSupport = role.name === 'SUPPORT';
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';
                 user.isLanguageInspector = user.isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
@@ -235,15 +240,19 @@ export class SessionService implements OnDestroy {
             switch (role.name) {
                 case 'ADMIN':
                     role.displayName = 'i18n_admin';
-                    role.icon = 'bi-gear';
+                    role.icon = 'bi-shield-lock';
                     break;
                 case 'TEACHER':
                     role.displayName = 'i18n_teacher';
-                    role.icon = 'bi-person';
+                    role.icon = 'bi-person-workspace';
                     break;
                 case 'STUDENT':
                     role.displayName = 'i18n_student';
                     role.icon = 'bi-mortarboard';
+                    break;
+                case 'SUPPORT':
+                    role.displayName = 'i18n_support_person';
+                    role.icon = 'bi-person-heart';
                     break;
             }
         });
@@ -257,6 +266,7 @@ export class SessionService implements OnDestroy {
                 isTeacher: isTeacher,
                 isAdmin: loginRole === 'ADMIN',
                 isStudent: loginRole === 'STUDENT',
+                isSupport: loginRole === 'SUPPORT',
                 isLanguageInspector: isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
                 canCreateByodExam: loginRole !== 'STUDENT' && this.hasPermission(user, 'CAN_CREATE_BYOD_EXAM'),
             })),

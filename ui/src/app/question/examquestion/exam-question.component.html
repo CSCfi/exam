@@ -55,8 +55,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <!-- Type specific content - weighted multiple choice -->
                 @if (question?.type === 'WeightedMultipleChoiceQuestion') {
                     <xm-eq-weighted-mc
-                        [options]="examQuestion.options"
+                        [question]="examQuestion"
                         (optionsChanged)="optionsChanged($event)"
+                        (negativeScoreSettingChanged)="negativeScoreSettingChanged($event)"
                         [lotteryOn]="lotteryOn"
                         [isInPublishedExam]="isInPublishedExam"
                     />
@@ -64,8 +65,9 @@ SPDX-License-Identifier: EUPL-1.2
 
                 @if (question?.type === 'MultipleChoiceQuestion') {
                     <xm-eq-unweighted-mc
-                        [options]="examQuestion.options"
+                        [question]="examQuestion"
                         (optionsChanged)="optionsChanged($event)"
+                        (shufflingSettingChanged)="shufflingSettingChanged($event)"
                         [lotteryOn]="lotteryOn"
                         [isInPublishedExam]="isInPublishedExam"
                     />

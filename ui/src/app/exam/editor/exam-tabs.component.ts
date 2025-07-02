@@ -5,7 +5,7 @@
 import { LowerCasePipe } from '@angular/common';
 import type { OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavItemRole, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -23,9 +23,7 @@ import { ExamTabService } from './exam-tabs.service';
 @Component({
     selector: 'xm-exam-tabs',
     templateUrl: './exam-tabs.component.html',
-    standalone: true,
     imports: [
-        RouterLink,
         NgbNav,
         NgbNavItem,
         NgbNavItemRole,

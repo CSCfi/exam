@@ -32,6 +32,7 @@ import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-
 import { QuestionSelectorComponent } from 'src/app/question/picker/question-picker.component';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
+import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -41,7 +42,6 @@ import { SectionQuestionComponent } from './section-question.component';
     selector: 'xm-section',
     encapsulation: ViewEncapsulation.None,
     templateUrl: './section.component.html',
-    standalone: true,
     imports: [
         NgbPopover,
         NgbDropdown,
@@ -317,13 +317,13 @@ export class SectionComponent {
         }
 
         if (attachment.modified && attachment.file) {
-            this.Files.upload(
-                '/app/iop/collab/attachment/question',
-                attachment.file,
-                { examId: this.examId.toString(), questionId: data.id.toString() },
-                question,
-                callback,
-            );
+            this.Files.upload<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
+                examId: this.examId.toString(),
+                questionId: data.id.toString(),
+            }).then((resp) => {
+                question.attachment = resp;
+                callback();
+            });
         }
     };
 

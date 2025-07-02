@@ -7,7 +7,6 @@ import { Component, Input, TemplateRef } from '@angular/core';
 
 @Component({
     selector: 'xm-page-content',
-    standalone: true,
     imports: [NgTemplateOutlet],
     template: `
         <div class="row mx-3">

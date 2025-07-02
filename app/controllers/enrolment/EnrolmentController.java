@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import miscellaneous.config.ConfigReader;
 import miscellaneous.datetime.DateTimeHandler;
+import miscellaneous.enrolment.EnrolmentHandler;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.ExaminationEvent;
 import models.enrolment.ExaminationEventConfiguration;
@@ -57,19 +58,14 @@ public class EnrolmentController extends BaseController {
     private final boolean permCheckActive;
     private final Logger logger = LoggerFactory.getLogger(EnrolmentController.class);
 
-    protected final EmailComposer emailComposer;
-
+    private final EmailComposer emailComposer;
     private final ExternalCourseHandler externalCourseHandler;
-
     private final ExternalReservationHandler externalReservationHandler;
-
     private final EnrolmentRepository enrolmentRepository;
-
     private final ClassLoaderExecutionContext httpExecutionContext;
-
     private final ActorSystem actor;
-
     private final DateTimeHandler dateTimeHandler;
+    private final EnrolmentHandler enrolmentHandler;
 
     @Inject
     public EnrolmentController(
@@ -80,7 +76,8 @@ public class EnrolmentController extends BaseController {
         ClassLoaderExecutionContext httpExecutionContext,
         ActorSystem actor,
         ConfigReader configReader,
-        DateTimeHandler dateTimeHandler
+        DateTimeHandler dateTimeHandler,
+        EnrolmentHandler enrolmentHandler
     ) {
         this.emailComposer = emailComposer;
         this.externalCourseHandler = externalCourseHandler;
@@ -90,6 +87,7 @@ public class EnrolmentController extends BaseController {
         this.actor = actor;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
         this.dateTimeHandler = dateTimeHandler;
+        this.enrolmentHandler = enrolmentHandler;
     }
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
@@ -174,7 +172,7 @@ public class EnrolmentController extends BaseController {
             return badRequest();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (isAllowedToParticipate(exam, user)) {
+        if (enrolmentHandler.isAllowedToParticipate(exam, user)) {
             DateTime now = dateTimeHandler.adjustDST(new DateTime());
             List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
                 .where()
@@ -438,7 +436,7 @@ public class EnrolmentController extends BaseController {
 
     @Authenticated
     @With(StudentEnrolmentSanitizer.class)
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public CompletionStage<Result> createStudentEnrolment(Long eid, Http.Request request) {
         Optional<Long> uid = request.attrs().getOptional(Attrs.USER_ID);
         Optional<String> email = request.attrs().getOptional(Attrs.EMAIL);
@@ -532,7 +530,7 @@ public class EnrolmentController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
     public CompletionStage<Result> getRoomInfoFromEnrolment(String hash, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return enrolmentRepository
@@ -662,7 +660,7 @@ public class EnrolmentController extends BaseController {
         return ok();
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result permitRetrial(Long id) {
         ExamEnrolment enrolment = DB.find(ExamEnrolment.class, id);
         if (enrolment == null) {

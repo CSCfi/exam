@@ -11,13 +11,20 @@ import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 export class ConfirmationDialogService {
     constructor(private modal: NgbModal) {}
 
-    open$(title: string, description?: string): Observable<boolean> {
+    open$(
+        title: string,
+        description?: string,
+        confirmButtonText?: string,
+        cancelButtonText?: string,
+    ): Observable<boolean> {
         const modalRef = this.modal.open(ConfirmationDialogComponent, {
             backdrop: 'static',
             keyboard: false,
         });
         modalRef.componentInstance.title = title;
         modalRef.componentInstance.description = description;
+        modalRef.componentInstance.confirmButtonText = confirmButtonText;
+        modalRef.componentInstance.cancelButtonText = cancelButtonText;
         return from(modalRef.result);
     }
 }

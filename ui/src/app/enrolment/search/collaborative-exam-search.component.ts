@@ -71,7 +71,6 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
             </div>
         </ng-template>
     `,
-    standalone: true,
     imports: [FormsModule, ExamSearchResultComponent, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {

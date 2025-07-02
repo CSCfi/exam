@@ -51,7 +51,6 @@ import { Observable, Subject, filter, interval, map, startWith, switchMap, take,
             </div>
         </div>
     </div>`,
-    standalone: true,
     imports: [NgClass, AsyncPipe, TranslateModule],
     styleUrl: './examination-clock.component.scss',
 })

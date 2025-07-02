@@ -13,7 +13,7 @@ import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Examination } from 'src/app/examination/examination.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { CollaborativeAssesmentService } from 'src/app/review/assessment/collaborative-assessment.service';
-import { FileResult } from 'src/app/shared/attachment/attachment.model';
+import { Attachment, FileResult } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -72,7 +72,6 @@ import { FileService } from 'src/app/shared/file/file.service';
             </div>
         </div>
     </div>`,
-    standalone: true,
     imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
@@ -150,12 +149,9 @@ export class FeedbackComponent implements OnInit {
         this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation);
 
     private _upload = (res: FileResult, url: string) =>
-        this.Files.upload(
-            url,
-            res.$value.attachmentFile,
-            { examId: this.exam.id.toString() },
-            this.exam.examFeedback,
-            () => {
+        this.Files.upload<Attachment>(url, res.$value.attachmentFile, { examId: this.exam.id.toString() }).then(
+            (resp) => {
+                this.exam.examFeedback.attachment = resp;
                 // kinda hacky, but let's do this mangling for time being
                 this.participation._rev = this.exam.examFeedback?.attachment?.rev;
                 delete this.exam.examFeedback?.attachment?.rev;

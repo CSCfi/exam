@@ -46,7 +46,6 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
                 </div>
             </div>
         } `,
-    standalone: true,
     imports: [NgbPopover, DatePipe, TranslateModule],
 })
 export class InspectionCommentsComponent {

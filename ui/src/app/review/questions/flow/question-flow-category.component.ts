@@ -45,7 +45,6 @@ import { SessionService } from 'src/app/session/session.service';
                 </div>
             }
         </div>`,
-    standalone: true,
     imports: [NgClass, UpperCasePipe, SlicePipe, TranslateModule, NgbCollapse],
 })
 export class QuestionFlowCategoryComponent {

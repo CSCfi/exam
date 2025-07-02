@@ -21,7 +21,7 @@ import security.Authenticated;
 
 public class ExamOwnerController extends BaseController {
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result getExamOwners(Long id) {
         Exam exam = DB.find(Exam.class).fetch("examOwners").where().idEq(id).findOne();
         if (exam == null) {
@@ -44,7 +44,7 @@ public class ExamOwnerController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result insertExamOwner(Long eid, Long uid, Http.Request request) {
         final User owner = DB.find(User.class, uid);
         final Exam exam = DB.find(Exam.class, eid);
@@ -61,7 +61,7 @@ public class ExamOwnerController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result removeExamOwner(Long eid, Long uid, Http.Request request) {
         final User owner = DB.find(User.class, uid);
         final Exam exam = DB.find(Exam.class, eid);
@@ -69,7 +69,7 @@ public class ExamOwnerController extends BaseController {
             return notFound();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
+        if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) && !exam.isOwnedOrCreatedBy(user)) {
             return forbidden("i18n_error_access_forbidden");
         }
         if (owner != null) {

@@ -20,6 +20,7 @@ import { LibraryResultsComponent } from './results/library-results.component';
 import { LibrarySearchComponent } from './search/library-search.component';
 import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component';
 
+type FileResult = { errorCount: number; successCount: number };
 @Component({
     selector: 'xm-library',
     template: `
@@ -134,14 +135,11 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
             </div>
         </ng-template>
     `,
-    standalone: true,
     imports: [
         RouterLink,
         NgbDropdownModule,
         NgbPopoverModule,
         LibrarySearchComponent,
-        LibraryOwnersDialogComponent,
-        LibraryTransferDialogComponent,
         LibraryResultsComponent,
         TranslateModule,
         PageHeaderComponent,
@@ -178,10 +176,18 @@ export class LibraryComponent {
     import() {
         this.Attachment.selectFile(false, {}, 'i18n_import_questions_detail')
             .then((result) => {
-                this.Files.upload('/app/questions/import', result.$value.attachmentFile, {}, undefined, () =>
-                    this.reload(),
+                this.Files.upload<FileResult>('/app/questions/import', result.$value.attachmentFile, {}).then(
+                    (resp) => {
+                        if (resp.errorCount > 0) {
+                            this.toast.error(
+                                `${this.translate.instant('i18n_questions_imported_with_errors')}: ${resp.errorCount}`,
+                            );
+                        } else {
+                            this.toast.success(this.translate.instant('i18n_questions_imported_successfully'));
+                        }
+                        this.reload();
+                    },
                 );
-                this.toast.success(`${this.translate.instant('i18n_questions_imported_successfully')}`);
             })
             .catch(noop);
     }

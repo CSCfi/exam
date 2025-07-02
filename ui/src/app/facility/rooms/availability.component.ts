@@ -27,7 +27,6 @@ import { RoomService } from './room.service';
             }
         `,
     ],
-    standalone: true,
     imports: [NgClass, BookingCalendarComponent, TranslateModule, NgbPopover],
 })
 export class AvailabilityComponent implements OnInit {

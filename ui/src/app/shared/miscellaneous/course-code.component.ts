@@ -13,7 +13,6 @@ import { CourseCodeService } from './course-code.service';
             <span>{{ formatCode() }}</span>
         }
     `,
-    standalone: true,
     imports: [],
 })
 export class CourseCodeComponent {

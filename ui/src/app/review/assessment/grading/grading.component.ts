@@ -31,7 +31,6 @@ import { ToolbarComponent } from './toolbar.component';
     selector: 'xm-r-grading',
     templateUrl: './grading.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    standalone: true,
     imports: [
         InspectionComponent,
         NgbPopover,

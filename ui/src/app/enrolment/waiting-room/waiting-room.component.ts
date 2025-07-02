@@ -31,7 +31,6 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     selector: 'xm-waiting-room',
     templateUrl: './waiting-room.component.html',
     styleUrls: ['../enrolment.shared.scss'],
-    standalone: true,
     imports: [
         CourseCodeComponent,
         TeacherListComponent,

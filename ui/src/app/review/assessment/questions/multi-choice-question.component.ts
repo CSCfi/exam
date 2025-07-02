@@ -24,7 +24,6 @@ import { WeightedMultiChoiceAnswerComponent } from './weighted-multi-choice-answ
     selector: 'xm-r-multi-choice-question',
     templateUrl: './multi-choice-question.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    standalone: true,
     imports: [
         MathJaxDirective,
         NgStyle,
@@ -106,7 +105,7 @@ export class MultiChoiceQuestionComponent implements OnInit {
             ? this.sectionQuestion.maxScore
             : this.sectionQuestion.maxScore.toFixed(2);
 
-    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion.options);
+    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion);
 
     getMinimumOptionScore = () => this.QuestionScore.getMinimumOptionScore(this.sectionQuestion);
 

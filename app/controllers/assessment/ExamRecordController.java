@@ -80,7 +80,7 @@ public class ExamRecordController extends BaseController {
     // Do not update anything else but state to GRADED_LOGGED regarding the exam
     // Instead assure that all required exam fields are set
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Transactional
     public Result addExamRecord(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
@@ -129,7 +129,7 @@ public class ExamRecordController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result registerExamWithoutRecord(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         final Optional<Exam> optionalExam = DB.find(Exam.class)
@@ -153,7 +153,7 @@ public class ExamRecordController extends BaseController {
         });
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result exportExamRecordsAsCsv(Long startDate, Long endDate) {
         File file;
         try {
@@ -167,7 +167,7 @@ public class ExamRecordController extends BaseController {
     }
 
     @With(ExamRecordSanitizer.class)
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result exportSelectedExamRecordsAsCsv(Long examId, Http.Request request) {
         Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         File file;
@@ -182,7 +182,7 @@ public class ExamRecordController extends BaseController {
     }
 
     @With(ExamRecordSanitizer.class)
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result exportSelectedExamRecordsAsExcel(Long examId, Http.Request request) {
         Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         ByteArrayOutputStream bos;
@@ -209,7 +209,7 @@ public class ExamRecordController extends BaseController {
     private boolean isAllowedToRegister(Exam exam, User user) {
         return (
             exam.getParent().isOwnedOrCreatedBy(user) ||
-            user.hasRole(Role.Name.ADMIN) ||
+            user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) ||
             isApprovedInLanguageInspection(exam, user)
         );
     }

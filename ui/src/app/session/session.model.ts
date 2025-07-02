@@ -33,6 +33,7 @@ export interface User {
     isAdmin: boolean;
     isStudent: boolean;
     isTeacher: boolean;
+    isSupport: boolean;
     isLanguageInspector: boolean;
     employeeNumber: string | null;
     lastLogin: string | null;

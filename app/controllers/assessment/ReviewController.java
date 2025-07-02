@@ -79,7 +79,7 @@ public class ReviewController extends BaseController {
     private final Logger logger = LoggerFactory.getLogger(ReviewController.class);
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Anonymous(filteredProperties = { "user", "preEnrolledUserEmail", "grade" })
     public Result getParticipationsForExamAndUser(Long eid, Http.Request request) {
         final Exam exam = DB.find(Exam.class, eid);
@@ -104,7 +104,7 @@ public class ReviewController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Anonymous(filteredProperties = { "user", "preEnrolledUserEmail" })
     public Result listNoShowsForExamAndUser(Long eid, Http.Request request) {
         final Exam exam = DB.find(Exam.class, eid);
@@ -124,7 +124,7 @@ public class ReviewController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Anonymous(filteredProperties = { "user", "preEnrolledUserEmail", "creator", "modifier", "reservation" })
     public Result getExamReview(Long eid, Http.Request request) {
         ExpressionList<ExamParticipation> query = createQuery()
@@ -138,7 +138,7 @@ public class ReviewController extends BaseController {
             .eq("exam.state", Exam.State.REJECTED)
             .eq("exam.state", Exam.State.ARCHIVED);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        boolean isAdmin = user.hasRole(Role.Name.ADMIN);
+        boolean isAdmin = user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT);
         if (isAdmin) {
             query = query.eq("exam.state", Exam.State.ABORTED);
         }
@@ -171,7 +171,7 @@ public class ReviewController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Anonymous(filteredProperties = { "user", "creator", "modifier" })
     public Result getExamReviews(Long eid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -209,7 +209,7 @@ public class ReviewController extends BaseController {
                 Exam.State.REJECTED,
                 Exam.State.ARCHIVED
             );
-        if (!user.hasRole(Role.Name.ADMIN)) {
+        if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             query.where().disjunction().eq("parent.examOwners", user).eq("examInspections.user", user).endJunction();
         }
         Set<Exam> exams = query.findSet();
@@ -235,7 +235,7 @@ public class ReviewController extends BaseController {
         return writeAnonymousResult(request, result, anonIds);
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result scoreExamQuestion(Long id, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         ExamSectionQuestion essayQuestion = DB.find(ExamSectionQuestion.class, id);
@@ -258,7 +258,7 @@ public class ReviewController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result forceScoreExamQuestion(Long id, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         Optional<ExamSectionQuestion> oeq = DB.find(ExamSectionQuestion.class)
@@ -317,7 +317,7 @@ public class ReviewController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result reviewExam(Long id, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         Exam exam = DB.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findOne();
@@ -374,7 +374,7 @@ public class ReviewController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result sendInspectionMessage(Long eid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
@@ -415,7 +415,7 @@ public class ReviewController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Anonymous(filteredProperties = { "user" })
     public Result listNoShows(Long eid, Optional<Boolean> collaborative, Http.Request request) {
         ExpressionList<ExamEnrolment> el = DB.find(ExamEnrolment.class)
@@ -444,7 +444,7 @@ public class ReviewController extends BaseController {
 
     @Authenticated
     @With(CommentSanitizer.class)
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateComment(Long eid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
@@ -504,7 +504,7 @@ public class ReviewController extends BaseController {
 
     @Authenticated
     @With(CommentSanitizer.class)
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result addInspectionComment(Long id, Http.Request request) {
         Exam exam = DB.find(Exam.class, id);
         if (exam == null) {
@@ -521,7 +521,7 @@ public class ReviewController extends BaseController {
     }
 
     @With(CommaJoinedListSanitizer.class)
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result archiveExams(Http.Request request) {
         Collection<Long> ids = request.attrs().get(Attrs.ID_COLLECTION);
         List<Exam> exams = DB.find(Exam.class).where().eq("state", Exam.State.GRADED_LOGGED).idIn(ids).findList();
@@ -532,7 +532,7 @@ public class ReviewController extends BaseController {
         return ok();
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result hasLockedAssessments(Long eid) {
         // if no assessments => everything
         // if assessments and type == locked => none
@@ -573,13 +573,15 @@ public class ReviewController extends BaseController {
     private boolean isDisallowedToModify(Exam exam, User user, Exam.State newState) {
         return (
             !exam.getParent().isOwnedOrCreatedBy(user) &&
-            !user.hasRole(Role.Name.ADMIN) &&
+            !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) &&
             !isRejectedInLanguageInspection(exam, user, newState)
         );
     }
 
     private boolean isDisallowedToScore(Exam exam, User user) {
-        return (!exam.getParent().isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole(Role.Name.ADMIN));
+        return (
+            !exam.getParent().isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
+        );
     }
 
     private Result updateReviewState(User user, Exam exam, Exam.State newState, boolean stateOnly) {

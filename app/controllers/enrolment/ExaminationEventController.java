@@ -47,7 +47,7 @@ public class ExaminationEventController extends BaseController {
 
     // PRINTOUT EXAM RELATED -->
     @With(ExaminationDateSanitizer.class)
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result insertExaminationDate(Long eid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
@@ -61,7 +61,7 @@ public class ExaminationEventController extends BaseController {
         return ok(ed);
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result removeExaminationDate(Long id, Long edid) {
         ExaminationDate ed = DB.find(ExaminationDate.class, edid);
         if (ed == null) {
@@ -102,7 +102,7 @@ public class ExaminationEventController extends BaseController {
     }
 
     @With(ExaminationEventSanitizer.class)
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result insertExaminationEvent(Long eid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
@@ -152,7 +152,7 @@ public class ExaminationEventController extends BaseController {
     }
 
     @With(ExaminationEventSanitizer.class)
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateExaminationEvent(Long eid, Long eecid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         Optional<ExaminationEventConfiguration> oeec = DB.find(ExaminationEventConfiguration.class)
@@ -219,7 +219,7 @@ public class ExaminationEventController extends BaseController {
         return ok(eec);
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result removeExaminationEvent(Long eid, Long eeid) {
         Optional<ExaminationEventConfiguration> oeec = DB.find(ExaminationEventConfiguration.class)
             .where()
@@ -307,7 +307,7 @@ public class ExaminationEventController extends BaseController {
         return ok(exams, pp);
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result listOverlappingExaminationEvents(String start, Integer duration) {
         PathProperties pp = PathProperties.parse("(*, examinationEventConfiguration(exam(id, duration)))");
         DateTime startDate = DateTime.parse(start, ISODateTimeFormat.dateTimeParser());

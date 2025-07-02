@@ -19,7 +19,6 @@ import type { User } from 'src/app/session/session.model';
 @Component({
     selector: 'xm-exam-owner-picker',
     templateUrl: './exam-owner-picker.component.html',
-    standalone: true,
     imports: [NgClass, NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
 })
@@ -52,9 +51,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
             debounceTime(500),
             distinctUntilChanged(),
             exhaustMap((text) =>
-                text.length < 2
-                    ? of([])
-                    : this.http.get<User[]>(`/app/users/filter/TEACHER/${this.exam.id}`, { params: { q: text } }),
+                text.length < 2 ? of([]) : this.http.get<User[]>(`/app/users/teachers`, { params: { q: text } }),
             ),
             take(15),
             catchError((err) => {
@@ -63,7 +60,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
             }),
         );
 
-    nameFormatter = (data: { name: string; email: string }) => `${data.name} ${data.email}`;
+    nameFormatter = (data: User) => `${data.firstName} ${data.lastName} <${data.email}>`;
 
     setExamOwner = (event: NgbTypeaheadSelectItemEvent) => (this.newOwner.id = event.item.id);
 

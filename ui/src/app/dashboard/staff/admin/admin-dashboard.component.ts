@@ -8,7 +8,6 @@ import { ReservationsComponent } from 'src/app/reservation/reservations.componen
 @Component({
     selector: 'xm-admin-dashboard',
     template: '<xm-reservations></xm-reservations>',
-    standalone: true,
     imports: [ReservationsComponent],
 })
 export class AdminDashboardComponent {}

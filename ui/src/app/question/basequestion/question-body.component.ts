@@ -20,7 +20,6 @@ import { TagPickerComponent } from 'src/app/question/tags/tag-picker.component';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { ClaimChoiceEditorComponent } from './claim-choice.component';
 import { EssayEditorComponent } from './essay.component';
 import { MultipleChoiceEditorComponent } from './multiple-choice.component';
@@ -29,12 +28,10 @@ import { MultipleChoiceEditorComponent } from './multiple-choice.component';
     selector: 'xm-question-body',
     templateUrl: './question-body.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,
         NgClass,
-        CKEditorComponent,
         EssayEditorComponent,
         MultipleChoiceEditorComponent,
         ClaimChoiceEditorComponent,
@@ -106,9 +103,7 @@ export class QuestionBodyComponent implements OnInit {
             map((users) => users.filter((u) => this.currentOwners.map((o) => o.id).indexOf(u.id) === -1).slice(0, 15)),
         );
 
-    nameFormat = (u: User & { name: string }) => {
-        return u.name;
-    };
+    nameFormat = (u: User) => `${u.firstName} ${u.lastName} <${u.email}>`;
 
     setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) =>
         // Using template to store the selected user

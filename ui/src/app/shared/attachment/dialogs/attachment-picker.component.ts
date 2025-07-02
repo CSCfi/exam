@@ -20,7 +20,6 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-attachment-selector',
-    standalone: true,
     imports: [TranslateModule],
     template: `
         <div class="modal-header">
@@ -82,7 +81,7 @@ export class AttachmentSelectorComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.Files.getMaxFilesize().then((data) => (this.maxFileSize = data.filesize));
+        this.Files.getMaxFilesize$().subscribe((data) => (this.maxFileSize = data.filesize));
     }
 
     confirmed() {

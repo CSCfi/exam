@@ -33,7 +33,6 @@ interface ExtendedRoom extends ExamRoom {
 @Component({
     templateUrl: './rooms.component.html',
     selector: 'xm-rooms',
-    standalone: true,
     imports: [
         NgClass,
         NgbPopover,

@@ -11,22 +11,22 @@ POST          /app/session                                                    co
 DELETE        /app/session                                                    controllers.user.SessionController.logout(request: Request)
 
 ############### User interface ###############
-GET           /app/users/byrole/:role                                         controllers.user.UserController.getUsersByRole(role: String)
-GET           /app/users/filter/:role/:eid                                    controllers.user.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
-GET           /app/users/question/owners/:role                                controllers.user.UserController.getQuestionOwnersByRoleFilter(role: String, q: String, qid: java.util.Optional[java.lang.Long], request: Request)
+GET           /app/users/byrole/:role                                         controllers.user.UserController.listUsersByRole(role: String)
+GET           /app/users/teachers                                             controllers.user.UserController.listTeachers(q: String)
+GET           /app/users/question/owners/:role                                controllers.user.UserController.listQuestionOwners(role: String, q: String, qid: java.util.Optional[java.lang.Long], request: Request)
 PUT           /app/users/agreement                                            controllers.user.UserController.updateUserAgreementAccepted(request: Request)
 PUT           /app/user/lang                                                  controllers.user.UserController.updateLanguage(request: Request)
-GET           /app/users                                                      controllers.user.UserController.findUsers(filter: java.util.Optional[String])
+GET           /app/users                                                      controllers.user.UserController.listUsers(filter: java.util.Optional[String])
 POST          /app/users/:id/roles/:rname                                     controllers.user.UserController.addRole(id: Long, rname: String)
 DELETE        /app/users/:id/roles/:rname                                     controllers.user.UserController.removeRole(id: Long, rname: String)
 PUT           /app/users/roles/:rname                                         controllers.user.SessionController.setLoginRole(rname: String, request: Request)
-GET           /app/students/:eid                                              controllers.user.UserController.getUnenrolledStudents(eid: Long, q: String)
+GET           /app/students/:eid                                              controllers.user.UserController.listUnenrolledStudents(eid: Long, q: String)
 GET           /app/permissions                                                controllers.user.UserController.listPermissions
 POST          /app/permissions                                                controllers.user.UserController.grantUserPermission(request: Request)
 DELETE        /app/permissions                                                controllers.user.UserController.revokeUserPermission(request: Request)
 
 ############### Exam interface ###############
-GET           /app/exams                                                      controllers.exam.ExamController.getExams(filter: java.util.Optional[String], request: Request)
+GET           /app/exams                                                      controllers.exam.ExamController.searchExams(filter: java.util.Optional[String], request: Request)
 POST          /app/exams                                                      controllers.exam.ExamController.createExamDraft(request: Request)
 GET           /app/exams/:id                                                  controllers.exam.ExamController.getExam(id: Long, request: Request)
 DELETE        /app/exams/:id                                                  controllers.exam.ExamController.deleteExam(id: Long, request: Request)

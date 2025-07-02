@@ -9,7 +9,6 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 
 @Component({
     selector: 'xm-show-instructions-dialog',
-    standalone: true,
     imports: [TranslateModule, MathJaxDirective],
     template: `
         <div class="modal-header">
