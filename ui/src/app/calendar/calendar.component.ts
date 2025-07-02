@@ -151,9 +151,17 @@ export class CalendarComponent implements OnInit {
     }
 
     makeExternalReservation() {
+        const url = 'https://e-exam.fi/exam-tenttivierailu/';
+
+        const baseMessage = this.translate.instant('i18n_confirm_external_reservation');
+        const linkText = this.translate.instant('i18n_external_reservation_link_text');
+        const htmlContent = `${baseMessage}<br><a href="${url}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+
         this.Dialog.open$(
-            this.translate.instant('i18n_confirm'),
-            this.translate.instant('i18n_confirm_external_reservation'),
+            this.translate.instant('i18n_continue_to_external_reservation'),
+            htmlContent,
+            'i18n_continue',
+            'i18n_go_back',
         ).subscribe({
             next: () =>
                 this.router.navigate(['/calendar', this.examId, 'external'], {
