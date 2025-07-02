@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-@import '../shared/definitions.scss';
+@use '../shared/definitions.scss' as shared;
 #nav {
     top: 0;
     left: 0;
@@ -15,19 +15,19 @@
 
     .hidden-mobile {
         display: block;
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             display: none;
         }
     }
 
     .visible-mobile {
         display: none;
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             display: block;
         }
     }
 
-    @media (max-width: $mobile-width) {
+    @media (max-width: shared.$mobile-width) {
         position: relative;
         z-index: 1;
     }
@@ -42,7 +42,7 @@
             margin-right: 3.57em;
             margin-top: 1.07em;
 
-            @media (max-width: $mobile-width) {
+            @media (max-width: shared.$mobile-width) {
                 margin-top: 0em;
                 margin-left: 20px;
                 padding-top: 15px;
@@ -62,15 +62,15 @@
         height: auto;
         text-align: left;
         align-items: center;
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             border: 3px solid #212121;
             border-radius: 50px;
         }
 
         &.selected {
             font-weight: bold;
-            border-left: 3px solid $exam-dark-green;
-            @media (max-width: $mobile-width) {
+            border-left: 3px solid shared.$exam-dark-green;
+            @media (max-width: shared.$mobile-width) {
                 border-left: 3px solid #212121;
                 border-radius: 50px !important;
             }
@@ -78,8 +78,8 @@
     }
 
     button:hover {
-        border-left: 3px solid $exam-dark-green;
-        @media (max-width: $mobile-width) {
+        border-left: 3px solid shared.$exam-dark-green;
+        @media (max-width: shared.$mobile-width) {
             border: 3px solid white;
             border-radius: 50px;
         }
@@ -88,14 +88,14 @@
     li {
         list-style: none;
         margin-bottom: 2.5em;
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             margin-bottom: 1em;
         }
     }
 
     ul {
         padding: 0;
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             margin: 0 1.5em;
         }
     }
@@ -109,7 +109,7 @@
         height: 162px;
         width: 17.125em;
 
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             position: relative;
             width: 100%;
             height: 80px;
@@ -133,13 +133,13 @@
         bottom: 105px;
         width: 17.125em;
 
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             display: none;
         }
     }
 
     .nav-body-mobile {
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             background-color: #212121;
             position: relative;
             width: 100%;
@@ -147,7 +147,7 @@
     }
 
     .nav-footer {
-        background-color: $exam-medium-green;
+        background-color: shared.$exam-medium-green;
         position: fixed;
         bottom: 0;
         width: 17.125em;
@@ -155,13 +155,13 @@
             height: 25px;
         }
 
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             display: none;
         }
     }
 
     .nav-user {
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             display: none;
         }
     }
@@ -174,7 +174,7 @@
         line-height: 18px;
         text-align: left;
         padding-left: 1em;
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             padding-top: 1em;
             padding-bottom: 1em;
         }
@@ -221,12 +221,12 @@
         padding: 0.5em;
         margin-left: 1.5em;
         border: 0;
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             border: 3px solid #00000000;
         }
         :active :hover {
             font-weight: bold;
-            @media (max-width: $mobile-width) {
+            @media (max-width: shared.$mobile-width) {
                 border-radius: 50px;
                 border: 3px solid white;
             }
@@ -266,7 +266,7 @@
             height: 20px;
             border-radius: 0px;
             color: #e7e7e7;
-            @media (max-width: $mobile-width) {
+            @media (max-width: shared.$mobile-width) {
                 margin: 0;
             }
         }
@@ -285,7 +285,7 @@
             margin-right: 1em;
         }
 
-        @media (max-width: $mobile-width) {
+        @media (max-width: shared.$mobile-width) {
             margin-top: 10px;
         }
     }

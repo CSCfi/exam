@@ -60,7 +60,7 @@ SPDX-License-Identifier: EUPL-1.2
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 />
-              <div class="input-group-append bi-search search-append"></div>
+                <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
     </div>
@@ -163,11 +163,8 @@ SPDX-License-Identifier: EUPL-1.2
                                     }
                                 </td>
                                 <td>
-                                    <button
-                                        [routerLink]="['/staff/exams', exam.id, '1']"
-                                        class="btn btn-sm btn-outline-secondary"
-                                    >
-                                        {{ 'i18n_view_assessment' | translate }}
+                                    <button [routerLink]="['/staff/exams', exam.id, '1']" class="btn btn-sm btn-link">
+                                        {{ 'i18n_move_to' | translate }}
                                     </button>
                                 </td>
                                 <td>

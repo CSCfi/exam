@@ -68,7 +68,7 @@ public class ReservationController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result getExams(Http.Request request, Optional<String> filter) {
         var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         var props = PathProperties.parse("(id, name)");
@@ -118,7 +118,7 @@ public class ReservationController extends BaseController {
         return array;
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result getStudents(Optional<String> filter) {
         var el = DB.find(User.class).where().eq("roles.name", "STUDENT");
         if (filter.isPresent()) {
@@ -128,7 +128,7 @@ public class ReservationController extends BaseController {
         return ok(Json.toJson(asJson(el.findList())));
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result getTeachers(Optional<String> filter) {
         var el = DB.find(User.class).where().eq("roles.name", "TEACHER");
         if (filter.isPresent()) {
@@ -197,7 +197,7 @@ public class ReservationController extends BaseController {
         return ok(available, props);
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateMachine(Long reservationId, Http.Request request)
         throws ExecutionException, InterruptedException {
         var reservation = DB.find(Reservation.class, reservationId);
@@ -243,7 +243,7 @@ public class ReservationController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     @Anonymous(filteredProperties = { "user" })
     public Result getExaminationEvents(
         Optional<String> state,
@@ -340,7 +340,7 @@ public class ReservationController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     @Anonymous(filteredProperties = { "user", "externalUserRef" })
     public Result getReservations(
         Optional<String> state,

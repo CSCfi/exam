@@ -50,7 +50,6 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
             </form>
         </ng-template>
     `,
-    standalone: true,
     imports: [FormsModule, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class DevLoginComponent {

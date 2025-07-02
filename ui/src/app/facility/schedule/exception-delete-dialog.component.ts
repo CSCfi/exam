@@ -39,7 +39,6 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
         </div>
     `,
     styleUrls: ['../rooms/rooms.component.scss'],
-    standalone: true,
     imports: [TranslateModule],
 })
 export class ExceptionDeleteDialogComponent {

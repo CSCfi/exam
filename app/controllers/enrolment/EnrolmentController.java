@@ -436,7 +436,7 @@ public class EnrolmentController extends BaseController {
 
     @Authenticated
     @With(StudentEnrolmentSanitizer.class)
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public CompletionStage<Result> createStudentEnrolment(Long eid, Http.Request request) {
         Optional<Long> uid = request.attrs().getOptional(Attrs.USER_ID);
         Optional<String> email = request.attrs().getOptional(Attrs.EMAIL);
@@ -530,7 +530,7 @@ public class EnrolmentController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
     public CompletionStage<Result> getRoomInfoFromEnrolment(String hash, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return enrolmentRepository
@@ -660,7 +660,7 @@ public class EnrolmentController extends BaseController {
         return ok();
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result permitRetrial(Long id) {
         ExamEnrolment enrolment = DB.find(ExamEnrolment.class, id);
         if (enrolment == null) {

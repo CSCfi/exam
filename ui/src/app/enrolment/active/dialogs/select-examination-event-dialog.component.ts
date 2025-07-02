@@ -12,7 +12,6 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
 
 @Component({
     selector: 'xm-select-examination-event-dialog',
-    standalone: true,
     imports: [TranslateModule, DatePipe],
     template: `
         <div class="modal-header">

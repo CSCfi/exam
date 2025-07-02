@@ -18,7 +18,6 @@ import { SettingsService } from './settings.service';
 @Component({
     templateUrl: './settings.component.html',
     selector: 'xm-settings',
-    standalone: true,
     imports: [
         CKEditorComponent,
         FormsModule,

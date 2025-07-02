@@ -91,7 +91,6 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    standalone: true,
     imports: [CourseCodeComponent, MathJaxDirective, DatePipe, TranslateModule],
 })
 export class CalendarExamInfoComponent implements OnInit {

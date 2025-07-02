@@ -16,7 +16,6 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
     selector: 'xm-multiple-choice-editor',
     templateUrl: './multiple-choice.component.html',
     styleUrls: ['../question.shared.scss'],
-    standalone: true,
     imports: [
         FormsModule,
         MultipleChoiceOptionEditorComponent,

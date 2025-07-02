@@ -82,7 +82,7 @@ public class LanguageInspectionController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result createInspection(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         Long examId = Long.parseLong(df.get("examId"));

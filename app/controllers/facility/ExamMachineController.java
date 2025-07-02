@@ -154,7 +154,7 @@ public class ExamMachineController extends BaseController {
         return forbidden();
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT"), @Group("STUDENT") })
     public Result listSoftware() {
         List<Software> software = DB.find(Software.class)
             .where()
@@ -167,7 +167,7 @@ public class ExamMachineController extends BaseController {
         return ok(software);
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result getSoftware(Long id) {
         Software software = DB.find(Software.class, id);
 

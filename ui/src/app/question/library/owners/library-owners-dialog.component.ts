@@ -41,7 +41,6 @@ import { UserService } from 'src/app/shared/user/user.service';
         </div>
     `,
     selector: 'xm-library-owners-dialog',
-    standalone: true,
     imports: [NgbTypeahead, TranslateModule],
 })
 export class LibraryOwnersDialogComponent implements OnInit {

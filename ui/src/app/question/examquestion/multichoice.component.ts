@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, UpperCasePipe } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, input, model, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
@@ -13,8 +13,7 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
 @Component({
     selector: 'xm-eq-unweighted-mc',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    standalone: true,
-    imports: [FormsModule, NgClass, NgbPopoverModule, TranslateModule, UpperCasePipe],
+    imports: [FormsModule, NgClass, NgbPopoverModule, TranslateModule],
     styleUrls: ['../question.shared.scss'],
     template: `
         <div ngModelGroup="unweightedMc" id="unweightedMc">

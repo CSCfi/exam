@@ -15,7 +15,6 @@ import type { ExamMachine, ExamRoom } from 'src/app/reservation/reservation.mode
 @Component({
     templateUrl: './machines.component.html',
     selector: 'xm-machines',
-    standalone: true,
     imports: [NgbPopover, NgClass, RouterLink, TranslateModule],
     styleUrls: ['./machines.component.scss'],
 })

@@ -10,7 +10,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
 
 @Component({
-    standalone: true,
     imports: [FormsModule, TranslateModule],
     template: `
         <div class="modal-header">

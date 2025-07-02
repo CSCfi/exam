@@ -78,20 +78,20 @@ public class ExamController extends BaseController {
             .fetch("executionType")
             .fetch("parent")
             .where()
-            .disjunction()
+            .or()
             .eq("state", Exam.State.PUBLISHED)
             .eq("state", Exam.State.SAVED)
             .eq("state", Exam.State.DRAFT)
-            .endJunction();
+            .endOr();
     }
 
     private List<Exam> getAllExams(String filter) {
         ExpressionList<Exam> query = createPrototypeQuery();
         if (filter != null) {
-            query = query.disjunction();
+            query = query.or();
             query = userHandler.applyNameSearch("examOwners", query, filter);
             String condition = String.format("%%%s%%", filter);
-            query = query.ilike("name", condition).ilike("course.code", condition).endJunction();
+            query = query.ilike("name", condition).ilike("course.code", condition).endOr();
         }
         return query.findList();
     }
@@ -103,11 +103,11 @@ public class ExamController extends BaseController {
     // HELPER METHODS END
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
-    public Result getExams(Optional<String> filter, Http.Request request) {
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
+    public Result searchExams(Optional<String> filter, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Exam> exams;
-        if (user.hasRole(Role.Name.ADMIN)) {
+        if (user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             exams = getAllExams(filter.orElse(null));
         } else {
             exams = getAllExamsOfTeacher(user);
@@ -130,7 +130,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result listExams(
         Optional<List<Long>> courseIds,
         Optional<List<Long>> sectionIds,
@@ -149,7 +149,7 @@ public class ExamController extends BaseController {
         Query<Exam> query = DB.find(Exam.class);
         pp.apply(query);
         ExpressionList<Exam> el = query.where().isNotNull("name").isNotNull("course").isNull("parent");
-        if (!user.hasRole(Role.Name.ADMIN)) {
+        if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             el = el.eq("examOwners", user);
         }
         if (!courses.isEmpty()) {
@@ -196,14 +196,14 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result deleteExam(Long id, Http.Request request) {
         Exam exam = DB.find(Exam.class, id);
         if (exam == null) {
             return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (user.hasRole(Role.Name.ADMIN) || exam.isOwnedOrCreatedBy(user)) {
+        if (user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) || exam.isOwnedOrCreatedBy(user)) {
             if (examUpdater.isAllowedToRemove(exam)) {
                 exam.setModifierWithDate(user);
                 exam.setState(Exam.State.DELETED);
@@ -228,7 +228,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Anonymous(filteredProperties = { "user" })
     public Result getExam(Long id, Http.Request request) {
         Exam exam = doGetExam(id);
@@ -255,33 +255,37 @@ public class ExamController extends BaseController {
                 });
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+        if (
+            exam.isShared() ||
+            exam.isInspectedOrCreatedOrOwnedBy(user) ||
+            user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
+        ) {
             exam.getExamSections().forEach(s -> s.setSectionQuestions(new TreeSet<>(s.getSectionQuestions())));
             return writeAnonymousResult(request, ok(exam), exam.isAnonymous());
         }
         return forbidden("i18n_error_access_forbidden");
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result getExamTypes() {
         List<ExamType> types = DB.find(ExamType.class).where().ne("deprecated", true).findList();
         return ok(types);
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result getExamGradeScales() {
         List<GradeScale> scales = DB.find(GradeScale.class).fetch("grades").findList();
         return ok(scales);
     }
 
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result getExamExecutionTypes() {
         List<ExamExecutionType> types = DB.find(ExamExecutionType.class).where().ne("active", false).findList();
         return ok(types);
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result getExamPreview(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam exam = DB.find(Exam.class)
@@ -306,7 +310,11 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("i18n_error_exam_not_found");
         }
-        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+        if (
+            exam.isShared() ||
+            exam.isInspectedOrCreatedOrOwnedBy(user) ||
+            user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
+        ) {
             examUpdater.preparePreview(exam);
             return ok(exam);
         }
@@ -338,14 +346,14 @@ public class ExamController extends BaseController {
 
     @Authenticated
     @With(ExamUpdateSanitizer.class)
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateExam(Long id, Http.Request request) {
         Exam exam = prototypeQuery().where().idEq(id).findOne();
         if (exam == null) {
             return notFound();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             return examUpdater
                 .updateTemporalFieldsAndValidate(exam, user, request)
                 .orElseGet(() ->
@@ -371,7 +379,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateExamSoftware(Long eid, Long sid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
@@ -401,7 +409,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateExamLanguage(Long eid, String code, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
@@ -417,7 +425,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result copyExam(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
 
@@ -482,7 +490,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result createExamDraft(Http.Request request) {
         String executionType = request.body().asJson().get("executionType").asText();
         String implementation = request.body().asJson().get("implementation").asText();
@@ -547,7 +555,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateCourse(Long eid, Long cid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
@@ -557,7 +565,7 @@ public class ExamController extends BaseController {
         if (!examUpdater.isAllowedToUpdate(exam, user)) {
             return forbidden("i18n_error_future_reservations_exist");
         }
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             Course course = DB.find(Course.class, cid);
             if (course == null) {
                 return notFound("i18n_error_not_found");

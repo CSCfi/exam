@@ -10,7 +10,6 @@ import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-add-enrolment-information-dialog',
-    standalone: true,
     imports: [FormsModule, TranslateModule],
     template: `
         <div class="modal-header">

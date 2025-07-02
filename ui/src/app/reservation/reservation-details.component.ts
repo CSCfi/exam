@@ -23,7 +23,6 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
 @Component({
     selector: 'xm-reservation-details',
     templateUrl: './reservation-details.component.html',
-    standalone: true,
     imports: [
         TableSortComponent,
         RouterLink,
@@ -41,7 +40,7 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
 export class ReservationDetailsComponent implements OnChanges {
     @Input() reservations: AnyReservation[] = [];
     @Input() isAdminView = false;
-
+    @Input() isSupportView = false;
     predicate = 'reservation.startAt';
     reverse = false;
     fixedReservations: ReservationDetail[] = [];

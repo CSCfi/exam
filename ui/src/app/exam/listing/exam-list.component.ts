@@ -27,7 +27,6 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 @Component({
     selector: 'xm-exam-list',
     templateUrl: './exam-list.component.html',
-    standalone: true,
     imports: [
         NgbNav,
         NgbNavItem,

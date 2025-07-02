@@ -28,7 +28,6 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
             </div>
         }
     `,
-    standalone: true,
     imports: [NgClass, LowerCasePipe, DatePipe, TranslateModule],
 })
 export class ParticipationComponent {

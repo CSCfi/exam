@@ -61,7 +61,6 @@ import { Option } from './select.model';
             }
         </div>
     </div>`,
-    standalone: true,
     imports: [
         NgbDropdown,
         NgbDropdownToggle,

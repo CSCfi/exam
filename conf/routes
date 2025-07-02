@@ -26,7 +26,7 @@ POST          /app/permissions                                                co
 DELETE        /app/permissions                                                controllers.user.UserController.revokeUserPermission(request: Request)
 
 ############### Exam interface ###############
-GET           /app/exams                                                      controllers.exam.ExamController.getExams(filter: java.util.Optional[String], request: Request)
+GET           /app/exams                                                      controllers.exam.ExamController.searchExams(filter: java.util.Optional[String], request: Request)
 POST          /app/exams                                                      controllers.exam.ExamController.createExamDraft(request: Request)
 GET           /app/exams/:id                                                  controllers.exam.ExamController.getExam(id: Long, request: Request)
 DELETE        /app/exams/:id                                                  controllers.exam.ExamController.deleteExam(id: Long, request: Request)

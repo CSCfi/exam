@@ -28,7 +28,6 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
     selector: 'xm-calendar',
     templateUrl: './calendar.component.html',
     styleUrls: ['./calendar.component.scss'],
-    standalone: true,
     imports: [
         CalendarExamInfoComponent,
         OptionalSectionsComponent,

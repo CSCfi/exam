@@ -41,12 +41,12 @@ public class UserController extends BaseController {
         this.userHandler = userHandler;
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result listPermissions() {
         return ok(DB.find(Permission.class).findList());
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result grantUserPermission(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         String permissionString = df.get("permission");
@@ -68,7 +68,7 @@ public class UserController extends BaseController {
         return ok();
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result revokeUserPermission(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         String permissionString = df.get("permission");
@@ -87,7 +87,7 @@ public class UserController extends BaseController {
         return ok();
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result listUsers(Optional<String> filter) {
         PathProperties pp = PathProperties.parse("(*, roles(*), permissions(*))");
         Query<User> query = DB.find(User.class);
@@ -110,12 +110,13 @@ public class UserController extends BaseController {
         return ok(results, pp);
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result addRole(Long uid, String roleName) {
         User user = DB.find(User.class, uid);
         if (user == null) {
             return notFound("i18n_user_not_found");
         }
+        // TODO
         if (user.getRoles().stream().noneMatch(r -> r.getName().equals(roleName))) {
             Role role = DB.find(Role.class).where().eq("name", roleName).findOne();
             if (role == null) {
@@ -127,12 +128,13 @@ public class UserController extends BaseController {
         return ok();
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result removeRole(Long uid, String roleName) {
         User user = DB.find(User.class, uid);
         if (user == null) {
             return notFound("i18n_user_not_found");
         }
+        // TODO
         if (user.getRoles().stream().anyMatch(r -> r.getName().equals(roleName))) {
             Role role = DB.find(Role.class).where().eq("name", roleName).findOne();
             if (role == null) {
@@ -144,7 +146,7 @@ public class UserController extends BaseController {
         return ok();
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result listUsersByRole(String role) {
         PathProperties pp = PathProperties.parse("(*, roles(*), permissions(*))");
         List<User> users = DB.find(User.class).where().eq("roles.name", role).orderBy("lastName").findList();

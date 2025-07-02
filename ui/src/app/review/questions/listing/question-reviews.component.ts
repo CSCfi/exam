@@ -80,7 +80,6 @@ import { QuestionReviewComponent } from './question-review.component';
         }
     </div>`,
     styleUrls: ['../assessment/question-assessment.component.scss'],
-    standalone: true,
     imports: [FormsModule, QuestionReviewComponent, TranslateModule],
 })
 export class QuestionReviewsComponent implements OnInit {

@@ -70,7 +70,6 @@ import { SessionService } from 'src/app/session/session.service';
             </div>
         </form>
     `,
-    standalone: true,
     imports: [FormsModule, NgbPopover, NgbTypeahead, TranslateModule],
 })
 export class TagPickerComponent implements OnInit {

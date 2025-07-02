@@ -24,7 +24,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 @Component({
     selector: 'xm-rl-archived',
     templateUrl: './archived.component.html',
-    standalone: true,
     imports: [
         FormsModule,
         NgClass,

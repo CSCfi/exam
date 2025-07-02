@@ -47,7 +47,6 @@ interface UserWithOptions extends User {
 @Component({
     templateUrl: './users.component.html',
     selector: 'xm-users',
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,
@@ -82,12 +81,14 @@ export class UsersComponent implements OnInit, OnDestroy {
     textChanged = new Subject<string>();
     ngUnsubscribe = new Subject();
     roles: RoleOption[] = [
-        { type: 'ADMIN', name: 'i18n_admin', icon: 'bi-gear' },
-        { type: 'TEACHER', name: 'i18n_teacher', icon: 'bi-person' },
+        { type: 'ADMIN', name: 'i18n_admin', icon: 'bi-shield-lock' },
+        { type: 'TEACHER', name: 'i18n_teacher', icon: 'bi-person-workspace' },
         { type: 'STUDENT', name: 'i18n_student', icon: 'bi-mortarboard' },
+        { type: 'SUPPORT', name: 'i18n_support_person', icon: 'bi-person-heart' },
     ];
     permissions: PermissionOption[] = [];
     loader = { loading: false };
+    appUser: User;
 
     constructor(
         private translate: TranslateService,
@@ -95,6 +96,7 @@ export class UsersComponent implements OnInit, OnDestroy {
         private session: SessionService,
         private userManagement: UserManagementService,
     ) {
+        this.appUser = this.session.getUser();
         this.textChanged
             .pipe(debounceTime(1000), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((text) => {
@@ -241,9 +243,13 @@ export class UsersComponent implements OnInit, OnDestroy {
         user.removableRoles = [];
         this.roles.forEach((role) => {
             if (user.roles.map((r) => r.name).indexOf(role.type) === -1) {
-                user.availableRoles.push({ ...role });
+                if (role.type === 'STUDENT' || role.type === 'TEACHER' || this.appUser.isAdmin) {
+                    user.availableRoles.push({ ...role });
+                }
             } else {
-                user.removableRoles.push({ ...role });
+                if (role.type === 'STUDENT' || role.type === 'TEACHER' || this.appUser.isAdmin) {
+                    user.removableRoles.push({ ...role });
+                }
             }
         });
         user.availablePermissions = [];
