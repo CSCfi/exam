@@ -135,6 +135,11 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.loader = { loading: false };
     }
 
+    getRoleIcons = (user: User): string[] =>
+        user.roles
+            .map((ur) => this.roles.find((r) => ur.name === r.type)?.icon)
+            .filter((icon): icon is string => icon !== undefined);
+
     pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
     search = () => {
