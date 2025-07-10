@@ -182,13 +182,13 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Column(length = 32, unique = true)
     private String hash;
 
-    // Exam valid/enrollable from
+    // Exam valid/ready for enrolling from
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
     @Column(name = "exam_active_start_date")
     private DateTime periodStart;
 
-    // Exam valid/enrollable until
+    // Exam valid/ready for enrolling until
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
     @Column(name = "exam_active_end_date")
@@ -879,7 +879,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             .flatMap(es -> es.getSectionQuestions().stream())
             .forEach(esq -> {
                 esq.setDerivedMaxScore();
-                // Also set min scores, if question is claim choice question
+                // Also set min scores, if question is claim choice or weighted question
                 Optional<Question.Type> type = Optional.ofNullable(esq.getQuestion()).map(Question::getType);
                 if (
                     type.isPresent() &&
