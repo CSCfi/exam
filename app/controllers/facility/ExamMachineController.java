@@ -6,6 +6,7 @@ package controllers.facility;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectPresent;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import io.ebean.DB;
@@ -154,7 +155,7 @@ public class ExamMachineController extends BaseController {
         return forbidden();
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT"), @Group("STUDENT") })
+    @SubjectPresent
     public Result listSoftware() {
         List<Software> software = DB.find(Software.class)
             .where()

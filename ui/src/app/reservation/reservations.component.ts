@@ -83,7 +83,7 @@ export class ReservationsComponent implements OnInit {
     ) {
         this.user = this.Session.getUser();
 
-        if (this.user.isAdmin) {
+        if (this.user.isAdmin || this.user.isSupport) {
             this.examStates.push('EXTERNAL_UNFINISHED');
             this.examStates.push('EXTERNAL_FINISHED');
         }

@@ -127,14 +127,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <td>{{ user.employeeNumber }}</td>
                             <td>{{ user.lastLogin | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
                             <td>
-                                @if (hasRole(user, 'ADMIN')) {
-                                    <i class="bi-gear pe-1"></i>
-                                }
-                                @if (hasRole(user, 'TEACHER')) {
-                                    <i class="bi-person pe-1"></i>
-                                }
-                                @if (hasRole(user, 'STUDENT')) {
-                                    <i class="bi-mortarboard pe-1"></i>
+                                @for (icon of getRoleIcons(user); track icon) {
+                                    <i [ngClass]="icon" class="pe-2"></i>
                                 }
                                 <div class="float-end">
                                     <span class="xm-no-caret pointer" ngbDropdown>
