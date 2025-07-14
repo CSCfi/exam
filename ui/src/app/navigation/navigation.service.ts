@@ -73,10 +73,10 @@ export class NavigationService {
                       items: [],
                       submenu: { hidden: true, items: [] },
                   };
-
+        const dashboardRoute = student ? 'dashboard' : admin || support ? 'staff/admin' : 'staff/teacher';
         return [
             {
-                route: student ? 'dashboard' : admin ? 'staff/admin' : 'staff/teacher',
+                route: dashboardRoute,
                 visible: !hidden,
                 name: nameForDashboard,
                 iconPng: 'icon_enrols.svg',

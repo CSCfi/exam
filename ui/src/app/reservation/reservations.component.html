@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-@if (isAdminView()) {
+@if (isAdminView() || isSupportView()) {
     <xm-page-header text="i18n_reservations_administration" />
 } @else {
     <xm-page-header text="i18n_reservations_new" />
@@ -73,7 +73,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <!-- 2nd row of controls for admin only -->
-    @if (isAdminView()) {
+    @if (isAdminView() || isSupportView()) {
         <div class="row mt-2 align-items-center">
             <div class="col-md-3">
                 <label for="owner-search" class="reservation-search-form-label">{{

@@ -6,6 +6,7 @@ package controllers.enrolment;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectPresent;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import impl.ExternalCourseHandler;
@@ -530,7 +531,7 @@ public class EnrolmentController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT"), @Group("SUPPORT") })
+    @SubjectPresent
     public CompletionStage<Result> getRoomInfoFromEnrolment(String hash, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return enrolmentRepository
