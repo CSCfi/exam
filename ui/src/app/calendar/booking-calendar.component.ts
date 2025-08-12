@@ -32,7 +32,7 @@ import { CalendarService } from './calendar.service';
     template: `
         @if (visible()) {
             <div class="row my-2">
-                @if (visible()) {
+                @if (visible() && passwordVerified()) {
                     <div class="col-md-12">
                         <full-calendar #fc [options]="calendarOptions()"></full-calendar>
                     </div>
@@ -54,6 +54,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
 
     room = input.required<ExamRoom>();
     visible = input(false);
+    passwordVerified = input(false);
     minDate = input<Date>();
     maxDate = input<Date>();
     accessibilities = input<Accessibility[]>([]);
@@ -107,9 +108,9 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
                 slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
                 timeZone: room.localTimezone,
             }));
-            this.calendar.getApi().refetchEvents();
+            this.calendar?.getApi().refetchEvents();
         });
-        toObservable(this.accessibilities).subscribe(() => this.calendar.getApi().refetchEvents());
+        toObservable(this.accessibilities).subscribe(() => this.calendar?.getApi().refetchEvents());
     }
 
     ngOnInit() {

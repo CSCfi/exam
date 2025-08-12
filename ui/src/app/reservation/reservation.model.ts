@@ -54,6 +54,10 @@ export interface ExamRoom {
     videoRecordingsURL: string;
     availableForExternals: boolean;
     externalRef: string | null;
+    internalPassword?: string;
+    externalPassword?: string;
+    internalPasswordRequired: boolean;
+    externalPasswordRequired: boolean;
 }
 
 export interface ExamMachine {

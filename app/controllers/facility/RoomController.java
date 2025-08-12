@@ -47,6 +47,7 @@ import play.mvc.Result;
 import sanitizers.Attrs;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
+import system.interceptors.SensitiveDataPolicy;
 
 public class RoomController extends BaseController {
 
@@ -104,6 +105,7 @@ public class RoomController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    @SensitiveDataPolicy(sensitiveFieldNames = { "internalPassword", "externalPassword" })
     public Result getExamRooms(Http.Request request) {
         ExpressionList<ExamRoom> query = DB.find(ExamRoom.class)
             .fetch("accessibilities")
@@ -119,6 +121,8 @@ public class RoomController extends BaseController {
         List<ExamRoom> rooms = query.findList();
         for (ExamRoom room : rooms) {
             room.getExamMachines().removeIf(ExamMachine::isArchived);
+            room.setInternalPasswordRequired(room.getInternalPassword() != null);
+            room.setExternalPasswordRequired(room.getExternalPassword() != null);
         }
         PathProperties props = PathProperties.parse(
             "(*, mailAddress(*), accessibilities(*), defaultWorkingHours(*), calendarExceptionEvents(*), examStartingHours(*), examMachines(*, softwareInfo(*)))"
@@ -148,6 +152,26 @@ public class RoomController extends BaseController {
         return ok(Json.toJson(examRoom));
     }
 
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
+    public Result validatePassword(Long roomId, Http.Request request) {
+        ExamRoom room = DB.find(ExamRoom.class, roomId);
+        if (room == null) {
+            return notFound("room not found");
+        }
+
+        if (room.getInternalPassword() == null) {
+            return badRequest("room does not require internal password");
+        }
+        JsonNode body = request.body().asJson();
+        boolean isExternal = body.get("external").asBoolean();
+        String validPassword = isExternal ? room.getExternalPassword() : room.getInternalPassword();
+        if (validPassword.equals(body.get("password").asText())) {
+            return ok();
+        } else {
+            return forbidden();
+        }
+    }
+
     @Restrict(@Group({ "ADMIN" }))
     public CompletionStage<Result> updateExamRoom(Long id, Http.Request request) throws MalformedURLException {
         ExamRoom room = formFactory
@@ -169,7 +193,8 @@ public class RoomController extends BaseController {
                 "statusComment",
                 "outOfService",
                 "state",
-                "expanded"
+                "internalPassword",
+                "externalPassword"
             )
             .get();
         ExamRoom existing = DB.find(ExamRoom.class, id);
@@ -189,7 +214,8 @@ public class RoomController extends BaseController {
         existing.setStatusComment(room.getStatusComment());
         existing.setOutOfService(room.getOutOfService());
         existing.setState(room.getState());
-        existing.setExpanded(room.getExpanded());
+        existing.setInternalPassword(room.getInternalPassword());
+        existing.setExternalPassword(room.getExternalPassword());
 
         existing.update();
 

@@ -1259,5 +1259,11 @@
     "i18n_min_score": "Minimipisteet EN",
     "i18n_questions_imported_with_errors": "All questions could not be imported due to errors. Number of erroneous questions:EN",
     "i18n_shuffle_options": "Sekoita vastausvaihtoehdot opiskelijaa varten EN",
-    "i18n_support_person": "Tukihenkilö EN"
+    "i18n_support_person": "Tukihenkilö EN",
+    "i18n_internal_password": "Salasana omille opiskelijoille EN",
+    "i18n_external_password": "Salasana vieraileville opiskelijoille EN",
+    "i18n_room_password_required_message": "Tämä huone vaatii salasanan vapaiden aikojen tarkastelemiseen. EN",
+    "i18n_enter_password": "Syötä salasana EN",
+    "i18n_invalid_password": "Virheellinen salasana EN",
+    "i18n_password_required": "Salasana on pakollinen EN"
 }

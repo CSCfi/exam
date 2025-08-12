@@ -33,7 +33,7 @@ export class RoomService {
     getRoom$ = (id: number) => this.http.get<ExamRoom>(this.roomsApi(id));
 
     /* TODO, check these text response APIs on backend side, doesn't seem legit */
-    updateRoom = (room: ExamRoom) =>
+    updateRoom$ = (room: ExamRoom) =>
         this.http.put<ExamRoom>(this.roomsApi(room.id), room, { responseType: 'text' as 'json' });
 
     inactivateRoom$ = (id: number) => this.http.delete<ExamRoom>(this.roomsApi(id));
