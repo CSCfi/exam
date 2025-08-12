@@ -22,7 +22,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
     template: `
         <div class="row my-2">
             <div class="col-12">
-                <button class="btn btn-primary" (click)="listParticipations()">
+                <button class="btn btn-sm btn-primary" (click)="listParticipations()">
                     {{ 'i18n_search' | translate }}
                 </button>
             </div>

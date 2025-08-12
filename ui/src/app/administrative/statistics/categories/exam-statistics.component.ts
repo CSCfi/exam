@@ -8,7 +8,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
     template: `
         <div class="row my-2">
             <div class="col-12">
-                <button class="btn btn-primary" (click)="listExams()">{{ 'i18n_search' | translate }}</button>
+                <button class="btn btn-sm btn-primary" (click)="listExams()">{{ 'i18n_search' | translate }}</button>
             </div>
         </div>
         <div class="row">
