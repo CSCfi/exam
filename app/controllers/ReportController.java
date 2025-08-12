@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
+import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -256,23 +257,21 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getIopReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Reservation> query = DB.find(Reservation.class)
-            .fetch("externalReservation")
-            .fetch("enrolment")
-            .where()
-            .or()
-            .isNotNull("externalRef")
-            .isNotNull("externalReservation.orgName")
-            .endOr();
-        query = applyFilters(
-            query,
+        PathProperties pp = PathProperties.parse(
+            "*, enrolment(noShow, externalExam(finished)), externalReservation(*)"
+        );
+        Query<Reservation> query = DB.find(Reservation.class);
+        pp.apply(query);
+        ExpressionList<Reservation> el = query.where().isNotNull("externalRef");
+        el = applyFilters(
+            el,
             "enrolment.exam.course",
             "startAt",
             dept.orElse(null),
             start.orElse(null),
             end.orElse(null)
         );
-        Set<Reservation> reservations = query
+        Set<Reservation> reservations = el
             .findSet()
             .stream()
             .filter(r -> r.getExternalOrgName() != null || (r.getExternalReservation() != null))
