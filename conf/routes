@@ -211,6 +211,7 @@ GET           /app/rooms/:id                                                   c
 PUT           /app/rooms/:id                                                   controllers.facility.RoomController.updateExamRoom(id: Long, request: Request)
 DELETE        /app/rooms/:id                                                   controllers.facility.RoomController.inactivateExamRoom(id: Long)
 POST          /app/rooms/:id                                                   controllers.facility.RoomController.activateExamRoom(id: Long)
+POST          /app/rooms/:id/validate                                          controllers.facility.RoomController.validatePassword(id: Long, request: Request)
 
 PUT           /app/address/:id                                                 controllers.facility.RoomController.updateExamRoomAddress(id: Long, request: Request)
 

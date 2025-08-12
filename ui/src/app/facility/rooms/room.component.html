@@ -109,7 +109,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 </div>
                 <div class="row">
-                    <!-- Campus & Organization name -->
+                    <!-- Campus name -->
                     <div class="col-md-6">
                         <div class="facility-info-text">{{ 'i18n_room_campus' | translate }}</div>
                         <div class="input-group">
@@ -127,6 +127,50 @@ SPDX-License-Identifier: EUPL-1.2
                         </div>
                     </div>
                 </div>
+                <!-- Passwords -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="facility-info-text">{{ 'i18n_internal_password' | translate }}</div>
+                        <div class="input-group">
+                            <input
+                                type="{{ internalPasswordInputType }}"
+                                name="internalPassword"
+                                class="form-control"
+                                [(ngModel)]="room.internalPassword"
+                            />
+                            <div class="input-group-append">
+                                <button
+                                    class="btn btn-success"
+                                    type="button"
+                                    (click)="toggleInternalPasswordInputType()"
+                                >
+                                    <i [ngClass]="internalPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="facility-info-text">{{ 'i18n_external_password' | translate }}</div>
+                        <div class="input-group">
+                            <input
+                                type="{{ externalPasswordInputType }}"
+                                name="externalPassword"
+                                class="form-control"
+                                [(ngModel)]="room.externalPassword"
+                            />
+                            <div class="input-group-append">
+                                <button
+                                    class="btn btn-success"
+                                    type="button"
+                                    (click)="toggleExternalPasswordInputType()"
+                                >
+                                    <i [ngClass]="externalPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row mt-3">
                     <div class="col-md-12">
                         <button type="submit" [disabled]="!roomForm.valid" class="btn btn-success">
@@ -154,7 +198,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <!-- AVAILABILITY TODO: MOVE TO A TAB -->
-    <div class="row">
+    <div class="row mt-2">
         <div class="col-md-12">
             <xm-availability [room]="room"></xm-availability>
         </div>
