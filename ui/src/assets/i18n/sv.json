@@ -1182,11 +1182,11 @@
     "i18n_move_question": "Ändra ordningsföljden på frågorna genom att dra",
     "i18n_no_maintenance_periods_this_week": "Inga avvikande öppettider denna vecka",
     "i18n_no_exceptions_this_week": "Inga avvikande öppettider denna vecka",
-    "i18n_iop_reservations": "Tenttivierailut SV",
-    "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset SV",
-    "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset SV",
-    "i18n_unused_reservation": "Käyttämätön varaus SV",
-    "i18n_expand_all": "Visa alla SV",
-    "i18n_collapse_all": "Dölj alla SV",
-    "i18n_move_individual": "Flytta enskild SV"
+    "i18n_iop_reservations": "Tentamensbesök",
+    "i18n_outbound_reservations": "Bokningar vid annan högskolor",
+    "i18n_inbound_reservations": "Extern bokningar",
+    "i18n_unused_reservation": "Oanvänd",
+    "i18n_expand_all": "Visa alla",
+    "i18n_collapse_all": "Dölj alla",
+    "i18n_move_individual": "Flytta enskild"
 }
