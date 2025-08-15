@@ -1,6 +1,6 @@
 name := "exam"
 
-version := "6.3.4"
+version := "6.3.5"
 
 licenses += "EUPL 1.1" -> url("https://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
