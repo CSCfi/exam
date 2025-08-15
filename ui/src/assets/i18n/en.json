@@ -1182,11 +1182,11 @@
     "i18n_move_question": "Change the order of the exam sections by dragging",
     "i18n_no_maintenance_periods_this_week": "No service breaks this week",
     "i18n_no_exceptions_this_week": "No exceptions this week",
-    "i18n_iop_reservations": "Tenttivierailut EN",
-    "i18n_outbound_reservations": "Muihin korkeakouluihin tehdyt varaukset EN",
-    "i18n_inbound_reservations": "Muista korkeakouluista tehdyt varaukset EN",
-    "i18n_unused_reservation": "Käyttämätön varaus EN",
-    "i18n_expand_all": "Expand All EN",
-    "i18n_collapse_all": "Collapse All EN",
-    "i18n_move_individual": "Move individual EN"
+    "i18n_iop_reservations": "Exam visits",
+    "i18n_outbound_reservations": "Reservations to other universities",
+    "i18n_inbound_reservations": "Reservations from other universities",
+    "i18n_unused_reservation": "Not used",
+    "i18n_expand_all": "Expand All",
+    "i18n_collapse_all": "Collapse All",
+    "i18n_move_individual": "Move individual"
 }
