@@ -85,14 +85,6 @@ export const APP_ROUTES: Route[] = [
         title: () => buildTitle('i18n_exams_title'),
     },
     {
-        path: 'exams/collaborative',
-        loadComponent: () =>
-            import('./enrolment/search/collaborative-exam-search.component').then(
-                (mod) => mod.CollaborativeExamSearchComponent,
-            ),
-        title: () => buildTitle('i18n_collaborative_exams_title'),
-    },
-    {
         path: 'participations',
         loadComponent: () =>
             import('./enrolment/finished/exam-participations.component').then((mod) => mod.ExamParticipationsComponent),
