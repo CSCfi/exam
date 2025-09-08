@@ -60,7 +60,7 @@ export class NavigationService {
                 submenu: emptySubmenu,
             },
             {
-                route: 'staff/adminexams',
+                route: 'staff/admin/exams',
                 visible: admin || support,
                 name: 'i18n_exams',
                 iconPng: 'icon_admin_exams.png',

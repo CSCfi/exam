@@ -317,12 +317,21 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.initializeFilters();
+        this.loadStoredFilters();
         this.loadCollaborationConfiguration();
     }
 
-    searchRegular = (text: string) => this.regularFilterChanged.next(text);
-    searchCollaborative = (text: string) => this.collaborativeFilterChanged.next(text);
+    searchRegular = (text: string) => {
+        this.regularFilter.text = text;
+        this.storeFilters();
+        this.regularFilterChanged.next(text);
+    };
+
+    searchCollaborative = (text: string) => {
+        this.collaborativeFilter.text = text;
+        this.storeFilters();
+        this.collaborativeFilterChanged.next(text);
+    };
 
     onTabChange = (event: NgbNavChangeEvent) => {
         let tabKey = '';
@@ -354,12 +363,38 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
             .subscribe(this.doCollaborativeSearch);
     }
 
-    private initializeFilters() {
-        this.regularFilter = { text: '' };
-        this.collaborativeFilter = { text: '' };
+    private loadStoredFilters() {
+        const storedData = this.Search.loadFilters('search');
+        if (storedData.filters) {
+            this.regularFilter = { text: storedData.filters.regularText || '' };
+            this.collaborativeFilter = { text: storedData.filters.collaborativeText || '' };
+
+            // If there are stored filters, trigger search
+            if (this.regularFilter.text) {
+                this.regularFilterChanged.next(this.regularFilter.text);
+            }
+            if (this.collaborativeFilter.text) {
+                this.collaborativeFilterChanged.next(this.collaborativeFilter.text);
+            }
+        } else {
+            this.initializeFilters();
+        }
         this.regularLoader = { loading: false };
         this.collaborativeLoader = { loading: false };
         this.permissionCheck = { active: false };
+    }
+
+    private initializeFilters() {
+        this.regularFilter = { text: '' };
+        this.collaborativeFilter = { text: '' };
+    }
+
+    private storeFilters() {
+        const filters = {
+            regularText: this.regularFilter.text,
+            collaborativeText: this.collaborativeFilter.text,
+        };
+        this.Search.storeFilters(filters, 'search');
     }
 
     private setupTabFromUrl() {
