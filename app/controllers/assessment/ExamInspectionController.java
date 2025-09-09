@@ -98,7 +98,10 @@ public class ExamInspectionController extends BaseController {
     }
 
     private static boolean isInspectorOf(User user, Exam exam) {
-        return exam.getExamInspections().stream().anyMatch(ei -> ei.getUser().equals(user));
+        return exam
+            .getExamInspections()
+            .stream()
+            .anyMatch(ei -> ei.getUser().equals(user));
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
@@ -138,7 +141,11 @@ public class ExamInspectionController extends BaseController {
             .stream()
             .filter(c -> c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED))
             .forEach(c ->
-                c.getExamInspections().stream().filter(ei -> ei.getUser().equals(inspector)).forEach(Model::delete)
+                c
+                    .getExamInspections()
+                    .stream()
+                    .filter(ei -> ei.getUser().equals(inspector))
+                    .forEach(Model::delete)
             );
         inspection.delete();
         return ok();

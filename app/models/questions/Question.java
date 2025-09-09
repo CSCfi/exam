@@ -289,11 +289,17 @@ public class Question extends OwnedModel implements AttachmentContainer {
         } else {
             Document doc = Jsoup.parse(questionText);
             Elements answers = doc.select("span[cloze=true]");
-            Set<String> distinctIds = answers.stream().map(a -> a.attr("id")).collect(Collectors.toSet());
+            Set<String> distinctIds = answers
+                .stream()
+                .map(a -> a.attr("id"))
+                .collect(Collectors.toSet());
             if (answers.size() != distinctIds.size()) {
                 reason = "duplicate ids found";
             } else if (
-                answers.stream().map(a -> a.attr("precision")).anyMatch(p -> p.isEmpty() || !NumberUtils.isParsable(p))
+                answers
+                    .stream()
+                    .map(a -> a.attr("precision"))
+                    .anyMatch(p -> p.isEmpty() || !NumberUtils.isParsable(p))
             ) {
                 reason = "invalid precision found";
             } else if (

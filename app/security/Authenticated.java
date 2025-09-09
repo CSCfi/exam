@@ -13,5 +13,4 @@ import play.mvc.With;
 @With(AuthenticatedAction.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Authenticated {
-}
+public @interface Authenticated {}

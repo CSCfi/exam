@@ -54,7 +54,12 @@ public class UserController extends BaseController {
         if (user == null) {
             return notFound();
         }
-        if (user.getPermissions().stream().noneMatch(p -> p.getValue().equals(permissionString))) {
+        if (
+            user
+                .getPermissions()
+                .stream()
+                .noneMatch(p -> p.getValue().equals(permissionString))
+        ) {
             Permission.Type type;
             try {
                 type = Permission.Type.valueOf(permissionString);
@@ -76,7 +81,12 @@ public class UserController extends BaseController {
         if (user == null) {
             return notFound();
         }
-        if (user.getPermissions().stream().anyMatch(p -> p.getValue().equals(permissionString))) {
+        if (
+            user
+                .getPermissions()
+                .stream()
+                .anyMatch(p -> p.getValue().equals(permissionString))
+        ) {
             Permission permission = DB.find(Permission.class)
                 .where()
                 .eq("type", Permission.Type.valueOf(permissionString))
@@ -117,7 +127,12 @@ public class UserController extends BaseController {
             return notFound("i18n_user_not_found");
         }
         // TODO
-        if (user.getRoles().stream().noneMatch(r -> r.getName().equals(roleName))) {
+        if (
+            user
+                .getRoles()
+                .stream()
+                .noneMatch(r -> r.getName().equals(roleName))
+        ) {
             Role role = DB.find(Role.class).where().eq("name", roleName).findOne();
             if (role == null) {
                 return notFound("i18n_role_not_found");
@@ -135,7 +150,12 @@ public class UserController extends BaseController {
             return notFound("i18n_user_not_found");
         }
         // TODO
-        if (user.getRoles().stream().anyMatch(r -> r.getName().equals(roleName))) {
+        if (
+            user
+                .getRoles()
+                .stream()
+                .anyMatch(r -> r.getName().equals(roleName))
+        ) {
             Role role = DB.find(Role.class).where().eq("name", roleName).findOne();
             if (role == null) {
                 return notFound("i18n_role_not_found");

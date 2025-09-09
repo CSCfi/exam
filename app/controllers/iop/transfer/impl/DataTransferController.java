@@ -149,10 +149,17 @@ public class DataTransferController extends BaseController {
                 .endOr()
                 .findSet();
 
-            JsonNode data =
-                ((ObjectNode) body).put("path", path)
-                    .put("owner", user.getEppn())
-                    .set("questions", Json.newArray().addAll(questions.stream().map(q -> serialize(q, pp)).toList()));
+            JsonNode data = ((ObjectNode) body).put("path", path)
+                .put("owner", user.getEppn())
+                .set(
+                    "questions",
+                    Json.newArray().addAll(
+                            questions
+                                .stream()
+                                .map(q -> serialize(q, pp))
+                                .toList()
+                        )
+                );
 
             URL url = parseURL(body.get("orgRef").asText());
             String uploadUrl = parseUploadURL(body.get("orgRef").asText());
@@ -254,9 +261,16 @@ public class DataTransferController extends BaseController {
                 copy.setModifierWithDate(user);
                 copy.save();
                 List<Tag> userTags = DB.find(Tag.class).where().eq("creator", user).findList();
-                List<Tag> newTags = question.getTags().stream().filter(t -> isNewTag(t, userTags)).toList();
+                List<Tag> newTags = question
+                    .getTags()
+                    .stream()
+                    .filter(t -> isNewTag(t, userTags))
+                    .toList();
                 newTags.forEach(t -> t.setId(null));
-                List<Tag> existingTags = userTags.stream().filter(t -> !isNewTag(t, question.getTags())).toList();
+                List<Tag> existingTags = userTags
+                    .stream()
+                    .filter(t -> !isNewTag(t, question.getTags()))
+                    .toList();
                 DB.saveAll(newTags);
                 copy.getTags().addAll(newTags);
                 copy.getTags().addAll(existingTags);

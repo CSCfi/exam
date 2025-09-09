@@ -129,7 +129,12 @@ public class ExamUpdaterImpl implements ExamUpdater {
                     return err;
                 }
                 // no sections named
-                if (exam.getExamSections().stream().anyMatch(section -> section.getName() == null)) {
+                if (
+                    exam
+                        .getExamSections()
+                        .stream()
+                        .anyMatch(section -> section.getName() == null)
+                ) {
                     return Optional.of(badRequest("i18n_exam_contains_unnamed_sections"));
                 }
                 if (exam.getExamLanguages().isEmpty()) {
@@ -405,7 +410,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                 reason = "i18n_error_end_date";
             } else if (start.get().isAfter(end.get())) {
                 reason = "i18n_error_end_sooner_than_start";
-            }/*else if (end.get().isBeforeNow()) { // CSCEXAM-1127
+            } /*else if (end.get().isBeforeNow()) { // CSCEXAM-1127
                 reason = "i18n_error_end_sooner_than_now";
             }*/
         }

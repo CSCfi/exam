@@ -516,9 +516,19 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Exam ee = deserialize(Exam.class, body);
         assertThat(ee.getId()).isEqualTo(exam.getId());
         assertThat(ee.getExamSections()).hasSize(exam.getExamSections().size());
-        assertThat(ee.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()).isEqualTo(
-            exam.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()
-        );
+        assertThat(
+            ee
+                .getExamSections()
+                .stream()
+                .mapToLong(es -> es.getSectionQuestions().size())
+                .sum()
+        ).isEqualTo(
+                exam
+                    .getExamSections()
+                    .stream()
+                    .mapToLong(es -> es.getSectionQuestions().size())
+                    .sum()
+            );
     }
 
     @Test

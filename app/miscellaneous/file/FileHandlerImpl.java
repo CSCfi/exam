@@ -47,7 +47,7 @@ public class FileHandlerImpl implements FileHandler {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (InputStream fis = new FileInputStream(file)) {
             byte[] buf = new byte[KB];
-            for (int readNum; (readNum = fis.read(buf)) != -1;) {
+            for (int readNum; (readNum = fis.read(buf)) != -1; ) {
                 bos.write(buf, 0, readNum);
             }
         } catch (IOException e) {

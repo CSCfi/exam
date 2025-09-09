@@ -46,7 +46,10 @@ public class AvailabilityController extends BaseController {
     }
 
     private List<Reservation> getReservationsDuring(List<Reservation> reservations, Interval interval) {
-        return reservations.stream().filter(r -> interval.overlaps(r.toInterval())).toList();
+        return reservations
+            .stream()
+            .filter(r -> interval.overlaps(r.toInterval()))
+            .toList();
     }
 
     private List<Interval> toOneHourChunks(Interval i) {
@@ -104,7 +107,12 @@ public class AvailabilityController extends BaseController {
             .stream()
             .collect(Collectors.toMap(Function.identity(), i -> getReservationsDuring(reservations, i)));
 
-        int machineCount = room.getExamMachines().stream().filter(m -> !m.getOutOfService()).mapToInt(e -> 1).sum();
+        int machineCount = room
+            .getExamMachines()
+            .stream()
+            .filter(m -> !m.getOutOfService())
+            .mapToInt(e -> 1)
+            .sum();
 
         List<Availability> availability = reservationMap
             .entrySet()

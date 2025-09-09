@@ -481,9 +481,9 @@ public class CollaborativeReviewController extends CollaborationController {
                     ((ObjectNode) examNode).put("additionalInfo", body.path("additionalInfo").asText(null));
                     ((ObjectNode) examNode).put("answerLanguage", body.path("answerLanguage").asText(null));
                     ((ObjectNode) examNode).put(
-                            "customCredit",
-                            body.path("customCredit").isMissingNode() ? null : body.path("customCredit").doubleValue()
-                        );
+                        "customCredit",
+                        body.path("customCredit").isMissingNode() ? null : body.path("customCredit").doubleValue()
+                    );
 
                     Exam.State newState = Exam.State.valueOf(body.path("state").asText());
                     ((ObjectNode) examNode).put("state", newState.toString());
@@ -657,27 +657,27 @@ public class CollaborativeReviewController extends CollaborationController {
                                                 gradingType == Grade.Type.GRADED,
                                                 user
                                             ).orElseGet(() -> {
-                                                ((ObjectNode) examNode).put(
+                                                    ((ObjectNode) examNode).put(
                                                         "state",
                                                         Exam.State.GRADED_LOGGED.toString()
                                                     );
-                                                if (
-                                                    exam.getGradedByUser() == null &&
-                                                    exam.getAutoEvaluationConfig() != null
-                                                ) {
-                                                    // Automatically graded by system, set graded by user at this point.
-                                                    ((ObjectNode) examNode).set("gradedByUser", serialize(user));
-                                                }
-                                                if (gradingType != Grade.Type.GRADED) {
-                                                    ((ObjectNode) examNode).put(
+                                                    if (
+                                                        exam.getGradedByUser() == null &&
+                                                        exam.getAutoEvaluationConfig() != null
+                                                    ) {
+                                                        // Automatically graded by system, set graded by user at this point.
+                                                        ((ObjectNode) examNode).set("gradedByUser", serialize(user));
+                                                    }
+                                                    if (gradingType != Grade.Type.GRADED) {
+                                                        ((ObjectNode) examNode).put(
                                                             "gradingType",
                                                             Grade.Type.NOT_GRADED.toString()
                                                         );
-                                                    ((ObjectNode) examNode).set("grade", NullNode.getInstance());
-                                                }
-                                                ((ObjectNode) root).put("rev", revision);
-                                                return upload(url, root);
-                                            });
+                                                        ((ObjectNode) examNode).set("grade", NullNode.getInstance());
+                                                    }
+                                                    ((ObjectNode) root).put("rev", revision);
+                                                    return upload(url, root);
+                                                });
                                         })
                                         .getOrElseGet(Function.identity());
                                 return wsr.get().thenComposeAsync(onSuccess);

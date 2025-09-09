@@ -78,7 +78,11 @@ public class ExamMachineController extends BaseController {
 
         if (!src.getIpAddress().isEmpty()) {
             List<ExamMachine> machines = DB.find(ExamMachine.class).findList();
-            List<String> ips = machines.stream().filter(m -> !m.equals(dest)).map(ExamMachine::getIpAddress).toList();
+            List<String> ips = machines
+                .stream()
+                .filter(m -> !m.equals(dest))
+                .map(ExamMachine::getIpAddress)
+                .toList();
             if (ips.contains(src.getIpAddress())) {
                 return forbidden("i18n_error_ip_address_exists_for_room");
             }
@@ -183,11 +187,11 @@ public class ExamMachineController extends BaseController {
     @Restrict(@Group({ "ADMIN" }))
     public Result addSoftware(String name) {
         return checkSoftwareName(name).orElseGet(() -> {
-            Software software = new Software();
-            software.setName(name);
-            software.save();
-            return ok(software);
-        });
+                Software software = new Software();
+                software.setName(name);
+                software.save();
+                return ok(software);
+            });
     }
 
     @Restrict(@Group({ "ADMIN" }))
@@ -197,10 +201,10 @@ public class ExamMachineController extends BaseController {
             return notFound();
         }
         return checkSoftwareName(name).orElseGet(() -> {
-            software.setName(name);
-            software.update();
-            return ok(software);
-        });
+                software.setName(name);
+                software.update();
+                return ok(software);
+            });
     }
 
     @Restrict(@Group({ "ADMIN" }))

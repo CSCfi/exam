@@ -397,7 +397,12 @@ public class ReviewController extends BaseController {
         // add owners to list, except those how are already in the list and self
         if (exam.getParent() != null) {
             recipients.addAll(
-                exam.getParent().getExamOwners().stream().filter(o -> !o.equals(loggedUser)).collect(Collectors.toSet())
+                exam
+                    .getParent()
+                    .getExamOwners()
+                    .stream()
+                    .filter(o -> !o.equals(loggedUser))
+                    .collect(Collectors.toSet())
             );
         }
         actor
@@ -465,7 +470,8 @@ public class ReviewController extends BaseController {
         if (commentText.isPresent()) {
             comment.setComment(commentText.get());
             comment.setModifierWithDate(user);
-            if (comment.getId() == null) { // new comment
+            if (comment.getId() == null) {
+                // new comment
                 comment.setCreatorWithDate(user);
                 comment.save();
                 exam.setExamFeedback(comment);

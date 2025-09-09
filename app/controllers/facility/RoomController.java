@@ -248,7 +248,10 @@ public class RoomController extends BaseController {
                 .eq("room", examRoom)
                 .eq("weekday", hours.getWeekday())
                 .findList();
-            List<DefaultWorkingHours> overlapping = existing.stream().filter(dwh -> dwh.overlaps(hours)).toList();
+            List<DefaultWorkingHours> overlapping = existing
+                .stream()
+                .filter(dwh -> dwh.overlaps(hours))
+                .toList();
             DB.deleteAll(overlapping);
             examRoom.getDefaultWorkingHours().removeAll(overlapping);
 
@@ -347,7 +350,14 @@ public class RoomController extends BaseController {
             }
             asyncUpdateRemote(room);
         }
-        return ok(Json.toJson(rooms.stream().flatMap(r -> r.getCalendarExceptionEvents().stream()).toList()));
+        return ok(
+            Json.toJson(
+                rooms
+                    .stream()
+                    .flatMap(r -> r.getCalendarExceptionEvents().stream())
+                    .toList()
+            )
+        );
     }
 
     @Restrict(@Group({ "ADMIN" }))

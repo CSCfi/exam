@@ -461,7 +461,10 @@ public class ExternalCalendarController extends BaseController {
         // Check machine availability for each slot
         for (Interval slot : examSlots) {
             // Check machine availability
-            int availableMachineCount = (int) machines.stream().filter(m -> !isReservedDuring(m, slot)).count();
+            int availableMachineCount = (int) machines
+                .stream()
+                .filter(m -> !isReservedDuring(m, slot))
+                .count();
             slots.add(new CalendarHandler.TimeSlot(slot, availableMachineCount, null));
         }
         return slots;
@@ -512,6 +515,9 @@ public class ExternalCalendarController extends BaseController {
     }
 
     private boolean isReservedDuring(ExamMachine machine, Interval interval) {
-        return machine.getReservations().stream().anyMatch(r -> interval.overlaps(r.toInterval()));
+        return machine
+            .getReservations()
+            .stream()
+            .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 }

@@ -182,13 +182,13 @@ public class CollaborationController extends BaseController {
 
     void calculateScores(JsonNode root) {
         stream(root).forEach(ep -> {
-            Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
-            exam.setMaxScore();
-            exam.setApprovedAnswerCount();
-            exam.setRejectedAnswerCount();
-            exam.setTotalScore();
-            ((ObjectNode) ep).set("exam", serialize(exam));
-        });
+                Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
+                exam.setMaxScore();
+                exam.setApprovedAnswerCount();
+                exam.setRejectedAnswerCount();
+                exam.setTotalScore();
+                ((ObjectNode) ep).set("exam", serialize(exam));
+            });
     }
 
     Stream<JsonNode> stream(JsonNode node) {

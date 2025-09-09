@@ -105,8 +105,9 @@ public class DataTransferControllerTest extends IntegrationTestCase {
             .eq("creator", user)
             .endOr()
             .findList();
-        ArrayNode an = new ObjectMapper()
-            .valueToTree(questions.stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
+        ArrayNode an = new ObjectMapper().valueToTree(
+            questions.stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet())
+        );
         questions.forEach(q -> an.add(q.getId()));
         ObjectNode body = Json.newObject().put("type", "QUESTION").put("orgRef", ORG_REF).set("ids", an);
         Result result = request(Helpers.POST, "/app/iop/export", body);
@@ -128,8 +129,9 @@ public class DataTransferControllerTest extends IntegrationTestCase {
         final Attachment attachment = createAttachment("test_image.png", testImage.getAbsolutePath(), "image/png");
         question.setAttachment(attachment);
         question.save();
-        ArrayNode an = new ObjectMapper()
-            .valueToTree(List.of(question).stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
+        ArrayNode an = new ObjectMapper().valueToTree(
+            List.of(question).stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet())
+        );
         an.add(question.getId());
         ObjectNode body = Json.newObject().put("type", "QUESTION").put("orgRef", ORG_REF).set("ids", an);
         Result result = request(Helpers.POST, "/app/iop/export", body);

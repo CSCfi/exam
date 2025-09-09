@@ -13,5 +13,4 @@ import play.mvc.With;
 @With(ExamActionRouterImpl.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ExamActionRouter {
-}
+public @interface ExamActionRouter {}

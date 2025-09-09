@@ -183,17 +183,16 @@ public class ExcelBuilderImpl implements ExcelBuilder {
         for (ExamSection es : exam.getExamSections().stream().sorted().toList()) {
             questionNumber = 1;
             for (ExamSectionQuestion esq : es.getSectionQuestions().stream().sorted().toList()) {
-                String questionType =
-                    switch (esq.getQuestion().getType()) {
-                        case EssayQuestion -> messages.get(lang, "reports.question.type.essay");
-                        case ClozeTestQuestion -> messages.get(lang, "reports.question.type.cloze");
-                        case MultipleChoiceQuestion -> messages.get(lang, "reports.question.type.multiplechoice");
-                        case WeightedMultipleChoiceQuestion -> messages.get(
-                            lang,
-                            "reports.question.type.weightedmultiplechoide"
-                        );
-                        case ClaimChoiceQuestion -> messages.get(lang, "reports.question.type.claim");
-                    };
+                String questionType = switch (esq.getQuestion().getType()) {
+                    case EssayQuestion -> messages.get(lang, "reports.question.type.essay");
+                    case ClozeTestQuestion -> messages.get(lang, "reports.question.type.cloze");
+                    case MultipleChoiceQuestion -> messages.get(lang, "reports.question.type.multiplechoice");
+                    case WeightedMultipleChoiceQuestion -> messages.get(
+                        lang,
+                        "reports.question.type.weightedmultiplechoide"
+                    );
+                    case ClaimChoiceQuestion -> messages.get(lang, "reports.question.type.claim");
+                };
 
                 appendCell(
                     headerRow,

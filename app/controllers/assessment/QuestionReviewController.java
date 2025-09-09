@@ -41,7 +41,10 @@ public class QuestionReviewController extends BaseController {
     private boolean canAssess(User user, Exam exam) {
         return (
             exam.getParent().getExamOwners().contains(user) ||
-            exam.getExamInspections().stream().anyMatch(ei -> ei.getUser().equals(user))
+            exam
+                .getExamInspections()
+                .stream()
+                .anyMatch(ei -> ei.getUser().equals(user))
         );
     }
 
@@ -150,7 +153,10 @@ public class QuestionReviewController extends BaseController {
                 "state, examInspections(user(id)))))"
             );
             this.question = DB.json().toJson(question, PathProperties.parse("(attachment(*), *)"));
-            this.answers = answers.stream().map(a -> DB.json().toJson(a, pp)).toList();
+            this.answers = answers
+                .stream()
+                .map(a -> DB.json().toJson(a, pp))
+                .toList();
             this.evaluationCriteria = DB.json().toJson(evaluationCriteria);
         }
 

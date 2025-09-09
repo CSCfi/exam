@@ -79,7 +79,10 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     }
 
     private List<Interval> removeNonOverlappingIntervals(List<Interval> reserved, Interval searchInterval) {
-        return reserved.stream().filter(interval -> interval.overlaps(searchInterval)).toList();
+        return reserved
+            .stream()
+            .filter(interval -> interval.overlaps(searchInterval))
+            .toList();
     }
 
     private boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
@@ -282,7 +285,12 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
             );
             int offset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now().withDayOfYear(1));
             workingHours.clear();
-            workingHours.addAll(unifiedIntervals.stream().map(interval -> new OpeningHours(interval, offset)).toList());
+            workingHours.addAll(
+                unifiedIntervals
+                    .stream()
+                    .map(interval -> new OpeningHours(interval, offset))
+                    .toList()
+            );
         }
         if (!restrictionEvents.isEmpty()) {
             for (OpeningHours hours : workingHours) {

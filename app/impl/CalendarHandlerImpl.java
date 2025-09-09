@@ -231,7 +231,10 @@ public class CalendarHandlerImpl implements CalendarHandler {
         List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
         Collections.shuffle(machines);
         Interval wantedTime = new Interval(start, end);
-        return machines.stream().filter(m -> !m.isReservedDuring(wantedTime)).findFirst();
+        return machines
+            .stream()
+            .filter(m -> !m.isReservedDuring(wantedTime))
+            .findFirst();
     }
 
     @Override
@@ -325,7 +328,10 @@ public class CalendarHandlerImpl implements CalendarHandler {
             // Resolve available machine count. Assume precalculated values within the map if no machines provided
             int availableMachineCount = entry.getValue().isPresent()
                 ? entry.getValue().get()
-                : (int) machines.stream().filter(m -> !isReservedByOthersDuring(m, slot, user)).count();
+                : (int) machines
+                    .stream()
+                    .filter(m -> !isReservedByOthersDuring(m, slot, user))
+                    .count();
 
             results.add(new TimeSlot(slot, availableMachineCount, null));
         }
@@ -682,7 +688,8 @@ public class CalendarHandlerImpl implements CalendarHandler {
 
     // TODO: this room vs machine accessibility needs some UI work and rethinking.
     private static boolean isMachineAccessibilitySatisfied(ExamMachine machine, Collection<Integer> wanted) {
-        if (machine.isAccessible()) { // this has it all :)
+        if (machine.isAccessible()) {
+            // this has it all :)
             return true;
         }
         // The following is always empty because no UI-support for adding
@@ -718,7 +725,10 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     private static List<Reservation> getReservationsDuring(Collection<Reservation> reservations, Interval interval) {
-        return reservations.stream().filter(r -> interval.overlaps(r.toInterval())).toList();
+        return reservations
+            .stream()
+            .filter(r -> interval.overlaps(r.toInterval()))
+            .toList();
     }
 
     private static DateTime nextStartingTime(DateTime instant, List<ExamStartingHour> startingHours, int offset) {

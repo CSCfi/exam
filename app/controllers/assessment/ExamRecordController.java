@@ -98,34 +98,34 @@ public class ExamRecordController extends BaseController {
         Exam exam = optionalExam.get();
         var gradeRequired = exam.getGradingType() == Grade.Type.GRADED;
         return validateExamState(exam, gradeRequired, user).orElseGet(() -> {
-            exam.setState(Exam.State.GRADED_LOGGED);
-            exam.update();
-            ExamParticipation participation = DB.find(ExamParticipation.class)
-                .fetch("user")
-                .where()
-                .eq("exam.id", exam.getId())
-                .findOne();
-            if (participation == null) {
-                return notFound();
-            }
+                exam.setState(Exam.State.GRADED_LOGGED);
+                exam.update();
+                ExamParticipation participation = DB.find(ExamParticipation.class)
+                    .fetch("user")
+                    .where()
+                    .eq("exam.id", exam.getId())
+                    .findOne();
+                if (participation == null) {
+                    return notFound();
+                }
 
-            ExamRecord record = createRecord(exam, participation, gradeRequired);
-            ExamScore score = createScore(record, participation.getEnded());
-            score.save();
-            record.setExamScore(score);
-            record.save();
-            actor
-                .scheduler()
-                .scheduleOnce(
-                    Duration.create(1, TimeUnit.SECONDS),
-                    () -> {
-                        emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
-                        logger.info("Inspection ready notification email sent to {}", user.getEmail());
-                    },
-                    actor.dispatcher()
-                );
-            return ok();
-        });
+                ExamRecord record = createRecord(exam, participation, gradeRequired);
+                ExamScore score = createScore(record, participation.getEnded());
+                score.save();
+                record.setExamScore(score);
+                record.save();
+                actor
+                    .scheduler()
+                    .scheduleOnce(
+                        Duration.create(1, TimeUnit.SECONDS),
+                        () -> {
+                            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+                            logger.info("Inspection ready notification email sent to {}", user.getEmail());
+                        },
+                        actor.dispatcher()
+                    );
+                return ok();
+            });
     }
 
     @Authenticated
@@ -145,12 +145,12 @@ public class ExamRecordController extends BaseController {
         Exam exam = optionalExam.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return validateExamState(exam, false, user).orElseGet(() -> {
-            exam.setState(Exam.State.GRADED_LOGGED);
-            exam.setGrade(null);
-            exam.setGradingType(Grade.Type.NOT_GRADED);
-            exam.update();
-            return ok();
-        });
+                exam.setState(Exam.State.GRADED_LOGGED);
+                exam.setGrade(null);
+                exam.setGradingType(Grade.Type.NOT_GRADED);
+                exam.update();
+                return ok();
+            });
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })

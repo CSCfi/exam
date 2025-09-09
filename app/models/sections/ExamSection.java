@@ -219,7 +219,10 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     }
 
     public boolean hasQuestion(Question question) {
-        return sectionQuestions.stream().map(ExamSectionQuestion::getQuestion).anyMatch(q -> q.equals(question));
+        return sectionQuestions
+            .stream()
+            .map(ExamSectionQuestion::getQuestion)
+            .anyMatch(q -> q.equals(question));
     }
 
     @Override

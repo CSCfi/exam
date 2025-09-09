@@ -38,7 +38,8 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
     }
 
     public static Optional<Permission> withValue(String name) {
-        if (name.equals(Type.CAN_INSPECT_LANGUAGE.name())) { // dumb but then again we have just one valid permission
+        if (name.equals(Type.CAN_INSPECT_LANGUAGE.name())) {
+            // dumb but then again we have just one valid permission
             Permission permission = new Permission();
             permission.setType(Type.CAN_INSPECT_LANGUAGE);
             return Optional.of(permission);

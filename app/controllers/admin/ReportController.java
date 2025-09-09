@@ -221,7 +221,11 @@ public class ReportController extends BaseController {
         for (Exam exam : exams) {
             ExamInfo info = new ExamInfo();
             info.name = String.format("[%s] %s", exam.getCourse().getCode(), exam.getName());
-            info.participations = (int) exam.getChildren().stream().filter(e -> applyExamFilter(e, start, end)).count();
+            info.participations = (int) exam
+                .getChildren()
+                .stream()
+                .filter(e -> applyExamFilter(e, start, end))
+                .count();
             infos.add(info);
         }
         return ok(Json.toJson(infos));
@@ -273,7 +277,10 @@ public class ReportController extends BaseController {
         ExpressionList<Exam> query = DB.find(Exam.class).where().isNotNull("parent").isNotNull("course");
         query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Set<Exam> exams = query.findSet();
-        long aborted = exams.stream().filter(e -> e.getState() == Exam.State.ABORTED).count();
+        long aborted = exams
+            .stream()
+            .filter(e -> e.getState() == Exam.State.ABORTED)
+            .count();
         long assessed = exams
             .stream()
             .filter(e ->

@@ -126,7 +126,11 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         assertThat(studentExam.getName()).isEqualTo(exam.getName());
         assertThat(studentExam.getCourse().getId()).isEqualTo(exam.getCourse().getId());
         assertThat(studentExam.getInstruction()).isEqualTo(exam.getInstruction());
-        int esSize = (int) exam.getExamSections().stream().filter(es -> !es.isOptional()).count();
+        int esSize = (int) exam
+            .getExamSections()
+            .stream()
+            .filter(es -> !es.isOptional())
+            .count();
         assertThat(studentExam.getExamSections()).hasSize(esSize);
         assertThat(studentExam.getHash()).isNotEqualTo(exam.getHash());
         assertThat(studentExam.getExamLanguages()).hasSize(exam.getExamLanguages().size());
@@ -255,13 +259,12 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                         assertThat(r.status()).isEqualTo(Helpers.OK);
                         break;
                     case ClozeTestQuestion:
-                        ObjectNode content = Json.newObject()
-                            .set(
-                                "answer",
-                                Json.newObject()
-                                    .put("1", "this is my answer for cloze 1")
-                                    .put("2", "this is my answer for cloze 2")
-                            );
+                        ObjectNode content = Json.newObject().set(
+                            "answer",
+                            Json.newObject()
+                                .put("1", "this is my answer for cloze 1")
+                                .put("2", "this is my answer for cloze 2")
+                        );
                         ClozeTestAnswer clozeAnswer = esq.getClozeTestAnswer();
                         if (clozeAnswer != null && clozeAnswer.getObjectVersion() > 0) {
                             content.put("objectVersion", clozeAnswer.getObjectVersion());

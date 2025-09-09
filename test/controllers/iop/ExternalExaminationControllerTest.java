@@ -267,13 +267,12 @@ public class ExternalExaminationControllerTest extends IntegrationTestCase {
                         assertThat(r.status()).isEqualTo(200);
                         break;
                     case ClozeTestQuestion:
-                        ObjectNode content = (ObjectNode) Json.newObject()
-                            .set(
-                                "answer",
-                                Json.newObject()
-                                    .put("1", "this is my answer for cloze 1")
-                                    .put("2", "this is my answer for cloze 2")
-                            );
+                        ObjectNode content = (ObjectNode) Json.newObject().set(
+                            "answer",
+                            Json.newObject()
+                                .put("1", "this is my answer for cloze 1")
+                                .put("2", "this is my answer for cloze 2")
+                        );
                         ClozeTestAnswer clozeAnswer = esq.getClozeTestAnswer();
                         if (clozeAnswer != null && clozeAnswer.getObjectVersion() > 0) {
                             content.put("objectVersion", clozeAnswer.getObjectVersion());

@@ -53,14 +53,14 @@ public class CalendarControllerTest extends IntegrationTestCase {
     private void setWorkingHours() {
         String[] dates = { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" };
         Arrays.stream(dates).forEach(d -> {
-            DefaultWorkingHours dwh = new DefaultWorkingHours();
-            dwh.setWeekday(d);
-            dwh.setRoom(room);
-            dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
-            dwh.setEndTime(dwh.getStartTime().withTime(20, 59, 59, 999));
-            dwh.setTimezoneOffset(7200000);
-            dwh.save();
-        });
+                DefaultWorkingHours dwh = new DefaultWorkingHours();
+                dwh.setWeekday(d);
+                dwh.setRoom(room);
+                dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
+                dwh.setEndTime(dwh.getStartTime().withTime(20, 59, 59, 999));
+                dwh.setTimezoneOffset(7200000);
+                dwh.save();
+            });
     }
 
     @Override
@@ -121,7 +121,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
                     );
                     status.add(result.status());
                     waiter.resume();
-                }).start()
+                })
+                    .start()
             );
         waiter.await(MAIL_TIMEOUT + 1000, callCount);
         assertThat(status).containsOnly(200);

@@ -377,7 +377,11 @@ public class QuestionController extends BaseController implements SectionQuestio
             })
             .forEach(o -> updateOption(o, OptionUpdateOptions.HANDLE_DEFAULTS));
         // Removals
-        question.getOptions().stream().filter(o -> !providedIds.contains(o.getId())).forEach(this::deleteOption);
+        question
+            .getOptions()
+            .stream()
+            .filter(o -> !providedIds.contains(o.getId()))
+            .forEach(this::deleteOption);
         // Additions
         StreamSupport.stream(node.spliterator(), false)
             .filter(o -> SanitizingHelper.parse("id", o, Long.class).isEmpty())

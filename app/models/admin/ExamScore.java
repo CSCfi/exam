@@ -292,6 +292,9 @@ public class ExamScore extends GeneratedIdentityModel {
     }
 
     public String[] asArray(User student, User teacher, Exam exam) {
-        return asCells(student, teacher, exam).stream().map(t -> t._1).toArray(String[]::new);
+        return asCells(student, teacher, exam)
+            .stream()
+            .map(t -> t._1)
+            .toArray(String[]::new);
     }
 }
