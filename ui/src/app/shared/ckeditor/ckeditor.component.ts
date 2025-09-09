@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 /// <reference types="ckeditor" />
-import { DOCUMENT } from '@angular/common';
+
 import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
-import { Component, ElementRef, Inject, Input, NgZone, ViewChild, forwardRef } from '@angular/core';
+import { Component, DOCUMENT, ElementRef, Inject, Input, NgZone, ViewChild, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { debounce } from 'src/app/shared/miscellaneous/helpers';

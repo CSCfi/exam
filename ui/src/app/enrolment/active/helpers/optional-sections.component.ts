@@ -23,7 +23,7 @@ import { ExamSection } from 'src/app/exam/exam.model';
                 <img class="arrow_icon" [hidden]="!showSections()" alt="" src="/assets/images/arrow_down.png" />
             </button>
 
-            <div class="pt-2" [hidden]="!showSections">
+            <div class="pt-2" [hidden]="!showSections()">
                 @for (section of allSections(); track section.id) {
                     <div class="mb-3">
                         @if (section.optional === false) {
