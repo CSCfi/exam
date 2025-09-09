@@ -15,6 +15,6 @@ export class MathJaxDirective implements OnChanges {
 
     ngOnChanges() {
         this.el.nativeElement.innerHTML = this.math || '';
-        MathJax.Hub.Queue(['Typeset', MathJax.Hub, this.el.nativeElement]);
+        window.MathJax.typesetPromise([this.el.nativeElement]);
     }
 }
