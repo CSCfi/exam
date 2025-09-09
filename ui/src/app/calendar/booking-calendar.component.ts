@@ -8,6 +8,7 @@ import {
     Component,
     OnInit,
     ViewChild,
+    inject,
     input,
     output,
     signal,
@@ -61,10 +62,10 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
     searchStart = DateTime.now().startOf('week').toISO();
     searchEnd = DateTime.now().endOf('week').toISO();
 
-    constructor(
-        private translate: TranslateService,
-        private Calendar: CalendarService,
-    ) {
+    private translate = inject(TranslateService);
+    private Calendar = inject(CalendarService);
+
+    constructor() {
         this.calendarOptions.set({
             plugins: [luxon2Plugin, timeGridPlugin],
             initialView: 'timeGridWeek',

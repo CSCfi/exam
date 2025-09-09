@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
@@ -17,7 +17,7 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 export class PrintedEssayComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;
 
-    constructor(private CommonExam: CommonExamService) {}
+    private CommonExam = inject(CommonExamService);
 
     getScore = () => {
         if (!this.sectionQuestion.essayAnswer) {

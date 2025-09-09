@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -60,13 +60,11 @@ export class QuestionBodyComponent implements OnInit {
     questionTypes: { type: string; name: string }[] = [];
     hideRestExams = true;
 
-    constructor(
-        private http: HttpClient,
-        private cdr: ChangeDetectorRef,
-        private Session: SessionService,
-        private Attachment: AttachmentService,
-        private Question: QuestionService,
-    ) {}
+    private http = inject(HttpClient);
+    private cdr = inject(ChangeDetectorRef);
+    private Session = inject(SessionService);
+    private Attachment = inject(AttachmentService);
+    private Question = inject(QuestionService);
 
     ngOnInit() {
         this.questionTypes = [

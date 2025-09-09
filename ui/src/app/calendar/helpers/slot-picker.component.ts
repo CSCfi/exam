@@ -5,7 +5,17 @@
 import { NgClass } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation, signal } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnInit,
+    Output,
+    ViewEncapsulation,
+    inject,
+    signal,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EventApi, EventInput } from '@fullcalendar/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
@@ -66,12 +76,10 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     currentWeek = signal(DateTime.now());
     examId = signal(0);
 
-    constructor(
-        private translate: TranslateService,
-        private route: ActivatedRoute,
-        private toast: ToastrService,
-        private Calendar: CalendarService,
-    ) {}
+    private translate = inject(TranslateService);
+    private route = inject(ActivatedRoute);
+    private toast = inject(ToastrService);
+    private Calendar = inject(CalendarService);
 
     ngOnInit() {
         this.examId.set(Number(this.route.snapshot.paramMap.get('id')));

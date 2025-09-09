@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { User } from 'src/app/session/session.model';
@@ -42,5 +42,5 @@ import type { User } from 'src/app/session/session.model';
 export class SelectRoleDialogComponent {
     @Input() user!: User;
 
-    constructor(public activeModal: NgbActiveModal) {}
+    activeModal = inject(NgbActiveModal);
 }

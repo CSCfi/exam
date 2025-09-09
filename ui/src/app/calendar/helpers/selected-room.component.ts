@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -108,10 +108,8 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
     exceptionHours = signal<(ExceptionWorkingHours & { start: string; end: string; description: string })[]>([]);
     showAllMaintenancePeriods = false;
 
-    constructor(
-        private translate: TranslateService,
-        private Calendar: CalendarService,
-    ) {}
+    private translate = inject(TranslateService);
+    private Calendar = inject(CalendarService);
 
     ngOnInit() {
         this.translate.onLangChange.subscribe(() => {

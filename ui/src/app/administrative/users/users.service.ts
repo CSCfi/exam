@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { Permission, PermissionType, Role, User } from 'src/app/session/session.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserManagementService {
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
 
     usersApi = () => '/app/users';
     permissionsApi = () => '/app/permissions';

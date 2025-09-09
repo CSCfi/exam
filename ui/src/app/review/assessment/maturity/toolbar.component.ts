@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -85,12 +85,10 @@ export class MaturityToolbarComponent {
     @Input() exam!: Exam;
     @Input() valid = false;
 
-    constructor(
-        private Maturity: MaturityService,
-        private Assessment: AssessmentService,
-        private Session: SessionService,
-        private Exam: ExamService,
-    ) {}
+    private Maturity = inject(MaturityService);
+    private Assessment = inject(AssessmentService);
+    private Session = inject(SessionService);
+    private Exam = inject(ExamService);
 
     isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam);
     isReadOnly = () => this.Assessment.isReadOnly(this.exam);

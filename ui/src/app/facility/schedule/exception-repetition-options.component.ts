@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CommonModule } from '@angular/common';
-import { Component, effect, input, output, signal, TemplateRef, untracked, ViewChild } from '@angular/core';
+import { Component, effect, inject, input, output, signal, TemplateRef, untracked, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,6 +21,28 @@ enum ORDINAL {
 }
 const ORDINAL_MAP = Object.values(ORDINAL).map((o, i) => ({ name: o, ord: i + 1 }));
 
+interface WeekdayOption {
+    selected: boolean;
+    day: string;
+    ord: number;
+}
+
+interface MonthOption {
+    selected: boolean;
+    month: string;
+    ord: number;
+}
+
+interface WeekdayOfMonth {
+    name: string;
+    ord: number;
+}
+
+interface MonthOfYear {
+    name: string;
+    ord: number;
+}
+
 @Component({
     selector: 'xm-repetition-options',
     imports: [CommonModule, FormsModule, TranslateModule, NgbDropdownModule, DateTimePickerComponent],
@@ -37,27 +59,34 @@ export class ExceptionDialogRepetitionOptionsComponent {
     startDate = signal(new Date());
     endDate = signal(new Date());
     wholeWeek = signal(false);
-    weekdays = signal(
-        this.DateTimeService.getWeekdayNames(true).map((d, i) => {
-            return { selected: false, day: d, ord: i === 6 ? 0 : i + 1 }; // 1-7 mo-su converted to 0-6 su-sa
-        }),
-    );
-    months = signal(
-        this.DateTimeService.getMonthNames().map((m, i) => {
-            return { selected: false, month: m, ord: i + 1 };
-        }),
-    );
+    weekdays = signal<WeekdayOption[]>([]);
+    months = signal<MonthOption[]>([]);
     useOrdinals = signal(true);
     dayOfMonth = signal(1);
     monthlyOrdinal = signal(ORDINAL_MAP[0]);
-    weekdayOfMonth = signal({ name: this.weekdays()[0].day, ord: this.weekdays()[0].ord });
-    monthOfYear = signal({ name: this.months()[0].month, ord: this.months()[0].ord });
+    weekdayOfMonth = signal<WeekdayOfMonth>({ name: '', ord: 0 });
+    monthOfYear = signal<MonthOfYear>({ name: '', ord: 0 });
 
     ordinals = ORDINAL_MAP;
     readonly REPEAT_OPTION = REPEAT_OPTION;
     readonly ORDINAL = ORDINAL;
 
-    constructor(private DateTimeService: DateTimeService) {
+    private DateTimeService = inject(DateTimeService);
+
+    constructor() {
+        // Initialize signals that depend on DateTimeService
+        this.weekdays.set(
+            this.DateTimeService.getWeekdayNames(true).map((d, i) => {
+                return { selected: false, day: d, ord: i === 6 ? 0 : i + 1 }; // 1-7 mo-su converted to 0-6 su-sa
+            }),
+        );
+        this.months.set(
+            this.DateTimeService.getMonthNames().map((m, i) => {
+                return { selected: false, month: m, ord: i + 1 };
+            }),
+        );
+        this.weekdayOfMonth.set({ name: this.weekdays()[0].day, ord: this.weekdays()[0].ord });
+        this.monthOfYear.set({ name: this.months()[0].month, ord: this.months()[0].ord });
         effect(() => {
             if (this.wholeDay()) {
                 untracked(() => {

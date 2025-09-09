@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbHighlight, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -31,12 +31,10 @@ export class CoursePickerComponent implements OnInit {
         code: { isOn: false },
     };
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Course: CoursePickerService,
-        private CourseCode: CourseCodeService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Course = inject(CoursePickerService);
+    private CourseCode = inject(CourseCodeService);
 
     ngOnInit() {
         this.nameFilter = this.course ? this.course.name : '';

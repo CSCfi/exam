@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges, inject } from '@angular/core';
 
 @Directive({
     selector: '[xmMathJax]',
@@ -11,7 +11,7 @@ import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
 export class MathJaxDirective implements OnChanges {
     @Input('xmMathJax') math?: string;
 
-    constructor(private el: ElementRef) {}
+    private el = inject(ElementRef);
 
     ngOnChanges() {
         this.el.nativeElement.innerHTML = this.math || '';

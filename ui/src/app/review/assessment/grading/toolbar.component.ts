@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -80,15 +80,13 @@ export class ToolbarComponent implements OnInit {
     id = 0;
     ref = '';
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Assessment: AssessmentService,
-        private CollaborativeAssessment: CollaborativeAssesmentService,
-        private Exam: ExamService,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Assessment = inject(AssessmentService);
+    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private Exam = inject(ExamService);
 
     ngOnInit() {
         this.id = this.route.snapshot.params.id;

@@ -4,7 +4,7 @@
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -82,15 +82,16 @@ import { FileService } from 'src/app/shared/file/file.service';
 export class StatementComponent {
     @Input() exam!: Exam;
 
-    fixPosition = this.Assessment.fixPosition;
     hideEditor = false;
 
-    constructor(
-        private Attachment: AttachmentService,
-        private Files: FileService,
-        private Maturity: MaturityService,
-        private Assessment: AssessmentService,
-    ) {}
+    private Attachment = inject(AttachmentService);
+    private Files = inject(FileService);
+    private Maturity = inject(MaturityService);
+    private Assessment = inject(AssessmentService);
+
+    get fixPosition() {
+        return this.Assessment.fixPosition;
+    }
 
     hasGoneThroughLanguageInspection = () => this.exam.languageInspection?.finishedAt;
 

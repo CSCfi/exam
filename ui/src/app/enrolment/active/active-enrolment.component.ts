@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
-import { Component, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -44,11 +44,9 @@ export class ActiveEnrolmentComponent {
     showGuide = signal(false);
     showInstructions = signal(false);
 
-    constructor(
-        private translate: TranslateService,
-        private Enrolment: EnrolmentService,
-        private Files: FileService,
-    ) {}
+    private translate = inject(TranslateService);
+    private Enrolment = inject(EnrolmentService);
+    private Files = inject(FileService);
 
     hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment());
 

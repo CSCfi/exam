@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -45,11 +45,9 @@ export class RejectedReviewsComponent implements OnInit {
 
     view!: ReviewListView;
 
-    constructor(
-        private ReviewList: ReviewListService,
-        private CommonExam: CommonExamService,
-        private Session: SessionService,
-    ) {}
+    private ReviewList = inject(ReviewListService);
+    private CommonExam = inject(CommonExamService);
+    private Session = inject(SessionService);
 
     ngOnInit() {
         this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'displayedGradingTime');

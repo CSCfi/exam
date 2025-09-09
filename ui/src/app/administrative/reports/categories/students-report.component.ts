@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
@@ -57,11 +57,9 @@ export class StudentsReportComponent {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private files: FileService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private files = inject(FileService);
 
     getStudentReport = () => {
         if (this.student) {

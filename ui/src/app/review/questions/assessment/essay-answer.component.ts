@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -26,10 +26,8 @@ export class EssayAnswerComponent implements OnInit {
 
     name = '';
 
-    constructor(
-        private CommonExam: CommonExamService,
-        private Attachment: AttachmentService,
-    ) {}
+    private CommonExam = inject(CommonExamService);
+    private Attachment = inject(AttachmentService);
 
     ngOnInit() {
         this.name = this.answer.examSection.exam.creator

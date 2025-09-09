@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
@@ -35,10 +35,9 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 })
 export class ReservationStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};
-
     data = { noShows: 0, appearances: 0 };
 
-    constructor(private Statistics: StatisticsService) {}
+    private Statistics = inject(StatisticsService);
 
     ngOnInit() {
         this.listReservations();

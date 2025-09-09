@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnChanges, OnInit } from '@angular/core';
-import { Component, EventEmitter, Injectable, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Injectable, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
     NgbDate,
@@ -36,12 +36,8 @@ export class DatePickerFormatter extends NgbDateParserFormatter {
 
 @Injectable({ providedIn: 'root' })
 export class DatePickerI18n extends NgbDatepickerI18n {
-    constructor(
-        private translate: TranslateService,
-        private DateTime: DateTimeService,
-    ) {
-        super();
-    }
+    private translate = inject(TranslateService);
+    private DateTime = inject(DateTimeService);
 
     getWeekdayShortName = (weekday: WeekdayNumbers): string =>
         this.DateTime.getLocalizedDateForDay(weekday, this.getLocale()).weekdayShort as string;

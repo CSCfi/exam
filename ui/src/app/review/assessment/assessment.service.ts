@@ -4,7 +4,7 @@
 
 import { Point } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -38,15 +38,13 @@ type Link = {
 
 @Injectable({ providedIn: 'root' })
 export class AssessmentService {
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private router: Router,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Session: SessionService,
-        private Exam: CommonExamService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private router = inject(Router);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Session = inject(SessionService);
+    private Exam = inject(CommonExamService);
 
     saveFeedback$ = (exam: Exam, silent = false): Observable<Feedback> => {
         const data = {

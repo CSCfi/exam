@@ -4,7 +4,7 @@
 
 import { NgClass, NgStyle } from '@angular/common';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import {
     NgbCollapse,
@@ -60,10 +60,10 @@ export class AutoEvaluationComponent implements OnInit, OnChanges {
     config?: AutoEvaluationConfig;
     autoevaluationDisplay: { visible: boolean };
 
-    constructor(
-        private Exam: ExamService,
-        private CommonExam: CommonExamService,
-    ) {
+    private Exam = inject(ExamService);
+    private CommonExam = inject(CommonExamService);
+
+    constructor() {
         this.autoevaluation = {
             enabled: false,
             releaseTypes: [

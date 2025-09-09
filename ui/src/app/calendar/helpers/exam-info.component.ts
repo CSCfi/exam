@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { Component, Input, OnInit, computed, signal } from '@angular/core';
+import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ExamInfo } from 'src/app/calendar/calendar.model';
@@ -111,10 +111,8 @@ export class CalendarExamInfoComponent implements OnInit {
             DateTime.fromISO(this.examInfo.periodEnd as string).toJSDate() > this.reservationWindowEndDate(),
     );
 
-    constructor(
-        private translate: TranslateService,
-        private DateTimeService: DateTimeService,
-    ) {}
+    private translate = inject(TranslateService);
+    private DateTimeService = inject(DateTimeService);
 
     ngOnInit() {
         this.reservationWindowEndDate.set(

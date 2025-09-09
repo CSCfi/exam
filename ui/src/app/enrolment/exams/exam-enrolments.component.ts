@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -48,12 +48,10 @@ export class ExamEnrolmentsComponent implements OnInit {
     exams: EnrolmentInfo[] = [];
     code = '';
 
-    constructor(
-        private route: ActivatedRoute,
-        private toast: ToastrService,
-        private Enrolment: EnrolmentService,
-        private Session: SessionService,
-    ) {}
+    private route = inject(ActivatedRoute);
+    private toast = inject(ToastrService);
+    private Enrolment = inject(EnrolmentService);
+    private Session = inject(SessionService);
 
     ngOnInit() {
         const user = this.Session.getUser();

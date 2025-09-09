@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { from } from 'rxjs';
@@ -52,10 +52,8 @@ export class InspectionCommentsComponent {
     @Input() exam!: Exam;
     @Input() addingVisible = false;
 
-    constructor(
-        private modal: NgbModal,
-        private http: HttpClient,
-    ) {}
+    private modal = inject(NgbModal);
+    private http = inject(HttpClient);
 
     addInspectionComment = () =>
         from(

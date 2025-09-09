@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
@@ -89,10 +89,8 @@ export class QuestionReviewComponent {
     @Input() review!: QuestionReview;
     @Output() selected = new EventEmitter<{ id: number; selected: boolean }>();
 
-    constructor(
-        private QuestionReview: QuestionReviewService,
-        private Session: SessionService,
-    ) {}
+    private QuestionReview = inject(QuestionReviewService);
+    private Session = inject(SessionService);
 
     getAssessedAnswerCount = () => this.QuestionReview.getProcessedAnswerCount(this.review, this.Session.getUser());
 

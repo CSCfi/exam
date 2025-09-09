@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { CollaborativeExamInfo, EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
@@ -99,12 +99,10 @@ export class ExamSearchResultComponent {
     @Input() exam!: EnrolmentInfo | CollaborativeExamInfo;
     @Input() collaborative = false;
 
-    enrolling = false; // DO WE NEED THIS?
+    enrolling = false;
 
-    constructor(
-        private router: Router,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private router = inject(Router);
+    private Enrolment = inject(EnrolmentService);
 
     enrollForExam = () => {
         if (this.enrolling) {

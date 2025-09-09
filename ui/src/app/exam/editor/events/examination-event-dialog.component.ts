@@ -5,7 +5,7 @@
 import { DatePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, Input, computed, effect, signal } from '@angular/core';
+import { Component, Input, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -29,6 +29,7 @@ export class ExaminationEventDialogComponent implements OnInit {
     @Input() requiresPassword = false;
     @Input() examMinDate = '';
     @Input() examMaxDate = '';
+
     start = signal(new Date(new Date().getTime() + 60 * 1000));
     description = signal('');
     capacity = signal(0);
@@ -42,15 +43,16 @@ export class ExaminationEventDialogComponent implements OnInit {
     hasEnrolments = signal(false);
     settingsPasswordInputType = signal('password');
     quitPasswordInputType = signal('password');
+
+    private activeModal = inject(NgbActiveModal);
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Exam = inject(ExamService);
+
     private now = new Date();
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Exam: ExamService,
-    ) {
+    constructor() {
         effect(() =>
             this.http
                 .get<ExaminationEvent[]>('/app/examinationevents/conflicting', {

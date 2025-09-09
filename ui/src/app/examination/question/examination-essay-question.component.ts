@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
@@ -27,11 +27,9 @@ export class ExaminationEssayQuestionComponent implements OnInit {
 
     questionTitle!: string;
 
-    constructor(
-        private Examination: ExaminationService,
-        private Attachment: AttachmentService,
-        private Files: FileService,
-    ) {}
+    private Examination = inject(ExaminationService);
+    private Attachment = inject(AttachmentService);
+    private Files = inject(FileService);
 
     ngOnInit() {
         if (!this.sq.essayAnswer) {

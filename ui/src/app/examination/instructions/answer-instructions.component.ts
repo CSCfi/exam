@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination } from 'src/app/examination/examination.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
@@ -55,7 +55,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
 export class AnswerInstructionsComponent {
     @Input() exam!: Examination;
 
-    constructor(private DateTime: DateTimeService) {}
+    private DateTime = inject(DateTimeService);
 
     printExamDuration = () => this.DateTime.printExamDuration(this.exam);
 }

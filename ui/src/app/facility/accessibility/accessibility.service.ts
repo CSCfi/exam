@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { Accessibility } from 'src/app/reservation/reservation.model';
 
 @Injectable({ providedIn: 'root' })
 export class AccessibilityService {
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
 
     accessibilityApi = (id?: number) => (id ? `/app/accessibility/${id}` : '/app/accessibility');
     roomAccessibilityApi = (roomId: number) => `/app/room/${roomId}/accessibility`;

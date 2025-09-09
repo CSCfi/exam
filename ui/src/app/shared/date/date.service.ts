@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime, WeekdayNumbers } from 'luxon';
 import { range } from 'ramda';
@@ -16,7 +16,7 @@ export enum REPEAT_OPTION {
 
 @Injectable({ providedIn: 'root' })
 export class DateTimeService {
-    constructor(private translate: TranslateService) {}
+    private translate = inject(TranslateService);
 
     printExamDuration(exam: { duration: number }): string {
         if (exam.duration) {

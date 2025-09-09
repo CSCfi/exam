@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -43,7 +43,7 @@ import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 export class AddEnrolmentInformationDialogComponent {
     @Input() information!: EnrolmentInfo;
 
-    constructor(public activeModal: NgbActiveModal) {}
+    activeModal = inject(NgbActiveModal);
 
     ok = () => this.activeModal.close(this.information);
     cancel = () => this.activeModal.dismiss();

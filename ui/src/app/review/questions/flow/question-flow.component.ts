@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { QuestionReview } from 'src/app/review/review.model';
@@ -44,10 +44,8 @@ export class QuestionFlowComponent implements OnInit, OnChanges {
     unfinished: QuestionReview[] = [];
     finished: QuestionReview[] = [];
 
-    constructor(
-        private QuestionReview: QuestionReviewService,
-        private Session: SessionService,
-    ) {}
+    private QuestionReview = inject(QuestionReviewService);
+    private Session = inject(SessionService);
 
     getAssessedAnswerCount = (review: QuestionReview) =>
         this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());

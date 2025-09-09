@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,11 +29,9 @@ export class ExamMaterialSelectorComponent implements OnInit, OnChanges {
     selectedMaterial?: ExamMaterial;
     filter = '';
 
-    constructor(
-        private http: HttpClient,
-        private modal: NgbModal,
-        private toast: ToastrService,
-    ) {}
+    private http = inject(HttpClient);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
 
     ngOnInit() {
         this.filterOutExisting();

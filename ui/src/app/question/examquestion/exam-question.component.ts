@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -56,12 +56,10 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     isInPublishedExam = false;
     hideRestExams = true;
 
-    constructor(
-        private http: HttpClient,
-        private Question: QuestionService,
-        private Attachment: AttachmentService,
-        private modal: NgbModal,
-    ) {}
+    private http = inject(HttpClient);
+    private Question = inject(QuestionService);
+    private Attachment = inject(AttachmentService);
+    private modal = inject(NgbModal);
 
     ngOnInit() {
         this.init();

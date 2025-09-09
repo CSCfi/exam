@@ -4,7 +4,7 @@
 
 import type { HttpResponse } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
@@ -17,11 +17,10 @@ type Container = { attachment?: Attachment; objectVersion?: number };
 @Injectable({ providedIn: 'root' })
 export class FileService {
     maxFileSize = 0;
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
 
     download(url: string, filename: string, params?: Record<string, string | string[]>, post?: boolean) {
         const method = post ? 'POST' : 'GET';

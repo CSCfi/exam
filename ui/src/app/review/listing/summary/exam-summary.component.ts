@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, DecimalPipe, KeyValuePipe } from '@angular/common';
-import { Component, OnChanges, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -40,16 +40,14 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
     approvalRatingChart!: Chart<'line'>;
     sectionScores: Record<string, { max: number; totals: number[] }> = {};
 
-    constructor(
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private ChartService: ChartService,
-        private ExamSummary: ExamSummaryService,
-        private ReviewList: ReviewListService,
-        private Files: FileService,
-        private Tabs: ExamTabService,
-    ) {}
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private modal = inject(NgbModal);
+    private ChartService = inject(ChartService);
+    private ExamSummary = inject(ExamSummaryService);
+    private ReviewList = inject(ReviewListService);
+    private Files = inject(FileService);
+    private Tabs = inject(ExamTabService);
 
     ngOnInit() {
         this.route.data.subscribe((data) => {

@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import type { OnChanges } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -47,11 +47,11 @@ export class UnfinishedInspectionsComponent implements OnChanges {
     filterText = '';
     hideItems = false;
 
-    constructor(
-        private translate: TranslateService,
-        private LanguageInspection: LanguageInspectionService,
-        Session: SessionService,
-    ) {
+    private translate = inject(TranslateService);
+    private LanguageInspection = inject(LanguageInspectionService);
+
+    constructor() {
+        const Session = inject(SessionService);
         this.user = Session.getUser();
     }
 

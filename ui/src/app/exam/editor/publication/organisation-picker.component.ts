@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -87,10 +87,8 @@ export class OrganisationSelectorComponent implements OnInit {
     organisations: Organisation[] = [];
     selectedOrganisations: Organisation[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private Exam: ExamService,
-    ) {}
+    private http = inject(HttpClient);
+    private Exam = inject(ExamService);
 
     ngOnInit() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {

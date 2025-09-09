@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -62,12 +62,10 @@ export class QuestionSelectorComponent {
     questions: Question[] = [];
     selections: number[] = [];
 
-    constructor(
-        private modal: NgbActiveModal,
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+    private modal = inject(NgbActiveModal);
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
 
     resultsUpdated = (event: Question[]) => (this.questions = event);
     questionSelected = (event: number[]) => (this.selections = event);

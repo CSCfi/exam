@@ -5,7 +5,7 @@
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -35,11 +35,11 @@ export class ExamInspectorSelectorComponent implements OnInit {
         email?: string;
     };
 
-    constructor(
-        private http: HttpClient,
-        private toast: ToastrService,
-        private User: UserService,
-    ) {
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+    private User = inject(UserService);
+
+    constructor() {
         this.newInspector = {};
     }
 

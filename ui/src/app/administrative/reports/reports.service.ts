@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 interface ExamName {
     id: number;
@@ -17,7 +17,7 @@ interface ExamName {
 
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
 
     examNames = () => this.http.get<ExamName[]>('/app/statistics/examnames');
 }

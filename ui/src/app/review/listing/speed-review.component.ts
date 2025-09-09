@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -71,21 +71,19 @@ export class SpeedReviewComponent implements OnInit {
     toggleReviews = false;
     examReviews: Review[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private toast: ToastrService,
-        private Exam: ExamService,
-        private CommonExam: CommonExamService,
-        private Confirmation: ConfirmationDialogService,
-        private Files: FileService,
-        private Attachment: AttachmentService,
-        private DateTime: DateTimeService,
-        private CourseCode: CourseCodeService,
-    ) {}
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
+    private Exam = inject(ExamService);
+    private CommonExam = inject(CommonExamService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Files = inject(FileService);
+    private Attachment = inject(AttachmentService);
+    private DateTime = inject(DateTimeService);
+    private CourseCode = inject(CourseCodeService);
 
     ngOnInit() {
         this.examId = this.route.snapshot.params.id;

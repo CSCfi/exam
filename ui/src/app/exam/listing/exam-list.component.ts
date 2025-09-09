@@ -4,7 +4,7 @@
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -60,15 +60,13 @@ export class ExamListingComponent implements OnInit, OnDestroy {
     subject = new Subject<string>();
     ngUnsubscribe = new Subject();
 
-    constructor(
-        private translate: TranslateService,
-        private router: Router,
-        private http: HttpClient,
-        private modal: NgbModal,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Exam: ExamService,
-    ) {}
+    private translate = inject(TranslateService);
+    private router = inject(Router);
+    private http = inject(HttpClient);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Exam = inject(ExamService);
 
     ngOnDestroy() {
         this.ngUnsubscribe.next(undefined);

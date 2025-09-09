@@ -5,7 +5,7 @@
 import { DatePipe, LowerCasePipe, NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -64,18 +64,19 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     override creditTypes: (ExamType & { name: string })[] = [];
     override languages: (ExamLanguage & { name: string })[] = [];
 
-    constructor(
-        private route: ActivatedRoute,
-        http: HttpClient,
-        private translate: TranslateService,
-        toast: ToastrService,
-        Assessment: AssessmentService,
-        private CollaborativeAssessment: CollaborativeAssesmentService,
-        Exam: ExamService,
-        CommonExam: CommonExamService,
-        private Attachment: AttachmentService,
-        Language: LanguageService,
-    ) {
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private Attachment = inject(AttachmentService);
+
+    constructor() {
+        const http = inject(HttpClient);
+        const toast = inject(ToastrService);
+        const Assessment = inject(AssessmentService);
+        const Exam = inject(ExamService);
+        const CommonExam = inject(CommonExamService);
+        const Language = inject(LanguageService);
+
         super(http, toast, Assessment, Exam, CommonExam, Language);
     }
 

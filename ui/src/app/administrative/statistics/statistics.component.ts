@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
     NgbDropdown,
@@ -75,7 +75,7 @@ export class StatisticsComponent implements OnInit {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(private Statistics: StatisticsService) {}
+    private Statistics = inject(StatisticsService);
 
     ngOnInit() {
         this.Statistics.listDepartments$().subscribe((resp) => {

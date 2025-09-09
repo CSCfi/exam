@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { ExaminationClockComponent } from 'src/app/examination/clock/examination-clock.component';
 import type { Examination } from 'src/app/examination/examination.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -43,7 +43,7 @@ export class ExaminationPageHeaderComponent {
     @Input() isPreview = false;
     @Output() timedOut = new EventEmitter<void>();
 
-    constructor(private Session: SessionService) {}
+    private Session = inject(SessionService);
 
     notifyTimeout = () => this.timedOut.emit();
     switchLanguage = (key: string) => this.Session.switchLanguage(key);

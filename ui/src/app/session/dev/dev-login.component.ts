@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, output } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import type { User } from 'src/app/session/session.model';
@@ -58,7 +58,7 @@ export class DevLoginComponent {
     username = '';
     password = '';
 
-    constructor(private Session: SessionService) {}
+    private Session = inject(SessionService);
 
     login = (event: Event, blur: boolean) => {
         if (blur) (event.target as HTMLElement).blur();

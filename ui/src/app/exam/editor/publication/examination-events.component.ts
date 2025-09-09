@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, input, OnInit, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -77,14 +77,12 @@ export class ExaminationEventsComponent implements OnInit {
     exam = input.required<Exam>();
     maintenancePeriods = signal<MaintenancePeriod[]>([]);
 
-    constructor(
-        private HttpClient: HttpClient,
-        private ModalService: NgbModal,
-        private ToastrService: ToastrService,
-        private TranslateService: TranslateService,
-        private ConfirmationDialogService: ConfirmationDialogService,
-        private ExamService: ExamService,
-    ) {}
+    private HttpClient = inject(HttpClient);
+    private ModalService = inject(NgbModal);
+    private ToastrService = inject(ToastrService);
+    private TranslateService = inject(TranslateService);
+    private ConfirmationDialogService = inject(ConfirmationDialogService);
+    private ExamService = inject(ExamService);
 
     ngOnInit() {
         this.HttpClient.get<MaintenancePeriod[]>('/app/maintenance').subscribe((periods) =>

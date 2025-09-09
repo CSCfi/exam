@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -30,10 +30,8 @@ import { TranslateModule } from '@ngx-translate/core';
 export class EulaDialogComponent implements OnInit {
     settings = { eula: { value: '' } };
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient,
-    ) {}
+    activeModal = inject(NgbActiveModal);
+    private http = inject(HttpClient);
 
     ngOnInit() {
         this.http

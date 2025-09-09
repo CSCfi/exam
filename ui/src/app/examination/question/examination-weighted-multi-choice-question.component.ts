@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
@@ -46,7 +46,7 @@ export class ExaminationWeightedMultiChoiceComponent implements OnInit {
 
     questionTitle!: string;
 
-    constructor(private Examination: ExaminationService) {}
+    private Examination = inject(ExaminationService);
 
     ngOnInit() {
         if (this.orderOptions) {

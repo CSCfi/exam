@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { parseISO, roundToNearestMinutes } from 'date-fns';
@@ -56,16 +56,16 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     id = 0;
     ref = '';
 
-    constructor(
-        private route: ActivatedRoute,
-        private http: HttpClient,
-        private QuestionScore: QuestionScoringService,
-        private Exam: ExamService,
-        private CommonExam: CommonExamService,
-        private Assessment: AssessmentService,
-        private Session: SessionService,
-        private DateTime: DateTimeService,
-    ) {
+    private route = inject(ActivatedRoute);
+    private http = inject(HttpClient);
+    private QuestionScore = inject(QuestionScoringService);
+    private Exam = inject(ExamService);
+    private CommonExam = inject(CommonExamService);
+    private Assessment = inject(AssessmentService);
+    private Session = inject(SessionService);
+    private DateTime = inject(DateTimeService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 

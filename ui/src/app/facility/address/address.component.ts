@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -90,11 +90,9 @@ export class AddressComponent {
     @Input() address!: Address;
     @ViewChild('addressForm', { static: false }) addressForm?: NgForm;
 
-    constructor(
-        private room: RoomService,
-        private toast: ToastrService,
-        private translate: TranslateService,
-    ) {}
+    private room = inject(RoomService);
+    private toast = inject(ToastrService);
+    private translate = inject(TranslateService);
 
     validateAndUpdateAddress = () => {
         if (this.addressForm?.valid) {

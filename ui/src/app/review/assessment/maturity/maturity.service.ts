@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -41,15 +41,13 @@ type States = {
 
 @Injectable({ providedIn: 'root' })
 export class MaturityService {
-    constructor(
-        private http: HttpClient,
-        private router: Router,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Assessment: AssessmentService,
-        private Session: SessionService,
-    ) {}
+    private http = inject(HttpClient);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Assessment = inject(AssessmentService);
+    private Session = inject(SessionService);
 
     isMissingStatement = (exam: Exam) => {
         if (!this.isUnderLanguageInspection(exam)) {

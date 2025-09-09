@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -53,12 +53,10 @@ export class LibraryTagsDialogComponent implements OnInit {
     newTags: number[] = [];
     selectedTagId?: number;
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Library: LibraryService,
-    ) {}
+    activeModal = inject(NgbActiveModal);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Library = inject(LibraryService);
 
     ngOnInit() {
         this.Library.listAllTags$().subscribe((tags: Tag[]) => {

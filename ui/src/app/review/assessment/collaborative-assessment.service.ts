@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -30,14 +30,12 @@ interface Payload {
 
 @Injectable({ providedIn: 'root' })
 export class CollaborativeAssesmentService {
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private router: Router,
-        private toast: ToastrService,
-        private dialogs: ConfirmationDialogService,
-        private Assessment: AssessmentService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private router = inject(Router);
+    private toast = inject(ToastrService);
+    private dialogs = inject(ConfirmationDialogService);
+    private Assessment = inject(AssessmentService);
 
     saveAssessmentInfo$ = (
         examId: number,

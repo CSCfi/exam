@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -11,11 +11,9 @@ import { Link } from './navigation.model';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
-    constructor(
-        private http: HttpClient,
-        private router: Router,
-        private Session: SessionService,
-    ) {}
+    private http = inject(HttpClient);
+    private router = inject(Router);
+    private Session = inject(SessionService);
 
     getAppVersion$ = () => this.http.get<{ appVersion: string }>('/app/settings/appVersion');
 

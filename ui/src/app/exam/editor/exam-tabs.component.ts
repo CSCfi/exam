@@ -4,7 +4,7 @@
 
 import { LowerCasePipe } from '@angular/common';
 import type { OnDestroy, OnInit } from '@angular/core';
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavItemRole, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -45,15 +45,15 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
     activeTab = 1;
     private ngUnsubscribe = new Subject();
 
-    constructor(
-        private cdr: ChangeDetectorRef,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private Session: SessionService,
-        private Tabs: ExamTabService,
-        private CourseCode: CourseCodeService,
-    ) {
+    private cdr = inject(ChangeDetectorRef);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private Session = inject(SessionService);
+    private Tabs = inject(ExamTabService);
+    private CourseCode = inject(CourseCodeService);
+
+    constructor() {
         this.user = this.Session.getUser();
         this.examInfo = { title: null };
         this.Tabs.tabChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((tab: number) => {

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { parseISO } from 'date-fns';
@@ -41,16 +41,14 @@ type SectionContainer = { examSections: ExamSection[] };
 
 @Injectable({ providedIn: 'root' })
 export class ExamService {
-    constructor(
-        private router: Router,
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private CommonExam: CommonExamService,
-        private QuestionScore: QuestionScoringService,
-        private Session: SessionService,
-        private ConfirmationDialog: ConfirmationDialogService,
-    ) {}
+    private router = inject(Router);
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private CommonExam = inject(CommonExamService);
+    private QuestionScore = inject(QuestionScoringService);
+    private Session = inject(SessionService);
+    private ConfirmationDialog = inject(ConfirmationDialogService);
 
     getReviewablesCount = (exam: Exam) =>
         exam.children.filter((child) => child.state === 'REVIEW' || child.state === 'REVIEW_STARTED').length;

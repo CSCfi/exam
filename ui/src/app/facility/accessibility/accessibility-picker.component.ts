@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -54,13 +54,12 @@ import { AccessibilityService } from './accessibility.service';
 })
 export class AccessibilitySelectorComponent implements OnInit {
     @Input() room!: ExamRoom;
+
     accessibilities: Accessibility[] = [];
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private accessibilityService: AccessibilityService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private accessibilityService = inject(AccessibilityService);
 
     ngOnInit() {
         this.accessibilityService.getAccessibilities().subscribe((resp) => {

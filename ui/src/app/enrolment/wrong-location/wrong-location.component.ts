@@ -5,7 +5,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -41,14 +41,12 @@ export class WrongLocationComponent implements OnInit {
     currentMachine!: ExamMachine;
     occasion = { startAt: '', endAt: '' };
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Enrolment: EnrolmentService,
-        private DateTimeService: DateTimeService,
-    ) {}
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Enrolment = inject(EnrolmentService);
+    private DateTimeService = inject(DateTimeService);
 
     ngOnInit() {
         this.cause = this.route.snapshot.data.cause;

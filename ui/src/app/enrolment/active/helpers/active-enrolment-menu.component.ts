@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -21,12 +21,10 @@ export class ActiveEnrolmentMenuComponent {
     enrolment = input.required<ExamEnrolment>();
     removed = output<number>();
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Enrolment: EnrolmentService,
-        private Confirmation: ConfirmationDialogService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Enrolment = inject(EnrolmentService);
+    private Confirmation = inject(ConfirmationDialogService);
 
     makeReservation = () => this.Enrolment.makeReservation(this.enrolment());
 

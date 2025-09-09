@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -51,12 +51,12 @@ export class LibrarySearchComponent implements OnInit {
     filteredOwners = this.owners;
     questions: LibraryQuestion[] = [];
 
-    constructor(
-        private Library: LibraryService,
-        private Session: SessionService,
-        private CourseCode: CourseCodeService,
-        private User: UserService,
-    ) {
+    private Library = inject(LibraryService);
+    private Session = inject(SessionService);
+    private CourseCode = inject(CourseCodeService);
+    private User = inject(UserService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 

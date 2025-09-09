@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { format, formatISO, parseISO, setHours, setMinutes } from 'date-fns';
@@ -17,14 +17,12 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
-    constructor(
-        private http: HttpClient,
-        private ngbModal: NgbModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private dialogs: ConfirmationDialogService,
-        private DateTime: DateTimeService,
-    ) {}
+    private http = inject(HttpClient);
+    private ngbModal = inject(NgbModal);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private dialogs = inject(ConfirmationDialogService);
+    private DateTime = inject(DateTimeService);
 
     roomsApi = (id?: number) => (id ? `/app/rooms/${id}` : '/app/rooms');
     availabilityApi = (roomId: number, date: string) => `/app/availability/${roomId}/${date}`;

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
@@ -12,11 +12,9 @@ import { ExamService } from 'src/app/exam/exam.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExamSummaryService {
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private Exam: ExamService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private Exam = inject(ExamService);
 
     getNoShows$ = (collaborative: boolean, exam: Exam) => {
         if (collaborative) {

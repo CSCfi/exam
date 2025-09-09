@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Directive, ElementRef, HostListener } from '@angular/core';
+import { Directive, ElementRef, HostListener, inject } from '@angular/core';
 
 @Directive({
     selector: '[xmLowerCase]',
     standalone: true,
 })
 export class LowerCaseValidatorDirective {
-    constructor(private el: ElementRef) {}
+    private el = inject(ElementRef);
 
     @HostListener('input')
     onInput() {

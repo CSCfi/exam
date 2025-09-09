@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExaminationQuestion } from 'src/app/examination/examination.model';
@@ -40,10 +40,8 @@ export class QuestionPreviewDialogComponent implements OnInit {
 
     preview?: ExaminationQuestion;
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient,
-    ) {}
+    activeModal = inject(NgbActiveModal);
+    private http = inject(HttpClient);
 
     ngOnInit() {
         const urlSuffix = this.isExamQuestion ? 'exam' : 'library';

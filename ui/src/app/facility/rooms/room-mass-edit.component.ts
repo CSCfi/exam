@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -117,11 +117,9 @@ export class MultiRoomComponent implements OnInit {
     roomIds: number[] = [];
     allSelected = false;
 
-    constructor(
-        private toast: ToastrService,
-        private roomService: RoomService,
-        private translate: TranslateService,
-    ) {}
+    private toast = inject(ToastrService);
+    private roomService = inject(RoomService);
+    private translate = inject(TranslateService);
 
     ngOnInit() {
         this.loadRooms();

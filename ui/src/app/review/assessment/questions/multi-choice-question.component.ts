@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgStyle, UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -49,14 +49,12 @@ export class MultiChoiceQuestionComponent implements OnInit {
     id = 0;
     ref = '';
 
-    constructor(
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Assessment: AssessmentService,
-        private Attachment: AttachmentService,
-        private QuestionScore: QuestionScoringService,
-    ) {}
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Assessment = inject(AssessmentService);
+    private Attachment = inject(AttachmentService);
+    private QuestionScore = inject(QuestionScoringService);
 
     get scoreValue(): number | null {
         return this._score;

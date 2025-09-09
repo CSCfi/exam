@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe, NgClass } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
     NgbNav,
@@ -60,15 +60,15 @@ export class QuestionAssessmentComponent implements OnInit {
     lockedAnswers: ReviewQuestion[] = [];
     allAnswersExpanded = true;
 
-    constructor(
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private QuestionReview: QuestionReviewService,
-        private Assessment: AssessmentService,
-        private Session: SessionService,
-        private Attachment: AttachmentService,
-    ) {
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private QuestionReview = inject(QuestionReviewService);
+    private Assessment = inject(AssessmentService);
+    private Session = inject(SessionService);
+    private Attachment = inject(AttachmentService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 

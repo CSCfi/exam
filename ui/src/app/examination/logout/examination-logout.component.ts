@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
@@ -32,12 +32,10 @@ export class ExaminationLogoutComponent implements OnInit {
     reasonPhrase = '';
     quitLink?: string;
 
-    constructor(
-        private http: HttpClient,
-        private router: Router,
-        private route: ActivatedRoute,
-        private ExaminationStatus: ExaminationStatusService,
-    ) {}
+    private http = inject(HttpClient);
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private ExaminationStatus = inject(ExaminationStatusService);
 
     ngOnInit() {
         this.reasonPhrase =

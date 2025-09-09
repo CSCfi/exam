@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, NgStyle } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
@@ -19,7 +19,7 @@ import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 export class PrintedMultiChoiceComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;
 
-    constructor(private QuestionScore: QuestionScoringService) {}
+    private QuestionScore = inject(QuestionScoringService);
 
     scoreWeightedMultipleChoiceAnswer = (ignoreForcedScore: boolean) => {
         if (this.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {

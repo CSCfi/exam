@@ -5,7 +5,7 @@
 import { AsyncPipe, DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy, OnInit } from '@angular/core';
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -50,17 +50,14 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     isUpcoming = signal(false);
     delayCounter$?: Observable<number>;
 
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Session = inject(SessionService);
+    private DateTimeService = inject(DateTimeService);
     private startTimerId = 0;
     private delayTimerId = 0;
-
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Session: SessionService,
-        private DateTimeService: DateTimeService,
-    ) {}
 
     ngOnInit() {
         if (this.route.snapshot.params.id && this.route.snapshot.params.hash) {

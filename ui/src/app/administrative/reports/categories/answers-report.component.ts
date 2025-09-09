@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -43,7 +43,7 @@ export class AnswersReportComponent {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(private files: FileService) {}
+    private files = inject(FileService);
 
     getExamAnswerReport = () => {
         const f = format(this.startDate || new Date(), 'dd.MM.yyyy');

@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -64,17 +64,16 @@ export class ChangeMachineDialogComponent implements OnInit {
     @Input() reservation!: Reservation;
     @ViewChild('machineSelection') machineSelection!: DropdownSelectComponent<ExamMachine, number>;
 
+    activeModal = inject(NgbActiveModal);
+
     room!: Option<ExamRoom, number>;
     availableRoomOptions: Option<ExamRoom, number>[] = [];
     machine?: ExamMachine;
     availableMachineOptions: Option<ExamMachine, number>[] = [];
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
 
     ngOnInit() {
         const room = this.reservation.machine.room;

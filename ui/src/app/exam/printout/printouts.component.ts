@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
@@ -106,7 +106,7 @@ export class PrintoutListingComponent implements OnInit {
     predicate = 'examinationDatesAggregate';
     reverse = true;
 
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
 
     ngOnInit() {
         this.http

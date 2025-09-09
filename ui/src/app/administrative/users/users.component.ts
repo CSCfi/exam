@@ -4,7 +4,7 @@
 
 import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
     NgbDropdown,
@@ -90,12 +90,12 @@ export class UsersComponent implements OnInit, OnDestroy {
     loader = { loading: false };
     appUser: User;
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private session: SessionService,
-        private userManagement: UserManagementService,
-    ) {
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private session = inject(SessionService);
+    private userManagement = inject(UserManagementService);
+
+    constructor() {
         this.appUser = this.session.getUser();
         this.textChanged
             .pipe(debounceTime(1000), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))

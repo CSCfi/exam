@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -35,13 +35,11 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     activeSection?: ExaminationSection;
     isPreview = false;
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private Examination: ExaminationService,
-        private Session: SessionService,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private Examination = inject(ExaminationService);
+    private Session = inject(SessionService);
+    private Enrolment = inject(EnrolmentService);
 
     ngOnInit() {
         this.isPreview = this.route.snapshot.data.isPreview;

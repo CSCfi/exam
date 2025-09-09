@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -36,11 +36,9 @@ export class AvailabilityComponent implements OnInit {
     newExceptions: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
     oldExceptionsHidden = true;
 
-    constructor(
-        private toast: ToastrService,
-        private roomService: RoomService,
-        private calendar: CalendarService,
-    ) {}
+    private toast = inject(ToastrService);
+    private roomService = inject(RoomService);
+    private calendar = inject(CalendarService);
 
     ngOnInit() {
         if (!this.room) {

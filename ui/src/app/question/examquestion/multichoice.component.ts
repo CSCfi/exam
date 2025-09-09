@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, input, model, output } from '@angular/core';
+import { Component, inject, input, model, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -97,10 +97,8 @@ export class MultiChoiceComponent {
     optionsChanged = output<ExamSectionQuestionOption[]>();
     shufflingSettingChanged = output<boolean>();
 
-    constructor(
-        private TranslateService: TranslateService,
-        private ToastrService: ToastrService,
-    ) {}
+    private TranslateService = inject(TranslateService);
+    private ToastrService = inject(ToastrService);
 
     updateCorrectAnswer = (index: number) => {
         const status = !this.question().options[index].option.correctOption;

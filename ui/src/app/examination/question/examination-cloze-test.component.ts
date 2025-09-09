@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -40,7 +40,7 @@ export class ExaminationClozeTestComponent {
     @Input() examHash = '';
     @Input() isPreview = false;
 
-    constructor(private Examination: ExaminationService) {}
+    private Examination = inject(ExaminationService);
 
     saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.examHash, false, false).subscribe();
 }

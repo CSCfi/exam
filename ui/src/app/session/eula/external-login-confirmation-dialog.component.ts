@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { User } from 'src/app/session/session.model';
@@ -30,5 +30,5 @@ import { User } from 'src/app/session/session.model';
 export class ExternalLoginConfirmationDialogComponent {
     @Input() user!: User;
 
-    constructor(public activeModal: NgbActiveModal) {}
+    activeModal = inject(NgbActiveModal);
 }

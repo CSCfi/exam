@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -52,13 +52,11 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
     cancelClicked = false;
     nextState = '';
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private toast: ToastrService,
-        private Question: QuestionService,
-        private modal: NgbModal,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private toast = inject(ToastrService);
+    private Question = inject(QuestionService);
+    private modal = inject(NgbModal);
 
     ngOnInit() {
         this.nextState =

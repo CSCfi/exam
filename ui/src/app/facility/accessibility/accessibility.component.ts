@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -19,11 +19,9 @@ export class AccessibilityComponent implements OnInit {
     newItem: { name: string } = { name: '' };
     accessibilities: (Accessibility & { showName: boolean })[] = [];
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private accessibilityService: AccessibilityService,
-    ) {}
+    private accessibilityService = inject(AccessibilityService);
+    private toast = inject(ToastrService);
+    private translate = inject(TranslateService);
 
     ngOnInit() {
         this.newItem = { name: '' };

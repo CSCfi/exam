@@ -4,7 +4,7 @@
 
 import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import type { AfterViewInit } from '@angular/core';
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -47,12 +47,10 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
     questionTitle!: string;
 
-    constructor(
-        private cdr: ChangeDetectorRef,
-        private Examination: ExaminationService,
-        private Attachment: AttachmentService,
-        private translate: TranslateService,
-    ) {}
+    private cdr = inject(ChangeDetectorRef);
+    private Examination = inject(ExaminationService);
+    private Attachment = inject(AttachmentService);
+    private translate = inject(TranslateService);
 
     ngOnInit() {
         this.sq = this.question as Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }; // FIXME

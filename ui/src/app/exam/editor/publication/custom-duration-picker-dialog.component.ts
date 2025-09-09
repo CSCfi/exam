@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -72,10 +72,8 @@ export class CustomDurationPickerDialogComponent implements OnInit {
     maxDuration = signal(300);
     maxHour = computed(() => this.maxDuration() / 60);
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient,
-    ) {}
+    activeModal = inject(NgbActiveModal);
+    private http = inject(HttpClient);
 
     ngOnInit() {
         this.http

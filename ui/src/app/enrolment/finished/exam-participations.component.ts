@@ -4,7 +4,7 @@
 
 import { SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -47,10 +47,10 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
     ngUnsubscribe = new Subject();
     searchDone = false;
 
-    constructor(
-        private toast: ToastrService,
-        private Enrolment: EnrolmentService,
-    ) {
+    private toast = inject(ToastrService);
+    private Enrolment = inject(EnrolmentService);
+
+    constructor() {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this._search);

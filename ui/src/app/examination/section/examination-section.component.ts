@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -90,7 +90,7 @@ export class ExaminationSectionComponent implements OnInit, OnDestroy {
 
     autosaver?: number;
 
-    constructor(private Examination: ExaminationService) {}
+    private Examination = inject(ExaminationService);
 
     ngOnInit() {
         this.resetAutosaver();

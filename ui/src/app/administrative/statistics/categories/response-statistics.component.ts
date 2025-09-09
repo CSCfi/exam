@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component, Input, signal } from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
@@ -41,10 +41,9 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 })
 export class ResponseStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};
-
     data = signal({ assessed: 0, unAssessed: 0, aborted: 0 });
 
-    constructor(private Statistics: StatisticsService) {}
+    private Statistics = inject(StatisticsService);
 
     ngOnInit() {
         this.listResponses();

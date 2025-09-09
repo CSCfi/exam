@@ -5,7 +5,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -51,13 +51,11 @@ export class ExaminationEventSearchComponent implements OnInit {
     };
     filterText = '';
 
-    constructor(
-        private translate: TranslateService,
-        private http: HttpClient,
-        private ConfirmationDialog: ConfirmationDialogService,
-        private Enrolment: EnrolmentService,
-        private toast: ToastrService,
-    ) {}
+    private translate = inject(TranslateService);
+    private http = inject(HttpClient);
+    private ConfirmationDialog = inject(ConfirmationDialogService);
+    private Enrolment = inject(EnrolmentService);
+    private toast = inject(ToastrService);
 
     ngOnInit() {
         this.endDate?.setHours(24, 0, 0);

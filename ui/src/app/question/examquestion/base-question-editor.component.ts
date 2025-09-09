@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { QuestionComponent } from 'src/app/question/basequestion/question.component';
@@ -41,11 +41,9 @@ export class BaseQuestionEditorComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;
     @Input() isPopup = false;
 
-    constructor(
-        public modal: NgbActiveModal,
-        private translate: TranslateService,
-        private Dialogs: ConfirmationDialogService,
-    ) {}
+    private modal = inject(NgbActiveModal);
+    private translate = inject(TranslateService);
+    private Dialogs = inject(ConfirmationDialogService);
 
     onSave = (event: Question | QuestionDraft) => this.modal.close(event);
     cancel = () => {

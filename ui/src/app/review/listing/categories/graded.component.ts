@@ -5,7 +5,7 @@
 import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -67,16 +67,14 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
     needsFeedbackWarning = false;
     selections: { all: boolean; page: boolean } = { all: false, page: false };
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private ReviewList: ReviewListService,
-        private Assessment: AssessmentService,
-        private CommonExam: CommonExamService,
-        private Session: SessionService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private ReviewList = inject(ReviewListService);
+    private Assessment = inject(AssessmentService);
+    private CommonExam = inject(CommonExamService);
+    private Session = inject(SessionService);
 
     ngOnInit() {
         this.init();

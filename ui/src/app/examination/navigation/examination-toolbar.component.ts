@@ -4,7 +4,7 @@
 
 import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -36,18 +36,16 @@ export class ExaminationToolbarComponent implements OnInit {
     room?: ExamRoom;
     tab?: number;
 
-    constructor(
-        private http: HttpClient,
-        private router: Router,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Session: SessionService,
-        private Examination: ExaminationService,
-        private Attachment: AttachmentService,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private http = inject(HttpClient);
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Session = inject(SessionService);
+    private Examination = inject(ExaminationService);
+    private Attachment = inject(AttachmentService);
+    private Enrolment = inject(EnrolmentService);
 
     ngOnInit() {
         this.tab = this.route.snapshot.queryParams.tab;

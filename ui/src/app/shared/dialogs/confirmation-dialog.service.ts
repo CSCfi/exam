@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { from, Observable } from 'rxjs';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 
 @Injectable({ providedIn: 'root' })
 export class ConfirmationDialogService {
-    constructor(private modal: NgbModal) {}
+    private modal = inject(NgbModal);
 
     open$(
         title: string,

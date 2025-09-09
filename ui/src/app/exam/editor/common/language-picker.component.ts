@@ -5,7 +5,7 @@
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -41,12 +41,10 @@ export class LanguageSelectorComponent implements OnInit {
 
     examLanguages: ExamLanguage[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Language: LanguageService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Language = inject(LanguageService);
 
     ngOnInit() {
         this.Language.getExamLanguages$().subscribe((languages: ExamLanguage[]) => {

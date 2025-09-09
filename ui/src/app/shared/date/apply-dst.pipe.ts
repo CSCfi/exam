@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { PipeTransform } from '@angular/core';
-import { Pipe } from '@angular/core';
+import { Pipe, inject } from '@angular/core';
 import { DateTime } from 'luxon';
 import { DateTimeService } from './date.service';
 
@@ -12,7 +12,8 @@ import { DateTimeService } from './date.service';
     standalone: true,
 })
 export class ApplyDstPipe implements PipeTransform {
-    constructor(private DateTimeService: DateTimeService) {}
+    private DateTimeService = inject(DateTimeService);
+
     transform = (input?: string): string => {
         if (!input) return '';
         const date = DateTime.fromISO(input);
