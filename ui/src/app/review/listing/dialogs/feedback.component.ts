@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -44,10 +44,8 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 export class SpeedReviewFeedbackComponent implements OnInit {
     @Input() exam!: Exam;
 
-    constructor(
-        private modal: NgbActiveModal,
-        private Assessment: AssessmentService,
-    ) {}
+    private modal = inject(NgbActiveModal);
+    private Assessment = inject(AssessmentService);
 
     ngOnInit() {
         if (!this.exam.examFeedback) {

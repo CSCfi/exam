@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Exam, ExamSection } from 'src/app/exam/exam.model';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { ExamSectionQuestion, Question, QuestionAmounts } from './question.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionScoringService {
-    constructor(private httpClient: HttpClient) {}
+    private httpClient = inject(HttpClient);
 
     getQuestionAmounts = (exam: Exam): QuestionAmounts => {
         const essays = exam.examSections

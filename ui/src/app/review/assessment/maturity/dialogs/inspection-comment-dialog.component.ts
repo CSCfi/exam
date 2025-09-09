@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -32,7 +32,8 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class InspectionCommentDialogComponent {
     data = { comment: '' };
-    constructor(private modal: NgbActiveModal) {}
+
+    private modal = inject(NgbActiveModal);
 
     ok = () => this.modal.close(this.data);
     cancel = () => this.modal.dismiss();

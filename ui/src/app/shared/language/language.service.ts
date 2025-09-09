@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
 
@@ -18,14 +18,14 @@ interface IsoLangMap {
 
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
+    private http = inject(HttpClient);
+
     private isoLangs: IsoLangMap = {
         en: { name: 'English', nativeName: 'English' },
         fi: { name: 'Finnish', nativeName: 'suomi' },
         sv: { name: 'Swedish', nativeName: 'svenska' },
         de: { name: 'German', nativeName: 'Deutsch' },
     };
-
-    constructor(private http: HttpClient) {}
 
     getLanguageName = (code: string) => {
         const key = code.slice(0, 2);

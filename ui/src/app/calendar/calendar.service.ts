@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DateTime, Interval } from 'luxon';
 import type { Observable } from 'rxjs';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
@@ -22,11 +22,9 @@ type WeekdayNames = Record<string, { ord: number; name: string }>;
 
 @Injectable({ providedIn: 'root' })
 export class CalendarService {
-    constructor(
-        private http: HttpClient,
-        private DateTimeService: DateTimeService,
-        private Session: SessionService,
-    ) {}
+    private http = inject(HttpClient);
+    private DateTimeService = inject(DateTimeService);
+    private Session = inject(SessionService);
 
     reserve$(
         examId: number,

@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AppConfig } from 'src/app/administrative/administrative.model';
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
 
     updateAgreement$ = (config: AppConfig, bypassAgreementUpdate = false) =>
         this.http.put('/app/settings/agreement', { value: config.eula, minorUpdate: bypassAgreementUpdate });

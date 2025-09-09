@@ -4,12 +4,11 @@
 
 import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
-import { ToastrService } from 'ngx-toastr';
 import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import { MachineListComponent } from 'src/app/facility/machines/machines.component';
 import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
@@ -49,15 +48,13 @@ export class RoomListComponent implements OnInit {
     user: User;
     rooms: ExtendedRoom[] = [];
 
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private toast: ToastrService,
-        private session: SessionService,
-        private roomService: RoomService,
-        private translate: TranslateService,
-        private timeDateService: DateTimeService,
-    ) {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private session = inject(SessionService);
+    private roomService = inject(RoomService);
+    private timeDateService = inject(DateTimeService);
+
+    constructor() {
         this.user = this.session.getUser();
     }
 

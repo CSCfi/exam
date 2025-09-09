@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -50,13 +50,11 @@ export class LibraryOwnersDialogComponent implements OnInit {
     newTeachers: number[] = [];
     selectedTeacherId?: number;
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Question: QuestionService,
-        private User: UserService,
-    ) {}
+    private activeModal = inject(NgbActiveModal);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Question = inject(QuestionService);
+    private User = inject(UserService);
 
     ngOnInit() {
         this.User.listUsersByRole$('TEACHER').subscribe((users: User[]) => {

@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { Course } from 'src/app/exam/exam.model';
 
 @Injectable({ providedIn: 'root' })
 export class CoursePickerService {
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
 
     getCourses$ = (filter: string, criteria: string) =>
         this.http.get<Course[]>('/app/courses', { params: { filter: filter, q: criteria } });

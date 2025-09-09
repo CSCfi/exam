@@ -4,7 +4,7 @@
 
 import { DatePipe, NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { formatISO, startOfMonth } from 'date-fns';
@@ -42,7 +42,7 @@ export class MaturityReportingComponent implements OnInit {
     months: Option<number, number>[] = [];
     years: Option<number, number>[] = [];
 
-    constructor(private LanguageInspection: LanguageInspectionService) {}
+    private LanguageInspection = inject(LanguageInspectionService);
 
     ngOnInit() {
         this.months = range(1, 13).map((m) => ({ id: m, label: m.toString() }));

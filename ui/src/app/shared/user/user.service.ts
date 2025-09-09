@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { forkJoin, map } from 'rxjs';
 import type { User } from 'src/app/session/session.model';
 import { deduplicate } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
 
     listUsersByRole$ = (role: string) => this.http.get<User[]>(`/app/users/byrole/${role}`);
     listUsersByRoles$ = (roles: string[]) => {

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { addDays } from 'date-fns';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -49,13 +49,12 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
 export class LanguageInspectionsComponent implements OnInit {
     ongoingInspections: LanguageInspectionData[] = [];
     processedInspections: LanguageInspectionData[] = [];
+
+    private Language = inject(LanguageService);
+    private LanguageInspection = inject(LanguageInspectionService);
+
     private startDate: Date | null = null;
     private endDate: Date | null = null;
-
-    constructor(
-        private Language: LanguageService,
-        private LanguageInspection: LanguageInspectionService,
-    ) {}
 
     ngOnInit() {
         this.query();

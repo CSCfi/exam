@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -34,15 +34,13 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
 export class CourseSelectionComponent implements OnInit {
     exam!: Exam;
 
-    constructor(
-        private translate: TranslateService,
-        private route: ActivatedRoute,
-        private router: Router,
-        private http: HttpClient,
-        private toast: ToastrService,
-        private Exam: ExamService,
-        private Session: SessionService,
-    ) {}
+    private translate = inject(TranslateService);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+    private Exam = inject(ExamService);
+    private Session = inject(SessionService);
 
     ngOnInit() {
         this.http.get<Exam>(`/app/exams/${this.route.snapshot.params.id}`).subscribe((exam) => (this.exam = exam));

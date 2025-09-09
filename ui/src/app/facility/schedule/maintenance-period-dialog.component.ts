@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -69,19 +69,17 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
 })
 export class MaintenancePeriodDialogComponent implements OnInit {
     @Input() period?: MaintenancePeriod;
-    dateOptions = {
+    readonly DATE_OPTIONS = {
         'starting-day': 1,
     };
-    dateFormat = 'dd.MM.yyyy';
+    readonly DATE_FORMAT = 'dd.MM.yyyy';
     startsAt = new Date(new Date().setMinutes(60));
     endsAt = new Date(new Date().setMinutes(60));
     description = '';
 
-    constructor(
-        private translate: TranslateService,
-        private activeModal: NgbActiveModal,
-        private toast: ToastrService,
-    ) {}
+    private translate = inject(TranslateService);
+    private activeModal = inject(NgbActiveModal);
+    private toast = inject(ToastrService);
 
     ngOnInit() {
         if (this.period) {

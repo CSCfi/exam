@@ -4,7 +4,7 @@
 
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import {
     NgbCollapse,
     NgbDropdown,
@@ -58,17 +58,15 @@ export class SectionQuestionComponent {
     @Output() updated = new EventEmitter<ExamSectionQuestion>();
     @Output() copied = new EventEmitter<ExamSectionQuestion>();
 
-    constructor(
-        private http: HttpClient,
-        private modal: NgbModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Question: QuestionService,
-        private QuestionScore: QuestionScoringService,
-        private Attachment: AttachmentService,
-        private Files: FileService,
-    ) {}
+    private http = inject(HttpClient);
+    private modal = inject(NgbModal);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Question = inject(QuestionService);
+    private QuestionScore = inject(QuestionScoringService);
+    private Attachment = inject(AttachmentService);
+    private Files = inject(FileService);
 
     calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion);
     calculateWeightedMinPoints = () => this.QuestionScore.calculateWeightedMinPoints(this.sectionQuestion);

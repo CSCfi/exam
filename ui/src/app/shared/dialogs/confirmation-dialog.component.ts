@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -25,12 +25,12 @@ import { TranslateModule } from '@ngx-translate/core';
     `,
 })
 export class ConfirmationDialogComponent {
+    activeModal = inject(NgbActiveModal);
+
     title = '';
     description = '';
     confirmButtonText?: string;
     cancelButtonText?: string;
-
-    constructor(public activeModal: NgbActiveModal) {}
 
     getConfirmButtonText(): string {
         return this.confirmButtonText || 'i18n_button_accept';

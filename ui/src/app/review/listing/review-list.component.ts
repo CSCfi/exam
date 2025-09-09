@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnChanges, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -52,13 +52,11 @@ export class ReviewListComponent implements OnInit, OnChanges {
     languageInspectedReviews: Review[] = [];
     rejectedReviews: Review[] = [];
 
-    constructor(
-        private modal: NgbModal,
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private ReviewList: ReviewListService,
-        private Tabs: ExamTabService,
-    ) {}
+    private modal = inject(NgbModal);
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private ReviewList = inject(ReviewListService);
+    private Tabs = inject(ExamTabService);
 
     ngOnInit() {
         this.route.data.subscribe((data) => {

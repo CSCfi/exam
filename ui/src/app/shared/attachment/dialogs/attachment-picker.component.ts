@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -75,10 +75,8 @@ export class AttachmentSelectorComponent implements OnInit {
     fileObject!: File;
     maxFileSize = 0;
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private Files: FileService,
-    ) {}
+    activeModal = inject(NgbActiveModal);
+    private Files = inject(FileService);
 
     ngOnInit() {
         this.Files.getMaxFilesize$().subscribe((data) => (this.maxFileSize = data.filesize));

@@ -12,7 +12,7 @@ import {
 } from '@angular/cdk/drag-drop';
 
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
     NgbCollapse,
@@ -71,16 +71,14 @@ export class SectionComponent {
     @Output() removed = new EventEmitter<ExamSection>();
     @Output() materialsChanged = new EventEmitter<void>();
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private toast: ToastrService,
-        private dialogs: ConfirmationDialogService,
-        private QuestionScore: QuestionScoringService,
-        private Files: FileService,
-        private Exam: ExamService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
+    private dialogs = inject(ConfirmationDialogService);
+    private QuestionScore = inject(QuestionScoringService);
+    private Files = inject(FileService);
+    private Exam = inject(ExamService);
 
     questionPointsMatch = () => {
         const sectionQuestions = this.section.sectionQuestions;

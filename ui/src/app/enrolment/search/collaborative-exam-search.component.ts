@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -81,7 +81,9 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     ngUnsubscribe = new Subject();
     searchDone = false;
 
-    constructor(private Enrolment: EnrolmentService) {
+    private Enrolment = inject(EnrolmentService);
+
+    constructor() {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this._search);

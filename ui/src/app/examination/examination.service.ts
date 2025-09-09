@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -14,14 +14,12 @@ import type { Examination, ExaminationQuestion, ExaminationSection } from './exa
 
 @Injectable({ providedIn: 'root' })
 export class ExaminationService {
-    isExternal = false;
+    isExternal = false; // TODO: sketchy use to have state in a service
 
-    constructor(
-        private router: Router,
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+    private router = inject(Router);
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
 
     getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
 

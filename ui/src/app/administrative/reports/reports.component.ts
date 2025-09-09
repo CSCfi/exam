@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import { ExamRoom } from 'src/app/reservation/reservation.model';
@@ -64,11 +64,9 @@ export class ReportsComponent implements OnInit {
     teachers: Option<User, number>[] = [];
     students: Option<User, number>[] = [];
 
-    constructor(
-        private Users: UserService,
-        private Reports: ReportsService,
-        private Room: RoomService,
-    ) {}
+    private Users = inject(UserService);
+    private Reports = inject(ReportsService);
+    private Room = inject(RoomService);
 
     ngOnInit() {
         this.Room.getRooms$().subscribe((resp) => {

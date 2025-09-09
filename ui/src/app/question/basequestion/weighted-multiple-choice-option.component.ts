@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -65,10 +65,8 @@ export class WeightedMultipleChoiceOptionEditorComponent {
     @Input() question!: Question | QuestionDraft;
     @Input() lotteryOn = false;
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
 
     removeOption = () => {
         const hasCorrectAnswer = this.question.options.some((o) => o !== this.option && o.defaultScore > 0);

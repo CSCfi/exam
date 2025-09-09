@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { addMinutes, parseISO } from 'date-fns';
 import { debounceTime, distinctUntilChanged, exhaustMap, forkJoin, from, map, noop, Observable, of } from 'rxjs';
@@ -29,10 +29,8 @@ export interface Selection {
 }
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
-    constructor(
-        private http: HttpClient,
-        private modal: NgbModal,
-    ) {}
+    private http = inject(HttpClient);
+    private modal = inject(NgbModal);
 
     printExamState = (reservation: {
         enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };

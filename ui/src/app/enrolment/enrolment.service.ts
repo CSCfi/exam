@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
@@ -28,14 +28,12 @@ import type {
 
 @Injectable({ providedIn: 'root' })
 export class EnrolmentService {
-    constructor(
-        private translate: TranslateService,
-        private http: HttpClient,
-        private router: Router,
-        private ngbModal: NgbModal,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-    ) {}
+    private translate = inject(TranslateService);
+    private http = inject(HttpClient);
+    private router = inject(Router);
+    private ngbModal = inject(NgbModal);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
 
     removeExaminationEvent = (enrolment: ExamEnrolment) => {
         this.Confirmation.open$(

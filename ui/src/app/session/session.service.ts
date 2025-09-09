@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy } from '@angular/core';
-import { DOCUMENT, Inject, Injectable } from '@angular/core';
+import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
@@ -28,21 +28,21 @@ export class SessionService implements OnDestroy {
     public userChange$: Observable<User | undefined>;
     public devLogoutChange$: Observable<void>;
 
+    private http = inject(HttpClient);
+    private i18n = inject(TranslateService);
+    private router = inject(Router);
+    private webStorageService = inject<WebStorageService>(SESSION_STORAGE);
+    private document = inject<Document>(DOCUMENT);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
+
     private PING_INTERVAL: number = 30 * 1000;
     private sessionCheckSubscription?: Unsubscribable;
     private userChangeSubscription = new Subject<User | undefined>();
     private devLogoutSubscription = new Subject<void>();
     private customSessionExpireWarning = SessionExpireWarningComponent;
 
-    constructor(
-        private http: HttpClient,
-        private i18n: TranslateService,
-        private router: Router,
-        @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
-        @Inject(DOCUMENT) private document: Document,
-        private modal: NgbModal,
-        private toast: ToastrService,
-    ) {
+    constructor() {
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
     }

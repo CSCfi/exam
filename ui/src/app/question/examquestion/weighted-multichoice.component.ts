@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, computed, input, model, output } from '@angular/core';
+import { Component, computed, inject, input, model, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -153,11 +153,9 @@ export class WeightedMultiChoiceComponent {
     maxScore = computed<number>(() => this.QuestionScore.calculateWeightedMaxPoints(this.question()));
     minScore = computed<number>(() => this.QuestionScore.calculateWeightedMinPoints(this.question()));
 
-    constructor(
-        private TranslateService: TranslateService,
-        private ToastrService: ToastrService,
-        private QuestionScore: QuestionScoringService,
-    ) {}
+    private TranslateService = inject(TranslateService);
+    private ToastrService = inject(ToastrService);
+    private QuestionScore = inject(QuestionScoringService);
 
     updateScore = (score: number, index: number) => {
         const newOption = { ...this.question().options[index], score: score };

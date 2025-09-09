@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
@@ -48,7 +48,7 @@ export class ClaimChoiceAnswerComponent {
 
     reviewExpanded = true;
 
-    constructor(private Question: QuestionService) {}
+    private Question = inject(QuestionService);
 
     determineClaimOptionType = (option: ExamSectionQuestionOption) =>
         this.Question.determineClaimOptionTypeForExamQuestionOption(option);

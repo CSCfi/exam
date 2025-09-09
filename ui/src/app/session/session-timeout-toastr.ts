@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Toast, ToastPackage, ToastrService } from 'ngx-toastr';
 
@@ -16,14 +16,21 @@ import { Toast, ToastPackage, ToastrService } from 'ngx-toastr';
     standalone: true,
 })
 export class SessionExpireWarningComponent extends Toast {
+    public override toastPackage: ToastPackage;
+    protected override toastrService: ToastrService;
+
+    private http = inject(HttpClient);
+    private i18n = inject(TranslateService);
+
     // constructor is only necessary when not using AoT
-    constructor(
-        protected override toastrService: ToastrService,
-        public override toastPackage: ToastPackage,
-        private http: HttpClient,
-        private i18n: TranslateService,
-    ) {
+    constructor() {
+        const toastrService = inject(ToastrService);
+        const toastPackage = inject(ToastPackage);
+
         super(toastrService, toastPackage);
+
+        this.toastrService = toastrService;
+        this.toastPackage = toastPackage;
     }
 
     @HostListener('window:keydown', ['$event'])

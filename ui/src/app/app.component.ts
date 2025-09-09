@@ -6,7 +6,7 @@ import { NgClass, registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -62,11 +62,11 @@ export class AppComponent implements OnInit, OnDestroy {
     devLoginRequired = signal(false);
     private ngUnsubscribe = new Subject();
 
-    constructor(
-        private router: Router,
-        private Session: SessionService,
-        private ExaminationStatus: ExaminationStatusService,
-    ) {
+    private router = inject(Router);
+    private Session = inject(SessionService);
+    private ExaminationStatus = inject(ExaminationStatusService);
+
+    constructor() {
         this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             this.hideNavBar = true;
         });

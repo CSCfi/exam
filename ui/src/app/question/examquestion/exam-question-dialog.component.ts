@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
@@ -28,11 +28,9 @@ export class ExamQuestionDialogComponent {
     @Input() examQuestion!: ExamSectionQuestion;
     @Input() lotteryOn = false;
 
-    constructor(
-        private modal: NgbActiveModal,
-        private translate: TranslateService,
-        private Dialogs: ConfirmationDialogService,
-    ) {}
+    private modal = inject(NgbActiveModal);
+    private translate = inject(TranslateService);
+    private Dialogs = inject(ConfirmationDialogService);
 
     save = (event: { question: Question; examQuestion: ExamSectionQuestion }) => this.modal.close(event);
     cancel = (event: { dirty: boolean }) => {

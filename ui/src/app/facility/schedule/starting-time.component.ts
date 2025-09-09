@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -92,7 +92,7 @@ export class StartingTimeComponent implements OnInit {
     examStartingHourOffset = 0;
     unsavedProgress = false;
 
-    constructor(private Room: RoomService) {}
+    private Room = inject(RoomService);
 
     ngOnInit() {
         this.examStartingHours = [...Array(24)].map(function (x, i) {

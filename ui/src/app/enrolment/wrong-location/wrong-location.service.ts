@@ -2,17 +2,15 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 
 @Injectable({ providedIn: 'root' })
 export class WrongLocationService {
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
 
     display = (data: string[]) => {
         const [campus, building, room, machine, start, zone] = data;

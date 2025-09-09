@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { parseISO, roundToNearestMinutes } from 'date-fns';
@@ -39,12 +39,10 @@ export class GeneralInfoComponent implements OnInit {
     participations: ExamParticipation[] = [];
     noShows: ExamEnrolment[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private Attachment: AttachmentService,
-        private DateTime: DateTimeService,
-    ) {}
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private Attachment = inject(AttachmentService);
+    private DateTime = inject(DateTimeService);
 
     ngOnInit() {
         const duration = roundToNearestMinutes(parseISO(this.participation.duration as string));

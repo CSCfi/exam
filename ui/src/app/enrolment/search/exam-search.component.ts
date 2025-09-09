@@ -5,7 +5,7 @@
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 
 import type { OnInit } from '@angular/core';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -95,10 +95,10 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     permissionCheck = { active: false };
     searchDone = false;
 
-    constructor(
-        private toast: ToastrService,
-        private Search: ExamSearchService,
-    ) {
+    private toast = inject(ToastrService);
+    private Search = inject(ExamSearchService);
+
+    constructor() {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((txt) => {

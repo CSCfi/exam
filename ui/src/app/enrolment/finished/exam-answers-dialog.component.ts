@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Exam } from 'src/app/exam/exam.model';
@@ -24,11 +24,9 @@ export class ExamAnswersDialogComponent implements OnInit {
     @Input() participationTime = '';
     @Input() participationDuration: number | string = 0;
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private CommonExam: CommonExamService,
-        private Attachment: AttachmentService,
-    ) {}
+    activeModal = inject(NgbActiveModal);
+    private CommonExam = inject(CommonExamService);
+    private Attachment = inject(AttachmentService);
 
     ngOnInit() {
         this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);

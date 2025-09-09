@@ -4,7 +4,7 @@
 
 import { DatePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -38,12 +38,10 @@ export class ExamFeedbackComponent implements OnInit {
 
     assessmentWithAnswers?: Exam;
 
-    constructor(
-        private http: HttpClient,
-        private modal: NgbModal,
-        private Attachment: AttachmentService,
-        private Files: FileService,
-    ) {}
+    private http = inject(HttpClient);
+    private modal = inject(NgbModal);
+    private Attachment = inject(AttachmentService);
+    private Files = inject(FileService);
 
     ngOnInit() {
         if (!this.collaborative) {

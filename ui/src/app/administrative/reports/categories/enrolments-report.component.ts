@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -40,11 +40,9 @@ export class EnrolmentsReportComponent {
     @Input() examNames: Option<string, number>[] = [];
     enrolment?: number;
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private files: FileService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private files = inject(FileService);
 
     getExamEnrolments = () => {
         if (this.enrolment) {

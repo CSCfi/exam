@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -50,12 +50,10 @@ export class InProgressReviewsComponent implements OnInit {
     @Input() collaborative = false;
     view!: ReviewListView;
 
-    constructor(
-        private modal: NgbModal,
-        private ReviewList: ReviewListService,
-        private Session: SessionService,
-        private Files: FileService,
-    ) {}
+    private modal = inject(NgbModal);
+    private ReviewList = inject(ReviewListService);
+    private Session = inject(SessionService);
+    private Files = inject(FileService);
 
     ngOnInit() {
         this.view = this.ReviewList.prepareView(this.reviews, (r) => r, 'examParticipation.deadline');

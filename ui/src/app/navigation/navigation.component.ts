@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnDestroy, OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,14 +28,15 @@ export class NavigationComponent implements OnInit, OnDestroy {
     mobileMenuOpen = false;
     user?: User;
     stateInitialized = false;
+
+    private toast = inject(ToastrService);
+    private Navigation = inject(NavigationService);
+    private Session = inject(SessionService);
+    private ExaminationStatus = inject(ExaminationStatusService);
+
     private ngUnsubscribe = new Subject();
 
-    constructor(
-        private toast: ToastrService,
-        private Navigation: NavigationService,
-        private Session: SessionService,
-        private ExaminationStatus: ExaminationStatusService,
-    ) {
+    constructor() {
         this.user = this.Session.getUser();
         this.ExaminationStatus.examinationStarting$
             .pipe(takeUntil(this.ngUnsubscribe))

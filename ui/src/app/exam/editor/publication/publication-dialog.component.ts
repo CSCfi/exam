@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -38,10 +38,8 @@ export class PublicationDialogComponent {
     @Input() exam!: Exam;
     @Input() prePublication = false;
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private translate: TranslateService,
-    ) {}
+    activeModal = inject(NgbActiveModal);
+    private translate = inject(TranslateService);
 
     getConfirmationText = () => {
         let confirmation = this.prePublication

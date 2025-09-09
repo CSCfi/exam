@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
@@ -73,14 +73,14 @@ export class ReservationsComponent implements OnInit {
     externalReservationsOnly = false;
     byodExamsOnly = false;
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private toast: ToastrService,
-        private orderPipe: OrderByPipe,
-        private Session: SessionService,
-        private Reservation: ReservationService,
-    ) {
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private toast = inject(ToastrService);
+    private orderPipe = inject(OrderByPipe);
+    private Session = inject(SessionService);
+    private Reservation = inject(ReservationService);
+
+    constructor() {
         this.user = this.Session.getUser();
 
         if (this.user.isAdmin || this.user.isSupport) {

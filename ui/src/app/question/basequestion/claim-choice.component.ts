@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MultipleChoiceOption, Question, QuestionDraft } from 'src/app/question/question.model';
@@ -23,31 +23,32 @@ export class ClaimChoiceEditorComponent implements OnInit {
     @Input() showWarning = false;
 
     missingOption: string = '';
-    defaultOptions = {
-        correct: {
-            option: this.translate.instant('i18n_claim_choice_default_correct'),
-            defaultScore: 1,
-            correctOption: true,
-            claimChoiceType: 'CorrectOption',
-        },
-        wrong: {
-            option: this.translate.instant('i18n_claim_choice_default_incorrect'),
-            defaultScore: -1,
-            correctOption: false,
-            claimChoiceType: 'IncorrectOption',
-        },
-        skip: {
-            option: this.translate.instant('i18n_question_claim_skip'),
-            defaultScore: 0,
-            correctOption: false,
-            claimChoiceType: 'SkipOption',
-        },
-    };
 
-    constructor(
-        private translate: TranslateService,
-        private Question: QuestionService,
-    ) {}
+    private translate = inject(TranslateService);
+    private Question = inject(QuestionService);
+
+    private get defaultOptions() {
+        return {
+            correct: {
+                option: this.translate.instant('i18n_claim_choice_default_correct'),
+                defaultScore: 1,
+                correctOption: true,
+                claimChoiceType: 'CorrectOption',
+            },
+            wrong: {
+                option: this.translate.instant('i18n_claim_choice_default_incorrect'),
+                defaultScore: -1,
+                correctOption: false,
+                claimChoiceType: 'IncorrectOption',
+            },
+            skip: {
+                option: this.translate.instant('i18n_question_claim_skip'),
+                defaultScore: 0,
+                correctOption: false,
+                claimChoiceType: 'SkipOption',
+            },
+        };
+    }
 
     ngOnInit() {
         const { state, question } = this.question;

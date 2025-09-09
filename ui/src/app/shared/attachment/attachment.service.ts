@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -20,14 +20,12 @@ import { AttachmentSelectorComponent } from './dialogs/attachment-picker.compone
 
 @Injectable({ providedIn: 'root' })
 export class AttachmentService {
-    constructor(
-        private dialogs: ConfirmationDialogService,
-        private http: HttpClient,
-        private modal: NgbModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Files: FileService,
-    ) {}
+    private dialogs = inject(ConfirmationDialogService);
+    private http = inject(HttpClient);
+    private modal = inject(NgbModal);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Files = inject(FileService);
 
     removeQuestionAttachment(question: Partial<Question>) {
         if (question.attachment) {

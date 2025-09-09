@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     NgbModal,
@@ -53,14 +53,14 @@ export class FacilityComponent implements OnInit {
     user: User;
     maintenancePeriods: MaintenancePeriod[] = [];
 
-    constructor(
-        private router: Router,
-        private modal: NgbModal,
-        private translate: TranslateService,
-        private session: SessionService,
-        private toast: ToastrService,
-        private room: RoomService,
-    ) {
+    private router = inject(Router);
+    private modal = inject(NgbModal);
+    private translate = inject(TranslateService);
+    private session = inject(SessionService);
+    private toast = inject(ToastrService);
+    private room = inject(RoomService);
+
+    constructor() {
         this.user = this.session.getUser();
     }
 

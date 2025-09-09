@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
@@ -35,11 +35,9 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 export class ArchiveDownloadComponent {
     params: { startDate: Date | null; endDate: Date | null } = { startDate: new Date(), endDate: new Date() };
 
-    constructor(
-        private modal: NgbActiveModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+    private modal = inject(NgbActiveModal);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
 
     startDateChanged = (event: { date: Date | null }) => (this.params.startDate = event.date);
 

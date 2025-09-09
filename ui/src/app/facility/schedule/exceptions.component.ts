@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
@@ -70,10 +70,10 @@ export class ExceptionListComponent implements OnInit, OnChanges {
 
     orderedExceptions: ExceptionWorkingHours[] = [];
 
-    constructor(
-        private roomService: RoomService,
-        private modal: NgbModal,
-    ) {
+    private roomService = inject(RoomService);
+    private modal = inject(NgbModal);
+
+    constructor() {
         this.filter = () => true;
     }
 

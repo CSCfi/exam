@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -14,10 +14,8 @@ import { DateTimeService } from 'src/app/shared/date/date.service';
 
 @Injectable({ providedIn: 'root' })
 export class StudentDashboardService {
-    constructor(
-        private http: HttpClient,
-        private DateTime: DateTimeService,
-    ) {}
+    private http = inject(HttpClient);
+    private DateTime = inject(DateTimeService);
 
     listEnrolments$ = (): Observable<DashboardEnrolment[]> =>
         this.http.get<ExamEnrolment[]>('/app/student/enrolments').pipe(

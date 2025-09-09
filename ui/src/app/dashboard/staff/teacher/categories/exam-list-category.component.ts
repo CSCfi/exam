@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -55,18 +55,18 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
     filterChanged = new Subject<string>();
     ngUnsubscribe = new Subject();
 
-    constructor(
-        private router: Router,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private toast: ToastrService,
-        private Dashboard: TeacherDashboardService,
-        private Dialog: ConfirmationDialogService,
-        private Exam: ExamService,
-        private CommonExam: CommonExamService,
-        private DateTime: DateTimeService,
-        private Session: SessionService,
-    ) {
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
+    private Dashboard = inject(TeacherDashboardService);
+    private Dialog = inject(ConfirmationDialogService);
+    private Exam = inject(ExamService);
+    private CommonExam = inject(CommonExamService);
+    private DateTime = inject(DateTimeService);
+    private Session = inject(SessionService);
+
+    constructor() {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((text) => {

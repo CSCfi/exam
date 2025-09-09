@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import type { Course } from 'src/app/exam/exam.model';
 import { CourseCodeService } from './course-code.service';
 
@@ -17,7 +17,8 @@ import { CourseCodeService } from './course-code.service';
 })
 export class CourseCodeComponent {
     @Input() course!: Course;
-    constructor(private CodeService: CourseCodeService) {}
+
+    private CodeService = inject(CourseCodeService);
 
     formatCode = () => this.CodeService.formatCode(this.course.code);
 }

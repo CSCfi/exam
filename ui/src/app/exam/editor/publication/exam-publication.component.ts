@@ -5,7 +5,7 @@
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -54,17 +54,17 @@ export class ExamPublicationComponent implements OnInit {
     hostName = signal('');
     examDurations = signal<number[]>([]);
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private toast: ToastrService,
-        private Session: SessionService,
-        private Exam: ExamService,
-        private Tabs: ExamTabService,
-    ) {
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
+    private Session = inject(SessionService);
+    private Exam = inject(ExamService);
+    private Tabs = inject(ExamTabService);
+
+    constructor() {
         this.hostName.set(window.location.origin);
         this.isAdmin.set(this.Session.getUser().isAdmin);
     }

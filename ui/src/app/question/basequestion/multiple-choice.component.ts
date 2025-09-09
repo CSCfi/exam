@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -30,11 +30,9 @@ export class MultipleChoiceEditorComponent implements OnInit {
     @Input() lotteryOn = false;
     @Input() allowOptionRemoval = false;
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private QuestionScore: QuestionScoringService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private QuestionScore = inject(QuestionScoringService);
 
     ngOnInit() {
         if (this.question.type === 'WeightedMultipleChoiceQuestion') {

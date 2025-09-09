@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { QuestionReview, ReviewQuestion } from 'src/app/review/review.model';
 import type { User } from 'src/app/session/session.model';
@@ -11,7 +11,7 @@ import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionReviewService {
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
 
     questionsApi = (id: number) => `/app/exam/${id}/questions`;
 

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addDays, areIntervalsOverlapping, eachDayOfInterval, getDate, getDay, getMonth, startOfMonth } from 'date-fns';
@@ -24,6 +24,7 @@ import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetitio
 export class ExceptionDialogComponent {
     @Input() outOfService = true;
     @Input() exceptions: ExceptionWorkingHours[] = [];
+
     dateFormat = 'yyyy.MM.dd HH:mm';
     wholeDay = false;
     repeatOptions: REPEAT_OPTION[] = Object.values(REPEAT_OPTION);
@@ -32,13 +33,11 @@ export class ExceptionDialogComponent {
 
     readonly REPEAT_OPTION = REPEAT_OPTION;
 
-    constructor(
-        private translate: TranslateService,
-        private activeModal: NgbActiveModal,
-        private toast: ToastrService,
-        private dateTime: DateTimeService,
-        private dialogs: ConfirmationDialogService,
-    ) {}
+    private translate = inject(TranslateService);
+    private activeModal = inject(NgbActiveModal);
+    private toast = inject(ToastrService);
+    private dateTime = inject(DateTimeService);
+    private dialogs = inject(ConfirmationDialogService);
 
     ok = () => {
         if (this.options.start >= this.options.end) {

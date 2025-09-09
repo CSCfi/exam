@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -55,14 +55,12 @@ export class EssayQuestionComponent implements OnInit {
     reviewExpanded = true;
     _score: number | undefined = undefined;
 
-    constructor(
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Assessment: AssessmentService,
-        private CommonExam: CommonExamService,
-        private Attachment: AttachmentService,
-    ) {}
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Assessment = inject(AssessmentService);
+    private CommonExam = inject(CommonExamService);
+    private Attachment = inject(AttachmentService);
 
     get scoreValue(): number | undefined {
         return this._score;

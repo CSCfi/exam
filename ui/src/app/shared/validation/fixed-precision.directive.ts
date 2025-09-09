@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Directive, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 
 @Directive({
     selector: '[xmFixedPrecision]',
@@ -12,7 +12,7 @@ export class FixedPrecisionValidatorDirective {
     @Input() ngModel: number | null | undefined;
     @Output() ngModelChange = new EventEmitter<number>();
 
-    constructor(private el: ElementRef) {}
+    private el = inject(ElementRef);
 
     @HostListener('change')
     onChange() {

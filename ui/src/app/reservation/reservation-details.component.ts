@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -45,12 +45,10 @@ export class ReservationDetailsComponent implements OnChanges {
     reverse = false;
     fixedReservations: ReservationDetail[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Reservation: ReservationService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Reservation = inject(ReservationService);
 
     ngOnChanges() {
         // This is terrible but modeling these is a handful. Maybe we can move some reservation types to different views.

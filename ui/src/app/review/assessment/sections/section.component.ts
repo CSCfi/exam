@@ -2,7 +2,16 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    inject,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam, ExamSection } from 'src/app/exam/exam.model';
@@ -32,11 +41,9 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
 
     essayQuestionAmounts = { rejected: 0, accepted: 0, total: 0 };
 
-    constructor(
-        private Exam: ExamService,
-        private QuestionScore: QuestionScoringService,
-        private cdr: ChangeDetectorRef,
-    ) {}
+    private Exam = inject(ExamService);
+    private QuestionScore = inject(QuestionScoringService);
+    private cdr = inject(ChangeDetectorRef);
 
     ngOnInit() {
         this.essayQuestionAmounts = this.QuestionScore.getEssayQuestionAmountsBySection(this.section);

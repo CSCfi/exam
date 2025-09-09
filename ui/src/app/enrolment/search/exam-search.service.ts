@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { EnrolmentInfo, ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 
 @Injectable({ providedIn: 'root' })
 export class ExamSearchService {
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
 
     getEnrolmentPermissionCheckStatus$ = () =>
         this.http.get<{ active: boolean }>('/app/settings/enrolmentPermissionCheck');

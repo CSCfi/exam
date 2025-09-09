@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardEnrolment } from 'src/app/dashboard/dashboard.model';
 import { ActiveEnrolmentComponent } from 'src/app/enrolment/active/active-enrolment.component';
@@ -40,7 +40,7 @@ import { StudentDashboardService } from './student-dashboard.service';
 export class StudentDashboardComponent implements OnInit {
     enrolments = signal<DashboardEnrolment[]>([]);
 
-    constructor(private StudentDashboard: StudentDashboardService) {}
+    private StudentDashboard = inject(StudentDashboardService);
 
     ngOnInit() {
         this.StudentDashboard.listEnrolments$().subscribe((data) => this.enrolments.set(data));

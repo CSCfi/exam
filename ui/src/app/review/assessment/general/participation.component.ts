@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
@@ -34,11 +34,9 @@ export class ParticipationComponent {
     @Input() participation!: ExamParticipation;
     @Input() collaborative = false;
 
-    constructor(
-        private route: ActivatedRoute,
-        private Exam: CommonExamService,
-        private Session: SessionService,
-    ) {}
+    private route = inject(ActivatedRoute);
+    private Exam = inject(CommonExamService);
+    private Session = inject(SessionService);
 
     viewAnswers = () => {
         const url = this.collaborative

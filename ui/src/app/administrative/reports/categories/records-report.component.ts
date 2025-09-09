@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -42,7 +42,7 @@ export class RecordsReportComponent {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(private files: FileService) {}
+    private files = inject(FileService);
 
     getExamRecords = () => {
         const start = this.startDate ? new Date(this.startDate).getTime() : new Date().getTime();

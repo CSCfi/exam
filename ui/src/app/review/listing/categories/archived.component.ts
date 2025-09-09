@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, NgClass, SlicePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -49,13 +49,11 @@ export class ArchivedReviewsComponent implements OnInit {
     view!: ReviewListView;
     selections: { all: boolean; page: boolean } = { all: false, page: false };
 
-    constructor(
-        private ReviewList: ReviewListService,
-        private CommonExam: CommonExamService,
-        private Files: FileService,
-        private Session: SessionService,
-        private Translate: TranslateService,
-    ) {}
+    private ReviewList = inject(ReviewListService);
+    private CommonExam = inject(CommonExamService);
+    private Files = inject(FileService);
+    private Session = inject(SessionService);
+    private Translate = inject(TranslateService);
 
     ngOnInit() {
         this.view = {

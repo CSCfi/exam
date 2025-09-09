@@ -5,7 +5,7 @@
 import { DatePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -58,15 +58,15 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     reverse = false;
     fixedQuestions: SelectableQuestion[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Library: LibraryService,
-        private Attachment: AttachmentService,
-        private Session: SessionService,
-    ) {
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Library = inject(LibraryService);
+    private Attachment = inject(AttachmentService);
+    private Session = inject(SessionService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 

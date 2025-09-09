@@ -5,7 +5,7 @@
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy, OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -57,19 +57,19 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
 
     unsubscribe = new Subject<unknown>();
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Exam: ExamService,
-        private ExamTabs: ExamTabService,
-        private Attachment: AttachmentService,
-        private Files: FileService,
-        private Session: SessionService,
-        private Tabs: ExamTabService,
-    ) {
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Exam = inject(ExamService);
+    private ExamTabs = inject(ExamTabService);
+    private Attachment = inject(AttachmentService);
+    private Files = inject(FileService);
+    private Session = inject(SessionService);
+    private Tabs = inject(ExamTabService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 

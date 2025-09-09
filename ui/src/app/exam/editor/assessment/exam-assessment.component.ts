@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -35,15 +35,15 @@ export class ExamAssessmentComponent implements OnInit, OnDestroy {
 
     unsubscribe = new Subject<unknown>();
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Tabs: ExamTabService,
-        private Exam: ExamService,
-    ) {
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Tabs = inject(ExamTabService);
+    private Exam = inject(ExamService);
+
+    constructor() {
         this.translate.onTranslationChange.pipe(takeUntil(this.unsubscribe)).subscribe(() => {
             this.refreshExamTypes();
             this.refreshGradeScales();

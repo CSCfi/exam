@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Organisation } from 'src/app/calendar/calendar.model';
@@ -98,7 +98,7 @@ export class OrganisationPickerComponent implements OnInit {
     organisations = signal<Organisation[]>([]);
     selectedOrganisation = signal<Organisation | undefined>(undefined);
 
-    constructor(private Calendar: CalendarService) {}
+    private Calendar = inject(CalendarService);
 
     ngOnInit() {
         this.Calendar.listOrganisations$().subscribe((resp) =>

@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -33,11 +33,11 @@ import { WaitingEnrolment, WaitingReservation } from './waiting-room.component';
 })
 export class WaitingRoomEarlyComponent implements OnInit {
     enrolment!: WaitingEnrolment;
-    constructor(
-        private route: ActivatedRoute,
-        private http: HttpClient,
-        private toast: ToastrService,
-    ) {}
+
+    private route = inject(ActivatedRoute);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+
     ngOnInit() {
         if (this.route.snapshot.params.id && this.route.snapshot.params.hash) {
             this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.route.snapshot.params.id}`).subscribe({

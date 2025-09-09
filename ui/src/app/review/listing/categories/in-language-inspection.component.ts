@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -41,13 +41,12 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 export class InLanguageInspectionReviewsComponent implements OnInit {
     @Input() reviews: Review[] = [];
     @Input() exam!: Exam;
+
     view!: ReviewListView;
 
-    constructor(
-        private ReviewList: ReviewListService,
-        private Session: SessionService,
-        private CommonExam: CommonExamService,
-    ) {}
+    private ReviewList = inject(ReviewListService);
+    private Session = inject(SessionService);
+    private CommonExam = inject(CommonExamService);
 
     ngOnInit() {
         this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');

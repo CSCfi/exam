@@ -4,7 +4,7 @@
 
 import { SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -44,11 +44,9 @@ export class CollaborativeParticipationsComponent implements OnInit, AfterViewIn
     filter = { ordering: 'ended', reverse: true, text: '' };
     searchDone = false;
 
-    constructor(
-        private changeDetector: ChangeDetectorRef,
-        private toast: ToastrService,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private changeDetector = inject(ChangeDetectorRef);
+    private toast = inject(ToastrService);
+    private Enrolment = inject(EnrolmentService);
 
     ngOnInit() {
         this.Enrolment.listStudentParticipations$().subscribe({

@@ -4,7 +4,7 @@
 
 import { AsyncPipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
 import { Observable, Subject, filter, interval, map, startWith, switchMap, take, takeUntil } from 'rxjs';
@@ -63,12 +63,11 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
     isTimeScarce$?: Observable<boolean>;
     ariaLiveTime?: string;
 
+    private http = inject(HttpClient);
     private syncInterval = 60;
     private alarmThreshold = 300;
     private clock = new Subject<number>();
     private ngUnsubscribe = new Subject();
-
-    constructor(private http: HttpClient) {}
 
     ngOnInit() {
         const sync$ = this.http.get<number>(`/app/time/${this.examHash}`);

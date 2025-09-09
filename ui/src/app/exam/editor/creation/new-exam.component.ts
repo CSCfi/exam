@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -27,11 +27,9 @@ export class NewExamComponent implements OnInit {
     sebExaminationSupported = false;
     canCreateByodExams = false;
 
-    constructor(
-        private http: HttpClient,
-        private Exam: ExamService,
-        private Session: SessionService,
-    ) {}
+    private http = inject(HttpClient);
+    private Exam = inject(ExamService);
+    private Session = inject(SessionService);
 
     ngOnInit() {
         this.canCreateByodExams = this.Session.getUser().canCreateByodExam;

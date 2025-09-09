@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -88,12 +88,10 @@ export class QuestionReviewsComponent implements OnInit {
     selectedReviews: number[] = [];
     selectionToggle = false;
 
-    constructor(
-        private router: Router,
-        private toast: ToastrService,
-        private QuestionReview: QuestionReviewService,
-        private Tabs: ExamTabService,
-    ) {}
+    private router = inject(Router);
+    private toast = inject(ToastrService);
+    private QuestionReview = inject(QuestionReviewService);
+    private Tabs = inject(ExamTabService);
 
     ngOnInit() {
         this.examId = this.Tabs.getExam().id;

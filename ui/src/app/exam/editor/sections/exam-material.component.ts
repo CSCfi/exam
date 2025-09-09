@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,11 +23,9 @@ export class ExamMaterialComponent implements OnInit {
     filter = '';
     materialsChanged = false;
 
-    constructor(
-        private activeModal: NgbActiveModal,
-        private http: HttpClient,
-        private toast: ToastrService,
-    ) {}
+    private activeModal = inject(NgbActiveModal);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
 
     ngOnInit() {
         this.http

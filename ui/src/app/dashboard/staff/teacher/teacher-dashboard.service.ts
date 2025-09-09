@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -14,11 +14,9 @@ import { ReservationService } from 'src/app/reservation/reservation.service';
 
 @Injectable({ providedIn: 'root' })
 export class TeacherDashboardService {
-    constructor(
-        private http: HttpClient,
-        private Exam: ExamService,
-        private Reservation: ReservationService,
-    ) {}
+    private http = inject(HttpClient);
+    private Exam = inject(ExamService);
+    private Reservation = inject(ReservationService);
 
     populate$ = (): Observable<Dashboard> =>
         forkJoin([this.Exam.listExecutionTypes$(), this.http.get<Exam[]>('/app/reviewerexams')]).pipe(

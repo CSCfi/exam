@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { ComponentRef, OnDestroy, OnInit } from '@angular/core';
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewContainerRef, inject } from '@angular/core';
 import { hashString } from 'src/app/shared/miscellaneous/helpers';
 
 type ClozeTestAnswer = { [key: string]: string };
@@ -22,7 +22,7 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
 
     componentRef?: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
 
-    constructor(private el: ElementRef) {}
+    private el = inject(ElementRef);
 
     ngOnInit() {
         const parser = new DOMParser();

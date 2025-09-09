@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnChanges, OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
     NgbDropdown,
@@ -35,7 +35,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
     weekdayNames: string[] = [];
     extendedRoom!: RoomWithAddressVisibility;
     newTime: DefaultWorkingHoursWithEditing;
-    NEW_TIME = {
+    readonly NEW_TIME = {
         startTime: '',
         endTime: '',
         weekday: 'MONDAY',
@@ -65,14 +65,14 @@ export class OpenHoursComponent implements OnInit, OnChanges {
             millisecond: 0,
         },
     };
-    WEEKDAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+    readonly WEEKDAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
-    constructor(
-        private roomService: RoomService,
-        public dateTime: DateTimeService,
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {
+    private dateTime = inject(DateTimeService);
+    private roomService = inject(RoomService);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+
+    constructor() {
         this.newTime = { ...this.NEW_TIME };
     }
 
@@ -158,6 +158,9 @@ export class OpenHoursComponent implements OnInit, OnChanges {
             this.newTime.pickStartingTime = this.newTime.pickEndingTime;
         }
     }
+
+    translateWeekdayName = (weekday: string, capitalize: boolean) =>
+        this.dateTime.translateWeekdayName(weekday, capitalize);
 
     init = () =>
         (this.extendedRoom = {

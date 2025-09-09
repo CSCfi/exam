@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -58,17 +58,17 @@ export class AssessmentComponent implements OnInit {
     private ref = '';
     private examId = 0;
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private http: HttpClient,
-        private toast: ToastrService,
-        private Assessment: AssessmentService,
-        private CollaborativeAssessment: CollaborativeAssesmentService,
-        private QuestionScore: QuestionScoringService,
-        private Exam: ExamService,
-        private Session: SessionService,
-    ) {
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+    private Assessment = inject(AssessmentService);
+    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private QuestionScore = inject(QuestionScoringService);
+    private Exam = inject(ExamService);
+    private Session = inject(SessionService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 

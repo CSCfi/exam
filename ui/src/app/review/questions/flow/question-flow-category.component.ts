@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
@@ -55,10 +55,8 @@ export class QuestionFlowCategoryComponent {
 
     hideCategory = false;
 
-    constructor(
-        private QuestionReview: QuestionReviewService,
-        private Session: SessionService,
-    ) {}
+    private QuestionReview = inject(QuestionReviewService);
+    private Session = inject(SessionService);
 
     isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 

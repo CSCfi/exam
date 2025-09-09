@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -41,14 +41,12 @@ export class RoomComponent implements OnInit {
     isInteroperable = false;
     editingMultipleRooms = false;
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private roomService: RoomService,
-        private interoperability: InteroperabilityService,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private roomService = inject(RoomService);
+    private interoperability = inject(InteroperabilityService);
 
     ngOnInit() {
         this.showName = true;

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { groupBy } from 'ramda';
 import { QueryParams } from 'src/app/administrative/administrative.model';
@@ -78,11 +78,10 @@ import { Reservation } from 'src/app/reservation/reservation.model';
 })
 export class IopReservationStatisticsComponent {
     @Input() queryParams: QueryParams = {};
-
     reservations: Reservation[] = [];
     grouped: Record<string, Reservation[]> = {};
 
-    constructor(private Statistics: StatisticsService) {}
+    private Statistics = inject(StatisticsService);
 
     listReservations = () =>
         this.Statistics.listIopReservations$(this.queryParams).subscribe((resp) => {

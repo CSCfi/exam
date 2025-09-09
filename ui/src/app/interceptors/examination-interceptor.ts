@@ -4,7 +4,7 @@
 
 import type { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { HttpResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { WrongLocationService } from 'src/app/enrolment/wrong-location/wrong-location.service';
@@ -12,11 +12,9 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
 
 @Injectable({ providedIn: 'root' })
 export class ExaminationInterceptor implements HttpInterceptor {
-    constructor(
-        private router: Router,
-        private WrongLocation: WrongLocationService,
-        private ExaminationStatus: ExaminationStatusService,
-    ) {}
+    private router = inject(Router);
+    private WrongLocation = inject(WrongLocationService);
+    private ExaminationStatus = inject(ExaminationStatusService);
 
     intercept(req: HttpRequest<unknown>, next: HttpHandler) {
         return next.handle(req).pipe(

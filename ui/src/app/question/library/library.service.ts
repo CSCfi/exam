@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -15,12 +15,10 @@ import { UserService } from 'src/app/shared/user/user.service';
 
 @Injectable({ providedIn: 'root' })
 export class LibraryService {
-    constructor(
-        private http: HttpClient,
-        @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
-        private QuestionScore: QuestionScoringService,
-        private User: UserService,
-    ) {}
+    private http = inject(HttpClient);
+    private webStorageService = inject<WebStorageService>(SESSION_STORAGE);
+    private QuestionScore = inject(QuestionScoringService);
+    private User = inject(UserService);
 
     listExams$ = (
         courseIds: number[],

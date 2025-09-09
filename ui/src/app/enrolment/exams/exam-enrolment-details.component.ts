@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
@@ -32,12 +32,10 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 export class EnrolmentDetailsComponent {
     @Input() exam!: EnrolmentInfo;
 
-    constructor(
-        private router: Router,
-        private Exam: CommonExamService,
-        private Enrolment: EnrolmentService,
-        private DateTime: DateTimeService,
-    ) {}
+    private router = inject(Router);
+    private Exam = inject(CommonExamService);
+    private Enrolment = inject(EnrolmentService);
+    private DateTime = inject(DateTimeService);
     getExpiration = (): boolean => {
         return new Date(this.exam.periodEnd || 0) < new Date();
     };

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -35,11 +35,9 @@ export class RemoveReservationDialogComponent {
     @Input() reservation!: Reservation;
     message = { text: '' };
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient,
-        private toast: ToastrService,
-    ) {}
+    activeModal = inject(NgbActiveModal);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
 
     ok = () =>
         this.http

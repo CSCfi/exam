@@ -5,7 +5,7 @@
 /// <reference types="ckeditor" />
 
 import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
-import { Component, DOCUMENT, ElementRef, Inject, Input, NgZone, ViewChild, forwardRef } from '@angular/core';
+import { Component, DOCUMENT, ElementRef, Input, NgZone, ViewChild, forwardRef, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { debounce } from 'src/app/shared/miscellaneous/helpers';
@@ -33,16 +33,15 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
     @ViewChild('host', { static: false }) host!: ElementRef;
     @Input() required = false;
     @Input() enableClozeTest = false;
+
     instance!: CKEDITOR.editor | null;
     _value = '';
     onChange!: (_: string) => unknown;
     onTouched!: () => unknown;
 
-    constructor(
-        private zone: NgZone,
-        private translate: TranslateService,
-        @Inject(DOCUMENT) private document: Document,
-    ) {}
+    private zone = inject(NgZone);
+    private translate = inject(TranslateService);
+    private document = inject<Document>(DOCUMENT);
 
     @Input()
     get value(): string {

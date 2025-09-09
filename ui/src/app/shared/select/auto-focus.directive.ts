@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { AfterViewInit, Directive, ElementRef } from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, inject } from '@angular/core';
 
 @Directive({
     selector: '[xmAutoFocus]',
     standalone: true,
 })
 export class AutoFocusDirective implements AfterViewInit {
-    constructor(private elementRef: ElementRef) {}
+    private elementRef = inject(ElementRef);
 
     ngAfterViewInit() {
         this.elementRef.nativeElement.focus();

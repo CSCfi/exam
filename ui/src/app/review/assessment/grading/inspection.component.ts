@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -56,11 +56,9 @@ export class InspectionComponent implements OnInit {
 
     reviewStatuses: { key: boolean; value: string }[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+    private translate = inject(TranslateService);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
 
     ngOnInit() {
         this.reviewStatuses = [

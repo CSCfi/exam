@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -30,14 +30,12 @@ export class MachineComponent implements OnInit {
     machine!: ExamMachine;
     software: SoftwareWithClass[] = [];
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private Confirmation: ConfirmationDialogService,
-        private machines: MachineService,
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private Confirmation = inject(ConfirmationDialogService);
+    private machines = inject(MachineService);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
 
     ngOnInit() {
         this.machines.getMachine(this.route.snapshot.params.id).subscribe({

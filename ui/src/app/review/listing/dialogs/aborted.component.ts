@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -38,13 +38,11 @@ export class AbortedExamsComponent {
     abortedPredicate = 'started';
     reverse = false;
 
-    constructor(
-        private modal: NgbActiveModal,
-        private translate: TranslateService,
-        private http: HttpClient,
-        private toast: ToastrService,
-        private Session: SessionService,
-    ) {}
+    private modal = inject(NgbActiveModal);
+    private translate = inject(TranslateService);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+    private Session = inject(SessionService);
 
     showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
 

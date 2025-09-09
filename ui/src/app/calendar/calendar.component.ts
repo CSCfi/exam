@@ -4,7 +4,7 @@
 
 import { DatePipe, NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -70,15 +70,13 @@ export class CalendarComponent implements OnInit {
     isCollaborative = false;
     isExternal = false;
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private DateTimeService: DateTimeService,
-        private Dialog: ConfirmationDialogService,
-        private Calendar: CalendarService,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private DateTimeService = inject(DateTimeService);
+    private Dialog = inject(ConfirmationDialogService);
+    private Calendar = inject(CalendarService);
 
     ngOnInit() {
         if (

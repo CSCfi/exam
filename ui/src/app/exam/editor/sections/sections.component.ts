@@ -13,7 +13,7 @@ import {
 
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -34,19 +34,16 @@ import { SectionComponent } from './section.component';
 export class SectionsComponent implements OnInit, OnChanges {
     exam!: Exam;
     collaborative = false;
-
     materials: ExamMaterial[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Exam: ExamService,
-        private Session: SessionService,
-        private Tabs: ExamTabService,
-    ) {}
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Exam = inject(ExamService);
+    private Session = inject(SessionService);
+    private Tabs = inject(ExamTabService);
 
     ngOnInit() {
         this.exam = this.Tabs.getExam();

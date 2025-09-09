@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
@@ -23,14 +23,12 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class QuestionService {
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Session: SessionService,
-        private Files: FileService,
-        private Attachment: AttachmentService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Session = inject(SessionService);
+    private Files = inject(FileService);
+    private Attachment = inject(AttachmentService);
 
     getQuestionType = (type: string) => {
         let questionType;

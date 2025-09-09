@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DOCUMENT, Inject, Injectable } from '@angular/core';
+import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import type { Exam, GradeScale, Implementation } from 'src/app/exam/exam.model';
@@ -10,10 +10,8 @@ import { isNumber } from './helpers';
 
 @Injectable({ providedIn: 'root' })
 export class CommonExamService {
-    constructor(
-        @Inject(DOCUMENT) private document: Document,
-        private translate: TranslateService,
-    ) {}
+    private document = inject<Document>(DOCUMENT);
+    private translate = inject(TranslateService);
 
     getExamTypeDisplayName = (type: string): string => {
         let name = '';

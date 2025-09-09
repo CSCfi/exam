@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,14 +21,13 @@ export class ClaimChoiceComponent {
     options = input<ExamSectionQuestionOption[]>([]);
     lotteryOn = input(false);
     optionsChanged = output<ExamSectionQuestionOption[]>();
-
     missingOptions = computed<string[]>(() =>
         this.QuestionService.getInvalidDistributedClaimOptionTypes(this.options())
             .filter((type) => type !== 'SkipOption')
             .map((optionType) => this.QuestionService.getOptionTypeTranslation(optionType)),
     );
 
-    constructor(private QuestionService: QuestionService) {}
+    private QuestionService = inject(QuestionService);
 
     updateText = (text: string, index: number) => {
         const newOption = { ...this.options()[index].option, option: text };

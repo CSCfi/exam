@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import {
     ArcElement,
@@ -32,13 +32,13 @@ import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })
 export class ChartService {
-    constructor(
-        private Translate: TranslateService,
-        private QuestionScore: QuestionScoringService,
-        private ExamService: ExamService,
-        private CommonExam: CommonExamService,
-        private ReviewList: ReviewListService,
-    ) {
+    private Translate = inject(TranslateService);
+    private QuestionScore = inject(QuestionScoringService);
+    private ExamService = inject(ExamService);
+    private CommonExam = inject(CommonExamService);
+    private ReviewList = inject(ReviewListService);
+
+    constructor() {
         Chart.register([
             ArcElement,
             PointElement,

@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -95,12 +95,10 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
     participants: User[] = [];
     newPreParticipant: { email?: string } = { email: '' };
 
-    constructor(
-        private translate: TranslateService,
-        private http: HttpClient,
-        private toast: ToastrService,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private translate = inject(TranslateService);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+    private Enrolment = inject(EnrolmentService);
 
     ngOnInit() {
         this.participants = this.exam.children

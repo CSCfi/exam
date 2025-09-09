@@ -4,7 +4,7 @@
 
 import { DatePipe, NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, inject } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -50,11 +50,9 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
     gradeDisplayName = '';
     private ngUnsubscribe = new Subject();
 
-    constructor(
-        private translate: TranslateService,
-        private Exam: CommonExamService,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private translate = inject(TranslateService);
+    private Exam = inject(CommonExamService);
+    private Enrolment = inject(EnrolmentService);
 
     ngOnInit() {
         const state = this.participation.exam.state;

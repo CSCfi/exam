@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbDropdownModule, NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -151,14 +151,12 @@ export class LibraryComponent {
     questions: Question[] = [];
     selections: number[] = [];
 
-    constructor(
-        private router: Router,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private toast: ToastrService,
-        private Attachment: AttachmentService,
-        private Files: FileService,
-    ) {}
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
+    private Attachment = inject(AttachmentService);
+    private Files = inject(FileService);
 
     resultsUpdated(results: Question[]) {
         this.questions = results;

@@ -4,7 +4,7 @@
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { NgClass } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -79,21 +79,23 @@ export class FeedbackComponent implements OnInit {
     @Input() exam!: Examination;
     @Input() collaborative = false;
     @Input() participation!: ExamParticipation;
+
     feedbackComment = '';
     title = '';
-    fixPosition = this.Assessment.fixPosition;
     hideEditor = false;
 
     private id = 0;
     private ref = '';
 
-    constructor(
-        private route: ActivatedRoute,
-        private Assessment: AssessmentService,
-        private CollaborativeAssessment: CollaborativeAssesmentService,
-        private Attachment: AttachmentService,
-        private Files: FileService,
-    ) {}
+    private route = inject(ActivatedRoute);
+    private Assessment = inject(AssessmentService);
+    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private Attachment = inject(AttachmentService);
+    private Files = inject(FileService);
+
+    get fixPosition() {
+        return this.Assessment.fixPosition;
+    }
 
     ngOnInit() {
         this.id = this.route.snapshot.params.id;

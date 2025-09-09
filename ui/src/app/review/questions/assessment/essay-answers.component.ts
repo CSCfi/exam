@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { ReviewQuestion } from 'src/app/review/review.model';
@@ -46,7 +46,7 @@ export class EssayAnswerListComponent {
     @Input() actionText = '';
     @Output() assessed = new EventEmitter<ReviewQuestion[]>();
 
-    constructor(private QuestionReview: QuestionReviewService) {}
+    private QuestionReview = inject(QuestionReviewService);
 
     countSelected = () => {
         if (!this.answers) {

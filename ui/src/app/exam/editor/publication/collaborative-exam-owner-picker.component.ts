@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -77,11 +77,11 @@ export class CollaborativeExamOwnerSelectorComponent {
     user: User;
     newOwner: { email: string | undefined } = { email: undefined };
 
-    constructor(
-        private http: HttpClient,
-        private toast: ToastrService,
-        private Session: SessionService,
-    ) {
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+    private Session = inject(SessionService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
     NgbNav,
@@ -57,10 +57,10 @@ export class TeacherDashboardComponent implements OnInit {
     draftExams: DashboardExam[] = [];
     filteredDrafts: DashboardExam[] = [];
 
-    constructor(
-        private TeacherDashboard: TeacherDashboardService,
-        private Session: SessionService,
-    ) {
+    private TeacherDashboard = inject(TeacherDashboardService);
+    private Session = inject(SessionService);
+
+    constructor() {
         this.activeExtraData = [
             {
                 text: 'i18n_participation_unreviewed',

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { CollaborativeExam, Exam } from 'src/app/exam/exam.model';
 import { CollaborativeExamState } from 'src/app/exam/exam.model';
@@ -13,10 +13,8 @@ import { SessionService } from 'src/app/session/session.service';
 export class CollaborativeExamService {
     exams: CollaborativeExam[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private Session: SessionService,
-    ) {}
+    private http = inject(HttpClient);
+    private Session = inject(SessionService);
 
     listExams$ = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/app/iop/enrolments' : '/app/iop/exams';

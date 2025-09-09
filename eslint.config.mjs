@@ -13,7 +13,7 @@ const compat = new FlatCompat({
     allConfig: js.configs.all
 });
 
-export default defineConfig([globalIgnores(["projects/**/*"]), {
+export default defineConfig([globalIgnores(["projects/**/*", "ui/src/assets/components/**/*"]),  {
     files: ["**/*.ts"],
 
     extends: compat.extends(

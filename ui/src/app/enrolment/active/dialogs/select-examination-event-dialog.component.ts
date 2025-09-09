@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -58,10 +58,9 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
 export class SelectExaminationEventDialogComponent implements OnInit {
     @Input() exam!: Exam;
     @Input() existingEventId?: number;
-
     configs: ExaminationEventConfiguration[] = [];
 
-    constructor(public activeModal: NgbActiveModal) {}
+    activeModal = inject(NgbActiveModal);
 
     ngOnInit() {
         // for all confs over

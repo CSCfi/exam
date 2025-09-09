@@ -4,7 +4,7 @@
 
 import { DatePipe, SlicePipe } from '@angular/common';
 import type { OnChanges, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -53,7 +53,7 @@ export class ReviewedInspectionsComponent implements OnChanges {
     filterText = '';
     hideItems = false;
 
-    constructor(private LanguageInspections: LanguageInspectionService) {}
+    private LanguageInspections = inject(LanguageInspectionService);
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.inspections) {

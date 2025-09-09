@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -61,11 +61,9 @@ export class MultipleChoiceOptionEditorComponent {
     @Input() question!: Question | QuestionDraft;
     @Input() allowRemoval = false;
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Question: QuestionService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Question = inject(QuestionService);
 
     correctAnswerToggled = () => this.Question.toggleCorrectOption(this.option, this.question.options);
 

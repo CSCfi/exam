@@ -4,7 +4,7 @@
 
 import { KeyValuePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -33,11 +33,9 @@ export class SettingsComponent implements OnInit {
     attributes: string[] = [];
     minorAgreementUpdate = false;
 
-    constructor(
-        private Settings: SettingsService,
-        private toast: ToastrService,
-        private translate: TranslateService,
-    ) {}
+    private Settings = inject(SettingsService);
+    private toast = inject(ToastrService);
+    private translate = inject(TranslateService);
 
     ngOnInit() {
         this.Settings.getConfig$().subscribe((resp) => (this.config = resp));

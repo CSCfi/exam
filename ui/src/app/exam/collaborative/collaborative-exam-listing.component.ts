@@ -4,7 +4,7 @@
 
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -65,13 +65,15 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     examCreated = new Subject<void>();
     ngUnsubscribe = new Subject();
 
-    constructor(
-        private router: Router,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Session: SessionService,
-        private CollaborativeExam: CollaborativeExamService,
-    ) {
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Session = inject(SessionService);
+    private CollaborativeExam = inject(CollaborativeExamService);
+
+    constructor() {
+        const toast = this.toast;
+
         this.view = ListingView.PUBLISHED;
         this.user = this.Session.getUser();
         this.examsPredicate = 'periodEnd';

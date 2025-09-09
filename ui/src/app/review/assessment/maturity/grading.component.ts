@@ -4,7 +4,7 @@
 
 import { NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -44,16 +44,17 @@ export class MaturityGradingComponent extends GradingBaseComponent implements On
 
     message: { text?: string } = {};
 
-    constructor(
-        private translate: TranslateService,
-        http: HttpClient,
-        toast: ToastrService,
-        Assessment: AssessmentService,
-        Exam: ExamService,
-        CommonExam: CommonExamService,
-        private Attachment: AttachmentService,
-        Language: LanguageService,
-    ) {
+    private translate = inject(TranslateService);
+    private Attachment = inject(AttachmentService);
+
+    constructor() {
+        const http = inject(HttpClient);
+        const toast = inject(ToastrService);
+        const Assessment = inject(AssessmentService);
+        const Exam = inject(ExamService);
+        const CommonExam = inject(CommonExamService);
+        const Language = inject(LanguageService);
+
         super(http, toast, Assessment, Exam, CommonExam, Language);
     }
 
