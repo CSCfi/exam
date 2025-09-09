@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CommonModule } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import '@angular/compiler'; // needed for dynamic cloze test component compilation
 import { LOCALE_ID, enableProdMode, importProvidersFrom } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ToastrModule } from 'ngx-toastr';
 import { AppComponent } from './app/app.component';
 import { APP_ROUTES } from './app/app.routes';
@@ -26,17 +26,11 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(
-            CommonModule,
-            TranslateModule.forRoot({
-                loader: {
-                    provide: TranslateLoader,
-                    deps: [HttpClient],
-                    useFactory: (http: HttpClient) => new TranslateHttpLoader(http, '/assets/i18n/'),
-                },
-            }),
-            ToastrModule.forRoot({ preventDuplicates: true }),
-        ),
+        importProvidersFrom(CommonModule, TranslateModule.forRoot(), ToastrModule.forRoot({ preventDuplicates: true })),
+        provideTranslateHttpLoader({
+            prefix: '/assets/i18n/',
+            suffix: '.json',
+        }),
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: ExaminationInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

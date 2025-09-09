@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DOCUMENT } from '@angular/common';
-import { Inject, Injectable } from '@angular/core';
+import { DOCUMENT, Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import type { Exam, GradeScale, Implementation } from 'src/app/exam/exam.model';
