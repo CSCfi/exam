@@ -9,15 +9,16 @@
   "license": "EUPL-1.2",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build --output-path ./public",
+    "start": "npm run cp:mathjax && ng serve --port 4200",
+    "build": "npm run cp:mathjax && ng build --output-path ./public",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint --fix",
     "format": "prettier --write \"ui/src/app/**/*.{ts,html}\" --write \"{app,test}/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
     "prepare": "lefthook install",
     "check-format": "prettier --check \"ui/src/app/**/*.{ts,html}\" --check \"{app,test}/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
-    "check-lint": "ng lint"
+    "check-lint": "ng lint",
+    "cp:mathjax": "cp -R node_modules/mathjax ui/src/assets/components/vendor"
   },
   "dependencies": {
     "@angular/animations": "^20.2.4",
@@ -44,7 +45,7 @@
     "date-fns": "^3.6.0",
     "file-saver-es": "^2.0.5",
     "luxon": "^2.0.0",
-    "mathjax": "^4.0.0",
+    "mathjax": "^2.7.9",
     "ngx-toastr": "^19.0.0",
     "ngx-webstorage-service": "^5.0.0",
     "ramda": "^0.30.1",

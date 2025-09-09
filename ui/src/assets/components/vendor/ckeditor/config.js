@@ -33,13 +33,14 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// Set the most common block elements.
 	config.format_tags = 'p;h1;h2;h3;pre';
-  	// Allow embedded questions to exist
-	config.extraAllowedContent = 'span[cloze, id, case-sensitive, numeric, precision]{text-decoration, border}(marker)';
+  	// Allow embedded questions and math expressions to exist
+	config.extraAllowedContent = 'span[cloze, id, case-sensitive, numeric, precision]{text-decoration, border}(marker); span(math-expression)';
+
+	// Configure MathJax for math plugin
+	config.mathJaxLib = "/assets/components/vendor/mathjax/MathJax.js?config=TeX-AMS_HTML";
 
 	// Simplify the dialog windows.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
-
-	config.mathJaxLib = "/assets/components/vendor/mathjax/MathJax.js?config=TeX-AMS_HTML";
 
 	// Uncomment this in order to enable resizing in both directions, default is vertical only
 	//config.resize_dir = 'both';

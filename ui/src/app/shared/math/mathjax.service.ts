@@ -8,37 +8,20 @@ import { Injectable } from '@angular/core';
     providedIn: 'root',
 })
 export class MathJaxService {
-    private loaded = false;
-    private loading = false;
-
-    async loadMathJax(): Promise<void> {
-        if (this.loaded) return;
-
-        if (this.loading) {
-            return new Promise((resolve) => {
-                const check = () => {
-                    if (this.loaded) resolve();
-                    else setTimeout(check, 100);
-                };
-                check();
-            });
-        }
-
-        this.loading = true;
-
-        try {
-            await import('mathjax/tex-svg.js' as string);
-            this.loaded = true;
-        } catch (error) {
-            console.error('Failed to load MathJax:', error);
-            throw error;
-        } finally {
-            this.loading = false;
-        }
-    }
-
     async typeset(elements?: HTMLElement[]): Promise<void> {
-        await this.loadMathJax();
-        return window.MathJax.typesetPromise(elements);
+        if (window.MathJax) {
+            // MathJax 2.7.9 uses different API
+            if (window.MathJax.Hub && window.MathJax.Hub.Queue) {
+                return new Promise((resolve) => {
+                    window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub, elements || document.body]);
+                    window.MathJax.Hub.Queue([resolve]);
+                });
+            } else if (window.MathJax.typesetPromise) {
+                // Fallback for newer versions
+                return window.MathJax.typesetPromise(elements);
+            }
+        }
+        console.warn('MathJax not loaded. Make sure MathJax is loaded via script tag.');
+        return Promise.resolve();
     }
 }
