@@ -65,7 +65,7 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
                                 n.textContent = n.textContent.replace(/&#125;/g, '}');
                             }
                         });
-                    MathJax.Hub.Queue(['Typeset', MathJax.Hub, this.el.nativeElement]);
+                    window.MathJax.typesetPromise([this.el.nativeElement]);
                 }
                 handleChange(event: { target: HTMLInputElement }) {
                     this.onInput(event);

@@ -169,7 +169,7 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
         // const mainView = $('#mainView');
         // mainView.css('margin', '0 15px');
         // mainView.css('max-width', '1000px');
-        MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
+        window.MathJax.typesetPromise();
         window.setTimeout(() => window.print(), 2000);
     };
 

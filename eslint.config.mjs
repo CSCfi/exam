@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { defineConfig, globalIgnores } from "eslint/config";
 import noRelativeImportPaths from "eslint-plugin-no-relative-import-paths";
 import path from "node:path";
