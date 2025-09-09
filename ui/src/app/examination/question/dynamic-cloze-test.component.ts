@@ -4,6 +4,7 @@
 
 import type { ComponentRef, OnDestroy, OnInit } from '@angular/core';
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewContainerRef, inject } from '@angular/core';
+import { MathJaxService } from 'src/app/shared/math/mathjax.service';
 import { hashString } from 'src/app/shared/miscellaneous/helpers';
 
 type ClozeTestAnswer = { [key: string]: string };
@@ -23,6 +24,7 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
     componentRef?: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
 
     private el = inject(ElementRef);
+    private mathJaxService = inject(MathJaxService);
 
     ngOnInit() {
         const parser = new DOMParser();
@@ -46,6 +48,7 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
         // Replace temporary input attributes with Angular input-directives
         const clozeTemplate = doc.body.innerHTML.replace(/data-input-handler/g, '(input)');
         // Compile component and module with formatted cloze template
+        const mathJaxService = this.mathJaxService;
         const clozeComponent = Component({
             template: clozeTemplate,
             selector: `xm-dyn-ct-${hashString(clozeTemplate)}`,
@@ -65,7 +68,7 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
                                 n.textContent = n.textContent.replace(/&#125;/g, '}');
                             }
                         });
-                    window.MathJax.typesetPromise([this.el.nativeElement]);
+                    mathJaxService.typeset([this.el.nativeElement]);
                 }
                 handleChange(event: { target: HTMLInputElement }) {
                     this.onInput(event);

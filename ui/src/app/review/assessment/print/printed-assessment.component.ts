@@ -21,6 +21,7 @@ import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathJaxService } from 'src/app/shared/math/mathjax.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -64,6 +65,7 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     private Assessment = inject(AssessmentService);
     private Session = inject(SessionService);
     private DateTime = inject(DateTimeService);
+    private mathJaxService = inject(MathJaxService);
 
     constructor() {
         this.user = this.Session.getUser();
@@ -163,13 +165,13 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
         });
     };
 
-    private printPage = () => {
+    private printPage = async () => {
         // FIXME: check how to do this angular-style
         // $('#vmenu').hide();
         // const mainView = $('#mainView');
         // mainView.css('margin', '0 15px');
         // mainView.css('max-width', '1000px');
-        window.MathJax.typesetPromise();
+        await this.mathJaxService.typeset();
         window.setTimeout(() => window.print(), 2000);
     };
 

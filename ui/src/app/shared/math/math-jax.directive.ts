@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Directive, ElementRef, Input, OnChanges, inject } from '@angular/core';
+import { MathJaxService } from './mathjax.service';
 
 @Directive({
     selector: '[xmMathJax]',
@@ -12,9 +13,10 @@ export class MathJaxDirective implements OnChanges {
     @Input('xmMathJax') math?: string;
 
     private el = inject(ElementRef);
+    private mathJaxService = inject(MathJaxService);
 
-    ngOnChanges() {
+    async ngOnChanges() {
         this.el.nativeElement.innerHTML = this.math || '';
-        window.MathJax.typesetPromise([this.el.nativeElement]);
+        await this.mathJaxService.typeset([this.el.nativeElement]);
     }
 }
