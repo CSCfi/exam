@@ -115,7 +115,7 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <td>
                             @if (question.question) {
-                                <span [xmMathJax]="question.question | slice: 0 : 360"> </span>
+                                <span [xmMath]="question.question | slice: 0 : 360"> </span>
                             }
                             @if (!question.question) {
                                 <span class="text-danger">

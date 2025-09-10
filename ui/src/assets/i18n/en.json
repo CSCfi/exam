@@ -1261,5 +1261,18 @@
     "i18n_min_score": "Minimipisteet EN",
     "i18n_questions_imported_with_errors": "All questions could not be imported due to errors. Number of erroneous questions:EN",
     "i18n_shuffle_options": "Sekoita vastausvaihtoehdot opiskelijaa varten EN",
-    "i18n_support_person": "Tukihenkilö EN"
+    "i18n_support_person": "Support person",
+    "i18n_mathlive_html_editor_title": "MathLive HTML Editor",
+    "i18n_mathlive_html_editor_instructions": "Start typing HTML markup below (including <math-field> elements or xmMathLive attributes):",
+    "i18n_mathlive_insert_math_field_tooltip": "Insert empty math-field element",
+    "i18n_mathlive_math_field_button": "Math Field",
+    "i18n_mathlive_textarea_placeholder": "Enter HTML markup here, e.g.:\n<p>Here's a math expression: <math-field>1+2/3</math-field></p>\n<p>Or use the directive: <span xmMathLive='x^2 + y^2 = z^2'></span></p>",
+    "i18n_mathlive_rendered_output": "Rendered Output:",
+    "i18n_mathlive_editable_message": "Math expressions are editable - click on any formula to modify it",
+    "i18n_mathlive_readonly_message": "Math expressions are read-only (controlled by enableEditing input)",
+    "i18n_mathlive_example_simple": "Here's a math expression:",
+    "i18n_mathlive_example_complex": "Complex math:",
+    "i18n_mathlive_heading_button": "Heading",
+    "i18n_mathlive_insert_heading_tooltip": "Insert heading",
+    "i18n_mathlive_heading": "Heading {{level}}"
 }

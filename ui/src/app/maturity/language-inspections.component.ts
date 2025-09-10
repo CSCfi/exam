@@ -9,6 +9,7 @@ import { addDays } from 'date-fns';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { LanguageService } from 'src/app/shared/language/language.service';
+import { MathLiveHtmlEditorComponent } from 'src/app/shared/math/mathlive-html-editor.component';
 import { LanguageInspectionService } from './language-inspections.service';
 import { ReviewedInspectionsComponent } from './listing/reviewed-inspections.component';
 import { UnfinishedInspectionsComponent } from './listing/unfinished-inspections.component';
@@ -21,6 +22,7 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
         <xm-page-content [content]="content" />
         <ng-template #content>
             <div class="tab-wrapper-exams">
+                <xm-mathlive-html-editor></xm-mathlive-html-editor>
                 <!-- Under review language inspection -->
                 @if (ongoingInspections) {
                     <xm-unfinished-inspections [inspections]="ongoingInspections" />
@@ -44,6 +46,7 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
         TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
+        MathLiveHtmlEditorComponent,
     ],
 })
 export class LanguageInspectionsComponent implements OnInit {

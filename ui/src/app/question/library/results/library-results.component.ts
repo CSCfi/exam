@@ -17,7 +17,7 @@ import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math-unified.directive';
 import { isNumber, isString } from 'src/app/shared/miscellaneous/helpers';
 import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
@@ -33,7 +33,7 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
         FormsModule,
         NgbPopover,
         TableSortComponent,
-        MathJaxDirective,
+        MathUnifiedDirective,
         RouterLink,
         PaginatorComponent,
         SlicePipe,
@@ -41,6 +41,7 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
         TranslateModule,
         PageFillPipe,
         OrderByPipe,
+        MathUnifiedDirective,
     ],
     styleUrls: ['../library.component.scss'],
 })

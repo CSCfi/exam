@@ -1,0 +1,98 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+.markup-editor-container {
+    margin: 1rem 0;
+}
+
+.markup-editor-container .btn {
+    font-size: 0.875rem;
+}
+
+.markup-editor-container .btn i {
+    font-size: 0.75rem;
+    margin-right: 0.25rem;
+}
+
+.markup-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background: #f8f9fa;
+    resize: vertical;
+}
+
+.markup-textarea:focus {
+    outline: 4px solid rgba(13, 110, 253, 0.25);
+    border-color: #0d6efd;
+    background: white;
+}
+
+.rendered-html {
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 100px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.rendered-html p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.rendered-html p:last-child {
+    margin-bottom: 0;
+}
+
+.rendered-html math-field {
+    border: 1px solid #dee2e6;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 1.2em;
+    min-height: 40px;
+    display: inline-block;
+    margin: 0 4px;
+    transition: all 0.2s ease;
+}
+
+.rendered-html math-field:focus {
+    outline: 4px solid rgba(13, 110, 253, 0.25);
+    border-color: #0d6efd;
+}
+
+.rendered-html math-field:not([read-only='true']) {
+    background: #ffffff;
+    cursor: text;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rendered-html math-field:not([read-only='true']):hover {
+    border-color: #adb5bd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.rendered-html math-field:not([read-only='true']):focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.rendered-html math-field[read-only='true'] {
+    background: #e9ecef;
+    cursor: default;
+    opacity: 0.8;
+}
+
+.rendered-html span[xmMathLive] {
+    display: inline-block;
+    margin: 0 4px;
+}
