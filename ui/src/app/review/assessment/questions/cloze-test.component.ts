@@ -12,7 +12,7 @@ import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 

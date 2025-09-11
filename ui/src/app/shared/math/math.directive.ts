@@ -220,7 +220,11 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         if (element.tagName.toLowerCase() === 'math-field') {
             // It's already a math-field element, just configure it
             mathContent = element.textContent || '';
-            isInteractive = !element.hasAttribute('read-only');
+            // Directive inputs take precedence over element attributes
+            // Only check element's read-only attribute if directive has default settings
+            if (this.mode === 'static' && !this.editable && element.hasAttribute('read-only')) {
+                isInteractive = false;
+            }
         } else if (element.hasAttribute('xmMathLive')) {
             // Convert xmMathLive attribute to math-field
             mathContent = element.getAttribute('xmMathLive') || '';

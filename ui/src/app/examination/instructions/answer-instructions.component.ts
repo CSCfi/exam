@@ -6,7 +6,7 @@ import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination } from 'src/app/examination/examination.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({

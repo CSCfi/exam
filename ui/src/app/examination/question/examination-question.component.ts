@@ -10,7 +10,7 @@ import type { Examination, ExaminationQuestion } from 'src/app/examination/exami
 import { ExaminationService } from 'src/app/examination/examination.service';
 import { EssayAnswer } from 'src/app/question/question.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
 import { DynamicClozeTestComponent } from './dynamic-cloze-test.component';
 import { ExaminationClozeTestComponent } from './examination-cloze-test.component';
 import { ExaminationEssayQuestionComponent } from './examination-essay-question.component';

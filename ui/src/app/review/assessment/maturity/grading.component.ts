@@ -16,7 +16,7 @@ import { GradingBaseComponent } from 'src/app/review/assessment/common/grading-b
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { LanguageService } from 'src/app/shared/language/language.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { InspectionCommentsComponent } from './inspection-comments.component';
 import { MaturityToolbarComponent } from './toolbar.component';

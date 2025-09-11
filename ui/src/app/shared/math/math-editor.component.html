@@ -1,0 +1,67 @@
+<div class="container mt-4">
+    <!-- HTML Markup Editor -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <!-- Side-by-side Layout -->
+            <div class="row">
+                <!-- HTML Input (Left) -->
+                <div class="col-md-12">
+                    {{ 'i18n_math_html_editor_instructions' | translate }}
+                    <!-- Toolbar -->
+                    <div class="mt-2 mb-1">
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-secondary me-2"
+                            (click)="insertMathField()"
+                            [title]="'i18n_math_insert_math_field_tooltip' | translate"
+                        >
+                            &Sigma;
+                        </button>
+                        <div class="btn-group" ngbDropdown>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                ngbDropdownToggle
+                                [title]="'i18n_math_insert_heading_tooltip' | translate"
+                            >
+                                <i class="bi bi-type-h1"></i>
+                            </button>
+                            <div class="dropdown-menu" ngbDropdownMenu>
+                                @for (level of [1, 2, 3]; track level) {
+                                    <button class="dropdown-item" type="button" (click)="insertHeading(level)">
+                                        <i class="bi bi-type-h{{ level }}"></i>
+                                        {{ 'i18n_math_heading' | translate: { level: level } }}
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--div class="col-md-6">
+                    {{ 'i18n_math_rendered_output' | translate }}
+                </div-->
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="markup-editor-container">
+                        <textarea
+                            id="htmlEditor"
+                            #markupTextarea
+                            [(ngModel)]="htmlMarkup"
+                            (input)="onMarkupChange()"
+                            class="markup-textarea"
+                            [placeholder]="'i18n_math_textarea_placeholder' | translate"
+                            [rows]="getTextareaRows()"
+                            style="resize: vertical; min-height: 100px"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <!-- Rendered Output (Right) -->
+                <div class="col-md-6">
+                    <div class="rendered-html" #renderedOutput></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

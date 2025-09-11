@@ -18,86 +18,27 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MathFieldElement, MathLiveService } from './mathlive.service';
 
-@Component({
-    selector: 'xm-mathlive-html-editor',
-    template: `
-        <div class="container mt-4">
-            <h2>{{ 'i18n_mathlive_html_editor_title' | translate }}</h2>
+interface MathExample {
+    labelKey: string;
+    formula: string;
+}
 
-            <!-- HTML Markup Editor -->
-            <div class="row mb-5">
-                <div class="col-12">
-                    <p>
-                        {{ 'i18n_mathlive_html_editor_instructions' | translate }}
-                    </p>
-                    <div class="markup-editor-container">
-                        <div class="mb-2">
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-outline-primary me-2"
-                                (click)="insertMathField()"
-                                [title]="'i18n_mathlive_insert_math_field_tooltip' | translate"
-                            >
-                                <i class="bi bi-calculator"></i> {{ 'i18n_mathlive_math_field_button' | translate }}
-                            </button>
-                            <div class="btn-group" ngbDropdown>
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-outline-secondary"
-                                    ngbDropdownToggle
-                                    [title]="'i18n_mathlive_insert_heading_tooltip' | translate"
-                                >
-                                    <i class="bi bi-type-h1"></i> {{ 'i18n_mathlive_heading_button' | translate }}
-                                </button>
-                                <div class="dropdown-menu" ngbDropdownMenu>
-                                    <button class="dropdown-item" type="button" (click)="insertHeading(1)">
-                                        <i class="bi bi-type-h1"></i>
-                                        {{ 'i18n_mathlive_heading' | translate: { level: 1 } }}
-                                    </button>
-                                    <button class="dropdown-item" type="button" (click)="insertHeading(2)">
-                                        <i class="bi bi-type-h2"></i>
-                                        {{ 'i18n_mathlive_heading' | translate: { level: 2 } }}
-                                    </button>
-                                    <button class="dropdown-item" type="button" (click)="insertHeading(3)">
-                                        <i class="bi bi-type-h3"></i>
-                                        {{ 'i18n_mathlive_heading' | translate: { level: 3 } }}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <textarea
-                            #markupTextarea
-                            [(ngModel)]="htmlMarkup"
-                            (input)="onMarkupChange()"
-                            class="markup-textarea"
-                            [placeholder]="'i18n_mathlive_textarea_placeholder' | translate"
-                        ></textarea>
-                    </div>
-                    <div class="mt-3">
-                        <h5>{{ 'i18n_mathlive_rendered_output' | translate }}</h5>
-                        <div class="mb-2">
-                            <small class="text-muted">
-                                @if (enableEditing()) {
-                                    <i class="bi bi-pencil-square"></i>
-                                    {{ 'i18n_mathlive_editable_message' | translate }}
-                                } @else {
-                                    <i class="bi bi-eye"></i>
-                                    {{ 'i18n_mathlive_readonly_message' | translate }}
-                                }
-                            </small>
-                        </div>
-                        <div class="rendered-html" #renderedOutput></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `,
+const DEFAULT_MATH_EXAMPLES: MathExample[] = [
+    {
+        labelKey: 'i18n_math_example',
+        formula: '\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}',
+    },
+];
+
+@Component({
+    selector: 'xm-math-editor',
+    templateUrl: './math-editor.component.html',
     standalone: true,
     imports: [CommonModule, FormsModule, NgbDropdownModule, TranslateModule],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    styleUrl: './mathlive-html-editor.component.scss',
+    styleUrl: './math-editor.component.scss',
 })
-export class MathLiveHtmlEditorComponent implements AfterViewInit {
+export class MathEditorComponent implements AfterViewInit {
     @ViewChild('renderedOutput', { static: false }) renderedOutput!: ElementRef;
     @ViewChild('markupTextarea', { static: false }) markupTextarea!: ElementRef;
 
@@ -148,7 +89,7 @@ export class MathLiveHtmlEditorComponent implements AfterViewInit {
         }, 0);
     }
 
-    insertHeading(level: 1 | 2 | 3) {
+    insertHeading(level: number) {
         const textarea = this.markupTextarea.nativeElement;
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
@@ -165,6 +106,22 @@ export class MathLiveHtmlEditorComponent implements AfterViewInit {
             textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             textarea.focus();
         }, 0);
+    }
+
+    getTextareaRows(): number {
+        const minRows = 3; // Reduced from 5 to 3 for side-by-side layout
+        const content = this.htmlMarkup || '';
+
+        if (!content) {
+            return minRows;
+        }
+
+        // Count line breaks and estimate content length
+        const lineBreaks = (content.match(/\n/g) || []).length;
+        const estimatedLinesFromLength = Math.ceil(content.length / 80); // Assume ~80 chars per line
+        const calculatedRows = Math.max(lineBreaks + 1, estimatedLinesFromLength);
+
+        return Math.max(minRows, calculatedRows);
     }
 
     async onMarkupChange() {
@@ -373,9 +330,12 @@ export class MathLiveHtmlEditorComponent implements AfterViewInit {
     }
 
     private getDefaultContent(): string {
-        return `<p>${this.translateService.instant('i18n_mathlive_example_simple')} <math-field>1+2/3</math-field></p>
-<p>${this.translateService.instant('i18n_mathlive_example_complex')} <math-field>\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}</math-field></p>
-<p>Advanced formula: <math-field>\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}</math-field></p>
-<p>Simple equation: <math-field>x^2 + y^2 = z^2</math-field></p>`;
+        const examples = DEFAULT_MATH_EXAMPLES;
+        return examples
+            .map(
+                (example) =>
+                    `<p>${this.translateService.instant(example.labelKey)} <math-field>${example.formula}</math-field></p>`,
+            )
+            .join('\n');
     }
 }

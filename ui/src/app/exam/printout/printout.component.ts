@@ -12,7 +12,7 @@ import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
 import { ClozeTestAnswer, ExamSectionQuestion } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';

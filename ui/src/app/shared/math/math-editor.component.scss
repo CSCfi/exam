@@ -1,0 +1,114 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+.markup-editor-container {
+    margin: 0;
+}
+
+.markup-editor-container .btn {
+    font-size: 0.875rem;
+}
+
+.markup-editor-container .btn i {
+    font-size: 0.75rem;
+    margin-right: 0.25rem;
+}
+
+.markup-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background: #f8f9fa;
+    resize: vertical;
+}
+
+.markup-textarea:focus {
+    outline: 4px solid rgba(13, 110, 253, 0.25);
+    border-color: #0d6efd;
+    background: white;
+}
+
+.rendered-html {
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 100px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.rendered-html p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.rendered-html p:last-child {
+    margin-bottom: 0;
+}
+
+/* Consolidated math-field styling */
+:host ::ng-deep .rendered-html math-field {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px !important;
+    padding: 6px 8px !important;
+    font-size: 0.9em !important;
+    min-height: 28px !important;
+    display: inline-block !important;
+    margin: 0 6px 0 4px !important;
+    transition: all 0.2s ease !important;
+    zoom: 0.8 !important;
+    background: #ffffff !important;
+    cursor: text !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+:host ::ng-deep .rendered-html math-field:hover {
+    border-color: #adb5bd !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+:host ::ng-deep .rendered-html math-field:focus {
+    outline: 4px solid rgba(13, 110, 253, 0.25) !important;
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+    background: #ffffff !important;
+    color: #212529 !important;
+}
+
+:host ::ng-deep .rendered-html math-field[read-only='true'] {
+    background: #e9ecef !important;
+    cursor: default !important;
+    opacity: 0.8 !important;
+}
+
+/* TARGET FIX: Override the specific MathLive focus highlight rule that causes dark background */
+::ng-deep .ML__focused .ML__contains-highlight {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    --_contains-highlight-background-color: #ffffff !important;
+}
+
+/* Override MathLive CSS custom properties to ensure white backgrounds globally */
+::ng-deep math-field {
+    --_contains-highlight-background-color: #ffffff !important;
+    --contains-highlight-background-color: #ffffff !important;
+    --highlight-background-color: #ffffff !important;
+    --selection-background-color: rgba(13, 110, 253, 0.2) !important;
+}
+
+/* Consolidated math elements spacing and sizing */
+:host ::ng-deep .rendered-html span[xmMathLive],
+:host ::ng-deep .rendered-html .MathJax,
+:host ::ng-deep .rendered-html mjx-container {
+    display: inline-block !important;
+    margin: 0 6px 0 4px !important;
+    zoom: 0.8 !important;
+    font-size: 0.9em !important;
+}
