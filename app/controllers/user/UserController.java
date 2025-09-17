@@ -225,7 +225,7 @@ public class UserController extends BaseController {
     @Authenticated
     @JsonValidator(schema = "userLang")
     @With(UserLanguageSanitizer.class)
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
     public Result updateLanguage(Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         String lang = request.attrs().get(Attrs.LANG);

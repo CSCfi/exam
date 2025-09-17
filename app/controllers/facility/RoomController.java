@@ -104,7 +104,7 @@ public class RoomController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
+    @Restrict({ @Group("TEACHER"), @Group("SUPPORT"), @Group("ADMIN"), @Group("STUDENT") })
     @SensitiveDataPolicy(sensitiveFieldNames = { "internalPassword", "externalPassword" })
     public Result getExamRooms(Http.Request request) {
         ExpressionList<ExamRoom> query = DB.find(ExamRoom.class)
