@@ -15,9 +15,24 @@ public final class SanitizingHelper {
 
     private static final Safelist SAFELIST = Safelist.relaxed()
         .addAttributes("a", "target")
-        .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
+        .addAttributes(
+            "span",
+            "class",
+            "id",
+            "style",
+            "case-sensitive",
+            "cloze",
+            "numeric",
+            "precision",
+            "xmmath",
+            "xmmathjax",
+            "xmmathlive"
+        )
+        .addAttributes("div", "xmmath", "xmmathjax", "xmmathlive")
         .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption")
-        .addAttributes("abbr", "title", "id");
+        .addAttributes("abbr", "title", "id")
+        .addTags("math-field")
+        .addAttributes("math-field", "data-expression", "read-only", "math-virtual-keyboard-policy");
 
     private SanitizingHelper() {}
 
