@@ -288,15 +288,24 @@ public class EnrolmentRepository {
             if (
                 enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.AQUARIUM
             ) {
-                // Aquarium exam, don't set headers unless it starts in 5 minutes
+                // Aquarium exam
                 DateTime threshold = DateTime.now().plusMinutes(5);
+                DateTime thresholdEarly = DateTime.now().withTimeAtStartOfDay().plusDays(1);
                 DateTime start = dateTimeHandler.normalize(
                     enrolment.getReservation().getStartAt(),
                     enrolment.getReservation()
                 );
+                // if start is within 5 minutes, set upcoming exam header
                 if (start.isBefore(threshold)) {
                     headers.put(
                         "x-exam-upcoming-exam",
+                        String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
+                    );
+                    // otherwise set early login header if start is within today. For dev puprposes skip
+                    // requirement
+                } else if (start.isBefore(thresholdEarly) && start.isAfterNow() && !environment.isDev()) {
+                    headers.put(
+                        "x-exam-aquarium-login",
                         String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
                     );
                 }
