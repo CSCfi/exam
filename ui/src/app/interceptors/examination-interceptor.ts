@@ -21,14 +21,13 @@ export class ExaminationInterceptor implements HttpInterceptor {
             tap((event: HttpEvent<unknown>) => {
                 if (event instanceof HttpResponse) {
                     const response = event as HttpResponse<unknown>;
-                    const onExamMachine = response.headers.get('x-exam-aquarium-login');
+                    const earlyLogin = response.headers.get('x-exam-aquarium-login');
                     const unknownMachine = response.headers.get('x-exam-unknown-machine');
                     const wrongRoom = response.headers.get('x-exam-wrong-room');
                     const wrongMachine = response.headers.get('x-exam-wrong-machine');
                     const wrongUserAgent = response.headers.get('x-exam-wrong-agent-config');
                     const hash = response.headers.get('x-exam-start-exam');
                     const enrolmentId = response.headers.get('x-exam-upcoming-exam');
-                    const enrolmentId2 = response.headers.get('x-exam-aquarium-login');
                     if (unknownMachine) {
                         const location = this.b64ToUtf8(unknownMachine).split(':::');
                         this.WrongLocation.display(location); // Show warning notice on screen
@@ -57,9 +56,9 @@ export class ExaminationInterceptor implements HttpInterceptor {
                         // Start/continue exam
                         this.ExaminationStatus.notifyStartOfExamination();
                         this.router.navigate(['/exam', hash]);
-                    } else if (onExamMachine && enrolmentId2) {
-                        const parts = enrolmentId2.split(':::');
-                        const id = enrolmentId2 === 'none' ? '' : parts[1];
+                    } else if (earlyLogin) {
+                        const parts = earlyLogin.split(':::');
+                        const id = earlyLogin === 'none' ? '' : parts[1];
                         this.ExaminationStatus.notifyAquariumLogin();
                         this.router.navigate(['/early', id, parts[0]]);
                     }
