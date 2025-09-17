@@ -54,7 +54,7 @@ export class QuestionScoringService {
         ) {
             return scores.filter((score) => score < 0).reduce((sum, score) => sum + score, 0);
         }
-        // For other questionq, return the minimum score but never less than 0
+        // For other questions, return the minimum score but never less than 0
         return Math.max(0, Math.min(...[0, ...scores]));
     };
 
