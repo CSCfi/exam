@@ -47,12 +47,15 @@ export class QuestionScoringService {
     };
 
     getMinimumOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
-        const optionScores = sectionQuestion.options.map((o) => o.score);
-        const scores = [0, ...optionScores]; // Make sure 0 is included
-        return sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion' &&
-            !sectionQuestion.negativeScoreAllowed
-            ? Math.max(0, Math.min(...scores)) // Weighted mcq can force a positive min score
-            : Math.min(...scores);
+        const scores = sectionQuestion.options.map((o) => o.score);
+        if (
+            sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion' &&
+            sectionQuestion.negativeScoreAllowed
+        ) {
+            return scores.filter((score) => score < 0).reduce((sum, score) => sum + score, 0);
+        }
+        // For other questions, return the minimum score but never less than 0
+        return Math.max(0, Math.min(...[0, ...scores]));
     };
 
     getCorrectClaimChoiceOptionDefaultScore = (question: Question): number => {

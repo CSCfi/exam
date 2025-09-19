@@ -172,7 +172,7 @@ public class ReservationController extends BaseController {
         }
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result findAvailableMachines(Long reservationId, Long roomId)
         throws ExecutionException, InterruptedException {
         var reservation = DB.find(Reservation.class, reservationId);

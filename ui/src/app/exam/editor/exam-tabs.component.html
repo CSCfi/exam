@@ -23,28 +23,33 @@ SPDX-License-Identifier: EUPL-1.2
         class="nav-tabs ms-2 me-2"
         (navChange)="navChanged($event)"
     >
-        <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="1">
+        <li [disabled]="!isOwner() && (!user.isAdmin || !user.isSupport)" [ngbNavItem]="1">
             <a ngbNavLink>{{ 'i18n_exam_basic_information_tab' | translate }}</a>
         </li>
-        <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="2">
+        <li [disabled]="!isOwner() && (!user.isAdmin || !user.isSupport)" [ngbNavItem]="2">
             <a ngbNavLink>{{ 'i18n_exam_question_tab' | translate }}</a>
         </li>
-        <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="3">
+        <li [disabled]="!isOwner() && (!user.isAdmin || !user.isSupport)" [ngbNavItem]="3">
             <a ngbNavLink>{{ 'i18n_exam_assessment_settings' | translate }}</a>
         </li>
-        <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="4">
+        <li [disabled]="!isOwner() && (!user.isAdmin || !user.isSupport)" [ngbNavItem]="4">
             <a ngbNavLink>{{ 'i18n_exam_publish_tab' | translate }}</a>
         </li>
         <li [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="5">
             <a ngbNavLink>{{ 'i18n_exam_responses' | translate }}</a>
         </li>
-        @if (exam && !collaborative && !user.isAdmin) {
+        @if (exam && !collaborative && (!user.isAdmin || !user.isSupport)) {
             <li [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="6">
                 <a ngbNavLink>{{ 'i18n_question_review' | translate }}</a>
             </li>
         }
         @if (exam && !collaborative) {
-            <li [disabled]="(!isOwner() && !user.isAdmin) || exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="7">
+            <li
+                [disabled]="
+                    (!isOwner() && (!user.isAdmin || user.isSupport)) || exam.executionType?.type === 'PRINTOUT'
+                "
+                [ngbNavItem]="7"
+            >
                 <a ngbNavLink>{{ 'i18n_exam_summary_tab' | translate }}</a>
             </li>
         }
