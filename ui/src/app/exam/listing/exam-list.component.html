@@ -101,9 +101,6 @@ SPDX-License-Identifier: EUPL-1.2
                                 ></xm-table-sort>
                             </th>
                             <th>
-                                <!-- Function space -->
-                            </th>
-                            <th>
                                 <xm-table-sort
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
@@ -157,9 +154,13 @@ SPDX-License-Identifier: EUPL-1.2
                                 </td>
                                 <td>
                                     @if (exam.name) {
-                                        <strong>{{ exam.name }}</strong>
+                                        <a [routerLink]="['/staff/exams', exam.id, '1']"
+                                            ><strong>{{ exam.name }}</strong></a
+                                        >
                                     } @else {
-                                        <strong>{{ 'i18n_no_name' | translate }}</strong>
+                                        <a class="text-danger" [routerLink]="['/staff/exams', exam.id, '1']">
+                                            <strong>{{ 'i18n_no_name' | translate }}</strong>
+                                        </a>
                                     }
                                 </td>
                                 <td>
@@ -189,22 +190,14 @@ SPDX-License-Identifier: EUPL-1.2
                                 </td>
                                 <td class="text-center">
                                     <!-- todo: make a modal component out of this -->
-                                    <button
-                                        (click)="copyExam(exam)"
-                                        class="btn btn-sm btn-outline-secondary"
-                                        [attr.aria-label]="'i18n_copy' | translate"
-                                    >
+                                    <a (click)="copyExam(exam)" class="pointer">
                                         <i class="bi-files"></i>
-                                    </button>
+                                    </a>
                                 </td>
                                 <td class="text-center">
-                                    <button
-                                        (click)="deleteExam(exam)"
-                                        class="btn btn-sm btn-outline-secondary"
-                                        [attr.aria-label]="'i18n_remove' | translate"
-                                    >
+                                    <a (click)="deleteExam(exam)" class="pointer">
                                         <i class="bi-x sitnet-red"></i>
-                                    </button>
+                                    </a>
                                 </td>
                             </tr>
                         }

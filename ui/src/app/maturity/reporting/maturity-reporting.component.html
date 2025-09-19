@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<xm-page-header text="i18n_monthly_language_inspection_report" [appendTemplate]="print" [history]="true" />
+<xm-page-header text="i18n_monthly_language_inspection_report" [appendTemplate]="print" />
 <xm-page-content [content]="content" />
 <ng-template #print>
     <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
@@ -15,11 +15,6 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 </ng-template>
 <ng-template #content>
-    <div class="row">
-        <div class="col-md-12 mb-3">
-            {{ 'i18n_monthly_language_inspection_info' | translate }}
-        </div>
-    </div>
     <div class="row">
         <div class="col-md-12 mb-3 no-print">
             <form class="row form-group">
@@ -72,13 +67,6 @@ SPDX-License-Identifier: EUPL-1.2
                 </thead>
 
                 <tbody>
-                    @if (processedInspections.length === 0) {
-                        <tr>
-                            <td colspan="10" class="text-center">
-                                {{ 'i18n_review_no_result' | translate }}
-                            </td>
-                        </tr>
-                    }
                     @for (inspection of processedInspections | orderBy: 'finishedAt'; track inspection) {
                         <tr>
                             <td>
@@ -125,12 +113,9 @@ SPDX-License-Identifier: EUPL-1.2
                                 }}</strong>
                             </td>
                             <td class="no-print">
-                                <button
-                                    class="btn btn-sm btn-outline-secondary"
-                                    (click)="showStatement(inspection.statement)"
-                                >
-                                    {{ 'i18n_view' | translate }}
-                                </button>
+                                <a class="pointer" (click)="showStatement(inspection.statement)">{{
+                                    'i18n_view' | translate
+                                }}</a>
                             </td>
                         </tr>
                     }

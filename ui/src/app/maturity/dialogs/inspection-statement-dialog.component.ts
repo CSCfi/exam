@@ -11,7 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
     imports: [TranslateModule],
     template: `
         <div class="modal-header">
-            <div class="xm-modal-title">{{ 'i18n_inspector_statement' | translate }}</div>
+            <div class="xm-modal-title">{{ 'i18n_give_feedback' | translate }}</div>
         </div>
         <div class="modal-body">
             <div class="mt-2">

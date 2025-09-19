@@ -29,9 +29,9 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row my-2">
             <div class="col-6">
                 <!-- aborted-->
-                <button class="btn btn-secondary" (click)="openAborted()">
-                    {{ 'i18n_aborted_exams' | translate }} ({{ abortedExamsToBeFreed() }})
-                </button>
+                <a class="review-list-link" (click)="openAborted()">
+                    {{ 'i18n_aborted_exams' | translate }} ({{ abortedExamsToBeFreed() }})</a
+                >
                 <sup
                     class="ps-3"
                     ngbPopover="{{ 'i18n_aborted_description' | translate }}"
@@ -43,9 +43,9 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
             <div class="col-6">
                 <!-- no-shows -->
-                <button class="btn btn-secondary" (click)="openNoShows()">
-                    {{ 'i18n_no_shows' | translate }} ({{ noShows.length }})
-                </button>
+                <a class="review-list-link" (click)="openNoShows()"
+                    >{{ 'i18n_no_shows' | translate }} ({{ noShows.length }})</a
+                >
                 <sup
                     class="ps-3"
                     ngbPopover="{{ 'i18n_no_shows_description' | translate }}"
