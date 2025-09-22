@@ -14,18 +14,18 @@ scalacOptions ++= Seq("-deprecation", "-feature", "-Dunused:imports")
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
-libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice)
+libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice, caffeine)
 
 libraryDependencies += "be.objectify"            %% "deadbolt-java"         % "3.0.0"
-libraryDependencies += "com.networknt"            % "json-schema-validator" % "1.0.82"
+libraryDependencies += "com.networknt"            % "json-schema-validator" % "1.5.9"
 libraryDependencies += "com.google.code.gson"     % "gson"                  % "2.10.1"
 libraryDependencies += "com.opencsv"              % "opencsv"               % "5.9"
 libraryDependencies += "io.vavr"                  % "vavr"                  % "0.10.4"
 libraryDependencies += "net.sf.biweekly"          % "biweekly"              % "0.6.8"
 libraryDependencies += "org.apache.commons"       % "commons-compress"      % "1.26.1"
 libraryDependencies += "org.apache.commons"       % "commons-email"         % "1.5"
-libraryDependencies += "org.apache.poi"           % "poi"                   % "5.3.0"
-libraryDependencies += "org.apache.poi"           % "poi-ooxml"             % "5.3.0"
+libraryDependencies += "org.apache.poi"           % "poi"                   % "5.4.0"
+libraryDependencies += "org.apache.poi"           % "poi-ooxml"             % "5.4.0"
 libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"             % "1.2.0"
 libraryDependencies += "joda-time"                % "joda-time"             % "2.12.7"
 libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.18.1"
@@ -38,6 +38,12 @@ libraryDependencies += "org.eclipse.jetty"        % "jetty-server"          % "1
 libraryDependencies += "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet"    % "12.0.12"    % "test"
 libraryDependencies += "org.easytesting"          % "fest-assert"           % "1.4"        % "test"
 libraryDependencies += "org.yaml"                 % "snakeyaml"             % "2.0"        % "test"
+
+dependencyOverrides ++= Seq(
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.14.3",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.14.3"
+)
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")
 
