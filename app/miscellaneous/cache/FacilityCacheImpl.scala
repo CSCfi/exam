@@ -15,9 +15,7 @@ class FacilityCacheImpl @Inject()(cache: SyncCacheApi) extends FacilityCache:
   private val DEFAULT_TTL = 30.minutes
 
   override def storeFacilityPassword(facilityId: String, password: String): Unit =
-    val key = FACILITY_KEY_PREFIX + facilityId
-    cache.set(key, password, DEFAULT_TTL)
+    cache.set(FACILITY_KEY_PREFIX + facilityId, password, DEFAULT_TTL)
 
   override def getFacilityPassword(facilityId: String): Option[String] =
-    val key = FACILITY_KEY_PREFIX + facilityId
-    cache.get(key)
+    cache.get(FACILITY_KEY_PREFIX + facilityId)

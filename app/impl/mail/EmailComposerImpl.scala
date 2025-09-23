@@ -745,41 +745,38 @@ class EmailComposerImpl @Inject() (
       )
       .mkString
 
-// return exams in review state where teacher is either owner or inspector
+  // return exams in review state where teacher is either owner or inspector
   private def getReviews(teacher: User, states: Seq[Exam.State]) = DB
     .find(classOf[ExamParticipation])
-    .fetch("exam.course")
     .where
     .disjunction
     .eq("exam.parent.examOwners", teacher)
     .eq("exam.examInspections.user", teacher)
     .endJunction
     .in("exam.state", states.asJava)
+    .isNotNull("exam.parent")
     .list
 
   private def createAssessmentBlock(assessments: Seq[ExamParticipation], lang: Lang) =
-    val templatePath = s"${templateRoot}weeklySummary/inspectionInfoSimple.html"
-    val template     = fileHandler.read(templatePath)
-    val grouped =
-      assessments.groupBy(_.getExam).map((k, v) => k -> (v.length, v.minBy(_.getDeadline).getDeadline))
-    val values = grouped.toSeq
-      .filter(_._2._1 > 0)
-      .sortBy(_._2._2)
-      .map(as =>
-        val (exam, (amount, deadline)) = (as._1, (as._2._1, as._2._2))
-        val summary =
-          messaging("email.weekly.report.review.summary", amount, EmailComposerImpl.DF.print(new DateTime(deadline)))(
-            lang
-          )
-        val values = Map(
+    val template = fileHandler.read(s"${templateRoot}weeklySummary/inspectionInfoSimple.html")
+    val values = assessments
+      .groupBy(_.getExam.getParent.getId)
+      .values
+      .filter(_.nonEmpty)
+      .map(group => (group.head.getExam.getParent, group.length, group.minBy(_.getDeadline).getDeadline))
+      .toSeq
+      .sortBy(_._3)
+      .map { case (exam, amount, deadline) =>
+        val summary = messaging("email.weekly.report.review.summary", amount, EmailComposerImpl.DF.print(new DateTime(deadline)))(lang)
+        replaceAll(template, Map(
           "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5?collaborative=false",
           "exam_name"      -> exam.getName,
           "course_code"    -> Option(exam.getCourse).map(_.getCode).nonNull.map(_.split("_").head).getOrElse(""),
           "review_summary" -> summary
-        )
-        replaceAll(template, values)
-      )
-    if values.nonEmpty then Some(values.mkString) else None
+        ))
+      }
+    
+    Option.when(values.nonEmpty)(values.mkString)
 
   private def replaceAll(original: String, values: Map[String, String]) =
     values.foldLeft(original)((acc, kv) =>

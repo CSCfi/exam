@@ -14,7 +14,7 @@ scalacOptions ++= Seq("-deprecation", "-feature", "-Dunused:imports")
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
-libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice)
+libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice, caffeine)
 
 libraryDependencies += "be.objectify"            %% "deadbolt-java"         % "3.0.0"
 libraryDependencies += "com.networknt"            % "json-schema-validator" % "1.5.9"
@@ -40,8 +40,8 @@ libraryDependencies += "org.easytesting"          % "fest-assert"           % "1
 libraryDependencies += "org.yaml"                 % "snakeyaml"             % "2.0"        % "test"
 
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.3",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.14.3",
+  "com.fasterxml.jackson.core" % "jackson-databind"    % "2.14.3",
+  "com.fasterxml.jackson.core" % "jackson-core"        % "2.14.3",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.14.3"
 )
 
