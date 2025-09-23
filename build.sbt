@@ -14,7 +14,7 @@ scalacOptions ++= Seq("-deprecation", "-feature", "-Dunused:imports")
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
-libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice, caffeine)
+libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice)
 
 libraryDependencies += "be.objectify"            %% "deadbolt-java"         % "3.0.0"
 libraryDependencies += "com.networknt"            % "json-schema-validator" % "1.5.9"

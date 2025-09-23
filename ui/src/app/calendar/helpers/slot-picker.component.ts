@@ -174,7 +174,12 @@ export class SlotPickerComponent implements OnInit, OnChanges {
 
     onPasswordValidated(password: string): void {
         if (this.selectedRoom && password) {
-            this.Calendar.validatePassword$(this.selectedRoom.id, password, this.isExternal).subscribe({
+            this.Calendar.validatePassword$(
+                this.selectedRoom.id,
+                password,
+                this.isExternal,
+                this.selectedRoom._id,
+            ).subscribe({
                 next: () => this.passwordVerified.set(true),
                 error: () => this.toast.error(this.translate.instant('i18n_invalid_password')),
             });

@@ -32,7 +32,7 @@ export type Accessibility = {
 
 export interface ExamRoom {
     id: number;
-    _id?: number;
+    _id?: string;
     name: string;
     examMachines: ExamMachine[];
     localTimezone: string;
