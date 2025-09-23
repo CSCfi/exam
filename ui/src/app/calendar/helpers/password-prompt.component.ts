@@ -43,6 +43,7 @@ import { TranslateModule } from '@ngx-translate/core';
                             type="password"
                             class="form-control"
                             id="password"
+                            autocomplete="new-password"
                             formControlName="password"
                             [class.is-invalid]="
                                 passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched
@@ -107,7 +108,7 @@ export class PasswordPromptComponent implements AfterViewInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges) {
         // Focus the password input when visibility changes to true
-        if (changes['visible'] && this.visible() && this.passwordInput) {
+        if (changes.visible && this.visible() && this.passwordInput) {
             setTimeout(() => {
                 this.passwordInput.nativeElement.focus();
             }, 100);

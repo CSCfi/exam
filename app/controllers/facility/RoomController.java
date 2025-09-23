@@ -21,6 +21,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
+import miscellaneous.cache.FacilityCache;
 import miscellaneous.config.ConfigReader;
 import miscellaneous.datetime.DateTimeHandler;
 import models.calendar.DefaultWorkingHours;
@@ -46,6 +47,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
 import scala.concurrent.duration.Duration;
+import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
 
@@ -59,18 +61,22 @@ public class RoomController extends BaseController {
     private final Logger logger = LoggerFactory.getLogger(RoomController.class);
     private static final int EPOCH = 1970;
 
+    private final FacilityCache facilityCache;
+
     @Inject
     public RoomController(
         ExternalFacilityAPI externalFacilityAPI,
         ActorSystem actorSystem,
         ConfigReader configReader,
-        DateTimeHandler dateTimeHandler
+        DateTimeHandler dateTimeHandler,
+        FacilityCache facilityCache
     ) {
         this.externalApi = externalFacilityAPI;
         this.system = actorSystem;
         this.examVisitActivated = configReader.isVisitingExaminationSupported();
         this.defaultTimeZoneId = configReader.getDefaultTimeZone().getID();
         this.dateTimeHandler = dateTimeHandler;
+        this.facilityCache = facilityCache;
     }
 
     private CompletionStage<Result> updateRemote(ExamRoom room) throws MalformedURLException {
@@ -154,18 +160,47 @@ public class RoomController extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result validatePassword(Long roomId, Http.Request request) {
+        JsonNode body = request.body().asJson();
+        if (body == null) {
+            return badRequest("Request body is required");
+        }
+
+        // Check if this is an external facility validation
+        boolean isExternalFacility = body.has("external") && body.get("external").asBoolean();
+
+        if (isExternalFacility) {
+            return validateExternalFacilityPassword(body);
+        } else {
+            return validateInternalRoomPassword(roomId, body);
+        }
+    }
+
+    private Result validateExternalFacilityPassword(JsonNode body) {
+        if (!body.has("facilityId")) {
+            return badRequest();
+        }
+
+        String facilityId = body.get("facilityId").asText();
+        Optional<String> facilityPassword = OptionConverters.toJava(facilityCache.getFacilityPassword(facilityId));
+
+        if (facilityPassword.isEmpty()) {
+            return notFound();
+        }
+        String providedPassword = body.get("password").asText();
+
+        if (facilityPassword.get().equals(providedPassword)) {
+            return ok();
+        } else {
+            return forbidden("Invalid password for facility");
+        }
+    }
+
+    private Result validateInternalRoomPassword(Long roomId, JsonNode body) {
         ExamRoom room = DB.find(ExamRoom.class, roomId);
         if (room == null) {
             return notFound("room not found");
         }
-
-        if (room.getInternalPassword() == null) {
-            return badRequest("room does not require internal password");
-        }
-        JsonNode body = request.body().asJson();
-        boolean isExternal = body.get("external").asBoolean();
-        String validPassword = isExternal ? room.getExternalPassword() : room.getInternalPassword();
-        if (validPassword.equals(body.get("password").asText())) {
+        if (room.getInternalPassword().equals(body.get("password").asText())) {
             return ok();
         } else {
             return forbidden();
