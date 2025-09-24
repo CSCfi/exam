@@ -4,16 +4,11 @@
 
 package base;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import io.ebean.DB;
-import jakarta.persistence.PersistenceException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -41,6 +36,7 @@ import models.sections.ExamSectionQuestionOption;
 import models.user.Language;
 import models.user.User;
 import org.apache.commons.io.FileUtils;
+import static org.fest.assertions.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,12 +46,12 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
-import play.Application;
-import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeRequest;
 import play.test.WithApplication;
 
 public class IntegrationTestCase extends WithApplication {
@@ -100,11 +96,6 @@ public class IntegrationTestCase extends WithApplication {
     // Hook for having stuff done just before logging in a user.
     protected void onBeforeLogin() throws Exception {
         // Default does nothing
-    }
-
-    @Override
-    protected Application provideApplication() {
-        return new GuiceApplicationBuilder().build();
     }
 
     @Before
