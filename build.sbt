@@ -30,14 +30,14 @@ libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"             % "1
 libraryDependencies += "joda-time"                % "joda-time"             % "2.12.7"
 libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.18.1"
 libraryDependencies += "org.postgresql"           % "postgresql"            % "42.7.3"
-libraryDependencies += "com.icegreen"             % "greenmail"             % "2.1.0-rc-1" % "test"
-libraryDependencies += "com.icegreen"             % "greenmail-junit4"      % "2.0.1"      % "test"
-libraryDependencies += "com.jayway.jsonpath"      % "json-path"             % "2.9.0"      % "test"
-libraryDependencies += "net.jodah"                % "concurrentunit"        % "0.4.6"      % "test"
-libraryDependencies += "org.eclipse.jetty"        % "jetty-server"          % "12.0.11"    % "test"
-libraryDependencies += "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet"    % "12.0.12"    % "test"
-libraryDependencies += "org.easytesting"          % "fest-assert"           % "1.4"        % "test"
-libraryDependencies += "org.yaml"                 % "snakeyaml"             % "2.0"        % "test"
+libraryDependencies += "com.icegreen"             % "greenmail"             % "2.1.5"   % "test"
+libraryDependencies += "com.icegreen"             % "greenmail-junit4"      % "2.1.5"   % "test"
+libraryDependencies += "com.jayway.jsonpath"      % "json-path"             % "2.9.0"   % "test"
+libraryDependencies += "net.jodah"                % "concurrentunit"        % "0.4.6"   % "test"
+libraryDependencies += "org.eclipse.jetty"        % "jetty-server"          % "12.0.11" % "test"
+libraryDependencies += "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet"    % "12.0.12" % "test"
+libraryDependencies += "org.easytesting"          % "fest-assert"           % "1.4"     % "test"
+libraryDependencies += "org.yaml"                 % "snakeyaml"             % "2.0"     % "test"
 
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind"    % "2.14.3",

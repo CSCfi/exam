@@ -9,7 +9,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import exceptions.NotFoundException;
 import impl.CalendarHandler;
 import io.ebean.DB;
 import java.net.MalformedURLException;
@@ -165,7 +164,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                     // Also sanity check the provided search date
                     try {
                         calendarHandler.parseSearchDate(date.get(), exam, null);
-                    } catch (NotFoundException e) {
+                    } catch (IllegalArgumentException e) {
                         return wrapAsPromise(notFound());
                     }
                     // Ready to shoot

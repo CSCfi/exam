@@ -8,7 +8,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
-import exceptions.NotFoundException;
 import impl.CalendarHandler;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
@@ -69,7 +68,7 @@ public class CalendarController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
-    public Result removeReservation(long id, Http.Request request) throws NotFoundException {
+    public Result removeReservation(long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         final ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .fetch("reservation")
@@ -80,7 +79,7 @@ public class CalendarController extends BaseController {
             .eq("reservation.id", id)
             .findOne();
         if (enrolment == null) {
-            throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
+            throw new IllegalArgumentException(String.format("No reservation with id %d for current user.", id));
         }
         // Removal not permitted if reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
