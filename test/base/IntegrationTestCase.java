@@ -49,8 +49,6 @@ import org.junit.rules.TestName;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.inspector.TagInspector;
-import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -312,54 +310,80 @@ public class IntegrationTestCase extends WithApplication {
     }
 
     private void addTestData() throws Exception {
-        int userCount;
-        try {
-            userCount = DB.find(User.class).findCount();
-        } catch (PersistenceException e) {
-            // Tables are likely not there yet, skip this.
-            return;
-        }
-        if (userCount == 0) {
-            LoaderOptions options = new LoaderOptions();
-            options.setMaxAliasesForCollections(400);
-            options.setTagInspector(tag -> true);
-            Yaml yaml = new Yaml(new JodaPropertyConstructor(options), new Representer(new DumperOptions()));
-            //Yaml yaml = new Yaml(new JodaPropertyConstructor(), new Representer(new DumperOptions()), new DumperOptions(), options);
-            InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
+        LoaderOptions loaderOptions = new LoaderOptions();
+        loaderOptions.setMaxAliasesForCollections(400);
+        loaderOptions.setTagInspector(tag -> true);
+
+        DumperOptions dumperOptions = new DumperOptions();
+        Yaml yaml = new Yaml(
+            new JodaPropertyConstructor(loaderOptions),
+            new Representer(dumperOptions),
+            dumperOptions,
+            loaderOptions
+        );
+
+        try (InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"))) {
             Map<String, List<Object>> all = yaml.load(is);
-            is.close();
-            DB.saveAll(all.get("role"));
-            DB.saveAll(all.get("exam-type"));
-            DB.saveAll(all.get("exam-execution-type"));
-            DB.saveAll(all.get("languages"));
-            DB.saveAll(all.get("organisations"));
-            DB.saveAll(all.get("attachments"));
-            DB.saveAll(all.get("users"));
-            DB.saveAll(all.get("grade-scales"));
-            DB.saveAll(all.get("grades"));
-            DB.saveAll(all.get("question-essay"));
-            DB.saveAll(all.get("question-multiple-choice"));
-            DB.saveAll(all.get("question-weighted-multiple-choice"));
-            DB.saveAll(all.get("question-claim-choice"));
-            DB.saveAll(all.get("question-clozetest"));
-            DB.saveAll(all.get("softwares"));
-            DB.saveAll(all.get("courses"));
-            DB.saveAll(all.get("comments"));
-            for (Object o : all.get("exams")) {
-                Exam e = (Exam) o;
-                e.generateHash();
-                e.save();
+
+            // Load entities in dependency order
+            String[] entityTypes = {
+                "role",
+                "exam-type",
+                "exam-execution-type",
+                "languages",
+                "organisations",
+                "attachments",
+                "users",
+                "grade-scales",
+                "grades",
+                "question-essay",
+                "question-multiple-choice",
+                "question-weighted-multiple-choice",
+                "question-claim-choice",
+                "question-clozetest",
+                "softwares",
+                "courses",
+                "comments",
+            };
+
+            // Save all standard entities
+            for (String entityType : entityTypes) {
+                List<Object> entities = all.get(entityType);
+                if (entities != null) {
+                    DB.saveAll(entities);
+                }
             }
-            DB.saveAll(all.get("exam-sections"));
-            DB.saveAll(all.get("section-questions"));
-            DB.saveAll(all.get("exam-participations"));
-            DB.saveAll(all.get("exam-inspections"));
-            DB.saveAll(all.get("mail-addresses"));
-            DB.saveAll(all.get("calendar-events"));
-            DB.saveAll(all.get("exam-rooms"));
-            DB.saveAll(all.get("exam-machines"));
-            DB.saveAll(all.get("exam-room-reservations"));
-            DB.saveAll(all.get("exam-enrolments"));
+
+            // Special handling for exams (need hash generation)
+            List<Object> exams = all.get("exams");
+            if (exams != null) {
+                for (Object o : exams) {
+                    Exam e = (Exam) o;
+                    e.generateHash();
+                    e.save();
+                }
+            }
+
+            // Save remaining entities that depend on exams
+            String[] examDependentTypes = {
+                "exam-sections",
+                "section-questions",
+                "exam-participations",
+                "exam-inspections",
+                "mail-addresses",
+                "calendar-events",
+                "exam-rooms",
+                "exam-machines",
+                "exam-room-reservations",
+                "exam-enrolments",
+            };
+
+            for (String entityType : examDependentTypes) {
+                List<Object> entities = all.get(entityType);
+                if (entities != null) {
+                    DB.saveAll(entities);
+                }
+            }
         }
     }
 
