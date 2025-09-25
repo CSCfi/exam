@@ -8,7 +8,7 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { format, parseISO } from 'date-fns';
+import { DateTime } from 'luxon';
 import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import { MachineListComponent } from 'src/app/facility/machines/machines.component';
 import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
@@ -145,7 +145,7 @@ export class RoomListComponent implements OnInit {
     getWorkingHoursDisplayFormat = (workingHours: DefaultWorkingHours[]): string[] => {
         const sorter = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const capitalize = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
-        const timePart = (s: string) => format(new Date(s), 'HH:mm');
+        const timePart = (s: string) => DateTime.fromISO(s).toFormat('HH:mm');
         const mapping = groupBy(
             workingHours,
             (x: DefaultWorkingHours) => `${timePart(x.startTime)} - ${timePart(x.endTime)}`,
@@ -168,12 +168,12 @@ export class RoomListComponent implements OnInit {
             return;
         }
         const fmt = 'dd.MM.yyyy HH:mm';
-        const start = parseISO(exception.startDate);
-        const end = parseISO(exception.endDate);
+        const start = DateTime.fromISO(exception.startDate);
+        const end = DateTime.fromISO(exception.endDate);
         return (
-            format(start, fmt) +
+            start.toFormat(fmt) +
             ' - ' +
-            (format(start, 'dd.MM.yyyy') == format(end, 'dd.MM.yyyy') ? format(end, 'HH:mm') : format(end, fmt))
+            (start.toFormat('dd.MM.yyyy') == end.toFormat('dd.MM.yyyy') ? end.toFormat('HH:mm') : end.toFormat(fmt))
         );
     };
 }

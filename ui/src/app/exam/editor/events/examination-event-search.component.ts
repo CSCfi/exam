@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { parseISO } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
@@ -90,7 +90,7 @@ export class ExaminationEventSearchComponent implements OnInit {
     };
 
     isActive = (configuration: ExaminationEventConfiguration) =>
-        parseISO(configuration.examinationEvent.start) > new Date();
+        DateTime.fromISO(configuration.examinationEvent.start) > DateTime.now();
 
     removeEvent = (configuration: ExaminationEventConfiguration) => {
         this.ConfirmationDialog.open$(

@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { parseISO } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -281,5 +281,5 @@ export class ExamService {
     };
 
     private hasEffectiveEnrolments = (exam: Exam) =>
-        exam.examEnrolments.some((ee) => ee.reservation && parseISO(ee.reservation.endAt) > new Date());
+        exam.examEnrolments.some((ee) => ee.reservation && DateTime.fromISO(ee.reservation.endAt) > DateTime.now());
 }

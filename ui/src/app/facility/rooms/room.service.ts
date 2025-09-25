@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { format, formatISO, parseISO, setHours, setMinutes } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { noop } from 'rxjs';
 import { Address, Availability, MaintenancePeriod, WorkingHour } from 'src/app/facility/facility.model';
@@ -126,8 +126,8 @@ export class RoomService {
         });
 
     formatExceptionEvent = (event: ExceptionWorkingHours) => {
-        event.startDate = formatISO(parseISO(event.startDate));
-        event.endDate = formatISO(parseISO(event.endDate));
+        event.startDate = DateTime.fromISO(event.startDate).toISO() || '';
+        event.endDate = DateTime.fromISO(event.endDate).toISO() || '';
     };
 
     updateStartingHours = (hours: WorkingHour[], offset: number, roomIds: number[]) =>
@@ -162,9 +162,9 @@ export class RoomService {
 
     private formatTime = (time: string) => {
         const hours = this.DateTime.isDST(new Date()) ? 1 : 0;
-        return format(
-            setMinutes(setHours(new Date(), parseInt(time.split(':')[0]) + hours), parseInt(time.split(':')[1])),
-            'dd.MM.yyyy HH:mmXXX',
-        );
+        const [hourStr, minuteStr] = time.split(':');
+        return DateTime.now()
+            .set({ hour: parseInt(hourStr) + hours, minute: parseInt(minuteStr) })
+            .toFormat('dd.MM.yyyy HH:mmZZZ');
     };
 }

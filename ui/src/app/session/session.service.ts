@@ -9,10 +9,10 @@ import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable, Unsubscribable } from 'rxjs';
 import { Subject, defer, from, interval, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { StorageService } from 'src/app/shared/storage/storage.service';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { ExternalLoginConfirmationDialogComponent } from './eula/external-login-confirmation-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
@@ -31,7 +31,7 @@ export class SessionService implements OnDestroy {
     private http = inject(HttpClient);
     private i18n = inject(TranslateService);
     private router = inject(Router);
-    private webStorageService = inject<WebStorageService>(SESSION_STORAGE);
+    private Storage = inject(StorageService);
     private document = inject<Document>(DOCUMENT);
     private modal = inject(NgbModal);
     private toast = inject(ToastrService);
@@ -51,25 +51,32 @@ export class SessionService implements OnDestroy {
         this.disableSessionCheck();
     }
 
-    getUser = (): User => this.webStorageService.get('EXAM_USER');
+    getUser = (): User => {
+        if (this.Storage.has('EXAM_USER')) {
+            return this.Storage.get<User>('EXAM_USER') as User;
+        }
+        throw new Error('EXAM_USER not found');
+    };
+
+    getOptionalUser = (): User | undefined => this.Storage.get<User>('EXAM_USER');
 
     getUserName = () => {
-        const user = this.getUser();
+        const user = this.getOptionalUser();
         return user ? user.firstName + ' ' + user.lastName : '';
     };
 
     getEnv$ = (): Observable<'DEV' | 'PROD'> =>
         this.http.get<Env>('/app/settings/environment').pipe(
-            tap((env) => this.webStorageService.set('EXAM-ENV', env)),
+            tap((env) => this.Storage.set('EXAM-ENV', env)),
             map((env) => (env.isProd ? 'PROD' : 'DEV')),
         );
 
-    getEnv = (): Env | undefined => this.webStorageService.get('EXAM-ENV');
+    getEnv = (): Env | undefined => this.Storage.get<Env>('EXAM-ENV');
 
     logout(): void {
         this.http.delete<{ logoutUrl: string }>('/app/session', {}).subscribe({
             next: (resp) => {
-                this.webStorageService.remove('EXAM_USER');
+                this.Storage.remove('EXAM_USER');
                 // delete this.user;
                 this.onLogoutSuccess(resp);
             },
@@ -78,19 +85,19 @@ export class SessionService implements OnDestroy {
     }
 
     getLocale = () => {
-        const user = this.getUser();
+        const user = this.getOptionalUser();
         return user ? user.lang : 'en';
     };
 
     switchLanguage(lang: string) {
-        const user = this.getUser();
+        const user = this.getOptionalUser();
         if (!user) {
             this.translate$(lang).subscribe();
         } else {
             this.http.put('/app/user/lang', { lang: lang }).subscribe({
                 next: () => {
                     user.lang = lang;
-                    this.webStorageService.set('EXAM_USER', user);
+                    this.Storage.set('EXAM_USER', user);
                     this.translate$(lang).subscribe();
                 },
                 error: () => this.toast.error('failed to switch language'),
@@ -155,10 +162,10 @@ export class SessionService implements OnDestroy {
                 switchMap((u) => this.prepareUser$(u)),
                 switchMap((u) => this.processLogin$(u)),
                 tap((u) => {
-                    this.webStorageService.set('EXAM_USER', u);
+                    this.Storage.set('EXAM_USER', u);
                     this.http
                         .get<{ prefix: string }>('/app/settings/coursecodeprefix')
-                        .subscribe((data) => this.webStorageService.set('COURSE_CODE_PREFIX', data.prefix));
+                        .subscribe((data) => this.Storage.set('COURSE_CODE_PREFIX', data.prefix));
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
                     if (u) {
@@ -279,7 +286,7 @@ export class SessionService implements OnDestroy {
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         const env = this.getEnv();
-        this.webStorageService.clear();
+        this.Storage.clear();
         if (data && data.logoutUrl) {
             location.href = `${localLogout}?return=${data.logoutUrl}`;
         } else if (!env || env.isProd) {

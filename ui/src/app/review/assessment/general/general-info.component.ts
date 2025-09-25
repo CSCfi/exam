@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { parseISO, roundToNearestMinutes } from 'date-fns';
+import { DateTime } from 'luxon';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
@@ -45,7 +45,9 @@ export class GeneralInfoComponent implements OnInit {
     private DateTime = inject(DateTimeService);
 
     ngOnInit() {
-        const duration = roundToNearestMinutes(parseISO(this.participation.duration as string));
+        const duration = DateTime.fromISO(this.participation.duration as string)
+            .set({ second: 0, millisecond: 0 })
+            .toJSDate();
         this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
         this.student = this.participation.user as User;
         this.studentName = this.student

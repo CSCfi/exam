@@ -5,7 +5,7 @@
 import { NgClass } from '@angular/common';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { range as _range } from 'ramda';
+import { range as _range } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
     selector: 'xm-paginator',

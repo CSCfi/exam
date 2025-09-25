@@ -19,7 +19,7 @@ import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalen
 import enLocale from '@fullcalendar/core/locales/en-gb';
 import fiLocale from '@fullcalendar/core/locales/fi';
 import svLocale from '@fullcalendar/core/locales/sv';
-import luxon2Plugin from '@fullcalendar/luxon2';
+import luxon2Plugin from '@fullcalendar/luxon3';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
