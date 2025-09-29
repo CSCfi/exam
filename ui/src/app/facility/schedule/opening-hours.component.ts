@@ -13,7 +13,7 @@ import {
     NgbTimepicker,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { areIntervalsOverlapping, formatISO, setDayOfYear } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import { RoomService } from 'src/app/facility/rooms/room.service';
@@ -96,13 +96,27 @@ export class OpenHoursComponent implements OnInit, OnChanges {
             this.toast.error(this.translate.instant(this.translate.instant('i18n_time_overlaps_error')));
             return;
         }
-        const start = formatISO(
-            setDayOfYear(new Date().setHours(wh.pickStartingTime.hour, wh.pickStartingTime.minute, 0, 0), 1),
-        );
-        const end = formatISO(
-            setDayOfYear(new Date().setHours(wh.pickEndingTime.hour, wh.pickEndingTime.minute, 0, 0), 1),
-        );
-        if (new Date(start) > new Date(end)) {
+        const start = DateTime.now()
+            .set({
+                month: 1,
+                day: 1,
+                hour: wh.pickStartingTime.hour,
+                minute: wh.pickStartingTime.minute,
+                second: 0,
+                millisecond: 0,
+            })
+            .toISO();
+        const end = DateTime.now()
+            .set({
+                month: 1,
+                day: 1,
+                hour: wh.pickEndingTime.hour,
+                minute: wh.pickEndingTime.minute,
+                second: 0,
+                millisecond: 0,
+            })
+            .toISO();
+        if (DateTime.fromISO(start || '') > DateTime.fromISO(end || '')) {
             this.toast.error(this.translate.instant(this.translate.instant('i18n_starting_cannot_be_after_ending')));
             return;
         }
@@ -200,13 +214,22 @@ export class OpenHoursComponent implements OnInit, OnChanges {
         });
 
     private toDate = (time: { hour: number; minute: number }) =>
-        setDayOfYear(new Date().setHours(time.hour, time.minute, 0, 0), 1);
+        DateTime.now()
+            .set({ month: 1, day: 1, hour: time.hour, minute: time.minute, second: 0, millisecond: 0 })
+            .toJSDate();
 
     private overlaps = (wh: DefaultWorkingHoursWithEditing) => {
         const newInterval = { start: this.toDate(wh.pickStartingTime), end: this.toDate(wh.pickEndingTime) };
         const intervals = this.extendedRoom.extendedDwh
             .filter((dwh) => dwh.weekday === wh.weekday && dwh !== wh)
             .map((dwh) => ({ start: this.toDate(dwh.pickStartingTime), end: this.toDate(dwh.pickEndingTime) }));
-        return intervals.some((i) => areIntervalsOverlapping(i, newInterval, { inclusive: true }));
+        return intervals.some((i) => this.intervalsOverlap(i, newInterval));
+    };
+
+    private intervalsOverlap = (
+        interval1: { start: Date; end: Date },
+        interval2: { start: Date; end: Date },
+    ): boolean => {
+        return interval1.start <= interval2.end && interval2.start <= interval1.end;
     };
 }

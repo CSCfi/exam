@@ -5,7 +5,7 @@
 import { Component, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 
@@ -56,8 +56,8 @@ export class ArchiveDownloadComponent {
         } else if (start && end) {
             this.modal.close({
                 $value: {
-                    start: format(start, 'dd.MM.yyyy'),
-                    end: format(end, 'dd.MM.yyyy'),
+                    start: DateTime.fromJSDate(start).toFormat('dd.MM.yyyy'),
+                    end: DateTime.fromJSDate(end).toFormat('dd.MM.yyyy'),
                 },
             });
         }

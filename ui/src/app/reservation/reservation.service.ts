@@ -5,7 +5,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { addMinutes, parseISO } from 'date-fns';
+import { DateTime } from 'luxon';
 import { debounceTime, distinctUntilChanged, exhaustMap, forkJoin, from, map, noop, Observable, of } from 'rxjs';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { CollaborativeExam, Exam } from 'src/app/exam/exam.model';
@@ -44,7 +44,7 @@ export class ReservationService {
     getReservationCount = (exam: Exam) =>
         exam.examEnrolments.filter(
             (enrolment) =>
-                (enrolment.reservation && parseISO(enrolment.reservation.endAt) > new Date()) ||
+                (enrolment.reservation && DateTime.fromISO(enrolment.reservation.endAt) > DateTime.now()) ||
                 (enrolment.examinationEventConfiguration &&
                     new Date(enrolment.examinationEventConfiguration.examinationEvent.start) > new Date()),
         ).length;
@@ -88,10 +88,10 @@ export class ReservationService {
                         user: ee.user,
                         enrolment: ee,
                         startAt: ee.examinationEventConfiguration?.examinationEvent.start,
-                        endAt: addMinutes(
-                            parseISO(ee.examinationEventConfiguration?.examinationEvent.start as string),
-                            ee.exam.duration,
-                        ).toISOString(),
+                        endAt:
+                            DateTime.fromISO(ee.examinationEventConfiguration?.examinationEvent.start as string)
+                                .plus({ minutes: ee.exam.duration })
+                                .toISO() || '',
                     };
                 });
                 const allEvents: Partial<Reservation>[] = reservations;

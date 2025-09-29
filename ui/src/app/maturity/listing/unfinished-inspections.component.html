@@ -10,10 +10,10 @@ SPDX-License-Identifier: EUPL-1.2
             {{ 'i18n_ongoing_language_inspections' | translate }}
             <span>{{ getInspectionAmounts() }}</span>
             @if (inspections.length > 0) {
-                <button (click)="hideItems = !hideItems" class="btn btn-link ms-1">
+                <a (click)="hideItems = !hideItems" class="pointer ms-1">
                     <img [hidden]="!hideItems" src="/assets/images/icon_list_show_right.svg" alt="" />
                     <img [hidden]="hideItems" src="/assets/images/icon_list_show_down.svg" alt="" />
-                </button>
+                </a>
             }
         </div>
     </div>
@@ -187,29 +187,21 @@ SPDX-License-Identifier: EUPL-1.2
                             }
                             @if (inspection.modifier) {
                                 <td>
-                                    <button
-                                        class="btn btn-sm btn-outline-secondary"
-                                        [routerLink]="['/staff/assessments', inspection.exam.id]"
-                                    >
-                                        {{ 'i18n_view_assessment' | translate }}
-                                    </button>
+                                    <a class="pointer" [routerLink]="['/staff/assessments', inspection.exam.id]">{{
+                                        'i18n_view' | translate
+                                    }}</a>
                                 </td>
                             }
                             @if (!inspection.modifier && !user.isAdmin) {
                                 <td>
-                                    <button
-                                        class="btn btn-sm btn-outline-secondary"
-                                        (click)="assignInspection(inspection)"
-                                    >
-                                        {{ 'i18n_assign_assessments_to_me' | translate }}
-                                    </button>
+                                    <a class="pointer" (click)="assignInspection(inspection)"
+                                        >{{ 'i18n_assign_to_me' | translate }}
+                                    </a>
                                 </td>
                             }
                             @if (!inspection.modifier && user.isAdmin) {
                                 <td>
-                                    <button class="btn btn-sm btn-outline-secondary" disabled="disabled">
-                                        {{ 'i18n_assign_assessments_to_me' | translate }}
-                                    </button>
+                                    <span class="text-muted">{{ 'i18n_assign_to_me' | translate }}</span>
                                 </td>
                             }
                         </tr>

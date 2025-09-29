@@ -4,7 +4,7 @@
 
 import { Component, Input, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { User } from 'src/app/session/session.model';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -63,8 +63,8 @@ export class StudentsReportComponent {
 
     getStudentReport = () => {
         if (this.student) {
-            const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
-            const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
+            const f = DateTime.fromJSDate(this.startDate || new Date()).toFormat('dd.MM.yyyy');
+            const t = DateTime.fromJSDate(this.endDate || new Date()).toFormat('dd.MM.yyyy');
             this.files.download(`/app/statistics/student/${this.student}/${f}/${t}`, 'student_activity.xlsx');
         } else {
             this.toast.error(this.translate.instant('i18n_choose_student'));

@@ -4,7 +4,7 @@
 
 import { Component, Input, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { User } from 'src/app/session/session.model';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -62,8 +62,8 @@ export class TeachersReportComponent {
     private files = inject(FileService);
 
     getTeacherExamsByDate = () => {
-        const f = format(this.answerStartDate || new Date(), 'dd.MM.yyyy');
-        const t = format(this.answerEndDate || new Date(), 'dd.MM.yyyy');
+        const f = DateTime.fromJSDate(this.answerStartDate || new Date()).toFormat('dd.MM.yyyy');
+        const t = DateTime.fromJSDate(this.answerEndDate || new Date()).toFormat('dd.MM.yyyy');
         if (this.teacher) {
             this.files.download(
                 `/app/statistics/teacherexamsbydate/${this.teacher}/${f}/${t}`,

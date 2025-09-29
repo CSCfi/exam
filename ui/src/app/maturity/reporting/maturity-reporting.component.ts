@@ -7,14 +7,14 @@ import type { OnInit } from '@angular/core';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { formatISO, startOfMonth } from 'date-fns';
-import { range } from 'ramda';
+import { DateTime } from 'luxon';
 import { LanguageInspectionService } from 'src/app/maturity/language-inspections.service';
 import type { LanguageInspection } from 'src/app/maturity/maturity.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { range } from 'src/app/shared/miscellaneous/helpers';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -66,8 +66,8 @@ export class MaturityReportingComponent implements OnInit {
         const params: { month?: string } = {};
         if (this.month && this.year) {
             const date = new Date(this.year, this.month - 1, 1);
-            const beginning = startOfMonth(date);
-            params.month = encodeURIComponent(formatISO(beginning));
+            const beginning = DateTime.fromJSDate(date).startOf('month');
+            params.month = encodeURIComponent(beginning.toISO() || '');
             this.LanguageInspection.query(params).subscribe(
                 (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),
             );

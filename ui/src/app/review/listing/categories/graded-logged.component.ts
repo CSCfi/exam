@@ -17,7 +17,7 @@ import {
     NgbPopover,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
@@ -129,7 +129,7 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
 
         this.Files.download(
             url + this.exam.id,
-            `${this.translate.instant('i18n_grading_info')}_${format(new Date(), 'dd-MM-yyyy')}.${fileType}`,
+            `${this.translate.instant('i18n_grading_info')}_${DateTime.now().toFormat('dd-MM-yyyy')}.${fileType}`,
             { childIds: ids.map((i) => i.toString()) },
             true,
         );

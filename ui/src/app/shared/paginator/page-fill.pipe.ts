@@ -4,7 +4,7 @@
 
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
-import { range } from 'ramda';
+import { range } from 'src/app/shared/miscellaneous/helpers';
 
 @Pipe({
     name: 'pageFill',

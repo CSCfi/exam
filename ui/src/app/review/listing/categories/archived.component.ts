@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import type { Review, ReviewListView } from 'src/app/review/review.model';
@@ -99,7 +99,7 @@ export class ArchivedReviewsComponent implements OnInit {
 
         this.Files.download(
             url + this.exam.id,
-            `${this.Translate.instant('i18n_grading_info')}_${format(new Date(), 'dd-MM-yyyy')}.xlsx`,
+            `${this.Translate.instant('i18n_grading_info')}_${DateTime.now().toFormat('dd-MM-yyyy')}.xlsx`,
             { childIds: ids.map((i) => i.toString()) },
             true,
         );

@@ -16,7 +16,6 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { mergeDeepRight } from 'ramda';
 import { Observable, from, noop, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type { ExamSection } from 'src/app/exam/exam.model';
@@ -30,6 +29,7 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { mergeDeepRight } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
@@ -144,9 +144,7 @@ export class SectionQuestionComponent {
                     })
                     .subscribe({
                         next: (resp) => {
-                            this.sectionQuestion = {
-                                ...mergeDeepRight(this.sectionQuestion, resp),
-                            } as ExamSectionQuestion;
+                            this.sectionQuestion = mergeDeepRight(this.sectionQuestion, resp) as ExamSectionQuestion;
                             this.updated.emit(this.sectionQuestion);
                             // Collaborative exam question handling.
                             if (!this.collaborative) {
@@ -198,7 +196,7 @@ export class SectionQuestionComponent {
                     next: (esq: ExamSectionQuestion) => {
                         this.toast.info(this.translate.instant('i18n_question_saved'));
                         // apply changes back to scope
-                        this.sectionQuestion = { ...mergeDeepRight(this.sectionQuestion, esq) } as ExamSectionQuestion;
+                        this.sectionQuestion = mergeDeepRight(this.sectionQuestion, esq) as ExamSectionQuestion;
                         this.updated.emit(this.sectionQuestion);
                     },
                     error: (err) => this.toast.error(err),

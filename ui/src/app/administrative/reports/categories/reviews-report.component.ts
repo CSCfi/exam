@@ -4,7 +4,7 @@
 
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { FileService } from 'src/app/shared/file/file.service';
 
@@ -45,8 +45,8 @@ export class ReviewsReportComponent {
     private files = inject(FileService);
 
     getReviewsByDate = () => {
-        const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
-        const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
+        const f = DateTime.fromJSDate(this.startDate || new Date()).toFormat('dd.MM.yyyy');
+        const t = DateTime.fromJSDate(this.endDate || new Date()).toFormat('dd.MM.yyyy');
         this.files.download(`/app/statistics/reviewsbydate/${f}/${t}`, `reviews_${f}_${t}.xlsx`);
     };
 

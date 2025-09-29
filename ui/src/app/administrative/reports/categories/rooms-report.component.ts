@@ -4,7 +4,7 @@
 
 import { Component, Input, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -68,8 +68,8 @@ export class RoomsReportComponent {
     };
 
     getRoomReservationsByDate = () => {
-        const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
-        const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
+        const f = DateTime.fromJSDate(this.startDate || new Date()).toFormat('dd.MM.yyyy');
+        const t = DateTime.fromJSDate(this.endDate || new Date()).toFormat('dd.MM.yyyy');
         if (this.room) {
             this.files.download(`/app/statistics/resbydate/${this.room}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
         } else {
