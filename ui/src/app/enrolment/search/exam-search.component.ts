@@ -9,7 +9,16 @@ import type { OnInit } from '@angular/core';
 import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbNav,
+    NgbNavChangeEvent,
+    NgbNavItem,
+    NgbNavLink,
+} from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subject, forkJoin, of } from 'rxjs';
@@ -29,6 +38,7 @@ import type { CollaborativeExam } from 'src/app/exam/exam.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { isObject } from 'src/app/shared/miscellaneous/helpers';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ExamSearchResultComponent } from './exam-search-result.component';
 import { ExamSearchService } from './exam-search.service';
 
@@ -112,6 +122,65 @@ const EXAM_TABS: ExamTab[] = [
                                             <div class="input-group-append bi-search search-append"></div>
                                         </div>
                                     </div>
+                                    <div class="col-7" ngbDropdown>
+                                        <button
+                                            class="btn btn-outline-secondary"
+                                            type="button"
+                                            ngbDropdownToggle
+                                            aria-expanded="true"
+                                        >
+                                            {{ 'i18n_set_ordering' | translate }}:
+                                            @switch (regularFilter.ordering) {
+                                                @case ('name') {
+                                                    {{
+                                                        (regularFilter.reverse
+                                                            ? 'i18n_exam_name_descending'
+                                                            : 'i18n_exam_name_ascending'
+                                                        ) | translate
+                                                    }}
+                                                }
+                                                @case ('periodStart') {
+                                                    Tenttiperiodi alkaa (nouseva)
+                                                }
+                                                @case ('periodEnd') {
+                                                    Tenttiperiodi päättyy (nouseva)
+                                                }
+                                                @default {
+                                                    <!-- empty -->
+                                                }
+                                            }
+                                        </button>
+                                        <div ngbDropdownMenu role="menu">
+                                            <button
+                                                ngbDropdownItem
+                                                role="presentation"
+                                                (click)="updateRegularSorting('name', false)"
+                                            >
+                                                {{ 'i18n_exam_name_ascending' | translate }}
+                                            </button>
+                                            <button
+                                                ngbDropdownItem
+                                                role="presentation"
+                                                (click)="updateRegularSorting('name', true)"
+                                            >
+                                                {{ 'i18n_exam_name_descending' | translate }}
+                                            </button>
+                                            <button
+                                                ngbDropdownItem
+                                                role="presentation"
+                                                (click)="updateRegularSorting('periodStart', false)"
+                                            >
+                                                Tenttiperiodi alkaa (nouseva)
+                                            </button>
+                                            <button
+                                                ngbDropdownItem
+                                                role="presentation"
+                                                (click)="updateRegularSorting('periodEnd', false)"
+                                            >
+                                                Tenttiperiodi päättyy (nouseva)
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             }
 
@@ -152,7 +221,10 @@ const EXAM_TABS: ExamTab[] = [
                             }
 
                             <div [@listAnimation]="regularExams.length">
-                                @for (exam of regularExams; track exam.id) {
+                                @for (
+                                    exam of regularExams | orderBy: regularFilter.ordering : regularFilter.reverse;
+                                    track exam.id
+                                ) {
                                     <div class="row mb-3">
                                         <div class="col-12">
                                             <xm-exam-search-result [exam]="exam" />
@@ -189,6 +261,65 @@ const EXAM_TABS: ExamTab[] = [
                                             [disabled]="collaborativeLoader.loading"
                                         />
                                         <div class="input-group-append bi-search search-append"></div>
+                                    </div>
+                                </div>
+                                <div class="col-8" ngbDropdown>
+                                    <button
+                                        class="btn btn-outline-secondary"
+                                        type="button"
+                                        ngbDropdownToggle
+                                        aria-expanded="true"
+                                    >
+                                        {{ 'i18n_set_ordering' | translate }}:
+                                        @switch (collaborativeFilter.ordering) {
+                                            @case ('name') {
+                                                {{
+                                                    (collaborativeFilter.reverse
+                                                        ? 'i18n_exam_name_descending'
+                                                        : 'i18n_exam_name_ascending'
+                                                    ) | translate
+                                                }}
+                                            }
+                                            @case ('periodStart') {
+                                                Tenttiperiodi alkaa (nouseva)
+                                            }
+                                            @case ('periodEnd') {
+                                                Tenttiperiodi päättyy (nouseva)
+                                            }
+                                            @default {
+                                                <!-- empty -->
+                                            }
+                                        }
+                                    </button>
+                                    <div ngbDropdownMenu role="menu">
+                                        <button
+                                            ngbDropdownItem
+                                            role="presentation"
+                                            (click)="updateCollaborativeSorting('name', false)"
+                                        >
+                                            {{ 'i18n_exam_name_ascending' | translate }}
+                                        </button>
+                                        <button
+                                            ngbDropdownItem
+                                            role="presentation"
+                                            (click)="updateCollaborativeSorting('name', true)"
+                                        >
+                                            {{ 'i18n_exam_name_descending' | translate }}
+                                        </button>
+                                        <button
+                                            ngbDropdownItem
+                                            role="presentation"
+                                            (click)="updateCollaborativeSorting('periodStart', false)"
+                                        >
+                                            Tenttiperiodi alkaa (nouseva)
+                                        </button>
+                                        <button
+                                            ngbDropdownItem
+                                            role="presentation"
+                                            (click)="updateCollaborativeSorting('periodEnd', false)"
+                                        >
+                                            Tenttiperiodi päättyy (nouseva)
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -232,7 +363,11 @@ const EXAM_TABS: ExamTab[] = [
 
                             <div class="row mt-3">
                                 <div class="col-12">
-                                    @for (exam of collaborativeExams; track exam.id) {
+                                    @for (
+                                        exam of collaborativeExams
+                                            | orderBy: collaborativeFilter.ordering : collaborativeFilter.reverse;
+                                        track exam.id
+                                    ) {
                                         <div class="row mb-3">
                                             <div class="col-12">
                                                 <xm-exam-search-result
@@ -268,10 +403,15 @@ const EXAM_TABS: ExamTab[] = [
         NgbNav,
         NgbNavItem,
         NgbNavLink,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
         ExamSearchResultComponent,
         TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
+        OrderByPipe,
     ],
 })
 export class ExamSearchComponent implements OnInit, OnDestroy {
@@ -281,14 +421,14 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     // Regular exams
     regularExams: EnrolmentInfo[] = [];
     regularFilterChanged = new Subject<string>();
-    regularFilter = { text: '' };
+    regularFilter = { text: '', ordering: 'name', reverse: false };
     regularSearchDone = false;
     regularLoader: LoadingState = { loading: false };
 
     // Collaborative exams
     collaborativeExams: CollaborativeExamInfo[] = [];
     collaborativeFilterChanged: Subject<string> = new Subject<string>();
-    collaborativeFilter = { text: '' };
+    collaborativeFilter = { text: '', ordering: 'name', reverse: false };
     collaborativeSearchDone = false;
     collaborativeLoader: LoadingState = { loading: false };
 
@@ -333,6 +473,18 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
         this.collaborativeFilterChanged.next(text);
     };
 
+    updateRegularSorting = (ordering: string, reverse: boolean) => {
+        this.regularFilter.ordering = ordering;
+        this.regularFilter.reverse = reverse;
+        this.storeFilters();
+    };
+
+    updateCollaborativeSorting = (ordering: string, reverse: boolean) => {
+        this.collaborativeFilter.ordering = ordering;
+        this.collaborativeFilter.reverse = reverse;
+        this.storeFilters();
+    };
+
     onTabChange = (event: NgbNavChangeEvent) => {
         let tabKey = '';
         if (event.nextId === 2) {
@@ -366,8 +518,16 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     private loadStoredFilters() {
         const storedData = this.Search.loadFilters('search');
         if (storedData.filters) {
-            this.regularFilter = { text: storedData.filters.regularText || '' };
-            this.collaborativeFilter = { text: storedData.filters.collaborativeText || '' };
+            this.regularFilter = {
+                text: storedData.filters.regularText || '',
+                ordering: storedData.filters.regularOrdering || 'name',
+                reverse: storedData.filters.regularReverse || false,
+            };
+            this.collaborativeFilter = {
+                text: storedData.filters.collaborativeText || '',
+                ordering: storedData.filters.collaborativeOrdering || 'name',
+                reverse: storedData.filters.collaborativeReverse || false,
+            };
 
             // If there are stored filters, trigger search
             if (this.regularFilter.text) {
@@ -385,14 +545,18 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     }
 
     private initializeFilters() {
-        this.regularFilter = { text: '' };
-        this.collaborativeFilter = { text: '' };
+        this.regularFilter = { text: '', ordering: 'name', reverse: false };
+        this.collaborativeFilter = { text: '', ordering: 'name', reverse: false };
     }
 
     private storeFilters() {
         const filters = {
             regularText: this.regularFilter.text,
+            regularOrdering: this.regularFilter.ordering,
+            regularReverse: this.regularFilter.reverse,
             collaborativeText: this.collaborativeFilter.text,
+            collaborativeOrdering: this.collaborativeFilter.ordering,
+            collaborativeReverse: this.collaborativeFilter.reverse,
         };
         this.Search.storeFilters(filters, 'search');
     }
