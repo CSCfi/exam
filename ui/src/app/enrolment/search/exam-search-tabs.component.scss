@@ -1,0 +1,17 @@
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+@use '../../shared/definitions.scss' as shared;
+
+.student-exam-all-required {
+    color: shared.$exam-medium-green;
+    font-size: 16px;
+    padding-right: 3px;
+}
+.student-exam-row-title-blue, .exam-title-text {
+    color: #266b99;
+    font-weight: bold;
+}

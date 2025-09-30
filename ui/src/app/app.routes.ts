@@ -81,7 +81,8 @@ export const APP_ROUTES: Route[] = [
     },
     {
         path: 'exams',
-        loadComponent: () => import('./enrolment/search/exam-search.component').then((mod) => mod.ExamSearchComponent),
+        loadComponent: () =>
+            import('./enrolment/search/exam-search-tabs.component').then((mod) => mod.ExamSearchTabsComponent),
         title: () => buildTitle('i18n_exams_title'),
     },
     {
