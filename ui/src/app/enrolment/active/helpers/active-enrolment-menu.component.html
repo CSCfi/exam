@@ -10,7 +10,9 @@ SPDX-License-Identifier: EUPL-1.2
 @let eventConfig = enrolment().examinationEventConfiguration;
 @let exam = enrolment().exam;
 <div class="d-flex justify-content-between">
+    <!-- enrolment with reservation, allow changing -->
     @if (reservation && canChangeReservation(reservation)) {
+        <!-- collaborative exam taken here -->
         @if (reservation.machine && collaborativeExam) {
             <button
                 class="btn btn-outline-secondary me-2 mb-2"
@@ -19,16 +21,19 @@ SPDX-License-Identifier: EUPL-1.2
                 {{ 'i18n_student_change_reservation' | translate }}
             </button>
         }
+        <!-- regular exam taken here -->
         @if (reservation.machine && !collaborativeExam) {
             <button class="btn btn-outline-secondary me-2 mb-2" [routerLink]="['/calendar', exam.id]">
                 {{ 'i18n_student_change_reservation' | translate }}
             </button>
         }
+        <!-- regular exam taken elsewhere -->
         @if (reservation.externalReservation && exam) {
             <button class="btn btn-outline-secondary me-2 mb-2" [routerLink]="['/calendar', exam.id, 'external']">
                 {{ 'i18n_student_change_reservation' | translate }}
             </button>
         }
+        <!-- collaborative exam taken elsewhere -->
         @if (reservation.externalReservation && collaborativeExam) {
             <button
                 class="btn btn-outline-secondary me-2 mb-2"
@@ -39,6 +44,7 @@ SPDX-License-Identifier: EUPL-1.2
             </button>
         }
     }
+    <!-- enrolment without reservation, allow making reservation -->
     @if (
         (!reservation && exam?.implementation === 'AQUARIUM') ||
         collaborativeExam ||
@@ -48,26 +54,31 @@ SPDX-License-Identifier: EUPL-1.2
             {{ 'i18n_student_new_reservation' | translate }}
         </button>
     }
+    <!-- enrolment with examination event, allow changing -->
     @if (eventConfig && hasUpcomingAlternativeEvents()) {
         <button class="btn btn-outline-secondary me-2 mb-2" (click)="makeReservation()">
             {{ 'i18n_student_change_reservation' | translate }}
         </button>
     }
+    <!-- enrolment with reservation, allow reservation removal -->
     @if (reservation && canChangeReservation(reservation)) {
         <button class="btn btn-outline-danger me-2 mb-2" (click)="removeReservation()">
             {{ 'i18n_student_remove_reservation' | translate }}
         </button>
     }
+    <!-- reservation in progress, inform with a disabled item -->
     @if (reservation && !canChangeReservation(reservation)) {
         <button class="btn btn-outline-danger me-2 mb-2" [disabled]="true">
             {{ 'i18n_not_allowed_to_modify_reservation' | translate }}
         </button>
     }
+    <!-- enrolment with examination event, allow event removal -->
     @if (eventConfig) {
         <button class="btn btn-outline-danger me-2 mb-2" (click)="removeReservation()">
             {{ 'i18n_student_remove_reservation' | translate }}
         </button>
     }
+    <!-- enrolment without reservation or examination event, allow unenrolling (if other conditions pass) -->
     @if (!reservation && !eventConfig && (exam?.executionType?.type === 'PUBLIC' || collaborativeExam)) {
         <button class="btn btn-outline-danger me-2 mb-2" (click)="removeEnrolment()">
             {{ 'i18n_student_remove_enrolment' | translate }}
