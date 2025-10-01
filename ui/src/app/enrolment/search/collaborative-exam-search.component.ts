@@ -26,7 +26,7 @@ interface LoadingState {
     selector: 'xm-collaborative-exam-search',
     template: `
         <div class="row">
-            <span class="col-12 align-items-center">
+            <span class="col-12 align-items-center mt-3">
                 <img src="/assets/images/icon_info.png" class="pe-1" alt="" />
                 &nbsp;
                 <span>{{ 'i18n_collaborative_exam_search_description' | translate }}</span>

@@ -34,7 +34,7 @@ interface LoadingState {
     selector: 'xm-exam-search',
     template: `
         <div class="row">
-            <span class="col-12 align-items-center">
+            <span class="col-12 align-items-center mt-3">
                 <img src="/assets/images/icon_info.png" class="pe-1" alt="" />
                 &nbsp;
                 @if (permissionCheck.active === false) {
