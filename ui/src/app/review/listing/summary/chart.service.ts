@@ -19,16 +19,16 @@ import {
     TooltipItem,
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { eachDayOfInterval, min, startOfDay } from 'date-fns';
-import { countBy } from 'ramda';
+import { DateTime } from 'luxon';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { Question } from 'src/app/question/question.model';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
+import { DateTimeService } from 'src/app/shared/date/date.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
-import { groupBy } from 'src/app/shared/miscellaneous/helpers';
+import { countBy, groupBy } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })
 export class ChartService {
@@ -37,6 +37,7 @@ export class ChartService {
     private ExamService = inject(ExamService);
     private CommonExam = inject(CommonExamService);
     private ReviewList = inject(ReviewListService);
+    private DateTime = inject(DateTimeService);
 
     constructor() {
         Chart.register([
@@ -286,19 +287,18 @@ export class ChartService {
     };
 
     private calculateExaminationTimeValues = (reviews: ExamParticipation[], exam: Exam) => {
-        const dates = eachDayOfInterval({
-            start: min([new Date(exam.periodStart as string), new Date()]),
-            end: min([new Date(exam.periodEnd as string), new Date()]),
-        });
-        return dates.map((d, i) => ({
-            date: i,
-            amount: reviews.filter((r) => startOfDay(new Date(r.ended)) <= d).length,
+        const startDate = DateTime.min(DateTime.fromISO(exam.periodStart as string), DateTime.now());
+        const endDate = DateTime.min(DateTime.fromISO(exam.periodEnd as string), DateTime.now());
+
+        return this.DateTime.mapDateRange(startDate.toJSDate(), endDate.toJSDate(), (date, index) => ({
+            date: index,
+            amount: reviews.filter((r) => DateTime.fromISO(r.ended).startOf('day') <= date).length,
         }));
     };
 
     private calculateGradeDistribution = (reviews: ExamParticipation[]) => {
         const grades = this.getGrades(reviews);
-        const gradeDistribution = countBy((g) => g, grades);
+        const gradeDistribution = countBy(grades, (g) => g);
         const data = Object.values(gradeDistribution);
         const labels = Object.keys(gradeDistribution).map(this.CommonExam.getExamGradeDisplayName);
         return { data: data, labels: labels };

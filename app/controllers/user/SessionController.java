@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalExamAPI;
-import exceptions.NotFoundException;
 import io.ebean.DB;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
@@ -125,7 +124,7 @@ public class SessionController extends BaseController {
             } else {
                 updateUser(user, request);
             }
-        } catch (NotFoundException | AddressException e) {
+        } catch (IllegalArgumentException | AddressException e) {
             logger.error("Login failed", e);
             String headers = request
                 .headers()
@@ -358,14 +357,14 @@ public class SessionController extends BaseController {
     }
 
     private User createNewUser(String eppn, Http.Request request, boolean ignoreRoleNotFound)
-        throws NotFoundException, AddressException {
+        throws IllegalArgumentException, AddressException {
         User user = new User();
         user
             .getRoles()
             .addAll(
                 parseRoles(
                     parse(request.header("unscoped-affiliation").orElse("")).orElseThrow(() ->
-                        new NotFoundException("role not found")
+                        new IllegalArgumentException("role not found")
                     ),
                     ignoreRoleNotFound
                 )
@@ -432,7 +431,7 @@ public class SessionController extends BaseController {
         return ok(node);
     }
 
-    private Set<Role> parseRoles(String attribute, boolean ignoreRoleNotFound) throws NotFoundException {
+    private Set<Role> parseRoles(String attribute, boolean ignoreRoleNotFound) throws IllegalArgumentException {
         Set<Role> userRoles = new HashSet<>();
         for (String affiliation : attribute.split(";")) {
             for (Map.Entry<Role, List<String>> entry : configReader.getRoleMappingJava().entrySet()) {
@@ -443,7 +442,7 @@ public class SessionController extends BaseController {
             }
         }
         if (userRoles.isEmpty() && !ignoreRoleNotFound) {
-            throw new NotFoundException("i18n_error_role_not_found " + attribute);
+            throw new IllegalArgumentException("i18n_error_role_not_found " + attribute);
         }
         return userRoles;
     }

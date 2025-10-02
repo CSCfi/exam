@@ -10,8 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format, parseISO } from 'date-fns';
-import { Duration } from 'luxon';
+import { DateTime, Duration } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, from, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -81,10 +80,10 @@ export class ExamPublicationComponent implements OnInit {
 
     addExaminationDate = (event: { date: Date | null }) => {
         if (!event.date) return;
-        const fmt = 'DD/MM/YYYY';
-        const formattedDate = format(event.date, fmt);
+        const fmt = 'dd/MM/yyyy';
+        const formattedDate = DateTime.fromJSDate(event.date).toFormat(fmt);
         const alreadyExists: boolean = this.exam.examinationDates
-            .map((ed) => format(parseISO(ed.date), fmt))
+            .map((ed) => DateTime.fromISO(ed.date).toFormat(fmt))
             .some((d: string) => d === formattedDate);
         if (!alreadyExists) {
             this.http

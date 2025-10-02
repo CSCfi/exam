@@ -6,14 +6,14 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="xm-paragraph-title">
     {{ 'i18n_exam_graded_logged' | translate }}
-    <button (click)="view.toggle = !view.toggle" class="btn btn-link text-black">
+    <a (click)="view.toggle = !view.toggle" class="pointer">
         @if (!view.toggle) {
             <img src="/assets/images/icon_list_show_right.svg" />
         }
         @if (view.toggle) {
             <img src="/assets/images/icon_list_show_down.svg" />
         }
-    </button>
+    </a>
     <sup
         class="ps-1"
         ngbPopover="{{ 'i18n_graded_logged_description' | translate }}"
@@ -73,7 +73,6 @@ SPDX-License-Identifier: EUPL-1.2
                         (click)="setPredicate('displayName')"
                     ></xm-table-sort>
                 </th>
-                <th></th>
                 <th class="with-top">
                     <xm-table-sort
                         by="examParticipation.user.email"
@@ -167,16 +166,10 @@ SPDX-License-Identifier: EUPL-1.2
                     @if (showId()) {
                         <td>{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
                     }
-                    <td>
-                        {{ review.displayName }}
-                        @if (review.examParticipation.user?.userIdentifier) {
-                            <span> <br />({{ review.examParticipation.user.userIdentifier }})</span>
-                        }
-                    </td>
                     <td class=" ">
                         @if (collaborative) {
-                            <button
-                                class="btn btn-sm btn-outline-secondary"
+                            <a
+                                class="pointer"
                                 [routerLink]="[
                                     '/staff/assessments',
                                     exam.id,
@@ -184,16 +177,19 @@ SPDX-License-Identifier: EUPL-1.2
                                     review.examParticipation._id,
                                 ]"
                             >
-                                {{ 'i18n_view_assessment' | translate }}
-                            </button>
+                                {{ review.displayName }}
+                                @if (review.examParticipation.user?.userIdentifier) {
+                                    <span> <br />({{ review.examParticipation.user.userIdentifier }})</span>
+                                }
+                            </a>
                         }
                         @if (!collaborative) {
-                            <button
-                                class="btn btn-sm btn-outline-secondary"
-                                [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
-                            >
-                                {{ 'i18n_view_assessment' | translate }}
-                            </button>
+                            <a class="pointer" [routerLink]="['/staff/assessments', review.examParticipation.exam.id]">
+                                {{ review.displayName }}
+                                @if (review.examParticipation.user?.userIdentifier) {
+                                    <span> <br />({{ review.examParticipation.user.userIdentifier }})</span>
+                                }
+                            </a>
                         }
                     </td>
                     <td>
@@ -282,15 +278,15 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="ps-0 pe-0 mb-3 w-100 d-flex justify-content-between align-items-center">
             <div>
                 <div class="speed-review-csv mb-2">
-                    <button class="btn btn-sm btn-outline-primary" (click)="printSelected(false)">
-                        {{ 'i18n_print_selected_to_file' | translate }}
-                    </button>
+                    <a class="pointer" (click)="printSelected(false)">{{
+                        'i18n_print_selected_to_file' | translate
+                    }}</a>
                 </div>
                 @if (!collaborative) {
                     <div class="speed-review-csv mb-2">
-                        <button class="btn btn-sm btn-outline-primary" (click)="printSelected(true)">
-                            {{ 'i18n_print_selected_to_excel' | translate }}
-                        </button>
+                        <a class="pointer" (click)="printSelected(true)">{{
+                            'i18n_print_selected_to_excel' | translate
+                        }}</a>
                     </div>
                 }
             </div>

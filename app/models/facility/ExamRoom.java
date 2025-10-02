@@ -8,12 +8,12 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import controllers.facility.RoomLike;
 import io.ebean.Finder;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import java.util.List;
 import java.util.Set;
 import models.base.GeneratedIdentityModel;
@@ -61,13 +61,10 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     // Checkbox indicating is there any accessibility issues concerning the room
     private boolean accessible;
 
-    @Column(columnDefinition = "TEXT")
     private String roomInstruction;
 
-    @Column(columnDefinition = "TEXT")
     private String roomInstructionEN;
 
-    @Column(columnDefinition = "TEXT")
     private String roomInstructionSV;
 
     private String contactPerson;
@@ -84,18 +81,16 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     @JsonManagedReference
     private List<ExamMachine> examMachines;
 
-    // In UI, section has been expanded
-    private boolean expanded;
-
     private String localTimezone;
 
-    public boolean getExpanded() {
-        return expanded;
-    }
+    private String internalPassword;
+    private String externalPassword;
 
-    public void setExpanded(boolean expanded) {
-        this.expanded = expanded;
-    }
+    @Transient
+    private boolean internalPasswordRequired;
+
+    @Transient
+    private boolean externalPasswordRequired;
 
     public String getBuildingName() {
         return buildingName;
@@ -266,6 +261,38 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
 
     public void setLocalTimezone(String localTimezone) {
         this.localTimezone = localTimezone;
+    }
+
+    public String getInternalPassword() {
+        return internalPassword;
+    }
+
+    public void setInternalPassword(String internalPassword) {
+        this.internalPassword = internalPassword;
+    }
+
+    public String getExternalPassword() {
+        return externalPassword;
+    }
+
+    public void setExternalPassword(String externalPassword) {
+        this.externalPassword = externalPassword;
+    }
+
+    public boolean isInternalPasswordRequired() {
+        return this.internalPasswordRequired;
+    }
+
+    public boolean isExternalPasswordRequired() {
+        return this.externalPasswordRequired;
+    }
+
+    public void setInternalPasswordRequired(boolean internalPasswordRequired) {
+        this.internalPasswordRequired = internalPasswordRequired;
+    }
+
+    public void setExternalPasswordRequired(boolean externalPasswordRequired) {
+        this.externalPasswordRequired = externalPasswordRequired;
     }
 
     @Override

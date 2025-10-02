@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Lists;
 import controllers.admin.SettingsController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
-import exceptions.NotFoundException;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
 import java.util.ArrayList;
@@ -99,7 +98,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             LocalDate searchDate;
             try {
                 searchDate = parseSearchDate(day, exam, room);
-            } catch (NotFoundException e) {
+            } catch (IllegalArgumentException e) {
                 return Results.notFound();
             }
             // users reservations starting from now
@@ -175,7 +174,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
      * If searching for upcoming weeks, day of week is one.
      */
     @Override
-    public LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException {
+    public LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws IllegalArgumentException {
         int windowSize = getReservationWindowSize();
         DateTimeZone dtz = room != null
             ? DateTimeZone.forID(room.getLocalTimezone())
@@ -195,7 +194,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         }
         // if searching for month(s) after exam's end month -> no can do
         if (searchDate.isAfter(searchEndDate)) {
-            throw new NotFoundException();
+            throw new IllegalArgumentException("Search date is after exam end date");
         }
         // Do not execute search before exam starts
         if (searchDate.isBefore(examStartDate)) {

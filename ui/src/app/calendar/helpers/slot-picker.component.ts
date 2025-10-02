@@ -12,6 +12,7 @@ import {
     OnChanges,
     OnInit,
     Output,
+    ViewChild,
     ViewEncapsulation,
     inject,
     signal,
@@ -26,6 +27,7 @@ import type { Observable } from 'rxjs';
 import { BookingCalendarComponent } from 'src/app/calendar/booking-calendar.component';
 import type { FilterableAccessibility, Organisation, Slot } from 'src/app/calendar/calendar.model';
 import { CalendarService } from 'src/app/calendar/calendar.service';
+import { PasswordPromptComponent } from 'src/app/calendar/helpers/password-prompt.component';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { updateList } from 'src/app/shared/miscellaneous/helpers';
@@ -49,10 +51,12 @@ type AvailableSlot = Slot & { availableMachines: number };
         SelectedRoomComponent,
         AccessibilityPickerComponent,
         BookingCalendarComponent,
+        PasswordPromptComponent,
         TranslateModule,
     ],
 })
 export class SlotPickerComponent implements OnInit, OnChanges {
+    @ViewChild('passwordPrompt') passwordPrompt!: PasswordPromptComponent;
     @Input() sequenceNumber = 0;
     @Input() isInteroperable = false;
     @Input() isCollaborative = false;
@@ -75,6 +79,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     accessibilities: FilterableAccessibility[] = [];
     currentWeek = signal(DateTime.now());
     examId = signal(0);
+    passwordVerified = signal(false);
 
     private translate = inject(TranslateService);
     private route = inject(ActivatedRoute);
@@ -100,6 +105,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         if (changes.organisation && this.organisation) {
             this.rooms.set(this.organisation.facilities.map((f) => ({ ...f, filtered: false })));
             delete this.selectedRoom;
+            this.passwordVerified.set(false);
             const remoteMaintenances = (this.organisation.maintenancePeriods || []).map((p) => ({
                 ...p,
                 remote: true,
@@ -166,13 +172,24 @@ export class SlotPickerComponent implements OnInit, OnChanges {
 
     accesibilitiesChanged = (items: FilterableAccessibility[]) => (this.accessibilities = [...items]);
 
+    onPasswordValidated(password: string): void {
+        if (this.selectedRoom && password) {
+            this.Calendar.validatePassword$(
+                this.selectedRoom.id,
+                password,
+                this.isExternal,
+                this.selectedRoom._id,
+            ).subscribe({
+                next: () => this.passwordVerified.set(true),
+                error: () => this.toast.error(this.translate.instant('i18n_invalid_password')),
+            });
+        }
+    }
+
     selectRoom = (room: FilterableRoom) => {
         if (!room.outOfService) {
-            this.selectedRoom = room;
-            this.rooms.update((rs) => {
-                const unfiltered = rs.map((r) => ({ ...r, filtered: false }));
-                return updateList(unfiltered, 'id', { ...room, filtered: true });
-            });
+            // Always set the room immediately to show room information
+            this.setSelectedRoom(room);
         }
     };
 
@@ -191,6 +208,22 @@ export class SlotPickerComponent implements OnInit, OnChanges {
                 ? this.translate.instant('i18n_own_reservation')
                 : this.translate.instant('i18n_reserved');
         }
+    }
+
+    private setSelectedRoom(room: FilterableRoom) {
+        this.selectedRoom = room;
+        // Only set password verified to true if room doesn't require password
+        if (!this.isExternal && room.internalPasswordRequired) {
+            this.passwordVerified.set(false);
+        } else if (this.isExternal && room.externalPasswordRequired) {
+            this.passwordVerified.set(false);
+        } else {
+            this.passwordVerified.set(true);
+        }
+        this.rooms.update((rs) => {
+            const unfiltered = rs.map((r) => ({ ...r, filtered: false }));
+            return updateList(unfiltered, 'id', { ...room, filtered: true });
+        });
     }
 
     private query(date: string, accessibilityIds: number[]): Observable<AvailableSlot[]> {

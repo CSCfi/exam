@@ -5,7 +5,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime, WeekdayNumbers } from 'luxon';
-import { range } from 'ramda';
+import { range } from 'src/app/shared/miscellaneous/helpers';
 
 export enum REPEAT_OPTION {
     once = 'ONCE',
@@ -97,5 +97,21 @@ export class DateTimeService {
         const jul = new Date(d.getFullYear(), 6, 1);
         const offset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
         return d.getTimezoneOffset() < offset;
+    };
+
+    eachDayOfInterval = (start: Date, end: Date): DateTime[] => {
+        const startDate = DateTime.fromJSDate(start).startOf('day');
+        const endDate = DateTime.fromJSDate(end).startOf('day');
+        const daysDiff = Math.floor(endDate.diff(startDate, 'days').days) + 1;
+
+        return Array.from({ length: Math.max(0, daysDiff) }, (_, index) => startDate.plus({ days: index }));
+    };
+
+    intervalsOverlap = (interval1: { start: Date; end: Date }, interval2: { start: Date; end: Date }): boolean => {
+        return interval1.start <= interval2.end && interval2.start <= interval1.end;
+    };
+
+    mapDateRange = <T>(start: Date, end: Date, mapFn: (date: DateTime, index: number) => T): T[] => {
+        return this.eachDayOfInterval(start, end).map(mapFn);
     };
 }

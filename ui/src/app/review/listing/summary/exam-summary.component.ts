@@ -8,7 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -17,7 +17,7 @@ import { NoShowsComponent } from 'src/app/review/listing/dialogs/no-shows.compon
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import type { Review } from 'src/app/review/review.model';
 import { FileService } from 'src/app/shared/file/file.service';
-import { ChartService } from './chart-service';
+import { ChartService } from './chart.service';
 import { ExamSummaryService } from './exam-summary.service';
 
 @Component({
@@ -102,7 +102,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
             const url = '/app/reports/questionreport/' + this.exam.id;
             this.Files.download(
                 url,
-                this.translate.instant('i18n_grading_info') + '_' + format(new Date(), 'dd-MM-yyyy') + '.xlsx',
+                this.translate.instant('i18n_grading_info') + '_' + DateTime.now().toFormat('dd-MM-yyyy') + '.xlsx',
                 { childIds: ids.map((i) => i.toString()) },
                 true,
             );

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -24,6 +25,7 @@ import { RoomService } from './room.service';
     selector: 'xm-room',
     imports: [
         FormsModule,
+        NgClass,
         NgbPopover,
         AvailabilityComponent,
         AccessibilitySelectorComponent,
@@ -40,6 +42,8 @@ export class RoomComponent implements OnInit {
     showName = false;
     isInteroperable = false;
     editingMultipleRooms = false;
+    internalPasswordInputType = 'password';
+    externalPasswordInputType = 'password';
 
     private router = inject(Router);
     private route = inject(ActivatedRoute);
@@ -74,7 +78,7 @@ export class RoomComponent implements OnInit {
     };
 
     updateRoom = () => {
-        this.roomService.updateRoom(this.room).subscribe({
+        this.roomService.updateRoom$(this.room).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_room_updated'));
             },
@@ -86,7 +90,7 @@ export class RoomComponent implements OnInit {
         if (!this.roomService.isAnyExamMachines(this.room))
             this.toast.error(this.translate.instant('i18n_dont_forget_to_add_machines') + ' ' + this.room.name);
 
-        this.roomService.updateRoom(this.room).subscribe({
+        this.roomService.updateRoom$(this.room).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_room_saved'));
                 this.router.navigate(['/staff/rooms']);
@@ -106,5 +110,13 @@ export class RoomComponent implements OnInit {
                 this.toast.error(err.data.message);
             },
         });
+    };
+
+    toggleInternalPasswordInputType = () => {
+        this.internalPasswordInputType = this.internalPasswordInputType === 'text' ? 'password' : 'text';
+    };
+
+    toggleExternalPasswordInputType = () => {
+        this.externalPasswordInputType = this.externalPasswordInputType === 'text' ? 'password' : 'text';
     };
 }

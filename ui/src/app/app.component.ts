@@ -83,7 +83,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        const user = this.Session.getUser();
+        const user = this.Session.getOptionalUser();
         if (user) {
             if (!user.loginRole) {
                 // This happens if user refreshes the tab before having selected a login role,

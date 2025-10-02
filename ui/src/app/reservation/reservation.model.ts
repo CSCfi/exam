@@ -32,7 +32,7 @@ export type Accessibility = {
 
 export interface ExamRoom {
     id: number;
-    _id?: number;
+    _id?: string;
     name: string;
     examMachines: ExamMachine[];
     localTimezone: string;
@@ -54,6 +54,10 @@ export interface ExamRoom {
     videoRecordingsURL: string;
     availableForExternals: boolean;
     externalRef: string | null;
+    internalPassword?: string;
+    externalPassword?: string;
+    internalPasswordRequired: boolean;
+    externalPasswordRequired: boolean;
 }
 
 export interface ExamMachine {

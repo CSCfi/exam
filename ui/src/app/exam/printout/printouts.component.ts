@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { format, parseISO } from 'date-fns';
+import { DateTime } from 'luxon';
 import { map } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -117,7 +117,9 @@ export class PrintoutListingComponent implements OnInit {
                         const dates = p.examinationDates.map((ed) => ed.date).sort();
                         return {
                             ...p,
-                            examinationDatesAggregate: dates.map((d) => format(parseISO(d), 'DD.MM.YYYY')).join(', '),
+                            examinationDatesAggregate: dates
+                                .map((d) => DateTime.fromISO(d).toFormat('dd.MM.yyyy'))
+                                .join(', '),
                         };
                     });
                 }),

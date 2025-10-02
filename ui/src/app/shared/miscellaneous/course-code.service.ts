@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Injectable, inject } from '@angular/core';
-import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
+import { StorageService } from 'src/app/shared/storage/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class CourseCodeService {
-    private webStorageService = inject<WebStorageService>(SESSION_STORAGE);
+    private storageService = inject(StorageService);
 
     formatCode = (code: string): string => {
-        const prefix = this.webStorageService.get('COURSE_CODE_PREFIX');
+        const prefix = this.storageService.get<string>('COURSE_CODE_PREFIX');
         if (prefix) {
             const parts = code.split(prefix);
             return parts.length > 1 ? parts.slice(0, parts.length - 1).join(prefix) : parts[0];

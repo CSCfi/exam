@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.5")
+addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.9")
 
 addSbtPlugin("org.playframework" % "sbt-play-ebean" % "8.0.0")
 
@@ -12,4 +12,4 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
 
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
 
-
+addSbtPlugin("net.nmoncho" % "sbt-dependency-check" % "1.8.1")

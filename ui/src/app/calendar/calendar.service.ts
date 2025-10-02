@@ -170,6 +170,13 @@ export class CalendarService {
     listAccessibilityCriteria$ = () => this.http.get<Accessibility[]>('/app/accessibility');
     listOrganisations$ = () => this.http.get<Organisation[]>('/app/iop/organisations');
 
+    validatePassword$ = (roomId: number, password: string, external: boolean, facilityId?: string) =>
+        this.http.post<{ valid: boolean; message?: string }>(`/app/rooms/${roomId}/validate`, {
+            password: password,
+            external: external,
+            facilityId: facilityId,
+        });
+
     listSlots$ = (external: boolean, collaborative: boolean, room: ExamRoom, examId: number, params: HttpParams) => {
         let url: string;
         if (external) {

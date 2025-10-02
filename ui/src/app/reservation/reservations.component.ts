@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { endOfDay, startOfDay } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import type { CollaborativeExam, Exam, ExamImpl } from 'src/app/exam/exam.model';
@@ -217,10 +217,10 @@ export class ReservationsComponent implements OnInit {
         };
         const params: Selection = { ...input, ...extras };
         if (this.startDate) {
-            params.start = startOfDay(this.startDate).toISOString();
+            params.start = DateTime.fromJSDate(this.startDate).startOf('day').toISO() || '';
         }
         if (this.endDate) {
-            params.end = endOfDay(this.endDate).toISOString();
+            params.end = DateTime.fromJSDate(this.endDate).endOf('day').toISO() || '';
         }
         return params;
     };

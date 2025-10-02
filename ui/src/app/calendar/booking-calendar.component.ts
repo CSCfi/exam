@@ -19,7 +19,7 @@ import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalen
 import enLocale from '@fullcalendar/core/locales/en-gb';
 import fiLocale from '@fullcalendar/core/locales/fi';
 import svLocale from '@fullcalendar/core/locales/sv';
-import luxon2Plugin from '@fullcalendar/luxon2';
+import luxon2Plugin from '@fullcalendar/luxon3';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -32,7 +32,7 @@ import { CalendarService } from './calendar.service';
     template: `
         @if (visible()) {
             <div class="row my-2">
-                @if (visible()) {
+                @if (visible() && passwordVerified()) {
                     <div class="col-md-12">
                         <full-calendar #fc [options]="calendarOptions()"></full-calendar>
                     </div>
@@ -54,6 +54,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
 
     room = input.required<ExamRoom>();
     visible = input(false);
+    passwordVerified = input(false);
     minDate = input<Date>();
     maxDate = input<Date>();
     accessibilities = input<Accessibility[]>([]);
@@ -107,9 +108,9 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
                 slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
                 timeZone: room.localTimezone,
             }));
-            this.calendar.getApi().refetchEvents();
+            this.calendar?.getApi().refetchEvents();
         });
-        toObservable(this.accessibilities).subscribe(() => this.calendar.getApi().refetchEvents());
+        toObservable(this.accessibilities).subscribe(() => this.calendar?.getApi().refetchEvents());
     }
 
     ngOnInit() {

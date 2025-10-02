@@ -78,6 +78,15 @@ SPDX-License-Identifier: EUPL-1.2
         @if (selectedRoom) {
             <div class="row mt-2">
                 <div class="col-md-12">
+                    <xm-password-prompt
+                        #passwordPrompt
+                        [visible]="!passwordVerified()"
+                        (passwordValidated)="onPasswordValidated($event)"
+                    ></xm-password-prompt>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-12">
                     <xm-booking-calendar
                         (eventSelected)="eventSelected($event)"
                         (moreEventsNeeded)="refresh($event)"
@@ -86,6 +95,7 @@ SPDX-License-Identifier: EUPL-1.2
                         [room]="selectedRoom"
                         [accessibilities]="accessibilities"
                         [visible]="selectedRoom !== undefined"
+                        [passwordVerified]="passwordVerified()"
                     >
                     </xm-booking-calendar>
                 </div>

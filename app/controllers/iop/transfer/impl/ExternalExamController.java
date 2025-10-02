@@ -53,6 +53,7 @@ import models.enrolment.ExamEnrolment;
 import models.enrolment.ExamParticipation;
 import models.enrolment.Reservation;
 import models.exam.Exam;
+import models.exam.Grade;
 import models.iop.ExternalExam;
 import models.questions.Question;
 import models.sections.ExamSection;
@@ -128,6 +129,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         clone.setCreatorWithDate(user);
         clone.setModifierWithDate(user);
         clone.generateHash();
+        clone.setGradingType(Grade.Type.GRADED);
         clone.save();
 
         if (src.getAutoEvaluationConfig() != null) {

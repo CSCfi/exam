@@ -5,10 +5,10 @@
 import { KeyValuePipe } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { groupBy } from 'ramda';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 import { Reservation } from 'src/app/reservation/reservation.model';
+import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
     template: `
@@ -85,8 +85,7 @@ export class IopReservationStatisticsComponent {
 
     listReservations = () =>
         this.Statistics.listIopReservations$(this.queryParams).subscribe((resp) => {
-            const byOrg = groupBy((r: Reservation) => r.externalOrgName || r.externalReservation?.orgName || '');
-            this.grouped = byOrg(resp) as Record<string, Reservation[]>;
+            this.grouped = groupBy(resp, (r: Reservation) => r.externalOrgName || r.externalReservation?.orgName || '');
             console.log(this.grouped);
         });
 

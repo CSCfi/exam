@@ -169,9 +169,9 @@ SPDX-License-Identifier: EUPL-1.2
                                             type="button"
                                             ngbDropdownToggle
                                             aria-expanded="true"
-                                            [disabled]="user.removableRoles.length <= 1"
+                                            [disabled]="user.roles.length <= 1"
                                         >
-                                            @if (user.removableRoles.length > 1) {
+                                            @if (user.roles.length > 1) {
                                                 <i class="text-danger bi-dash"></i>
                                             } @else {
                                                 <i
@@ -182,7 +182,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                 ></i>
                                             }
                                         </button>
-                                        @if (user.removableRoles.length > 1) {
+                                        @if (user.roles.length > 1) {
                                             <div
                                                 ngbDropdownMenu
                                                 class="float-end"

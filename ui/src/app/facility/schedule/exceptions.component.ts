@@ -5,7 +5,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { format, parseISO } from 'date-fns';
+import { DateTime } from 'luxon';
 import { from } from 'rxjs';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import type { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
@@ -90,12 +90,12 @@ export class ExceptionListComponent implements OnInit, OnChanges {
             return;
         }
         const fmt = 'dd.MM.yyyy HH:mm';
-        const start = parseISO(exception.startDate);
-        const end = parseISO(exception.endDate);
+        const start = DateTime.fromISO(exception.startDate);
+        const end = DateTime.fromISO(exception.endDate);
         return (
-            format(start, fmt) +
+            start.toFormat(fmt) +
             ' - ' +
-            (format(start, 'dd.MM.yyyy') === format(end, 'dd.MM.yyyy') ? format(end, 'HH:mm') : format(end, fmt))
+            (start.toFormat('dd.MM.yyyy') === end.toFormat('dd.MM.yyyy') ? end.toFormat('HH:mm') : end.toFormat(fmt))
         );
     };
 

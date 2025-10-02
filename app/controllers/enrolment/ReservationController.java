@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import controllers.base.BaseController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalReservationHandler;
-import exceptions.NotFoundException;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.FetchConfig;
@@ -138,10 +137,10 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN") })
-    public CompletionStage<Result> removeReservation(long id, Http.Request request) throws NotFoundException {
+    public CompletionStage<Result> removeReservation(long id, Http.Request request) {
         var enrolment = DB.find(ExamEnrolment.class).where().eq("reservation.id", id).findOne();
         if (enrolment == null) {
-            throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
+            throw new IllegalArgumentException(String.format("No reservation with id %d for current user.", id));
         }
         var participation = DB.find(ExamParticipation.class).where().eq("exam", enrolment.getExam()).findOne();
         if (participation != null) {
@@ -172,7 +171,7 @@ public class ReservationController extends BaseController {
         }
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result findAvailableMachines(Long reservationId, Long roomId)
         throws ExecutionException, InterruptedException {
         var reservation = DB.find(Reservation.class, reservationId);

@@ -5,7 +5,7 @@
 import type { OnInit } from '@angular/core';
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { addDays } from 'date-fns';
+import { DateTime } from 'luxon';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { LanguageService } from 'src/app/shared/language/language.service';
@@ -80,7 +80,7 @@ export class LanguageInspectionsComponent implements OnInit {
             params.start = this.startDate.getTime() + tzOffset;
         }
         if (this.endDate) {
-            params.end = addDays(this.endDate, 1).getTime();
+            params.end = DateTime.fromJSDate(this.endDate).plus({ days: 1 }).toMillis();
         }
         const refreshAll = Object.keys(params).length === 0;
         this.LanguageInspection.query(params).subscribe((resp: LanguageInspection[]) => {

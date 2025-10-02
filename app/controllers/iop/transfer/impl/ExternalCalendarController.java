@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
-import exceptions.NotFoundException;
 import impl.CalendarHandler;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
@@ -96,19 +95,19 @@ public class ExternalCalendarController extends BaseController {
     private URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
         return URI.create(
             configReader.getIopHost() +
-            String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
+                String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
         ).toURL();
     }
 
     private URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
         return URI.create(
             configReader.getIopHost() +
-            String.format(
-                "/api/organisations/%s/facilities/%s/reservations/%s/force",
-                orgRef,
-                facilityRef,
-                reservationRef
-            )
+                String.format(
+                    "/api/organisations/%s/facilities/%s/reservations/%s/force",
+                    orgRef,
+                    facilityRef,
+                    reservationRef
+                )
         ).toURL();
     }
 
@@ -226,7 +225,7 @@ public class ExternalCalendarController extends BaseController {
                 LocalDate searchDate;
                 try {
                     searchDate = parseSearchDate(date.get(), start.get(), end.get(), room);
-                } catch (NotFoundException e) {
+                } catch (IllegalArgumentException e) {
                     return notFound();
                 }
                 List<ExamMachine> machines = DB.find(ExamMachine.class)
@@ -420,7 +419,7 @@ public class ExternalCalendarController extends BaseController {
             // Also sanity check the provided search date
             try {
                 calendarHandler.parseSearchDate(date.get(), exam, null);
-            } catch (NotFoundException e) {
+            } catch (IllegalArgumentException e) {
                 return wrapAsPromise(notFound());
             }
             // Ready to shoot
@@ -475,7 +474,7 @@ public class ExternalCalendarController extends BaseController {
      * If searching for upcoming weeks, day of week is one.
      */
     private LocalDate parseSearchDate(String day, String startDate, String endDate, ExamRoom room)
-        throws NotFoundException {
+        throws IllegalArgumentException {
         int windowSize = calendarHandler.getReservationWindowSize();
         int offset = room != null
             ? DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now())
@@ -497,7 +496,7 @@ public class ExternalCalendarController extends BaseController {
         }
         // if searching for month(s) after exam's end month -> no can do
         if (searchDate.isAfter(searchEndDate)) {
-            throw new NotFoundException();
+            throw new IllegalArgumentException("Search date is after exam end date");
         }
         // Do not execute search before exam starts
         if (searchDate.isBefore(examStartDate)) {

@@ -5,12 +5,17 @@
 declare global {
     interface Window {
         MathJax: {
-            typesetPromise: (elements?: HTMLElement[]) => Promise<void>;
-            startup: {
+            // MathJax 2.7.9 API
+            Hub: {
+                Queue: (commands: unknown[]) => void;
+            };
+            // Fallback for newer versions
+            typesetPromise?: (elements?: HTMLElement[]) => Promise<void>;
+            startup?: {
                 document: Document;
                 ready: () => Promise<void>;
             };
-            config: {
+            config?: {
                 tex: {
                     inlineMath: string[][];
                     displayMath: string[][];

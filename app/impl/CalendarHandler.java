@@ -6,7 +6,6 @@ package impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.ImplementedBy;
-import exceptions.NotFoundException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -37,7 +36,7 @@ public interface CalendarHandler {
         User user
     );
     Collection<Interval> gatherSuitableSlots(ExamRoom room, LocalDate date, Integer examDuration);
-    LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException;
+    LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws IllegalArgumentException;
 
     Optional<ExamMachine> getRandomMachine(
         ExamRoom room,
