@@ -24,6 +24,7 @@ import {
     EditorConfig,
     Essentials,
     FindAndReplace,
+    findAttributeRange,
     GeneralHtmlSupport,
     Heading,
     Highlight,
@@ -299,7 +300,7 @@ export class CKEditorComponent implements AfterViewInit {
         // Process any existing math elements after editor is ready
         setTimeout(() => this.processMathInEditor(e), 200);
 
-        // Add CSS to ensure math elements are clickable and show selection state
+        // Add CSS to ensure math and cloze elements are clickable and show hover/selection state
         const style = document.createElement('style');
         style.textContent = `
             .ck-editor__editable math-field {
@@ -325,6 +326,19 @@ export class CKEditorComponent implements AfterViewInit {
             .ck-editor__editable math-field > div {
                 pointer-events: all !important;
                 cursor: pointer !important;
+            }
+            .ck-editor__editable span[cloze],
+            .ck-editor__editable span[cloze="true"],
+            .ck-editor__editable .cloze-test-wrapper {
+                cursor: pointer !important;
+                transition: background-color 0.15s ease;
+                padding: 1px 2px;
+                border-radius: 2px;
+            }
+            .ck-editor__editable span[cloze]:hover,
+            .ck-editor__editable span[cloze="true"]:hover,
+            .ck-editor__editable .cloze-test-wrapper:hover {
+                background-color: rgba(0, 123, 255, 0.1) !important;
             }
         `;
         document.head.appendChild(style);
@@ -382,13 +396,14 @@ export class CKEditorComponent implements AfterViewInit {
             { priority: 'highest' },
         );
 
-        // Add single-click handler for math elements (for direct editing)
+        // Add single-click handler for math and cloze elements
         e.editing.view.document.on(
             'click',
             (evt: any, data: any) => {
                 const viewElement = data.target;
-                const mathElement = this.findMathElementInView(viewElement);
 
+                // Check for math elements first
+                const mathElement = this.findMathElementInView(viewElement);
                 if (mathElement) {
                     // Select the model element and open dialog if successful
                     if (this.selectMathModelElement(e, mathElement)) {
@@ -396,6 +411,16 @@ export class CKEditorComponent implements AfterViewInit {
                         setTimeout(() => this.openMathDialog(e, 'single-click'), 50);
                     } else {
                         console.warn('Could not find mathField model element');
+                    }
+                    return; // Don't check for cloze if we found math
+                }
+
+                // Check for cloze test elements
+                const clozeElement = this.findClozeElementInView(viewElement);
+                if (clozeElement) {
+                    // Select the cloze element first, then open the dialog
+                    if (this.selectClozeElement(e, clozeElement)) {
+                        setTimeout(() => this.openClozeDialog(e), 50);
                     }
                 }
             },
@@ -854,6 +879,123 @@ export class CKEditorComponent implements AfterViewInit {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Helper method to find cloze element in the CKEditor view tree
+     */
+    private findClozeElementInView(viewElement: any): any {
+        let currentElement = viewElement;
+
+        // Search up the DOM tree for span with cloze attribute
+        while (currentElement) {
+            if (currentElement.name === 'span') {
+                // Check for cloze attribute (could be "true" or an actual value)
+                const clozeAttr = currentElement.getAttribute ? currentElement.getAttribute('cloze') : null;
+                const hasClass = currentElement.hasClass ? currentElement.hasClass('marker') : false;
+
+                if (clozeAttr !== null || hasClass) {
+                    return currentElement;
+                }
+            }
+            currentElement = currentElement.parent;
+        }
+
+        return null;
+    }
+
+    /**
+     * Select a cloze element in the model
+     */
+    private selectClozeElement(editor: any, clozeViewElement: any): boolean {
+        try {
+            const model = editor.model;
+            const mapper = editor.editing.mapper;
+
+            // Get the model position from the view element
+            const viewPosition = editor.editing.view.createPositionAt(clozeViewElement, 0);
+            const modelPosition = mapper.toModelPosition(viewPosition);
+
+            if (modelPosition) {
+                // Look at the node before or after the position
+                const nodeBefore = modelPosition.nodeBefore;
+                const nodeAfter = modelPosition.nodeAfter;
+                const parent = modelPosition.parent;
+
+                // Try to find the ctCaseSensitive or ctCloze attribute
+                let caseSensitiveValue;
+                let searchPosition = modelPosition;
+
+                if (nodeBefore && nodeBefore.hasAttribute('ctCaseSensitive')) {
+                    caseSensitiveValue = nodeBefore.getAttribute('ctCaseSensitive');
+                    searchPosition = model.createPositionBefore(nodeBefore);
+                } else if (nodeAfter && nodeAfter.hasAttribute('ctCaseSensitive')) {
+                    caseSensitiveValue = nodeAfter.getAttribute('ctCaseSensitive');
+                    searchPosition = model.createPositionBefore(nodeAfter);
+                } else if (parent && parent.is('$text') && parent.hasAttribute('ctCaseSensitive')) {
+                    caseSensitiveValue = parent.getAttribute('ctCaseSensitive');
+                } else {
+                    // Try with ctCloze as fallback
+                    if (nodeBefore && nodeBefore.hasAttribute('ctCloze')) {
+                        caseSensitiveValue = nodeBefore.getAttribute('ctCaseSensitive');
+                        searchPosition = model.createPositionBefore(nodeBefore);
+                    } else if (nodeAfter && nodeAfter.hasAttribute('ctCloze')) {
+                        caseSensitiveValue = nodeAfter.getAttribute('ctCaseSensitive');
+                        searchPosition = model.createPositionBefore(nodeAfter);
+                    }
+                }
+
+                if (caseSensitiveValue !== undefined) {
+                    const attributeRange = findAttributeRange(
+                        searchPosition,
+                        'ctCaseSensitive',
+                        caseSensitiveValue,
+                        model,
+                    );
+
+                    if (attributeRange) {
+                        model.change((writer: any) => {
+                            writer.setSelection(attributeRange);
+                        });
+                        return true;
+                    }
+                }
+            }
+
+            console.warn('Could not select cloze element');
+            return false;
+        } catch (error) {
+            console.error('Error selecting cloze element:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Open the cloze dialog by calling the ClozeUI's showUI method
+     */
+    private openClozeDialog(editor: any) {
+        try {
+            // Find the ClozeUI plugin
+            const clozeUI = this.getClozeUI(editor);
+            if (clozeUI) {
+                // Call showUI directly
+                clozeUI.showUI();
+            } else {
+                console.warn('ClozeUI plugin not found');
+            }
+        } catch (error) {
+            console.error('Error opening cloze dialog:', error);
+        }
+    }
+
+    private getClozeUI(editor: any) {
+        // Try to find the ClozeUI plugin by iterating through all plugins
+        for (const [, plugin] of editor.plugins) {
+            if (plugin.constructor.name === 'ClozeUI') {
+                return plugin;
+            }
+        }
+        return null;
     }
 
     private getMathUI(editor: any) {

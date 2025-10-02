@@ -2,11 +2,18 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ButtonView, ContextualBalloon, Plugin, PositionOptions, clickOutsideHandler } from 'ckeditor5';
+import { ButtonView, ContextualBalloon, Plugin, PositionOptions, Range, clickOutsideHandler } from 'ckeditor5';
+import { ClozeCommand } from './command';
 import { _t, getRangeText } from './utils';
 import { ClozeView } from './view';
 
-export type CommandValue = { text: string; precision: string; numeric: boolean; caseSensitive: boolean };
+export type CommandValue = {
+    text: string;
+    precision: string;
+    numeric: boolean;
+    caseSensitive: boolean;
+    range?: Range;
+};
 
 export class ClozeUI extends Plugin {
     balloon!: ContextualBalloon;
@@ -90,16 +97,22 @@ export class ClozeUI extends Plugin {
     private showUI() {
         const selection = this.editor.model.document.selection;
 
+        // Tell the command we're starting to edit
+        const command = this.editor.commands.get('addCloze') as ClozeCommand | undefined;
+        if (command && 'startEditing' in command) {
+            command.startEditing();
+        }
+
         this.balloon.add({
             view: this.formView,
             position: this.getBalloonPositionData(),
         });
-        // Disable the input when the selection is not collapsed.
-        this.formView.answerInputView.isEnabled = selection.getFirstRange()!.isCollapsed;
 
         // Check the value of the command.
         const commandValue = this.editor.commands.get('addCloze')!.value as CommandValue;
         if (commandValue) {
+            // Editing existing cloze element - enable the input and populate with existing values
+            this.formView.answerInputView.isEnabled = true;
             this.formView.answerInputView.fieldView.value = commandValue.text;
             this.formView.caseButtonView.isOn = commandValue.caseSensitive;
             this.formView.numericButtonView.isOn = commandValue.numeric;
@@ -108,6 +121,8 @@ export class ClozeUI extends Plugin {
         // If the command has no value, put the currently selected text (not collapsed)
         // in the first field and empty the others.
         else {
+            // Disable the input when the selection is not collapsed (creating from selected text).
+            this.formView.answerInputView.isEnabled = selection.getFirstRange()!.isCollapsed;
             const selectedText = getRangeText(selection.getFirstRange()!);
             this.formView.answerInputView.fieldView.value = selectedText;
             this.formView.caseButtonView.isOn = false;
@@ -119,6 +134,12 @@ export class ClozeUI extends Plugin {
     }
 
     private hideUI() {
+        // Tell the command we're done editing
+        const command = this.editor.commands.get('addCloze') as ClozeCommand | undefined;
+        if (command && 'stopEditing' in command) {
+            command.stopEditing();
+        }
+
         // Clear the input field values and reset the form.
         this.formView.answerInputView.fieldView.value = '';
         this.formView.caseButtonView.isOn = false;

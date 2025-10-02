@@ -7,6 +7,8 @@ import { CommandValue } from './ui';
 import { getRangeText } from './utils';
 
 export class ClozeCommand extends Command {
+    private isEditing = false;
+
     override refresh(): void {
         const model = this.editor.model;
         const selection = model.document.selection;
@@ -25,10 +27,12 @@ export class ClozeCommand extends Command {
                 this.setValue(caseSensitiveValue, precisionValue, numericValue, answerRange);
             } else if (answerRange.containsRange(firstRange, true)) {
                 this.setValue(caseSensitiveValue, precisionValue, numericValue, firstRange);
-            } else {
+            } else if (!this.isEditing) {
+                // Only clear value if we're not in the middle of editing
                 this.value = null;
             }
-        } else {
+        } else if (!this.isEditing) {
+            // Only clear value if we're not in the middle of editing
             this.value = null;
         }
 
@@ -37,21 +41,66 @@ export class ClozeCommand extends Command {
             model.schema.checkAttributeInSelection(selection, 'ctPrecision');
     }
 
+    startEditing() {
+        this.isEditing = true;
+    }
+
+    stopEditing() {
+        this.isEditing = false;
+    }
+
     override execute({ text, caseSensitive, numeric, precision }: CommandValue) {
         const model = this.editor.model;
+
+        // Reset editing flag after execution
+        this.isEditing = false;
+
         model.change((writer) => {
-            model.insertContent(
-                writer.createText(text.trim(), {
-                    ctCaseSensitive: caseSensitive,
-                    ctPrecision: precision || 0,
-                    ctNumeric: numeric,
-                    ctId: this.createUid(),
-                    ctClass: 'cloze-test-wrapper',
-                    ctCloze: true,
-                }),
-            );
-            // Add a white space so user gets out from plugin context
-            writer.insertText(' ', model.document.selection.getFirstPosition()!);
+            // Check if we're editing an existing cloze element
+            const currentValue = this.value as CommandValue | null;
+            if (currentValue && currentValue.range) {
+                // Update existing cloze element
+                const range = currentValue.range;
+                const trimmedText = text.trim();
+
+                // Get the existing ID from the range
+                let existingId = this.createUid();
+                for (const item of range.getItems()) {
+                    if (item.is('$textProxy') && item.hasAttribute('ctId')) {
+                        existingId = item.getAttribute('ctId') as string;
+                        break;
+                    }
+                }
+
+                // Remove old text and insert new text with updated attributes
+                writer.remove(range);
+                const insertPosition = range.start;
+                model.insertContent(
+                    writer.createText(trimmedText, {
+                        ctCaseSensitive: caseSensitive,
+                        ctPrecision: precision || 0,
+                        ctNumeric: numeric,
+                        ctId: existingId,
+                        ctClass: 'cloze-test-wrapper',
+                        ctCloze: true,
+                    }),
+                    insertPosition,
+                );
+            } else {
+                // Insert new cloze element
+                model.insertContent(
+                    writer.createText(text.trim(), {
+                        ctCaseSensitive: caseSensitive,
+                        ctPrecision: precision || 0,
+                        ctNumeric: numeric,
+                        ctId: this.createUid(),
+                        ctClass: 'cloze-test-wrapper',
+                        ctCloze: true,
+                    }),
+                );
+                // Add a white space so user gets out from plugin context
+                writer.insertText(' ', model.document.selection.getFirstPosition()!);
+            }
         });
     }
     private setValue = (caseSensitive: unknown, precision: unknown, numeric: unknown, range: Range) =>
