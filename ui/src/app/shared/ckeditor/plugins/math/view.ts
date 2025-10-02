@@ -123,7 +123,7 @@ export class MathView extends View {
         this.expressionTextarea.focus();
     }
 
-    updatePreview() {
+    async updatePreview() {
         const expression = (this.expressionTextarea.fieldView.element as HTMLTextAreaElement)?.value || '';
 
         if (!expression.trim()) {
@@ -131,8 +131,29 @@ export class MathView extends View {
             return;
         }
 
-        // Always use MathLive for preview
-        this.previewContainer.element!.innerHTML = `<math-field read-only="true" style="font-size: 18px;">${expression}</math-field>`;
+        // Create math-field element and initialize it properly with MathLive
+        try {
+            // Ensure MathLive is loaded
+            await import('mathlive');
+
+            // Clear previous content
+            this.previewContainer.element!.innerHTML = '';
+
+            // Create and configure math-field element
+            const mathField = document.createElement('math-field') as HTMLElement & { value: string };
+            mathField.setAttribute('read-only', 'true');
+            mathField.style.fontSize = '18px';
+
+            // Set the value - this is what makes MathLive render it
+            mathField.value = expression;
+
+            // Append to preview container
+            this.previewContainer.element!.appendChild(mathField);
+        } catch (error) {
+            console.error('Failed to render math preview:', error);
+            // Fallback to showing the raw LaTeX
+            this.previewContainer.element!.textContent = expression;
+        }
     }
 
     setTitle(title: string) {

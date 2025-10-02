@@ -28,7 +28,7 @@ import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
 import { mergeDeepRight } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 

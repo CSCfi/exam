@@ -299,7 +299,7 @@ export class CKEditorComponent implements AfterViewInit {
         // Process any existing math elements after editor is ready
         setTimeout(() => this.processMathInEditor(e), 200);
 
-        // Add CSS to ensure math elements are clickable
+        // Add CSS to ensure math elements are clickable and show selection state
         const style = document.createElement('style');
         style.textContent = `
             .ck-editor__editable math-field {
@@ -313,6 +313,14 @@ export class CKEditorComponent implements AfterViewInit {
             .ck-editor__editable .ck-widget.math-element-selectable {
                 pointer-events: all !important;
                 cursor: pointer !important;
+            }
+            .ck-editor__editable .ck-widget.math-element-selectable:hover {
+                background-color: rgba(0, 123, 255, 0.1) !important;
+            }
+            .ck-editor__editable .ck-widget.ck-widget_selected {
+                outline: 2px solid #007bff !important;
+                outline-offset: 1px !important;
+                background-color: rgba(0, 123, 255, 0.05) !important;
             }
             .ck-editor__editable math-field > div {
                 pointer-events: all !important;
@@ -630,7 +638,7 @@ export class CKEditorComponent implements AfterViewInit {
                                     freshElement.setAttribute('data-nuclear-in-progress', 'true');
 
                                     // Step 2: Force CKEditor to update its view from model first
-                                    const editor = (window as any).ckeditorInstance;
+                                    // Use the editor parameter passed to initializeMathField, not the global one
                                     if (editor && editor.editing && editor.editing.view) {
                                         editor.editing.view.forceRender();
                                     }

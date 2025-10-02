@@ -105,6 +105,9 @@ export class MathEditing extends Plugin {
                 return mathFieldElement;
             },
         });
+
+        // The upcast and downcast converters above handle copy/paste automatically
+        // Math widgets can be selected by clicking on them, and standard Ctrl+C/Ctrl+V will work
     }
 
     private async initializeMathField(element: HTMLElement, expression: string) {
