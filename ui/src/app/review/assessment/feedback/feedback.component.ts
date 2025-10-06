@@ -53,13 +53,19 @@ import { FileService } from 'src/app/shared/file/file.service';
                 </div>
             </div>
             @if (exam.examFeedback?.attachment) {
-                <div class="d-flex justify-content-end">
+                <div class="d-flex justify-content-end align-items-center">
                     <a class="pointer" (click)="downloadFeedbackAttachment()">{{
                         exam.examFeedback?.attachment?.fileName
                     }}</a>
-                    <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
-                        <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
-                    </span>
+                    <button 
+                        type="button"
+                        class="btn btn-link text-danger ms-2"
+                        (click)="removeFeedbackAttachment()"
+                        [attr.aria-label]="'i18n_remove_attachment' | translate"
+                        [title]="'i18n_remove_attachment' | translate"
+                    >
+                        <i class="bi-trash" aria-hidden="true"></i>
+                    </button>
                 </div>
             }
             <div class="d-flex justify-content-between flex-row-reverse mt-2">

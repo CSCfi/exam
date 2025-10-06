@@ -54,25 +54,29 @@ import { FileService } from 'src/app/shared/file/file.service';
                     ></xm-ckeditor>
                 </div>
             </div>
-            <div class="d-flex justify-content-between">
-                <button class="btn btn-outline-secondary" (click)="saveInspectionStatement()">
-                    {{ 'i18n_save' | translate }}
-                </button>
-                @if (exam.languageInspection?.statement?.attachment) {
-                    <div class="d-flex justify-content-end">
-                        <a class="pointer" (click)="downloadStatementAttachment()">{{
-                            exam.examFeedback?.attachment?.fileName
-                        }}</a>
-                        <span class="sitnet-red pointer" (click)="removeStatementAttachment()">
-                            <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
-                        </span>
-                    </div>
-                }
-                <div class="d-flex justify-content-between mt-2">
-                    <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
-                        {{ 'i18n_attach_file' | translate }}
+            @if (exam.languageInspection?.statement?.attachment) {
+                <div class="d-flex justify-content-end align-items-center">
+                    <a class="pointer" (click)="downloadStatementAttachment()">{{
+                        exam.languageInspection?.statement?.attachment?.fileName
+                    }}</a>
+                    <button 
+                        type="button"
+                        class="btn btn-link text-danger ms-2"
+                        (click)="removeStatementAttachment()"
+                        [attr.aria-label]="'i18n_remove_attachment' | translate"
+                        [title]="'i18n_remove_attachment' | translate"
+                    >
+                        <i class="bi-trash" aria-hidden="true"></i>
                     </button>
                 </div>
+            }
+            <div class="d-flex justify-content-between flex-row-reverse mt-2">
+                <button class="btn btn-outline-success" (click)="saveInspectionStatement()">
+                    {{ 'i18n_save' | translate }}
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
+                    {{ 'i18n_attach_file' | translate }}
+                </button>
             </div>
         </div>
     </div>`,
