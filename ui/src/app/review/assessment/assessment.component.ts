@@ -23,7 +23,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborative-assessment.service';
 import { FeedbackComponent } from './feedback/feedback.component';
-import { StatementComponent } from './feedback/statement.component';
 import { GeneralInfoComponent } from './general/general-info.component';
 import { GradingComponent } from './grading/grading.component';
 import { MaturityGradingComponent } from './maturity/grading.component';
@@ -40,7 +39,6 @@ import { ExamSectionComponent } from './sections/section.component';
         GradingComponent,
         MaturityGradingComponent,
         FeedbackComponent,
-        StatementComponent,
         TranslateModule,
         OrderByPipe,
         PageHeaderComponent,

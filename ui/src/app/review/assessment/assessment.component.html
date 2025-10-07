@@ -95,6 +95,7 @@ SPDX-License-Identifier: EUPL-1.2
     @if (exam.examFeedback && !isUnderLanguageInspection()) {
         <xm-r-feedback
             [exam]="exam"
+            type="feedback"
             [collaborative]="collaborative"
             [participation]="participation"
             [hidden]="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
@@ -102,6 +103,10 @@ SPDX-License-Identifier: EUPL-1.2
         </xm-r-feedback>
     }
     @if (exam && isUnderLanguageInspection()) {
-        <xm-r-statement [exam]="exam"></xm-r-statement>
+        <xm-r-feedback
+            [exam]="exam"
+            type="statement"
+        >
+        </xm-r-feedback>
     }
 </ng-template>

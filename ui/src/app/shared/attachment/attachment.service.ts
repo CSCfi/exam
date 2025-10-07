@@ -111,7 +111,7 @@ export class AttachmentService {
                 this.translate.instant('i18n_confirm'),
                 this.translate.instant('i18n_confirm_remove_attachment'),
                 this.translate.instant('i18n_remove'),
-                this.translate.instant('i18n_button_cancel')
+                this.translate.instant('i18n_button_cancel'),
             )
             .subscribe({
                 next: () => {
