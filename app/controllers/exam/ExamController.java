@@ -173,11 +173,11 @@ public class ExamController extends BaseController {
         // Get list of exams that user is assigned to inspect or is creator of
         PathProperties props = PathProperties.parse(
             "(*, course(id, code), " +
-            "children(id, state, examInspections(user(id, firstName, lastName))), " +
-            "examinationDates(*), " +
-            "examOwners(id, firstName, lastName), executionType(type), " +
-            "examInspections(id, user(id, firstName, lastName)), " +
-            "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
+                "children(id, state, examInspections(user(id, firstName, lastName))), " +
+                "examinationDates(*), " +
+                "examOwners(id, firstName, lastName), executionType(type), " +
+                "examInspections(id, user(id, firstName, lastName)), " +
+                "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
         );
         Query<Exam> query = DB.createQuery(Exam.class);
         props.apply(query);

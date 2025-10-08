@@ -187,11 +187,11 @@ public class ExamMachineController extends BaseController {
     @Restrict(@Group({ "ADMIN" }))
     public Result addSoftware(String name) {
         return checkSoftwareName(name).orElseGet(() -> {
-                Software software = new Software();
-                software.setName(name);
-                software.save();
-                return ok(software);
-            });
+            Software software = new Software();
+            software.setName(name);
+            software.save();
+            return ok(software);
+        });
     }
 
     @Restrict(@Group({ "ADMIN" }))
@@ -201,10 +201,10 @@ public class ExamMachineController extends BaseController {
             return notFound();
         }
         return checkSoftwareName(name).orElseGet(() -> {
-                software.setName(name);
-                software.update();
-                return ok(software);
-            });
+            software.setName(name);
+            software.update();
+            return ok(software);
+        });
     }
 
     @Restrict(@Group({ "ADMIN" }))

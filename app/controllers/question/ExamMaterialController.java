@@ -91,15 +91,15 @@ public class ExamMaterialController extends QuestionController implements Sectio
         ExamMaterial em = DB.find(ExamMaterial.class, materialId);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return getOwnershipError(em, user).orElseGet(() -> {
-                Optional<ExamSection> oes = getSection(sectionId, user);
-                if (oes.isPresent()) {
-                    ExamSection es = oes.get();
-                    es.getExamMaterials().add(em);
-                    es.update();
-                    return ok();
-                }
-                return notFound();
-            });
+            Optional<ExamSection> oes = getSection(sectionId, user);
+            if (oes.isPresent()) {
+                ExamSection es = oes.get();
+                es.getExamMaterials().add(em);
+                es.update();
+                return ok();
+            }
+            return notFound();
+        });
     }
 
     @Authenticated
@@ -108,14 +108,14 @@ public class ExamMaterialController extends QuestionController implements Sectio
         ExamMaterial em = DB.find(ExamMaterial.class, materialId);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return getOwnershipError(em, user).orElseGet(() -> {
-                Optional<ExamSection> oes = getSection(sectionId, user);
-                if (oes.isPresent()) {
-                    ExamSection es = oes.get();
-                    es.getExamMaterials().remove(em);
-                    es.update();
-                    return ok();
-                }
-                return notFound();
-            });
+            Optional<ExamSection> oes = getSection(sectionId, user);
+            if (oes.isPresent()) {
+                ExamSection es = oes.get();
+                es.getExamMaterials().remove(em);
+                es.update();
+                return ok();
+            }
+            return notFound();
+        });
     }
 }

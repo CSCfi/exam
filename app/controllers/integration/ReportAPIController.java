@@ -29,14 +29,14 @@ public class ReportAPIController extends BaseController {
     public Result getExamEnrolments(Optional<String> start, Optional<String> end) {
         PathProperties pp = PathProperties.parse(
             "(id, enrolledOn, noShow, " +
-            "reservation(id, machine(id, name, room(name, roomCode)), startAt, endAt, externalReservation(orgName)), " +
-            "examinationEventConfiguration(examinationEvent(start)), " +
-            "exam(id, course(name, code, credits, identifier, courseImplementation, " +
-            "gradeScale(description, displayName), organisation(code, name)), " +
-            "softwares(name), duration, examType(type), creditType(type), executionType(type), " +
-            "implementation, trialCount, answerLanguage, periodStart, periodEnd, " +
-            "examParticipation(started, ended, id))" +
-            ")"
+                "reservation(id, machine(id, name, room(name, roomCode)), startAt, endAt, externalReservation(orgName)), " +
+                "examinationEventConfiguration(examinationEvent(start)), " +
+                "exam(id, course(name, code, credits, identifier, courseImplementation, " +
+                "gradeScale(description, displayName), organisation(code, name)), " +
+                "softwares(name), duration, examType(type), creditType(type), executionType(type), " +
+                "implementation, trialCount, answerLanguage, periodStart, periodEnd, " +
+                "examParticipation(started, ended, id))" +
+                ")"
         );
 
         Query<ExamEnrolment> query = DB.find(ExamEnrolment.class);

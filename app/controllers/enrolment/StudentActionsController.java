@@ -278,23 +278,23 @@ public class StudentActionsController extends CollaborationController {
         }
         PathProperties pp = PathProperties.parse(
             "(*, exam(*, course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName))), " +
-            "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone, " +
-            "roomInstruction, roomInstructionEN, roomInstructionSV))), " +
-            "examinationEventConfiguration(examinationEvent(*)))"
+                "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone, " +
+                "roomInstruction, roomInstructionEN, roomInstructionSV))), " +
+                "examinationEventConfiguration(examinationEvent(*)))"
         );
         if (enrolment.getCollaborativeExam() != null) {
             // Collaborative exam, we need to download
             return downloadExam(enrolment.getCollaborativeExam()).thenComposeAsync(result -> {
-                    if (result.isPresent()) {
-                        // A bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
-                        // Works in this particular use case
-                        Exam exam = result.get();
-                        enrolment.setExam(exam);
-                        return wrapAsPromise(ok(enrolment, pp));
-                    } else {
-                        return wrapAsPromise(notFound());
-                    }
-                });
+                if (result.isPresent()) {
+                    // A bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+                    // Works in this particular use case
+                    Exam exam = result.get();
+                    enrolment.setExam(exam);
+                    return wrapAsPromise(ok(enrolment, pp));
+                } else {
+                    return wrapAsPromise(notFound());
+                }
+            });
         }
         if (enrolment.getExternalExam() != null) {
             // A bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care

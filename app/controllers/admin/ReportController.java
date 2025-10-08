@@ -90,7 +90,7 @@ public class ReportController extends BaseController {
     public Result getExamParticipations(Optional<String> dept, Optional<String> start, Optional<String> end) {
         PathProperties pp = PathProperties.parse(
             "noShow, exam(created, course(department)), " +
-            "externalExam(started), reservation(machine(room(id, name, outOfService)))"
+                "externalExam(started), reservation(machine(room(id, name, outOfService)))"
         );
         ExpressionList<ExamEnrolment> el = DB.find(ExamEnrolment.class).where();
         el.apply(pp);

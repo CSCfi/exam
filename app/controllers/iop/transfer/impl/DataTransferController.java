@@ -154,11 +154,11 @@ public class DataTransferController extends BaseController {
                 .set(
                     "questions",
                     Json.newArray().addAll(
-                            questions
-                                .stream()
-                                .map(q -> serialize(q, pp))
-                                .toList()
-                        )
+                        questions
+                            .stream()
+                            .map(q -> serialize(q, pp))
+                            .toList()
+                    )
                 );
 
             URL url = parseURL(body.get("orgRef").asText());

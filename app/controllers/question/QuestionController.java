@@ -86,7 +86,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         }
         PathProperties pp = PathProperties.parse(
             "*, modifier(firstName, lastName), questionOwners(id, firstName, lastName, userIdentifier, email), " +
-            "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(id, name, creator(id)), examSectionQuestions(examSection(exam(state, periodEnd, course(code)))))"
+                "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(id, name, creator(id)), examSectionQuestions(examSection(exam(state, periodEnd, course(code)))))"
         );
         Query<Question> query = DB.find(Question.class);
         pp.apply(query);
@@ -139,8 +139,8 @@ public class QuestionController extends BaseController implements SectionQuestio
         Query<Question> query = DB.find(Question.class);
         PathProperties pp = PathProperties.parse(
             "(*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
-            "attachment(id, fileName), options(id, correctOption, defaultScore, option, claimChoiceType), tags(id, name, creator(id)), " +
-            "examSectionQuestions(id, examSection(name, exam(name, state))))"
+                "attachment(id, fileName), options(id, correctOption, defaultScore, option, claimChoiceType), tags(id, name, creator(id)), " +
+                "examSectionQuestions(id, examSection(name, exam(name, state))))"
         );
         pp.apply(query);
         ExpressionList<Question> expr = query.where().idEq(id);
