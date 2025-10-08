@@ -24,28 +24,24 @@ import play.mvc.Result;
 
 public class ReviewControllerTest extends IntegrationTestCase {
 
-    private Exam parentExam = null;
+    private Exam exam = null;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        exam = DB.find(Exam.class).where().eq("name", "Algoritmit, 2013").isNotNull("parent").findOne();
         final User user = DB.find(User.class, userId);
-        final Exam parent = DB.find(Exam.class).where().eq("name", "Algoritmit, 2013").isNull("parent").findOne();
-        assert parent != null;
         final ExamInspection examInspection = new ExamInspection();
         examInspection.setUser(user);
-        examInspection.setExam(parent.getChildren().get(0));
+        examInspection.setExam(exam);
         examInspection.save();
-        parent.getExamInspections().add(examInspection);
-        parent.save();
-        this.parentExam = parent;
     }
 
     @Test
     @RunAsTeacher
     public void getExamReviews() {
         // Execute
-        Result result = get("/app/reviews/" + parentExam.getId());
+        Result result = get("/app/reviews/" + exam.getParent().getId());
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
@@ -69,7 +65,7 @@ public class ReviewControllerTest extends IntegrationTestCase {
     @RunAsAdmin
     public void getExamReviewsAsAdmin() {
         // Execute
-        Result result = get("/app/reviews/" + parentExam.getId());
+        Result result = get("/app/reviews/" + exam.getParent().getId());
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
