@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
-import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import {
     NgbCollapse,
@@ -17,7 +16,6 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, from, noop, of } from 'rxjs';
-import { map } from 'rxjs/operators';
 import type { ExamSection } from 'src/app/exam/exam.model';
 import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
 import { ExamQuestionDialogComponent } from 'src/app/question/examquestion/exam-question-dialog.component';
@@ -58,7 +56,6 @@ export class SectionQuestionComponent {
     @Output() updated = new EventEmitter<ExamSectionQuestion>();
     @Output() copied = new EventEmitter<ExamSectionQuestion>();
 
-    private http = inject(HttpClient);
     private modal = inject(NgbModal);
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
@@ -99,17 +96,15 @@ export class SectionQuestionComponent {
         return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
     }
 
-    private getQuestionDistribution(): Observable<boolean> {
+    private getQuestionDistribution$(): Observable<boolean> {
         if (this.collaborative) {
             return of(false);
         }
-        return this.http
-            .get<{ distributed: boolean }>(`/app/exams/question/${this.sectionQuestion.id}/distribution`)
-            .pipe(map((resp) => resp.distributed));
+        return this.Question.getQuestionDistribution$(this.sectionQuestion.id);
     }
 
     private openExamQuestionEditor = () =>
-        this.getQuestionDistribution().subscribe((distributed) => {
+        this.getQuestionDistribution$().subscribe((distributed) => {
             if (!distributed) {
                 // If this is not distributed, treat it as a plain question (or at least trick the user to
                 // believe so)
@@ -138,40 +133,36 @@ export class SectionQuestionComponent {
         from(modal.result).subscribe({
             next: (question: Question) => {
                 const resource = `/app/exams/${this.examId}/sections/${this.section.id}/questions/${this.sectionQuestion.id}`;
-                this.http
-                    .put<ExamSectionQuestion>(this.getResource(resource), {
-                        question: question,
-                    })
-                    .subscribe({
-                        next: (resp) => {
-                            this.sectionQuestion = mergeDeepRight(this.sectionQuestion, resp) as ExamSectionQuestion;
-                            this.updated.emit(this.sectionQuestion);
-                            // Collaborative exam question handling.
-                            if (!this.collaborative) {
-                                return;
-                            }
-                            const attachment = question.attachment;
-                            if (!attachment) {
-                                return;
-                            }
-                            if (attachment.modified && attachment.file) {
-                                this.Files.upload<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
-                                    examId: this.examId.toString(),
-                                    questionId: this.sectionQuestion.id.toString(),
-                                }).then((resp) => {
-                                    this.sectionQuestion.question.attachment = resp;
-                                });
-                            } else if (attachment.removed) {
-                                this.Attachment.eraseCollaborativeQuestionAttachment(
-                                    this.examId,
-                                    this.sectionQuestion.id,
-                                ).then(() => {
-                                    delete this.sectionQuestion.question.attachment;
-                                });
-                            }
-                        },
-                        error: (err) => this.toast.error(err),
-                    });
+                this.Question.updateQuestion$(this.getResource(resource), question).subscribe({
+                    next: (resp) => {
+                        this.sectionQuestion = mergeDeepRight(this.sectionQuestion, resp) as ExamSectionQuestion;
+                        this.updated.emit(this.sectionQuestion);
+                        // Collaborative exam question handling.
+                        if (!this.collaborative) {
+                            return;
+                        }
+                        const attachment = question.attachment;
+                        if (!attachment) {
+                            return;
+                        }
+                        if (attachment.modified && attachment.file) {
+                            this.Files.upload<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
+                                examId: this.examId.toString(),
+                                questionId: this.sectionQuestion.id.toString(),
+                            }).then((resp) => {
+                                this.sectionQuestion.question.attachment = resp;
+                            });
+                        } else if (attachment.removed) {
+                            this.Attachment.eraseCollaborativeQuestionAttachment(
+                                this.examId,
+                                this.sectionQuestion.id,
+                            ).then(() => {
+                                delete this.sectionQuestion.question.attachment;
+                            });
+                        }
+                    },
+                    error: (err) => this.toast.error(err),
+                });
             },
         });
     };

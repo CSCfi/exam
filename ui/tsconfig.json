@@ -19,8 +19,7 @@
         "target": "ES2022",
         "module": "ES2022",
         "useDefineForClassFields": false,
-        "lib": ["ESNext", "dom"],
-        "skipLibCheck": true //https://github.com/arnog/mathlive/issues/2824
+        "lib": ["ESNext", "dom"]
     },
     "include": ["src/**/*", "src/types/**/*"],
     "angularCompilerOptions": {

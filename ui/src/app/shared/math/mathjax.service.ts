@@ -4,32 +4,6 @@
 
 import { Injectable } from '@angular/core';
 
-interface MathJaxConfig {
-    tex: {
-        inlineMath: string[][];
-        displayMath: string[][];
-        processEscapes: boolean;
-        processEnvironments: boolean;
-    };
-    svg: {
-        fontCache: string;
-    };
-    startup: {
-        typeset: boolean;
-    };
-}
-
-interface MathJaxAPI {
-    typesetPromise: (elements?: HTMLElement[]) => Promise<void>;
-    tex2svg: (input: string, options?: { display?: boolean }) => SVGElement;
-}
-
-declare global {
-    interface Window {
-        MathJax: MathJaxAPI | MathJaxConfig;
-    }
-}
-
 @Injectable({
     providedIn: 'root',
 })
@@ -54,27 +28,23 @@ export class MathJaxService {
 
         try {
             // Configure MathJax before loading
-            const config: MathJaxConfig = {
-                tex: {
-                    inlineMath: [
-                        ['$', '$'],
-                        ['\\(', '\\)'],
-                    ],
-                    displayMath: [
-                        ['$$', '$$'],
-                        ['\\[', '\\]'],
-                    ],
-                    processEscapes: true,
-                    processEnvironments: true,
-                },
-                svg: {
-                    fontCache: 'global',
-                },
-                startup: {
-                    typeset: false, // We'll call typeset manually
+            window.MathJax = {
+                config: {
+                    tex: {
+                        inlineMath: [
+                            ['$', '$'],
+                            ['\\(', '\\)'],
+                        ],
+                        displayMath: [
+                            ['$$', '$$'],
+                            ['\\[', '\\]'],
+                        ],
+                    },
+                    svg: {
+                        fontCache: 'global',
+                    },
                 },
             };
-            window.MathJax = config;
 
             await import('mathjax/tex-svg.js' as string);
             this.loaded = true;
@@ -93,7 +63,7 @@ export class MathJaxService {
             throw new Error('MathJax is not available on window object');
         }
 
-        const mathJax = window.MathJax as MathJaxAPI;
+        const mathJax = window.MathJax;
         console.log('MathJax methods available:', Object.keys(mathJax));
 
         // Clear any existing MathJax content in the elements first
@@ -113,6 +83,9 @@ export class MathJaxService {
             });
 
             // Try without elements first (processes whole document)
+            if (!mathJax.typesetPromise) {
+                throw new Error('typesetPromise is not available');
+            }
             const typesetPromise = mathJax.typesetPromise();
             await Promise.race([typesetPromise, timeoutPromise]);
             console.log('MathJax Method 1 completed successfully');
@@ -123,12 +96,18 @@ export class MathJaxService {
                     setTimeout(() => reject(new Error('MathJax typeset timeout')), 3000);
                 });
 
+                if (!mathJax.typesetPromise) {
+                    throw new Error('typesetPromise is not available');
+                }
                 const typesetPromise2 = mathJax.typesetPromise(elements);
                 await Promise.race([typesetPromise2, timeoutPromise2]);
                 console.log('MathJax Method 2 completed successfully');
             } catch {
                 console.log('Using direct tex2svg conversion...');
                 try {
+                    if (!mathJax.tex2svg) {
+                        throw new Error('tex2svg is not available');
+                    }
                     if (elements) {
                         for (const element of elements) {
                             const mathContent = element.textContent || element.innerHTML;

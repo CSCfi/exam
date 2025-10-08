@@ -2,19 +2,18 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
+/**
+ * Type definitions for MathJax 4 (minimal subset used in this application)
+ * MathJax 4 doesn't provide official TypeScript definitions
+ */
 declare global {
     interface Window {
         MathJax: {
-            // MathJax 2.7.9 API
-            Hub: {
-                Queue: (commands: unknown[]) => void;
-            };
-            // Fallback for newer versions
+            /** Render math expressions in the specified elements */
             typesetPromise?: (elements?: HTMLElement[]) => Promise<void>;
-            startup?: {
-                document: Document;
-                ready: () => Promise<void>;
-            };
+            /** Convert LaTeX to SVG element */
+            tex2svg?: (input: string, options?: { display?: boolean }) => SVGElement;
+            /** Configuration object set before loading MathJax */
             config?: {
                 tex: {
                     inlineMath: string[][];

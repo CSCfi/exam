@@ -295,6 +295,15 @@ export class QuestionService {
         return this.http.post<void>(this.questionOwnerApi(uid), data);
     };
 
+    getQuestionDistribution$ = (qid: number): Observable<boolean> => {
+        return this.http.get<boolean>(`/app/exams/question/${qid}/distribution`);
+    };
+
+    updateQuestion = (resource: string, question: Question) =>
+        this.http.put<ExamSectionQuestion>(resource, {
+            question: question,
+        });
+
     private questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
     private questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);
 

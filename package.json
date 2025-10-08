@@ -46,7 +46,7 @@
     "file-saver-es": "^2.0.5",
     "luxon": "^3.7.2",
     "mathjax": "^4.0.0",
-    "mathlive": "^0.107.0",
+    "mathlive": "^0.107.1",
     "ngx-toastr": "^19.0.0",
     "rxjs": "^7.8.1",
     "zone.js": "^0.15.1"
