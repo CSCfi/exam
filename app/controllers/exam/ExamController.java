@@ -173,11 +173,11 @@ public class ExamController extends BaseController {
         // Get list of exams that user is assigned to inspect or is creator of
         PathProperties props = PathProperties.parse(
             "(*, course(id, code), " +
-            "children(id, state, examInspections(user(id, firstName, lastName))), " +
-            "examinationDates(*), " +
-            "examOwners(id, firstName, lastName), executionType(type), " +
-            "examInspections(id, user(id, firstName, lastName)), " +
-            "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
+                "children(id, state, examInspections(user(id, firstName, lastName))), " +
+                "examinationDates(*), " +
+                "examOwners(id, firstName, lastName), executionType(type), " +
+                "examInspections(id, user(id, firstName, lastName)), " +
+                "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
         );
         Query<Exam> query = DB.createQuery(Exam.class);
         props.apply(query);
@@ -623,9 +623,9 @@ public class ExamController extends BaseController {
             .fetch("examEnrolments.reservation", "endAt")
             .fetch("children", "id")
             .fetch("children.examEnrolments", "id")
-            .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier")
+            .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier, email")
             .fetch("children.examParticipation", "id")
-            .fetch("children.examParticipation.user", "firstName, lastName, userIdentifier")
+            .fetch("children.examParticipation.user", "firstName, lastName, userIdentifier, email")
             .fetch("creditType")
             .fetch("attachment")
             .fetch("softwares")
