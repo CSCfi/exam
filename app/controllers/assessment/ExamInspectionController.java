@@ -17,7 +17,6 @@ import javax.inject.Inject;
 import models.assessment.Comment;
 import models.assessment.ExamInspection;
 import models.exam.Exam;
-import models.user.Role;
 import models.user.User;
 import org.apache.pekko.actor.ActorSystem;
 import play.libs.Json;
@@ -47,7 +46,7 @@ public class ExamInspectionController extends BaseController {
             return notFound();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) && !exam.isOwnedOrCreatedBy(user)) {
+        if (!user.isAdminOrSupport() && !exam.isOwnedOrCreatedBy(user)) {
             return forbidden("i18n_error_access_forbidden");
         }
         if (isInspectorOf(recipient, exam)) {

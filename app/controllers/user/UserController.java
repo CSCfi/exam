@@ -174,7 +174,7 @@ public class UserController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result listQuestionOwners(String role, String criteria, Optional<Long> qid, Http.Request request) {
         List<User> users = listUsersByRoleAndName(role, criteria);
         Set<User> owners = new HashSet<>();
@@ -190,12 +190,12 @@ public class UserController extends BaseController {
         return ok(users);
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result listTeachers(String criteria) {
         return ok(listUsersByRoleAndName(Role.Name.TEACHER.toString(), criteria));
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result listUnenrolledStudents(Long eid, String criteria) {
         List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class).where().eq("exam.id", eid).findList();
         List<User> users = listUsersByRoleAndName("STUDENT", criteria);

@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input, inject } from '@angular/core';
@@ -19,7 +18,7 @@ import type { User } from 'src/app/session/session.model';
 @Component({
     selector: 'xm-exam-owner-picker',
     templateUrl: './exam-owner-picker.component.html',
-    imports: [NgClass, NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
+    imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
 })
 export class ExamOwnerSelectorComponent implements OnInit {
