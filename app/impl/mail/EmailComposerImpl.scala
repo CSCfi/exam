@@ -562,7 +562,7 @@ class EmailComposerImpl @Inject() (
       if isAquarium then ""
       else s"<p>${messaging("email.template.participant.notification.please.reserve")(lang)}</p>"
     val bookingLink =
-      if exam.getImplementation == Exam.Implementation.AQUARIUM then s"$hostName/calendar/${exam.getId}}"
+      if exam.getImplementation == Exam.Implementation.AQUARIUM then s"$hostName/calendar/${exam.getId}"
       else hostName
     val stringValues = Map(
       "title"            -> title,
@@ -767,15 +767,21 @@ class EmailComposerImpl @Inject() (
       .toSeq
       .sortBy(_._3)
       .map { case (exam, amount, deadline) =>
-        val summary = messaging("email.weekly.report.review.summary", amount, EmailComposerImpl.DF.print(new DateTime(deadline)))(lang)
-        replaceAll(template, Map(
-          "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5?collaborative=false",
-          "exam_name"      -> exam.getName,
-          "course_code"    -> Option(exam.getCourse).map(_.getCode).nonNull.map(_.split("_").head).getOrElse(""),
-          "review_summary" -> summary
-        ))
+        val summary =
+          messaging("email.weekly.report.review.summary", amount, EmailComposerImpl.DF.print(new DateTime(deadline)))(
+            lang
+          )
+        replaceAll(
+          template,
+          Map(
+            "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5?collaborative=false",
+            "exam_name"      -> exam.getName,
+            "course_code"    -> Option(exam.getCourse).map(_.getCode).nonNull.map(_.split("_").head).getOrElse(""),
+            "review_summary" -> summary
+          )
+        )
       }
-    
+
     Option.when(values.nonEmpty)(values.mkString)
 
   private def replaceAll(original: String, values: Map[String, String]) =
