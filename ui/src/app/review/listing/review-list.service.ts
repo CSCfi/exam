@@ -154,7 +154,11 @@ export class ReviewListService {
 
     private send$ = (review: ExamParticipation, state: string, examId?: number): Observable<ExamParticipation> => {
         const exam = review.exam;
-        if ((exam.grade || exam.gradingType === 'NOT_GRADED') && exam.creditType && exam.answerLanguage) {
+        if (
+            (exam.grade || exam.gradingType === 'NOT_GRADED' || exam.gradingType === 'POINT_GRADED') &&
+            exam.creditType &&
+            exam.answerLanguage
+        ) {
             const examToRecord = {
                 id: exam.id,
                 state: state,
