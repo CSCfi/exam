@@ -177,15 +177,15 @@ public class ReviewController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties pp = PathProperties.parse(
             "(" +
-            "id, name, anonymous, state, gradedTime, customCredit, creditType, gradingType(*), answerLanguage, trialCount, " +
-            "implementation, gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
-            "course(code, name, gradeScale(grades(*))), " +
-            "examSections(name, sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
-            "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
-            "parent(name, periodStart, periodEnd, course(code, name), examOwners(firstName, lastName, email), examInspections(id, user(firstName, lastName)))" +
-            "examParticipation(*, user(id, firstName, lastName, email, userIdentifier)), " +
-            "examEnrolments(retrialPermitted)," +
-            ")"
+                "id, name, anonymous, state, gradedTime, customCredit, creditType, gradingType(*), answerLanguage, trialCount, " +
+                "implementation, gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
+                "course(code, name, gradeScale(grades(*))), " +
+                "examSections(name, sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
+                "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
+                "parent(name, periodStart, periodEnd, course(code, name), examOwners(firstName, lastName, email), examInspections(id, user(firstName, lastName)))" +
+                "examParticipation(*, user(id, firstName, lastName, email, userIdentifier)), " +
+                "examEnrolments(retrialPermitted)," +
+                ")"
         );
         Query<Exam> query = DB.find(Exam.class);
         pp.apply(query);

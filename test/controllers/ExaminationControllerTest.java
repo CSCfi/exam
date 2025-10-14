@@ -20,7 +20,6 @@ import io.ebean.DB;
 import jakarta.mail.internet.MimeMessage;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import models.assessment.AutoEvaluationConfig;
 import models.assessment.GradeEvaluation;
@@ -75,7 +74,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
         user = DB.find(User.class, userId);
         ExamRoom room = DB.find(ExamRoom.class, 1L);
-        machine = room.getExamMachines().get(0);
+        machine = room.getExamMachines().getFirst();
         machine.setIpAddress("127.0.0.1"); // so that the IP check won't fail
         machine.update();
         reservation.setMachine(machine);
@@ -120,7 +119,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testCreateStudentExam() throws Exception {
+    public void testCreateStudentExam() {
         // Execute
         Exam studentExam = prepareExamination();
         assertThat(studentExam.getName()).isEqualTo(exam.getName());
@@ -152,29 +151,27 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testAnswerMultiChoiceQuestion() throws Exception {
+    public void testAnswerMultiChoiceQuestion() {
         Exam studentExam = prepareExamination();
         ExamSectionQuestion question = DB.find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)
             .eq("question.type", Question.Type.MultipleChoiceQuestion)
             .findList()
-            .get(0);
-        Iterator<ExamSectionQuestionOption> it = question.getOptions().iterator();
-        ExamSectionQuestionOption option = it.next();
+            .getFirst();
+        List<ExamSectionQuestionOption> options = question.getOptions();
         Result result = request(
             Helpers.POST,
             String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
-            createMultipleChoiceAnswerData(option)
+            createMultipleChoiceAnswerData(options.getFirst())
         );
         assertThat(result.status()).isEqualTo(Helpers.OK);
 
         // Change answer
-        option = it.next();
         result = request(
             Helpers.POST,
             String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
-            createMultipleChoiceAnswerData(option)
+            createMultipleChoiceAnswerData(options.getLast())
         );
         assertThat(result.status()).isEqualTo(Helpers.OK);
     }
@@ -189,7 +186,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testAnswerMultiChoiceQuestionWrongIP() throws Exception {
+    public void testAnswerMultiChoiceQuestionWrongIP() {
         // Setup
         Exam studentExam = prepareExamination();
         ExamSectionQuestion question = DB.find(ExamSectionQuestion.class)
@@ -197,9 +194,8 @@ public class ExaminationControllerTest extends IntegrationTestCase {
             .eq("examSection.exam", studentExam)
             .eq("question.type", Question.Type.MultipleChoiceQuestion)
             .findList()
-            .get(0);
-        Iterator<ExamSectionQuestionOption> it = question.getOptions().iterator();
-        ExamSectionQuestionOption option = it.next();
+            .getFirst();
+        List<ExamSectionQuestionOption> options = question.getOptions();
         // Change IP of reservation machine to simulate that student is on different machine now
         machine.setIpAddress("127.0.0.2");
         machine.update();
@@ -208,21 +204,21 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
-            createMultipleChoiceAnswerData(option)
+            createMultipleChoiceAnswerData(options.getFirst())
         );
         assertThat(result.status()).isEqualTo(Helpers.FORBIDDEN);
     }
 
     @Test
     @RunAsStudent
-    public void testAnswerClozeTestQuestionInvalidJson() throws Exception {
+    public void testAnswerClozeTestQuestionInvalidJson() {
         Exam studentExam = prepareExamination();
         ExamSectionQuestion question = DB.find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)
             .eq("question.type", Question.Type.ClozeTestQuestion)
             .findList()
-            .get(0);
+            .getFirst();
         String answer = "{\"foo\": \"bar";
         Result result = request(
             Helpers.POST,
@@ -234,7 +230,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testDoExamAndAutoEvaluate() throws Exception {
+    public void testDoExamAndAutoEvaluate() {
         setAutoEvaluationConfig();
         Exam studentExam = prepareExamination();
         studentExam
@@ -283,8 +279,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                             .eq("question.type", Question.Type.MultipleChoiceQuestion)
                             .findList()
                             .getFirst();
-                        Iterator<ExamSectionQuestionOption> it = sectionQuestion.getOptions().iterator();
-                        ExamSectionQuestionOption option = it.next();
+                        List<ExamSectionQuestionOption> options = sectionQuestion.getOptions();
                         r = request(
                             Helpers.POST,
                             String.format(
@@ -292,7 +287,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                                 studentExam.getHash(),
                                 esq.getId()
                             ),
-                            createMultipleChoiceAnswerData(option)
+                            createMultipleChoiceAnswerData(options.getFirst())
                         );
                         assertThat(r.status()).isEqualTo(Helpers.OK);
                         break;
@@ -355,7 +350,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testCreateStudentExamWrongIP() throws Exception {
+    public void testCreateStudentExamWrongIP() {
         // Setup
         machine.setIpAddress("127.0.0.2");
         machine.update();
@@ -370,7 +365,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testCreateSeveralStudentExamsFails() throws Exception {
+    public void testCreateSeveralStudentExamsFails() {
         // Execute
         Result result = get("/app/student/exam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(Helpers.OK);
@@ -385,7 +380,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testCreateStudentExamAlreadyStarted() throws Exception {
+    public void testCreateStudentExamAlreadyStarted() {
         // Execute
         Result result = get("/app/student/exam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(Helpers.OK);
@@ -399,7 +394,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         node = Json.parse(contentAsString(result));
         Exam anotherStudentExam = deserialize(Exam.class, node);
 
-        // Verify that the previous exam was returned, and participation & enrolment still point to it
+        // Verify that the previous exam was returned, and participation and enrolment still point to it
         assertThat(studentExam.getId()).isEqualTo(anotherStudentExam.getId());
         assertThat(DB.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash()).isEqualTo(
             studentExam.getHash()
@@ -414,14 +409,14 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testClaimChoiceQuestionOptionOrderAndAnswerSkip() throws Exception {
+    public void testClaimChoiceQuestionOptionOrderAndAnswerSkip() {
         Exam studentExam = prepareExamination();
         ExamSectionQuestion question = DB.find(ExamSectionQuestion.class)
             .where()
             .eq("examSection.exam", studentExam)
             .eq("question.type", Question.Type.ClaimChoiceQuestion)
             .findList()
-            .get(0);
+            .getFirst();
         List<ExamSectionQuestionOption> options = new ArrayList<>(question.getOptions());
 
         // Check that option order is the same as in original question, although scores have been changed for exam options

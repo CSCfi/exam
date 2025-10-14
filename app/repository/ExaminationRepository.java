@@ -4,6 +4,7 @@
 
 package repository;
 
+import controllers.exam.copy.ExamCopyContext;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import io.ebean.DB;
 import io.ebean.Database;
@@ -65,7 +66,10 @@ public class ExaminationRepository {
             Set<Long> ids = reservation == null
                 ? Collections.emptySet()
                 : enrolment.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
-            Exam studentExam = prototype.copyForStudent(user, isCollaborative, ids);
+            ExamCopyContext context = isCollaborative
+                ? ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids).build()
+                : ExamCopyContext.forStudentExam(user).withSelectedSections(ids).build();
+            Exam studentExam = prototype.createCopy(context);
             studentExam.setState(Exam.State.INITIALIZED);
             studentExam.setCreator(user);
             if (!isCollaborative) {
