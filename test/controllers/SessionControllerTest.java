@@ -57,9 +57,9 @@ public class SessionControllerTest extends IntegrationTestCase {
             ImmutableMap.of(
                 "schacPersonalUniqueCode",
                 "urn:schac:personalUniqueCode:int:studentID:org2.org:aaaaa;" +
-                "urn:schac:personalUniqueCode:int:studentID:org1.org:33333;" +
-                "urn:schac:personalUniqueCode:int:studentID:org1.org:22222;" +
-                "urn:schac:personalUniqueCode:int:studentID:org1.org:11111"
+                    "urn:schac:personalUniqueCode:int:studentID:org1.org:33333;" +
+                    "urn:schac:personalUniqueCode:int:studentID:org1.org:22222;" +
+                    "urn:schac:personalUniqueCode:int:studentID:org1.org:11111"
             )
         );
 
@@ -79,8 +79,8 @@ public class SessionControllerTest extends IntegrationTestCase {
             ImmutableMap.of(
                 "schacPersonalUniqueCode",
                 "urn:schac:personalUniqueCode:int:studentID:org2.org:aaaaa;" +
-                "urn:schac:personalUniqueCode:org:org1.org:dirid:33333;" +
-                "urn:schac:personalUniqueCode:org:org1.org:arturid:22222"
+                    "urn:schac:personalUniqueCode:org:org1.org:dirid:33333;" +
+                    "urn:schac:personalUniqueCode:org:org1.org:arturid:22222"
             )
         );
 
@@ -126,7 +126,7 @@ public class SessionControllerTest extends IntegrationTestCase {
             ImmutableMap.of(
                 "schacPersonalUniqueCode",
                 "urn:schac:personalUniqueCode:int:studentID:org2.org:111;" +
-                "urn:schac:personalUniqueCode:int:esi:FI:xxx"
+                    "urn:schac:personalUniqueCode:int:esi:FI:xxx"
             )
         );
 

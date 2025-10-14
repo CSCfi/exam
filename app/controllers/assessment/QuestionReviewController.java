@@ -149,8 +149,8 @@ public class QuestionReviewController extends BaseController {
         QuestionEntry(Question question, List<ExamSectionQuestion> answers, String evaluationCriteria) {
             PathProperties pp = PathProperties.parse(
                 "(*, essayAnswer(attachment(*), *), question(parent(question), attachment(*), *), " +
-                "examSection(name, exam(id, hash, creator(id, email, userIdentifier, firstName, lastName), " +
-                "state, examInspections(user(id)))))"
+                    "examSection(name, exam(id, hash, creator(id, email, userIdentifier, firstName, lastName), " +
+                    "state, examInspections(user(id)))))"
             );
             this.question = DB.json().toJson(question, PathProperties.parse("(attachment(*), *)"));
             this.answers = answers

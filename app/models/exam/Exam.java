@@ -7,6 +7,7 @@ package models.exam;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import controllers.exam.copy.ExamCopyContext;
 import io.ebean.annotation.EnumValue;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -25,13 +26,12 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import miscellaneous.datetime.DateTimeAdapter;
@@ -619,8 +619,31 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.assessmentInfo = assessmentInfo;
     }
 
-    private Exam createCopy(User user, boolean produceStudentExam, boolean setParent, Set<Long> selectedSections) {
+    /**
+     * Shuffles question options for student exam.
+     * Only shuffles if:
+     * - Option shuffling is enabled for the question
+     * - Question type is not ClaimChoiceQuestion
+     */
+    private void shuffleQuestionOptions(ExamSectionQuestion esq) {
+        boolean shouldShuffle =
+            esq.isOptionShufflingOn() &&
+            Optional.ofNullable(esq.getQuestion())
+                .map(Question::getType)
+                .filter(type -> type == Question.Type.ClaimChoiceQuestion)
+                .isEmpty(); // Shuffle if ClaimChoiceQuestion is NOT present
+
+        if (shouldShuffle) {
+            List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
+            Collections.shuffle(shuffled);
+            esq.setOptions(shuffled);
+        }
+    }
+
+    public Exam createCopy(ExamCopyContext context) {
         Exam clone = new Exam();
+
+        // Copy all properties except explicitly excluded ones
         BeanUtils.copyProperties(
             this,
             clone,
@@ -633,89 +656,92 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             "autoEvaluationConfig",
             "creator",
             "created",
-            produceStudentExam ? "examOwners" : "none"
+            context.shouldExcludeExamOwners() ? "examOwners" : "none"
         );
-        if (setParent) {
+
+        if (context.shouldSetParent()) {
             clone.setParent(this);
         }
-        clone.setCreatorWithDate(user);
-        clone.setModifierWithDate(user);
+
+        clone.setCreatorWithDate(context.getUser());
+        clone.setModifierWithDate(context.getUser());
         clone.generateHash();
         clone.save();
 
+        // Copy auto-evaluation config
         if (autoEvaluationConfig != null) {
             AutoEvaluationConfig configClone = autoEvaluationConfig.copy();
             configClone.setExam(clone);
             configClone.save();
             clone.setAutoEvaluationConfig(configClone);
         }
-        /* CSCEXAM-1127
-        if (examFeedbackConfig != null && produceStudentExam) {
-            ExamFeedbackConfig configClone = examFeedbackConfig.copy();
-            configClone.setExam(clone);
-            configClone.save();
-            clone.setExamFeedbackConfig(configClone);
-        }*/
 
+        // Copy exam inspections
         for (ExamInspection ei : examInspections) {
             ExamInspection inspection = new ExamInspection();
             BeanUtils.copyProperties(ei, inspection, "id", "exam");
             inspection.setExam(clone);
             inspection.save();
         }
-        Set<ExamSection> sections = new TreeSet<>();
-        if (produceStudentExam) {
-            sections.addAll(
-                examSections
-                    .stream()
-                    .filter(es -> !es.isOptional() || selectedSections.contains(es.getId()))
-                    .collect(Collectors.toSet())
-            );
-        } else {
-            sections.addAll(examSections);
-        }
+
+        // Select sections to copy
+        Set<ExamSection> sections = selectSectionsToCopy(context);
+
+        // Copy sections and their content
         for (ExamSection es : sections) {
-            ExamSection esCopy = es.copy(clone, produceStudentExam, setParent, user);
-            esCopy.setCreatorWithDate(user);
-            esCopy.setModifierWithDate(user);
-            // Shuffle question options before saving
-            for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
-                Optional<Question.Type> type = Optional.ofNullable(esq.getQuestion()).map(Question::getType);
-                if (
-                    !esq.isOptionShufflingOn() || (type.isPresent() && type.get() == Question.Type.ClaimChoiceQuestion)
-                ) {
-                    continue;
-                }
-                List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
-                Collections.shuffle(shuffled);
-                esq.setOptions(new HashSet<>(shuffled));
+            ExamSection esCopy = es.copy(clone, context);
+            esCopy.setCreatorWithDate(context.getUser());
+            esCopy.setModifierWithDate(context.getUser());
+
+            // Shuffle options if this is a student exam
+            if (context.shouldShuffleOptions()) {
+                esCopy.getSectionQuestions().forEach(this::shuffleQuestionOptions);
             }
+
             esCopy.save();
-            for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
-                if (produceStudentExam) {
-                    Question questionCopy = esq.getQuestion();
-                    questionCopy.setCreatorWithDate(user);
-                    questionCopy.setModifierWithDate(user);
-                    questionCopy.update();
-                }
-                esq.save();
+
+            // Update question metadata for student exams
+            if (context.isStudentExam()) {
+                updateQuestionMetadata(esCopy, context.getUser());
             }
+
             clone.getExamSections().add(esCopy);
         }
+
+        // Copy attachment if present
         if (attachment != null) {
             Attachment copy = new Attachment();
             BeanUtils.copyProperties(attachment, copy, "id");
             clone.setAttachment(copy);
         }
+
         return clone;
     }
 
-    public Exam copyForStudent(User student, boolean isCollaborative, Set<Long> selectedSections) {
-        return createCopy(student, true, !isCollaborative, selectedSections);
+    private Set<ExamSection> selectSectionsToCopy(ExamCopyContext context) {
+        var optionality = examSections.stream().map(ExamSection::isOptional).toList();
+        System.out.println(optionality);
+        if (context.shouldIncludeOnlySelectedSections()) {
+            // For student exams with section selection, only include non-optional sections or selected optional sections
+            return examSections
+                .stream()
+                .filter(es -> !es.isOptional() || context.getSelectedSections().contains(es.getId()))
+                .sorted()
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        } else {
+            // For teacher copies or when no sections are selected, include all sections
+            return examSections.stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+        }
     }
 
-    public Exam copy(User user) {
-        return createCopy(user, false, true, Collections.emptySet());
+    private void updateQuestionMetadata(ExamSection section, User user) {
+        for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+            Question questionCopy = esq.getQuestion();
+            questionCopy.setCreatorWithDate(user);
+            questionCopy.setModifierWithDate(user);
+            questionCopy.update();
+            esq.save();
+        }
     }
 
     public DateTime getPeriodStart() {
