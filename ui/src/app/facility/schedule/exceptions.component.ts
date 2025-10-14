@@ -29,7 +29,7 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
         }
 
         @for (exception of orderedExceptions | filterBy: filter; track exception; let i = $index) {
-            <div class="row" [class]="i % 2 === 0 ? 'background-light-blue' : ''">
+            <div class="row mb-2" [class]="i % 2 === 0 ? 'background-light-blue' : ''">
                 <div class="col">
                     {{ formatDate(exception) }}
                 </div>
@@ -38,7 +38,7 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
                     {{ exception.outOfService ? ('i18n_room_out_of_service' | translate) : '' }}
                 </div>
                 <div class="col-3">
-                    <button class="btn btn-outline-danger pointer" (click)="deleteException(exception)">
+                    <button class="btn btn-sm btn-outline-danger pointer" (click)="deleteException(exception)">
                         {{ 'i18n_exam_remove' | translate }}
                     </button>
                 </div>
