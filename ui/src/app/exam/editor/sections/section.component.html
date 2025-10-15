@@ -225,7 +225,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="p-0 mb-2">
                 @for (
                     sectionQuestion of section.sectionQuestions | orderBy: 'sequenceNumber';
-                    track sectionQuestion.sequenceNumber
+                    track sectionQuestion.id
                 ) {
                     <div cdkDrag cdkDragLockAxis="y" class="mb-4">
                         <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
