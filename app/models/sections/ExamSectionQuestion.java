@@ -529,8 +529,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     }
 
     /**
-     * Adds new answer option.
-     * If question type equals WeightedMultiChoiceQuestion, recalculates scores for old options so that max assessed
+     * Adds a new answer option.
+     * If the question type equals WeightedMultiChoiceQuestion, recalculates scores for old options so that max assessed
      * score won't change.
      *
      * @param option New option to add.

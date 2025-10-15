@@ -58,6 +58,7 @@ import { TranslateModule } from '@ngx-translate/core';
                         id="evaluationType"
                         class="form-select w-75"
                         name="evaluationType"
+                        [disabled]="lotteryOn()"
                         [ngModel]="evaluationType()"
                         (ngModelChange)="updateEvaluationType($event)"
                         required="true"
@@ -99,6 +100,7 @@ export class EssayComponent {
     evaluationType = input<string>();
     expectedWordCount = input<number>();
     evaluationCriteria = input<string>();
+    lotteryOn = input<boolean>(false);
 
     evaluationTypeChanged = output<string>();
     expectedWordCountChanged = output<number>();

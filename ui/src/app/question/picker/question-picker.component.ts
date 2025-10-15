@@ -27,7 +27,7 @@ import { Question } from 'src/app/question/question.model';
             <div class="row ms-3 mb-3">
                 <div class="col-md-12">
                     <button class="btn btn-success" (click)="addQuestions()">
-                        {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
+                        {{ 'i18n_add_chosen' | translate }} ({{ selections.length }})
                     </button>
                 </div>
             </div>
@@ -47,7 +47,7 @@ import { Question } from 'src/app/question/question.model';
         <!-- Buttons -->
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-success" (click)="addQuestions()">
-                {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
+                {{ 'i18n_add_chosen' | translate }} ({{ selections.length }})
             </button>
             <button class="btn btn-outline-secondary me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
