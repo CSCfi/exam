@@ -69,11 +69,23 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         window.removeEventListener('beforeunload', this.onUnload);
     }
 
-    save = () =>
+    save = () => {
+        // Clean up temporary negative IDs before sending to server
+        const cleanedExamQuestion = {
+            ...this.examQuestion,
+            options: this.examQuestion.options.map((opt) => ({
+                ...opt,
+                id: opt.id && opt.id < 0 ? undefined : opt.id,
+            })),
+        };
+
         this.saved.emit({
             question: this.question as ReverseQuestion,
-            examQuestion: this.examQuestion as ExamSectionQuestion,
+            examQuestion: cleanedExamQuestion as ExamSectionQuestion,
         });
+    };
+
+    optionsChanged = ($event: ExamSectionQuestionOption[]) => (this.examQuestion.options = [...$event]);
 
     setText = ($event: string) => {
         if (this.question) this.question.question = $event;
@@ -92,8 +104,6 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     };
 
     showWarning = () => this.examNames && this.examNames.length > 1;
-
-    optionsChanged = ($event: ExamSectionQuestionOption[]) => (this.examQuestion.options = [...$event]);
 
     negativeScoreSettingChanged = ($event: boolean) => (this.examQuestion.negativeScoreAllowed = $event);
 
