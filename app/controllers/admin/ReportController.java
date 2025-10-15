@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +38,8 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExamRecordSanitizer;
+import validation.ExamRecordSanitizer;
+import validation.core.Attrs;
 
 public class ReportController extends BaseController {
 
@@ -314,7 +313,7 @@ public class ReportController extends BaseController {
     @With(ExamRecordSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result exportExamQuestionScoresAsExcel(Long examId, Http.Request request) {
-        Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
+        List<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         ByteArrayOutputStream bos;
         try {
             bos = excelBuilder.buildScoreExcel(examId, childIds);

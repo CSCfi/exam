@@ -30,8 +30,8 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class CollaborativeEnrolmentController extends CollaborationController {
 

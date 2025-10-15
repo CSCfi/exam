@@ -40,10 +40,11 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.SanitizingHelper;
-import sanitizers.SectionQuestionSanitizer;
 import security.Authenticated;
+import validation.SanitizingHelper;
+import validation.core.Attrs;
+import validation.section.SectionQuestionDTO;
+import validation.section.SectionQuestionValidator;
 
 public class ExamSectionController extends BaseController implements SectionQuestionHandler {
 
@@ -238,10 +239,10 @@ public class ExamSectionController extends BaseController implements SectionQues
         });
     }
 
-    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body, Http.Request request) {
+    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body, SectionQuestionDTO dto) {
         sectionQuestion.setMaxScore(round(SanitizingHelper.parse("maxScore", body, Double.class).orElse(null)));
-        sectionQuestion.setAnswerInstructions(request.attrs().getOptional(Attrs.ANSWER_INSTRUCTIONS).orElse(null));
-        sectionQuestion.setEvaluationCriteria(request.attrs().getOptional(Attrs.EVALUATION_CRITERIA).orElse(null));
+        sectionQuestion.setAnswerInstructions(dto.getAnswerInstructionsOrNull());
+        sectionQuestion.setEvaluationCriteria(dto.getEvaluationCriteriaOrNull());
         sectionQuestion.setEvaluationType(
             SanitizingHelper.parseEnum("evaluationType", body, Question.EvaluationType.class).orElse(null)
         );
@@ -511,7 +512,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     }
 
     @Authenticated
-    @With(SectionQuestionSanitizer.class)
+    @With(SectionQuestionValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateDistributedExamQuestion(Long eid, Long sid, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -550,9 +551,10 @@ public class ExamSectionController extends BaseController implements SectionQues
         }
 
         // Update question: text
-        question.setQuestion(request.attrs().getOptional(Attrs.QUESTION_TEXT).orElse(null));
+        SectionQuestionDTO dto = request.attrs().get(Attrs.SECTION_QUESTION);
+        question.setQuestion(dto.getQuestionTextOrNull());
         question.update();
-        updateExamQuestion(examSectionQuestion, body, request);
+        updateExamQuestion(examSectionQuestion, body, dto);
         examSectionQuestion.update();
         if (
             question.getType() != Question.Type.EssayQuestion && question.getType() != Question.Type.ClozeTestQuestion

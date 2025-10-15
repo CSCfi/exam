@@ -44,11 +44,11 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExamDraftSanitizer;
-import sanitizers.ExamUpdateSanitizer;
 import security.Authenticated;
 import system.interceptors.Anonymous;
+import validation.core.Attrs;
+import validation.exam.ExamDraftValidator;
+import validation.exam.ExamUpdateValidator;
 
 public class ExamController extends BaseController {
 
@@ -347,7 +347,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @With(ExamUpdateSanitizer.class)
+    @With(ExamUpdateValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateExam(Long id, Http.Request request) {
         Exam exam = prototypeQuery().where().idEq(id).findOne();
@@ -495,7 +495,7 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
-    @With(ExamDraftSanitizer.class)
+    @With(ExamDraftValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result createExamDraft(Http.Request request) {
         Exam payload = request.attrs().get(Attrs.EXAM);

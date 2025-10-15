@@ -31,9 +31,10 @@ import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExaminationDateSanitizer;
-import sanitizers.ExaminationEventSanitizer;
+import validation.ExaminationDateSanitizer;
+import validation.core.Attrs;
+import validation.exam.ExaminationEventDTO;
+import validation.exam.ExaminationEventValidator;
 
 public class ExaminationEventController extends BaseController {
 
@@ -101,7 +102,7 @@ public class ExaminationEventController extends BaseController {
             .anyMatch(i -> i.overlaps(interval));
     }
 
-    @With(ExaminationEventSanitizer.class)
+    @With(ExaminationEventValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result insertExaminationEvent(Long eid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
@@ -110,9 +111,10 @@ public class ExaminationEventController extends BaseController {
         }
         ExaminationEventConfiguration eec = new ExaminationEventConfiguration();
         // HOX! maybe in the future this can be some preset event shared by multiple exams.
-        // For time being lets always create new events.
+        // For the time being let's always create new events.
+        ExaminationEventDTO dto = request.attrs().get(Attrs.EXAMINATION_EVENT);
         ExaminationEvent ee = new ExaminationEvent();
-        DateTime start = request.attrs().get(Attrs.START_DATE);
+        DateTime start = dto.start();
         if (start.isBeforeNow()) {
             return forbidden("i18n_error_examination_event_in_the_past");
         }
@@ -121,21 +123,21 @@ public class ExaminationEventController extends BaseController {
             return forbidden("i18n_error_conflicts_with_maintenance_period");
         }
         int ub = getParticipantUpperBound(start, end, null);
-        int capacity = request.attrs().get(Attrs.CAPACITY);
+        int capacity = dto.capacity();
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
             return forbidden("i18n_error_max_capacity_exceeded");
         }
-        String quitPassword = request.attrs().get(Attrs.QUIT_PASSWORD);
+        String quitPassword = dto.getQuitPasswordAsJava().orElse(null);
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH && quitPassword == null) {
             return forbidden("no quit password provided");
         }
-        String settingsPassword = request.attrs().get(Attrs.SETTINGS_PASSWORD);
+        String settingsPassword = dto.getSettingsPasswordAsJava().orElse(null);
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH && settingsPassword == null) {
             return forbidden("no settings password provided");
         }
         ee.setStart(start);
-        ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
-        ee.setCapacity(request.attrs().get(Attrs.CAPACITY));
+        ee.setDescription(dto.description());
+        ee.setCapacity(dto.capacity());
         ee.save();
         eec.setExaminationEvent(ee);
         eec.setExam(exam);
@@ -151,7 +153,7 @@ public class ExaminationEventController extends BaseController {
         return ok(eec);
     }
 
-    @With(ExaminationEventSanitizer.class)
+    @With(ExaminationEventValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateExaminationEvent(Long eid, Long eecid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
@@ -163,18 +165,19 @@ public class ExaminationEventController extends BaseController {
         if (exam == null || oeec.isEmpty()) {
             return notFound("event not found");
         }
+        ExaminationEventDTO dto = request.attrs().get(Attrs.EXAMINATION_EVENT);
         ExaminationEventConfiguration eec = oeec.get();
         boolean hasEnrolments = !eec.getExamEnrolments().isEmpty();
         ExaminationEvent ee = eec.getExaminationEvent();
-        String quitPassword = request.attrs().get(Attrs.QUIT_PASSWORD);
+        String quitPassword = dto.getQuitPasswordAsJava().orElse(null);
         if (eec.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH && quitPassword == null) {
             return forbidden("no quit password provided");
         }
-        String settingsPassword = request.attrs().get(Attrs.SETTINGS_PASSWORD);
+        String settingsPassword = dto.getSettingsPasswordAsJava().orElse(null);
         if (eec.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH && settingsPassword == null) {
             return forbidden("no settings password provided");
         }
-        DateTime start = request.attrs().get(Attrs.START_DATE);
+        DateTime start = dto.start();
         if (!hasEnrolments) {
             if (start.isBeforeNow()) {
                 return forbidden("i18n_error_examination_event_in_the_past");
@@ -186,12 +189,12 @@ public class ExaminationEventController extends BaseController {
             return forbidden("i18n_error_conflicts_with_maintenance_period");
         }
         int ub = getParticipantUpperBound(start, end, ee.getId());
-        int capacity = request.attrs().get(Attrs.CAPACITY);
+        int capacity = dto.capacity();
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
             return forbidden("i18n_error_max_capacity_exceeded");
         }
         ee.setCapacity(capacity);
-        ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
+        ee.setDescription(dto.description());
         ee.update();
         if (quitPassword == null || settingsPassword == null) {
             return ok(eec);
@@ -250,9 +253,9 @@ public class ExaminationEventController extends BaseController {
         try {
             String oldPwd = eec.getEncryptedSettingsPassword() != null
                 ? byodConfigHandler.getPlaintextPassword(
-                    eec.getEncryptedSettingsPassword(),
-                    eec.getSettingsPasswordSalt()
-                )
+                      eec.getEncryptedSettingsPassword(),
+                      eec.getSettingsPasswordSalt()
+                  )
                 : null;
 
             if (!password.equals(oldPwd)) {

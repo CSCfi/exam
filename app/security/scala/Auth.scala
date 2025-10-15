@@ -12,6 +12,7 @@ import play.api.mvc._
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 // TODO: Support for permissions
 object Auth:
@@ -42,8 +43,16 @@ object Auth:
       override def executionContext: ExecutionContext = ec
 
       override def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
-        input.session.get("role").map(Role.Name.valueOf) match
-          case Some(role) if roles.contains(role) => None
-          case _                                  => Some(Unauthorized)
+        // Try to use already-loaded user first (when used with authenticated)
+        input.attrs.get(ATTR_USER) match
+          case Some(user) if roles.contains(user.getLoginRole) =>
+            None
+          case Some(_) =>
+            Some(Forbidden("Insufficient permissions"))
+          case None =>
+            // Fallback: check session directly (when used standalone)
+            input.session.get("role").flatMap(r => Try(Role.Name.valueOf(r)).toOption) match
+              case Some(role) if roles.contains(role) => None
+              case _ => Some(Unauthorized("Authentication required"))
       }
     }

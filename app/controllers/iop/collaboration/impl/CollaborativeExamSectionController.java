@@ -31,8 +31,8 @@ import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class CollaborativeExamSectionController extends CollaborationController implements SectionQuestionHandler {
 

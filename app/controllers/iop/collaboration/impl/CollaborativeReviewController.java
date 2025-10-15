@@ -53,11 +53,11 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExternalRefCollectionSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import system.interceptors.Anonymous;
+import validation.ExternalRefCollectionSanitizer;
+import validation.core.Attrs;
 
 public class CollaborativeReviewController extends CollaborationController {
 

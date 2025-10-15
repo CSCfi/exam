@@ -35,8 +35,8 @@ import play.libs.Files;
 import play.mvc.Http;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class AttachmentController extends BaseController implements LocalAttachmentInterface {
 

@@ -18,7 +18,7 @@ import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.mvc.Http
-import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale as ExtGradeScale}
+import schema.ExternalCourseValidator.{CourseUnitInfo, GradeScale as ExtGradeScale}
 
 import java.net.*
 import java.nio.charset.StandardCharsets

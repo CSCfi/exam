@@ -37,12 +37,12 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.EmailSanitizer;
-import sanitizers.ExamUpdateSanitizer;
 import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.CollectionConverters;
 import security.Authenticated;
+import validation.EmailSanitizer;
+import validation.core.Attrs;
+import validation.exam.ExamUpdateValidator;
 
 public class CollaborativeExamController extends CollaborationController {
 
@@ -198,7 +198,7 @@ public class CollaborativeExamController extends CollaborationController {
     }
 
     @Authenticated
-    @With(ExamUpdateSanitizer.class)
+    @With(ExamUpdateValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> updateExam(Long id, Http.Request request) {
         String homeOrg = configReader.getHomeOrganisationRef();

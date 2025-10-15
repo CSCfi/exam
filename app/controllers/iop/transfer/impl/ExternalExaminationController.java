@@ -45,10 +45,13 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.ExaminationRepository;
-import sanitizers.Attrs;
-import sanitizers.EssayAnswerSanitizer;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
+import validation.answer.ClozeTestAnswerDTO;
+import validation.answer.ClozeTestAnswerValidator;
+import validation.answer.EssayAnswerDTO;
+import validation.answer.EssayAnswerValidator;
+import validation.core.Attrs;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "configKey" })
 @Restrict({ @Group("STUDENT") })
@@ -176,7 +179,7 @@ public class ExternalExaminationController extends ExaminationController {
     }
 
     @Authenticated
-    @With(EssayAnswerSanitizer.class)
+    @With(EssayAnswerValidator.class)
     @Override
     public CompletionStage<Result> answerEssay(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -186,9 +189,10 @@ public class ExternalExaminationController extends ExaminationController {
                 if (optional.isEmpty()) {
                     return forbidden();
                 }
+                EssayAnswerDTO dto = request.attrs().get(Attrs.ESSAY_ANSWER);
                 ExternalExam ee = optional.get();
-                String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
-                Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
+                String essayAnswer = dto.answer();
+                Optional<Long> objectVersion = dto.getObjectVersionAsJava();
                 Optional<ExamSectionQuestion> optionalQuestion;
                 Exam content;
                 try {
@@ -240,7 +244,7 @@ public class ExternalExaminationController extends ExaminationController {
     }
 
     @Authenticated
-    @With(EssayAnswerSanitizer.class)
+    @With(ClozeTestAnswerValidator.class)
     @Override
     public CompletionStage<Result> answerClozeTest(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -254,19 +258,20 @@ public class ExternalExaminationController extends ExaminationController {
                 return findSectionQuestion(ee, qid)
                     .map(t -> {
                         ExamSectionQuestion esq = t._2;
+                        ClozeTestAnswerDTO dto = request.attrs().get(Attrs.CLOZE_TEST_ANSWER);
                         ClozeTestAnswer answer = esq.getClozeTestAnswer();
                         if (answer == null) {
                             answer = new ClozeTestAnswer();
                             esq.setClozeTestAnswer(answer);
                         } else {
-                            long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
+                            long objectVersion = dto.getObjectVersionAsJava().orElse(0L);
                             if (answer.getObjectVersion() > objectVersion) {
                                 // Optimistic locking problem
                                 return forbidden("i18n_error_data_has_changed");
                             }
                             answer.setObjectVersion(objectVersion + 1);
                         }
-                        answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
+                        answer.setAnswer(dto.answer());
                         try {
                             ee.serialize(t._1);
                         } catch (IOException e) {

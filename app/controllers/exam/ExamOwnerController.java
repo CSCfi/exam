@@ -16,8 +16,8 @@ import models.user.User;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class ExamOwnerController extends BaseController {
 

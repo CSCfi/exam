@@ -21,8 +21,8 @@ import play.libs.ws.WSRequest;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class CollaborativeStudentActionController extends CollaborationController {
 

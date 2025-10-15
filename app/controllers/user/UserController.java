@@ -27,10 +27,9 @@ import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.UserLanguageSanitizer;
 import security.Authenticated;
-import validators.JsonValidator;
+import validation.UserLanguageSanitizer;
+import validation.core.Attrs;
 
 public class UserController extends BaseController {
 
@@ -223,7 +222,6 @@ public class UserController extends BaseController {
     }
 
     @Authenticated
-    @JsonValidator(schema = "userLang")
     @With(UserLanguageSanitizer.class)
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
     public Result updateLanguage(Http.Request request) {
