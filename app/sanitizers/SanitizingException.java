@@ -6,7 +6,7 @@ package sanitizers;
 
 public class SanitizingException extends Exception {
 
-    SanitizingException(String msg) {
+    public SanitizingException(String msg) {
         super(msg);
     }
 }

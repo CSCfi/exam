@@ -11,14 +11,13 @@ import org.jsoup.safety.Safelist;
 import play.libs.typedmap.TypedKey;
 import play.mvc.Http;
 
-public final class SanitizingHelper {
+public enum SanitizingHelper {
+    ;
 
     private static final Safelist SAFELIST = Safelist.relaxed()
         .addAttributes("a", "target")
         .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
         .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption");
-
-    private SanitizingHelper() {}
 
     public static <E extends Enum<E>> Optional<E> parseEnum(String fieldName, JsonNode node, Class<E> type) {
         JsonNode field = node.get(fieldName);

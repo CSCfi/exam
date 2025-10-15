@@ -41,9 +41,7 @@ import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import scala.concurrent.duration.Duration;
 
 public class ExamUpdaterImpl implements ExamUpdater {
@@ -60,10 +58,10 @@ public class ExamUpdaterImpl implements ExamUpdater {
     private final Logger logger = LoggerFactory.getLogger(ExamUpdaterImpl.class);
 
     @Override
-    public Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request) {
-        Optional<Integer> newDuration = request.attrs().getOptional(Attrs.DURATION);
-        Optional<DateTime> newStart = request.attrs().getOptional(Attrs.START_DATE);
-        Optional<DateTime> newEnd = request.attrs().getOptional(Attrs.END_DATE);
+    public Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Exam payload) {
+        Optional<Integer> newDuration = Optional.ofNullable(payload.getDuration());
+        Optional<DateTime> newStart = Optional.ofNullable(payload.getPeriodStart());
+        Optional<DateTime> newEnd = Optional.ofNullable(payload.getPeriodEnd());
 
         // For printout exams everything is allowed
         if (exam.isPrintout()) {
@@ -107,12 +105,12 @@ public class ExamUpdaterImpl implements ExamUpdater {
     }
 
     @Override
-    public Optional<Result> updateStateAndValidate(Exam exam, User user, Http.Request request) {
-        Optional<Exam.State> state = request.attrs().getOptional(Attrs.EXAM_STATE);
+    public Optional<Result> updateStateAndValidate(Exam exam, User user, Exam payload) {
+        Optional<Exam.State> state = Optional.ofNullable(payload.getState());
         if (state.isPresent()) {
             if (state.get() == Exam.State.PRE_PUBLISHED) {
                 // Exam is pre-published or about to be pre-published
-                Optional<Result> err = getFormValidationError(!exam.isPrintout(), request);
+                Optional<Result> err = getFormValidationError(!exam.isPrintout(), payload);
                 // invalid data
                 if (err.isPresent()) {
                     return err;
@@ -123,7 +121,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
             }
             if (state.get() == Exam.State.PUBLISHED) {
                 // Exam is published or about to be published
-                Optional<Result> err = getFormValidationError(!exam.isPrintout(), request);
+                Optional<Result> err = getFormValidationError(!exam.isPrintout(), payload);
                 // invalid data
                 if (err.isPresent()) {
                     return err;
@@ -141,7 +139,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                     return Optional.of(badRequest("no exam languages specified"));
                 }
                 if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString())) {
-                    if (request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).isEmpty()) {
+                    if (payload.getSubjectToLanguageInspection() == null) {
                         return Optional.of(badRequest("language inspection requirement not configured"));
                     }
                 }
@@ -171,20 +169,22 @@ public class ExamUpdaterImpl implements ExamUpdater {
     }
 
     @Override
-    public void update(Exam exam, Http.Request request, Role.Name loginRole) {
-        Optional<String> examName = request.attrs().getOptional(Attrs.NAME);
-        Boolean shared = request.attrs().getOptional(Attrs.SHARED).orElse(false);
-        Optional<Integer> grading = request.attrs().getOptional(Attrs.GRADE_ID);
-        Optional<String> answerLanguage = request.attrs().getOptional(Attrs.LANG);
-        Optional<String> instruction = request.attrs().getOptional(Attrs.INSTRUCTION);
-        Optional<String> enrollInstruction = request.attrs().getOptional(Attrs.ENROLMENT_INFORMATION);
-        Optional<String> examType = request.attrs().getOptional(Attrs.TYPE);
-        Optional<String> organisations = request.attrs().getOptional(Attrs.ORGANISATIONS);
-        Integer trialCount = request.attrs().getOptional(Attrs.TRIAL_COUNT).orElse(null);
-        Boolean requiresLanguageInspection = request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).orElse(null);
-        String internalRef = request.attrs().getOptional(Attrs.REFERENCE).orElse(null);
-        Boolean anonymous = request.attrs().getOptional(Attrs.ANONYMOUS).orElse(false);
-        Exam.Implementation impl = request.attrs().getOptional(Attrs.EXAM_IMPL).orElse(Exam.Implementation.AQUARIUM);
+    public void update(Exam exam, Exam payload, Role.Name loginRole) {
+        Optional<String> examName = Optional.ofNullable(payload.getName());
+        Boolean shared = Optional.of(payload.isShared()).orElse(false);
+        Optional<Integer> grading = Optional.ofNullable(payload.getGrade()).map(Grade::getId);
+        Optional<String> answerLanguage = Optional.ofNullable(payload.getAnswerLanguage());
+        Optional<String> instruction = Optional.ofNullable(payload.getInstruction());
+        Optional<String> enrollInstruction = Optional.ofNullable(payload.getEnrollInstruction());
+        Optional<String> examType = Optional.ofNullable(payload.getExamType()).map(ExamType::getType);
+        Optional<String> organisations = Optional.ofNullable(payload.getOrganisations());
+        Integer trialCount = payload.getTrialCount();
+        Boolean requiresLanguageInspection = payload.getSubjectToLanguageInspection();
+        String internalRef = payload.getInternalRef();
+        Boolean anonymous = Optional.of(payload.isAnonymous()).orElse(false);
+        Exam.Implementation impl = Optional.ofNullable(payload.getImplementation()).orElse(
+            Exam.Implementation.AQUARIUM
+        );
 
         examName.ifPresent(exam::setName);
         exam.setShared(shared);
@@ -399,11 +399,11 @@ public class ExamUpdaterImpl implements ExamUpdater {
             .anyMatch(eec -> eec != null && eec.getExaminationEvent().getStart().isAfter(now));
     }
 
-    private Optional<Result> getFormValidationError(boolean checkPeriod, Http.Request request) {
+    private Optional<Result> getFormValidationError(boolean checkPeriod, Exam payload) {
         String reason = null;
         if (checkPeriod) {
-            Optional<DateTime> start = request.attrs().getOptional(Attrs.START_DATE);
-            Optional<DateTime> end = request.attrs().getOptional(Attrs.END_DATE);
+            Optional<DateTime> start = Optional.ofNullable(payload.getPeriodStart());
+            Optional<DateTime> end = Optional.ofNullable(payload.getPeriodEnd());
             if (start.isEmpty()) {
                 reason = "i18n_error_start_date";
             } else if (end.isEmpty()) {

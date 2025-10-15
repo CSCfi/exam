@@ -205,14 +205,15 @@ public class CollaborativeExamController extends CollaborationController {
         return findCollaborativeExam(id)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                Exam payload = request.attrs().get(Attrs.EXAM);
                 return downloadExam(ce).thenComposeAsync(result -> {
                     if (result.isPresent()) {
                         Exam exam = result.get();
                         if (isAuthorizedToView(exam, user, homeOrg)) {
                             Exam.State previousState = exam.getState();
                             Optional<Result> error = Stream.of(
-                                examUpdater.updateTemporalFieldsAndValidate(exam, user, request),
-                                examUpdater.updateStateAndValidate(exam, user, request)
+                                examUpdater.updateTemporalFieldsAndValidate(exam, user, payload),
+                                examUpdater.updateStateAndValidate(exam, user, payload)
                             )
                                 .filter(Optional::isPresent)
                                 .map(Optional::get)
@@ -223,7 +224,7 @@ public class CollaborativeExamController extends CollaborationController {
                             Exam.State nextState = exam.getState();
                             boolean isPrePublication =
                                 previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED;
-                            examUpdater.update(exam, request, user.getLoginRole());
+                            examUpdater.update(exam, payload, user.getLoginRole());
                             return uploadExam(ce, exam, user).thenApplyAsync(result2 -> {
                                 if (result2.status() == OK && isPrePublication) {
                                     Set<String> receivers = exam
