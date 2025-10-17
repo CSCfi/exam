@@ -18,8 +18,8 @@ import models.user.User;
 import org.springframework.beans.BeanUtils;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class ExamMaterialController extends QuestionController implements SectionQuestionHandler {
 

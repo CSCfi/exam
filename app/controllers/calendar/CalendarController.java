@@ -13,7 +13,6 @@ import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,11 +34,12 @@ import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
+import validation.calendar.ReservationCreationValidator;
+import validation.calendar.ReservationDTO;
+import validation.core.Attrs;
 
 public class CalendarController extends BaseController {
 
@@ -131,15 +131,16 @@ public class CalendarController extends BaseController {
     }
 
     @Authenticated
-    @With(CalendarReservationSanitizer.class)
+    @With(ReservationCreationValidator.class)
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public CompletionStage<Result> createReservation(Http.Request request) {
-        Long roomId = request.attrs().get(Attrs.ROOM_ID);
-        Long examId = request.attrs().get(Attrs.EXAM_ID);
-        DateTime start = request.attrs().get(Attrs.START_DATE);
-        DateTime end = request.attrs().get(Attrs.END_DATE);
-        Collection<Integer> aids = request.attrs().get(Attrs.ACCESSIBILITIES);
-        Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
+        ReservationDTO dto = request.attrs().get(Attrs.STUDENT_RESERVATION);
+        Long roomId = dto.roomId();
+        Long examId = dto.examId();
+        DateTime start = dto.start();
+        DateTime end = dto.end();
+        List<Long> aids = dto.getAidsAsJava();
+        List<Long> sectionIds = dto.getSectionIdsAsJava();
 
         ExamRoom room = DB.find(ExamRoom.class, roomId);
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), room);
@@ -264,14 +265,14 @@ public class CalendarController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
-    public Result getSlots(Long examId, Long roomId, String day, Optional<List<Integer>> aids, Http.Request request) {
+    public Result getSlots(Long examId, Long roomId, String day, Optional<List<Long>> aids, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment ee = calendarHandler.getEnrolment(examId, user);
         // Sanity check so that we avoid accidentally getting reservations for SEB exams
         if (ee == null || ee.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return forbidden("i18n_error_enrolment_not_found");
         }
-        List<Integer> accessibilityIds = aids.orElse(Collections.emptyList());
+        List<Long> accessibilityIds = aids.orElse(List.of());
         return calendarHandler.getSlots(user, ee.getExam(), roomId, day, accessibilityIds);
     }
 }

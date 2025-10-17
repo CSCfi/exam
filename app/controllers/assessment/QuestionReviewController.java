@@ -24,9 +24,9 @@ import models.sections.ExamSectionQuestion;
 import models.user.User;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
 import system.interceptors.Anonymous;
+import validation.core.Attrs;
 
 public class QuestionReviewController extends BaseController {
 

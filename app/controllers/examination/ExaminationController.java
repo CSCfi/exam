@@ -51,13 +51,15 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.ExaminationRepository;
-import sanitizers.Attrs;
-import sanitizers.ClozeTestAnswerSanitizer;
-import sanitizers.EssayAnswerSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import system.interceptors.ExamActionRouter;
 import system.interceptors.SensitiveDataPolicy;
+import validation.answer.ClozeTestAnswerDTO;
+import validation.answer.ClozeTestAnswerValidator;
+import validation.answer.EssayAnswerDTO;
+import validation.answer.EssayAnswerValidator;
+import validation.core.Attrs;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "claimChoiceType", "configKey" })
 public class ExaminationController extends BaseController {
@@ -247,20 +249,22 @@ public class ExaminationController extends BaseController {
                         .getPrototype(hash, ce, pp)
                         .thenComposeAsync(
                             oe -> {
-                                if (oe.isEmpty()) {
-                                    return wrapAsPromise(ok()); // check
-                                }
-                                return examinationRepository
-                                    .getPossibleClone(hash, user, ce, pp)
-                                    .thenComposeAsync(
-                                        pc -> {
-                                            if (pc.isPresent()) return wrapAsPromise(ok());
-                                            else {
-                                                return createClone(oe.get(), user, ce, request, true);
-                                            }
-                                        },
-                                        httpExecutionContext.current()
-                                    );
+                                // check
+                                return oe
+                                    .map(exam ->
+                                        examinationRepository
+                                            .getPossibleClone(hash, user, ce, pp)
+                                            .thenComposeAsync(
+                                                pc -> {
+                                                    if (pc.isPresent()) return wrapAsPromise(ok());
+                                                    else {
+                                                        return createClone(exam, user, ce, request, true);
+                                                    }
+                                                },
+                                                httpExecutionContext.current()
+                                            )
+                                    )
+                                    .orElseGet(() -> wrapAsPromise(ok()));
                             },
                             httpExecutionContext.current()
                         );
@@ -338,13 +342,14 @@ public class ExaminationController extends BaseController {
     }
 
     @Authenticated
-    @With(EssayAnswerSanitizer.class)
+    @With(EssayAnswerValidator.class)
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> answerEssay(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request).thenApplyAsync(oe ->
             oe.orElseGet(() -> {
-                String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
-                Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
+                EssayAnswerDTO dto = request.attrs().get(Attrs.ESSAY_ANSWER);
+                String essayAnswer = dto.answer();
+                Optional<Long> objectVersion = dto.getObjectVersionAsJava();
                 ExamSectionQuestion question = DB.find(ExamSectionQuestion.class, questionId);
                 if (question == null) {
                     return forbidden();
@@ -387,7 +392,7 @@ public class ExaminationController extends BaseController {
     }
 
     @Authenticated
-    @With(ClozeTestAnswerSanitizer.class)
+    @With(ClozeTestAnswerValidator.class)
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> answerClozeTest(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request).thenApplyAsync(oe ->
@@ -396,14 +401,15 @@ public class ExaminationController extends BaseController {
                 if (esq == null) {
                     return forbidden();
                 }
+                ClozeTestAnswerDTO dto = request.attrs().get(Attrs.CLOZE_TEST_ANSWER);
                 ClozeTestAnswer answer = esq.getClozeTestAnswer();
                 if (answer == null) {
                     answer = new ClozeTestAnswer();
                 } else {
-                    long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
+                    long objectVersion = dto.getObjectVersionAsJava().orElse(0L);
                     answer.setObjectVersion(objectVersion);
                 }
-                answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
+                answer.setAnswer(dto.answer());
                 answer.save();
                 return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
             })

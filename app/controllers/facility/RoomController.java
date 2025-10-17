@@ -45,11 +45,11 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
+import validation.core.Attrs;
 
 public class RoomController extends BaseController {
 

@@ -52,12 +52,12 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.CommaJoinedListSanitizer;
-import sanitizers.CommentSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import system.interceptors.Anonymous;
+import validation.CommentSanitizer;
+import validation.core.Attrs;
+import validation.other.CommaJoinedListValidator;
 
 public class ReviewController extends BaseController {
 
@@ -525,7 +525,7 @@ public class ReviewController extends BaseController {
         return ok(ic, PathProperties.parse("(creator(firstName, lastName, email), created, comment)"));
     }
 
-    @With(CommaJoinedListSanitizer.class)
+    @With(CommaJoinedListValidator.class)
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public Result archiveExams(Http.Request request) {
         Collection<Long> ids = request.attrs().get(Attrs.ID_COLLECTION);

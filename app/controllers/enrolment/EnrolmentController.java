@@ -43,15 +43,14 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.EnrolmentRepository;
-import sanitizers.Attrs;
-import sanitizers.EnrolmentCourseInformationSanitizer;
-import sanitizers.EnrolmentInformationSanitizer;
-import sanitizers.StudentEnrolmentSanitizer;
 import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.CollectionConverters;
 import scala.jdk.javaapi.FutureConverters;
 import security.Authenticated;
-import validators.JsonValidator;
+import validation.EnrolmentCourseInformationSanitizer;
+import validation.EnrolmentInformationSanitizer;
+import validation.StudentEnrolmentSanitizer;
+import validation.core.Attrs;
 
 public class EnrolmentController extends BaseController {
 
@@ -231,7 +230,6 @@ public class EnrolmentController extends BaseController {
     }
 
     @Authenticated
-    @JsonValidator(schema = "enrolmentInfo")
     @With(EnrolmentInformationSanitizer.class)
     @Restrict({ @Group("STUDENT") })
     public Result updateEnrolment(Long id, Http.Request request) {

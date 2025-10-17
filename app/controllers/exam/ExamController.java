@@ -44,10 +44,11 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExamUpdateSanitizer;
 import security.Authenticated;
 import system.interceptors.Anonymous;
+import validation.core.Attrs;
+import validation.exam.ExamDraftValidator;
+import validation.exam.ExamUpdateValidator;
 
 public class ExamController extends BaseController {
 
@@ -322,31 +323,31 @@ public class ExamController extends BaseController {
         return forbidden("i18n_error_access_forbidden");
     }
 
-    private Result handleExamUpdate(Exam exam, User user, Http.Request request) {
-        Optional<Integer> grading = request.attrs().getOptional(Attrs.GRADE_ID);
+    private Result handleExamUpdate(Exam exam, User user, Exam payload) {
+        Optional<Integer> grading = Optional.ofNullable(payload.getGrade()).map(Grade::getId);
         boolean gradeScaleChanged = false;
         if (grading.isPresent()) {
             gradeScaleChanged = didGradeChange(exam, grading.get());
         }
         final Role.Name loginRole = user.getLoginRole();
-        examUpdater.update(exam, request, loginRole);
+        examUpdater.update(exam, payload, loginRole);
         if (gradeScaleChanged) {
             if (exam.getAutoEvaluationConfig() != null) {
                 exam.getAutoEvaluationConfig().delete();
                 exam.setAutoEvaluationConfig(null);
             }
-        } else if (request.attrs().containsKey(Attrs.AUTO_EVALUATION_CONFIG)) {
-            examUpdater.updateAutoEvaluationConfig(exam, request.attrs().get(Attrs.AUTO_EVALUATION_CONFIG));
+        } else if (Optional.ofNullable(payload.getAutoEvaluationConfig()).isPresent()) {
+            examUpdater.updateAutoEvaluationConfig(exam, payload.getAutoEvaluationConfig());
         }
-        if (request.attrs().containsKey(Attrs.EXAM_FEEDBACK_CONFIG)) {
-            examUpdater.updateExamFeedbackConfig(exam, request.attrs().get(Attrs.EXAM_FEEDBACK_CONFIG));
+        if (Optional.ofNullable(payload.getExamFeedbackConfig()).isPresent()) {
+            examUpdater.updateExamFeedbackConfig(exam, payload.getExamFeedbackConfig());
         }
         exam.save();
         return ok(exam);
     }
 
     @Authenticated
-    @With(ExamUpdateSanitizer.class)
+    @With(ExamUpdateValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateExam(Long id, Http.Request request) {
         Exam exam = prototypeQuery().where().idEq(id).findOne();
@@ -354,13 +355,14 @@ public class ExamController extends BaseController {
             return notFound();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        Exam payload = request.attrs().get(Attrs.EXAM);
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             return examUpdater
-                .updateTemporalFieldsAndValidate(exam, user, request)
+                .updateTemporalFieldsAndValidate(exam, user, payload)
                 .orElseGet(() ->
                     examUpdater
-                        .updateStateAndValidate(exam, user, request)
-                        .orElseGet(() -> handleExamUpdate(exam, user, request))
+                        .updateStateAndValidate(exam, user, payload)
+                        .orElseGet(() -> handleExamUpdate(exam, user, payload))
                 );
         } else {
             return forbidden("i18n_error_access_forbidden");
@@ -493,10 +495,12 @@ public class ExamController extends BaseController {
     }
 
     @Authenticated
+    @With(ExamDraftValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result createExamDraft(Http.Request request) {
-        String executionType = request.body().asJson().get("executionType").asText();
-        String implementation = request.body().asJson().get("implementation").asText();
+        Exam payload = request.attrs().get(Attrs.EXAM);
+        String executionType = payload.getExecutionType().getType();
+        String implementation = payload.getImplementation().toString();
         ExamExecutionType examExecutionType = DB.find(ExamExecutionType.class)
             .where()
             .eq("type", executionType)

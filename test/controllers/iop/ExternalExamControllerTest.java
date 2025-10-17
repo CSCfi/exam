@@ -192,7 +192,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
 
     @After
     @Override
-    public void tearDown() {
+    public void tearDown() throws IOException {
         try {
             logger.info("Cleaning test upload directory: {}", testUpload.toString());
             FileUtils.deleteDirectory(testUpload.toFile());

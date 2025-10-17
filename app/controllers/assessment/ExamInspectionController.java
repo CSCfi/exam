@@ -23,10 +23,10 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.CommentSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
+import validation.CommentSanitizer;
+import validation.core.Attrs;
 
 public class ExamInspectionController extends BaseController {
 

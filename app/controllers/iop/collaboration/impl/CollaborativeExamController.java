@@ -37,12 +37,12 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.EmailSanitizer;
-import sanitizers.ExamUpdateSanitizer;
 import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.CollectionConverters;
 import security.Authenticated;
+import validation.EmailSanitizer;
+import validation.core.Attrs;
+import validation.exam.ExamUpdateValidator;
 
 public class CollaborativeExamController extends CollaborationController {
 
@@ -198,21 +198,22 @@ public class CollaborativeExamController extends CollaborationController {
     }
 
     @Authenticated
-    @With(ExamUpdateSanitizer.class)
+    @With(ExamUpdateValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> updateExam(Long id, Http.Request request) {
         String homeOrg = configReader.getHomeOrganisationRef();
         return findCollaborativeExam(id)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                Exam payload = request.attrs().get(Attrs.EXAM);
                 return downloadExam(ce).thenComposeAsync(result -> {
                     if (result.isPresent()) {
                         Exam exam = result.get();
                         if (isAuthorizedToView(exam, user, homeOrg)) {
                             Exam.State previousState = exam.getState();
                             Optional<Result> error = Stream.of(
-                                examUpdater.updateTemporalFieldsAndValidate(exam, user, request),
-                                examUpdater.updateStateAndValidate(exam, user, request)
+                                examUpdater.updateTemporalFieldsAndValidate(exam, user, payload),
+                                examUpdater.updateStateAndValidate(exam, user, payload)
                             )
                                 .filter(Optional::isPresent)
                                 .map(Optional::get)
@@ -223,7 +224,7 @@ public class CollaborativeExamController extends CollaborationController {
                             Exam.State nextState = exam.getState();
                             boolean isPrePublication =
                                 previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED;
-                            examUpdater.update(exam, request, user.getLoginRole());
+                            examUpdater.update(exam, payload, user.getLoginRole());
                             return uploadExam(ce, exam, user).thenApplyAsync(result2 -> {
                                 if (result2.status() == OK && isPrePublication) {
                                     Set<String> receivers = exam

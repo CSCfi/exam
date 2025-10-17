@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
@@ -42,10 +42,10 @@ import play.db.ebean.Transactional;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExamRecordSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
+import validation.ExamRecordSanitizer;
+import validation.core.Attrs;
 
 public class ExamRecordController extends BaseController {
 
@@ -169,7 +169,7 @@ public class ExamRecordController extends BaseController {
     @With(ExamRecordSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result exportSelectedExamRecordsAsCsv(Long examId, Http.Request request) {
-        Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
+        List<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         File file;
         try {
             file = csvBuilder.build(examId, childIds);
@@ -184,7 +184,7 @@ public class ExamRecordController extends BaseController {
     @With(ExamRecordSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result exportSelectedExamRecordsAsExcel(Long examId, Http.Request request) {
-        Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
+        List<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         ByteArrayOutputStream bos;
         try {
             bos = excelBuilder.build(examId, childIds);

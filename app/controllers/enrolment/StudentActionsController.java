@@ -44,11 +44,11 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.EnrolmentRepository;
-import sanitizers.Attrs;
 import scala.jdk.javaapi.CollectionConverters;
 import scala.jdk.javaapi.FutureConverters;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
+import validation.core.Attrs;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption" })
 @Restrict({ @Group("STUDENT") })

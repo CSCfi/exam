@@ -21,8 +21,8 @@ import play.libs.typedmap.TypedKey;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import system.interceptors.AnonymousJsonAction;
+import validation.core.Attrs;
 
 public class BaseController extends Controller {
 

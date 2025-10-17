@@ -39,10 +39,10 @@ import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.Anonymous;
+import validation.core.Attrs;
 
 public class ReservationController extends BaseController {
 
@@ -235,9 +235,9 @@ public class ReservationController extends BaseController {
         return reservation.getEnrolment().getExam() != null
             ? Optional.of(reservation.getEnrolment().getExam())
             : collaborativeExamLoader
-                .downloadExam(reservation.getEnrolment().getCollaborativeExam())
-                .toCompletableFuture()
-                .get();
+                  .downloadExam(reservation.getEnrolment().getCollaborativeExam())
+                  .toCompletableFuture()
+                  .get();
     }
 
     @Authenticated

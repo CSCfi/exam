@@ -45,11 +45,11 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.QuestionTextSanitizer;
-import sanitizers.SanitizingHelper;
 import scala.jdk.javaapi.CollectionConverters;
 import security.Authenticated;
+import validation.QuestionTextSanitizer;
+import validation.SanitizingHelper;
+import validation.core.Attrs;
 
 public class QuestionController extends BaseController implements SectionQuestionHandler {
 

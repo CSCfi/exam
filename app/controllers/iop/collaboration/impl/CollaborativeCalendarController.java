@@ -36,10 +36,11 @@ import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
+import validation.calendar.ReservationCreationValidator;
+import validation.calendar.ReservationDTO;
+import validation.core.Attrs;
 
 public class CollaborativeCalendarController extends CollaborationController {
 
@@ -95,21 +96,20 @@ public class CollaborativeCalendarController extends CollaborationController {
     }
 
     @Authenticated
-    @With(CalendarReservationSanitizer.class)
+    @With(ReservationCreationValidator.class)
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> createReservation(Http.Request request) {
-        Long roomId = request.attrs().get(Attrs.ROOM_ID);
-        Long examId = request.attrs().get(Attrs.EXAM_ID);
-        DateTime start = request.attrs().get(Attrs.START_DATE);
-        DateTime end = request.attrs().get(Attrs.END_DATE);
-        Collection<Integer> aids = request.attrs().get(Attrs.ACCESSIBILITIES);
-        Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
+        ReservationDTO dto = request.attrs().get(Attrs.STUDENT_RESERVATION);
+        DateTime start = dto.start();
+        DateTime end = dto.end();
+        List<Long> aids = dto.getAidsAsJava();
+        List<Long> sectionIds = dto.getSectionIdsAsJava();
 
-        ExamRoom room = DB.find(ExamRoom.class, roomId);
+        ExamRoom room = DB.find(ExamRoom.class, dto.roomId());
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), room);
         final User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
 
-        CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
+        CollaborativeExam ce = DB.find(CollaborativeExam.class, dto.examId());
         if (ce == null) {
             return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
@@ -118,7 +118,7 @@ public class CollaborativeCalendarController extends CollaborationController {
             .fetch("reservation")
             .where()
             .eq("user.id", user.getId())
-            .eq("collaborativeExam.id", examId)
+            .eq("collaborativeExam.id", dto.examId())
             .disjunction()
             .isNull("reservation")
             .gt("reservation.startAt", now.toDate())
@@ -197,7 +197,7 @@ public class CollaborativeCalendarController extends CollaborationController {
         Long examId,
         Long roomId,
         String day,
-        Optional<List<Integer>> aids,
+        Optional<List<Long>> aids,
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -217,7 +217,7 @@ public class CollaborativeCalendarController extends CollaborationController {
             if (!exam.hasState(Exam.State.PUBLISHED)) {
                 return notFound("i18n_error_exam_not_found");
             }
-            List<Integer> accessibilityIds = aids.orElse(Collections.emptyList());
+            List<Long> accessibilityIds = aids.orElse(List.of());
             return calendarHandler.getSlots(user, exam, roomId, day, accessibilityIds);
         });
     }

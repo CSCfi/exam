@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import miscellaneous.config.ConfigReader;
 import miscellaneous.datetime.DateTimeHandler;
 import miscellaneous.enrolment.EnrolmentHandler;
+import models.base.GeneratedIdentityModel;
 import models.calendar.MaintenancePeriod;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.ExternalReservation;
@@ -83,7 +84,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     private EnrolmentHandler enrolmentHandler;
 
     @Override
-    public Result getSlots(User user, Exam exam, Long roomId, String day, Collection<Integer> aids) {
+    public Result getSlots(User user, Exam exam, Long roomId, String day, Collection<Long> aids) {
         ExamRoom room = DB.find(ExamRoom.class, roomId);
         if (room == null) {
             return Results.forbidden(String.format("No room with id: (%d)", roomId));
@@ -133,7 +134,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     @Override
-    public boolean isDoable(Reservation reservation, Collection<Integer> aids) {
+    public boolean isDoable(Reservation reservation, Collection<Long> aids) {
         DateTimeZone dtz = DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
         LocalDate searchDate = dateTimeHandler.normalize(reservation.getStartAt().withZone(dtz), dtz).toLocalDate();
         // users reservations starting from now
@@ -203,7 +204,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         return searchDate;
     }
 
-    private List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Integer> access, Exam exam) {
+    private List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Long> access, Exam exam) {
         List<ExamMachine> candidates = DB.find(ExamMachine.class)
             .fetch("room")
             .where()
@@ -225,7 +226,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         Exam exam,
         DateTime start,
         DateTime end,
-        Collection<Integer> aids
+        Collection<Long> aids
     ) {
         List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
         Collections.shuffle(machines);
@@ -328,9 +329,9 @@ public class CalendarHandlerImpl implements CalendarHandler {
             int availableMachineCount = entry.getValue().isPresent()
                 ? entry.getValue().get()
                 : (int) machines
-                    .stream()
-                    .filter(m -> !isReservedByOthersDuring(m, slot, user))
-                    .count();
+                      .stream()
+                      .filter(m -> !isReservedByOthersDuring(m, slot, user))
+                      .count();
 
             results.add(new TimeSlot(slot, availableMachineCount, null));
         }
@@ -686,25 +687,25 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     // TODO: this room vs machine accessibility needs some UI work and rethinking.
-    private static boolean isMachineAccessibilitySatisfied(ExamMachine machine, Collection<Integer> wanted) {
+    private static boolean isMachineAccessibilitySatisfied(ExamMachine machine, Collection<Long> wanted) {
         if (machine.isAccessible()) {
             // this has it all :)
             return true;
         }
         // The following is always empty because no UI-support for adding
-        Set<Integer> machineAccessibility = machine
+        Set<Long> machineAccessibility = machine
             .getAccessibilities()
             .stream()
-            .map(accessibility -> accessibility.getId().intValue())
+            .map(GeneratedIdentityModel::getId)
             .collect(Collectors.toSet());
         return machineAccessibility.containsAll(wanted);
     }
 
-    private static boolean isRoomAccessibilitySatisfied(ExamRoom room, Collection<Integer> wanted) {
-        Set<Integer> roomAccessibility = room
+    private static boolean isRoomAccessibilitySatisfied(ExamRoom room, Collection<Long> wanted) {
+        Set<Long> roomAccessibility = room
             .getAccessibilities()
             .stream()
-            .map(accessibility -> accessibility.getId().intValue())
+            .map(GeneratedIdentityModel::getId)
             .collect(Collectors.toSet());
         return roomAccessibility.containsAll(wanted);
     }

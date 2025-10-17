@@ -11,17 +11,16 @@ import models.assessment.ExamFeedbackConfig;
 import models.exam.Exam;
 import models.user.Role;
 import models.user.User;
-import play.mvc.Http;
 import play.mvc.Result;
 
 @ImplementedBy(ExamUpdaterImpl.class)
 public interface ExamUpdater {
-    Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request);
-    Optional<Result> updateStateAndValidate(Exam exam, User user, Http.Request request);
+    Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Exam payload);
+    Optional<Result> updateStateAndValidate(Exam exam, User user, Exam payload);
     boolean isPermittedToUpdate(Exam exam, User user);
     boolean isAllowedToUpdate(Exam exam, User user);
     boolean isAllowedToRemove(Exam exam);
-    void update(Exam exam, Http.Request request, Role.Name loginRole);
+    void update(Exam exam, Exam payload, Role.Name loginRole);
     void updateAutoEvaluationConfig(Exam exam, AutoEvaluationConfig newConfig);
     Optional<Result> updateLanguage(Exam exam, String code, User user);
     void preparePreview(Exam exam);
