@@ -59,11 +59,11 @@ class ExternalCourseHandlerImpl @Inject (
   override def getCoursesByCode(user: User, code: String): Future[Set[Course]] =
     if !configReader.isCourseSearchActive then Future(getLocalCourses(code))
     // Hit the remote end for possible matches. Update local records with matching remote records.
-    // Finally return all matches (local & remote)
+    // Finally, return all matches (local and remote)
     val url = parseUrl(user.getOrganisation, code)
     downloadCourses(url).map(externals =>
       externals.foreach(saveOrUpdate)
-      TreeSet.empty[Course]((a, b) => a.getCode.compareTo(b.getCode)) ++ externals ++ getLocalCourses(code)
+      TreeSet.empty[Course](using (a, b) => a.getCode.compareTo(b.getCode)) ++ externals ++ getLocalCourses(code)
     )
 
   override def getPermittedCourses(user: User): Future[Set[String]] =

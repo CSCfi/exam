@@ -11,7 +11,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -49,7 +48,7 @@ public class LanguageInspectionController extends BaseController {
 
     @Dynamic(value = "inspector or admin", meta = "pattern=CAN_INSPECT_LANGUAGE,role=ADMIN,anyMatch=true")
     public Result listInspections(Optional<String> month, Optional<Long> start, Optional<Long> end) {
-        ExpressionList<LanguageInspection> query = DB.find(LanguageInspection.class)
+        var query = DB.find(LanguageInspection.class)
             .fetch("exam")
             .fetch("exam.course")
             .fetch("exam.creator", "firstName, lastName, email, userIdentifier")

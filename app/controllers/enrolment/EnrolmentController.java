@@ -13,7 +13,6 @@ import impl.ExternalCourseHandler;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.Transaction;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -220,7 +219,7 @@ public class EnrolmentController extends BaseController {
         if (enrolment == null) {
             return notFound("enrolment not found");
         }
-        // Disallow removing enrolments to private exams created automatically for student
+        // Disallow removing enrolments to private exams created automatically for a student
         if (enrolment.getExam() != null && enrolment.getExam().isPrivate()) {
             return forbidden();
         }
@@ -361,7 +360,7 @@ public class EnrolmentController extends BaseController {
                 Reservation reservation = enrolment.getReservation();
                 return externalReservationHandler
                     .removeReservation(reservation, user, "")
-                    .thenApplyAsync(result -> {
+                    .thenApplyAsync(_ -> {
                         enrolment.delete();
                         ExamEnrolment newEnrolment = makeEnrolment(exam, user);
                         return ok(newEnrolment);
@@ -400,7 +399,7 @@ public class EnrolmentController extends BaseController {
                     !enrolment.isNoShow() &&
                     enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
                 ) {
-                    // External reservation, assessment not returned yet. We must wait for it to arrive first
+                    // External reservation's assessment is not returned yet. We must wait for it to arrive first
                     return wrapAsPromise(forbidden("i18n_enrolment_assessment_not_received"));
                 }
             }
@@ -422,7 +421,7 @@ public class EnrolmentController extends BaseController {
     @Authenticated
     @With(EnrolmentCourseInformationSanitizer.class)
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
-    public CompletionStage<Result> createEnrolment(final Long id, Http.Request request) throws IOException {
+    public CompletionStage<Result> createEnrolment(final Long id, Http.Request request) {
         String code = request.attrs().get(Attrs.COURSE_CODE);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!permCheckActive) {
@@ -463,7 +462,7 @@ public class EnrolmentController extends BaseController {
                 .findList();
             if (users.isEmpty()) {
                 // Pre-enrolment
-                // Check that we will not create duplicate enrolments for same email address
+                // Check that we will not create duplicate enrolments for the same email address
                 List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
                     .where()
                     .eq("exam.id", eid)
@@ -479,7 +478,7 @@ public class EnrolmentController extends BaseController {
                 // User with email already exists
                 user = users.getFirst();
             } else {
-                // Multiple users with same email -> not good
+                // Multiple users with the same email address -> not good
                 return wrapAsPromise(internalServerError("multiple users found for email"));
             }
         } else {

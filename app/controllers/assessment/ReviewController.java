@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
@@ -127,7 +126,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Anonymous(filteredProperties = { "user", "preEnrolledUserEmail", "creator", "modifier", "reservation" })
     public Result getExamReview(Long eid, Http.Request request) {
-        ExpressionList<ExamParticipation> query = createQuery()
+        var query = createQuery()
             .where()
             .eq("exam.id", eid)
             .disjunction()
@@ -187,7 +186,7 @@ public class ReviewController extends BaseController {
                 "examEnrolments(retrialPermitted)," +
                 ")"
         );
-        Query<Exam> query = DB.find(Exam.class);
+        var query = DB.find(Exam.class);
         pp.apply(query);
         query
             .fetchQuery("course", "code, credits")
@@ -244,7 +243,7 @@ public class ReviewController extends BaseController {
         }
         EssayAnswer answer = essayQuestion.getEssayAnswer();
         if (answer == null) {
-            // Question was not answered at all.
+            // The question was not answered at all.
             answer = new EssayAnswer();
             answer.save();
             essayQuestion.setEssayAnswer(answer);
@@ -394,7 +393,7 @@ public class ReviewController extends BaseController {
             .ne("user.id", loggedUser.getId())
             .findList();
         Set<User> recipients = inspections.stream().map(ExamInspection::getUser).collect(Collectors.toSet());
-        // add owners to list, except those how are already in the list and self
+        // add owners to the list except those who are already in the list and self
         if (exam.getParent() != null) {
             recipients.addAll(
                 exam
@@ -423,7 +422,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Anonymous(filteredProperties = { "user" })
     public Result listNoShows(Long eid, Optional<Boolean> collaborative, Http.Request request) {
-        ExpressionList<ExamEnrolment> el = DB.find(ExamEnrolment.class)
+        var el = DB.find(ExamEnrolment.class)
             .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
             .fetch("collaborativeExam")
             .fetch("exam.executionType")
@@ -592,7 +591,7 @@ public class ReviewController extends BaseController {
 
     private Result updateReviewState(User user, Exam exam, Exam.State newState, boolean stateOnly) {
         exam.setState(newState);
-        // set grading info only if exam is really graded, not just modified
+        // set grading info only if the exam is really graded, not just modified
         if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
             if (!stateOnly) {
                 exam.setGradedTime(DateTime.now());
@@ -624,7 +623,7 @@ public class ReviewController extends BaseController {
         return src == null ? null : Math.round(src * 100) / HUNDRED;
     }
 
-    private static Query<ExamParticipation> createQuery() {
+    private Query<ExamParticipation> createQuery() {
         return DB.find(ExamParticipation.class)
             .fetch(
                 "exam",

@@ -222,7 +222,7 @@ public class ExamRecordController extends BaseController {
             return Optional.of(forbidden("You are not allowed to modify this object"));
         }
         if (exam.getGradedByUser() == null && exam.getAutoEvaluationConfig() != null) {
-            // Automatically graded by system, set graded by user at this point.
+            // Automatically graded by the system, set graded-by-user at this point.
             exam.setGradedByUser(user);
         }
         if (

@@ -7,7 +7,6 @@ package controllers.base;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import impl.NoShowHandler;
 import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
@@ -32,9 +31,6 @@ public class BaseController extends Controller {
 
     @Inject
     protected ClassLoaderExecutionContext ec;
-
-    @Inject
-    protected NoShowHandler noShowHandler;
 
     protected Result ok(Object object) {
         var body = DB.json().toJson(object);

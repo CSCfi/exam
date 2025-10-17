@@ -49,8 +49,7 @@ jobs:
 
             - name: Build UI and run tests
               run: |
-                  rm -rf node_modules
-                  npm i
+                  npm ci
                   npm run check-format
                   npm run check-lint
                   npm run build

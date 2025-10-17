@@ -74,7 +74,7 @@ public interface SectionQuestionHandler {
     }
 
     /**
-     * Calculates new option score for ExamSectionQuestionOption.
+     * Calculates a new option score for ExamSectionQuestionOption.
      *
      * @param question Base question.
      * @param option   New added option.

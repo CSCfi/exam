@@ -81,7 +81,7 @@ public class CalendarController extends BaseController {
         if (enrolment == null) {
             throw new IllegalArgumentException(String.format("No reservation with id %d for current user.", id));
         }
-        // Removal not permitted if reservation is in the past or ongoing
+        // Removal is not permitted if the reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {

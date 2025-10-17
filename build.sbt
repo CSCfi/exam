@@ -8,7 +8,7 @@ version := "6.4.0"
 
 licenses += "EUPL 1.2" -> url("https://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
-scalaVersion := "3.4.0"
+scalaVersion := "3.7.3"
 
 scalacOptions ++= Seq("-deprecation", "-feature", "-Dunused:imports")
 
@@ -30,12 +30,12 @@ libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"             % "1
 libraryDependencies += "joda-time"                % "joda-time"             % "2.14.0"
 libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.21.2"
 libraryDependencies += "org.postgresql"           % "postgresql"            % "42.7.8"
-libraryDependencies += "com.icegreen"             % "greenmail"             % "2.1.6"  % "test"
-libraryDependencies += "com.icegreen"             % "greenmail-junit4"      % "2.1.6"  % "test"
+libraryDependencies += "com.icegreen"             % "greenmail"             % "2.1.7"  % "test"
+libraryDependencies += "com.icegreen"             % "greenmail-junit4"      % "2.1.7"  % "test"
 libraryDependencies += "com.jayway.jsonpath"      % "json-path"             % "2.9.0"  % "test"
 libraryDependencies += "net.jodah"                % "concurrentunit"        % "0.4.6"  % "test"
-libraryDependencies += "org.eclipse.jetty"        % "jetty-server"          % "12.1.1" % "test"
-libraryDependencies += "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet"    % "12.1.1" % "test"
+libraryDependencies += "org.eclipse.jetty"        % "jetty-server"          % "12.1.2" % "test"
+libraryDependencies += "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet"    % "12.1.2" % "test"
 libraryDependencies += "org.easytesting"          % "fest-assert"           % "1.4"    % "test"
 libraryDependencies += "org.yaml"                 % "snakeyaml"             % "2.5"    % "test"
 

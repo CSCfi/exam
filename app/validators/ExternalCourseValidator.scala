@@ -18,10 +18,10 @@ object ExternalCourseValidator:
     val asBoolean: Reads[Boolean]  = implicitly[Reads[String]].map(_.toBoolean)
     val readString: Reads[Boolean] = implicitly[Reads[Boolean]].orElse(asBoolean)
     implicit val gradeReads: Reads[Grade] = (
-      (JsPath \ "grade").read[String](readInt) and
+      (JsPath \ "grade").read[String](using readInt) and
         (JsPath \ "description").read[String] and
         (JsPath \ "scale").read[Int] and
-        (JsPath \ "isFailed").readWithDefault(false)(readString)
+        (JsPath \ "isFailed").readWithDefault(false)(using readString)
     )(Grade.apply)
 
   case class Grade(grade: String, description: String, scale: Int, isFailed: Boolean = false)
@@ -30,7 +30,7 @@ object ExternalCourseValidator:
     implicit val scaleReads: Reads[GradeScale] = (
       (JsPath \ "name").readNullable[String] and
         (JsPath \ "type").read[String] and
-        (JsPath \ "code").readNullable[String](readInt) and
+        (JsPath \ "code").readNullable[String](using readInt) and
         (JsPath \ "grades").readNullable[Map[String, Grade]]
     )(GradeScale.apply)
   case class GradeScale(name: Option[String], `type`: String, code: Option[String], grades: Option[Map[String, Grade]])
@@ -67,16 +67,16 @@ object ExternalCourseValidator:
     val asScales: Reads[Seq[GradeScale]]  = implicitly[Reads[GradeScale]].map(Seq(_))
     val readScale: Reads[Seq[GradeScale]] = implicitly[Reads[Seq[GradeScale]]].orElse(asScales)
     implicit val cuiReads: Reads[CourseUnitInfo] = (
-      (JsPath \ "identifier").read[String](readInt) and
+      (JsPath \ "identifier").read[String](using readInt) and
         (JsPath \ "courseUnitCode").read[String] and
         (JsPath \ "courseUnitTitle").read[String] and
         (JsPath \ "courseUnitImplementation").readNullable[String] and
         (JsPath \ "courseImplementation").readNullable[String] and
-        (JsPath \ "courseUnitLevel").readNullable[String](readInt) and
-        (JsPath \ "courseUnitType").readNullable[String](readInt) and
+        (JsPath \ "courseUnitLevel").readNullable[String](using readInt) and
+        (JsPath \ "courseUnitType").readNullable[String](using readInt) and
         (JsPath \ "institutionName").read[String] and
-        (JsPath \ "startDate").readNullable[String](readInt) and
-        (JsPath \ "endDate").readNullable[String](readInt) and
+        (JsPath \ "startDate").readNullable[String](using readInt) and
+        (JsPath \ "endDate").readNullable[String](using readInt) and
         (JsPath \ "credits").readNullable[Double] and
         (JsPath \ "organisation").readNullable[Organisation] and
         (JsPath \ "campus").readNullable[Seq[Campus]] and
@@ -85,7 +85,7 @@ object ExternalCourseValidator:
         (JsPath \ "lecturerResponsible").readNullable[Seq[LecturerResponsible]] and
         (JsPath \ "lecturer").readNullable[Seq[Lecturer]] and
         (JsPath \ "creditsLanguage").readNullable[Seq[CreditLanguage]] and
-        (JsPath \ "gradeScale").readNullable[Seq[GradeScale]](readScale)
+        (JsPath \ "gradeScale").readNullable[Seq[GradeScale]](using readScale)
     )(CourseUnitInfo.apply)
   case class CourseUnitInfo(
       identifier: String,

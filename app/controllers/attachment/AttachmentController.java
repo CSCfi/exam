@@ -10,7 +10,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectPresent;
 import controllers.base.BaseController;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CompletionStage;
@@ -54,7 +53,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
         long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
 
-        // first check if answer already exists
+        // first check if the answer already exists
         ExamSectionQuestion question = DB.find(ExamSectionQuestion.class)
             .fetch("essayAnswer")
             .where()
@@ -82,7 +81,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("i18n_error_creating_attachment"));
         }
-        // Remove existing one if found
+        // Remove the existing one if found
         EssayAnswer answer = question.getEssayAnswer();
         fileHandler.removePrevious(question.getEssayAnswer());
 
@@ -97,7 +96,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         FilePart<Files.TemporaryFile> fp,
         String path
     ) {
-        // Remove existing one if found
+        // Remove the existing one if found
         fileHandler.removePrevious(ac);
 
         Attachment attachment = fileHandler.createNew(fp, path);
@@ -357,10 +356,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     @Override
     public CompletionStage<Result> downloadStatementAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Exam> query = DB.find(Exam.class)
-            .where()
-            .idEq(id)
-            .isNotNull("languageInspection.statement.attachment");
+        var query = DB.find(Exam.class).where().idEq(id).isNotNull("languageInspection.statement.attachment");
         if (user.hasRole(Role.Name.STUDENT)) {
             query = query.eq("creator", user);
         }

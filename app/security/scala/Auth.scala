@@ -29,12 +29,12 @@ object Auth:
       if attrs.contains("id") && attrs.contains("role") then
         Future {
           Option(DB.find(classOf[User], attrs("id").toLong))
-        }(executionContext).flatMap {
+        }(using executionContext).flatMap {
           case Some(user) =>
             user.setLoginRole(Role.Name.valueOf(request.session("role")))
             block(request.addAttr(ATTR_USER, user))
           case None => failure
-        }(executionContext)
+        }(using executionContext)
       else failure
 
   def authorized(roles: Seq[Role.Name])(implicit ec: ExecutionContext): ActionFilter[Request] =
