@@ -18,71 +18,14 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-statement',
-    template: `<div
-        cdkDrag
-        [cdkDragConstrainPosition]="fixPosition"
-        class="wrapper"
-        [hidden]="hasGoneThroughLanguageInspection()"
-    >
-        <div class="row align-items-center">
-            <div
-                class="col-1"
-                ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
-                triggers="mouseenter:mouseleave"
-            >
-                <i
-                    (click)="toggleEditorVisibility()"
-                    class="pointer"
-                    [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
-                >
-                </i>
-            </div>
-            <div class="col-11">
-                {{ 'i18n_give_statement' | translate }}
-            </div>
-        </div>
-        <div [ngbCollapse]="hideEditor" class="body">
-            <div class="row mt-2 mb-1">
-                <div class="col-md-12">
-                    <xm-ckeditor
-                        [enableClozeTest]="false"
-                        [(ngModel)]="exam.languageInspection.statement.comment"
-                        #ck="ngModel"
-                        name="ck"
-                        rows="10"
-                        cols="80"
-                    ></xm-ckeditor>
-                </div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <button class="btn btn-outline-secondary" (click)="saveInspectionStatement()">
-                    {{ 'i18n_save' | translate }}
-                </button>
-                @if (exam.languageInspection?.statement?.attachment) {
-                    <div class="d-flex justify-content-end">
-                        <a class="pointer" (click)="downloadStatementAttachment()">{{
-                            exam.examFeedback?.attachment?.fileName
-                        }}</a>
-                        <span class="sitnet-red pointer" (click)="removeStatementAttachment()">
-                            <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
-                        </span>
-                    </div>
-                }
-                <div class="d-flex justify-content-between mt-2">
-                    <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
-                        {{ 'i18n_attach_file' | translate }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>`,
+    templateUrl: './feedback-template.html',
     imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, NgbCollapse, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
 export class StatementComponent {
     @Input() exam!: Exam;
 
-    hideEditor = false;
+    hideEditor = true;
 
     private Attachment = inject(AttachmentService);
     private Files = inject(FileService);
@@ -93,15 +36,33 @@ export class StatementComponent {
         return this.Assessment.fixPosition;
     }
 
-    hasGoneThroughLanguageInspection = () => this.exam.languageInspection?.finishedAt;
+    get shouldHide() {
+        return !!this.exam.languageInspection?.finishedAt;
+    }
 
-    toggleEditorVisibility = () => (this.hideEditor = !this.hideEditor);
+    get title() {
+        return 'i18n_give_statement';
+    }
 
-    saveInspectionStatement = () => this.Maturity.saveInspectionStatement$(this.exam).subscribe();
+    get editorContent() {
+        return this.exam.languageInspection.statement.comment || '';
+    }
 
-    downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
+    get attachment() {
+        return this.exam.languageInspection?.statement?.attachment;
+    }
 
-    removeStatementAttachment = () => this.Attachment.removeStatementAttachment(this.exam);
+    set editorContent(value: string) {
+        this.exam.languageInspection.statement.comment = value;
+    }
+
+    toggleVisibility = () => (this.hideEditor = !this.hideEditor);
+
+    save = () => this.Maturity.saveInspectionStatement$(this.exam).subscribe();
+
+    downloadAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
+
+    removeAttachment = () => this.Attachment.removeStatementAttachment(this.exam);
 
     selectFile = () => {
         this.Attachment.selectFile(false, {}).then((res: FileResult) =>

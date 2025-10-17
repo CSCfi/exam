@@ -20,70 +20,17 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-feedback',
-    template: `<div cdkDrag [cdkDragConstrainPosition]="fixPosition" class="wrapper">
-        <div class="row align-items-center">
-            <div
-                class="col-1"
-                ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
-                triggers="mouseenter:mouseleave"
-            >
-                <i
-                    (click)="toggleFeedbackVisibility()"
-                    class="pointer"
-                    [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
-                >
-                </i>
-            </div>
-            <div class="col-11">
-                {{ title | translate }}
-            </div>
-        </div>
-        <div [ngbCollapse]="hideEditor" class="body">
-            <div class="row mt-2 mb-1">
-                <div class="col-md-12">
-                    <xm-ckeditor
-                        id="feedback-editor"
-                        [enableClozeTest]="false"
-                        [(ngModel)]="exam.examFeedback.comment"
-                        #ck="ngModel"
-                        name="ck"
-                        rows="10"
-                        cols="80"
-                    ></xm-ckeditor>
-                </div>
-            </div>
-            @if (exam.examFeedback?.attachment) {
-                <div class="d-flex justify-content-end">
-                    <a class="pointer" (click)="downloadFeedbackAttachment()">{{
-                        exam.examFeedback?.attachment?.fileName
-                    }}</a>
-                    <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
-                        <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
-                    </span>
-                </div>
-            }
-            <div class="d-flex justify-content-between flex-row-reverse mt-2">
-                <button class="btn btn-outline-success" (click)="saveFeedback()">
-                    {{ 'i18n_save' | translate }}
-                </button>
-                <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
-                    {{ 'i18n_attach_file' | translate }}
-                </button>
-            </div>
-        </div>
-    </div>`,
+    templateUrl: './feedback-template.html',
     imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
 export class FeedbackComponent implements OnInit {
     @Input() exam!: Examination;
     @Input() collaborative = false;
-    @Input() participation!: ExamParticipation;
+    @Input() participation?: ExamParticipation;
+    @Input() hidden = false;
 
-    feedbackComment = '';
-    title = '';
-    hideEditor = false;
-
+    hideEditor = true;
     private id = 0;
     private ref = '';
 
@@ -97,19 +44,56 @@ export class FeedbackComponent implements OnInit {
         return this.Assessment.fixPosition;
     }
 
+    get shouldHide() {
+        return this.hidden;
+    }
+
+    get title() {
+        return 'i18n_give_feedback';
+    }
+
+    get editorContent() {
+        return this.exam.examFeedback.comment || '';
+    }
+
+    get attachment() {
+        return this.exam.examFeedback?.attachment;
+    }
+
+    set editorContent(value: string) {
+        this.exam.examFeedback.comment = value;
+    }
+
     ngOnInit() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        this.title = this.exam.executionType.type === 'MATURITY' ? 'i18n_give_content_statement' : 'i18n_give_feedback';
     }
 
-    toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);
+    toggleVisibility = () => (this.hideEditor = !this.hideEditor);
 
-    saveFeedback = () => {
+    save = () => {
         if (this.collaborative) {
             this._saveCollaborativeFeedback$().subscribe();
         } else {
             this._saveFeedback$().subscribe();
+        }
+    };
+
+    downloadAttachment = () => {
+        const attachment = this.exam.examFeedback?.attachment;
+        if (!attachment) {
+            return;
+        }
+        if (this.collaborative && attachment.externalId)
+            this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+        else this.Attachment.downloadFeedbackAttachment(this.exam);
+    };
+
+    removeAttachment = () => {
+        if (this.collaborative) {
+            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, this.participation!);
+        } else {
+            this.Attachment.removeFeedbackAttachment(this.exam);
         }
     };
 
@@ -127,36 +111,20 @@ export class FeedbackComponent implements OnInit {
         });
     };
 
-    downloadFeedbackAttachment = () => {
-        const attachment = this.exam.examFeedback?.attachment;
-        if (!attachment) {
-            return;
-        }
-        if (this.collaborative && attachment.externalId)
-            this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
-        else this.Attachment.downloadFeedbackAttachment(this.exam);
-    };
-
-    removeFeedbackAttachment = () => {
-        if (this.collaborative) {
-            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, this.participation);
-        } else {
-            this.Attachment.removeFeedbackAttachment(this.exam);
-        }
-    };
-
     private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
 
     private _saveCollaborativeFeedback$ = () =>
-        this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation);
+        this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation!);
 
     private _upload = (res: FileResult, url: string) =>
         this.Files.upload<Attachment>(url, res.$value.attachmentFile, { examId: this.exam.id.toString() }).then(
             (resp) => {
                 this.exam.examFeedback.attachment = resp;
                 // kinda hacky, but let's do this mangling for time being
-                this.participation._rev = this.exam.examFeedback?.attachment?.rev;
-                delete this.exam.examFeedback?.attachment?.rev;
+                if (this.participation) {
+                    this.participation._rev = this.exam.examFeedback?.attachment?.rev;
+                    delete this.exam.examFeedback?.attachment?.rev;
+                }
             },
         );
 }

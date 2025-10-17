@@ -107,7 +107,12 @@ export class AttachmentService {
 
     removeStatementAttachment = (exam: Exam) =>
         this.dialogs
-            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
+            .open$(
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_confirm_remove_attachment'),
+                this.translate.instant('i18n_remove'),
+                this.translate.instant('i18n_button_cancel'),
+            )
             .subscribe({
                 next: () => {
                     this.http.delete(this.statementAttachmentApi(exam.id)).subscribe({
