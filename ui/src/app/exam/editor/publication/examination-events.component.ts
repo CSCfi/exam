@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { ExaminationEventDialogComponent } from 'src/app/exam/editor/events/examination-event-dialog.component';
 import { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
@@ -90,7 +91,8 @@ export class ExaminationEventsComponent implements OnInit {
         );
     }
 
-    isPeriodOver = () => new Date(this.exam().periodEnd as string) < new Date();
+    isPeriodOver = () =>
+        DateTime.fromISO(this.exam().periodEnd as string).startOf('day') < DateTime.now().startOf('day');
 
     addExaminationEvent = () => {
         const modalRef = this.ModalService.open(ExaminationEventDialogComponent, {

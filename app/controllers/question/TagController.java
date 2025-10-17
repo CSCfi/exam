@@ -21,8 +21,8 @@ import models.user.Role;
 import models.user.User;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class TagController extends BaseController {
 

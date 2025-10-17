@@ -74,7 +74,7 @@ export class LibraryOwnersDialogComponent implements OnInit {
             }),
         );
 
-    nameFormatter = (data: { name: string; email: string }) => `${data.name}${data.email ? ' ' + data.email : ''}`;
+    nameFormatter = (user: User) => `${user.firstName} ${user.lastName} <${user.email}>`;
 
     setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) => (this.selectedTeacherId = event.item.id);
 

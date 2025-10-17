@@ -18,7 +18,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 import play.mvc.Result;
 import play.mvc.Results;
-import sanitizers.SanitizingHelper;
+import validation.SanitizingHelper;
 
 public interface SectionQuestionHandler {
     default Optional<Result> checkBounds(Integer from, Integer to) {
@@ -74,7 +74,7 @@ public interface SectionQuestionHandler {
     }
 
     /**
-     * Calculates new option score for ExamSectionQuestionOption.
+     * Calculates a new option score for ExamSectionQuestionOption.
      *
      * @param question Base question.
      * @param option   New added option.

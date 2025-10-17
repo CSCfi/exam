@@ -31,8 +31,8 @@ import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class CollaborativeExamSectionController extends CollaborationController implements SectionQuestionHandler {
 
@@ -44,17 +44,17 @@ public class CollaborativeExamSectionController extends CollaborationController 
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
                 return downloadExam(ce).thenComposeAsync(result -> {
-                        if (result.isPresent()) {
-                            Exam exam = result.get();
-                            if (isAuthorizedToView(exam, user, homeOrg)) {
-                                ExamSection section = createDraft(exam, user);
-                                exam.getExamSections().add(section);
-                                return uploadExam(ce, exam, user, section, null);
-                            }
-                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
+                    if (result.isPresent()) {
+                        Exam exam = result.get();
+                        if (isAuthorizedToView(exam, user, homeOrg)) {
+                            ExamSection section = createDraft(exam, user);
+                            exam.getExamSections().add(section);
+                            return uploadExam(ce, exam, user, section, null);
                         }
-                        return wrapAsPromise(notFound());
-                    });
+                        return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
+                    }
+                    return wrapAsPromise(notFound());
+                });
             })
             .get();
     }
@@ -70,22 +70,22 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
                 String homeOrg = configReader.getHomeOrganisationRef();
                 return downloadExam(ce).thenComposeAsync(result -> {
-                        if (result.isPresent()) {
-                            Exam exam = result.get();
-                            if (isAuthorizedToView(exam, user, homeOrg)) {
-                                Optional<Result> err = updater.apply(exam, user);
-                                if (err.isPresent()) {
-                                    return wrapAsPromise(err.get());
-                                }
-                                PathProperties pp = PathProperties.parse(
-                                    "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
-                                );
-                                return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), pp);
+                    if (result.isPresent()) {
+                        Exam exam = result.get();
+                        if (isAuthorizedToView(exam, user, homeOrg)) {
+                            Optional<Result> err = updater.apply(exam, user);
+                            if (err.isPresent()) {
+                                return wrapAsPromise(err.get());
                             }
-                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
+                            PathProperties pp = PathProperties.parse(
+                                "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
+                            );
+                            return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), pp);
                         }
-                        return wrapAsPromise(notFound());
-                    });
+                        return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
+                    }
+                    return wrapAsPromise(notFound());
+                });
             })
             .get();
     }
@@ -378,51 +378,51 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
                 String homeOrg = configReader.getHomeOrganisationRef();
                 return downloadExam(ce).thenComposeAsync(result -> {
-                        if (result.isPresent()) {
-                            Exam exam = result.get();
-                            if (isAuthorizedToView(exam, user, homeOrg)) {
-                                Optional<ExamSection> section = exam
-                                    .getExamSections()
+                    if (result.isPresent()) {
+                        Exam exam = result.get();
+                        if (isAuthorizedToView(exam, user, homeOrg)) {
+                            Optional<ExamSection> section = exam
+                                .getExamSections()
+                                .stream()
+                                .filter(es -> es.getId().equals(sectionId))
+                                .findFirst();
+                            if (section.isPresent()) {
+                                ExamSection es = section.get();
+                                Optional<ExamSectionQuestion> question = es
+                                    .getSectionQuestions()
                                     .stream()
-                                    .filter(es -> es.getId().equals(sectionId))
+                                    .filter(esq -> esq.getId().equals(questionId))
                                     .findFirst();
-                                if (section.isPresent()) {
-                                    ExamSection es = section.get();
-                                    Optional<ExamSectionQuestion> question = es
-                                        .getSectionQuestions()
-                                        .stream()
-                                        .filter(esq -> esq.getId().equals(questionId))
-                                        .findFirst();
-                                    if (question.isPresent()) {
-                                        ExamSectionQuestion esq = question.get();
-                                        JsonNode payload = request.body().asJson().get("question");
-                                        Question questionBody = JsonDeserializer.deserialize(Question.class, payload);
-                                        Optional<Result> error = questionBody.getValidationResult(payload);
-                                        if (error.isPresent()) {
-                                            return wrapAsPromise(error.get());
-                                        }
-                                        questionBody
-                                            .getOptions()
-                                            .stream()
-                                            .filter(o -> o.getId() == null)
-                                            .forEach(o -> o.setId(newId()));
-                                        updateExamQuestion(esq, questionBody);
-                                        esq.getOptions().forEach(o -> o.setId(newId()));
-                                        PathProperties pp = PathProperties.parse(
-                                            "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
-                                        );
-                                        return uploadExam(ce, exam, user, esq, pp);
-                                    } else {
-                                        return wrapAsPromise(notFound("i18n_error_not_found"));
+                                if (question.isPresent()) {
+                                    ExamSectionQuestion esq = question.get();
+                                    JsonNode payload = request.body().asJson().get("question");
+                                    Question questionBody = JsonDeserializer.deserialize(Question.class, payload);
+                                    Optional<Result> error = questionBody.getValidationResult(payload);
+                                    if (error.isPresent()) {
+                                        return wrapAsPromise(error.get());
                                     }
+                                    questionBody
+                                        .getOptions()
+                                        .stream()
+                                        .filter(o -> o.getId() == null)
+                                        .forEach(o -> o.setId(newId()));
+                                    updateExamQuestion(esq, questionBody);
+                                    esq.getOptions().forEach(o -> o.setId(newId()));
+                                    PathProperties pp = PathProperties.parse(
+                                        "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
+                                    );
+                                    return uploadExam(ce, exam, user, esq, pp);
                                 } else {
                                     return wrapAsPromise(notFound("i18n_error_not_found"));
                                 }
+                            } else {
+                                return wrapAsPromise(notFound("i18n_error_not_found"));
                             }
-                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
                         }
-                        return wrapAsPromise(notFound());
-                    });
+                        return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
+                    }
+                    return wrapAsPromise(notFound());
+                });
             })
             .get();
     }

@@ -52,10 +52,11 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExternalCalendarReservationSanitizer;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
+import validation.calendar.ExternalCalendarReservationValidator;
+import validation.calendar.ExternalReservationDTO;
+import validation.core.Attrs;
 
 public class ExternalCalendarController extends BaseController {
 
@@ -95,19 +96,19 @@ public class ExternalCalendarController extends BaseController {
     private URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
         return URI.create(
             configReader.getIopHost() +
-            String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
+                String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
         ).toURL();
     }
 
     private URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
         return URI.create(
             configReader.getIopHost() +
-            String.format(
-                "/api/organisations/%s/facilities/%s/reservations/%s/force",
-                orgRef,
-                facilityRef,
-                reservationRef
-            )
+                String.format(
+                    "/api/organisations/%s/facilities/%s/reservations/%s/force",
+                    orgRef,
+                    facilityRef,
+                    reservationRef
+                )
         ).toURL();
     }
 
@@ -270,7 +271,7 @@ public class ExternalCalendarController extends BaseController {
 
     // Actions invoked directly by logged-in users
     @Authenticated
-    @With(ExternalCalendarReservationSanitizer.class)
+    @With(ExternalCalendarReservationValidator.class)
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation(Http.Request request) throws MalformedURLException {
         if (!configReader.isVisitingExaminationSupported()) {
@@ -278,12 +279,13 @@ public class ExternalCalendarController extends BaseController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Parse request body
-        String orgRef = request.attrs().get(Attrs.ORG_REF);
-        String roomRef = request.attrs().get(Attrs.ROOM_REF);
-        DateTime start = request.attrs().get(Attrs.START_DATE);
-        DateTime end = request.attrs().get(Attrs.END_DATE);
-        Long examId = request.attrs().get(Attrs.EXAM_ID);
-        Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
+        ExternalReservationDTO dto = request.attrs().get(Attrs.EXT_STUDENT_RESERVATION);
+        String orgRef = dto.orgRef();
+        String roomRef = dto.roomRef();
+        DateTime start = dto.start();
+        DateTime end = dto.end();
+        Long examId = dto.examId();
+        List<Long> sectionIds = dto.getSectionIdsAsJava();
 
         //TODO: See if this offset thing works as intended
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.admin.SettingsController;
 import controllers.base.BaseController;
+import controllers.exam.copy.ExamCopyContext;
 import controllers.examination.ExaminationController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
@@ -145,8 +146,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
             inspection.save();
         }
         Set<ExamSection> sections = new TreeSet<>(src.getExamSections());
+        ExamCopyContext context = ExamCopyContext.forCopyWithAnswers(user).build();
         for (ExamSection es : sections) {
-            ExamSection esCopy = es.copyWithAnswers(clone, parent != null);
+            ExamSection esCopy = es.copy(clone, context);
             esCopy.setCreatorWithDate(user);
             esCopy.setModifierWithDate(user);
             esCopy.save();
@@ -355,19 +357,19 @@ public class ExternalExamController extends BaseController implements ExternalEx
                         Question::getType
                     );
                     if (questionType.isPresent() && questionType.get() == Question.Type.ClaimChoiceQuestion) {
-                        Set<ExamSectionQuestionOption> sorted = esq
+                        // For ClaimChoiceQuestion, ensure options are sorted by ID
+                        // (needed because JSON deserialization doesn't apply @OrderBy)
+                        List<ExamSectionQuestionOption> sorted = esq
                             .getOptions()
                             .stream()
-                            .collect(
-                                Collectors.toCollection(() ->
-                                    new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
-                                )
-                            );
+                            .sorted(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
+                            .toList();
                         esq.setOptions(sorted);
-                    } else {
+                    } else if (esq.isOptionShufflingOn()) {
+                        // Shuffle options for non-claim-choice questions
                         List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
                         Collections.shuffle(shuffled);
-                        esq.setOptions(new HashSet<>(shuffled));
+                        esq.setOptions(shuffled);
                     }
                 });
 

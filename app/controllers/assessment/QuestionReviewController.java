@@ -24,9 +24,9 @@ import models.sections.ExamSectionQuestion;
 import models.user.User;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
 import system.interceptors.Anonymous;
+import validation.core.Attrs;
 
 public class QuestionReviewController extends BaseController {
 
@@ -58,7 +58,7 @@ public class QuestionReviewController extends BaseController {
             return badRequest();
         }
         List<Long> questionIds = ids.orElse(Collections.emptyList());
-        // This is the ordering of essay questions in current exam
+        // This is the ordering of essay questions in the current exam
         List<Question> questionSequence = exam
             .getExamSections()
             .stream()
@@ -69,7 +69,7 @@ public class QuestionReviewController extends BaseController {
             .filter(question -> questionIds.isEmpty() || questionIds.contains(question.getId()))
             .toList();
 
-        // Ordered map for questions, have to take to account that answer's question is no longer found
+        // Ordered map for questions, have to take into account that answer's question is no longer found
         Map<Question, List<ExamSectionQuestion>> questionMap = createMapping(questionSequence);
 
         // All the answers for questions in this exam
@@ -135,7 +135,7 @@ public class QuestionReviewController extends BaseController {
             return ids.indexOf(o1.getId()) - ids.indexOf(o2.getId());
         };
 
-        // Ordered map of questions to answers
+        // Ordered map of questions into answers
         return new TreeMap<>(comparator);
     }
 
@@ -149,8 +149,8 @@ public class QuestionReviewController extends BaseController {
         QuestionEntry(Question question, List<ExamSectionQuestion> answers, String evaluationCriteria) {
             PathProperties pp = PathProperties.parse(
                 "(*, essayAnswer(attachment(*), *), question(parent(question), attachment(*), *), " +
-                "examSection(name, exam(id, hash, creator(id, email, userIdentifier, firstName, lastName), " +
-                "state, examInspections(user(id)))))"
+                    "examSection(name, exam(id, hash, creator(id, email, userIdentifier, firstName, lastName), " +
+                    "state, examInspections(user(id)))))"
             );
             this.question = DB.json().toJson(question, PathProperties.parse("(attachment(*), *)"));
             this.answers = answers

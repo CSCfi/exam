@@ -25,6 +25,7 @@ SPDX-License-Identifier: EUPL-1.2
                         [evaluationType]="examQuestion.evaluationType"
                         [expectedWordCount]="examQuestion.expectedWordCount"
                         [evaluationCriteria]="examQuestion.evaluationCriteria"
+                        [lotteryOn]="lotteryOn"
                         (evaluationTypeChanged)="updateEvaluationType($event)"
                         (expectedWordCountChanged)="updateWordCount($event)"
                         (evaluationCriteriaChanged)="updateEvaluationCriteria($event)"
@@ -58,6 +59,7 @@ SPDX-License-Identifier: EUPL-1.2
                         [question]="examQuestion"
                         (optionsChanged)="optionsChanged($event)"
                         (negativeScoreSettingChanged)="negativeScoreSettingChanged($event)"
+                        (shufflingSettingChanged)="shufflingSettingChanged($event)"
                         [lotteryOn]="lotteryOn"
                         [isInPublishedExam]="isInPublishedExam"
                     />
@@ -75,11 +77,7 @@ SPDX-License-Identifier: EUPL-1.2
 
                 <!-- Type specific content - claim choice option -->
                 @if (question?.type === 'ClaimChoiceQuestion') {
-                    <xm-eq-claim-choice
-                        [options]="examQuestion.options"
-                        (optionsChanged)="optionsChanged($event)"
-                        [lotteryOn]="lotteryOn"
-                    />
+                    <xm-eq-claim-choice [(options)]="examQuestion.options" [lotteryOn]="lotteryOn" />
                 }
 
                 <!-- Max score -->

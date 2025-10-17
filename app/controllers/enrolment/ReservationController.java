@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import controllers.base.BaseController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalReservationHandler;
+import impl.CalendarHandler;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.FetchConfig;
@@ -38,10 +39,10 @@ import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.Anonymous;
+import validation.core.Attrs;
 
 public class ReservationController extends BaseController {
 
@@ -50,6 +51,7 @@ public class ReservationController extends BaseController {
     private final ExternalReservationHandler externalReservationHandler;
     private final DateTimeHandler dateTimeHandler;
     private final UserHandler userHandler;
+    private final CalendarHandler calendarHandler;
 
     @Inject
     public ReservationController(
@@ -57,13 +59,15 @@ public class ReservationController extends BaseController {
         CollaborativeExamLoader collaborativeExamLoader,
         ExternalReservationHandler externalReservationHandler,
         DateTimeHandler dateTimeHandler,
-        UserHandler userHandler
+        UserHandler userHandler,
+        CalendarHandler calendarHandler
     ) {
         this.emailComposer = emailComposer;
         this.collaborativeExamLoader = collaborativeExamLoader;
         this.externalReservationHandler = externalReservationHandler;
         this.dateTimeHandler = dateTimeHandler;
         this.userHandler = userHandler;
+        this.calendarHandler = calendarHandler;
     }
 
     @Authenticated
@@ -171,6 +175,11 @@ public class ReservationController extends BaseController {
         }
     }
 
+    private boolean isBookable(ExamMachine machine, Reservation reservation) {
+        reservation.setMachine(machine);
+        return calendarHandler.isDoable(reservation, List.of());
+    }
+
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result findAvailableMachines(Long reservationId, Long roomId)
         throws ExecutionException, InterruptedException {
@@ -183,15 +192,9 @@ public class ReservationController extends BaseController {
         props.apply(query);
         var candidates = query.where().eq("room.id", roomId).ne("outOfService", true).ne("archived", true).findList();
 
-        var exam = getReservationExam(reservation);
         var available = candidates
             .stream()
-            .filter(c -> {
-                if (exam.isPresent() && !c.hasRequiredSoftware(exam.get())) {
-                    return false;
-                }
-                return !c.isReservedDuring(reservation.toInterval());
-            })
+            .filter(machine -> isBookable(machine, reservation))
             .toList();
         return ok(available, props);
     }
@@ -214,11 +217,7 @@ public class ReservationController extends BaseController {
             return notFound();
         }
         var exam = getReservationExam(reservation);
-        if (
-            exam.isEmpty() ||
-            !machine.hasRequiredSoftware(exam.get()) ||
-            machine.isReservedDuring(reservation.toInterval())
-        ) {
+        if (exam.isEmpty() || !isBookable(machine, reservation)) {
             return forbidden("Machine not eligible for choosing");
         }
         reservation.setMachine(machine);
@@ -236,9 +235,9 @@ public class ReservationController extends BaseController {
         return reservation.getEnrolment().getExam() != null
             ? Optional.of(reservation.getEnrolment().getExam())
             : collaborativeExamLoader
-                .downloadExam(reservation.getEnrolment().getCollaborativeExam())
-                .toCompletableFuture()
-                .get();
+                  .downloadExam(reservation.getEnrolment().getCollaborativeExam())
+                  .toCompletableFuture()
+                  .get();
     }
 
     @Authenticated

@@ -13,7 +13,6 @@ import impl.ExternalCourseHandler;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.Transaction;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -44,15 +43,14 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.EnrolmentRepository;
-import sanitizers.Attrs;
-import sanitizers.EnrolmentCourseInformationSanitizer;
-import sanitizers.EnrolmentInformationSanitizer;
-import sanitizers.StudentEnrolmentSanitizer;
 import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.CollectionConverters;
 import scala.jdk.javaapi.FutureConverters;
 import security.Authenticated;
-import validators.JsonValidator;
+import validation.EnrolmentCourseInformationSanitizer;
+import validation.EnrolmentInformationSanitizer;
+import validation.StudentEnrolmentSanitizer;
+import validation.core.Attrs;
 
 public class EnrolmentController extends BaseController {
 
@@ -220,7 +218,7 @@ public class EnrolmentController extends BaseController {
         if (enrolment == null) {
             return notFound("enrolment not found");
         }
-        // Disallow removing enrolments to private exams created automatically for student
+        // Disallow removing enrolments to private exams created automatically for a student
         if (enrolment.getExam() != null && enrolment.getExam().isPrivate()) {
             return forbidden();
         }
@@ -232,7 +230,6 @@ public class EnrolmentController extends BaseController {
     }
 
     @Authenticated
-    @JsonValidator(schema = "enrolmentInfo")
     @With(EnrolmentInformationSanitizer.class)
     @Restrict({ @Group("STUDENT") })
     public Result updateEnrolment(Long id, Http.Request request) {
@@ -361,7 +358,7 @@ public class EnrolmentController extends BaseController {
                 Reservation reservation = enrolment.getReservation();
                 return externalReservationHandler
                     .removeReservation(reservation, user, "")
-                    .thenApplyAsync(result -> {
+                    .thenApplyAsync(_ -> {
                         enrolment.delete();
                         ExamEnrolment newEnrolment = makeEnrolment(exam, user);
                         return ok(newEnrolment);
@@ -400,7 +397,7 @@ public class EnrolmentController extends BaseController {
                     !enrolment.isNoShow() &&
                     enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
                 ) {
-                    // External reservation, assessment not returned yet. We must wait for it to arrive first
+                    // External reservation's assessment is not returned yet. We must wait for it to arrive first
                     return wrapAsPromise(forbidden("i18n_enrolment_assessment_not_received"));
                 }
             }
@@ -422,7 +419,7 @@ public class EnrolmentController extends BaseController {
     @Authenticated
     @With(EnrolmentCourseInformationSanitizer.class)
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
-    public CompletionStage<Result> createEnrolment(final Long id, Http.Request request) throws IOException {
+    public CompletionStage<Result> createEnrolment(final Long id, Http.Request request) {
         String code = request.attrs().get(Attrs.COURSE_CODE);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!permCheckActive) {
@@ -463,7 +460,7 @@ public class EnrolmentController extends BaseController {
                 .findList();
             if (users.isEmpty()) {
                 // Pre-enrolment
-                // Check that we will not create duplicate enrolments for same email address
+                // Check that we will not create duplicate enrolments for the same email address
                 List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
                     .where()
                     .eq("exam.id", eid)
@@ -479,7 +476,7 @@ public class EnrolmentController extends BaseController {
                 // User with email already exists
                 user = users.getFirst();
             } else {
-                // Multiple users with same email -> not good
+                // Multiple users with the same email address -> not good
                 return wrapAsPromise(internalServerError("multiple users found for email"));
             }
         } else {
@@ -488,24 +485,24 @@ public class EnrolmentController extends BaseController {
 
         final User sender = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return doCreateEnrolment(eid, executionType, user).thenApplyAsync(result -> {
-                if (exam.getState() != Exam.State.PUBLISHED) {
-                    return result;
-                }
-                if (result.status() != Http.Status.OK) {
-                    return result;
-                }
-                actor
-                    .scheduler()
-                    .scheduleOnce(
-                        Duration.create(1, TimeUnit.SECONDS),
-                        () -> {
-                            emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
-                            logger.info("Exam participation notification email sent to {}", user.getEmail());
-                        },
-                        actor.dispatcher()
-                    );
+            if (exam.getState() != Exam.State.PUBLISHED) {
                 return result;
-            });
+            }
+            if (result.status() != Http.Status.OK) {
+                return result;
+            }
+            actor
+                .scheduler()
+                .scheduleOnce(
+                    Duration.create(1, TimeUnit.SECONDS),
+                    () -> {
+                        emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
+                        logger.info("Exam participation notification email sent to {}", user.getEmail());
+                    },
+                    actor.dispatcher()
+                );
+            return result;
+        });
     }
 
     @Authenticated

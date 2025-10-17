@@ -34,7 +34,7 @@ class MaintenancePeriodController @Inject() (
   import play.api.libs.ws.JsonBodyWritables.*
 
   def listMaintenancePeriods: Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.STUDENT, Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
+    Action.andThen(authorized(Seq(Role.Name.STUDENT, Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
       Ok(
         DB.find(classOf[MaintenancePeriod])
           .where()
@@ -59,7 +59,7 @@ class MaintenancePeriodController @Inject() (
                 val payload = Json.obj("maintenancePeriods" -> periods)
                 createRequest(homeOrg)
                   .put(payload)
-                  .map(resp => Created(period.asJson))
+                  .map(_ => Created(period.asJson))
             case _ => Future.successful { BadRequest("Bad payload") }
         case _ => Future.successful { BadRequest("Bad payload") }
     }
@@ -81,7 +81,7 @@ class MaintenancePeriodController @Inject() (
                     val payload = Json.obj("maintenancePeriods" -> periods)
                     createRequest(homeOrg)
                       .put(payload)
-                      .map(resp => Created(period.asJson))
+                      .map(_ => Created(period.asJson))
                 case _ => Future.successful { BadRequest }
             case _ => Future.successful { NotFound }
         case _ => Future.successful { BadRequest }
@@ -93,16 +93,13 @@ class MaintenancePeriodController @Inject() (
         case Some(mp) =>
           mp.delete()
           val homeOrg = configReader.getHomeOrganisationRef
-          if homeOrg.isEmpty then
-            Future.successful {
-              Ok
-            }
+          if homeOrg.isEmpty then Future.successful { Ok }
           else
             val periods = DB.find(classOf[MaintenancePeriod]).distinct.asJson
             val payload = Json.obj("maintenancePeriods" -> periods)
             createRequest(homeOrg)
               .put(payload)
-              .map(resp => Ok)
+              .map(_ => Ok)
         case _ => Future.successful { NotFound }
     }
 

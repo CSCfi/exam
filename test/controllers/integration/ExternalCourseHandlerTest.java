@@ -35,6 +35,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 
 public class ExternalCourseHandlerTest extends IntegrationTestCase {
@@ -96,7 +97,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         setUserOrg(null);
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
         Course course = deserialize(Course.class, node.get(0));
@@ -121,7 +122,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         setUserOrg(null);
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo4.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
         Course course = deserialize(Course.class, node.get(0));
@@ -140,7 +141,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         setUserOrg(null);
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo3.json"));
         Result result = get("/app/courses?filter=code&q=MAT21014");
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
         Course course = deserialize(Course.class, node.get(0));
@@ -174,7 +175,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         // Have it updated with new data
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfoUpdated.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
 
         Course course = DB.find(Course.class).where().eq("code", "2121219_abcdefghijklmnop").findOne();
         assertThat(course).isNotNull();
@@ -188,7 +189,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         // This is to make sure that we can import a course that shares the same prefix and has shorter code than a
         // course already found in db
         // remote code = 2121219_abcdefghijklmnop
-        // local code =  2121219_abcdefghijklmnopq
+        // local code = 2121219_abcdefghijklmnopq
         setUserOrg(null);
 
         Course course = new Course();
@@ -197,14 +198,14 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
 
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"));
         Result result = get("/app/courses?filter=code&q=2121219_abcdefghijklmnop");
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(2);
         Course c1 = deserialize(Course.class, node.get(0));
         assertThat(c1.getCode()).isEqualTo("2121219_abcdefghijklmnop");
         Course c2 = deserialize(Course.class, node.get(1));
         assertThat(c2.getCode()).isEqualTo("2121219_abcdefghijklmnopq");
-        // check that remote course was added to database
+        // check that a remote course was added to the database
         assertThat(DB.find(Course.class).where().eq("code", "2121219_abcdefghijklmnop")).isNotNull();
     }
 
@@ -215,7 +216,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
 
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo2.json"));
         Result result = get("/app/courses?filter=code&q=t7");
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
         Course course = deserialize(Course.class, node.get(0));
@@ -237,7 +238,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         setUserOrg(null);
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfoMultiple.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(8);
         Course course = deserialize(Course.class, node.get(6));
@@ -254,7 +255,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         setUserOrg(null);
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
-        assertThat(result.status()).isEqualTo(401);
+        assertThat(result.status()).isEqualTo(Http.Status.FORBIDDEN);
     }
 
     @Test
@@ -262,7 +263,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         setUserOrg(null);
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
-        assertThat(result.status()).isEqualTo(401);
+        assertThat(result.status()).isEqualTo(Http.Status.UNAUTHORIZED);
     }
 
     @Test
@@ -271,7 +272,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         setUserOrg(null);
         CourseInfoServlet.setFile(new File("test/resources/courseUnitInfoExpired.json"));
         Result result = get("/app/courses?filter=code&q=2121219");
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).isEmpty();
     }

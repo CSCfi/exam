@@ -51,8 +51,8 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class DataTransferController extends BaseController {
 
@@ -154,11 +154,11 @@ public class DataTransferController extends BaseController {
                 .set(
                     "questions",
                     Json.newArray().addAll(
-                            questions
-                                .stream()
-                                .map(q -> serialize(q, pp))
-                                .toList()
-                        )
+                        questions
+                            .stream()
+                            .map(q -> serialize(q, pp))
+                            .toList()
+                    )
                 );
 
             URL url = parseURL(body.get("orgRef").asText());

@@ -11,7 +11,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -32,10 +31,10 @@ import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.CommentSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
+import validation.CommentSanitizer;
+import validation.core.Attrs;
 
 public class LanguageInspectionController extends BaseController {
 
@@ -49,7 +48,7 @@ public class LanguageInspectionController extends BaseController {
 
     @Dynamic(value = "inspector or admin", meta = "pattern=CAN_INSPECT_LANGUAGE,role=ADMIN,anyMatch=true")
     public Result listInspections(Optional<String> month, Optional<Long> start, Optional<Long> end) {
-        ExpressionList<LanguageInspection> query = DB.find(LanguageInspection.class)
+        var query = DB.find(LanguageInspection.class)
             .fetch("exam")
             .fetch("exam.course")
             .fetch("exam.creator", "firstName, lastName, email, userIdentifier")
@@ -142,32 +141,32 @@ public class LanguageInspectionController extends BaseController {
             return notFound("Inspection not found");
         }
         return checkInspection(inspection).orElseGet(() -> {
-                if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
-                    return forbidden("No statement given");
-                }
-                inspection.setFinishedAt(new Date());
-                inspection.setApproved(isApproved);
+            if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
+                return forbidden("No statement given");
+            }
+            inspection.setFinishedAt(new Date());
+            inspection.setApproved(isApproved);
 
-                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                inspection.setModifierWithDate(user);
-                inspection.update();
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            inspection.setModifierWithDate(user);
+            inspection.update();
 
-                Set<User> recipients = inspection.getExam().getParent().getExamOwners();
-                actor
-                    .scheduler()
-                    .scheduleOnce(
-                        Duration.create(1, TimeUnit.SECONDS),
-                        () -> {
-                            for (User recipient : recipients) {
-                                emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
-                                logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
-                            }
-                        },
-                        actor.dispatcher()
-                    );
+            Set<User> recipients = inspection.getExam().getParent().getExamOwners();
+            actor
+                .scheduler()
+                .scheduleOnce(
+                    Duration.create(1, TimeUnit.SECONDS),
+                    () -> {
+                        for (User recipient : recipients) {
+                            emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
+                            logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
+                        }
+                    },
+                    actor.dispatcher()
+                );
 
-                return ok();
-            });
+            return ok();
+        });
     }
 
     @Authenticated
@@ -183,21 +182,21 @@ public class LanguageInspectionController extends BaseController {
             return notFound("Inspection not found");
         }
         return checkInspection(inspection).orElseGet(() -> {
-                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                Comment statement = inspection.getStatement();
-                if (statement == null) {
-                    statement = new Comment();
-                    statement.setCreatorWithDate(user);
-                    statement.save();
-                    inspection.setStatement(statement);
-                    inspection.update();
-                }
-                statement.setComment(text.get());
-                statement.setModifierWithDate(user);
-                statement.update();
-                inspection.setModifierWithDate(user);
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            Comment statement = inspection.getStatement();
+            if (statement == null) {
+                statement = new Comment();
+                statement.setCreatorWithDate(user);
+                statement.save();
+                inspection.setStatement(statement);
                 inspection.update();
-                return ok(inspection);
-            });
+            }
+            statement.setComment(text.get());
+            statement.setModifierWithDate(user);
+            statement.update();
+            inspection.setModifierWithDate(user);
+            inspection.update();
+            return ok(inspection);
+        });
     }
 }

@@ -27,10 +27,9 @@ import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.UserLanguageSanitizer;
 import security.Authenticated;
-import validators.JsonValidator;
+import validation.UserLanguageSanitizer;
+import validation.core.Attrs;
 
 public class UserController extends BaseController {
 
@@ -174,7 +173,7 @@ public class UserController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result listQuestionOwners(String role, String criteria, Optional<Long> qid, Http.Request request) {
         List<User> users = listUsersByRoleAndName(role, criteria);
         Set<User> owners = new HashSet<>();
@@ -190,12 +189,12 @@ public class UserController extends BaseController {
         return ok(users);
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result listTeachers(String criteria) {
         return ok(listUsersByRoleAndName(Role.Name.TEACHER.toString(), criteria));
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result listUnenrolledStudents(Long eid, String criteria) {
         List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class).where().eq("exam.id", eid).findList();
         List<User> users = listUsersByRoleAndName("STUDENT", criteria);
@@ -223,7 +222,6 @@ public class UserController extends BaseController {
     }
 
     @Authenticated
-    @JsonValidator(schema = "userLang")
     @With(UserLanguageSanitizer.class)
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER"), @Group("STUDENT") })
     public Result updateLanguage(Http.Request request) {

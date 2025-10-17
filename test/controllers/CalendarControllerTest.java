@@ -4,6 +4,9 @@
 
 package controllers;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
@@ -26,7 +29,6 @@ import models.facility.ExamRoom;
 import models.user.Language;
 import models.user.User;
 import net.jodah.concurrentunit.Waiter;
-import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
@@ -36,7 +38,6 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
 
 public class CalendarControllerTest extends IntegrationTestCase {
 
@@ -54,14 +55,14 @@ public class CalendarControllerTest extends IntegrationTestCase {
     private void setWorkingHours() {
         String[] dates = { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" };
         Arrays.stream(dates).forEach(d -> {
-                DefaultWorkingHours dwh = new DefaultWorkingHours();
-                dwh.setWeekday(d);
-                dwh.setRoom(room);
-                dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
-                dwh.setEndTime(dwh.getStartTime().withTime(20, 59, 59, 999));
-                dwh.setTimezoneOffset(7200000);
-                dwh.save();
-            });
+            DefaultWorkingHours dwh = new DefaultWorkingHours();
+            dwh.setWeekday(d);
+            dwh.setRoom(room);
+            dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
+            dwh.setEndTime(dwh.getStartTime().withTime(20, 59, 59, 999));
+            dwh.setTimezoneOffset(7200000);
+            dwh.save();
+        });
     }
 
     @Override
@@ -155,8 +156,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         System.out.println("Total emails received: " + currentEmails + "/" + callCount);
 
         // Wait for remaining emails if needed
-        boolean emailsReceived = currentEmails >= callCount ||
-                                greenMail.waitForIncomingEmail(MAIL_TIMEOUT, callCount - currentEmails);
+        boolean emailsReceived =
+            currentEmails >= callCount || greenMail.waitForIncomingEmail(MAIL_TIMEOUT, callCount - currentEmails);
 
         assertThat(emailsReceived).isTrue();
         final int count = DB.find(Reservation.class).where().eq("user.id", userId).findCount();
@@ -478,5 +479,4 @@ public class CalendarControllerTest extends IntegrationTestCase {
         ExamEnrolment ee = DB.find(ExamEnrolment.class, enrolment.getId());
         assertThat(ee.getReservation().getId()).isEqualTo(reservation.getId());
     }
-
 }
