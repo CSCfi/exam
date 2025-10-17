@@ -227,6 +227,10 @@ public class User extends GeneratedIdentityModel implements Subject {
         return Arrays.asList(roles).contains(loginRole);
     }
 
+    public boolean isAdminOrSupport() {
+        return hasRole(Role.Name.ADMIN, Role.Name.SUPPORT);
+    }
+
     public boolean hasPermission(Permission.Type type) {
         return permissions.stream().map(Permission::getType).toList().contains(type);
     }

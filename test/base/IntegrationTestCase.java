@@ -4,6 +4,10 @@
 
 package base;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeRequest;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
@@ -36,7 +40,6 @@ import models.sections.ExamSectionQuestionOption;
 import models.user.Language;
 import models.user.User;
 import org.apache.commons.io.FileUtils;
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,8 +53,6 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import play.test.WithApplication;
 
 public class IntegrationTestCase extends WithApplication {
@@ -76,8 +77,8 @@ public class IntegrationTestCase extends WithApplication {
         HAKA_HEADERS.put(
             "schacPersonalUniqueCode",
             "urn:schac:personalUniqueCode:int:peppiID:org3.org:33333;" +
-            "urn:schac:personalUniqueCode:int:sisuID:org2.org:22222;" +
-            "urn:schac:personalUniqueCode:int:oodiID:org1.org:11111"
+                "urn:schac:personalUniqueCode:int:sisuID:org2.org:22222;" +
+                "urn:schac:personalUniqueCode:int:oodiID:org1.org:11111"
         );
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
         HAKA_HEADERS.put("Csrf-Token", "nocheck");
@@ -85,7 +86,7 @@ public class IntegrationTestCase extends WithApplication {
             "logouturl",
             URLEncoder.encode(
                 "https://logout.foo.bar.com?returnUrl=" +
-                URLEncoder.encode("http://foo.bar.com", StandardCharsets.UTF_8),
+                    URLEncoder.encode("http://foo.bar.com", StandardCharsets.UTF_8),
                 StandardCharsets.UTF_8
             )
         );
@@ -264,8 +265,11 @@ public class IntegrationTestCase extends WithApplication {
             .getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
-            .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
-            .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
+            .filter(
+                esq ->
+                    esq.getQuestion().getType() == Question.Type.MultipleChoiceQuestion ||
+                    esq.getQuestion().getType() == Question.Type.WeightedMultipleChoiceQuestion
+            )
             .forEach(esq -> {
                 for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
                     ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();

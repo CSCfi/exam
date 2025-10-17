@@ -8,6 +8,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
+import controllers.exam.copy.ExamCopyContext;
 import impl.ExamUpdater;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
@@ -68,7 +69,7 @@ public class ExamController extends BaseController {
         this.userHandler = userHandler;
     }
 
-    private static ExpressionList<Exam> createPrototypeQuery() {
+    private ExpressionList<Exam> createPrototypeQuery() {
         return DB.find(Exam.class)
             .fetch("course")
             .fetch("creator")
@@ -86,7 +87,7 @@ public class ExamController extends BaseController {
     }
 
     private List<Exam> getAllExams(String filter) {
-        ExpressionList<Exam> query = createPrototypeQuery();
+        var query = createPrototypeQuery();
         if (filter != null) {
             query = query.or();
             query = userHandler.applyNameSearch("examOwners", query, filter);
@@ -96,7 +97,7 @@ public class ExamController extends BaseController {
         return query.findList();
     }
 
-    private static List<Exam> getAllExamsOfTeacher(User user) {
+    private List<Exam> getAllExamsOfTeacher(User user) {
         return createPrototypeQuery().eq("examOwners", user).orderBy("created").findList();
     }
 
@@ -146,9 +147,9 @@ public class ExamController extends BaseController {
         PathProperties pp = PathProperties.parse(
             "(id, name, examActiveStartDate, examActiveEndDate, course(id, code), examSections(id, name))"
         );
-        Query<Exam> query = DB.find(Exam.class);
+        var query = DB.find(Exam.class);
         pp.apply(query);
-        ExpressionList<Exam> el = query.where().isNotNull("name").isNotNull("course").isNull("parent");
+        var el = query.where().isNotNull("name").isNotNull("course").isNull("parent");
         if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             el = el.eq("examOwners", user);
         }
@@ -170,16 +171,16 @@ public class ExamController extends BaseController {
     @Authenticated
     @Restrict(@Group("TEACHER"))
     public Result getTeachersExams(Http.Request request) {
-        // Get list of exams that user is assigned to inspect or is creator of
+        // Get the list of exams that the user is assigned to inspect or is creator of
         PathProperties props = PathProperties.parse(
             "(*, course(id, code), " +
-            "children(id, state, examInspections(user(id, firstName, lastName))), " +
-            "examinationDates(*), " +
-            "examOwners(id, firstName, lastName), executionType(type), " +
-            "examInspections(id, user(id, firstName, lastName)), " +
-            "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
+                "children(id, state, examInspections(user(id, firstName, lastName))), " +
+                "examinationDates(*), " +
+                "examOwners(id, firstName, lastName), executionType(type), " +
+                "examInspections(id, user(id, firstName, lastName)), " +
+                "examEnrolments(id, user(id), reservation(id, endAt), examinationEventConfiguration(examinationEvent(start))))"
         );
-        Query<Exam> query = DB.createQuery(Exam.class);
+        var query = DB.createQuery(Exam.class);
         props.apply(query);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Exam> exams = query
@@ -215,7 +216,7 @@ public class ExamController extends BaseController {
         return forbidden("i18n_error_access_forbidden");
     }
 
-    private static Exam doGetExam(Long id) {
+    private Exam getExam(Long id) {
         return prototypeQuery()
             .where()
             .idEq(id)
@@ -231,7 +232,7 @@ public class ExamController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     @Anonymous(filteredProperties = { "user" })
     public Result getExam(Long id, Http.Request request) {
-        Exam exam = doGetExam(id);
+        Exam exam = getExam(id);
         if (exam == null) {
             return notFound("i18n_error_exam_not_found");
         }
@@ -436,23 +437,24 @@ public class ExamController extends BaseController {
         ) {
             return forbidden("i18n_access_forbidden");
         }
-        Exam prototype = DB.find(Exam.class) // TODO: check if all this fetching is necessary
-            .fetch("creator", "id")
-            .fetch("examType", "id, type")
-            .fetch("examSections", "id, name, sequenceNumber")
-            .fetch("examSections.sectionQuestions")
-            .fetch("examSections.sectionQuestions.question", "id, type, question")
-            .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-            .fetch("examSections.sectionQuestions.options")
-            .fetch("examSections.sectionQuestions.options.option", "id, option")
-            .fetch("examLanguages", "code")
-            .fetch("attachment", "fileName")
-            .fetch("examOwners", "firstName, lastName")
-            .fetch("examInspections.user", "firstName, lastName")
-            .fetch("softwares")
-            .where()
-            .idEq(id)
-            .findOne();
+        PathProperties pp = PathProperties.parse(
+            "(" +
+                "*, " +
+                "examType(id, type), " +
+                "examSections(id, name, sequenceNumber, " +
+                "sectionQuestions(*, " +
+                "question(id, type, question, attachment(fileName)), " +
+                "options(*, option(id, option)))), " +
+                "examLanguages(code), " +
+                "attachment(fileName), " +
+                "examOwners(firstName, lastName), " +
+                "examInspections(*, user(firstName, lastName)), " +
+                "softwares(*)" +
+                ")"
+        );
+        var query = DB.find(Exam.class);
+        pp.apply(query);
+        Exam prototype = query.where().idEq(id).findOne();
         if (prototype == null) {
             return notFound("i18n_exam_not_found");
         }
@@ -465,7 +467,8 @@ public class ExamController extends BaseController {
         if (prototype.getAutoEvaluationConfig() != null && !configReader.isCourseGradeScaleOverridable()) {
             prototype.setAutoEvaluationConfig(null);
         }
-        Exam copy = prototype.copy(user);
+        ExamCopyContext context = ExamCopyContext.forTeacherCopy(user).build();
+        Exam copy = prototype.createCopy(context);
         copy.setName(String.format("**COPY**%s", copy.getName()));
         copy.setState(Exam.State.DRAFT);
         copy.setExecutionType(executionType);
@@ -587,7 +590,7 @@ public class ExamController extends BaseController {
         }
     }
 
-    private static Query<Exam> prototypeQuery() {
+    private Query<Exam> prototypeQuery() {
         return DB.find(Exam.class)
             .fetch("course")
             .fetch("course.organisation")
@@ -623,9 +626,9 @@ public class ExamController extends BaseController {
             .fetch("examEnrolments.reservation", "endAt")
             .fetch("children", "id")
             .fetch("children.examEnrolments", "id")
-            .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier")
+            .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier, email")
             .fetch("children.examParticipation", "id")
-            .fetch("children.examParticipation.user", "firstName, lastName, userIdentifier")
+            .fetch("children.examParticipation.user", "firstName, lastName, userIdentifier, email")
             .fetch("creditType")
             .fetch("attachment")
             .fetch("softwares")

@@ -95,19 +95,19 @@ public class ExternalCalendarController extends BaseController {
     private URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
         return URI.create(
             configReader.getIopHost() +
-            String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
+                String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
         ).toURL();
     }
 
     private URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
         return URI.create(
             configReader.getIopHost() +
-            String.format(
-                "/api/organisations/%s/facilities/%s/reservations/%s/force",
-                orgRef,
-                facilityRef,
-                reservationRef
-            )
+                String.format(
+                    "/api/organisations/%s/facilities/%s/reservations/%s/force",
+                    orgRef,
+                    facilityRef,
+                    reservationRef
+                )
         ).toURL();
     }
 

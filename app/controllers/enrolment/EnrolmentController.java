@@ -488,24 +488,24 @@ public class EnrolmentController extends BaseController {
 
         final User sender = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return doCreateEnrolment(eid, executionType, user).thenApplyAsync(result -> {
-                if (exam.getState() != Exam.State.PUBLISHED) {
-                    return result;
-                }
-                if (result.status() != Http.Status.OK) {
-                    return result;
-                }
-                actor
-                    .scheduler()
-                    .scheduleOnce(
-                        Duration.create(1, TimeUnit.SECONDS),
-                        () -> {
-                            emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
-                            logger.info("Exam participation notification email sent to {}", user.getEmail());
-                        },
-                        actor.dispatcher()
-                    );
+            if (exam.getState() != Exam.State.PUBLISHED) {
                 return result;
-            });
+            }
+            if (result.status() != Http.Status.OK) {
+                return result;
+            }
+            actor
+                .scheduler()
+                .scheduleOnce(
+                    Duration.create(1, TimeUnit.SECONDS),
+                    () -> {
+                        emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
+                        logger.info("Exam participation notification email sent to {}", user.getEmail());
+                    },
+                    actor.dispatcher()
+                );
+            return result;
+        });
     }
 
     @Authenticated

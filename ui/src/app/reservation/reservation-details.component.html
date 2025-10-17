@@ -77,13 +77,8 @@ SPDX-License-Identifier: EUPL-1.2
                 >
                 </xm-table-sort>
             </th>
-            @if (isAdminView) {
-                <th class="reservation-search wrap">{{ 'i18n_remove_reservation' | translate }}</th>
-            }
             @if (isAdminView || isSupportView) {
-                <th class="reservation-search wrap">
-                    {{ 'i18n_change_reservation_machine' | translate }}
-                </th>
+                <th class="reservation-search wrap">{{ 'i18n_actions' | translate }}</th>
             }
         </tr>
     </thead>
@@ -125,25 +120,21 @@ SPDX-License-Identifier: EUPL-1.2
                     <td class="reservation-search">
                         {{ r.enrolment.exam.name }}
                     </td>
-                } @else {
-                    @if (!r.enrolment.exam.external) {
-                        <td class="reservation-search">
-                            @if (
-                                !r.enrolment.collaborativeExam &&
-                                r.enrolment.exam.id &&
-                                (isAdminView || isSupportView || r.enrolment.exam.state !== 'ABORTED')
-                            ) {
-                                <a [routerLink]="['/staff/assessments', r.enrolment.exam.id]">{{
-                                    r.enrolment.exam.name
-                                }}</a>
-                            }
-                            @if (
-                                r.enrolment.collaborativeExam || (!isAdminView && r.enrolment.exam.state === 'ABORTED')
-                            ) {
-                                <span>{{ r.enrolment.exam.name }}</span>
-                            }
-                        </td>
-                    }
+                } @else if (!r.enrolment.exam.external) {
+                    <td class="reservation-search">
+                        @if (
+                            !r.enrolment.collaborativeExam &&
+                            r.enrolment.exam.id &&
+                            (isAdminView || isSupportView || r.enrolment.exam.state !== 'ABORTED')
+                        ) {
+                            <a [routerLink]="['/staff/assessments', r.enrolment.exam.id]">{{
+                                r.enrolment.exam.name
+                            }}</a>
+                        }
+                        @if (r.enrolment.collaborativeExam || (!isAdminView && !isSupportView)) {
+                            <span>{{ r.enrolment.exam.name }}</span>
+                        }
+                    </td>
                 }
                 @if (r.enrolment.exam.external) {
                     <td class="reservation-search text-primary">
@@ -210,48 +201,61 @@ SPDX-License-Identifier: EUPL-1.2
                 <td class="reservation-search" [ngClass]="getStateClass(r)">
                     {{ 'i18n_exam_status_' + printExamState(r) | lowercase | translate }}
                 </td>
-                @if (isAdminView) {
-                    <td class="reservation-search">
-                        @if (
-                            r.enrolment.exam.state === 'PUBLISHED' &&
-                            !r.enrolment.noShow &&
-                            r.enrolment.exam.implementation === 'AQUARIUM' &&
-                            !reservationIsInPast(r)
-                        ) {
-                            <button (click)="removeReservation(r)" class="btn btn-sm btn-outline-danger float-start">
-                                {{ 'i18n_remove_reservation' | translate }}
-                            </button>
-                        }
-                        @if (
-                            r.enrolment.exam.state === 'ABORTED' &&
-                            r.enrolment.exam.implementation === 'AQUARIUM' &&
-                            r.enrolment.exam.executionType.type === 'PUBLIC'
-                        ) {
-                            <button
-                                (click)="permitRetrial(r.enrolment)"
-                                [disabled]="!r.enrolment.exam.trialCount || r.enrolment.retrialPermitted"
-                                class="btn btn-sm btn-outline-primary float-start"
-                            >
-                                {{
-                                    !r.enrolment.exam.trialCount || r.enrolment.retrialPermitted
-                                        ? ('i18n_retrial_permitted' | translate)
-                                        : ('i18n_permit_retrial' | translate)
-                                }}
-                            </button>
-                        }
-                    </td>
-                }
                 @if (isAdminView || isSupportView) {
-                    <td class="reservation-search">
-                        @if (
-                            r.enrolment.exam.state === 'PUBLISHED' &&
-                            !r.enrolment.noShow &&
-                            !r.externalReservation &&
-                            r.enrolment.exam.implementation === 'AQUARIUM'
-                        ) {
-                            <button (click)="changeReservationMachine(r)" class="btn btn-sm btn-primary float-start">
-                                {{ 'i18n_change_reservation_machine' | translate }}
-                            </button>
+                    <td class="reservation-search pt-2">
+                        @if (hasAvailableActions(r)) {
+                            <div ngbDropdown>
+                                <button
+                                    class="btn btn-sm btn-outline-secondary"
+                                    type="button"
+                                    [id]="'actionsDropdown' + r.id"
+                                    ngbDropdownToggle
+                                >
+                                    {{ 'i18n_choose' | translate }}
+                                </button>
+                                <div ngbDropdownMenu [attr.aria-labelledby]="'actionsDropdown' + r.id">
+                                    @if (
+                                        isAdminView &&
+                                        r.enrolment.exam.state === 'PUBLISHED' &&
+                                        !r.enrolment.noShow &&
+                                        r.enrolment.exam.implementation === 'AQUARIUM' &&
+                                        !reservationIsInPast(r)
+                                    ) {
+                                        <button ngbDropdownItem class="text-danger" (click)="removeReservation(r)">
+                                            {{ 'i18n_remove_reservation' | translate }}
+                                        </button>
+                                    }
+                                    @if (
+                                        r.enrolment.exam.state === 'ABORTED' &&
+                                        r.enrolment.exam.implementation === 'AQUARIUM' &&
+                                        r.enrolment.exam.executionType.type === 'PUBLIC'
+                                    ) {
+                                        <button
+                                            ngbDropdownItem
+                                            (click)="permitRetrial(r.enrolment)"
+                                            [disabled]="!r.enrolment.exam.trialCount || r.enrolment.retrialPermitted"
+                                        >
+                                            {{
+                                                !r.enrolment.exam.trialCount || r.enrolment.retrialPermitted
+                                                    ? ('i18n_retrial_permitted' | translate)
+                                                    : ('i18n_permit_retrial' | translate)
+                                            }}
+                                        </button>
+                                    }
+                                    @if (
+                                        r.enrolment.exam.state === 'PUBLISHED' &&
+                                        !r.enrolment.noShow &&
+                                        !r.externalReservation &&
+                                        r.enrolment.exam.implementation === 'AQUARIUM'
+                                    ) {
+                                        <button ngbDropdownItem (click)="changeReservationMachine(r)">
+                                            {{ 'i18n_change_reservation_machine' | translate }}
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        } @else {
+                            <span class="text-muted">&ndash;</span>
                         }
                     </td>
                 }

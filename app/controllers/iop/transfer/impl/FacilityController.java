@@ -57,7 +57,7 @@ public class FacilityController extends BaseController implements ExternalFacili
     private String toJson(ExamRoom room) {
         PathProperties pp = PathProperties.parse(
             "(*, defaultWorkingHours(*), calendarExceptionEvents(*), mailAddress(*), " +
-            "examStartingHours(*), accessibilities(*))"
+                "examStartingHours(*), accessibilities(*))"
         );
         return DB.json().toJson(room, pp);
     }

@@ -66,6 +66,7 @@ SPDX-License-Identifier: EUPL-1.2
                 id="state-search"
                 [options]="stateOptions"
                 [fullWidth]="true"
+                [noSearch]="true"
                 (optionSelected)="stateChanged($event)"
                 placeholder="{{ 'i18n_select' | translate }}"
             >

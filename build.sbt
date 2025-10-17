@@ -18,31 +18,32 @@ libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice, caffeine)
 
 libraryDependencies += "be.objectify"            %% "deadbolt-java"         % "3.0.0"
 libraryDependencies += "com.networknt"            % "json-schema-validator" % "1.5.9"
-libraryDependencies += "com.google.code.gson"     % "gson"                  % "2.10.1"
+libraryDependencies += "com.google.code.gson"     % "gson"                  % "2.13.2"
 libraryDependencies += "com.opencsv"              % "opencsv"               % "5.12.0"
-libraryDependencies += "io.vavr"                  % "vavr"                  % "0.10.4"
+libraryDependencies += "io.vavr"                  % "vavr"                  % "0.10.7"
 libraryDependencies += "net.sf.biweekly"          % "biweekly"              % "0.6.8"
-libraryDependencies += "org.apache.commons"       % "commons-compress"      % "1.26.1"
-libraryDependencies += "org.apache.commons"       % "commons-email"         % "1.5"
-libraryDependencies += "org.apache.poi"           % "poi"                   % "5.4.0"
-libraryDependencies += "org.apache.poi"           % "poi-ooxml"             % "5.4.0"
+libraryDependencies += "org.apache.commons"       % "commons-compress"      % "1.28.0"
+libraryDependencies += "org.apache.commons"       % "commons-email"         % "1.6.0"
+libraryDependencies += "org.apache.poi"           % "poi"                   % "5.4.1"
+libraryDependencies += "org.apache.poi"           % "poi-ooxml"             % "5.4.1"
 libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"             % "1.2.0"
-libraryDependencies += "joda-time"                % "joda-time"             % "2.12.7"
-libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.18.1"
-libraryDependencies += "org.postgresql"           % "postgresql"            % "42.7.3"
-libraryDependencies += "com.icegreen"             % "greenmail"             % "2.1.5"   % "test"
-libraryDependencies += "com.icegreen"             % "greenmail-junit4"      % "2.1.5"   % "test"
-libraryDependencies += "com.jayway.jsonpath"      % "json-path"             % "2.9.0"   % "test"
-libraryDependencies += "net.jodah"                % "concurrentunit"        % "0.4.6"   % "test"
-libraryDependencies += "org.eclipse.jetty"        % "jetty-server"          % "12.0.11" % "test"
-libraryDependencies += "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet"    % "12.0.12" % "test"
-libraryDependencies += "org.easytesting"          % "fest-assert"           % "1.4"     % "test"
-libraryDependencies += "org.yaml"                 % "snakeyaml"             % "2.0"     % "test"
+libraryDependencies += "joda-time"                % "joda-time"             % "2.14.0"
+libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.21.2"
+libraryDependencies += "org.postgresql"           % "postgresql"            % "42.7.8"
+libraryDependencies += "com.icegreen"             % "greenmail"             % "2.1.6"  % "test"
+libraryDependencies += "com.icegreen"             % "greenmail-junit4"      % "2.1.6"  % "test"
+libraryDependencies += "com.jayway.jsonpath"      % "json-path"             % "2.9.0"  % "test"
+libraryDependencies += "net.jodah"                % "concurrentunit"        % "0.4.6"  % "test"
+libraryDependencies += "org.eclipse.jetty"        % "jetty-server"          % "12.1.1" % "test"
+libraryDependencies += "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet"    % "12.1.1" % "test"
+libraryDependencies += "org.easytesting"          % "fest-assert"           % "1.4"    % "test"
+libraryDependencies += "org.yaml"                 % "snakeyaml"             % "2.5"    % "test"
 
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind"    % "2.14.3",
-  "com.fasterxml.jackson.core" % "jackson-core"        % "2.14.3",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.14.3"
+  "com.fasterxml.jackson.core"    % "jackson-databind"     % "2.20.0",
+  "com.fasterxml.jackson.core"    % "jackson-core"         % "2.20.0",
+  "com.fasterxml.jackson.core"    % "jackson-annotations"  % "2.20",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.20.0"
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")

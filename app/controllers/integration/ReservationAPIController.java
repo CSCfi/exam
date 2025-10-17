@@ -37,13 +37,13 @@ public class ReservationAPIController extends BaseController {
     public Result getReservations(Optional<String> start, Optional<String> end, Optional<Long> roomId) {
         PathProperties pp = PathProperties.parse(
             "(startAt, endAt, externalUserRef, " +
-            "user(firstName, lastName, email, userIdentifier), " +
-            "enrolment(noShow, " +
-            "exam(id, name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)), course(name, code, credits, " +
-            "identifier, gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation))), " +
-            "collaborativeExam(name)" +
-            "), " +
-            "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))"
+                "user(firstName, lastName, email, userIdentifier), " +
+                "enrolment(noShow, " +
+                "exam(id, name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)), course(name, code, credits, " +
+                "identifier, gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation))), " +
+                "collaborativeExam(name)" +
+                "), " +
+                "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))"
         );
         Query<Reservation> query = DB.find(Reservation.class);
         pp.apply(query);
