@@ -84,7 +84,9 @@ export class ReservationService {
         return forkJoin([this.http.get<Reservation[]>('/app/reservations', { params: params }), eventRequest]).pipe(
             map(([reservations, enrolments]) => {
                 const events: Partial<Reservation>[] = enrolments.map((ee) => {
+                    // This is hacky. We use examination events as reservations when they are a completely different concept.
                     return {
+                        id: -ee.id, // Use negative enrolment ID to avoid clashing with reservation IDs
                         user: ee.user,
                         enrolment: ee,
                         startAt: ee.examinationEventConfiguration?.examinationEvent.start,

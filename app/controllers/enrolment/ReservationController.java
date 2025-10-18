@@ -235,15 +235,15 @@ public class ReservationController extends BaseController {
         return reservation.getEnrolment().getExam() != null
             ? Optional.of(reservation.getEnrolment().getExam())
             : collaborativeExamLoader
-                .downloadExam(reservation.getEnrolment().getCollaborativeExam())
-                .toCompletableFuture()
-                .get();
+                  .downloadExam(reservation.getEnrolment().getCollaborativeExam())
+                  .toCompletableFuture()
+                  .get();
     }
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     @Anonymous(filteredProperties = { "user" })
-    public Result getExaminationEvents(
+    public Result listExaminationEvents(
         Optional<String> state,
         Optional<Long> ownerId,
         Optional<Long> studentId,
@@ -340,7 +340,7 @@ public class ReservationController extends BaseController {
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     @Anonymous(filteredProperties = { "user", "externalUserRef" })
-    public Result getReservations(
+    public Result listReservations(
         Optional<String> state,
         Optional<Long> ownerId,
         Optional<Long> studentId,
