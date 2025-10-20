@@ -19,10 +19,18 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
     template: `
         @if (question(); as q) {
             <div ngModelGroup="weightedMcq" id="weightedMcq">
-                <div class="row mt-2">
-                    <div class="col-md-6 col-sm-12">
-                        {{ 'i18n_weighted_multiple_choice_description' | translate }}
-                    </div>
+                <div class="row mt-2 mx-2">
+                    <ul>
+                        <li>{{ 'i18n_weighted_multiple_choice_description_1' | translate }}</li>
+                        <li>{{ 'i18n_weighted_multiple_choice_description_2' | translate }}</li>
+                        <li>{{ 'i18n_weighted_multiple_choice_description_3' | translate }}</li>
+                    </ul>
+                    {{ 'i18n_weighted_multiple_choice_description_4' | translate }}
+                    <ul>
+                        <li>{{ 'i18n_weighted_multiple_choice_description_5' | translate }}</li>
+                        <li>{{ 'i18n_weighted_multiple_choice_description_6' | translate }}</li>
+                        <li>{{ 'i18n_weighted_multiple_choice_description_7' | translate }}</li>
+                    </ul>
                 </div>
                 <div class="row mt-2">
                     <div class="col-md-12">
