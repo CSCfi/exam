@@ -234,7 +234,7 @@ export class CalendarService {
             ...event,
             start: startDate.toFormat('dd.MM.yyyy HH:mm'),
             end: endDate.toFormat('dd.MM.yyyy HH:mm'),
-            description: event.outOfService ? 'i18n_closed' : 'i18n_open',
+            description: event.outOfService ? 'i18n_room_out_of_service' : 'i18n_room_in_service',
         };
     }
 }

@@ -524,8 +524,6 @@
     "i18n_room_accessibility": "Esteettömyystiedot",
     "i18n_own_reservation": "oma varaus",
     "i18n_reserved": "varattu",
-    "i18n_open": "avoinna",
-    "i18n_closed": "kiinni",
     "i18n_reservation_window": "Varausikkuna",
     "i18n_info_reservation_window": "Kuinka monen päivän päähän nykyhetkestä opiskelija voi tehdä tenttivarauksia",
     "i18n_description_reservation_window": "Varauksen voi tehdä enintään {} päivän päähän",
