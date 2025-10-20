@@ -109,6 +109,7 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
                                         name="maxScore_{{ option.id }}"
                                         class="question-option-input points"
                                         type="number"
+                                        step="0.01"
                                         lang="en"
                                         [ngModel]="option.score"
                                         (ngModelChange)="updateScore($event, index)"
@@ -116,30 +117,6 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
                                         [disabled]="lotteryOn()"
                                     />
                                 </div>
-                            }
-                            <div
-                                class="col-md-2 question-option-empty-radio"
-                                [ngClass]="
-                                    option.score > 0
-                                        ? 'question-correct-option-radio'
-                                        : option.score < 0
-                                          ? 'question-incorrect-option-radio'
-                                          : ''
-                                "
-                            >
-                                <input
-                                    xmFixedPrecision
-                                    id="optionScore_{{ option.id }}"
-                                    name="maxScore_{{ option.id }}"
-                                    class="question-option-input points"
-                                    type="number"
-                                    step="any"
-                                    lang="en"
-                                    [ngModel]="option.score"
-                                    (ngModelChange)="updateScore($event, index)"
-                                    required
-                                    [disabled]="lotteryOn()"
-                                />
                                 <button
                                     class="col-md-1 question-option-trash pointer btn btn-link"
                                     [hidden]="lotteryOn()"
