@@ -18,7 +18,7 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-statement',
-    templateUrl: './feedback-template.html',
+    templateUrl: './feedback.template.html',
     imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, NgbCollapse, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
