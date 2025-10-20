@@ -117,6 +117,7 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
                                         name="maxScore_{{ option.id }}"
                                         class="question-option-input points"
                                         type="number"
+                                        step="0.01"
                                         lang="en"
                                         [ngModel]="option.score"
                                         (ngModelChange)="updateScore($event, index)"

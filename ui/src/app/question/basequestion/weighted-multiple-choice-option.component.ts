@@ -33,6 +33,7 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
                         name="optionScore-{{ index }}"
                         class="question-option-input points"
                         type="number"
+                        step="0.01"
                         lang="en"
                         [(ngModel)]="option.defaultScore"
                         xmFixedPrecision
