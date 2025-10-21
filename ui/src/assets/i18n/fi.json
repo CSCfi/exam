@@ -1267,5 +1267,8 @@
     "i18n_room_password_required_message": "Tämä huone vaatii salasanan vapaiden aikojen tarkastelemiseen.",
     "i18n_enter_password": "Syötä salasana",
     "i18n_invalid_password": "Virheellinen salasana",
-    "i18n_password_required": "Salasana on pakollinen"
+    "i18n_password_required": "Salasana on pakollinen",
+    "i18n_exam_period_start_ascending": "Tenttiperiodi alkaa (aikaisin ensin)",
+    "i18n_exam_period_end_ascending": "Tenttiperiodi päättyy (aikaisin ensin)",
+    "i18n_confirm_remove_attachment": "Haluatko poistaa liitetiedoston?"
 }
