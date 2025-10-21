@@ -602,8 +602,6 @@
     "i18n_room_accessibility": "Tillgänglighetsinformation",
     "i18n_own_reservation": "egen bokning",
     "i18n_reserved": "reserverad",
-    "i18n_open": "öppen",
-    "i18n_closed": "stängd",
     "i18n_reservation_window": "Bokningsfönster",
     "i18n_info_reservation_window": "Hur långt i framtiden kan studerande boka tid för tentamen",
     "i18n_description_reservation_window": "Man kan boka tid högst {} dagar i förväg",
