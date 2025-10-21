@@ -73,7 +73,7 @@ SPDX-License-Identifier: EUPL-1.2
         </button>
     }
     <!-- enrolment without reservation, allow making reservation -->
-    @if ((!reservation && exam?.implementation === 'AQUARIUM') || collaborativeExam) {
+    @if (!reservation && (exam?.implementation === 'AQUARIUM' || collaborativeExam)) {
         <button class="btn btn-success me-2 mb-2" (click)="makeReservation()">
             {{ 'i18n_student_new_reservation' | translate }}
         </button>
