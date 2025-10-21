@@ -1119,5 +1119,8 @@
     "i18n_room_password_required_message": "Tämä huone vaatii salasanan vapaiden aikojen tarkastelemiseen. EN",
     "i18n_enter_password": "Syötä salasana EN",
     "i18n_invalid_password": "Virheellinen salasana EN",
-    "i18n_password_required": "Salasana on pakollinen EN"
+    "i18n_password_required": "Salasana on pakollinen EN",
+    "i18n_exam_period_start_ascending": "Exam period starts (earliest first)",
+    "i18n_exam_period_end_ascending": "Exam period ends (earliest first)",
+    "i18n_confirm_remove_attachment": "Do you want to remove the attachment file? SV"
 }

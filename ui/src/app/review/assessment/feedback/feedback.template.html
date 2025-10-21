@@ -1,0 +1,51 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+<div cdkDrag [cdkDragConstrainPosition]="fixPosition" class="wrapper" [hidden]="shouldHide">
+    <div class="row align-items-center">
+        <div
+            class="col-1"
+            ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
+            triggers="mouseenter:mouseleave"
+        >
+            <i
+                (click)="toggleVisibility()"
+                class="pointer"
+                [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
+            >
+            </i>
+        </div>
+        <div class="col-11">{{ title | translate }}</div>
+    </div>
+    <div [ngbCollapse]="hideEditor" class="body">
+        <div class="row mt-2 mb-1">
+            <div class="col-md-12">
+                <xm-ckeditor
+                    id="text-editor"
+                    [ngModel]="editorContent"
+                    (ngModelChange)="editorContent = $event"
+                    #ck="ngModel"
+                    name="ck"
+                    rows="10"
+                    cols="80"
+                ></xm-ckeditor>
+            </div>
+        </div>
+        @if (attachment) {
+        <div class="d-flex justify-content-end">
+            <a class="pointer" (click)="downloadAttachment()">{{ attachment.fileName }}</a>
+            <span class="sitnet-red pointer" (click)="removeAttachment()">
+                <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
+            </span>
+        </div>
+        }
+        <div class="d-flex justify-content-between flex-row-reverse mt-2">
+            <button class="btn btn-outline-success" (click)="save()">{{ 'i18n_save' | translate }}</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
+                {{ 'i18n_attach_file' | translate }}
+            </button>
+        </div>
+    </div>
+</div>
