@@ -23,11 +23,11 @@ public class ExamAPIController extends BaseController {
     public Result getActiveExams(Optional<String> date) {
         PathProperties pp = PathProperties.parse(
             "(course(name, code, credits, " +
-            "gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation)) " +
-            "id, name, periodStart, periodEnd, duration, enrollInstruction, " +
-            "examLanguages(code, name), gradeScale(description, externalRef, displayName), " +
-            "examOwners(firstName, lastName, email), examType(type)" +
-            ")"
+                "gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation)) " +
+                "id, name, periodStart, periodEnd, duration, enrollInstruction, " +
+                "examLanguages(code, name), gradeScale(description, externalRef, displayName), " +
+                "examOwners(firstName, lastName, email), examType(type)" +
+                ")"
         );
         DateTime dateTime = date.isPresent()
             ? ISODateTimeFormat.dateTimeParser().parseDateTime(date.get())

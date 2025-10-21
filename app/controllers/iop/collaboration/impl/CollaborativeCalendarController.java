@@ -36,10 +36,11 @@ import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
+import validation.calendar.ReservationCreationValidator;
+import validation.calendar.ReservationDTO;
+import validation.core.Attrs;
 
 public class CollaborativeCalendarController extends CollaborationController {
 
@@ -68,12 +69,12 @@ public class CollaborativeCalendarController extends CollaborationController {
         }
 
         return downloadExam(ce).thenApplyAsync(result -> {
-                if (result.isEmpty()) {
-                    return notFound("i18n_error_exam_not_found");
-                }
-                Exam exam = result.get();
-                return ok(exam, PathProperties.parse("(*, examSections(*, examMaterials(*)), examLanguages(*))"));
-            });
+            if (result.isEmpty()) {
+                return notFound("i18n_error_exam_not_found");
+            }
+            Exam exam = result.get();
+            return ok(exam, PathProperties.parse("(*, examSections(*, examMaterials(*)), examLanguages(*))"));
+        });
     }
 
     protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, Exam exam, User user) {
@@ -95,21 +96,20 @@ public class CollaborativeCalendarController extends CollaborationController {
     }
 
     @Authenticated
-    @With(CalendarReservationSanitizer.class)
+    @With(ReservationCreationValidator.class)
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> createReservation(Http.Request request) {
-        Long roomId = request.attrs().get(Attrs.ROOM_ID);
-        Long examId = request.attrs().get(Attrs.EXAM_ID);
-        DateTime start = request.attrs().get(Attrs.START_DATE);
-        DateTime end = request.attrs().get(Attrs.END_DATE);
-        Collection<Integer> aids = request.attrs().get(Attrs.ACCESSIBILITIES);
-        Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
+        ReservationDTO dto = request.attrs().get(Attrs.STUDENT_RESERVATION);
+        DateTime start = dto.start();
+        DateTime end = dto.end();
+        List<Long> aids = dto.getAidsAsJava();
+        List<Long> sectionIds = dto.getSectionIdsAsJava();
 
-        ExamRoom room = DB.find(ExamRoom.class, roomId);
+        ExamRoom room = DB.find(ExamRoom.class, dto.roomId());
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), room);
         final User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
 
-        CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
+        CollaborativeExam ce = DB.find(CollaborativeExam.class, dto.examId());
         if (ce == null) {
             return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
@@ -118,7 +118,7 @@ public class CollaborativeCalendarController extends CollaborationController {
             .fetch("reservation")
             .where()
             .eq("user.id", user.getId())
-            .eq("collaborativeExam.id", examId)
+            .eq("collaborativeExam.id", dto.examId())
             .disjunction()
             .isNull("reservation")
             .gt("reservation.startAt", now.toDate())
@@ -129,36 +129,36 @@ public class CollaborativeCalendarController extends CollaborationController {
         }
 
         return downloadExam(ce).thenApplyAsync(result -> {
-                if (result.isEmpty()) {
-                    return notFound("i18n_error_exam_not_found");
+            if (result.isEmpty()) {
+                return notFound("i18n_error_exam_not_found");
+            }
+            Exam exam = result.get();
+            Optional<Result> badEnrolment = checkEnrolment(enrolment, exam, user);
+            if (badEnrolment.isPresent()) {
+                return badEnrolment.get();
+            }
+            Optional<ExamMachine> machine = calendarHandler.getRandomMachine(room, exam, start, end, aids);
+            if (machine.isEmpty()) {
+                return forbidden("i18n_no_machines_available");
+            }
+            // We are good to go :)
+            // Start manual transaction.
+            try (Transaction tx = DB.beginTransaction()) {
+                // Take pessimistic lock for user to prevent multiple reservations creating.
+                DB.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
+                Reservation oldReservation = enrolment.getReservation();
+                Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user);
+                // Nuke the old reservation if any
+                if (oldReservation != null) {
+                    enrolment.setReservation(null);
+                    enrolment.update();
+                    oldReservation.delete();
                 }
-                Exam exam = result.get();
-                Optional<Result> badEnrolment = checkEnrolment(enrolment, exam, user);
-                if (badEnrolment.isPresent()) {
-                    return badEnrolment.get();
-                }
-                Optional<ExamMachine> machine = calendarHandler.getRandomMachine(room, exam, start, end, aids);
-                if (machine.isEmpty()) {
-                    return forbidden("i18n_no_machines_available");
-                }
-                // We are good to go :)
-                // Start manual transaction.
-                try (Transaction tx = DB.beginTransaction()) {
-                    // Take pessimistic lock for user to prevent multiple reservations creating.
-                    DB.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
-                    Reservation oldReservation = enrolment.getReservation();
-                    Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user);
-                    // Nuke the old reservation if any
-                    if (oldReservation != null) {
-                        enrolment.setReservation(null);
-                        enrolment.update();
-                        oldReservation.delete();
-                    }
-                    Result newReservation = makeNewReservation(enrolment, exam, reservation, user, sectionIds);
-                    tx.commit();
-                    return newReservation;
-                }
-            });
+                Result newReservation = makeNewReservation(enrolment, exam, reservation, user, sectionIds);
+                tx.commit();
+                return newReservation;
+            }
+        });
     }
 
     private Result makeNewReservation(
@@ -197,7 +197,7 @@ public class CollaborativeCalendarController extends CollaborationController {
         Long examId,
         Long roomId,
         String day,
-        Optional<List<Integer>> aids,
+        Optional<List<Long>> aids,
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -210,16 +210,16 @@ public class CollaborativeCalendarController extends CollaborationController {
             return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
         }
         return downloadExam(ce).thenApplyAsync(result -> {
-                if (result.isEmpty()) {
-                    return notFound("i18n_error_exam_not_found");
-                }
-                Exam exam = result.get();
-                if (!exam.hasState(Exam.State.PUBLISHED)) {
-                    return notFound("i18n_error_exam_not_found");
-                }
-                List<Integer> accessibilityIds = aids.orElse(Collections.emptyList());
-                return calendarHandler.getSlots(user, exam, roomId, day, accessibilityIds);
-            });
+            if (result.isEmpty()) {
+                return notFound("i18n_error_exam_not_found");
+            }
+            Exam exam = result.get();
+            if (!exam.hasState(Exam.State.PUBLISHED)) {
+                return notFound("i18n_error_exam_not_found");
+            }
+            List<Long> accessibilityIds = aids.orElse(List.of());
+            return calendarHandler.getSlots(user, exam, roomId, day, accessibilityIds);
+        });
     }
 
     private ExamEnrolment getEnrolledExam(Long examId, User user) {

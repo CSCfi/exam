@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, model, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,7 +18,7 @@ import { QuestionService } from 'src/app/question/question.service';
     templateUrl: './claim-choice.component.html',
 })
 export class ClaimChoiceComponent {
-    options = input<ExamSectionQuestionOption[]>([]);
+    options = model.required<ExamSectionQuestionOption[]>();
     lotteryOn = input(false);
     optionsChanged = output<ExamSectionQuestionOption[]>();
     missingOptions = computed<string[]>(() =>

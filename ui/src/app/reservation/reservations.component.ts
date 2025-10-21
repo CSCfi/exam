@@ -204,7 +204,7 @@ export class ReservationsComponent implements OnInit {
     protected searchOwners$ = (text$: Observable<string>) => this.Reservation.searchOwners$(text$);
 
     protected searchExams$ = (text$: Observable<string>) =>
-        this.Reservation.searchExams$(text$, this.isInteroperable && this.isAdminView());
+        this.Reservation.searchExams$(text$, this.isInteroperable && (this.isAdminView() || this.isSupportView()));
 
     protected nameFormatter = (item: { name: string }) => item.name;
 

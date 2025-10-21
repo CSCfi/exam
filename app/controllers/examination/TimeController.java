@@ -18,8 +18,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class TimeController extends BaseController {
 

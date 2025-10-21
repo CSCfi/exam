@@ -27,7 +27,7 @@ import play.mvc.Result;
 
 @ImplementedBy(CalendarHandlerImpl.class)
 public interface CalendarHandler {
-    Result getSlots(User user, Exam exam, Long roomId, String day, Collection<Integer> aids);
+    Result getSlots(User user, Exam exam, Long roomId, String day, Collection<Long> aids);
     Set<TimeSlot> handleReservations(
         Map<Interval, Optional<Integer>> examSlots,
         Collection<Reservation> reservations,
@@ -43,14 +43,14 @@ public interface CalendarHandler {
         Exam exam,
         DateTime start,
         DateTime end,
-        Collection<Integer> aids
+        Collection<Long> aids
     );
 
     Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user);
 
     LocalDate getEndSearchDate(LocalDate searchDate, LocalDate examEnd);
     int getReservationWindowSize();
-    boolean isDoable(Reservation reservation, Collection<Integer> aids);
+    boolean isDoable(Reservation reservation, Collection<Long> aids);
     CompletionStage<Optional<Integer>> handleExternalReservation(
         ExamEnrolment enrolment,
         Exam exam,

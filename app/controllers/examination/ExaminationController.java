@@ -51,13 +51,15 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.ExaminationRepository;
-import sanitizers.Attrs;
-import sanitizers.ClozeTestAnswerSanitizer;
-import sanitizers.EssayAnswerSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import system.interceptors.ExamActionRouter;
 import system.interceptors.SensitiveDataPolicy;
+import validation.answer.ClozeTestAnswerDTO;
+import validation.answer.ClozeTestAnswerValidator;
+import validation.answer.EssayAnswerDTO;
+import validation.answer.EssayAnswerValidator;
+import validation.core.Attrs;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "claimChoiceType", "configKey" })
 public class ExaminationController extends BaseController {
@@ -138,19 +140,19 @@ public class ExaminationController extends BaseController {
                         enrolment,
                         request
                     ).thenComposeAsync(
-                            error -> {
-                                if (error.isPresent()) {
-                                    return wrapAsPromise(error.get());
-                                }
-                                return examinationRepository
-                                    .createFinalExam(clone, user, enrolment)
-                                    .thenComposeAsync(
-                                        e -> wrapAsPromise(ok(e, getPath(false))),
-                                        httpExecutionContext.current()
-                                    );
-                            },
-                            httpExecutionContext.current()
-                        );
+                        error -> {
+                            if (error.isPresent()) {
+                                return wrapAsPromise(error.get());
+                            }
+                            return examinationRepository
+                                .createFinalExam(clone, user, enrolment)
+                                .thenComposeAsync(
+                                    e -> wrapAsPromise(ok(e, getPath(false))),
+                                    httpExecutionContext.current()
+                                );
+                        },
+                        httpExecutionContext.current()
+                    );
                 },
                 httpExecutionContext.current()
             );
@@ -176,19 +178,16 @@ public class ExaminationController extends BaseController {
                         enrolment,
                         request
                     ).thenComposeAsync(
-                            error -> {
-                                if (error.isPresent()) {
-                                    return wrapAsPromise(error.get());
-                                }
-                                return examinationRepository
-                                    .createExam(prototype, user, enrolment)
-                                    .thenApplyAsync(
-                                        oe -> postProcessClone(enrolment, oe),
-                                        httpExecutionContext.current()
-                                    );
-                            },
-                            httpExecutionContext.current()
-                        );
+                        error -> {
+                            if (error.isPresent()) {
+                                return wrapAsPromise(error.get());
+                            }
+                            return examinationRepository
+                                .createExam(prototype, user, enrolment)
+                                .thenApplyAsync(oe -> postProcessClone(enrolment, oe), httpExecutionContext.current());
+                        },
+                        httpExecutionContext.current()
+                    );
                 },
                 httpExecutionContext.current()
             );
@@ -250,20 +249,22 @@ public class ExaminationController extends BaseController {
                         .getPrototype(hash, ce, pp)
                         .thenComposeAsync(
                             oe -> {
-                                if (oe.isEmpty()) {
-                                    return wrapAsPromise(ok()); // check
-                                }
-                                return examinationRepository
-                                    .getPossibleClone(hash, user, ce, pp)
-                                    .thenComposeAsync(
-                                        pc -> {
-                                            if (pc.isPresent()) return wrapAsPromise(ok());
-                                            else {
-                                                return createClone(oe.get(), user, ce, request, true);
-                                            }
-                                        },
-                                        httpExecutionContext.current()
-                                    );
+                                // check
+                                return oe
+                                    .map(exam ->
+                                        examinationRepository
+                                            .getPossibleClone(hash, user, ce, pp)
+                                            .thenComposeAsync(
+                                                pc -> {
+                                                    if (pc.isPresent()) return wrapAsPromise(ok());
+                                                    else {
+                                                        return createClone(exam, user, ce, request, true);
+                                                    }
+                                                },
+                                                httpExecutionContext.current()
+                                            )
+                                    )
+                                    .orElseGet(() -> wrapAsPromise(ok()));
                             },
                             httpExecutionContext.current()
                         );
@@ -277,42 +278,38 @@ public class ExaminationController extends BaseController {
     @Transactional
     public CompletionStage<Result> turnExam(String hash, Http.Request request) {
         return getEnrolmentError(hash, request).thenApplyAsync(oe ->
-                oe.orElseGet(() -> {
-                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    Exam exam = DB.find(Exam.class)
-                        .fetch("examSections.sectionQuestions.question")
-                        .where()
-                        .eq("creator", user)
-                        .eq("hash", hash)
-                        .findOne();
-                    if (exam == null) {
-                        return notFound("i18n_error_exam_not_found");
-                    }
-                    Optional<ExamParticipation> oep = findParticipation(exam, user);
-                    Http.Session session = request.session().removing("ongoingExamHash");
-                    if (oep.isPresent()) {
-                        ExamParticipation ep = oep.get();
-                        setDurations(ep);
+            oe.orElseGet(() -> {
+                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                Exam exam = DB.find(Exam.class)
+                    .fetch("examSections.sectionQuestions.question")
+                    .where()
+                    .eq("creator", user)
+                    .eq("hash", hash)
+                    .findOne();
+                if (exam == null) {
+                    return notFound("i18n_error_exam_not_found");
+                }
+                Optional<ExamParticipation> oep = findParticipation(exam, user);
+                Http.Session session = request.session().removing("ongoingExamHash");
+                if (oep.isPresent()) {
+                    ExamParticipation ep = oep.get();
+                    setDurations(ep);
 
-                        GeneralSettings settings = SettingsController.getOrCreateSettings(
-                            "review_deadline",
-                            null,
-                            "14"
-                        );
-                        int deadlineDays = Integer.parseInt(settings.getValue());
-                        DateTime deadline = ep.getEnded().plusDays(deadlineDays);
-                        ep.setDeadline(deadline);
-                        ep.save();
-                        exam.setState(Exam.State.REVIEW);
-                        exam.update();
-                        if (exam.isPrivate()) {
-                            notifyTeachers(exam);
-                        }
-                        autoEvaluationHandler.autoEvaluate(exam);
+                    GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
+                    int deadlineDays = Integer.parseInt(settings.getValue());
+                    DateTime deadline = ep.getEnded().plusDays(deadlineDays);
+                    ep.setDeadline(deadline);
+                    ep.save();
+                    exam.setState(Exam.State.REVIEW);
+                    exam.update();
+                    if (exam.isPrivate()) {
+                        notifyTeachers(exam);
                     }
-                    return ok().withSession(session);
-                })
-            );
+                    autoEvaluationHandler.autoEvaluate(exam);
+                }
+                return ok().withSession(session);
+            })
+        );
     }
 
     @Authenticated
@@ -320,103 +317,103 @@ public class ExaminationController extends BaseController {
     @Transactional
     public CompletionStage<Result> abortExam(String hash, Http.Request request) {
         return getEnrolmentError(hash, request).thenApplyAsync(oe ->
-                oe.orElseGet(() -> {
-                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    Exam exam = DB.find(Exam.class).where().eq("creator", user).eq("hash", hash).findOne();
-                    if (exam == null) {
-                        return notFound("i18n_error_exam_not_found");
+            oe.orElseGet(() -> {
+                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                Exam exam = DB.find(Exam.class).where().eq("creator", user).eq("hash", hash).findOne();
+                if (exam == null) {
+                    return notFound("i18n_error_exam_not_found");
+                }
+                Optional<ExamParticipation> oep = findParticipation(exam, user);
+                Http.Session session = request.session().removing("ongoingExamHash");
+                if (oep.isPresent()) {
+                    setDurations(oep.get());
+                    oep.get().save();
+                    exam.setState(Exam.State.ABORTED);
+                    exam.update();
+                    if (exam.isPrivate()) {
+                        notifyTeachers(exam);
                     }
-                    Optional<ExamParticipation> oep = findParticipation(exam, user);
-                    Http.Session session = request.session().removing("ongoingExamHash");
-                    if (oep.isPresent()) {
-                        setDurations(oep.get());
-                        oep.get().save();
-                        exam.setState(Exam.State.ABORTED);
-                        exam.update();
-                        if (exam.isPrivate()) {
-                            notifyTeachers(exam);
-                        }
-                        return ok().withSession(session);
-                    } else {
-                        return forbidden().withSession(session);
-                    }
-                })
-            );
+                    return ok().withSession(session);
+                } else {
+                    return forbidden().withSession(session);
+                }
+            })
+        );
     }
 
     @Authenticated
-    @With(EssayAnswerSanitizer.class)
+    @With(EssayAnswerValidator.class)
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> answerEssay(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request).thenApplyAsync(oe ->
-                oe.orElseGet(() -> {
-                    String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
-                    Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
-                    ExamSectionQuestion question = DB.find(ExamSectionQuestion.class, questionId);
-                    if (question == null) {
-                        return forbidden();
-                    }
-                    EssayAnswer answer = question.getEssayAnswer();
-                    if (answer == null) {
-                        answer = new EssayAnswer();
-                    } else if (objectVersion.isPresent()) {
-                        answer.setObjectVersion(objectVersion.get());
-                    }
-                    answer.setAnswer(essayAnswer);
-                    answer.save();
-                    question.setEssayAnswer(answer);
-                    question.save();
-                    return ok(answer);
-                })
-            );
+            oe.orElseGet(() -> {
+                EssayAnswerDTO dto = request.attrs().get(Attrs.ESSAY_ANSWER);
+                String essayAnswer = dto.answer();
+                Optional<Long> objectVersion = dto.getObjectVersionAsJava();
+                ExamSectionQuestion question = DB.find(ExamSectionQuestion.class, questionId);
+                if (question == null) {
+                    return forbidden();
+                }
+                EssayAnswer answer = question.getEssayAnswer();
+                if (answer == null) {
+                    answer = new EssayAnswer();
+                } else if (objectVersion.isPresent()) {
+                    answer.setObjectVersion(objectVersion.get());
+                }
+                answer.setAnswer(essayAnswer);
+                answer.save();
+                question.setEssayAnswer(answer);
+                question.save();
+                return ok(answer);
+            })
+        );
     }
 
     @Authenticated
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> answerMultiChoice(String hash, Long qid, Http.Request request) {
         return getEnrolmentError(hash, request).thenApplyAsync(oe ->
-                oe.orElseGet(() -> {
-                    ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
-                    List<Long> optionIds = StreamSupport.stream(node.spliterator(), false)
-                        .map(JsonNode::asLong)
-                        .toList();
-                    ExamSectionQuestion question = DB.find(ExamSectionQuestion.class, qid);
-                    if (question == null) {
-                        return forbidden();
-                    }
-                    question
-                        .getOptions()
-                        .forEach(o -> {
-                            o.setAnswered(optionIds.contains(o.getId()));
-                            o.update();
-                        });
-                    return ok();
-                })
-            );
+            oe.orElseGet(() -> {
+                ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
+                List<Long> optionIds = StreamSupport.stream(node.spliterator(), false).map(JsonNode::asLong).toList();
+                ExamSectionQuestion question = DB.find(ExamSectionQuestion.class, qid);
+                if (question == null) {
+                    return forbidden();
+                }
+                question
+                    .getOptions()
+                    .forEach(o -> {
+                        o.setAnswered(optionIds.contains(o.getId()));
+                        o.update();
+                    });
+                return ok();
+            })
+        );
     }
 
     @Authenticated
-    @With(ClozeTestAnswerSanitizer.class)
+    @With(ClozeTestAnswerValidator.class)
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> answerClozeTest(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request).thenApplyAsync(oe ->
-                oe.orElseGet(() -> {
-                    ExamSectionQuestion esq = DB.find(ExamSectionQuestion.class, questionId);
-                    if (esq == null) {
-                        return forbidden();
-                    }
-                    ClozeTestAnswer answer = esq.getClozeTestAnswer();
-                    if (answer == null) {
-                        answer = new ClozeTestAnswer();
-                    } else {
-                        long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
-                        answer.setObjectVersion(objectVersion);
-                    }
-                    answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
-                    answer.save();
-                    return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
-                })
-            );
+            oe.orElseGet(() -> {
+                ExamSectionQuestion esq = DB.find(ExamSectionQuestion.class, questionId);
+                if (esq == null) {
+                    return forbidden();
+                }
+                ClozeTestAnswerDTO dto = request.attrs().get(Attrs.CLOZE_TEST_ANSWER);
+                ClozeTestAnswer answer = esq.getClozeTestAnswer();
+                if (answer == null) {
+                    answer = new ClozeTestAnswer();
+                } else {
+                    long objectVersion = dto.getObjectVersionAsJava().orElse(0L);
+                    answer.setObjectVersion(objectVersion);
+                }
+                answer.setAnswer(dto.answer());
+                answer.save();
+                return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
+            })
+        );
     }
 
     private Optional<ExamParticipation> findParticipation(Exam exam, User user) {

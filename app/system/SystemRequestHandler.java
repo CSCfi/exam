@@ -36,10 +36,10 @@ public class SystemRequestHandler implements play.http.ActionCreator {
             String userString = session == null || session.get("id").isEmpty()
                 ? "user <NULL>"
                 : String.format(
-                    "user #%d [%s]",
-                    Long.parseLong(session.get("id").get()),
-                    session.get("email").orElse("")
-                );
+                      "user #%d [%s]",
+                      Long.parseLong(session.get("id").get()),
+                      session.get("email").orElse("")
+                  );
             String uri = request.uri();
             StringBuilder logEntry = new StringBuilder(String.format("%s %s %s", userString, method, uri));
             // Do not log body of data import request to avoid logs getting unreadable.

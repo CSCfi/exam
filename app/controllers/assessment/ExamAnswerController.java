@@ -22,9 +22,9 @@ import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
+import validation.core.Attrs;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "claimChoiceType", "configKey" })
 public class ExamAnswerController extends BaseController {

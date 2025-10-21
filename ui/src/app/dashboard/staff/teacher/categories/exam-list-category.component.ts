@@ -10,7 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, from } from 'rxjs';
+import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { DashboardExam, ExtraData } from 'src/app/dashboard/dashboard.model';
 import { TeacherDashboardService } from 'src/app/dashboard/staff/teacher/teacher-dashboard.service';
@@ -20,6 +20,7 @@ import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -58,6 +59,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
     private router = inject(Router);
     private translate = inject(TranslateService);
     private modal = inject(NgbModal);
+    private ModalService = inject(ModalService);
     private toast = inject(ToastrService);
     private Dashboard = inject(TeacherDashboardService);
     private Dialog = inject(ConfirmationDialogService);
@@ -111,12 +113,10 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
     };
 
     copyExam = (exam: DashboardExam) =>
-        from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
-            .pipe(
-                switchMap((data: { type: string; examinationType: string }) =>
-                    this.Dashboard.copyExam$(exam.id, data.type, data.examinationType),
-                ),
-            )
+        this.ModalService.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent, {
+            backdrop: 'static',
+        })
+            .pipe(switchMap((data) => this.Dashboard.copyExam$(exam.id, data.type, data.examinationType)))
             .subscribe({
                 next: (resp) => {
                     this.toast.success(this.translate.instant('i18n_exam_copied'));

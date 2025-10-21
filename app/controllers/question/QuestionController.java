@@ -45,11 +45,11 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.QuestionTextSanitizer;
-import sanitizers.SanitizingHelper;
 import scala.jdk.javaapi.CollectionConverters;
 import security.Authenticated;
+import validation.QuestionTextSanitizer;
+import validation.SanitizingHelper;
+import validation.core.Attrs;
 
 public class QuestionController extends BaseController implements SectionQuestionHandler {
 
@@ -86,7 +86,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         }
         PathProperties pp = PathProperties.parse(
             "*, modifier(firstName, lastName), questionOwners(id, firstName, lastName, userIdentifier, email), " +
-            "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(id, name, creator(id)), examSectionQuestions(examSection(exam(state, periodEnd, course(code)))))"
+                "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(id, name, creator(id)), examSectionQuestions(examSection(exam(state, periodEnd, course(code)))))"
         );
         Query<Question> query = DB.find(Question.class);
         pp.apply(query);
@@ -139,8 +139,8 @@ public class QuestionController extends BaseController implements SectionQuestio
         Query<Question> query = DB.find(Question.class);
         PathProperties pp = PathProperties.parse(
             "(*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
-            "attachment(id, fileName), options(id, correctOption, defaultScore, option, claimChoiceType), tags(id, name, creator(id)), " +
-            "examSectionQuestions(id, examSection(name, exam(name, state))))"
+                "attachment(id, fileName), options(id, correctOption, defaultScore, option, claimChoiceType), tags(id, name, creator(id)), " +
+                "examSectionQuestions(id, examSection(name, exam(name, state))))"
         );
         pp.apply(query);
         ExpressionList<Question> expr = query.where().idEq(id);
@@ -525,7 +525,7 @@ public class QuestionController extends BaseController implements SectionQuestio
                     })
                     .toList();
                 ExamSectionQuestion esq = new ExamSectionQuestion();
-                esq.setOptions(Set.copyOf(esqos));
+                esq.setOptions(List.copyOf(esqos));
                 esq.setQuestion(question);
                 esq.setAnswerInstructions(question.getDefaultAnswerInstructions());
                 esq.setEvaluationCriteria(question.getDefaultEvaluationCriteria());

@@ -47,9 +47,6 @@ export class StudentDashboardComponent implements OnInit {
     }
 
     enrolmentRemoved = (id: number) => {
-        const index = this.enrolments()
-            .map((e) => e.id)
-            .indexOf(id);
-        this.enrolments.update((es) => es.splice(index, 1));
+        this.enrolments.update((es) => es.filter((e) => e.id !== id));
     };
 }

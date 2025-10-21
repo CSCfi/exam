@@ -4,10 +4,11 @@
 
 package base;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeRequest;
+
 import com.fasterxml.jackson.databind.JsonNode;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.PathNotFoundException;
 import io.ebean.DB;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,8 +17,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +35,7 @@ import models.sections.ExamSectionQuestionOption;
 import models.user.Language;
 import models.user.User;
 import org.apache.commons.io.FileUtils;
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -50,8 +47,6 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import play.test.WithApplication;
 
 public class IntegrationTestCase extends WithApplication {
@@ -76,8 +71,8 @@ public class IntegrationTestCase extends WithApplication {
         HAKA_HEADERS.put(
             "schacPersonalUniqueCode",
             "urn:schac:personalUniqueCode:int:peppiID:org3.org:33333;" +
-            "urn:schac:personalUniqueCode:int:sisuID:org2.org:22222;" +
-            "urn:schac:personalUniqueCode:int:oodiID:org1.org:11111"
+                "urn:schac:personalUniqueCode:int:sisuID:org2.org:22222;" +
+                "urn:schac:personalUniqueCode:int:oodiID:org1.org:11111"
         );
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
         HAKA_HEADERS.put("Csrf-Token", "nocheck");
@@ -85,7 +80,7 @@ public class IntegrationTestCase extends WithApplication {
             "logouturl",
             URLEncoder.encode(
                 "https://logout.foo.bar.com?returnUrl=" +
-                URLEncoder.encode("http://foo.bar.com", StandardCharsets.UTF_8),
+                    URLEncoder.encode("https://foo.bar.com", StandardCharsets.UTF_8),
                 StandardCharsets.UTF_8
             )
         );
@@ -114,14 +109,10 @@ public class IntegrationTestCase extends WithApplication {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         // Clear exam upload directory
         String uploadPath = "target/attachments";
-        try {
-            FileUtils.deleteDirectory(new File(uploadPath));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileUtils.deleteDirectory(new File(uploadPath));
     }
 
     // Common helper methods -->
@@ -217,39 +208,6 @@ public class IntegrationTestCase extends WithApplication {
         return JsonDeserializer.deserialize(model, node);
     }
 
-    protected void assertPathsExist(JsonNode node, String... paths) {
-        assertPaths(node, true, paths);
-    }
-
-    protected void assertPathsDoNotExist(JsonNode node, String... paths) {
-        assertPaths(node, false, paths);
-    }
-
-    protected void assertPathCounts(JsonNode node, int count, String... paths) {
-        Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
-        for (String path : paths) {
-            List<String> pathList = JsonPath.read(document, path);
-            assertThat(pathList).hasSize(count);
-            try {
-                JsonPath.read(document, path);
-            } catch (PathNotFoundException e) {
-                Assert.fail("Path not found: " + path);
-            }
-        }
-    }
-
-    // Constructs N search paths based on given fields. Usable for array nodes (such as list of exams returned by app)
-    // see https://github.com/jayway/JsonPath for path syntax
-    protected String[] jsonPaths(String[] paths, int count) {
-        List<String> results = new ArrayList<>();
-        for (int i = 0; i < count; ++i) {
-            for (String path : paths) {
-                results.add(String.format("$[%d].%s", i, path));
-            }
-        }
-        return results.toArray(new String[0]);
-    }
-
     protected void initExamSectionQuestions(Exam exam) {
         exam.setExamSections(new TreeSet<>(exam.getExamSections()));
         exam
@@ -264,8 +222,11 @@ public class IntegrationTestCase extends WithApplication {
             .getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
-            .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
-            .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
+            .filter(
+                esq ->
+                    esq.getQuestion().getType() == Question.Type.MultipleChoiceQuestion ||
+                    esq.getQuestion().getType() == Question.Type.WeightedMultipleChoiceQuestion
+            )
             .forEach(esq -> {
                 for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
                     ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
@@ -275,29 +236,6 @@ public class IntegrationTestCase extends WithApplication {
                 }
                 esq.save();
             });
-    }
-
-    private void assertPaths(JsonNode node, boolean shouldExist, String... paths) {
-        Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
-        for (String path : paths) {
-            try {
-                Object object = JsonPath.read(document, path);
-                if (isIndefinite(path)) {
-                    Collection<?> c = (Collection<?>) object;
-                    assertThat(c.isEmpty()).isNotEqualTo(shouldExist);
-                } else if (!shouldExist) {
-                    Assert.fail("Expected path not to be found: " + path);
-                }
-            } catch (PathNotFoundException e) {
-                if (shouldExist) {
-                    Assert.fail("Path not found: " + path);
-                }
-            }
-        }
-    }
-
-    private boolean isIndefinite(String path) {
-        return path.contains("..") || path.contains("?(") || path.matches(".*(\\d+ *,)+.*");
     }
 
     private void addTestData() throws Exception {
@@ -313,7 +251,7 @@ public class IntegrationTestCase extends WithApplication {
             loaderOptions
         );
 
-        try (InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"))) {
+        try (InputStream is = new FileInputStream("test/resources/initial-data.yml")) {
             Map<String, List<Object>> all = yaml.load(is);
 
             // Load entities in dependency order

@@ -128,7 +128,7 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
     abstract void createExam();
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         try {
             logger.info("Cleaning test upload directory: {}", testUpload.toString());
             FileUtils.deleteDirectory(testUpload.toFile());
