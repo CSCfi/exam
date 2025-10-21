@@ -62,9 +62,6 @@ interface LoadingState {
                         @case ('periodEnd') {
                             Tenttiperiodi päättyy (nouseva)
                         }
-                        @default {
-                            <!-- empty -->
-                        }
                     }
                 </button>
                 <div ngbDropdownMenu role="menu">

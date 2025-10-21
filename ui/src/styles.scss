@@ -167,19 +167,14 @@ textarea.ng-invalid {
     background: transparent;
     border: none;
     padding: 8px 12px;
-    text-align: left;
     display: inline-flex;
     align-items: center;
-    cursor: pointer;
-    margin: 0;
-    text-decoration: none;
     transition: all 0.3s ease;
     border-radius: 6px;
     
     &:hover, &:focus {
         color: white;
         background-color: #266b99;
-        text-decoration: none;
     }
     
     .arrow_icon {
