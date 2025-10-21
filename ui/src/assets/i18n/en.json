@@ -524,8 +524,6 @@
     "i18n_room_accessibility": "Accessibility information",
     "i18n_own_reservation": "Own reservation",
     "i18n_reserved": "Reserved",
-    "i18n_open": "Open",
-    "i18n_closed": "Closed",
     "i18n_reservation_window": "Reservation window",
     "i18n_info_reservation_window": "How many days ahead the student can make reservations",
     "i18n_description_reservation_window": "Reservations can be made maximum {} days ahead",
