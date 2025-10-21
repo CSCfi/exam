@@ -45,9 +45,9 @@ SPDX-License-Identifier: EUPL-1.2
         }
     }
     <!-- enrolment without reservation, allow making reservation -->
+    <!-- enrolment without examination event, allow making reservation -->
     @if (
-        (!reservation && exam?.implementation === 'AQUARIUM') ||
-        collaborativeExam ||
+        (!reservation && (exam?.implementation === 'AQUARIUM' || collaborativeExam)) ||
         (!eventConfig && exam?.implementation !== 'AQUARIUM' && hasUpcomingAlternativeEvents())
     ) {
         <button class="btn btn-success me-2 mb-2" (click)="makeReservation()">
