@@ -5,7 +5,7 @@
 # Multi-stage build combining Frontend (Angular) and Backend (Play Framework)
 
 # Stage 1: Build Frontend
-FROM node:20-alpine AS frontend-builder
+FROM node:24-alpine AS frontend-builder
 
 WORKDIR /app
 
