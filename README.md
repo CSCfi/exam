@@ -13,6 +13,18 @@ EXAM Quickstart for developers
 
 2.  Create PostgreSQL database
 
+    **Option A: Using Docker (recommended for development):**
+
+        $ docker compose up -d postgres
+
+    Or with the provided Makefile:
+
+        $ make db-start
+
+    See [DOCKER.md](DOCKER.md) for detailed Docker setup instructions.
+
+    **Option B: Using local PostgreSQL installation:**
+
         $ createuser -SPRD exam
         $ createdb exam --owner=exam
 

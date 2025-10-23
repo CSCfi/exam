@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: exam-postgres
+    environment:
+      POSTGRES_USER: exam
+      POSTGRES_PASSWORD: exam
+      POSTGRES_DB: exam
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-test-db.sh:/docker-entrypoint-initdb.d/init-test-db.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exam"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - exam-network
+
+  # Optional: pgAdmin for database management
+  # Uncomment to use - accessible at http://localhost:5050
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: exam-pgadmin
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@exam.local
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #   ports:
+  #     - "5050:80"
+  #   volumes:
+  #     - pgadmin_data:/var/lib/pgadmin
+  #   networks:
+  #     - exam-network
+  #   depends_on:
+  #     - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+  # pgadmin_data:
+  #   driver: local
+
+networks:
+  exam-network:
+    driver: bridge
+
