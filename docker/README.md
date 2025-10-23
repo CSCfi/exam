@@ -9,15 +9,19 @@ This directory contains Docker configuration files for the EXAM application.
 
 ## Files
 
-- **`Dockerfile`** - Multi-stage build combining frontend (Angular) and backend (Play Framework) with nginx
-- **`nginx.conf`** - Nginx configuration for serving the Angular frontend and proxying API requests to the backend
-- **`start.sh`** - Container startup script that runs both nginx and the Play backend
-- **`init-db.sh`** - Creates the main `exam` database when PostgreSQL starts
+- **`Dockerfile`** - Multi-stage build for the backend (Play Framework) with frontend assets packaged during build
+- **`nginx.conf`** - Nginx configuration for proxying requests to the backend (used by separate nginx container)
 - **`init-test-db.sh`** - Creates the `exam_test` database when PostgreSQL starts
 
-## Usage
+## Architecture
 
-These files are used by `docker-compose.yml` to provide a complete application stack (PostgreSQL + Backend + Frontend).
+The Docker setup uses a multi-container architecture:
+
+- **nginx container** - Serves static assets and proxies all requests to the backend for CSRF token handling
+- **exam container** - Play Framework backend with packaged frontend assets
+- **postgres container** - PostgreSQL database
+
+These files are used by `docker-compose.yml` to provide the complete application stack.
 
 ## Documentation
 

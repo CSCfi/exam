@@ -26,15 +26,16 @@ Access at: **http://localhost**
 This will:
 - Build the application (frontend with npm, backend with sbt)
 - Start PostgreSQL database
-- Start EXAM application with nginx + Play Framework
+- Start nginx container (port 80)
+- Start EXAM backend container with packaged frontend assets
 - Create test database and users
 
 ### Architecture
 
-The `exam` container includes:
-- **nginx** on port 80 serving frontend
-- **Play Framework** on localhost:9000 (internal) serving API
-- nginx proxies `/app/*` requests to the backend
+The Docker setup uses three containers:
+- **nginx** container on port 80 - Proxies all requests to backend for CSRF token handling
+- **exam** container on port 9000 (internal) - Play Framework backend with packaged frontend assets
+- **postgres** container on port 5432 - PostgreSQL database
 
 ### Authentication
 
@@ -63,8 +64,9 @@ sbt run           # Terminal 2 - Backend
 docker compose logs -f
 
 # Specific container
-docker compose logs -f exam
-docker compose logs -f postgres
+docker compose logs -f exam      # Backend
+docker compose logs -f nginx     # Web server
+docker compose logs -f postgres  # Database
 ```
 
 ### Stop Application
@@ -119,25 +121,24 @@ SMTP_PASSWORD=password
 ### Configuration Files
 
 - `conf/docker.conf` - Backend configuration for Docker
-- `docker/nginx.conf` - nginx routing configuration
-- `docker/start.sh` - Container startup script
+- `docker/nginx.conf` - nginx proxy configuration
 
 ### Ports
 
-- **80** - Application (nginx)
-- **5432** - PostgreSQL (if you need direct access)
+- **80** - nginx web server (public access)
+- **9000** - Play Framework backend (internal, not exposed to host)
+- **5432** - PostgreSQL (exposed for direct access if needed)
 
 ## Docker Files Structure
 
 ```
 docker/
-├── Dockerfile           # Main application build
-├── nginx-combined.conf  # nginx configuration
-├── start.sh            # Startup script
+├── Dockerfile           # Backend build with packaged frontend assets
+├── nginx.conf          # nginx proxy configuration
 ├── init-test-db.sh     # Database initialization
-└── README.md           # This file
+└── README.md           # Docker setup documentation
 
-docker-compose.yml       # Container orchestration
+docker-compose.yml       # Container orchestration (3 services)
 conf/docker.conf        # Backend configuration
 ```
 
@@ -147,13 +148,14 @@ conf/docker.conf        # Backend configuration
 
 Check logs:
 ```bash
-docker compose logs exam
+docker compose logs exam   # Backend logs
+docker compose logs nginx  # Web server logs
 ```
 
 Common issues:
 - Port 80 already in use (stop other web servers)
 - Insufficient Docker memory (increase in Docker Desktop settings)
-- Database not ready (wait for health check)
+- Backend not healthy (nginx waits for exam service health check)
 
 ### Database connection errors
 
@@ -218,5 +220,5 @@ make db-status     # Check PostgreSQL status
 ## Next Steps
 
 - Review `conf/docker.conf` for configuration options
-- Check `docker/nginx-combined.conf` for routing rules
+- Check `docker/nginx.conf` for proxy configuration
 - See `docker/README.md` for detailed Docker setup information

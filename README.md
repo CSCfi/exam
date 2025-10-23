@@ -37,7 +37,7 @@ EXAM Quickstart for developers
 
 3.  Get frontend dependencies and start frontend application in development mode
 
-        $ npm install
+        $ npm ci
         $ npm start
 
 4.  In another tab or window start sbt console and run backend application in development mode
@@ -50,7 +50,7 @@ EXAM Quickstart for developers
 5.  Open http://localhost:4200 in your browser. 
     Accept the database migrations in case you see a prompt.
 
-6. Instead of 3–5 you can also use docker (composition) if you prefer. See DOCKER.md.    
+6. Instead of steps 3 to 5 you can also use docker (composition) if you prefer. See [DOCKER.md](DOCKER.md).    
 
 ## More information
 For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)

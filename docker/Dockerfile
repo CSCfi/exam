@@ -49,42 +49,35 @@ RUN sbt update
 COPY app ./app
 COPY conf ./conf
 
+# Copy frontend build from frontend-builder stage
+# This must be done BEFORE sbt stage so assets are packaged into the JAR
+COPY --from=frontend-builder /app/public ./public
+
 # Build backend
 RUN sbt stage
 
-# Stage 3: Runtime with nginx + backend
+# Stage 3: Runtime - Backend only
 FROM eclipse-temurin:25-jre
 
-# Install nginx and wget
+# Install wget for health checks
 RUN apt-get update && \
-    apt-get install -y nginx wget && \
+    apt-get install -y wget && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy backend from builder
+# Copy backend from builder (includes packaged frontend assets)
 WORKDIR /app
 COPY --from=backend-builder /build/target/universal/stage /app
 
-# Copy frontend build to nginx directory
-COPY --from=frontend-builder /app/public /usr/share/nginx/html
-
-# Copy nginx configuration
-COPY docker/nginx.conf /etc/nginx/sites-available/default
-
 # Create directories
-RUN mkdir -p /app/data/attachments && \
-    mkdir -p /var/log/nginx && \
-    mkdir -p /run
+RUN mkdir -p /app/data/attachments
 
-# Expose port 80 (nginx)
-EXPOSE 80
+# Expose Play Framework port
+EXPOSE 9000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost/app/attributes || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:9000/app/attributes || exit 1
 
-# Start script
-COPY docker/start.sh /start.sh
-RUN chmod +x /start.sh
-
-CMD ["/start.sh"]
+# Start Play Framework backend directly
+CMD ["/app/bin/exam", "-Dconfig.file=/app/conf/docker.conf"]
 

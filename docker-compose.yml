@@ -37,8 +37,8 @@ services:
       - SMTP_TLS=${SMTP_TLS:-yes}
       - SMTP_USER=${SMTP_USER:-user}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-password}
-    ports:
-      - "80:80"
+    expose:
+      - "9000"
     volumes:
       - ./data/attachments:/app/data/attachments
       - ./conf/docker.conf:/app/conf/docker.conf:ro
@@ -48,29 +48,31 @@ services:
     networks:
       - exam-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/app/attributes"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9000/app/attributes"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
 
-  # Optional: pgAdmin for database management
-  # Uncomment to use - accessible at http://localhost:5050
-  # pgadmin:
-  #   image: dpage/pgadmin4:latest
-  #   container_name: exam-pgadmin
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: admin@exam.local
-  #     PGADMIN_DEFAULT_PASSWORD: admin
-  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
-  #   ports:
-  #     - "5050:80"
-  #   volumes:
-  #     - pgadmin_data:/var/lib/pgadmin
-  #   networks:
-  #     - exam-network
-  #   depends_on:
-  #     - postgres
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: exam-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./public:/usr/share/nginx/html:ro
+    depends_on:
+      exam:
+        condition: service_healthy
+    networks:
+      - exam-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 volumes:
   postgres_data:
