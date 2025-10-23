@@ -50,6 +50,8 @@ EXAM Quickstart for developers
 5.  Open http://localhost:4200 in your browser. 
     Accept the database migrations in case you see a prompt.
 
+6. Instead of 3–5 you can also use docker (composition) if you prefer. See DOCKER.md.    
+
 ## More information
 For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)
 

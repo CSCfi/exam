@@ -23,6 +23,37 @@ services:
     networks:
       - exam-network
 
+  exam:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: exam-app:latest
+    container_name: exam-app
+    environment:
+      - APP_HOSTNAME=http://localhost
+      - SMTP_HOST=${SMTP_HOST:-smtp.example.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SSL=${SMTP_SSL:-no}
+      - SMTP_TLS=${SMTP_TLS:-yes}
+      - SMTP_USER=${SMTP_USER:-user}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-password}
+    ports:
+      - "80:80"
+    volumes:
+      - ./data/attachments:/app/data/attachments
+      - ./conf/docker.conf:/app/conf/docker.conf:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - exam-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/app/attributes"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
   # Optional: pgAdmin for database management
   # Uncomment to use - accessible at http://localhost:5050
   # pgadmin:

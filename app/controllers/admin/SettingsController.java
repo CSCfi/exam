@@ -27,7 +27,6 @@ import models.admin.GeneralSettings;
 import models.enrolment.ExamEnrolment;
 import models.user.Language;
 import models.user.User;
-import play.Environment;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.libs.ws.WSClient;
@@ -38,13 +37,11 @@ import scala.jdk.javaapi.CollectionConverters;
 
 public class SettingsController extends BaseController {
 
-    private final Environment environment;
     private final ConfigReader configReader;
     private final WSClient wsClient;
 
     @Inject
-    public SettingsController(Environment environment, ConfigReader configReader, WSClient wsClient) {
-        this.environment = environment;
+    public SettingsController(ConfigReader configReader, WSClient wsClient) {
         this.configReader = configReader;
         this.wsClient = wsClient;
     }
@@ -220,7 +217,7 @@ public class SettingsController extends BaseController {
     @ActionMethod
     public Result isProd() {
         ObjectNode node = Json.newObject();
-        node.put("isProd", environment.isProd());
+        node.put("isProd", !"DEBUG".equals(configReader.getLoginType()));
         return ok(Json.toJson(node));
     }
 

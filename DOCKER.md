@@ -1,211 +1,217 @@
-# Docker Setup for EXAM PostgreSQL
+# Docker Setup for EXAM
 
-This guide explains how to use Docker to run PostgreSQL for the EXAM application instead of installing it locally.
+This guide explains how to use Docker to run the EXAM application.
 
 ## Prerequisites
 
 - Docker Desktop or Docker Engine installed
 - Docker Compose (included with Docker Desktop)
+- At least 4GB RAM allocated to Docker
 
-## Quick Start
+## Quick Start - Full Application
 
-1. **Start PostgreSQL**
-
-   ```bash
-   docker compose up -d postgres
-   ```
-
-   This will:
-   - Download PostgreSQL 16 Alpine image
-   - Create `exam` database with user `exam` and password `exam`
-   - Create `exam_test` database for tests
-   - Expose PostgreSQL on port 5432 (same as local installation)
-   - Store data in a persistent Docker volume
-
-2. **Verify it's running**
-
-   ```bash
-   docker compose ps
-   ```
-
-   You should see `exam-postgres` with status "Up".
-
-3. **View logs**
-
-   ```bash
-   docker compose logs -f postgres
-   ```
-
-4. **Stop PostgreSQL**
-
-   ```bash
-   docker compose down
-   ```
-
-   Note: This stops containers but keeps data. To remove data volumes, use:
-   
-   ```bash
-   docker compose down -v
-   ```
-
-## Make Commands (Shortcuts)
-
-For convenience, a `Makefile` is included with shorter commands:
+Run the complete EXAM application (frontend + backend + database):
 
 ```bash
-make db-start     # Start PostgreSQL
-make db-stop      # Stop PostgreSQL
-make db-restart   # Restart PostgreSQL
-make db-logs      # View logs
-make db-shell     # Open psql CLI
-make db-backup    # Create timestamped backup
-make db-restore BACKUP=file.sql  # Restore from backup
-make db-reset     # Reset database (deletes all data)
-make db-status    # Check status
-make help         # Show all commands
+docker compose up --build
 ```
 
-These are just shortcuts for Docker Compose commands - use whichever you prefer!
+Access at: **http://localhost**
 
-## Using the Application
+This will:
+- Build the application (frontend with npm, backend with sbt)
+- Start PostgreSQL database
+- Start EXAM application with nginx + Play Framework
+- Create test database and users
 
-Once PostgreSQL is running in Docker, you can start the application normally:
+### Architecture
+
+The `exam` container includes:
+- **nginx** on port 80 serving frontend
+- **Play Framework** on localhost:9000 (internal) serving API
+- nginx proxies `/app/*` requests to the backend
+
+### Authentication
+
+By default, uses **DEBUG login mode** (no SSO required).
+
+## Development - PostgreSQL Only
+
+If you want to run frontend/backend locally but use Docker for PostgreSQL:
 
 ```bash
-# Terminal 1: Start backend
-sbt -Dconfig.file=conf/dev.conf -jvm-debug 9999 -mem 2048
-[exam] $ run
-
-# Terminal 2: Start frontend
-npm start
+docker compose up -d postgres
 ```
 
-The application will connect to the Dockerized PostgreSQL automatically on `localhost:5432`.
-
-## Optional: pgAdmin (Database Management UI)
-
-To enable pgAdmin for a web-based database management interface:
-
-1. Uncomment the `pgadmin` section in `docker-compose.yml`
-2. Start services:
-   ```bash
-   docker compose up -d
-   ```
-3. Access pgAdmin at http://localhost:5050
-   - Email: `admin@exam.local`
-   - Password: `admin`
-
-4. Add PostgreSQL server in pgAdmin:
-   - Host: `postgres` (Docker service name)
-   - Port: `5432`
-   - Username: `exam`
-   - Password: `exam`
+Then run:
+```bash
+npm start          # Terminal 1 - Frontend
+sbt run           # Terminal 2 - Backend  
+```
 
 ## Useful Commands
 
-### Connect to PostgreSQL CLI
+### View Logs
 
 ```bash
-make db-shell
-# Or: docker compose exec postgres psql -U exam -d exam
+# All containers
+docker compose logs -f
+
+# Specific container
+docker compose logs -f exam
+docker compose logs -f postgres
 ```
 
-### Create a database backup
+### Stop Application
 
 ```bash
-make db-backup
-# Or: docker compose exec postgres pg_dump -U exam exam > backup.sql
+docker compose down
 ```
 
-### Restore from backup
+Keep data (default) or remove data:
+```bash
+docker compose down -v  # Removes database data
+```
+
+### Rebuild After Code Changes
 
 ```bash
-make db-restore BACKUP=backup.sql
-# Or: docker compose exec -T postgres psql -U exam exam < backup.sql
+docker compose up --build
 ```
 
-### Reset database (warning: deletes all data)
+### Access Database Shell
 
 ```bash
-make db-reset
-# Or: docker compose down -v && docker compose up -d postgres
+docker compose exec postgres psql -U exam -d exam
 ```
 
-## Switching from Local PostgreSQL to Docker
+### Database Backup
 
-If you currently have PostgreSQL installed locally:
+```bash
+docker compose exec postgres pg_dump -U exam exam > backup.sql
+```
 
-1. Stop your local PostgreSQL service:
-   ```bash
-   # macOS with Homebrew
-   brew services stop postgresql
-   
-   # Or if using launchctl
-   launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.postgresql*.plist
-   ```
+### Database Restore
 
-2. Start Docker PostgreSQL:
-   ```bash
-   make db-start
-   # Or: docker compose up -d postgres
-   ```
+```bash
+docker compose exec -T postgres psql -U exam exam < backup.sql
+```
 
-3. No configuration changes needed - Docker exposes the same port (5432)
+## Configuration
 
-## Switching Back to Local PostgreSQL
+### Environment Variables
 
-1. Stop Docker PostgreSQL:
-   ```bash
-   make db-stop
-   # Or: docker compose down
-   ```
+Create `.env` file to customize:
 
-2. Start local PostgreSQL:
-   ```bash
-   brew services start postgresql
-   # Or: launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql*.plist
-   ```
+```bash
+APP_HOSTNAME=http://localhost
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=user
+SMTP_PASSWORD=password
+```
+
+### Configuration Files
+
+- `conf/docker.conf` - Backend configuration for Docker
+- `docker/nginx.conf` - nginx routing configuration
+- `docker/start.sh` - Container startup script
+
+### Ports
+
+- **80** - Application (nginx)
+- **5432** - PostgreSQL (if you need direct access)
+
+## Docker Files Structure
+
+```
+docker/
+├── Dockerfile           # Main application build
+├── nginx-combined.conf  # nginx configuration
+├── start.sh            # Startup script
+├── init-test-db.sh     # Database initialization
+└── README.md           # This file
+
+docker-compose.yml       # Container orchestration
+conf/docker.conf        # Backend configuration
+```
 
 ## Troubleshooting
 
-### Port 5432 already in use
+### Container won't start
 
-If you get a port conflict error, your local PostgreSQL is still running:
-
+Check logs:
 ```bash
-# Check what's using port 5432
-lsof -i :5432
-
-# Stop local PostgreSQL
-brew services stop postgresql
-# Or: launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.postgresql*.plist
+docker compose logs exam
 ```
 
-### Can't connect to database
+Common issues:
+- Port 80 already in use (stop other web servers)
+- Insufficient Docker memory (increase in Docker Desktop settings)
+- Database not ready (wait for health check)
 
-Check if container is running:
+### Database connection errors
+
+Verify PostgreSQL is running:
 ```bash
-make db-status
-# Or: docker compose ps
-# Or: docker compose logs postgres
+docker compose ps postgres
 ```
 
-### Performance issues
-
-Allocate more resources to Docker Desktop:
-- Go to Docker Desktop → Settings → Resources
-- Increase Memory and CPU allocation
-
-## Data Persistence
-
-Database data is stored in a Docker volume named `exam_postgres_data`. This persists between container restarts. To view volumes:
-
+Check health:
 ```bash
-docker volume ls
+docker compose exec postgres pg_isready -U exam
 ```
 
-To inspect volume:
+### Build fails
+
+Clear Docker cache and rebuild:
 ```bash
-docker volume inspect exam_postgres_data
+docker compose down
+docker system prune -a
+docker compose up --build
 ```
 
+## Production Deployment
+
+For production:
+
+1. **Change `exam.login` in `conf/docker.conf`** to your SSO provider (e.g., "HAKA")
+2. **Set secure secrets** using environment variables or Docker secrets
+3. **Enable HTTPS** by configuring SSL certificates in nginx
+4. **Use external PostgreSQL** instead of container
+5. **Set up backups** for database and attachments
+
+## Makefile Commands
+
+Quick shortcuts:
+
+```bash
+make db-start      # Start PostgreSQL only
+make db-stop       # Stop all containers  
+make db-restart    # Restart PostgreSQL
+make db-logs       # View PostgreSQL logs
+make db-shell      # Open PostgreSQL shell
+make db-backup     # Create database backup
+make db-restore    # Restore from backup (BACKUP=file.sql)
+make db-reset      # Reset database (WARNING: deletes data)
+make db-status     # Check PostgreSQL status
+```
+
+## Development Workflow
+
+1. **Make code changes**
+2. **Rebuild and restart:**
+   ```bash
+   docker compose up --build
+   ```
+3. **View logs:**
+   ```bash
+   docker compose logs -f exam
+   ```
+4. **Test at http://localhost**
+
+## Next Steps
+
+- Review `conf/docker.conf` for configuration options
+- Check `docker/nginx-combined.conf` for routing rules
+- See `docker/README.md` for detailed Docker setup information

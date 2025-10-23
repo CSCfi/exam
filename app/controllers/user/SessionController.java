@@ -143,8 +143,10 @@ public class SessionController extends BaseController {
     }
 
     private CompletionStage<Result> devLogin(Http.Request request) {
-        if (!environment.isDev()) {
-            return wrapAsPromise(unauthorized("Developer login mode not allowed while in production!"));
+        if (environment.isProd()) {
+            logger.warn(
+                "Developer login mode is enabled in production environment. This should only be used for testing!"
+            );
         }
         var username = request.body().asJson().get("username").asText();
         var password = request.body().asJson().get("password").asText();
@@ -274,7 +276,7 @@ public class SessionController extends BaseController {
     private String parseStudentIdValue(String src) {
         // urn:schac:personalUniqueCode:int:someID:xyz.fi:99999 => 9999
         String value = src.substring(src.lastIndexOf(":") + 1);
-        return value.isBlank() || value.isEmpty() ? "null" : value;
+        return value.isBlank() ? "null" : value;
     }
 
     private String parseUserIdentifier(String src) {
