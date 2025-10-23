@@ -76,7 +76,11 @@ jobs:
               run: docker compose build
 
             - name: Start containers
-              run: docker compose up -d
+              run: |
+                  docker compose up -d
+                  echo "Containers starting..."
+                  sleep 5
+                  docker compose ps
 
             - name: Wait for postgres to be healthy
               run: |
@@ -90,16 +94,23 @@ jobs:
                   timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" exam-app)" == "healthy" ]; do sleep 5; echo "Still waiting..."; done'
                   echo "✓ Backend is ready"
 
-            - name: Wait for nginx to be healthy
+            - name: Start and wait for nginx
               run: |
-                  echo "Waiting for nginx..."
-                  timeout 60 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" exam-nginx)" == "healthy" ]; do sleep 5; done'
-                  echo "✓ Nginx is ready"
+                  echo "Starting nginx (depends on exam being healthy)..."
+                  docker compose up -d nginx
+                  
+                  echo "Waiting for nginx container to start..."
+                  timeout 30 bash -c 'until docker compose ps nginx | grep -q "Up"; do sleep 2; echo "Still waiting for nginx..."; done'
+                  echo "✓ Nginx container is up"
+                  
+                  echo "Waiting for nginx to be ready (testing endpoint)..."
+                  timeout 60 bash -c 'until curl -f -s http://localhost/ > /dev/null 2>&1; do echo "Nginx not ready yet..."; sleep 5; done'
+                  echo "✓ Nginx is responding"
 
             - name: Test application endpoints
               run: |
                   echo "Testing root endpoint..."
-                  curl -f http://localhost/ || exit 1
+                  curl -f http://localhost/ || (echo "Failed to access root endpoint" && docker compose logs nginx && exit 1)
                   echo "✓ Root endpoint works"
                   
                   echo "Testing API health check..."
@@ -109,6 +120,8 @@ jobs:
                   echo "Testing CSRF token..."
                   curl -v http://localhost/ 2>&1 | grep -q "XSRF-TOKEN" || exit 1
                   echo "✓ CSRF token is set"
+                  
+                  echo "✓ All endpoint tests passed!"
 
             - name: Show container status
               if: always()
