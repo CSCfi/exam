@@ -76,6 +76,8 @@ jobs:
               run: docker compose build
 
             - name: Start containers
+              env:
+                  NGINX_CONFIG: nginx.conf  # Use HTTP config (no SSL certs in CI)
               run: |
                   docker compose up -d
                   echo "Containers starting..."

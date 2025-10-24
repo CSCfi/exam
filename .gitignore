@@ -13,3 +13,5 @@ default-create-all.sql
 .angular
 dist
 ui/src/assets/components/vendor/mathjax
+.env
+docker/ssl

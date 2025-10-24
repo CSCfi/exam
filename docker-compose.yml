@@ -59,16 +59,18 @@ services:
     container_name: exam-nginx
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./public:/usr/share/nginx/html:ro
+      - ./docker/${NGINX_CONFIG:-nginx.conf}:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/ssl:/etc/nginx/ssl:ro
+      # No need to mount public/ - backend serves assets from JAR
     depends_on:
       exam:
         condition: service_healthy
     networks:
       - exam-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/"]
       interval: 30s
       timeout: 10s
       retries: 3
