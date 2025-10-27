@@ -9,7 +9,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.iop.collaboration.impl.CollaborationController;
 import impl.ExternalCourseHandler;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
@@ -190,7 +189,7 @@ public class StudentActionsController extends CollaborationController {
     }
 
     private Set<ExamEnrolment> getNoShows(User user, String filter) {
-        ExpressionList<ExamEnrolment> noShows = DB.find(ExamEnrolment.class)
+        var noShows = DB.find(ExamEnrolment.class)
             .fetch("exam", "id, state, name")
             .fetch("exam.course", "code, name")
             .fetch("exam.examOwners", "firstName, lastName, id")
@@ -218,7 +217,7 @@ public class StudentActionsController extends CollaborationController {
     @Authenticated
     public Result getFinishedExams(Optional<String> filter, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<ExamParticipation> query = DB.find(ExamParticipation.class)
+        var query = DB.find(ExamParticipation.class)
             .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous, gradingType")
             .fetch("exam.creator", "id")
             .fetch("exam.course", "code, name")
@@ -286,7 +285,7 @@ public class StudentActionsController extends CollaborationController {
             // Collaborative exam, we need to download
             return downloadExam(enrolment.getCollaborativeExam()).thenComposeAsync(result -> {
                 if (result.isPresent()) {
-                    // A bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+                    // A bit of a hack so that we can pass the external exam as an ordinary one, so the UI does not need to care
                     // Works in this particular use case
                     Exam exam = result.get();
                     enrolment.setExam(exam);
@@ -297,7 +296,7 @@ public class StudentActionsController extends CollaborationController {
             });
         }
         if (enrolment.getExternalExam() != null) {
-            // A bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+            // A bit of a hack so that we can pass the external exam as an ordinary one, so the UI does not need to care
             // Works in this particular use case
             Exam exam = enrolment.getExternalExam().deserialize();
             enrolment.setExternalExam(null);
@@ -392,7 +391,7 @@ public class StudentActionsController extends CollaborationController {
     }
 
     private Result listExams(String filter, Collection<String> courseCodes) {
-        ExpressionList<Exam> query = DB.find(Exam.class)
+        var query = DB.find(Exam.class)
             .select("id, name, duration, periodStart, periodEnd, enrollInstruction, implementation")
             .fetch("course", "code, name")
             .fetch("examOwners", "firstName, lastName")

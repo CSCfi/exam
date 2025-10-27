@@ -7,7 +7,7 @@ package controllers.iop.collaboration.impl;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
-import controllers.base.SectionQuestionHandler;
+import impl.SectionQuestionHandler;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
 import java.util.ArrayList;
@@ -93,7 +93,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> removeSection(Long examId, Long sectionId, Http.Request request) {
-        BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
+        BiFunction<Exam, User, Optional<Result>> updater = (exam, _) -> {
             Optional<ExamSection> section = exam
                 .getExamSections()
                 .stream()
@@ -116,13 +116,13 @@ public class CollaborativeExamSectionController extends CollaborationController 
             }
         };
 
-        return update(request, examId, updater, e -> Optional.empty());
+        return update(request, examId, updater, _ -> Optional.empty());
     }
 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> updateSection(Long examId, Long sectionId, Http.Request request) {
-        BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
+        BiFunction<Exam, User, Optional<Result>> updater = (exam, _) -> {
             Optional<ExamSection> section = exam
                 .getExamSections()
                 .stream()
@@ -158,7 +158,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> reorderSections(Long examId, Http.Request request) {
-        BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
+        BiFunction<Exam, User, Optional<Result>> updater = (exam, _) -> {
             DynamicForm df = formFactory.form().bindFromRequest(request);
             int from = Integer.parseInt(df.get("from"));
             int to = Integer.parseInt(df.get("to"));
@@ -179,13 +179,13 @@ public class CollaborativeExamSectionController extends CollaborationController 
             }
             return Optional.empty();
         };
-        return update(request, examId, updater, e -> Optional.empty());
+        return update(request, examId, updater, _ -> Optional.empty());
     }
 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> reorderSectionQuestions(Long examId, Long sectionId, Http.Request request) {
-        BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
+        BiFunction<Exam, User, Optional<Result>> updater = (exam, _) -> {
             DynamicForm df = formFactory.form().bindFromRequest(request);
             int from = Integer.parseInt(df.get("from"));
             int to = Integer.parseInt(df.get("to"));
@@ -216,7 +216,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 return Optional.of(notFound("i18n_error_not_found"));
             }
         };
-        return update(request, examId, updater, e -> Optional.empty());
+        return update(request, examId, updater, _ -> Optional.empty());
     }
 
     @Authenticated
@@ -271,7 +271,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                         exam.getAutoEvaluationConfig().delete();
                     }
                 }
-                // Insert new section question
+                // Insert a new section question
                 esq.setCreator(user);
                 esq.setCreated(DateTime.now());
 
@@ -298,7 +298,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> removeQuestion(Long examId, Long sectionId, Long questionId, Http.Request request) {
-        BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
+        BiFunction<Exam, User, Optional<Result>> updater = (exam, _) -> {
             Optional<ExamSection> section = exam
                 .getExamSections()
                 .stream()
@@ -323,7 +323,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                             sibling.setSequenceNumber(num - 1);
                         }
                     }
-                    // Update lottery item count if needed
+                    // Update the lottery item count if needed
                     if (es.isLotteryOn() && es.getLotteryItemCount() > es.getSectionQuestions().size()) {
                         es.setLotteryItemCount(es.getSectionQuestions().size());
                     }
@@ -347,7 +347,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> clearQuestions(Long examId, Long sectionId, Http.Request request) {
-        BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
+        BiFunction<Exam, User, Optional<Result>> updater = (exam, _) -> {
             Optional<ExamSection> section = exam
                 .getExamSections()
                 .stream()

@@ -9,7 +9,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
-import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.HashSet;
 import java.util.List;
@@ -99,7 +98,7 @@ public class UserController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result listUsers(Optional<String> filter) {
         PathProperties pp = PathProperties.parse("(*, roles(*), permissions(*))");
-        Query<User> query = DB.find(User.class);
+        var query = DB.find(User.class);
         pp.apply(query);
         List<User> results;
         if (filter.isPresent()) {

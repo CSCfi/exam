@@ -126,7 +126,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     )
     private Set<User> examOwners;
 
-    // Instruction written by teacher, shown during exam
+    // Instruction written by the teacher, shown during exam
     @Column(columnDefinition = "TEXT")
     private String instruction;
 
@@ -200,7 +200,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @ManyToOne
     private GradeScale gradeScale;
 
-    // Custom course credit - if teachers changes course credit
+    // Custom course credit
     private Double customCredit;
 
     // Exam language
@@ -623,7 +623,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
      * Shuffles question options for student exam.
      * Only shuffles if:
      * - Option shuffling is enabled for the question
-     * - Question type is not ClaimChoiceQuestion
+     * - The question's type is not ClaimChoiceQuestion
      */
     private void shuffleQuestionOptions(ExamSectionQuestion esq) {
         boolean shouldShuffle =
@@ -631,7 +631,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             Optional.ofNullable(esq.getQuestion())
                 .map(Question::getType)
                 .filter(type -> type == Question.Type.ClaimChoiceQuestion)
-                .isEmpty(); // Shuffle if ClaimChoiceQuestion is NOT present
+                .isEmpty(); // Shuffle if a ClaimChoiceQuestion is NOT present
 
         if (shouldShuffle) {
             List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
@@ -905,7 +905,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             .flatMap(es -> es.getSectionQuestions().stream())
             .forEach(esq -> {
                 esq.setDerivedMaxScore();
-                // Also set min scores, if question is claim choice or weighted question
+                // Also set min scores if the question is claim choice or weighted question
                 Optional<Question.Type> type = Optional.ofNullable(esq.getQuestion()).map(Question::getType);
                 if (
                     type.isPresent() &&

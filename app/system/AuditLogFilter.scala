@@ -11,12 +11,12 @@ import play.api.mvc.{Filter, RequestHeader, Result}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-// This is a top level filter that only has access to request headers - not bodies.
+// This is a top-level filter that only has access to request headers - not bodies.
 // For that there's the AuditedAction composite (scala) and SystemRequestHandler (java)
 class AuditLogFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext) extends Filter with Logging:
   override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
     val (method, session, uri) = (rh.method, rh.session, rh.uri)
-    // No point in logging asset requests. Also requests with bodies are handled down the line
+    // No point in logging asset requests. Also, requests with bodies are handled down the line
     if Seq("app/", "integration/").exists(uri.tail.startsWith) && !rh.hasBody then
       val userString =
         if session.isEmpty || session.get("id").isEmpty then "user <NULL>"

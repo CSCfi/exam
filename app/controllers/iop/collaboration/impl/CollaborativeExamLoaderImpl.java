@@ -127,7 +127,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         }
         return externalAttachmentLoader
             .uploadAssessmentAttachments(participation.getExam())
-            .thenComposeAsync(__ -> createAssessment(participation));
+            .thenComposeAsync(_ -> createAssessment(participation));
     }
 
     @Override
@@ -154,7 +154,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             .post(DB.json().toJson(participation, getAssessmentPath()))
             .thenApplyAsync(onSuccess)
             .exceptionally(t -> {
-                logger.error(String.format("Could not send assessment to xm! [id=%s]", participation.getId()), t);
+                logger.error("Could not send assessment to xm! [id={}]", participation.getId(), t);
                 return false;
             });
     }

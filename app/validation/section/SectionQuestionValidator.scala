@@ -8,10 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import play.mvc.Http
 import validation.core.{Attrs, SanitizingHelper, ValidatorAction}
 
-/** DTO for section question data with sanitized HTML fields.
-  *
-  * All fields are optional and represent sanitized HTML content.
-  */
 case class SectionQuestionDTO(
     answerInstructions: Option[String],
     evaluationCriteria: Option[String],

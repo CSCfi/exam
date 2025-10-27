@@ -182,7 +182,7 @@ public class ExternalCalendarController extends BaseController {
         return ok();
     }
 
-    // Initiated by administrator of organisation where reservation takes place
+    // Initiated by administrator of organization where reservation takes place
     @SubjectNotPresent
     public Result acknowledgeReservationRevocation(String ref) {
         ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
@@ -409,7 +409,7 @@ public class ExternalCalendarController extends BaseController {
         Http.Request request
     ) throws MalformedURLException {
         if (org.isPresent() && date.isPresent()) {
-            // First check that exam exists
+            // First, check that the exam exists
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
             ExamEnrolment ee = calendarHandler.getEnrolment(examId, user);
             // For now do not allow making an external reservation for collaborative exam
@@ -418,7 +418,7 @@ public class ExternalCalendarController extends BaseController {
             }
             Exam exam = ee.getExam();
 
-            // Also sanity check the provided search date
+            // Also, sanity-check the provided search date
             try {
                 calendarHandler.parseSearchDate(date.get(), exam, null);
             } catch (IllegalArgumentException e) {
@@ -472,7 +472,7 @@ public class ExternalCalendarController extends BaseController {
     }
 
     /**
-     * Search date is the current date if searching for current week or earlier,
+     * Search date is the current date if searching for the current week or earlier,
      * If searching for upcoming weeks, day of week is one.
      */
     private LocalDate parseSearchDate(String day, String startDate, String endDate, ExamRoom room)

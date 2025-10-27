@@ -28,7 +28,7 @@ public class ExamMachine extends GeneratedIdentityModel {
     @Deprecated
     private String accessibilityInfo;
 
-    // Checkbox indicating is there any accessibility issues concerning the room
+    // Checkbox indicating if there are any accessibility issues concerning the room
     @Deprecated
     private boolean accessible;
 
@@ -54,10 +54,8 @@ public class ExamMachine extends GeneratedIdentityModel {
     @JsonManagedReference
     private List<Reservation> reservations;
 
-    // In UI, section has been expanded
     private boolean expanded;
 
-    // Machine may be out of service,
     private String statusComment;
 
     private boolean archived;

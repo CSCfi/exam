@@ -99,7 +99,7 @@ public class CollaborationController extends BaseController {
         return examLoader.downloadAssessment(examRef, assessmentRef);
     }
 
-    // This is for getting rid of uninteresting user related 1-M relations that can cause problems in
+    // This is for getting rid of uninteresting user-related 1-M relations that can cause problems in
     // serialization of exam
     protected void cleanUser(User user) {
         user.getEnrolments().clear();

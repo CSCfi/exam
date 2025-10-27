@@ -98,7 +98,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
                 Results.notFound(String.format("No reservation with ref %s for current user.", ref))
             );
         }
-        // Removal not permitted if reservation is in the past or ongoing
+        // Removal is not permitted if the reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation.getExternalReservation());
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
@@ -142,7 +142,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         return request.delete().thenApplyAsync(onSuccess);
     }
 
-    // remove reservation on external side, initiated by reservation holder
+    // remove reservation on the external side, initiated by the reservation holder
     @Override
     public CompletionStage<Result> removeReservation(Reservation reservation, User user, String msg) {
         if (reservation.getExternalReservation() == null) {

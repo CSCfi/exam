@@ -88,7 +88,7 @@ public class FacilityController extends BaseController implements ExternalFacili
             Function<WSResponse, Result> onSuccess = response -> {
                 int status = response.getStatus();
                 if (status == Http.Status.NOT_FOUND || status == Http.Status.OK) {
-                    // 404 would mean that facility does not exist remotely, remove its reference here also
+                    // 404 would mean that the facility does not exist remotely, remove its reference here also
                     room.setExternalRef(null);
                     room.update();
                 } else {
@@ -125,7 +125,7 @@ public class FacilityController extends BaseController implements ExternalFacili
     public CompletionStage<Result> updateFacility(ExamRoom room) throws MalformedURLException {
         URL url = parseUrl(room.getExternalRef());
         WSRequest request = wsClient.url(url.toString()).setContentType("application/json");
-        return request.put(toJson(room)).thenApplyAsync(response -> ok(room));
+        return request.put(toJson(room)).thenApplyAsync(_ -> ok(room));
     }
 
     @Override

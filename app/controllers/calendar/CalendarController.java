@@ -204,7 +204,7 @@ public class CalendarController extends BaseController {
                 if (externalReference != null) {
                     return externalReservationHandler
                         .removeReservation(oldReservation, user, "")
-                        .thenCompose(result -> {
+                        .thenCompose(_ -> {
                             // Re-fetch enrolment
                             ExamEnrolment updatedEnrolment = DB.find(ExamEnrolment.class)
                                 .fetch("exam.executionType")

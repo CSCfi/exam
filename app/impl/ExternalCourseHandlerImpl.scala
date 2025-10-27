@@ -7,7 +7,6 @@ package impl
 import io.ebean.DB
 import miscellaneous.config.ConfigReader
 import miscellaneous.scala.DbApiHelper
-import models.*
 import models.exam.{Course, Grade, GradeScale}
 import models.facility.Organisation
 import models.user.User

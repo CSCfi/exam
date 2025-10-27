@@ -7,8 +7,6 @@ package controllers.integration;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import controllers.base.BaseController;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
-import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.Comparator;
 import java.util.List;
@@ -45,9 +43,9 @@ public class ReservationAPIController extends BaseController {
                 "), " +
                 "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))"
         );
-        Query<Reservation> query = DB.find(Reservation.class);
+        var query = DB.find(Reservation.class);
         pp.apply(query);
-        ExpressionList<Reservation> el = query
+        var el = query
             .where()
             .or() // *
             .and() // **
@@ -88,7 +86,7 @@ public class ReservationAPIController extends BaseController {
     @SubjectNotPresent
     public Result getRooms() {
         PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))");
-        Query<ExamRoom> query = DB.find(ExamRoom.class);
+        var query = DB.find(ExamRoom.class);
         pp.apply(query);
         List<ExamRoom> rooms = query.orderBy("name").findList();
         return ok(rooms, pp);
@@ -101,7 +99,7 @@ public class ReservationAPIController extends BaseController {
         }
         LocalDate searchDate = ISODateTimeFormat.dateParser().parseLocalDate(date.get());
         PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))");
-        Query<ExamRoom> query = DB.find(ExamRoom.class);
+        var query = DB.find(ExamRoom.class);
         pp.apply(query);
         ExamRoom room = query.where().idEq(roomId).findOne();
         if (room == null) {

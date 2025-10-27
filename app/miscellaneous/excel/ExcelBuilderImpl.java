@@ -218,7 +218,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
 
     @Override
     public ByteArrayOutputStream buildScoreExcel(Long examId, Collection<Long> childIds) throws IOException {
-        /* Create workbook and new sheet */
+        /* Create the workbook with a new sheet */
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("Question scores");
 
@@ -253,7 +253,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
         /* Deleted question ids are used to set question headers as "removed" */
         Set<Long> deletedQuestionIds = getDeletedQuestionIds(parentExam, childExams);
 
-        /* First we need to map all question ids to section names from parent and child exams */
+        /* First, we need to map all question ids to section names from parent and child exams */
         // section name -> question id
         Map<String, Set<Long>> questionIdsBySectionName = new LinkedHashMap<>();
 
@@ -265,7 +265,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
                 questionIdsBySectionName.put(sectionName, questionIds);
             });
 
-        /* Go through child exams and add missing questions/sections to map */
+        /* Go through child exams and add missing questions/sections to the map */
         childExams
             .stream()
             .flatMap(exam -> exam.getExamSections().stream())
@@ -276,12 +276,12 @@ public class ExcelBuilderImpl implements ExcelBuilder {
                     /* Section exists, merge question id set from child exam to parent question ids */
                     questionIdsBySectionName.get(sectionName).addAll(childQuestionIds);
                 } else {
-                    /* Add new entry since section didn't exist */
+                    /* Add a new entry since the section didn't exist */
                     questionIdsBySectionName.put(sectionName, childQuestionIds);
                 }
             });
 
-        /* Create header row */
+        /* Create a header row */
         Row headerRow = sheet.createRow(0);
         /* Set default header cells */
         for (int i = 0; i < ScoreReportDefaultHeaders.length; i++) {
@@ -301,11 +301,11 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             Map<Long, Integer> columnIndexesByQuestionIds = new HashMap<>();
             for (Long questionId : value) {
                 if (deletedQuestionIds.contains(questionId)) {
-                    /* Question is deleted, set header as "removed" */
+                    /* Question is deleted, set the header as "removed" */
                     int columnIndex = appendCell(headerRow, "removed");
                     columnIndexesByQuestionIds.put(questionId, columnIndex); // saves the column index
                 } else {
-                    /* Question exists on parent, create question header cell with id and add hyperlink to question */
+                    /* Question exists on parent, create a question header cell with id and add hyperlink to question */
                     Hyperlink link = wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
                     int columnIndex = headerRow.getLastCellNum();
                     link.setAddress(hostname + "/questions/" + questionId);
@@ -319,16 +319,16 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             /* Save "question id -> column index" hashmap under current section name */
             questionColumnIndexesBySectionName.put(sectionName, columnIndexesByQuestionIds);
 
-            /* Set header cell for section's total score column and save column index again */
+            /* Set header cell for section's total score column and save the column index again */
             int sectionTotalIdx = appendCell(headerRow, "Aihealueen " + sectionName + " pisteet");
             sectionTotalIndexesBySectionName.put(sectionName, sectionTotalIdx);
         });
-        /* Also set exam's total score column header and save index */
+        /* Also set the exam's total score column header and save index */
         totalScoreIndex = appendCell(headerRow, "Kokonaispisteet");
 
         /* Iterate child exams and create excel rows */
         for (Exam exam : childExams) {
-            /* Skip exam if there is no participation */
+            /* Skip the exam if there is no participation */
             if (exam.getExamParticipation() == null || exam.getExamParticipation().getUser() == null) {
                 continue;
             }
@@ -350,7 +350,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
                 String sectionName = es.getName();
                 for (ExamSectionQuestion esq : es.getSectionQuestions()) {
                     Long questionId = getQuestionId(esq);
-                    /* Get column index from nested hashmap with section name and question id */
+                    /* Get column index from the nested hashmap with section name and question id */
                     int questionColumnIndex = questionColumnIndexesBySectionName.get(sectionName).get(questionId);
 
                     /* Set score if exam is graded, otherwise add "-" to the question cell */

@@ -19,39 +19,46 @@ public class SystemRequestHandler implements play.http.ActionCreator {
 
     @Override
     public Action<?> createAction(Http.Request request, Method actionMethod) {
-        return new Action.Simple() {
-            @Override
-            public CompletionStage<Result> call(Http.Request req) {
-                log(req);
-                return delegate.call(req);
-            }
-        };
+        return new MySimpleAction(request);
     }
 
-    private void log(Http.Request request) {
-        // Just log request bodies here, other stuff is already handled on HTTP filter level
-        if (request.hasBody()) {
-            String method = request.method();
-            Http.Session session = request.session();
-            String userString = session == null || session.get("id").isEmpty()
-                ? "user <NULL>"
-                : String.format(
-                      "user #%d [%s]",
-                      Long.parseLong(session.get("id").get()),
-                      session.get("email").orElse("")
-                  );
-            String uri = request.uri();
-            StringBuilder logEntry = new StringBuilder(String.format("%s %s %s", userString, method, uri));
-            // Do not log body of data import request to avoid logs getting unreadable.
-            if (
-                !method.equals("GET") && !method.equals("DELETE") && !request.path().equals("/integration/iop/import")
-            ) {
-                String body = request.body() == null || request.body().asJson() == null
-                    ? null
-                    : request.body().asJson().toString();
-                logEntry.append(String.format(" data: %s", body));
+    private static final class MySimpleAction extends Action.Simple {
+
+        private final Http.Request request;
+
+        private MySimpleAction(Http.Request request) {
+            this.request = request;
+        }
+
+        @Override
+        public CompletionStage<Result> call(Http.Request req) {
+            // Just log request bodies here, other stuff is already handled on the HTTP filter level
+            if (request.hasBody()) {
+                String method = request.method();
+                Http.Session session = request.session();
+                String userString = session == null || session.get("id").isEmpty()
+                    ? "user <NULL>"
+                    : String.format(
+                        "user #%d [%s]",
+                        Long.parseLong(session.get("id").get()),
+                        session.get("email").orElse("")
+                    );
+                String uri = request.uri();
+                StringBuilder logEntry = new StringBuilder(String.format("%s %s %s", userString, method, uri));
+                // Do not log body of data import request to avoid logs getting unreadable.
+                if (
+                    !method.equals("GET") &&
+                    !method.equals("DELETE") &&
+                    !request.path().equals("/integration/iop/import")
+                ) {
+                    String body = request.body() == null || request.body().asJson() == null
+                        ? null
+                        : request.body().asJson().toString();
+                    logEntry.append(String.format(" data: %s", body));
+                }
+                logger.debug(logEntry.toString());
             }
-            logger.debug(logEntry.toString());
+            return delegate.call(req);
         }
     }
 }

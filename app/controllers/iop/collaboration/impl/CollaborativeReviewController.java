@@ -206,7 +206,7 @@ public class CollaborativeReviewController extends CollaborationController {
                         if (ObjectUtils.isEmpty(eppn)) {
                             return notFound("Eppn not found!");
                         }
-                        // Filter for user eppn and left out assessment that we currently are looking.
+                        // Filter for user eppn and leave out the assessment that we currently are looking for.
                         final Iterator<JsonNode> it = root.iterator();
                         while (it.hasNext()) {
                             JsonNode node = it.next();
@@ -665,7 +665,7 @@ public class CollaborativeReviewController extends CollaborationController {
                                                     exam.getGradedByUser() == null &&
                                                     exam.getAutoEvaluationConfig() != null
                                                 ) {
-                                                    // Automatically graded by system, set graded by user at this point.
+                                                    // Automatically graded by the system, set graded-by-user at this point.
                                                     ((ObjectNode) examNode).set("gradedByUser", serialize(user));
                                                 }
                                                 if (gradingType != Grade.Type.GRADED) {

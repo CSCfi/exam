@@ -104,9 +104,9 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
   override def getExamConfig(hash: String, pwd: Array[Byte], salt: String, quitPwd: String): Array[Byte] =
     val template   = getTemplate(hash, quitPwd)
     val templateGz = compress(template.getBytes(StandardCharsets.UTF_8))
-    // Decrypt user defined setting password
+    // Decrypt user-defined setting password
     val plaintextPwd = getPlaintextPassword(pwd, salt)
-    // Encrypt the config file using unencrypted password
+    // Encrypt the config file using the unencrypted password
     val cipherText = crypto.encryptData(templateGz, plaintextPwd.toCharArray)
     compressWithHeader(cipherText)
 
@@ -132,7 +132,7 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
     }
 
   override def calculateConfigKey(hash: String, quitPwd: String): String =
-    // Override the DTD setting. We need it with PLIST format and in order to integrate with SBT
+    // Override the DTD setting. We need it with PLIST format and to integrate with SBT
     val parser = XML.withSAXParser {
       val factory = SAXParserFactory.newInstance()
       factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)

@@ -13,7 +13,6 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -97,19 +96,18 @@ public class CsvBuilderImpl implements CsvBuilder {
     private CSVReader detectDelimiter(File csvFile) throws IOException, CsvException {
         final int GRADES_FIRST_ROW_COLUMN_COUNT = 6;
 
-        // Init parsed with colon file
+        // Init parsed4 with colon delimiter
         CSVParser parserColon = new CSVParserBuilder().withSeparator(',').build();
         CSVReader readerColon = new CSVReaderBuilder(new FileReader(csvFile)).withCSVParser(parserColon).build();
         String[] recordFirstRowColon = readerColon.readNext();
 
-        // Init parsed with semicolon file
+        // Init parser with semicolon delimiter
         CSVParser parserSemicolon = new CSVParserBuilder().withSeparator(';').build();
         CSVReader readerSemicolon = new CSVReaderBuilder(new FileReader(csvFile))
             .withCSVParser(parserSemicolon)
             .build();
         String[] recordFirstRowSemiColon = readerSemicolon.readNext();
 
-        // Test all; return if valid; return null
         if (recordFirstRowColon.length == GRADES_FIRST_ROW_COLUMN_COUNT) {
             return readerColon;
         } else if (recordFirstRowSemiColon.length == GRADES_FIRST_ROW_COLUMN_COUNT) {
@@ -145,7 +143,7 @@ public class CsvBuilderImpl implements CsvBuilder {
                 logger.warn("Invalid input, unable to grade");
                 continue;
             }
-            ExpressionList<Exam> el = DB.find(Exam.class)
+            var el = DB.find(Exam.class)
                 .where()
                 .idEq(examId)
                 .isNotNull("parent")

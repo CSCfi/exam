@@ -423,7 +423,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
     }
 
     private void updateGrading(Exam exam, int grading) {
-        // Allow updating grading if allowed in settings or if course does not restrict the setting
+        // Allow updating grading if allowed in settings or if the course does not restrict the setting
         boolean canOverrideGrading = configReader.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse() == null || exam.getCourse().getGradeScale() == null) {
             GradeScale scale = DB.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();

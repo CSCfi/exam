@@ -20,24 +20,7 @@ public interface DateTimeHandler {
         NON_RESTRICTIVE,
     }
 
-    class OpeningHours {
-
-        private final Interval hours;
-        private final int timezoneOffset;
-
-        OpeningHours(Interval interval, int timezoneOffset) {
-            this.hours = interval;
-            this.timezoneOffset = timezoneOffset;
-        }
-
-        public int getTimezoneOffset() {
-            return timezoneOffset;
-        }
-
-        public Interval getHours() {
-            return hours;
-        }
-    }
+    record OpeningHours(Interval hours, int timezoneOffset) {}
 
     List<Interval> findGaps(List<Interval> reserved, Interval searchInterval);
     List<Interval> getExceptionEvents(

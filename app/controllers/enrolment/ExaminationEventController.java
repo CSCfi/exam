@@ -8,7 +8,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.util.Optional;
 import java.util.Set;
@@ -82,7 +81,7 @@ public class ExaminationEventController extends BaseController {
     }
 
     private int getParticipantUpperBound(DateTime start, DateTime end, Long id) {
-        ExpressionList<ExaminationEvent> el = DB.find(ExaminationEvent.class).where().le("start", end);
+        var el = DB.find(ExaminationEvent.class).where().le("start", end);
         if (id != null) {
             el = el.ne("id", id);
         }
@@ -111,7 +110,7 @@ public class ExaminationEventController extends BaseController {
         }
         ExaminationEventConfiguration eec = new ExaminationEventConfiguration();
         // HOX! maybe in the future this can be some preset event shared by multiple exams.
-        // For the time being let's always create new events.
+        // For the time being, let's always create new events.
         ExaminationEventDTO dto = request.attrs().get(Attrs.EXAMINATION_EVENT);
         ExaminationEvent ee = new ExaminationEvent();
         DateTime start = dto.start();
@@ -145,7 +144,7 @@ public class ExaminationEventController extends BaseController {
         if (quitPassword != null && settingsPassword != null) {
             encryptQuitPassword(eec, quitPassword);
             encryptSettingsPassword(eec, settingsPassword, quitPassword);
-            // Pass back the plaintext password, so it can be shown to user
+            // Pass back the plaintext password, so it can be shown to the user
             eec.setQuitPassword(quitPassword);
             eec.setSettingsPassword(settingsPassword);
         }
@@ -203,7 +202,7 @@ public class ExaminationEventController extends BaseController {
             encryptQuitPassword(eec, quitPassword);
             encryptSettingsPassword(eec, settingsPassword, quitPassword);
             eec.save();
-            // Pass back the plaintext passwords, so they can be shown to user
+            // Pass back the plaintext passwords, so they can be shown to the user
             eec.setQuitPassword(quitPassword);
             eec.setSettingsPassword(settingsPassword);
         } else {
@@ -253,16 +252,16 @@ public class ExaminationEventController extends BaseController {
         try {
             String oldPwd = eec.getEncryptedSettingsPassword() != null
                 ? byodConfigHandler.getPlaintextPassword(
-                      eec.getEncryptedSettingsPassword(),
-                      eec.getSettingsPasswordSalt()
-                  )
+                    eec.getEncryptedSettingsPassword(),
+                    eec.getSettingsPasswordSalt()
+                )
                 : null;
 
             if (!password.equals(oldPwd)) {
                 String newSalt = UUID.randomUUID().toString();
                 eec.setEncryptedSettingsPassword(byodConfigHandler.getEncryptedPassword(password, newSalt));
                 eec.setSettingsPasswordSalt(newSalt);
-                // Pre-calculate config key, so we don't need to do it each time a check is needed
+                // Pre-calculate the config key, so we don't need to do it each time a check is needed
                 eec.setConfigKey(byodConfigHandler.calculateConfigKey(eec.getHash(), quitPassword));
             }
         } catch (Exception e) {
@@ -281,7 +280,7 @@ public class ExaminationEventController extends BaseController {
                 String newSalt = UUID.randomUUID().toString();
                 eec.setEncryptedQuitPassword(byodConfigHandler.getEncryptedPassword(password, newSalt));
                 eec.setQuitPasswordSalt(newSalt);
-                // Pre-calculate config key, so we don't need to do it each time a check is needed
+                // Pre-calculate the config key, so we don't need to do it each time a check is needed
                 eec.setConfigKey(byodConfigHandler.calculateConfigKey(eec.getHash(), password));
             }
         } catch (Exception e) {
@@ -295,9 +294,7 @@ public class ExaminationEventController extends BaseController {
         PathProperties pp = PathProperties.parse(
             "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
         );
-        ExpressionList<ExaminationEventConfiguration> query = DB.find(ExaminationEventConfiguration.class)
-            .apply(pp)
-            .where();
+        var query = DB.find(ExaminationEventConfiguration.class).apply(pp).where();
         if (start.isPresent()) {
             DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
             query = query.ge("examinationEvent.start", startDate.toDate());

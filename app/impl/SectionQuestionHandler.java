@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-package controllers.base;
+package impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.DB;

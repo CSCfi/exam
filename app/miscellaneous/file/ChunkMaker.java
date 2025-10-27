@@ -13,7 +13,6 @@ import org.apache.pekko.stream.stage.AbstractOutHandler;
 import org.apache.pekko.stream.stage.GraphStage;
 import org.apache.pekko.stream.stage.GraphStageLogic;
 import org.apache.pekko.util.ByteString;
-import scala.Tuple2;
 
 public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
 
@@ -34,59 +33,66 @@ public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
 
     @Override
     public GraphStageLogic createLogic(Attributes inheritedAttributes) {
-        return new GraphStageLogic(shape) {
-            private ByteString buffer = ByteString.emptyByteString();
+        return new MyGraphStageLogic();
+    }
 
-            {
-                setHandler(
-                    out,
-                    new AbstractOutHandler() {
-                        @Override
-                        public void onPull() {
-                            emitChunk();
-                        }
+    private class MyGraphStageLogic extends GraphStageLogic {
+
+        private ByteString buffer = ByteString.emptyByteString();
+
+        {
+            setHandler(
+                out,
+                new AbstractOutHandler() {
+                    @Override
+                    public void onPull() {
+                        emitChunk();
                     }
-                );
+                }
+            );
 
-                setHandler(
-                    in,
-                    new AbstractInHandler() {
-                        @Override
-                        public void onPush() {
-                            ByteString elem = grab(in);
-                            buffer = buffer.concat(elem);
-                            emitChunk();
-                        }
+            setHandler(in, new MyAbstractInHandler());
+        }
 
-                        @Override
-                        public void onUpstreamFinish() {
-                            if (buffer.isEmpty()) {
-                                completeStage();
-                                return;
-                            }
+        private MyGraphStageLogic() {
+            super(ChunkMaker.this.shape);
+        }
 
-                            if (isAvailable(out)) {
-                                emitChunk();
-                            }
-                        }
-                    }
-                );
+        private void emitChunk() {
+            if (buffer.isEmpty() && isClosed(in)) {
+                completeStage();
+                return;
+            }
+            if (buffer.size() < chunkSize && !isClosed(in)) {
+                pull(in);
+                return;
+            }
+            var split = buffer.splitAt(chunkSize);
+            ByteString chunk = split._1();
+            buffer = split._2();
+            push(out, chunk);
+        }
+
+        private class MyAbstractInHandler extends AbstractInHandler {
+
+            @Override
+            public void onPush() {
+                ByteString elem = grab(in);
+                buffer = buffer.concat(elem);
+                emitChunk();
             }
 
-            private void emitChunk() {
-                if (buffer.isEmpty() && isClosed(in)) {
+            @Override
+            public void onUpstreamFinish() {
+                if (buffer.isEmpty()) {
                     completeStage();
                     return;
                 }
-                if (buffer.size() < chunkSize && !isClosed(in)) {
-                    pull(in);
-                    return;
+
+                if (isAvailable(out)) {
+                    emitChunk();
                 }
-                Tuple2<ByteString, ByteString> split = buffer.splitAt(chunkSize);
-                ByteString chunk = split._1();
-                buffer = split._2();
-                push(out, chunk);
             }
-        };
+        }
     }
 }

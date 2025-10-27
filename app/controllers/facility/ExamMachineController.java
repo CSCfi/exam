@@ -10,7 +10,6 @@ import be.objectify.deadbolt.java.actions.SubjectPresent;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import io.ebean.DB;
-import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +34,7 @@ public class ExamMachineController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getExamMachine(Long id) {
         PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
-        Query<ExamMachine> query = DB.find(ExamMachine.class);
+        var query = DB.find(ExamMachine.class);
         pp.apply(query);
         ExamMachine machine = query.where().idEq(id).findOne();
         return ok(machine, pp);

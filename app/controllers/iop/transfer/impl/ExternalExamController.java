@@ -29,7 +29,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -213,7 +212,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
                     CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
                 );
         } else {
-            // Fetch external attachments to local exam.
+            // Fetch external attachments for the local exam.
             externalAttachmentLoader.fetchExternalAttachmentsAsLocal(clone);
             return wrapAsPromise(created());
         }
@@ -228,12 +227,11 @@ public class ExternalExamController extends BaseController implements ExternalEx
             .scheduler()
             .scheduleOnce(
                 Duration.create(1, TimeUnit.SECONDS),
-                () -> {
+                () ->
                     recipients.forEach(r -> {
                         emailComposer.composePrivateExamEnded(r, exam);
                         logger.info("Email sent to {}", r.getEmail());
-                    });
-                },
+                    }),
                 actor.dispatcher()
             );
     }
@@ -292,9 +290,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
                     futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
                 );
             return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
+                .thenComposeAsync(_ -> wrapAsPromise(ok(exam, getPath())))
                 .exceptionally(t -> {
-                    logger.error(String.format("Could not provide enrolment [id=%s]", enrolment.getId()), t);
+                    logger.error("Could not provide enrolment [id={}]", enrolment.getId(), t);
                     return internalServerError();
                 });
         }
@@ -326,7 +324,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             // Set references so that:
             // - external ref is the reference we got from outside. Must not be changed.
             // - local ref is a UUID X. It is used locally for referencing the exam
-            // - content's hash is set to X in order to simplify things with frontend
+            // - content's hash is set to X in order to simplify things with the frontend
 
             String externalRef = document.getHash();
             String ref = UUID.randomUUID().toString();
@@ -403,14 +401,14 @@ public class ExternalExamController extends BaseController implements ExternalEx
         return request.get().thenApplyAsync(onSuccess);
     }
 
-    private static Query<ExamEnrolment> createQuery() {
-        Query<ExamEnrolment> query = DB.find(ExamEnrolment.class);
+    private Query<ExamEnrolment> createQuery() {
+        var query = DB.find(ExamEnrolment.class);
         PathProperties props = ExaminationController.getPath(true);
         props.apply(query);
         return query;
     }
 
-    private static Optional<ExamEnrolment> getPrototype(String ref) {
+    private Optional<ExamEnrolment> getPrototype(String ref) {
         return createQuery()
             .where()
             .eq("reservation.externalRef", ref)

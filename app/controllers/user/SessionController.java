@@ -8,7 +8,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectPresent;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalExamAPI;
 import io.ebean.DB;
@@ -51,6 +50,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.EnrolmentRepository;
 import scala.jdk.javaapi.CollectionConverters;
+import security.ActionMethod;
 
 public class SessionController extends BaseController {
 
@@ -162,7 +162,7 @@ public class SessionController extends BaseController {
         }
         user.setLastLogin(new Date());
         user.update();
-        // In dev environment we will not fiddle with the role definitions here regarding visitor status
+        // In the dev environment we will not fiddle with the role definitions here regarding visitor status
         Reservation externalReservation = getUpcomingExternalReservation(user.getEppn(), request.remoteAddress());
         return handleExternalReservationAndCreateSession(user, externalReservation, request);
     }
@@ -174,7 +174,7 @@ public class SessionController extends BaseController {
     ) {
         if (reservation != null) {
             try {
-                return handleExternalReservation(user, reservation).thenComposeAsync(r ->
+                return handleExternalReservation(user, reservation).thenComposeAsync(_ ->
                     createSession(user, true, request)
                 );
             } catch (MalformedURLException e) {
@@ -245,7 +245,7 @@ public class SessionController extends BaseController {
     private Language getLanguage(String code) {
         Language language = null;
         if (code != null) {
-            // for example: en-US -> en
+            // for example, en-US -> en
             String lcCode = code.split("-")[0].toLowerCase();
             var lang = configReader.getSupportedLanguages().contains(lcCode) ? lcCode : "en";
             language = DB.find(Language.class, lang);
@@ -404,7 +404,7 @@ public class SessionController extends BaseController {
                 user.getPermissions().stream().map(Permission::getValue).collect(Collectors.joining(","))
             );
         }
-        // If (regular) user has just one role, set it as the one used for logins
+        // If a (regular) user has just one role, set it as the one used for logins
         var isLocalUser = isLocalUser(user.getEppn());
         List<Role> roles = isTemporaryVisitor || !isLocalUser
             ? DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
@@ -413,10 +413,10 @@ public class SessionController extends BaseController {
             payload.put("role", user.getRoles().getFirst().getName());
         } else if (isTemporaryVisitor) {
             payload.put("visitingStudent", "true");
-            payload.put("role", roles.getFirst().getName()); // forced login as student
+            payload.put("role", roles.getFirst().getName()); // forced login as a student
         } else if (!isLocalUser(user.getEppn())) {
             result.put("externalUserOrg", user.getEppn().split("@")[1]);
-            payload.put("role", roles.getFirst().getName()); // forced login as student
+            payload.put("role", roles.getFirst().getName()); // forced login as a student
         }
         result.set("roles", Json.toJson(roles));
         return checkStudentSession(request, new Http.Session(payload), ok(result));

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-package controllers.base;
+package security;
 
 // Used for marking a method as being an action (HTTP request handler endpoint)
 public @interface ActionMethod {}

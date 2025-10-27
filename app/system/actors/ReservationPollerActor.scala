@@ -14,7 +14,6 @@ import org.joda.time.DateTime
 import play.api.Logging
 
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
 
 class ReservationPollerActor @Inject (
     private val noShowHandler: NoShowHandler,
@@ -51,8 +50,8 @@ class ReservationPollerActor @Inject (
           .list
           .filter(isPast)
 
-        // The following are cases where external user has made a reservation but did not log in before
-        // reservation ended. Mark those as no-shows as well.
+        // The following are cases where an external user has made a reservation but did not log in before
+        // the reservation ended. Mark those as no-shows as well.
         val reservations = DB
           .find(classOf[Reservation])
           .where

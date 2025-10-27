@@ -6,7 +6,6 @@ package repository;
 
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.ExpressionList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +74,7 @@ public class EnrolmentRepository {
     public CompletionStage<ExamRoom> getRoomInfoForEnrolment(String hash, User user) {
         return CompletableFuture.supplyAsync(
             () -> {
-                ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class)
+                var query = DB.find(ExamEnrolment.class)
                     .fetch("user", "id")
                     .fetch("user.language")
                     .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
@@ -186,7 +185,7 @@ public class EnrolmentRepository {
             enrolment.getExternalExam() != null ||
             enrolment.getCollaborativeExam() != null ||
             (enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.AQUARIUM);
-        // Loose the checks for dev usage to facilitate for easier testing
+        // Lose the checks for dev usage to facilitate for easier testing
         if (environment.isDev() && requiresReservation) {
             return true;
         }
@@ -216,7 +215,7 @@ public class EnrolmentRepository {
                 // Is this a known machine?
                 ExamMachine lookedUp = db.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
                 if (lookedUp == null) {
-                    // IP not known
+                    // IP is not known
                     header = "x-exam-unknown-machine";
                     DateTimeZone zone = DateTimeZone.forID(room.getLocalTimezone());
                     String start = ISODateTimeFormat.dateTime()
@@ -295,13 +294,13 @@ public class EnrolmentRepository {
                     enrolment.getReservation().getStartAt(),
                     enrolment.getReservation()
                 );
-                // if start is within 5 minutes, set upcoming exam header
+                // if start is within 5 minutes, set the upcoming exam header
                 if (start.isBefore(threshold)) {
                     headers.put(
                         "x-exam-upcoming-exam",
                         String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
                     );
-                    // otherwise set early login header if start is within today. For dev puprposes skip
+                    // otherwise set the early login header if start is within today. For dev purposes skip
                     // requirement
                 } else if (start.isBefore(thresholdEarly) && start.isAfterNow() && !environment.isDev()) {
                     headers.put(
@@ -343,10 +342,10 @@ public class EnrolmentRepository {
         return enrolment.getReservation() != null
             ? enrolment.getReservation().getStartAt().plusMillis(enrolment.getDelay())
             : enrolment
-                  .getExaminationEventConfiguration()
-                  .getExaminationEvent()
-                  .getStart()
-                  .plusMillis(enrolment.getDelay());
+                .getExaminationEventConfiguration()
+                .getExaminationEvent()
+                .getStart()
+                .plusMillis(enrolment.getDelay());
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {

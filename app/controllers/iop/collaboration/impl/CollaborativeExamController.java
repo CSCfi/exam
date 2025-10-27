@@ -142,7 +142,7 @@ public class CollaborativeExamController extends CollaborationController {
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public CompletionStage<Result> getExam(Long id, Http.Request request) {
-        return getExam(id, exam -> {}, request.attrs().get(Attrs.AUTHENTICATED_USER));
+        return getExam(id, _ -> {}, request.attrs().get(Attrs.AUTHENTICATED_USER));
     }
 
     @Authenticated

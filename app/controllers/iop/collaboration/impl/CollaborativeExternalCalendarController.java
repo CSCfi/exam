@@ -88,7 +88,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                 return wrapAsPromise(badEnrolment.get());
             }
             // Make ext request here
-            // Lets do this
+            // Let's do this
             URL url;
             try {
                 url = parseUrl(orgRef, roomRef);
@@ -153,7 +153,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                 if (!exam.hasState(Exam.State.PUBLISHED)) {
                     return wrapAsPromise(notFound("i18n_error_exam_not_found"));
                 }
-                // Also sanity check the provided search date
+                // Also, sanity-check the provided search date
                 try {
                     calendarHandler.parseSearchDate(date.get(), exam, null);
                 } catch (IllegalArgumentException e) {

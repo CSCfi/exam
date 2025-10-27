@@ -63,7 +63,7 @@ public enum SanitizingHelper {
         return value.orElse(defaultValue);
     }
 
-    // Exception thrown if value is null or not found
+    // Exception thrown if the value is null or not found
     public static <T> Http.Request sanitize(
         String key,
         JsonNode node,
@@ -77,7 +77,7 @@ public enum SanitizingHelper {
         return request.addAttr(attr, value);
     }
 
-    // Exception thrown if value is null or not found
+    // Exception thrown if the value is null or not found
     public static Http.Request sanitizeHtml(String key, JsonNode node, TypedKey<String> attr, Http.Request request)
         throws SanitizingException {
         String value = parse(key, node, String.class).orElseThrow(() ->
@@ -86,7 +86,7 @@ public enum SanitizingHelper {
         return request.addAttr(attr, Jsoup.clean(value, SAFELIST));
     }
 
-    // If value is null or not present, it will not be added as an attribute.
+    // If the value is null or not present, it will not be added as an attribute.
     public static <T> Http.Request sanitizeOptional(
         String key,
         JsonNode node,
@@ -98,7 +98,7 @@ public enum SanitizingHelper {
         return value.isPresent() ? request.addAttr(attr, value.get()) : request;
     }
 
-    // If value is null or not present, it will not be added as an attribute.
+    // If the value is null or not present, it will not be added as an attribute.
     public static Http.Request sanitizeOptionalHtml(
         String key,
         JsonNode node,

@@ -51,7 +51,7 @@ class EmailComposerImpl @Inject() (
   private val baseSystemUrl = configReader.getBaseSystemUrl
   private val templateRoot  = s"${env.rootPath.getAbsolutePath}/conf/template/email/"
 
-  /** This notification is sent to student, when teacher has reviewed the exam
+  /** This notification is sent to a student when a teacher has reviewed the exam
     */
   override def composeInspectionReady(student: User, reviewer: User, exam: Exam): Unit =
     val templatePath  = s"${templateRoot}reviewReady.html"
@@ -745,7 +745,7 @@ class EmailComposerImpl @Inject() (
       )
       .mkString
 
-  // return exams in review state where teacher is either owner or inspector
+  // return exams in review state where the teacher is either owner or inspector
   private def getReviews(teacher: User, states: Seq[Exam.State]) = DB
     .find(classOf[ExamParticipation])
     .where

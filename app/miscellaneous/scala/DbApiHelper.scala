@@ -16,8 +16,8 @@ trait DbApiHelper:
     def distinct: Set[T] = el.findSet().asScala.toSet
 
   // This is for IOP with null values coming (especially) from Ebean.
-  // Apparently we can end up having Some(null) if not mapped like this.
-  // As a result we get None as expected.
+  // Apparently, we can end up having Some(null) if not mapped like this.
+  // As a result, we get None as expected.
   extension [T](o: Option[T]) def nonNull: Option[T] = o.flatMap(Option(_))
 
   extension [T <: Model](q: Query[T])

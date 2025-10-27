@@ -88,10 +88,8 @@ class ReviewDocumentsController @Inject() (
 
   private def isEligibleForArchiving(exam: Exam, start: Option[DateTime], end: Option[DateTime]) =
     exam.hasState(Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED) &&
-      !(start.isDefined && exam.getCreated.isBefore(
-        start.get
-      )) && !(end.isDefined && exam.getCreated
-        .isAfter(end.get))
+      start.forall(!exam.getCreated.isBefore(_)) &&
+      end.forall(!exam.getCreated.isAfter(_))
 
   private def createArchive(
       prototype: Exam,

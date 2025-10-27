@@ -7,7 +7,7 @@ package controllers.question;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
-import controllers.base.SectionQuestionHandler;
+import impl.SectionQuestionHandler;
 import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.util.Optional;

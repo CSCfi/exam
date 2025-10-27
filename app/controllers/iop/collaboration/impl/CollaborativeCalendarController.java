@@ -78,7 +78,7 @@ public class CollaborativeCalendarController extends CollaborationController {
     }
 
     protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, Exam exam, User user) {
-        // Removal not permitted if old reservation is in the past or if exam is already started
+        // Removal is not permitted if the old reservation is in the past or if exam is already started
         Reservation oldReservation = enrolment.getReservation();
         if (
             exam.getState() == Exam.State.STUDENT_STARTED ||
@@ -87,7 +87,7 @@ public class CollaborativeCalendarController extends CollaborationController {
             return Optional.of(forbidden("i18n_reservation_in_effect"));
         }
         // No previous reservation or it's in the future
-        // If no previous reservation, check if allowed to participate. This check is skipped if user already
+        // If no previous reservation, check if allowed to participate. This check is skipped if the user already
         // has a reservation to this exam so that change of reservation is always possible.
         if (oldReservation == null && !enrolmentHandler.isAllowedToParticipate(exam, user)) {
             return Optional.of(forbidden("i18n_no_trials_left"));

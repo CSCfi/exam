@@ -95,7 +95,7 @@ public class QuestionReviewController extends BaseController {
                 Collectors.toMap(
                     ExamSectionQuestion::getQuestion,
                     ExamSectionQuestion::getEvaluationCriteria,
-                    (existing, replacement) -> existing
+                    (existing, _) -> existing
                 )
             );
 

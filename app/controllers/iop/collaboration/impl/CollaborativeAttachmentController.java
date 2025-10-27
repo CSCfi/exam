@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.iop.collaboration.api.CollaborativeAttachmentInterface;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -40,8 +39,7 @@ public class CollaborativeAttachmentController
 
     @Override
     public Optional<CollaborativeExam> getExternalExam(Long eid, Http.Request request) {
-        final ExpressionList<CollaborativeExam> query = DB.find(CollaborativeExam.class).where().eq("id", eid);
-        return query.findOneOrEmpty();
+        return DB.find(CollaborativeExam.class).where().eq("id", eid).findOneOrEmpty();
     }
 
     @Override
@@ -165,7 +163,7 @@ public class CollaborativeAttachmentController
     public boolean setExam(CollaborativeExam collaborativeExam, Exam exam, User user) {
         try {
             return uploadExam(collaborativeExam, exam, user)
-                .thenApply(result -> result.status() == 200)
+                .thenApply(result -> result.status() == Http.Status.OK)
                 .toCompletableFuture()
                 .get();
         } catch (InterruptedException | ExecutionException e) {

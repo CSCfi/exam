@@ -109,7 +109,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return downloadExam(ce).thenApplyAsync(result ->
             checkExam(result.orElse(null), user)
-                .map(e -> {
+                .map(_ -> {
                     DateTime now = dateTimeHandler.adjustDST(new DateTime());
                     List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
                         .where()

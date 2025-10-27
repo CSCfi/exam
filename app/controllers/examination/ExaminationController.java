@@ -208,7 +208,7 @@ public class ExaminationController extends BaseController {
                                     return wrapAsPromise(notFound());
                                 }
                                 if (possibleClone.isEmpty()) {
-                                    // Exam not started yet, create new exam for student
+                                    // Exam is not started yet, create a new one for the student
                                     return createClone(optionalPrototype.get(), user, ce, request, false);
                                 } else {
                                     // Exam started already
@@ -521,12 +521,11 @@ public class ExaminationController extends BaseController {
             .scheduler()
             .scheduleOnce(
                 Duration.create(1, TimeUnit.SECONDS),
-                () -> {
+                () ->
                     recipients.forEach(r -> {
                         emailComposer.composePrivateExamEnded(r, exam);
                         logger.info("Email sent to {}", r.getEmail());
-                    });
-                },
+                    }),
                 actor.dispatcher()
             );
     }
