@@ -215,8 +215,7 @@ public class CollaborativeExamController extends CollaborationController {
                                 examUpdater.updateTemporalFieldsAndValidate(exam, user, payload),
                                 examUpdater.updateStateAndValidate(exam, user, payload)
                             )
-                                .filter(Optional::isPresent)
-                                .map(Optional::get)
+                                .flatMap(Optional::stream)
                                 .findFirst();
                             if (error.isPresent()) {
                                 return wrapAsPromise(error.get());

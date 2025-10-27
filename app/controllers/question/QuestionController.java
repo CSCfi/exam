@@ -361,8 +361,7 @@ public class QuestionController extends BaseController implements SectionQuestio
             .map(MultipleChoiceOption::getId)
             .collect(Collectors.toSet());
         Set<Long> providedIds = StreamSupport.stream(node.spliterator(), false)
-            .filter(n -> SanitizingHelper.parse("id", n, Long.class).isPresent())
-            .map(n -> SanitizingHelper.parse("id", n, Long.class).get())
+            .flatMap(n -> SanitizingHelper.parse("id", n, Long.class).stream())
             .collect(Collectors.toSet());
         // Updates
         StreamSupport.stream(node.spliterator(), false)
