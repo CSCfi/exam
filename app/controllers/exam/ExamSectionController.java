@@ -439,8 +439,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             .collect(Collectors.toSet());
         Set<Long> providedIds = StreamSupport.stream(node.spliterator(), false)
             .map(n -> n.get("option"))
-            .filter(n -> SanitizingHelper.parse("id", n, Long.class).isPresent())
-            .map(n -> SanitizingHelper.parse("id", n, Long.class).get())
+            .flatMap(n -> SanitizingHelper.parse("id", n, Long.class).stream())
             .collect(Collectors.toSet());
         // Updates
         StreamSupport.stream(node.spliterator(), false)

@@ -24,11 +24,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import javax.annotation.Nonnull;
 import models.base.OwnedModel;
@@ -36,6 +38,7 @@ import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
+import models.user.User;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -258,21 +261,32 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             BeanUtils.copyProperties(this, esqCopy, "id", "options", "creator", "modifier");
 
             if (context.isStudentExam()) {
-                // Student exam: reference existing question, copy options
-                esqCopy.setQuestion(question);
-                options.forEach(o -> esqCopy.getOptions().add(o.copy()));
+                // Student exam: copy the question and options (create independent copy)
+                copyQuestionWithOptions(esqCopy, context);
 
                 // Shuffle options if needed
                 if (optionShufflingOn && question.getType() != Question.Type.ClaimChoiceQuestion) {
                     esqCopy.shuffleOptions();
                 }
             } else {
-                // Teacher copy: copy the question and options
-                copyQuestionWithOptions(esqCopy, context);
+                // Teacher/template copy: use existing question references (preserve original)
+                esqCopy.setQuestion(question);
+                options.forEach(o -> esqCopy.getOptions().add(o.copy()));
             }
         }
 
         return esqCopy;
+    }
+
+    private void persistQuestionOwners(Question blueprint, ExamCopyContext context) {
+        // Persist ManyToMany associations (questionOwners) when copying with setParent
+        // BeanUtils.copyProperties copies the collection but doesn't trigger Ebean's change tracking
+        // Re-setting forces Ebean to recognize the association and persist join table entries
+        if (context.shouldSetParent() && !blueprint.getQuestionOwners().isEmpty()) {
+            Set<User> owners = new HashSet<>(blueprint.getQuestionOwners());
+            blueprint.setQuestionOwners(owners);
+            blueprint.save();
+        }
     }
 
     private void copyQuestionWithAnswers(ExamSectionQuestion esqCopy, ExamCopyContext context) {
@@ -290,6 +304,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             blueprint.setParent(question);
         }
         blueprint.save();
+        persistQuestionOwners(blueprint, context);
 
         // Copy options with their answers
         options.forEach(option -> {
@@ -321,6 +336,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             blueprint.setParent(question);
         }
         blueprint.save();
+        persistQuestionOwners(blueprint, context);
 
         // Copy options without answers
         optionMap.forEach((k, optionCopy) -> {
