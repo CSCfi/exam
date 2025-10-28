@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Question, QuestionDraft } from 'src/app/question/question.model';
@@ -43,19 +43,39 @@ import { Question, QuestionDraft } from 'src/app/question/question.model';
                 </div>
             </div>
         </div>
+        <div class="row mt-3">
+            <div class="col-md-3">
+                {{ 'i18n_evaluation_type' | translate }}
+            </div>
+            <div class="col-md-3">
+                <select
+                    id="evaluationType"
+                    name="evaluationType"
+                    class="form-select w-75"
+                    [ngModel]="question.defaultEvaluationType"
+                    (ngModelChange)="updateEvaluationType($event)"
+                    [disabled]="lotteryOn"
+                    required="question.type == 'EssayQuestion'"
+                >
+                    <option value="Points">{{ 'i18n_word_points' | translate }}</option>
+                    <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
+                </select>
+            </div>
+        </div>
     `,
     styleUrls: ['../question.shared.scss'],
     imports: [FormsModule, TranslateModule],
 })
-export class EssayEditorComponent implements OnInit {
+export class EssayEditorComponent {
     @Input() question!: Question | QuestionDraft;
+    @Input() lotteryOn = false;
 
-    ngOnInit() {
-        this.question.defaultEvaluationType = this.question.defaultEvaluationType || 'Points';
-        if (this.question.defaultEvaluationType === 'Selection') {
-            delete this.question.defaultMaxScore; // will screw up validation otherwise
+    updateEvaluationType = ($event: string) => {
+        this.question.defaultEvaluationType = $event;
+        if ($event === 'Selection') {
+            delete this.question.defaultMaxScore;
         }
-    }
+    };
 
     estimateCharacters = () => (this.question.defaultExpectedWordCount || 0) * 8;
 }
