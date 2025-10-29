@@ -129,9 +129,9 @@ public class ExaminationRepository {
                         now = reservation == null
                             ? dateTimeHandler.adjustDST(DateTime.now())
                             : dateTimeHandler.adjustDST(
-                                DateTime.now(),
-                                enrolment.getReservation().getMachine().getRoom()
-                            );
+                                  DateTime.now(),
+                                  enrolment.getReservation().getMachine().getRoom()
+                              );
                     }
                     examParticipation.setStarted(now);
                     db.save(examParticipation);

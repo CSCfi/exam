@@ -329,9 +329,9 @@ public class CalendarHandlerImpl implements CalendarHandler {
             int availableMachineCount = entry.getValue().isPresent()
                 ? entry.getValue().get()
                 : (int) machines
-                    .stream()
-                    .filter(m -> !isReservedByOthersDuring(m, slot, user))
-                    .count();
+                      .stream()
+                      .filter(m -> !isReservedByOthersDuring(m, slot, user))
+                      .count();
 
             results.add(new TimeSlot(slot, availableMachineCount, null));
         }
