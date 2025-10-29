@@ -55,6 +55,7 @@ import sanitizers.Attrs;
 import sanitizers.ClozeTestAnswerSanitizer;
 import sanitizers.EssayAnswerSanitizer;
 import scala.concurrent.duration.Duration;
+import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.ExamActionRouter;
 import system.interceptors.SensitiveDataPolicy;
@@ -443,7 +444,11 @@ public class ExaminationController extends BaseController {
         boolean isUnchecked = exam != null && exam.getImplementation() == Exam.Implementation.WHATEVER;
         if (isByod) {
             return CompletableFuture.completedFuture(
-                byodConfigHandler.checkUserAgent(request, enrolment.getExaminationEventConfiguration().getConfigKey())
+                OptionConverters.toJava(
+                    byodConfigHandler
+                        .checkUserAgent(request.asScala(), enrolment.getExaminationEventConfiguration().getConfigKey())
+                        .map(play.api.mvc.Result::asJava)
+                )
             );
         } else if (isUnchecked) {
             return CompletableFuture.completedFuture(Optional.empty());

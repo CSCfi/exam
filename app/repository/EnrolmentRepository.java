@@ -30,6 +30,7 @@ import models.sections.ExamSection;
 import models.user.Role;
 import models.user.User;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.pekko.util.OptionConverters;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Minutes;
@@ -194,13 +195,22 @@ public class EnrolmentRepository {
             enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH;
 
         if (requiresClientAuth) {
+            logger.info("Checking SEB config...");
             // SEB examination
             ExaminationEventConfiguration config = enrolment.getExaminationEventConfiguration();
-            Optional<Result> error = byodConfigHandler.checkUserAgent(request, config.getConfigKey());
+            Optional<Result> error = OptionConverters.toJava(
+                byodConfigHandler
+                    .checkUserAgent(request.asScala(), config.getConfigKey())
+                    .map(play.api.mvc.Result::asJava)
+            );
+
             if (error.isPresent()) {
                 String msg = ISODateTimeFormat.dateTime().print(new DateTime(config.getExaminationEvent().getStart()));
                 headers.put("x-exam-wrong-agent-config", msg);
+                logger.warn("Wrong agent config for SEB");
                 return false;
+            } else {
+                logger.info("SEB config OK");
             }
         } else if (requiresReservation) {
             // Aquarium examination

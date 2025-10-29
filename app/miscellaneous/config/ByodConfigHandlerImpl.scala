@@ -8,18 +8,17 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.cryptonode.jncryptor.AES256JNCryptor
 import play.Environment
 import play.api.Logging
-import play.api.libs.json._
-import play.mvc.{Http, Result, Results}
+import play.api.libs.json.*
+import play.api.mvc.{Result, Results, RequestHeader}
 
 import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.nio.charset.StandardCharsets
-import java.util.Optional
 import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
 import javax.xml.parsers.SAXParserFactory
+
 import scala.io.Source
-import scala.jdk.OptionConverters._
 import scala.xml.{Node, XML}
 
 object ByodConfigHandlerImpl:
@@ -29,14 +28,16 @@ object ByodConfigHandlerImpl:
   private val AdminPwdPlaceholder      = "*** adminPwd ***"
   private val AllowQuittingPlaceholder = "<!-- allowQuit /-->"
   private val PasswordEncryption       = "pswd"
-  private val ConfigKeyHeader          = "X-SafeExamBrowser-ConfigKeyHash"
+  private val ConfigKeyHeader          = "X-SafeExamBrowser-ConfigKeyHash" // Standard SEB header
+  private val CustomConfigKeyHeader    = "X-Exam-Seb-Config-Key"           // Custom header from JS API
+  private val CustomConfigUrlHeader    = "X-Exam-Seb-Config-Url"           // Custom header from JS API
   private val IgnoredKeys              = Seq("originatorVersion")
 
 class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environment)
     extends ByodConfigHandler
     with Logging:
 
-  import ByodConfigHandlerImpl._
+  import ByodConfigHandlerImpl.*
   private val crypto        = new AES256JNCryptor
   private val encryptionKey = configReader.getSettingsPasswordEncryptionKey
 
@@ -117,19 +118,43 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
   override def getEncryptedPassword(pwd: String, salt: String): Array[Byte] =
     crypto.encryptData((pwd + salt).getBytes(StandardCharsets.UTF_8), encryptionKey.toCharArray)
 
-  override def checkUserAgent(request: Http.RequestHeader, configKey: String): Optional[Result] =
-    request.header(ConfigKeyHeader).toScala match {
-      case None => Some(Results.unauthorized("SEB headers missing")).toJava
-      case Some(digest) =>
-        val absoluteUrl = s"$protocol://${request.host}${request.uri}"
-        DigestUtils.sha256Hex(absoluteUrl + configKey) match
-          case sha if sha == digest => None.toJava
-          case sha =>
-            logger.warn(
-              s"Config key mismatch for URL $absoluteUrl and exam config key $configKey. Digest received: $sha"
-            )
-            Some(Results.unauthorized("Wrong configuration key digest")).toJava
-    }
+  override def checkUserAgent(request: RequestHeader, configKey: String): Option[Result] =
+    // Check both standard SEB header (old API) and custom JS API header (new API)
+    val standardHeader = request.headers.get(ConfigKeyHeader)
+    val customHeader   = request.headers.get(CustomConfigKeyHeader)
+
+    (standardHeader, customHeader) match
+      case (None, None) =>
+        logger.warn(
+          s"""SEB headers MISSING from request to ${request.uri}.
+             |Checked: '$ConfigKeyHeader' and '$CustomConfigKeyHeader'""".stripMargin.replaceAll("\n", " ")
+        )
+        Some(Results.Unauthorized("SEB headers missing"))
+      case (Some(digest), _) =>
+        // Standard SEB header present (old API) - automatically sent by SEB with classic WebView
+        logger.debug(s"Using STANDARD SEB header: $ConfigKeyHeader")
+        validate(s"$protocol://${request.host}${request.uri}", digest, configKey)
+      case (None, Some(digest)) =>
+        // Custom header from JavaScript API (new API) - modern WebView
+        logger.debug(s"Using CUSTOM header from JS API: $CustomConfigKeyHeader")
+        request.headers.get(CustomConfigUrlHeader) match
+          case Some(url) => validate(url, digest, configKey)
+          case None =>
+            logger.warn(s"SEB validation FAILED (JavaScript API): $CustomConfigUrlHeader header is missing")
+            Some(Results.Unauthorized("SEB page URL header missing"))
+
+  private def validate(url: String, digest: String, configKey: String): Option[Result] =
+    DigestUtils.sha256Hex(url + configKey) match
+      case expected if expected == digest => None
+      case expected =>
+        logger.warn(
+          s"""SEB validation FAILED!
+             |PageURL=$url,
+             |ConfigFileHash=$configKey,
+             |ExpectedDigest=$expected,
+             |ReceivedKey=$digest""".stripMargin.replaceAll("\n", " ")
+        )
+        Some(Results.Unauthorized("Wrong configuration key digest"))
 
   override def calculateConfigKey(hash: String, quitPwd: String): String =
     // Override the DTD setting. We need it with PLIST format and in order to integrate with SBT

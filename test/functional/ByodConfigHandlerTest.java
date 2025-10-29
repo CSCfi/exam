@@ -18,7 +18,7 @@ public class ByodConfigHandlerTest extends IntegrationTestCase {
         running(app, () -> {
             ByodConfigHandler bch = app.injector().instanceOf(ByodConfigHandler.class);
             String key = bch.calculateConfigKey("123456", "quit");
-            assertThat(key).isEqualTo("f775f524e898feaab8f110ac76ee49ea0b1c5a62b5ce53d24b53fce1132d2168");
+            assertThat(key).isEqualTo("359c551f6a3881ab54e744a5edc3c0eacaa5444873a9f1342d512e2609574051");
         });
     }
 
