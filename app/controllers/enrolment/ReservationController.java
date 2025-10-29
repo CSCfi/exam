@@ -235,9 +235,9 @@ public class ReservationController extends BaseController {
         return reservation.getEnrolment().getExam() != null
             ? Optional.of(reservation.getEnrolment().getExam())
             : collaborativeExamLoader
-                .downloadExam(reservation.getEnrolment().getCollaborativeExam())
-                .toCompletableFuture()
-                .get();
+                  .downloadExam(reservation.getEnrolment().getCollaborativeExam())
+                  .toCompletableFuture()
+                  .get();
     }
 
     @Authenticated

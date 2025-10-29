@@ -165,13 +165,6 @@ export class QuestionBodyComponent implements OnInit {
         return a && (a.id || a.externalId);
     };
 
-    updateEvaluationType = ($event: string) => {
-        this.question.defaultEvaluationType = $event;
-        if ($event === 'Selection') {
-            delete this.question.defaultMaxScore;
-        }
-    };
-
     removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);
 
     isUserAllowedToModifyOwners = () => {
