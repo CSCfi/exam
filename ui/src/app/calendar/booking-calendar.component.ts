@@ -71,13 +71,14 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
             plugins: [luxon2Plugin, timeGridPlugin],
             initialView: 'timeGridWeek',
             firstDay: 1,
-            locale: this.translate.currentLang,
+            locale: this.resolveCalendarLocale(this.translate.currentLang),
             locales: [fiLocale, svLocale, enLocale],
             ...this.getFormatOverrides(this.translate.currentLang),
             allDaySlot: false,
             height: 'auto',
             nowIndicator: true,
             slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
+            eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
             eventMinHeight: 45,
             events: this.refetch,
             eventClick: this.eventClicked.bind(this),
@@ -85,7 +86,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
         this.translate.onLangChange.subscribe((event) => {
             this.calendarOptions.set({
                 ...this.calendarOptions(),
-                locale: event.lang,
+                locale: this.resolveCalendarLocale(event.lang),
                 ...this.getFormatOverrides(event.lang),
             });
         });
@@ -183,7 +184,37 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
                               return `${start.getDate()}.${start.getMonth() + 1}. – ${end.getDate()}.${end.getMonth() + 1}.${end.getFullYear()}`;
                           }
                       }
-                    : { year: 'numeric' as const, month: 'short' as const, day: 'numeric' as const },
+                    : // English title format
+                      lang === 'en'
+                      ? (info: { start: { marker: Date }; end?: { marker: Date } }) => {
+                            const start = new Date(info.start.marker);
+                            if (!info.end) {
+                                return `${start.getDate()} ${start.toLocaleString('en-GB', { month: 'short' })} ${start.getFullYear()}`;
+                            }
+                            const end = new Date(info.end.marker);
+                            end.setDate(end.getDate() - 1);
+
+                            const sameMonth =
+                                start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+                            const sameYear = start.getFullYear() === end.getFullYear();
+
+                            if (sameMonth) {
+                                return `${start.getDate()} - ${end.getDate()} ${end.toLocaleString('en-GB', { month: 'short' })} ${end.getFullYear()}`;
+                            }
+                            if (sameYear) {
+                                const sm = start.toLocaleString('en-GB', { month: 'short' });
+                                const em = end.toLocaleString('en-GB', { month: 'short' });
+                                return `${start.getDate()} ${sm} - ${end.getDate()} ${em} ${end.getFullYear()}`;
+                            }
+                            const sm = start.toLocaleString('en-GB', { month: 'short' });
+                            const em = end.toLocaleString('en-GB', { month: 'short' });
+                            return `${start.getDate()} ${sm} ${start.getFullYear()} - ${end.getDate()} ${em} ${end.getFullYear()}`;
+                        }
+                      : { year: 'numeric' as const, month: 'short' as const, day: 'numeric' as const },
         };
+    }
+    // Fix for FullCalendar locale
+    private resolveCalendarLocale(lang: string): string {
+        return lang === 'en' ? 'en-gb' : lang;
     }
 }
