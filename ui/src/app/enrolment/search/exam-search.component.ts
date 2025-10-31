@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -21,6 +22,7 @@ import {
     tap,
 } from 'rxjs/operators';
 import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ExamSearchResultComponent } from './exam-search-result.component';
 import { ExamSearchService } from './exam-search.service';
@@ -172,12 +174,12 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     private Enrolment = inject(EnrolmentService);
 
     constructor() {
-        this.setupSearchHandlers();
+        this.setupSearchHandler();
     }
 
     ngOnInit() {
-        this.initializeFilters();
-        this.loadCollaborationConfiguration();
+        this.loadStoredFilters();
+        this.loadPermissionCheck();
     }
 
     ngOnDestroy() {

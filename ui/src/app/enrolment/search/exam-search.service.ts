@@ -4,13 +4,13 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { EnrolmentInfo, ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { StorageService } from 'src/app/shared/storage/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExamSearchService {
     private http = inject(HttpClient);
-    private webStorageService = inject(WebStorageService, { token: SESSION_STORAGE });
+    private webStorageService = inject(StorageService);
 
     getEnrolmentPermissionCheckStatus$ = () =>
         this.http.get<{ active: boolean }>('/app/settings/enrolmentPermissionCheck');
@@ -21,13 +21,13 @@ export class ExamSearchService {
     checkEnrolmentStatus$ = (id: number) => this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${id}`);
 
     loadFilters = (category: string) => {
-        const entry = this.webStorageService.get('examFilters');
+        const entry = this.webStorageService.get<Record<string, string>>('examFilters');
         return entry && entry[category] ? JSON.parse(entry[category]) : {};
     };
 
     storeFilters = (filters: unknown, category: string) => {
         const data = { filters: filters };
-        const filter = this.webStorageService.get('examFilters') || {};
+        const filter = this.webStorageService.get<Record<string, string>>('examFilters') || {};
         filter[category] = JSON.stringify(data);
         this.webStorageService.set('examFilters', filter);
     };

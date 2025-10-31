@@ -248,7 +248,7 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
         }
 
         const enrolmentChecks = exams.map((exam) =>
-            this.Enrolment.getEnrolments(exam.id, true).pipe(
+            this.Enrolment.getEnrolments$(exam.id, true).pipe(
                 map((enrolments) => {
                     exam.reservationMade = enrolments.some((e) => isObject(e.reservation));
                     exam.alreadyEnrolled = enrolments.length > 0;
