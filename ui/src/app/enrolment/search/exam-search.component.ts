@@ -29,7 +29,6 @@ import { ExamSearchService } from './exam-search.service';
 
 interface LoadingState {
     loading: boolean;
-    error?: string;
 }
 
 @Component({
@@ -109,17 +108,6 @@ interface LoadingState {
                     <div class="d-flex align-items-center">
                         <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
                         <span>{{ 'i18n_searching' | translate }}...</span>
-                    </div>
-                </div>
-            </div>
-        }
-
-        <!-- Error State -->
-        @if (loader.error) {
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div class="alert alert-danger" role="alert">
-                        {{ loader.error }}
                     </div>
                 </div>
             </div>
@@ -244,7 +232,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
                     this.doSearch();
                 }
             },
-            error: (err) => this.handleError(err),
+            error: (err) => this.toast.error(err),
         });
     }
 
@@ -269,7 +257,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
                     this.exams = exams;
                     this.searchDone = true;
                 },
-                error: (err) => this.handleError(err),
+                error: (err) => this.toast.error(err),
             });
     };
 
@@ -310,13 +298,5 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
                 return of(exam);
             }),
         );
-    }
-
-    private handleError(error: unknown) {
-        const errorMessage =
-            error instanceof Error ? error.message : typeof error === 'string' ? error : 'An error occurred';
-
-        this.loader = { loading: false, error: errorMessage };
-        this.toast.error(errorMessage);
     }
 }
