@@ -6,12 +6,13 @@ import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgbModal, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { ExamMaterialComponent } from './exam-material.component';
 
 @Component({
@@ -30,7 +31,7 @@ export class ExamMaterialSelectorComponent implements OnInit, OnChanges {
     filter = '';
 
     private http = inject(HttpClient);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private toast = inject(ToastrService);
 
     ngOnInit() {
@@ -80,15 +81,8 @@ export class ExamMaterialSelectorComponent implements OnInit, OnChanges {
 
     openMaterialEditor = () =>
         this.modal
-            .open(ExamMaterialComponent, {
-                backdrop: 'static',
-                keyboard: true,
-                windowClass: 'question-editor-modal',
-            })
-            .result.then(() =>
-                // this.filterOutExisting();
-                this.changed.emit(),
-            );
+            .open$(ExamMaterialComponent, { windowClass: 'question-editor-modal' })
+            .subscribe(() => this.changed.emit());
 
     private filterOutExisting = () =>
         (this.materials = this.allMaterials.filter(

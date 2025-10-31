@@ -57,5 +57,5 @@ export class AnswerInstructionsComponent {
 
     private DateTime = inject(DateTimeService);
 
-    printExamDuration = () => this.DateTime.printExamDuration(this.exam);
+    printExamDuration = () => this.DateTime.formatDuration(this.exam.duration);
 }

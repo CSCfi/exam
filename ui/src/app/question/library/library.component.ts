@@ -4,15 +4,16 @@
 
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { NgbDropdownModule, NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { from, noop, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { Question, Tag } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { LibraryTransferDialogComponent } from './export/library-transfer-dialog.component';
 import { LibraryOwnersDialogComponent } from './owners/library-owners-dialog.component';
@@ -153,7 +154,7 @@ export class LibraryComponent {
 
     private router = inject(Router);
     private translate = inject(TranslateService);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private toast = inject(ToastrService);
     private Attachment = inject(AttachmentService);
     private Files = inject(FileService);
@@ -172,22 +173,21 @@ export class LibraryComponent {
     }
 
     import() {
-        this.Attachment.selectFile(false, {}, 'i18n_import_questions_detail')
-            .then((result) => {
-                this.Files.upload<FileResult>('/app/questions/import', result.$value.attachmentFile, {}).then(
-                    (resp) => {
-                        if (resp.errorCount > 0) {
-                            this.toast.error(
-                                `${this.translate.instant('i18n_questions_imported_with_errors')}: ${resp.errorCount}`,
-                            );
-                        } else {
-                            this.toast.success(this.translate.instant('i18n_questions_imported_successfully'));
-                        }
-                        this.reload();
-                    },
-                );
-            })
-            .catch(noop);
+        this.Attachment.selectFile$(false, {}, 'i18n_import_questions_detail').subscribe((result) => {
+            this.Files.upload$<FileResult>('/app/questions/import', result.$value.attachmentFile, {}).subscribe({
+                next: (resp) => {
+                    if (resp.errorCount > 0) {
+                        this.toast.error(
+                            `${this.translate.instant('i18n_questions_imported_with_errors')}: ${resp.errorCount}`,
+                        );
+                    } else {
+                        this.toast.success(this.translate.instant('i18n_questions_imported_successfully'));
+                    }
+                    this.reload();
+                },
+                error: (err) => this.toast.error(err),
+            });
+        });
     }
 
     export() {
@@ -204,13 +204,10 @@ export class LibraryComponent {
     }
 
     openOwnerSelection() {
-        const modalRef = this.modal.open(LibraryOwnersDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+        const modalRef = this.modal.openRef(LibraryOwnersDialogComponent, { size: 'lg' });
         modalRef.componentInstance.selections = this.selections;
-        from(modalRef.result)
+        this.modal
+            .result$<{ questions: number[]; users: User[] }>(modalRef)
             .pipe(
                 tap((result: { questions: number[]; users: User[] }) => {
                     const questions = this.questions.filter((q) => result.questions.includes(q.id));
@@ -221,13 +218,10 @@ export class LibraryComponent {
     }
 
     openTagSelection() {
-        const modalRef = this.modal.open(LibraryTagsDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+        const modalRef = this.modal.openRef(LibraryTagsDialogComponent, { size: 'lg' });
         modalRef.componentInstance.selections = this.selections;
-        from(modalRef.result)
+        this.modal
+            .result$<{ questions: number[]; tags: Tag[] }>(modalRef)
             .pipe(
                 tap((result: { questions: number[]; tags: Tag[] }) => {
                     const questions = this.questions.filter((q) => result.questions.includes(q.id));
@@ -238,11 +232,7 @@ export class LibraryComponent {
     }
 
     openFileTransfer() {
-        const modalRef = this.modal.open(LibraryTransferDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+        const modalRef = this.modal.openRef(LibraryTransferDialogComponent, { size: 'lg' });
         modalRef.componentInstance.selections = this.selections;
     }
 

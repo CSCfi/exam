@@ -6,12 +6,13 @@ import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnChanges, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { Review } from 'src/app/review/review.model';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { ArchivedReviewsComponent } from './categories/archived.component';
 import { GradedLoggedReviewsComponent } from './categories/graded-logged.component';
 import { GradedReviewsComponent } from './categories/graded.component';
@@ -52,7 +53,7 @@ export class ReviewListComponent implements OnInit, OnChanges {
     languageInspectedReviews: Review[] = [];
     rejectedReviews: Review[] = [];
 
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private http = inject(HttpClient);
     private route = inject(ActivatedRoute);
     private ReviewList = inject(ReviewListService);
@@ -127,9 +128,7 @@ export class ReviewListComponent implements OnInit, OnChanges {
     };
 
     openAborted = () => {
-        const modalRef = this.modal.open(AbortedExamsComponent, {
-            backdrop: 'static',
-            keyboard: true,
+        const modalRef = this.modal.openRef(AbortedExamsComponent, {
             windowClass: 'question-editor-modal',
             size: 'xl',
         });
@@ -138,9 +137,7 @@ export class ReviewListComponent implements OnInit, OnChanges {
     };
 
     openNoShows = () => {
-        const modalRef = this.modal.open(NoShowsComponent, {
-            backdrop: 'static',
-            keyboard: true,
+        const modalRef = this.modal.openRef(NoShowsComponent, {
             windowClass: 'question-editor-modal',
             size: 'xl',
         });

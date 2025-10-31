@@ -9,7 +9,6 @@ import { RouterLink } from '@angular/router';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { noop } from 'rxjs';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
@@ -70,12 +69,10 @@ export class ReservationDetailsComponent implements OnChanges {
     };
 
     removeReservation(reservation: ReservationDetail) {
-        this.Reservation.cancelReservation(reservation)
-            .then(() => {
-                this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
-                this.toast.info(this.translate.instant('i18n_reservation_removed'));
-            })
-            .catch(noop);
+        this.Reservation.cancelReservation$(reservation).subscribe(() => {
+            this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
+            this.toast.info(this.translate.instant('i18n_reservation_removed'));
+        });
     }
 
     permitRetrial(enrolment: ExamEnrolment) {

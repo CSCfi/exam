@@ -72,7 +72,7 @@ export class WrongLocationComponent implements OnInit {
         }
     }
 
-    printExamDuration = () => this.DateTimeService.printExamDuration(this.enrolment.exam);
+    printExamDuration = () => this.DateTimeService.formatDuration(this.enrolment.exam.duration);
     showInstructions = () => this.Enrolment.showInstructions(this.enrolment);
 
     private getRoomInstructions = (lang: string, room: ExamRoom) => {

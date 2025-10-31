@@ -9,7 +9,6 @@ declare global {
         SafeExamBrowser?: {
             security: {
                 configKey: string; // Page-based digest
-                browserExamKey: string;
             };
             version: string;
         };
@@ -18,14 +17,14 @@ declare global {
 
 @Injectable({ providedIn: 'root' })
 export class SebApiService {
-    private lastKnownUrl: string | null = null;
-    private lastKnownConfigKey: string | null = null;
+    private lastKnownUrl?: string;
+    private lastKnownConfigKey?: string;
 
     constructor() {
         // Capture the initial URL and key if SEB is available
         if (window.SafeExamBrowser) {
             this.lastKnownUrl = window.location.href;
-            this.lastKnownConfigKey = window.SafeExamBrowser.security.configKey || null;
+            this.lastKnownConfigKey = window.SafeExamBrowser.security.configKey;
         }
     }
 
@@ -35,20 +34,17 @@ export class SebApiService {
         if (!window.SafeExamBrowser) {
             return null;
         }
-
-        const currentKey = window.SafeExamBrowser.security.configKey;
-
+        const key = window.SafeExamBrowser.security.configKey;
         // Check if configKey has changed (SEB updated it due to navigation)
-        if (currentKey !== this.lastKnownConfigKey) {
+        if (key !== this.lastKnownConfigKey) {
             // SEB detected a real navigation (not SPA routing)
-            this.lastKnownConfigKey = currentKey;
+            this.lastKnownConfigKey = key;
             this.lastKnownUrl = window.location.href;
         }
-
-        return currentKey;
+        return key;
     };
 
-    getSebUrlForConfigKey = (): string | null => {
+    getSebUrlForConfigKey = (): string | undefined => {
         // Return the URL that corresponds to the current configKey
         // This is the URL SEB used when it last calculated the configKey
         return this.lastKnownUrl;

@@ -111,9 +111,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
     createExam = (executionType: Implementation) => this.Exam.createExam(executionType);
 
     copyExam = (exam: Exam) =>
-        this.Modal.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent, {
-            backdrop: 'static',
-        })
+        this.Modal.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent)
             .pipe(switchMap((data) => this.http.post<Exam>(`/app/exams/${exam.id}`, data)))
             .subscribe({
                 next: (resp) => {

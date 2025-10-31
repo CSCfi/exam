@@ -12,6 +12,7 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { LanguageSelectorComponent } from 'src/app/exam/editor/common/language-picker.component';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { Exam, ExamType, GradeScale } from 'src/app/exam/exam.model';
@@ -147,14 +148,18 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
         this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled);
 
     selectAttachmentFile = () => {
-        this.Attachment.selectFile(true, {}).then((data) => {
-            const url = this.collaborative ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
-            this.Files.upload<Attachment>(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }).then(
-                (resp) => {
-                    this.exam.attachment = resp;
-                },
-            );
-        });
+        this.Attachment.selectFile$(true, {})
+            .pipe(
+                switchMap((data) => {
+                    const url = this.collaborative ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
+                    return this.Files.upload$<Attachment>(url, data.$value.attachmentFile, {
+                        examId: this.exam.id.toString(),
+                    });
+                }),
+            )
+            .subscribe((resp) => {
+                this.exam.attachment = resp;
+            });
     };
 
     togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');

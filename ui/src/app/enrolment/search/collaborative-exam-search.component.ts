@@ -116,7 +116,7 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
             }),
         );
         this.exams.forEach((e) => {
-            this.Enrolment.getEnrolments(e.id, true).subscribe((enrolments) => {
+            this.Enrolment.getEnrolments$(e.id, true).subscribe((enrolments) => {
                 e.reservationMade = enrolments.some((e) => isObject(e.reservation));
                 e.alreadyEnrolled = enrolments.length > 0;
             });

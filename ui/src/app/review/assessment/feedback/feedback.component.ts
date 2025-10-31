@@ -9,6 +9,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import type { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Examination } from 'src/app/examination/examination.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
@@ -98,16 +100,29 @@ export class FeedbackComponent implements OnInit {
     };
 
     selectFile = () => {
-        this.Attachment.selectFile(false, {}).then((res: FileResult) => {
-            if (this.collaborative) {
-                this._saveCollaborativeFeedback$().subscribe(() =>
-                    this._upload(res, `/app/iop/collab/attachment/exam/${this.id}/${this.ref}/feedback`),
-                );
-            } else {
-                this._saveFeedback$().subscribe(() =>
-                    this._upload(res, `/app/attachment/exam/${this.exam.id}/feedback`),
-                );
-            }
+        this.Attachment.selectFile$(false, {}).subscribe((res: FileResult) => {
+            const save$: Observable<unknown> = this.collaborative
+                ? this._saveCollaborativeFeedback$()
+                : this._saveFeedback$();
+            const url = this.collaborative
+                ? `/app/iop/collab/attachment/exam/${this.id}/${this.ref}/feedback`
+                : `/app/attachment/exam/${this.exam.id}/feedback`;
+
+            save$
+                .pipe(
+                    switchMap(() =>
+                        this.Files.upload$<Attachment>(url, res.$value.attachmentFile, {
+                            examId: this.exam.id.toString(),
+                        }),
+                    ),
+                )
+                .subscribe((resp) => {
+                    this.exam.examFeedback.attachment = resp;
+                    if (this.participation) {
+                        this.participation._rev = this.exam.examFeedback?.attachment?.rev;
+                        delete this.exam.examFeedback?.attachment?.rev;
+                    }
+                });
         });
     };
 
@@ -115,16 +130,4 @@ export class FeedbackComponent implements OnInit {
 
     private _saveCollaborativeFeedback$ = () =>
         this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation!);
-
-    private _upload = (res: FileResult, url: string) =>
-        this.Files.upload<Attachment>(url, res.$value.attachmentFile, { examId: this.exam.id.toString() }).then(
-            (resp) => {
-                this.exam.examFeedback.attachment = resp;
-                // kinda hacky, but let's do this mangling for time being
-                if (this.participation) {
-                    this.participation._rev = this.exam.examFeedback?.attachment?.rev;
-                    delete this.exam.examFeedback?.attachment?.rev;
-                }
-            },
-        );
 }

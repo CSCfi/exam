@@ -4,11 +4,11 @@
 
 import type { HttpResponse } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
-import { firstValueFrom, of, tap } from 'rxjs';
+import { catchError, Observable, of, tap, throwError } from 'rxjs';
 import { EssayAnswer } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 
@@ -56,24 +56,24 @@ export class FileService {
             .pipe(tap((resp) => (this.maxFileSize = resp.filesize)));
     }
 
-    async upload<A>(url: string, file: File, params: Record<string, string>): Promise<A> {
-        try {
-            return await this.doUpload<A>(url, file, params);
-        } catch (resp: unknown) {
-            if (resp && typeof resp === 'object' && 'data' in resp) {
-                this.toast.error(this.translate.instant((resp as { data: string }).data));
-            }
-            throw resp;
-        }
-    }
+    upload$ = <A>(url: string, file: File, params: Record<string, string>): Observable<A> =>
+        this.doUpload$<A>(url, file, params).pipe(
+            catchError((resp: unknown) => {
+                if (resp && typeof resp === 'object' && 'data' in resp) {
+                    this.toast.error(this.translate.instant((resp as { data: string }).data));
+                }
+                return throwError(() => resp);
+            }),
+        );
 
     uploadAnswerAttachment(url: string, file: File, params: Record<string, string>, parent: Container): void {
-        this.doUpload<EssayAnswer>(url, file, params)
-            .then((resp) => {
+        this.doUpload$<EssayAnswer>(url, file, params).subscribe({
+            next: (resp) => {
                 parent.objectVersion = resp.objectVersion;
                 parent.attachment = !this.isAttachment(resp) ? resp.attachment : resp;
-            })
-            .catch((resp) => this.toast.error(this.translate.instant(resp.data)));
+            },
+            error: (resp) => this.toast.error(this.translate.instant(resp.error.data)),
+        });
     }
 
     private isAttachment = (obj: EssayAnswer | Attachment): obj is Attachment => obj.objectVersion === undefined;
@@ -94,14 +94,14 @@ export class FileService {
         }
     }
 
-    private async doUpload<A>(url: string, file: File, params: Record<string, string>): Promise<A> {
+    private doUpload$ = <A>(url: string, file: File, params: Record<string, string>): Observable<A> => {
         if (file.size > this.maxFileSize) {
             this.toast.error(this.translate.instant('i18n_file_too_large'));
-            throw { data: 'i18n_file_too_large' };
+            return throwError(() => ({ data: 'i18n_file_too_large' }));
         }
         const formData = new FormData();
         formData.append('file', file);
         Object.entries(params).forEach(([key, value]) => formData.append(key, value));
-        return firstValueFrom(this.http.post<A>(url, formData));
-    }
+        return this.http.post<A>(url, formData);
+    };
 }

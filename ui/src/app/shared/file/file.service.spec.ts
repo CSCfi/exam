@@ -5,7 +5,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { FileService } from './file.service';
@@ -14,16 +14,18 @@ describe('FileService', () => {
     let service: FileService;
     let httpMock: HttpTestingController;
     let toastService: jasmine.SpyObj<ToastrService>;
-    let translateService: TranslateService;
+    let translateService: jasmine.SpyObj<TranslateService>;
 
     beforeEach(() => {
         const toastSpy = jasmine.createSpyObj('ToastrService', ['error', 'success', 'warning']);
+        const translateSpy = jasmine.createSpyObj('TranslateService', ['instant']);
+        translateSpy.instant.and.callFake((key: string) => key);
 
         TestBed.configureTestingModule({
-            imports: [TranslateModule.forRoot()],
             providers: [
                 FileService,
                 { provide: ToastrService, useValue: toastSpy },
+                { provide: TranslateService, useValue: translateSpy },
                 provideHttpClient(),
                 provideHttpClientTesting(),
             ],
@@ -32,7 +34,7 @@ describe('FileService', () => {
         service = TestBed.inject(FileService);
         httpMock = TestBed.inject(HttpTestingController);
         toastService = TestBed.inject(ToastrService) as jasmine.SpyObj<ToastrService>;
-        translateService = TestBed.inject(TranslateService);
+        translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
     });
 
     afterEach(() => {
@@ -170,15 +172,12 @@ describe('FileService', () => {
 
             service.maxFileSize = 10485760;
 
-            const uploadPromise = service.upload(url, file, params);
+            service.upload$(url, file, params).subscribe((resp) => expect(resp).toEqual(mockResponse));
 
             const req = httpMock.expectOne(url);
             expect(req.request.method).toBe('POST');
             expect(req.request.body instanceof FormData).toBe(true);
             req.flush(mockResponse);
-
-            const result = await uploadPromise;
-            expect(result).toEqual(mockResponse);
         });
 
         it('should reject upload if file is too large', async () => {
@@ -187,36 +186,35 @@ describe('FileService', () => {
             const params = { examId: '123' };
 
             service.maxFileSize = 1000000;
-            spyOn(translateService, 'instant').and.returnValue('File too large');
 
-            try {
-                await service.upload(url, file, params);
-                fail('Should have thrown error');
-            } catch {
-                expect(toastService.error).toHaveBeenCalledWith('File too large');
-            }
+            service.upload$(url, file, params).subscribe({
+                next: () => fail('Should have thrown error'),
+                error: () => {
+                    expect(toastService.error).toHaveBeenCalledWith('i18n_file_too_large');
+                    expect(translateService.instant).toHaveBeenCalledWith('i18n_file_too_large');
+                },
+            });
 
             httpMock.expectNone(url);
         });
 
-        it('should handle upload error', async () => {
+        it('should handle upload error', (done) => {
             const url = '/api/files/upload';
             const file = new File(['test content'], 'test.txt', { type: 'text/plain' });
             const params = { examId: '123' };
 
             service.maxFileSize = 10485760;
 
-            const uploadPromise = service.upload(url, file, params);
+            service.upload$(url, file, params).subscribe({
+                next: () => fail('Should have failed with 500 error'),
+                error: (err) => {
+                    expect(err.status).toBe(500);
+                    done();
+                },
+            });
 
             const req = httpMock.expectOne(url);
             req.error(new ProgressEvent('error'), { status: 500, statusText: 'Server Error' });
-
-            try {
-                await uploadPromise;
-                fail('Should have thrown error');
-            } catch {
-                // Error expected
-            }
         });
     });
 
@@ -273,18 +271,16 @@ describe('FileService', () => {
             const parent: { objectVersion?: number; attachment?: Attachment } = { objectVersion: 1 };
 
             service.maxFileSize = 10485760;
-            spyOn(translateService, 'instant').and.returnValue('Upload failed');
-
             service.uploadAnswerAttachment(url, file, params, parent);
 
             const req = httpMock.expectOne(url);
-            // Error with HttpErrorResponse structure that has error.data
             req.flush({ data: 'i18n_error_upload' }, { status: 400, statusText: 'Bad Request' });
 
-            setTimeout(() => {
-                expect(toastService.error).toHaveBeenCalledWith('Upload failed');
+            queueMicrotask(() => {
+                expect(toastService.error).toHaveBeenCalledWith('i18n_error_upload');
+                expect(translateService.instant).toHaveBeenCalledWith('i18n_error_upload');
                 done();
-            }, 50);
+            });
         });
     });
 });

@@ -5,12 +5,12 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, inject } from '@angular/core';
-import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-dialog.component';
 
 @Component({
@@ -52,23 +52,17 @@ export class InspectionCommentsComponent {
     @Input() exam!: Exam;
     @Input() addingVisible = false;
 
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private http = inject(HttpClient);
 
     addInspectionComment = () =>
-        from(
-            this.modal.open(InspectionCommentDialogComponent, {
-                backdrop: 'static',
-                keyboard: true,
-            }).result,
-        )
+        this.modal
+            .open$<{ comment: string }>(InspectionCommentDialogComponent)
             .pipe(
-                switchMap((event: { comment: string }) =>
+                switchMap((event) =>
                     this.http.post<{ comment: string; creator: User; created: Date }>(
                         `/app/review/${this.exam.id}/inspection`,
-                        {
-                            comment: event.comment,
-                        },
+                        { comment: event.comment },
                     ),
                 ),
             )

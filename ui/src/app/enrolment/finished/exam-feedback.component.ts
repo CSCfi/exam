@@ -5,12 +5,12 @@
 import { DatePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ReviewedExam, Scores } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
 
@@ -39,7 +39,7 @@ export class ExamFeedbackComponent implements OnInit {
     assessmentWithAnswers?: Exam;
 
     private http = inject(HttpClient);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private Attachment = inject(AttachmentService);
     private Files = inject(FileService);
 
@@ -61,11 +61,7 @@ export class ExamFeedbackComponent implements OnInit {
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.assessment);
 
     showAnswers = () => {
-        const modal = this.modal.open(ExamAnswersDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'xl',
-        });
+        const modal = this.modal.openRef(ExamAnswersDialogComponent, { size: 'xl' });
         modal.componentInstance.exam = this.assessmentWithAnswers;
         modal.componentInstance.participationTime = this.participationTime;
         modal.componentInstance.participationDuration = this.participationDuration;

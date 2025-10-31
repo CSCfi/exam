@@ -8,17 +8,18 @@ import type { OnInit } from '@angular/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime, Duration } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, from, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { AutoEvaluationConfig, Exam, ExaminationDate } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { CustomDurationPickerDialogComponent } from './custom-duration-picker-dialog.component';
@@ -57,7 +58,7 @@ export class ExamPublicationComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private translate = inject(TranslateService);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private toast = inject(ToastrService);
     private Session = inject(SessionService);
     private Exam = inject(ExamService);
@@ -144,16 +145,10 @@ export class ExamPublicationComponent implements OnInit {
         this.router.navigate(['..', '3'], { relativeTo: this.route });
     };
 
-    openCustomTimeEditor = () => {
-        from(
-            this.modal.open(CustomDurationPickerDialogComponent, {
-                backdrop: 'static',
-                keyboard: true,
-            }).result,
-        ).subscribe((duration: { hours: number; minutes: number }) =>
-            this.setExamDuration(duration.hours, duration.minutes),
-        );
-    };
+    openCustomTimeEditor = () =>
+        this.modal
+            .open$<{ hours: number; minutes: number }>(CustomDurationPickerDialogComponent)
+            .subscribe((duration) => this.setExamDuration(duration.hours, duration.minutes));
 
     saveAndPublishExam = () => {
         const errors: string[] = this.isDraftCollaborativeExam()
@@ -161,35 +156,27 @@ export class ExamPublicationComponent implements OnInit {
             : this.errorsPreventingPublication();
 
         if (errors.length > 0) {
-            const modal = this.modal.open(PublicationErrorDialogComponent, {
-                backdrop: 'static',
-                keyboard: true,
-            });
+            const modal = this.modal.openRef(PublicationErrorDialogComponent);
             modal.componentInstance.errors = errors;
         } else {
-            const modal = this.modal.open(PublicationDialogComponent, {
-                backdrop: 'static',
-                keyboard: true,
-            });
+            const modal = this.modal.openRef(PublicationDialogComponent);
             modal.componentInstance.exam = this.exam;
             modal.componentInstance.prePublication = this.isDraftCollaborativeExam();
-            from(modal.result).subscribe({
-                next: () => {
-                    const state = {
-                        state: this.isDraftCollaborativeExam() ? 'PRE_PUBLISHED' : 'PUBLISHED',
-                    };
-                    // OK button clicked
-                    this.updateExam$(true, state).subscribe({
-                        next: () => {
-                            const text = this.isDraftCollaborativeExam()
-                                ? 'i18n_exam_saved_and_pre_published'
-                                : 'i18n_exam_saved_and_published';
-                            this.toast.success(this.translate.instant(text));
-                            this.router.navigate(['/staff', this.isAdmin() ? 'admin' : 'teacher']);
-                        },
-                        error: (err) => this.toast.error(err),
-                    });
-                },
+            this.modal.result$(modal).subscribe(() => {
+                const state = {
+                    state: this.isDraftCollaborativeExam() ? 'PRE_PUBLISHED' : 'PUBLISHED',
+                };
+                // OK button clicked
+                this.updateExam$(true, state).subscribe({
+                    next: () => {
+                        const text = this.isDraftCollaborativeExam()
+                            ? 'i18n_exam_saved_and_pre_published'
+                            : 'i18n_exam_saved_and_published';
+                        this.toast.success(this.translate.instant(text));
+                        this.router.navigate(['/staff', this.isAdmin() ? 'admin' : 'teacher']);
+                    },
+                    error: (err) => this.toast.error(err),
+                });
             });
         }
     };
@@ -199,22 +186,15 @@ export class ExamPublicationComponent implements OnInit {
     // TODO: how should this work when it comes to private exams?
     unpublishExam = () => {
         if (this.isAllowedToUnpublishOrRemove()) {
-            this.modal
-                .open(PublicationRevocationDialogComponent, {
-                    backdrop: 'static',
-                    keyboard: true,
-                })
-                .result.then(() =>
-                    this.updateExam$(true, {
-                        state: this.collaborative() ? 'PRE_PUBLISHED' : 'DRAFT',
-                    }).subscribe({
-                        next: () => {
-                            this.toast.success(this.translate.instant('i18n_exam_unpublished'));
-                            this.exam.state = 'DRAFT';
-                        },
-                        error: (err) => this.toast.error(err),
-                    }),
-                );
+            this.modal.open$(PublicationRevocationDialogComponent).subscribe(() =>
+                this.updateExam$(true, { state: this.collaborative() ? 'PRE_PUBLISHED' : 'DRAFT' }).subscribe({
+                    next: () => {
+                        this.toast.success(this.translate.instant('i18n_exam_unpublished'));
+                        this.exam.state = 'DRAFT';
+                    },
+                    error: (err) => this.toast.error(err),
+                }),
+            );
         } else {
             this.toast.warning(this.translate.instant('i18n_unpublish_not_possible'));
         }
