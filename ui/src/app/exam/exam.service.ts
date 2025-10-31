@@ -60,7 +60,7 @@ export class ExamService {
 
     createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
         this.http
-            .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
+            .post<Exam>('/app/exams', { executionType: { type: executionType }, implementation: examinationType })
             .subscribe({
                 next: (response) => {
                     this.toast.info(this.translate.instant('i18n_exam_added'));

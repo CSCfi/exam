@@ -6,9 +6,9 @@ import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { noop } from 'rxjs';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
@@ -34,6 +34,10 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         TranslateModule,
         ApplyDstPipe,
         OrderByPipe,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
     ],
     styles: '.wrap { white-space: wrap !important }',
 })
@@ -65,12 +69,10 @@ export class ReservationDetailsComponent implements OnChanges {
     };
 
     removeReservation(reservation: ReservationDetail) {
-        this.Reservation.cancelReservation(reservation)
-            .then(() => {
-                this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
-                this.toast.info(this.translate.instant('i18n_reservation_removed'));
-            })
-            .catch(noop);
+        this.Reservation.cancelReservation$(reservation).subscribe(() => {
+            this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
+            this.toast.info(this.translate.instant('i18n_reservation_removed'));
+        });
     }
 
     permitRetrial(enrolment: ExamEnrolment) {
@@ -94,6 +96,29 @@ export class ReservationDetailsComponent implements OnChanges {
     }
 
     changeReservationMachine = (reservation: Reservation) => this.Reservation.changeMachine(reservation);
+
+    hasAvailableActions(r: ReservationDetail): boolean {
+        const canRemoveReservation =
+            this.isAdminView &&
+            r.enrolment.exam.state === 'PUBLISHED' &&
+            !r.enrolment.noShow &&
+            r.enrolment.exam.implementation === 'AQUARIUM' &&
+            !this.reservationIsInPast(r);
+
+        const canPermitRetrial =
+            this.isAdminView &&
+            r.enrolment.exam.state === 'ABORTED' &&
+            r.enrolment.exam.implementation === 'AQUARIUM' &&
+            r.enrolment.exam.executionType.type === 'PUBLIC';
+
+        const canChangeReservationMachine =
+            r.enrolment.exam.state === 'PUBLISHED' &&
+            !r.enrolment.noShow &&
+            !r.externalReservation &&
+            r.enrolment.exam.implementation === 'AQUARIUM';
+
+        return canRemoveReservation || canPermitRetrial || canChangeReservationMachine;
+    }
 
     setPredicate = (predicate: string) => {
         if (this.predicate === predicate) {

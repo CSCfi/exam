@@ -5,7 +5,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { CanComponentDeactivate } from 'src/app/question/has-unsaved-changes.guard';
@@ -16,6 +15,7 @@ import { QuestionService } from 'src/app/question/question.service';
 import type { User } from 'src/app/session/session.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { QuestionBodyComponent } from './question-body.component';
 
@@ -56,7 +56,7 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
     private route = inject(ActivatedRoute);
     private toast = inject(ToastrService);
     private Question = inject(QuestionService);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
 
     ngOnInit() {
         this.nextState =
@@ -100,14 +100,11 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
         this.question.type === 'ClaimChoiceQuestion' &&
         this.Question.getInvalidClaimOptionTypes(this.question.options).length > 0;
 
-    openPreview = () => {
-        const modal = this.modal.open(QuestionPreviewDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+    openPreview$ = () => {
+        const modal = this.modal.openRef(QuestionPreviewDialogComponent, { size: 'lg' });
         modal.componentInstance.question = this.sectionQuestion || this.question;
         modal.componentInstance.isExamQuestion = this.sectionQuestion;
+        return this.modal.result$<void>(modal);
     };
 
     saveQuestion = () => {
@@ -123,12 +120,15 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
         if (this.collaborative) {
             fn(this.question);
         } else if (this.newQuestion) {
-            this.Question.createQuestion(this.question as QuestionDraft).then(fn, (error) => this.toast.error(error));
+            this.Question.createQuestion$(this.question as QuestionDraft).subscribe({
+                next: fn,
+                error: (error) => this.toast.error(error),
+            });
         } else {
-            this.Question.updateQuestion(this.question as Question).then(
-                () => fn(this.question),
-                (error) => this.toast.error(error),
-            );
+            this.Question.updateQuestion$(this.question as Question).subscribe({
+                next: () => fn(this.question),
+                error: (error) => this.toast.error(error),
+            });
         }
     };
 

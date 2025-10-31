@@ -523,12 +523,12 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
                 .mapToLong(es -> es.getSectionQuestions().size())
                 .sum()
         ).isEqualTo(
-                exam
-                    .getExamSections()
-                    .stream()
-                    .mapToLong(es -> es.getSectionQuestions().size())
-                    .sum()
-            );
+            exam
+                .getExamSections()
+                .stream()
+                .mapToLong(es -> es.getSectionQuestions().size())
+                .sum()
+        );
     }
 
     @Test

@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import miscellaneous.config.ConfigReader;
 import miscellaneous.datetime.DateTimeHandler;
 import miscellaneous.enrolment.EnrolmentHandler;
+import models.base.GeneratedIdentityModel;
 import models.calendar.MaintenancePeriod;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.ExternalReservation;
@@ -83,7 +84,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     private EnrolmentHandler enrolmentHandler;
 
     @Override
-    public Result getSlots(User user, Exam exam, Long roomId, String day, Collection<Integer> aids) {
+    public Result getSlots(User user, Exam exam, Long roomId, String day, Collection<Long> aids) {
         ExamRoom room = DB.find(ExamRoom.class, roomId);
         if (room == null) {
             return Results.forbidden(String.format("No room with id: (%d)", roomId));
@@ -101,7 +102,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             } catch (IllegalArgumentException e) {
                 return Results.notFound();
             }
-            // users reservations starting from now
+            // user's reservations starting from now
             List<Reservation> reservations = DB.find(Reservation.class)
                 .fetch("enrolment.exam")
                 .where()
@@ -133,10 +134,10 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     @Override
-    public boolean isDoable(Reservation reservation, Collection<Integer> aids) {
+    public boolean isDoable(Reservation reservation, Collection<Long> aids) {
         DateTimeZone dtz = DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
         LocalDate searchDate = dateTimeHandler.normalize(reservation.getStartAt().withZone(dtz), dtz).toLocalDate();
-        // users reservations starting from now
+        // user's reservations starting from now
         List<Reservation> reservations = DB.find(Reservation.class)
             .fetch("enrolment.exam")
             .where()
@@ -170,7 +171,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     /**
-     * Search date is the current date if searching for current week or earlier,
+     * Search date is the current date if searching for the current week or earlier,
      * If searching for upcoming weeks, day of week is one.
      */
     @Override
@@ -203,7 +204,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         return searchDate;
     }
 
-    private List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Integer> access, Exam exam) {
+    private List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Long> access, Exam exam) {
         List<ExamMachine> candidates = DB.find(ExamMachine.class)
             .fetch("room")
             .where()
@@ -225,7 +226,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         Exam exam,
         DateTime start,
         DateTime end,
-        Collection<Integer> aids
+        Collection<Long> aids
     ) {
         List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
         Collections.shuffle(machines);
@@ -284,8 +285,8 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     // Go through the slots and check if conflicting reservations exist. Decorate such slots with conflict information.
-    // Available machine count can be either pre-calculated (in which case the amount comes in form of map value) or not
-    // (in which case the calculation is done based on machines provided).
+    // Available machine count can be either pre-calculated (in which case the amount comes in the form of map value)
+    // or not (in which case the calculation is done based on machines provided).
     @Override
     public Set<TimeSlot> handleReservations(
         Map<Interval, Optional<Integer>> examSlots,
@@ -324,13 +325,13 @@ public class CalendarHandlerImpl implements CalendarHandler {
                     }
                 }
             }
-            // Resolve available machine count. Assume precalculated values within the map if no machines provided
+            // Resolve available machine count. Assume precalculated values within the map if no machines are provided
             int availableMachineCount = entry.getValue().isPresent()
                 ? entry.getValue().get()
                 : (int) machines
-                    .stream()
-                    .filter(m -> !isReservedByOthersDuring(m, slot, user))
-                    .count();
+                      .stream()
+                      .filter(m -> !isReservedByOthersDuring(m, slot, user))
+                      .count();
 
             results.add(new TimeSlot(slot, availableMachineCount, null));
         }
@@ -338,7 +339,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     /**
-     * Queries for slots for given room and day
+     * Queries for slots for a given room and day
      */
     private Set<TimeSlot> getExamSlots(
         User user,
@@ -359,8 +360,8 @@ public class CalendarHandlerImpl implements CalendarHandler {
             .collect(
                 Collectors.toMap(
                     Function.identity(),
-                    es -> Optional.empty(),
-                    (u, v) -> {
+                    _ -> Optional.empty(),
+                    (u, _) -> {
                         throw new IllegalStateException(String.format("Duplicate key %s", u));
                     },
                     LinkedHashMap::new
@@ -381,19 +382,19 @@ public class CalendarHandlerImpl implements CalendarHandler {
         Collection<Interval> intervals = new ArrayList<>();
         List<ExamStartingHour> startingHours = Lists.newArrayList(room.getExamStartingHours());
         if (startingHours.isEmpty()) {
-            // Default to 1 hour slots that start at the hour
+            // Default to 1-hour slots that start at the hour
             startingHours = createDefaultStartingHours(room.getLocalTimezone());
         }
         Collections.sort(startingHours);
         DateTime now = DateTime.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()));
         for (DateTimeHandler.OpeningHours oh : openingHours) {
-            int tzOffset = oh.getTimezoneOffset();
-            DateTime instant = now.getDayOfYear() == date.getDayOfYear() ? now : oh.getHours().getStart();
-            DateTime slotEnd = oh.getHours().getEnd();
+            int tzOffset = oh.timezoneOffset();
+            DateTime instant = now.getDayOfYear() == date.getDayOfYear() ? now : oh.hours().getStart();
+            DateTime slotEnd = oh.hours().getEnd();
             DateTime beginning = nextStartingTime(instant, startingHours, tzOffset);
             while (beginning != null) {
                 DateTime nextBeginning = nextStartingTime(beginning.plusMillis(1), startingHours, tzOffset);
-                if (beginning.isBefore(oh.getHours().getStart())) {
+                if (beginning.isBefore(oh.hours().getStart())) {
                     beginning = nextBeginning;
                     continue;
                 }
@@ -435,11 +436,11 @@ public class CalendarHandlerImpl implements CalendarHandler {
 
     @Override
     public Set<CalendarHandler.TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
-        // Filter out slots that user has a conflicting reservation with
+        // Filter out slots that the user has a conflicting reservation with
         if (node.isArray()) {
             ArrayNode root = (ArrayNode) node;
             LocalDate searchDate = LocalDate.parse(date, ISODateTimeFormat.dateParser());
-            // users reservations starting from now
+            // user's reservations starting from now
             List<Reservation> reservations = DB.find(Reservation.class)
                 .fetch("enrolment.exam")
                 .where()
@@ -456,7 +457,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
                         return new Interval(start, end);
                     },
                     n -> Optional.of(n.get("availableMachines").asInt()),
-                    (u, v) -> {
+                    (u, _) -> {
                         throw new IllegalStateException(String.format("Duplicate key %s", u));
                     },
                     LinkedHashMap::new
@@ -480,7 +481,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
                     Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
-                        (u, v) -> {
+                        (u, _) -> {
                             throw new IllegalStateException(String.format("Duplicate key %s", u));
                         },
                         LinkedHashMap::new
@@ -552,7 +553,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         enrolment.setOptionalSections(sections);
         DB.save(enrolment);
 
-        // Finally nuke the old reservation if any
+        // Finally, nuke the old reservation if any
         if (oldReservation != null) {
             if (oldReservation.getExternalReservation() != null) {
                 return externalReservationHandler
@@ -586,7 +587,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         if (enrolment.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return Optional.of(Results.forbidden("SEB exam does not take reservations"));
         }
-        // Removal not permitted if old reservation is in the past or if exam is already started
+        // Removal is not permitted if the old reservation is in the past or if exam is already started
         Reservation oldReservation = enrolment.getReservation();
         if (
             enrolment.getExam().getState() == Exam.State.STUDENT_STARTED ||
@@ -595,7 +596,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             return Optional.of(Results.forbidden("i18n_reservation_in_effect"));
         }
         // No previous reservation or it's in the future
-        // If no previous reservation, check if allowed to participate. This check is skipped if user already
+        // If no previous reservation, check if allowed to participate. This check is skipped if the user already
         // has a reservation to this exam so that change of reservation is always possible.
         if (oldReservation == null && !enrolmentHandler.isAllowedToParticipate(enrolment.getExam(), user)) {
             return Optional.of(Results.forbidden("i18n_no_trials_left"));
@@ -614,7 +615,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             !enrolment.isNoShow() &&
             enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
         ) {
-            // External reservation, assessment not returned yet. We must wait for it to arrive first
+            // External reservation - assessment not returned yet. We must wait for it to arrive first
             return Optional.of(Results.forbidden("i18n_enrolment_assessment_not_received"));
         }
 
@@ -686,25 +687,25 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     // TODO: this room vs machine accessibility needs some UI work and rethinking.
-    private static boolean isMachineAccessibilitySatisfied(ExamMachine machine, Collection<Integer> wanted) {
+    private static boolean isMachineAccessibilitySatisfied(ExamMachine machine, Collection<Long> wanted) {
         if (machine.isAccessible()) {
             // this has it all :)
             return true;
         }
         // The following is always empty because no UI-support for adding
-        Set<Integer> machineAccessibility = machine
+        Set<Long> machineAccessibility = machine
             .getAccessibilities()
             .stream()
-            .map(accessibility -> accessibility.getId().intValue())
+            .map(GeneratedIdentityModel::getId)
             .collect(Collectors.toSet());
         return machineAccessibility.containsAll(wanted);
     }
 
-    private static boolean isRoomAccessibilitySatisfied(ExamRoom room, Collection<Integer> wanted) {
-        Set<Integer> roomAccessibility = room
+    private static boolean isRoomAccessibilitySatisfied(ExamRoom room, Collection<Long> wanted) {
+        Set<Long> roomAccessibility = room
             .getAccessibilities()
             .stream()
-            .map(accessibility -> accessibility.getId().intValue())
+            .map(GeneratedIdentityModel::getId)
             .collect(Collectors.toSet());
         return roomAccessibility.containsAll(wanted);
     }
@@ -743,7 +744,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     private static List<ExamStartingHour> createDefaultStartingHours(String roomTz) {
-        // Get offset from Jan 1st in order to no have DST in effect
+        // Deliberately get offset from Jan 1st to have no DST in effect
         DateTimeZone zone = DateTimeZone.forID(roomTz);
         DateTime beginning = DateTime.now().withDayOfYear(1).withTimeAtStartOfDay();
         DateTime ending = beginning.plusHours(LAST_HOUR);
@@ -761,8 +762,8 @@ public class CalendarHandlerImpl implements CalendarHandler {
     private static DateTime getEndOfOpeningHours(DateTime instant, List<DateTimeHandler.OpeningHours> openingHours) {
         return openingHours
             .stream()
-            .filter(oh -> oh.getHours().contains(instant.plusMillis(oh.getTimezoneOffset())))
-            .map(oh -> oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset()))
+            .filter(oh -> oh.hours().contains(instant.plusMillis(oh.timezoneOffset())))
+            .map(oh -> oh.hours().getEnd().minusMillis(oh.timezoneOffset()))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("slot not contained within opening hours, recheck logic!"));
     }

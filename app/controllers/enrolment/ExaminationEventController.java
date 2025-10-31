@@ -8,7 +8,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.util.Optional;
 import java.util.Set;
@@ -31,9 +30,10 @@ import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExaminationDateSanitizer;
-import sanitizers.ExaminationEventSanitizer;
+import validation.ExaminationDateSanitizer;
+import validation.core.Attrs;
+import validation.exam.ExaminationEventDTO;
+import validation.exam.ExaminationEventValidator;
 
 public class ExaminationEventController extends BaseController {
 
@@ -81,7 +81,7 @@ public class ExaminationEventController extends BaseController {
     }
 
     private int getParticipantUpperBound(DateTime start, DateTime end, Long id) {
-        ExpressionList<ExaminationEvent> el = DB.find(ExaminationEvent.class).where().le("start", end);
+        var el = DB.find(ExaminationEvent.class).where().le("start", end);
         if (id != null) {
             el = el.ne("id", id);
         }
@@ -101,7 +101,7 @@ public class ExaminationEventController extends BaseController {
             .anyMatch(i -> i.overlaps(interval));
     }
 
-    @With(ExaminationEventSanitizer.class)
+    @With(ExaminationEventValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result insertExaminationEvent(Long eid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
@@ -110,9 +110,10 @@ public class ExaminationEventController extends BaseController {
         }
         ExaminationEventConfiguration eec = new ExaminationEventConfiguration();
         // HOX! maybe in the future this can be some preset event shared by multiple exams.
-        // For time being lets always create new events.
+        // For the time being, let's always create new events.
+        ExaminationEventDTO dto = request.attrs().get(Attrs.EXAMINATION_EVENT);
         ExaminationEvent ee = new ExaminationEvent();
-        DateTime start = request.attrs().get(Attrs.START_DATE);
+        DateTime start = dto.start();
         if (start.isBeforeNow()) {
             return forbidden("i18n_error_examination_event_in_the_past");
         }
@@ -121,21 +122,21 @@ public class ExaminationEventController extends BaseController {
             return forbidden("i18n_error_conflicts_with_maintenance_period");
         }
         int ub = getParticipantUpperBound(start, end, null);
-        int capacity = request.attrs().get(Attrs.CAPACITY);
+        int capacity = dto.capacity();
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
             return forbidden("i18n_error_max_capacity_exceeded");
         }
-        String quitPassword = request.attrs().get(Attrs.QUIT_PASSWORD);
+        String quitPassword = dto.getQuitPasswordAsJava().orElse(null);
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH && quitPassword == null) {
             return forbidden("no quit password provided");
         }
-        String settingsPassword = request.attrs().get(Attrs.SETTINGS_PASSWORD);
+        String settingsPassword = dto.getSettingsPasswordAsJava().orElse(null);
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH && settingsPassword == null) {
             return forbidden("no settings password provided");
         }
         ee.setStart(start);
-        ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
-        ee.setCapacity(request.attrs().get(Attrs.CAPACITY));
+        ee.setDescription(dto.description());
+        ee.setCapacity(dto.capacity());
         ee.save();
         eec.setExaminationEvent(ee);
         eec.setExam(exam);
@@ -143,7 +144,7 @@ public class ExaminationEventController extends BaseController {
         if (quitPassword != null && settingsPassword != null) {
             encryptQuitPassword(eec, quitPassword);
             encryptSettingsPassword(eec, settingsPassword, quitPassword);
-            // Pass back the plaintext password, so it can be shown to user
+            // Pass back the plaintext password, so it can be shown to the user
             eec.setQuitPassword(quitPassword);
             eec.setSettingsPassword(settingsPassword);
         }
@@ -151,7 +152,7 @@ public class ExaminationEventController extends BaseController {
         return ok(eec);
     }
 
-    @With(ExaminationEventSanitizer.class)
+    @With(ExaminationEventValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateExaminationEvent(Long eid, Long eecid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
@@ -163,18 +164,19 @@ public class ExaminationEventController extends BaseController {
         if (exam == null || oeec.isEmpty()) {
             return notFound("event not found");
         }
+        ExaminationEventDTO dto = request.attrs().get(Attrs.EXAMINATION_EVENT);
         ExaminationEventConfiguration eec = oeec.get();
         boolean hasEnrolments = !eec.getExamEnrolments().isEmpty();
         ExaminationEvent ee = eec.getExaminationEvent();
-        String quitPassword = request.attrs().get(Attrs.QUIT_PASSWORD);
+        String quitPassword = dto.getQuitPasswordAsJava().orElse(null);
         if (eec.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH && quitPassword == null) {
             return forbidden("no quit password provided");
         }
-        String settingsPassword = request.attrs().get(Attrs.SETTINGS_PASSWORD);
+        String settingsPassword = dto.getSettingsPasswordAsJava().orElse(null);
         if (eec.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH && settingsPassword == null) {
             return forbidden("no settings password provided");
         }
-        DateTime start = request.attrs().get(Attrs.START_DATE);
+        DateTime start = dto.start();
         if (!hasEnrolments) {
             if (start.isBeforeNow()) {
                 return forbidden("i18n_error_examination_event_in_the_past");
@@ -186,12 +188,12 @@ public class ExaminationEventController extends BaseController {
             return forbidden("i18n_error_conflicts_with_maintenance_period");
         }
         int ub = getParticipantUpperBound(start, end, ee.getId());
-        int capacity = request.attrs().get(Attrs.CAPACITY);
+        int capacity = dto.capacity();
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
             return forbidden("i18n_error_max_capacity_exceeded");
         }
         ee.setCapacity(capacity);
-        ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
+        ee.setDescription(dto.description());
         ee.update();
         if (quitPassword == null || settingsPassword == null) {
             return ok(eec);
@@ -200,7 +202,7 @@ public class ExaminationEventController extends BaseController {
             encryptQuitPassword(eec, quitPassword);
             encryptSettingsPassword(eec, settingsPassword, quitPassword);
             eec.save();
-            // Pass back the plaintext passwords, so they can be shown to user
+            // Pass back the plaintext passwords, so they can be shown to the user
             eec.setQuitPassword(quitPassword);
             eec.setSettingsPassword(settingsPassword);
         } else {
@@ -250,16 +252,16 @@ public class ExaminationEventController extends BaseController {
         try {
             String oldPwd = eec.getEncryptedSettingsPassword() != null
                 ? byodConfigHandler.getPlaintextPassword(
-                    eec.getEncryptedSettingsPassword(),
-                    eec.getSettingsPasswordSalt()
-                )
+                      eec.getEncryptedSettingsPassword(),
+                      eec.getSettingsPasswordSalt()
+                  )
                 : null;
 
             if (!password.equals(oldPwd)) {
                 String newSalt = UUID.randomUUID().toString();
                 eec.setEncryptedSettingsPassword(byodConfigHandler.getEncryptedPassword(password, newSalt));
                 eec.setSettingsPasswordSalt(newSalt);
-                // Pre-calculate config key, so we don't need to do it each time a check is needed
+                // Pre-calculate the config key, so we don't need to do it each time a check is needed
                 eec.setConfigKey(byodConfigHandler.calculateConfigKey(eec.getHash(), quitPassword));
             }
         } catch (Exception e) {
@@ -278,7 +280,7 @@ public class ExaminationEventController extends BaseController {
                 String newSalt = UUID.randomUUID().toString();
                 eec.setEncryptedQuitPassword(byodConfigHandler.getEncryptedPassword(password, newSalt));
                 eec.setQuitPasswordSalt(newSalt);
-                // Pre-calculate config key, so we don't need to do it each time a check is needed
+                // Pre-calculate the config key, so we don't need to do it each time a check is needed
                 eec.setConfigKey(byodConfigHandler.calculateConfigKey(eec.getHash(), password));
             }
         } catch (Exception e) {
@@ -292,9 +294,7 @@ public class ExaminationEventController extends BaseController {
         PathProperties pp = PathProperties.parse(
             "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
         );
-        ExpressionList<ExaminationEventConfiguration> query = DB.find(ExaminationEventConfiguration.class)
-            .apply(pp)
-            .where();
+        var query = DB.find(ExaminationEventConfiguration.class).apply(pp).where();
         if (start.isPresent()) {
             DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
             query = query.ge("examinationEvent.start", startDate.toDate());

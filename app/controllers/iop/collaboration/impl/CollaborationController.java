@@ -99,7 +99,7 @@ public class CollaborationController extends BaseController {
         return examLoader.downloadAssessment(examRef, assessmentRef);
     }
 
-    // This is for getting rid of uninteresting user related 1-M relations that can cause problems in
+    // This is for getting rid of uninteresting user-related 1-M relations that can cause problems in
     // serialization of exam
     protected void cleanUser(User user) {
         user.getEnrolments().clear();
@@ -182,13 +182,13 @@ public class CollaborationController extends BaseController {
 
     void calculateScores(JsonNode root) {
         stream(root).forEach(ep -> {
-                Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
-                exam.setMaxScore();
-                exam.setApprovedAnswerCount();
-                exam.setRejectedAnswerCount();
-                exam.setTotalScore();
-                ((ObjectNode) ep).set("exam", serialize(exam));
-            });
+            Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
+            exam.setMaxScore();
+            exam.setApprovedAnswerCount();
+            exam.setRejectedAnswerCount();
+            exam.setTotalScore();
+            ((ObjectNode) ep).set("exam", serialize(exam));
+        });
     }
 
     Stream<JsonNode> stream(JsonNode node) {

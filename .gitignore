@@ -9,7 +9,8 @@ project/project
 target
 default-drop-all.sql
 default-create-all.sql
-/data/
+data
 .angular
 dist
-ui/src/assets/vendor/mathjax
+.env
+docker/ssl

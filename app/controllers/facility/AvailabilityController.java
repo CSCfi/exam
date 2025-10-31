@@ -92,8 +92,8 @@ public class AvailabilityController extends BaseController {
                 .stream()
                 .map(oh ->
                     new Interval(
-                        oh.getHours().getStart().minusMillis(oh.getTimezoneOffset()),
-                        oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset())
+                        oh.hours().getStart().minusMillis(oh.timezoneOffset()),
+                        oh.hours().getEnd().minusMillis(oh.timezoneOffset())
                     )
                 )
                 .map(this::round)
@@ -111,7 +111,7 @@ public class AvailabilityController extends BaseController {
             .getExamMachines()
             .stream()
             .filter(m -> !m.getOutOfService())
-            .mapToInt(e -> 1)
+            .mapToInt(_ -> 1)
             .sum();
 
         List<Availability> availability = reservationMap

@@ -15,7 +15,6 @@ import play.api.libs.ws.WSClient
 
 import java.net.MalformedURLException
 import java.net.URI
-import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
@@ -68,7 +67,7 @@ class ExternalExamExpirationActor @Inject (
             allOf(attachments.map(deleteAttachment)).onComplete {
               case Success(_) =>
                 if ee.getSent.plusMonths(ExternalExamExpirationActor.MONTHS_UNTIL_EXPIRATION).isBeforeNow then
-                  ee.setContent(Map.empty.asJava)
+                  ee.setContent(Map.empty[String, Object].asJava)
                   ee.update()
                   logger.info(s"Marked external exam ${ee.getId} as expired")
               case Failure(e) => logger.error(s"Failed in deleting attachments for ${ee.getId}", e)

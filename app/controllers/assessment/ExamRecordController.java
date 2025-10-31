@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
@@ -42,10 +42,10 @@ import play.db.ebean.Transactional;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExamRecordSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
+import validation.ExamRecordSanitizer;
+import validation.core.Attrs;
 
 public class ExamRecordController extends BaseController {
 
@@ -98,34 +98,34 @@ public class ExamRecordController extends BaseController {
         Exam exam = optionalExam.get();
         var gradeRequired = exam.getGradingType() == Grade.Type.GRADED;
         return validateExamState(exam, gradeRequired, user).orElseGet(() -> {
-                exam.setState(Exam.State.GRADED_LOGGED);
-                exam.update();
-                ExamParticipation participation = DB.find(ExamParticipation.class)
-                    .fetch("user")
-                    .where()
-                    .eq("exam.id", exam.getId())
-                    .findOne();
-                if (participation == null) {
-                    return notFound();
-                }
+            exam.setState(Exam.State.GRADED_LOGGED);
+            exam.update();
+            ExamParticipation participation = DB.find(ExamParticipation.class)
+                .fetch("user")
+                .where()
+                .eq("exam.id", exam.getId())
+                .findOne();
+            if (participation == null) {
+                return notFound();
+            }
 
-                ExamRecord record = createRecord(exam, participation, gradeRequired);
-                ExamScore score = createScore(record, participation.getEnded());
-                score.save();
-                record.setExamScore(score);
-                record.save();
-                actor
-                    .scheduler()
-                    .scheduleOnce(
-                        Duration.create(1, TimeUnit.SECONDS),
-                        () -> {
-                            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
-                            logger.info("Inspection ready notification email sent to {}", user.getEmail());
-                        },
-                        actor.dispatcher()
-                    );
-                return ok();
-            });
+            ExamRecord record = createRecord(exam, participation, gradeRequired);
+            ExamScore score = createScore(record, participation.getEnded());
+            score.save();
+            record.setExamScore(score);
+            record.save();
+            actor
+                .scheduler()
+                .scheduleOnce(
+                    Duration.create(1, TimeUnit.SECONDS),
+                    () -> {
+                        emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+                        logger.info("Inspection ready notification email sent to {}", user.getEmail());
+                    },
+                    actor.dispatcher()
+                );
+            return ok();
+        });
     }
 
     @Authenticated
@@ -145,12 +145,12 @@ public class ExamRecordController extends BaseController {
         Exam exam = optionalExam.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return validateExamState(exam, false, user).orElseGet(() -> {
-                exam.setState(Exam.State.GRADED_LOGGED);
-                exam.setGrade(null);
-                exam.setGradingType(Grade.Type.NOT_GRADED);
-                exam.update();
-                return ok();
-            });
+            exam.setState(Exam.State.GRADED_LOGGED);
+            exam.setGrade(null);
+            exam.setGradingType(Grade.Type.NOT_GRADED);
+            exam.update();
+            return ok();
+        });
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
@@ -169,7 +169,7 @@ public class ExamRecordController extends BaseController {
     @With(ExamRecordSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result exportSelectedExamRecordsAsCsv(Long examId, Http.Request request) {
-        Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
+        List<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         File file;
         try {
             file = csvBuilder.build(examId, childIds);
@@ -184,7 +184,7 @@ public class ExamRecordController extends BaseController {
     @With(ExamRecordSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result exportSelectedExamRecordsAsExcel(Long examId, Http.Request request) {
-        Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
+        List<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         ByteArrayOutputStream bos;
         try {
             bos = excelBuilder.build(examId, childIds);
@@ -222,7 +222,7 @@ public class ExamRecordController extends BaseController {
             return Optional.of(forbidden("You are not allowed to modify this object"));
         }
         if (exam.getGradedByUser() == null && exam.getAutoEvaluationConfig() != null) {
-            // Automatically graded by system, set graded by user at this point.
+            // Automatically graded by the system, set graded-by-user at this point.
             exam.setGradedByUser(user);
         }
         if (

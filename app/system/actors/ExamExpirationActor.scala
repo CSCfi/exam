@@ -14,7 +14,6 @@ import org.joda.time.DateTime
 import play.api.Logging
 
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
 
 class ExamExpirationActor @Inject (private val configReader: ConfigReader)
     extends AbstractActor
@@ -56,7 +55,7 @@ class ExamExpirationActor @Inject (private val configReader: ConfigReader)
     )
     .build
 
-  // Disassociate exam from its creator, set state to deleted and erase any associated exam records
+  // Disassociate an exam from its creator, set state to deleted and erase any associated exam records
   private def cleanExamData(exam: Exam): Unit =
     exam.setState(Exam.State.DELETED)
     exam.setCreator(null)

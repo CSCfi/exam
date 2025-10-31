@@ -5,7 +5,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
 import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
@@ -18,6 +18,7 @@ import type {
 } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 import { ClaimChoiceComponent } from './claim-choice.component';
 import { EssayComponent } from './essay.component';
@@ -59,7 +60,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     private http = inject(HttpClient);
     private Question = inject(QuestionService);
     private Attachment = inject(AttachmentService);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
 
     ngOnInit() {
         this.init();
@@ -69,11 +70,23 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         window.removeEventListener('beforeunload', this.onUnload);
     }
 
-    save = () =>
+    save = () => {
+        // Clean up temporary negative IDs before sending to server
+        const cleanedExamQuestion = {
+            ...this.examQuestion,
+            options: this.examQuestion.options.map((opt) => ({
+                ...opt,
+                id: opt.id && opt.id < 0 ? undefined : opt.id,
+            })),
+        };
+
         this.saved.emit({
             question: this.question as ReverseQuestion,
-            examQuestion: this.examQuestion as ExamSectionQuestion,
+            examQuestion: cleanedExamQuestion as ExamSectionQuestion,
         });
+    };
+
+    optionsChanged = ($event: ExamSectionQuestionOption[]) => (this.examQuestion.options = [...$event]);
 
     setText = ($event: string) => {
         if (this.question) this.question.question = $event;
@@ -81,19 +94,14 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
 
     cancel = () => this.cancelled.emit({ dirty: this.questionForm?.dirty || false });
 
-    openPreview = () => {
-        const modal = this.modal.open(QuestionPreviewDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+    openPreview$ = () => {
+        const modal = this.modal.openRef(QuestionPreviewDialogComponent, { size: 'lg' });
         modal.componentInstance.question = this.examQuestion;
         modal.componentInstance.isExamQuestion = true;
+        return this.modal.result$<void>(modal);
     };
 
     showWarning = () => this.examNames && this.examNames.length > 1;
-
-    optionsChanged = ($event: ExamSectionQuestionOption[]) => (this.examQuestion.options = [...$event]);
 
     negativeScoreSettingChanged = ($event: boolean) => (this.examQuestion.negativeScoreAllowed = $event);
 
@@ -109,7 +117,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     updateEvaluationCriteria = ($event: string) => (this.examQuestion.evaluationCriteria = $event);
 
     selectFile = () =>
-        this.Attachment.selectFile(true).then((data) => {
+        this.Attachment.selectFile$(true).subscribe((data) => {
             if (!this.question) {
                 return;
             }

@@ -12,14 +12,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
-import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +37,8 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExamRecordSanitizer;
+import validation.ExamRecordSanitizer;
+import validation.core.Attrs;
 
 public class ReportController extends BaseController {
 
@@ -70,7 +68,7 @@ public class ReportController extends BaseController {
         String start,
         String end
     ) {
-        ExpressionList<T> result = query;
+        var result = query;
         if (dept != null) {
             List<String> depts = Arrays.asList(dept.split(","));
             result = result.in(String.format("%s.department", deptFieldPrefix), depts);
@@ -90,9 +88,9 @@ public class ReportController extends BaseController {
     public Result getExamParticipations(Optional<String> dept, Optional<String> start, Optional<String> end) {
         PathProperties pp = PathProperties.parse(
             "noShow, exam(created, course(department)), " +
-            "externalExam(started), reservation(machine(room(id, name, outOfService)))"
+                "externalExam(started), reservation(machine(room(id, name, outOfService)))"
         );
-        ExpressionList<ExamEnrolment> el = DB.find(ExamEnrolment.class).where();
+        var el = DB.find(ExamEnrolment.class).where();
         el.apply(pp);
         List<ExamEnrolment> enrolments = el
             .or()
@@ -130,37 +128,13 @@ public class ReportController extends BaseController {
     }
 
     // DTO for minimizing output from this API
-    private static class Participation {
-
-        String date;
-
-        Participation(DateTime date) {
-            this.date = ISODateTimeFormat.dateTime().print(date);
-        }
-
-        public String getDate() {
-            return date;
+    private record Participation(String date) {
+        Participation(DateTime dateTime) {
+            this(ISODateTimeFormat.dateTime().print(dateTime));
         }
     }
 
-    private static class ExamInfo {
-
-        String name;
-        Integer participations;
-        String state;
-
-        public String getName() {
-            return name;
-        }
-
-        public Integer getParticipations() {
-            return participations;
-        }
-
-        public String getState() {
-            return state;
-        }
-    }
+    private record ExamInfo(String name, Integer participations) {}
 
     private boolean applyExamFilter(Exam e, Optional<String> start, Optional<String> end) {
         boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && e.getExamParticipation() != null;
@@ -205,7 +179,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getPublishedExams(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Exam> query = DB.find(Exam.class)
+        var query = DB.find(Exam.class)
             .fetch("course", "code")
             .where()
             .isNull("parent")
@@ -219,13 +193,14 @@ public class ReportController extends BaseController {
         Set<Exam> exams = query.findSet();
         List<ExamInfo> infos = new ArrayList<>();
         for (Exam exam : exams) {
-            ExamInfo info = new ExamInfo();
-            info.name = String.format("[%s] %s", exam.getCourse().getCode(), exam.getName());
-            info.participations = (int) exam
-                .getChildren()
-                .stream()
-                .filter(e -> applyExamFilter(e, start, end))
-                .count();
+            ExamInfo info = new ExamInfo(
+                String.format("[%s] %s", exam.getCourse().getCode(), exam.getName()),
+                (int) exam
+                    .getChildren()
+                    .stream()
+                    .filter(e -> applyExamFilter(e, start, end))
+                    .count()
+            );
             infos.add(info);
         }
         return ok(Json.toJson(infos));
@@ -233,7 +208,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class).where();
+        var query = DB.find(ExamEnrolment.class).where();
         query = applyFilters(
             query,
             "exam.course",
@@ -253,9 +228,9 @@ public class ReportController extends BaseController {
         PathProperties pp = PathProperties.parse(
             "*, enrolment(noShow, externalExam(finished)), externalReservation(*)"
         );
-        Query<Reservation> query = DB.find(Reservation.class);
+        var query = DB.find(Reservation.class);
         pp.apply(query);
-        ExpressionList<Reservation> el = query.where().isNotNull("externalRef");
+        var el = query.where().isNotNull("externalRef");
         el = applyFilters(
             el,
             "enrolment.exam.course",
@@ -274,7 +249,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getResponses(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Exam> query = DB.find(Exam.class).where().isNotNull("parent").isNotNull("course");
+        var query = DB.find(Exam.class).where().isNotNull("parent").isNotNull("course");
         query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Set<Exam> exams = query.findSet();
         long aborted = exams
@@ -314,7 +289,7 @@ public class ReportController extends BaseController {
     @With(ExamRecordSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result exportExamQuestionScoresAsExcel(Long examId, Http.Request request) {
-        Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
+        List<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         ByteArrayOutputStream bos;
         try {
             bos = excelBuilder.buildScoreExcel(examId, childIds);

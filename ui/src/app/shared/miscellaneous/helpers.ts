@@ -35,7 +35,7 @@ export const updateList = <T>(items: T[], key: keyof T, value: T): T[] => {
 export const deduplicate = <T>(items: T[], key: keyof T) =>
     items.filter((item, i, xs) => xs.findIndex((item2) => item2[key] === item[key]) === i);
 
-export const hashString = (s: string) => [...s].map((c) => c.charCodeAt(0)).reduce((a, b) => ((a << 5) - a + b) | 0);
+export const hashString = (s: string) => [...s].map((c) => c.charCodeAt(0)).reduce((a, b) => ((a << 5) - a + b) | 0, 0);
 
 export const range = (start: number, end: number) => Array.from({ length: end - start + 1 }, (_, i) => start + i);
 
@@ -117,7 +117,7 @@ export const mergeDeepRight = <T extends object, U extends object>(left: T, righ
         const leftValue = left[key as keyof T];
         const rightValue = right[key as keyof U];
 
-        if (isObject(leftValue) && isObject(rightValue)) {
+        if (isObject(leftValue) && isObject(rightValue) && !Array.isArray(leftValue) && !Array.isArray(rightValue)) {
             result[key] = mergeDeepRight(leftValue as Record<string, unknown>, rightValue as Record<string, unknown>);
         } else {
             result[key] = rightValue;

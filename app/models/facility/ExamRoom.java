@@ -58,7 +58,7 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     @JsonManagedReference
     private List<Accessibility> accessibilities;
 
-    // Checkbox indicating is there any accessibility issues concerning the room
+    // Checkbox indicating if there are any accessibility issues concerning the room
     private boolean accessible;
 
     private String roomInstruction;

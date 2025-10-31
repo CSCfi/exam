@@ -51,23 +51,23 @@ class EmailComposerImpl @Inject() (
   private val baseSystemUrl = configReader.getBaseSystemUrl
   private val templateRoot  = s"${env.rootPath.getAbsolutePath}/conf/template/email/"
 
-  /** This notification is sent to student, when teacher has reviewed the exam
+  /** This notification is sent to a student when a teacher has reviewed the exam
     */
   override def composeInspectionReady(student: User, reviewer: User, exam: Exam): Unit =
     val templatePath  = s"${templateRoot}reviewReady.html"
     val template      = fileHandler.read(templatePath)
     val lang          = getLang(student)
-    val subject       = messaging("email.inspection.ready.subject")(lang)
+    val subject       = messaging("email.inspection.ready.subject")(using lang)
     val examInfo      = s"${exam.getName}, ${exam.getCourse.getCode.split("_").head}"
     val reviewLink    = s"$hostName/participations"
     val autoEvaluated = Option(reviewer).isEmpty && Option(exam.getAutoEvaluationConfig).nonEmpty
     val stringValues = Map(
-      "review_done"          -> messaging("email.template.review.ready", examInfo)(lang),
+      "review_done"          -> messaging("email.template.review.ready", examInfo)(using lang),
       "review_link"          -> reviewLink,
-      "review_link_text"     -> messaging("email.template.link.to.review")(lang),
-      "main_system_info"     -> messaging("email.template.main.system.info")(lang),
+      "review_link_text"     -> messaging("email.template.link.to.review")(using lang),
+      "main_system_info"     -> messaging("email.template.main.system.info")(using lang),
       "main_system_url"      -> baseSystemUrl,
-      "review_autoevaluated" -> (if autoEvaluated then messaging("email.template.review.autoevaluated")(lang) else "")
+      "review_autoevaluated" -> (if autoEvaluated then messaging("email.template.review.autoevaluated")(using lang) else "")
     )
     val content     = replaceAll(template, stringValues)
     val senderEmail = Option(reviewer).map(_.getEmail).nonNull.getOrElse(systemAccount)
@@ -83,9 +83,9 @@ class EmailComposerImpl @Inject() (
   ): Unit =
     val lang = getLang(recipient)
     val stringValues = Map(
-      "teacher_review_done"      -> messaging("email.template.inspection.done", teacher)(lang),
-      "inspection_comment_title" -> messaging("email.template.inspection.comment")(lang),
-      "inspection_link_text"     -> messaging("email.template.link.to.review")(lang),
+      "teacher_review_done"      -> messaging("email.template.inspection.done", teacher)(using lang),
+      "inspection_comment_title" -> messaging("email.template.inspection.comment")(using lang),
+      "inspection_link_text"     -> messaging("email.template.link.to.review")(using lang),
       "exam_info"                -> exam,
       "inspection_link"          -> link,
       "inspection_comment"       -> msg
@@ -93,7 +93,7 @@ class EmailComposerImpl @Inject() (
     val templatePath = s"${templateRoot}inspectionReady.html"
     val template     = fileHandler.read(templatePath)
     val content      = replaceAll(template, stringValues)
-    val subject      = messaging("email.inspection.comment.subject")(lang)
+    val subject      = messaging("email.inspection.comment.subject")(using lang)
     emailSender.send(Mail(recipient.getEmail, sender.getEmail, subject, content))
 
   /** This notification is sent to the creator of exam when assigned inspector has finished inspection
@@ -127,19 +127,19 @@ class EmailComposerImpl @Inject() (
       logger.info(s"Sending weekly report to: ${teacher.getEmail}")
       val templatePath = s"${templateRoot}weeklySummary/weeklySummary.html"
       val template     = fileHandler.read(templatePath)
-      val subject      = messaging("email.weekly.report.subject")(lang)
-      val none         = messaging("email.template.weekly.report.none")(lang)
+      val subject      = messaging("email.weekly.report.subject")(using lang)
+      val none         = messaging("email.template.weekly.report.none")(using lang)
       val values = Map(
-        "enrolment_title"      -> messaging("email.template.weekly.report.enrolments")(lang),
-        "enrolment_info_title" -> messaging("email.template.weekly.report.enrolments.info")(lang),
+        "enrolment_title"      -> messaging("email.template.weekly.report.enrolments")(using lang),
+        "enrolment_info_title" -> messaging("email.template.weekly.report.enrolments.info")(using lang),
         "enrolment_info"       -> (if enrolmentBlock.isEmpty then none else enrolmentBlock),
-        "ungraded_title"       -> messaging("email.template.weekly.report.ungraded")(lang),
-        "ungraded_info"        -> messaging("email.template.weekly.report.ungraded.info", ungraded.length)(lang),
+        "ungraded_title"       -> messaging("email.template.weekly.report.ungraded")(using lang),
+        "ungraded_info"        -> messaging("email.template.weekly.report.ungraded.info", ungraded.length)(using lang),
         "ungraded_info_own" -> createAssessmentBlock(ungraded, lang).getOrElse(
           none
         ),
-        "graded_title"    -> messaging("email.template.weekly.report.graded")(lang),
-        "graded_info"     -> messaging("email.template.weekly.report.graded.info", graded.length)(lang),
+        "graded_title"    -> messaging("email.template.weekly.report.graded")(using lang),
+        "graded_info"     -> messaging("email.template.weekly.report.graded.info", graded.length)(using lang),
         "graded_info_own" -> createAssessmentBlock(graded, lang).getOrElse(none)
       )
       val content = replaceAll(template, values)
@@ -158,7 +158,7 @@ class EmailComposerImpl @Inject() (
     val subjectTemplate = messaging(
       if (isReminder) "email.examinationEvent.reminder.subject"
       else "email.examinationEvent.subject"
-    )(lang)
+    )(using lang)
     val subject      = s"$subjectTemplate: \"${exam.getName}\""
     val courseCode   = Option(exam.getCourse).map(_.getCode).nonNull.map(c => s"(${c.split("_").head})").getOrElse("")
     val examInfo     = s"${exam.getName} $courseCode"
@@ -168,18 +168,18 @@ class EmailComposerImpl @Inject() (
     val description  = config.getExaminationEvent.getDescription
     val settingsFile =
       if exam.getImplementation == Exam.Implementation.CLIENT_AUTH then
-        s"<p>${messaging("email.examinationEvent.file.info")(lang)}</p>"
+        s"<p>${messaging("email.examinationEvent.file.info")(using lang)}</p>"
       else ""
     val stringValues = Map(
-      "title"                  -> messaging("email.examinationEvent.title")(lang),
-      "exam_info"              -> messaging("email.template.reservation.exam", examInfo)(lang),
-      "teacher_name"           -> messaging("email.template.reservation.teacher", teacherName)(lang),
-      "event_date"             -> messaging("email.examinationEvent.date", startDate)(lang),
-      "exam_duration"          -> messaging("email.template.reservation.exam.duration", examDuration)(lang),
+      "title"                  -> messaging("email.examinationEvent.title")(using lang),
+      "exam_info"              -> messaging("email.template.reservation.exam", examInfo)(using lang),
+      "teacher_name"           -> messaging("email.template.reservation.teacher", teacherName)(using lang),
+      "event_date"             -> messaging("email.examinationEvent.date", startDate)(using lang),
+      "exam_duration"          -> messaging("email.template.reservation.exam.duration", examDuration)(using lang),
       "description"            -> description,
-      "cancellation_info"      -> messaging("email.examinationEvent.cancel.info")(lang),
+      "cancellation_info"      -> messaging("email.examinationEvent.cancel.info")(using lang),
       "cancellation_link"      -> hostName,
-      "cancellation_link_text" -> messaging("email.examinationEvent.cancel.link.text")(lang),
+      "cancellation_link_text" -> messaging("email.examinationEvent.cancel.link.text")(using lang),
       "settings_file_info"     -> settingsFile
     )
     val content = replaceAll(template, stringValues)
@@ -222,12 +222,12 @@ class EmailComposerImpl @Inject() (
       if isForced then "email.examinationEvent.cancel.message.admin"
       else "email.examinationEvent.cancel.message.student"
     val stringValues = Map(
-      "exam"        -> messaging("email.template.reservation.exam", examInfo)(lang),
-      "teacher"     -> messaging("email.template.reservation.teacher", teacherName)(lang),
-      "time"        -> messaging("email.examinationEvent.date", time)(lang),
+      "exam"        -> messaging("email.template.reservation.exam", examInfo)(using lang),
+      "teacher"     -> messaging("email.template.reservation.teacher", teacherName)(using lang),
+      "time"        -> messaging("email.examinationEvent.date", time)(using lang),
       "link"        -> hostName,
-      "message"     -> messaging(msg)(lang),
-      "new_time"    -> messaging("email.examinationEvent.cancel.message.student.new.time")(lang),
+      "message"     -> messaging(msg)(using lang),
+      "new_time"    -> messaging("email.examinationEvent.cancel.message.student.new.time")(using lang),
       "description" -> event.getDescription
     )
     replaceAll(template, stringValues)
@@ -240,7 +240,7 @@ class EmailComposerImpl @Inject() (
     users.foreach((user: User) =>
       val lang    = getLang(user)
       val content = generateExaminationEventCancellationMail(exam, event, lang, true)
-      val subject = messaging("email.examinationEvent.cancel.subject")(lang)
+      val subject = messaging("email.examinationEvent.cancel.subject")(using lang)
       // email.examinationEvent.cancel.message.admin
       emailSender.send(Mail(user.getEmail, systemAccount, subject, content))
     )
@@ -252,7 +252,7 @@ class EmailComposerImpl @Inject() (
   ): Unit =
     val lang    = getLang(user)
     val content = generateExaminationEventCancellationMail(exam, event, lang, false)
-    val subject = messaging("email.examinationEvent.cancel.subject")(lang)
+    val subject = messaging("email.examinationEvent.cancel.subject")(using lang)
     emailSender.send(Mail(user.getEmail, systemAccount, subject, content))
 
   override def composeReservationNotification(
@@ -267,7 +267,7 @@ class EmailComposerImpl @Inject() (
     val subjectTemplate =
       if (isReminder) "email.machine.reservation.reminder.subject"
       else "email.machine.reservation.subject"
-    val subject    = s"${messaging(subjectTemplate)(lang)} \"${exam.getName}\""
+    val subject    = s"${messaging(subjectTemplate)(using lang)} \"${exam.getName}\""
     val courseCode = Option(exam.getCourse).map(_.getCode).nonNull.map(c => s"(${c.split("_").head})").getOrElse("")
     val examInfo   = s"${exam.getName} $courseCode"
     val teacherName =
@@ -287,18 +287,18 @@ class EmailComposerImpl @Inject() (
     val roomName = Option(er).map(_.getRoomName).nonNull.getOrElse(machine.getRoom.getName)
 
     val stringValues = Map(
-      "title"                  -> messaging("email.template.reservation.new")(lang),
-      "exam_info"              -> messaging("email.template.reservation.exam", examInfo)(lang),
-      "teacher_name"           -> messaging("email.template.reservation.teacher", teacherName)(lang),
-      "reservation_date"       -> messaging("email.template.reservation.date", reservationDate)(lang),
-      "exam_duration"          -> messaging("email.template.reservation.exam.duration", examDuration)(lang),
-      "building_info"          -> messaging("email.template.reservation.building", buildingInfo)(lang),
-      "room_name"              -> messaging("email.template.reservation.room", roomName)(lang),
-      "machine_name"           -> messaging("email.template.reservation.machine", machineName)(lang),
+      "title"                  -> messaging("email.template.reservation.new")(using lang),
+      "exam_info"              -> messaging("email.template.reservation.exam", examInfo)(using lang),
+      "teacher_name"           -> messaging("email.template.reservation.teacher", teacherName)(using lang),
+      "reservation_date"       -> messaging("email.template.reservation.date", reservationDate)(using lang),
+      "exam_duration"          -> messaging("email.template.reservation.exam.duration", examDuration)(using lang),
+      "building_info"          -> messaging("email.template.reservation.building", buildingInfo)(using lang),
+      "room_name"              -> messaging("email.template.reservation.room", roomName)(using lang),
+      "machine_name"           -> messaging("email.template.reservation.machine", machineName)(using lang),
       "room_instructions"      -> roomInstructions,
-      "cancellation_info"      -> messaging("email.template.reservation.cancel.info")(lang),
+      "cancellation_info"      -> messaging("email.template.reservation.cancel.info")(using lang),
       "cancellation_link"      -> hostName,
-      "cancellation_link_text" -> messaging("email.template.reservation.cancel.link.text")(lang)
+      "cancellation_link_text" -> messaging("email.template.reservation.cancel.link.text")(using lang)
     )
     val content = replaceAll(template, stringValues)
     val mail    = Mail(recipient.getEmail, systemAccount, subject, content)
@@ -319,7 +319,7 @@ class EmailComposerImpl @Inject() (
           val attachment = new EmailAttachment
           attachment.setPath(file.getAbsolutePath)
           attachment.setDisposition(EmailAttachment.ATTACHMENT)
-          attachment.setName(messaging("ical.reservation.filename", ".ics")(lang))
+          attachment.setName(messaging("ical.reservation.filename", ".ics")(using lang))
           emailSender.send(mail.copy(attachments = Set(attachment)))
     else emailSender.send(mail)
 
@@ -334,13 +334,13 @@ class EmailComposerImpl @Inject() (
     iCal.setVersion(ICalVersion.V2_0)
     val event = new VEvent
 
-    val summary = event.setSummary(messaging("ical.reservation.summary")(lang))
+    val summary = event.setSummary(messaging("ical.reservation.summary")(using lang))
     summary.setLanguage(lang.code)
     event.setDateStart(start.toDate)
     event.setDateEnd(end.toDate)
     event.setLocation(address)
     val roomInfo = placeInfo.mkString(", ")
-    event.setDescription(messaging("ical.reservation.room.info", roomInfo)(lang))
+    event.setDescription(messaging("ical.reservation.room.info", roomInfo)(using lang))
     iCal.addEvent(event)
     iCal
 
@@ -348,18 +348,18 @@ class EmailComposerImpl @Inject() (
     val templatePath     = s"${templateRoot}reviewRequest.html"
     val template         = fileHandler.read(templatePath)
     val lang             = getLang(toUser)
-    val subject          = messaging("email.review.request.subject")(lang)
+    val subject          = messaging("email.review.request.subject")(using lang)
     val teacherName      = s"${fromUser.getFirstName} ${fromUser.getLastName} <${fromUser.getEmail}>"
-    val examInfo         = s"${exam.getName} (${exam.getCourse.getCode.split("_")(0)}"
+    val examInfo         = s"${exam.getName} (${exam.getCourse.getCode.split("_")(0)})"
     val linkToInspection = s"$hostName/staff/exams/${exam.getId}/4"
     val exams            = DB.find(classOf[Exam]).where.eq("parent.id", exam.getId).eq("state", Exam.State.REVIEW).list
     val values = Map(
-      "new_reviewer"          -> messaging("email.template.inspector.new", teacherName)(lang),
+      "new_reviewer"          -> messaging("email.template.inspector.new", teacherName)(using lang),
       "exam_info"             -> examInfo,
-      "participation_count"   -> messaging("email.template.participation", exams.length)(lang),
-      "inspector_message"     -> messaging("email.template.inspector.message")(lang),
+      "participation_count"   -> messaging("email.template.participation", exams.length)(using lang),
+      "inspector_message"     -> messaging("email.template.inspector.message")(using lang),
       "exam_link"             -> linkToInspection,
-      "exam_link_text"        -> messaging("email.template.link.to.exam")(lang),
+      "exam_link_text"        -> messaging("email.template.link.to.exam")(using lang),
       "comment_from_assigner" -> message
     )
     val content = if exams.nonEmpty && exams.length < 6 then
@@ -391,25 +391,25 @@ class EmailComposerImpl @Inject() (
     val endDate         = adjustDST(enrolment.getReservation.getEndAt)
     val reservationDate = s"${EmailComposerImpl.DTF.print(startDate)} - ${EmailComposerImpl.DTF.print(endDate)}"
     val examName        = Option(exam).map(_.getName).nonNull.getOrElse(enrolment.getCollaborativeExam.getName)
-    val subject         = messaging("email.template.reservation.change.subject", examName)(lang)
+    val subject         = messaging("email.template.reservation.change.subject", examName)(using lang)
 
     val values = Map(
-      "message"             -> messaging("email.template.reservation.change.message")(lang),
-      "previousMachine"     -> messaging("email.template.reservation.change.previous")(lang),
-      "previousMachineName" -> messaging("email.template.reservation.machine", previous.getName)(lang),
-      "previousRoom"        -> messaging("email.template.reservation.room", previous.getRoom.getName)(lang),
-      "previousBuilding"    -> messaging("email.template.reservation.building", previous.getRoom.getBuildingName)(lang),
-      "currentMachine"      -> messaging("email.template.reservation.change.current")(lang),
-      "currentMachineName"  -> messaging("email.template.reservation.machine", current.getName)(lang),
-      "currentRoom"         -> messaging("email.template.reservation.room", current.getRoom.getName)(lang),
-      "currentBuilding"     -> messaging("email.template.reservation.building", current.getRoom.getBuildingName)(lang),
-      "examinationInfo"     -> messaging("email.template.reservation.exam.info")(lang),
-      "examInfo"            -> messaging("email.template.reservation.exam", examInfo)(lang),
-      "teachers"            -> messaging("email.template.reservation.teacher", teacherName)(lang),
-      "reservationTime"     -> messaging("email.template.reservation.date", reservationDate)(lang),
-      "cancellationInfo"    -> messaging("email.template.reservation.cancel.info")(lang),
+      "message"             -> messaging("email.template.reservation.change.message")(using lang),
+      "previousMachine"     -> messaging("email.template.reservation.change.previous")(using lang),
+      "previousMachineName" -> messaging("email.template.reservation.machine", previous.getName)(using lang),
+      "previousRoom"        -> messaging("email.template.reservation.room", previous.getRoom.getName)(using lang),
+      "previousBuilding"    -> messaging("email.template.reservation.building", previous.getRoom.getBuildingName)(using lang),
+      "currentMachine"      -> messaging("email.template.reservation.change.current")(using lang),
+      "currentMachineName"  -> messaging("email.template.reservation.machine", current.getName)(using lang),
+      "currentRoom"         -> messaging("email.template.reservation.room", current.getRoom.getName)(using lang),
+      "currentBuilding"     -> messaging("email.template.reservation.building", current.getRoom.getBuildingName)(using lang),
+      "examinationInfo"     -> messaging("email.template.reservation.exam.info")(using lang),
+      "examInfo"            -> messaging("email.template.reservation.exam", examInfo)(using lang),
+      "teachers"            -> messaging("email.template.reservation.teacher", teacherName)(using lang),
+      "reservationTime"     -> messaging("email.template.reservation.date", reservationDate)(using lang),
+      "cancellationInfo"    -> messaging("email.template.reservation.cancel.info")(using lang),
       "cancellationLink"    -> hostName,
-      "cancellationLinkText" -> messaging("email.template.reservation.cancel.link.text")(lang)
+      "cancellationLinkText" -> messaging("email.template.reservation.cancel.link.text")(using lang)
     )
     val content = replaceAll(template, values)
     emailSender.send(Mail(student.getEmail, systemAccount, subject, content))
@@ -425,8 +425,8 @@ class EmailComposerImpl @Inject() (
   ): Unit =
     val extraValues = Map(
       "cancellation_information" -> message.map(msg => s"$info:<br />$msg").getOrElse(""),
-      "regards"                  -> messaging("email.template.regards")(lang),
-      "admin"                    -> messaging("email.template.admin")(lang)
+      "regards"                  -> messaging("email.template.regards")(using lang),
+      "admin"                    -> messaging("email.template.admin")(using lang)
     )
     val content = replaceAll(template, values ++ extraValues)
     emailSender.send(Mail(email, systemAccount, subject, content))
@@ -440,7 +440,7 @@ class EmailComposerImpl @Inject() (
   ): Unit =
     val templatePath = s"${templateRoot}reservationCanceledByStudent.html"
     val template     = fileHandler.read(templatePath)
-    val subject      = messaging("email.reservation.cancellation.subject")(lang)
+    val subject      = messaging("email.reservation.cancellation.subject")(using lang)
     val room =
       Option(reservation.getMachine)
         .map(_.getRoom)
@@ -448,7 +448,7 @@ class EmailComposerImpl @Inject() (
         .map(_.getName)
         .nonNull
         .getOrElse(reservation.getExternalReservation.getRoomName)
-    val info = messaging("email.reservation.cancellation.info")(lang)
+    val info = messaging("email.reservation.cancellation.info")(using lang)
     val time = s"${EmailComposerImpl.DTF
         .print(adjustDST(reservation.getStartAt))} - ${EmailComposerImpl.DTF.print(adjustDST(reservation.getEndAt))}"
     val owners = Option(enrolment.getExam.getParent).map(_.getExamOwners).getOrElse(enrolment.getExam.getExamOwners)
@@ -456,12 +456,12 @@ class EmailComposerImpl @Inject() (
       .map(e => s"${e.getName} (${e.getCourse.getCode.split("_")(0)})")
       .getOrElse(enrolment.getCollaborativeExam.getName)
     val stringValues = Map(
-      "message"  -> messaging("email.template.reservation.cancel.message.student")(lang),
-      "exam"     -> messaging("email.template.reservation.exam", examName)(lang),
-      "teacher"  -> messaging("email.template.reservation.teacher", getTeachersAsText(owners.asScala.toSet))(lang),
-      "time"     -> messaging("email.template.reservation.date", time)(lang),
-      "place"    -> messaging("email.template.reservation.room", room)(lang),
-      "new_time" -> messaging("email.template.reservation.cancel.message.student.new.time")(lang),
+      "message"  -> messaging("email.template.reservation.cancel.message.student")(using lang),
+      "exam"     -> messaging("email.template.reservation.exam", examName)(using lang),
+      "teacher"  -> messaging("email.template.reservation.teacher", getTeachersAsText(owners.asScala.toSet))(using lang),
+      "time"     -> messaging("email.template.reservation.date", time)(using lang),
+      "place"    -> messaging("email.template.reservation.room", room)(using lang),
+      "new_time" -> messaging("email.template.reservation.cancel.message.student.new.time")(using lang),
       "link"     -> hostName
     )
     sendReservationCancellationNotification(stringValues, message, info, lang, email, template, subject)
@@ -475,7 +475,7 @@ class EmailComposerImpl @Inject() (
   ): Unit =
     val templatePath = s"${templateRoot}reservationCanceled.html"
     val template     = fileHandler.read(templatePath)
-    val subject      = messaging("email.reservation.cancellation.subject.forced", examName)(lang)
+    val subject      = messaging("email.reservation.cancellation.subject.forced", examName)(using lang)
     val date         = EmailComposerImpl.DF.print(adjustDST(reservation.getStartAt))
     val room =
       Option(reservation.getMachine)
@@ -484,10 +484,10 @@ class EmailComposerImpl @Inject() (
         .map(_.getName)
         .nonNull
         .getOrElse(reservation.getExternalReservation.getRoomName)
-    val info = messaging("email.reservation.cancellation.info")(lang)
+    val info = messaging("email.reservation.cancellation.info")(using lang)
     val time = EmailComposerImpl.TF.print(adjustDST(reservation.getStartAt))
     val stringValues = Map(
-      "message" -> messaging("email.template.reservation.cancel.message", date, time, room)(lang)
+      "message" -> messaging("email.template.reservation.cancel.message", date, time, room)(using lang)
     )
     sendReservationCancellationNotification(stringValues, message, info, lang, email, template, subject)
 
@@ -533,16 +533,16 @@ class EmailComposerImpl @Inject() (
     val subject = messaging(
       s"${templatePrefix}participant.notification.subject",
       s"${exam.getName} (${exam.getCourse.getCode.split("_")(0)})"
-    )(lang)
+    )(using lang)
     val title = messaging(
       if isAquarium then s"${templatePrefix}participant.notification.title"
       else "email.template.participant.notification.title.examination.event"
-    )(lang)
+    )(using lang)
     val examInfo = messaging(
       "email.template.participant.notification.exam",
       s"${exam.getName} (${exam.getCourse.getCode.split("_")(0)})"
-    )(lang)
-    val teacherName = messaging("email.template.participant.notification.teacher", getTeachers(exam))(lang)
+    )(using lang)
+    val teacherName = messaging("email.template.participant.notification.teacher", getTeachers(exam))(using lang)
     val events = exam.getExaminationEventConfigurations.asScala.toList
       .map(c => new DateTime(c.getExaminationEvent.getStart, timeZone))
       .sorted
@@ -554,15 +554,15 @@ class EmailComposerImpl @Inject() (
           "email.template.participant.notification.exam.period",
           s"${EmailComposerImpl.DF.print(new DateTime(exam.getPeriodStart))} - ${EmailComposerImpl.DF
               .print(new DateTime(exam.getPeriodEnd))}"
-        )(lang)
-      else messaging("email.template.participant.notification.exam.event", s"$events ($timeZone)")(lang)
+        )(using lang)
+      else messaging("email.template.participant.notification.exam.event", s"$events ($timeZone)")(using lang)
 
-    val examDuration = messaging("email.template.participant.notification.exam.duration", exam.getDuration)(lang)
+    val examDuration = messaging("email.template.participant.notification.exam.duration", exam.getDuration)(using lang)
     val reservationInfo =
       if isAquarium then ""
-      else s"<p>${messaging("email.template.participant.notification.please.reserve")(lang)}</p>"
+      else s"<p>${messaging("email.template.participant.notification.please.reserve")(using lang)}</p>"
     val bookingLink =
-      if exam.getImplementation == Exam.Implementation.AQUARIUM then s"$hostName/calendar/${exam.getId}}"
+      if exam.getImplementation == Exam.Implementation.AQUARIUM then s"$hostName/calendar/${exam.getId}"
       else hostName
     val stringValues = Map(
       "title"            -> title,
@@ -586,17 +586,17 @@ class EmailComposerImpl @Inject() (
       if exam.getState == Exam.State.ABORTED then s"${templateRoot}examAborted.html"
       else s"${templateRoot}examEnded.html"
     val subject =
-      if exam.getState == Exam.State.ABORTED then messaging(templatePrefix + "exam.aborted.subject")(lang)
-      else messaging(templatePrefix + "exam.returned.subject")(lang)
+      if exam.getState == Exam.State.ABORTED then messaging(templatePrefix + "exam.aborted.subject")(using lang)
+      else messaging(templatePrefix + "exam.returned.subject")(using lang)
     val path = if exam.getState == Exam.State.ABORTED then "aborted" else "returned"
     val msg =
       messaging(
         s"${templatePrefix}exam.$path.message",
         s"${student.getFirstName} ${student.getLastName} <${student.getEmail}>",
         s"${exam.getName} (${exam.getCourse.getCode.split("_")(0)})"
-      )(lang)
+      )(using lang)
     val reviewLinkUrl  = s"$hostName/staff/assessments/${exam.getId}"
-    val reviewLinkText = messaging("email.template.exam.returned.link")(lang)
+    val reviewLinkText = messaging("email.template.exam.returned.link")(using lang)
     val stringValues = Map(
       "review_link"      -> reviewLinkUrl,
       "review_link_text" -> reviewLinkText,
@@ -612,12 +612,12 @@ class EmailComposerImpl @Inject() (
     val lang           = getLang(toUser)
     val isMaturity     = exam.getExecutionType.getType == ExamExecutionType.Type.MATURITY.toString
     val templatePrefix = s"email.template${if isMaturity then ".maturity" else ""}."
-    val subject        = messaging(s"${templatePrefix}noshow.subject")(lang)
+    val subject        = messaging(s"${templatePrefix}noshow.subject")(using lang)
     val message = messaging(
       "email.template.noshow.message",
       s"${student.getFirstName} ${student.getLastName} <${student.getEmail}>",
       s"${exam.getName} (${exam.getCourse.getCode.split("_")(0)})"
-    )(lang)
+    )(using lang)
     val stringValues = Map(
       "message" -> message
     )
@@ -629,8 +629,8 @@ class EmailComposerImpl @Inject() (
     val template      = fileHandler.read(templatePath)
     val lang          = getLang(student)
     val sanitizedCode = if courseCode.isEmpty then courseCode else s" ($courseCode)"
-    val subject       = messaging("email.template.noshow.student.subject")(lang)
-    val message       = messaging("email.template.noshow.student.message", examName, sanitizedCode)(lang)
+    val subject       = messaging("email.template.noshow.student.subject")(using lang)
+    val message       = messaging("email.template.noshow.student.message", examName, sanitizedCode)(using lang)
     val stringValues = Map(
       "message" -> message
     )
@@ -646,24 +646,24 @@ class EmailComposerImpl @Inject() (
     val template     = fileHandler.read(templatePath)
     val lang         = getLang(inspector)
     val exam         = inspection.getExam
-    val subject      = messaging("email.template.language.inspection.subject")(lang)
+    val subject      = messaging("email.template.language.inspection.subject")(using lang)
     val studentName =
       s"${exam.getCreator.getFirstName} ${exam.getCreator.getLastName} <${exam.getCreator.getEmail}>"
     val inspectorName = s"${inspector.getFirstName} ${inspector.getLastName} <${inspector.getEmail}>"
     val verdict = messaging(
       if (inspection.getApproved) "email.template.language.inspection.approved"
       else "email.template.language.inspection.rejected"
-    )(lang)
+    )(using lang)
     val examInfo         = s"${exam.getName}, ${exam.getCourse.getCode.split("_")(0)}"
     val linkToInspection = s"$hostName/staff/assessments/${inspection.getExam.getId}"
     val stringValues = Map(
-      "exam_info"            -> messaging("email.template.reservation.exam", examInfo)(lang),
-      "inspector_name"       -> messaging("email.template.reservation.teacher", inspectorName)(lang),
-      "student_name"         -> messaging("email.template.language.inspection.student", studentName)(lang),
-      "inspection_done"      -> messaging("email.template.language.inspection.done")(lang),
-      "statement_title"      -> messaging("email.template.language.inspection.statement.title")(lang),
-      "inspection_link_text" -> messaging("email.template.link.to.review")(lang),
-      "inspection_info"      -> messaging("email.template.language.inspection.result", verdict)(lang),
+      "exam_info"            -> messaging("email.template.reservation.exam", examInfo)(using lang),
+      "inspector_name"       -> messaging("email.template.reservation.teacher", inspectorName)(using lang),
+      "student_name"         -> messaging("email.template.language.inspection.student", studentName)(using lang),
+      "inspection_done"      -> messaging("email.template.language.inspection.done")(using lang),
+      "statement_title"      -> messaging("email.template.language.inspection.statement.title")(using lang),
+      "inspection_link_text" -> messaging("email.template.link.to.review")(using lang),
+      "inspection_info"      -> messaging("email.template.language.inspection.result", verdict)(using lang),
       "inspection_link"      -> linkToInspection,
       "inspection_statement" -> inspection.getStatement.getComment
     )
@@ -680,12 +680,12 @@ class EmailComposerImpl @Inject() (
       "email.template.participant.notification.exam.period",
       s"%${EmailComposerImpl.DF.print(new DateTime(exam.getPeriodStart))} - ${EmailComposerImpl.DF
           .print(new DateTime(exam.getPeriodEnd))}"
-    )(lang)
+    )(using lang)
     val examDuration = s"${exam.getDuration / 60}h ${exam.getDuration % 60}min"
     val stringValues = Map(
-      "exam_info"     -> messaging("email.template.reservation.exam", examInfo)(lang),
+      "exam_info"     -> messaging("email.template.reservation.exam", examInfo)(using lang),
       "exam_period"   -> examPeriod,
-      "exam_duration" -> messaging("email.template.reservation.exam.duration", examDuration)(lang)
+      "exam_duration" -> messaging("email.template.reservation.exam.duration", examDuration)(using lang)
     )
     val content = replaceAll(template, stringValues)
     emailSender.send(Broadcast(emails, sender.getEmail, subject, content, cc = Set(sender.getEmail)))
@@ -728,7 +728,7 @@ class EmailComposerImpl @Inject() (
           "course_code" -> exam.getCourse.getCode.split("_").head
         )
         val subTemplate = if enrolments.isEmpty then
-          val noEnrolments = messaging("email.enrolment.no.enrolments")(lang)
+          val noEnrolments = messaging("email.enrolment.no.enrolments")(using lang)
           s"<li><a href=\"{{exam_link}}\">{{exam_name}} - {{course_code}}</a>: $noEnrolments</li>"
         else enrolmentTemplate
         val values =
@@ -739,13 +739,13 @@ class EmailComposerImpl @Inject() (
               if Option(first.getReservation).nonEmpty then adjustDST(first.getReservation.getStartAt)
               else new DateTime(first.getExaminationEventConfiguration.getExaminationEvent.getStart, timeZone)
             commonValues + ("enrolments" ->
-              messaging("email.template.enrolment.first", enrolments.length, EmailComposerImpl.DTF.print(date))(lang))
+              messaging("email.template.enrolment.first", enrolments.length, EmailComposerImpl.DTF.print(date))(using lang))
 
         replaceAll(subTemplate, values)
       )
       .mkString
 
-  // return exams in review state where teacher is either owner or inspector
+  // return exams in review state where the teacher is either owner or inspector
   private def getReviews(teacher: User, states: Seq[Exam.State]) = DB
     .find(classOf[ExamParticipation])
     .where
@@ -767,15 +767,21 @@ class EmailComposerImpl @Inject() (
       .toSeq
       .sortBy(_._3)
       .map { case (exam, amount, deadline) =>
-        val summary = messaging("email.weekly.report.review.summary", amount, EmailComposerImpl.DF.print(new DateTime(deadline)))(lang)
-        replaceAll(template, Map(
-          "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5?collaborative=false",
-          "exam_name"      -> exam.getName,
-          "course_code"    -> Option(exam.getCourse).map(_.getCode).nonNull.map(_.split("_").head).getOrElse(""),
-          "review_summary" -> summary
-        ))
+        val summary =
+          messaging("email.weekly.report.review.summary", amount, EmailComposerImpl.DF.print(new DateTime(deadline)))(
+            using lang
+          )
+        replaceAll(
+          template,
+          Map(
+            "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5?collaborative=false",
+            "exam_name"      -> exam.getName,
+            "course_code"    -> Option(exam.getCourse).map(_.getCode).nonNull.map(_.split("_").head).getOrElse(""),
+            "review_summary" -> summary
+          )
+        )
       }
-    
+
     Option.when(values.nonEmpty)(values.mkString)
 
   private def replaceAll(original: String, values: Map[String, String]) =

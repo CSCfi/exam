@@ -192,7 +192,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                     response
                         .getBodyAsSource()
                         .runWith(FileIO.toPath(Paths.get(filePath)), Materializer.createMaterializer(actor))
-                        .thenAccept(ioResult -> {
+                        .thenAccept(_ -> {
                             attachment.setFilePath(filePath);
                             attachment.save();
                             logger.info(

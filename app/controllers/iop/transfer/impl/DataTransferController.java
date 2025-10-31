@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import io.ebean.DB;
-import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.io.File;
 import java.io.IOException;
@@ -51,8 +50,8 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class DataTransferController extends BaseController {
 
@@ -103,7 +102,7 @@ public class DataTransferController extends BaseController {
         } catch (IOException e) {
             return internalServerError("i18n_error_creating_attachment");
         }
-        // Remove existing one if found
+        // Remove the existing one if found
         fileHandler.removePrevious(question);
         Attachment attachment = fileHandler.createNew(filePart, newFilePath);
         question.setAttachment(attachment);
@@ -138,7 +137,7 @@ public class DataTransferController extends BaseController {
                 .map(JsonNode::asLong)
                 .collect(Collectors.toSet());
             PathProperties pp = PathProperties.parse("(*, options(*), tags(name))");
-            Query<Question> query = DB.find(Question.class);
+            var query = DB.find(Question.class);
             query.apply(pp);
             Set<Question> questions = query
                 .where()
@@ -154,11 +153,11 @@ public class DataTransferController extends BaseController {
                 .set(
                     "questions",
                     Json.newArray().addAll(
-                            questions
-                                .stream()
-                                .map(q -> serialize(q, pp))
-                                .toList()
-                        )
+                        questions
+                            .stream()
+                            .map(q -> serialize(q, pp))
+                            .toList()
+                    )
                 );
 
             URL url = parseURL(body.get("orgRef").asText());
@@ -195,16 +194,13 @@ public class DataTransferController extends BaseController {
                                     req
                                         .post(createSource(ra.getValue()))
                                         .exceptionally(e -> {
-                                            logger.error(
-                                                String.format("failed in uploading attachment id %s", ra.getKey()),
-                                                e
-                                            );
+                                            logger.error("failed in uploading attachment id {}", ra.getKey(), e);
                                             return null;
                                         })
                                 );
                             })
                             .toArray(CompletableFuture[]::new)
-                    ).thenComposeAsync(__ -> wrapAsPromise(created()));
+                    ).thenComposeAsync(_ -> wrapAsPromise(created()));
                 });
         }
         return wrapAsPromise(badRequest());

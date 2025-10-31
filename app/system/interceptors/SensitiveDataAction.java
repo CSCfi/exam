@@ -10,7 +10,7 @@ import org.apache.pekko.stream.Materializer;
 import play.mvc.Http;
 import play.mvc.Result;
 
-// Action composition to ensure that no data classed as sensitive shall be sent to client.
+// Action composition to ensure that no data classed as sensitive shall be sent to the client.
 class SensitiveDataAction extends JsonFilterAction<SensitiveDataPolicy> {
 
     @Inject

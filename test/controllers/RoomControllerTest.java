@@ -9,7 +9,6 @@ import static play.test.Helpers.contentAsString;
 
 import base.IntegrationTestCase;
 import base.RunAsAdmin;
-import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.DB;
 import models.facility.ExamRoom;
@@ -41,23 +40,6 @@ public class RoomControllerTest extends IntegrationTestCase {
     }
 
     @Test
-    @RunAsStudent
-    public void testDisabledRoomNotVisibleToStudent() throws Exception {
-        // Setup
-        ExamRoom room = DB.find(ExamRoom.class, 1L);
-        room.setState(ExamRoom.State.INACTIVE.toString());
-        room.update();
-
-        // Execute
-        Result result = get("/app/rooms");
-        assertThat(result.status()).isEqualTo(200);
-
-        // Verify
-        JsonNode node = Json.parse(contentAsString(result));
-        assertPathsDoNotExist(node, String.format("$.[?(@.id == %s)]", room.getId()));
-    }
-
-    @Test
     @RunAsAdmin
     public void testEnableRoom() throws Exception {
         // Setup
@@ -76,22 +58,5 @@ public class RoomControllerTest extends IntegrationTestCase {
 
         room = DB.find(ExamRoom.class, 1L);
         assertThat(room.getState()).isEqualTo(ExamRoom.State.ACTIVE.toString());
-    }
-
-    @Test
-    @RunAsStudent
-    public void testEnabledRoomVisibleToStudent() throws Exception {
-        // Setup
-        ExamRoom room = DB.find(ExamRoom.class, 1L);
-        room.setState(ExamRoom.State.ACTIVE.toString());
-        room.update();
-
-        // Execute
-        Result result = get("/app/rooms");
-        assertThat(result.status()).isEqualTo(200);
-
-        // Verify
-        JsonNode node = Json.parse(contentAsString(result));
-        assertPathsExist(node, String.format("$.[?(@.id == %s)]", room.getId()));
     }
 }

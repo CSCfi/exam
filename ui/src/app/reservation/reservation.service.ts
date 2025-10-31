@@ -4,12 +4,12 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DateTime } from 'luxon';
-import { debounceTime, distinctUntilChanged, exhaustMap, forkJoin, from, map, noop, Observable, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, exhaustMap, forkJoin, from, map, Observable, of } from 'rxjs';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { CollaborativeExam, Exam } from 'src/app/exam/exam.model';
 import { User } from 'src/app/session/session.model';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { ChangeMachineDialogComponent } from './admin/change-machine-dialog.component';
 import { RemoveReservationDialogComponent } from './admin/remove-reservation-dialog.component';
 import {
@@ -30,7 +30,7 @@ export interface Selection {
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
     private http = inject(HttpClient);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
 
     printExamState = (reservation: {
         enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };
@@ -50,28 +50,19 @@ export class ReservationService {
         ).length;
 
     changeMachine = (reservation: Reservation): void => {
-        const modalRef = this.modal.open(ChangeMachineDialogComponent, {
-            backdrop: 'static',
-            keyboard: false,
-        });
+        const modalRef = this.modal.openRef(ChangeMachineDialogComponent);
         modalRef.componentInstance.reservation = reservation;
-        from(modalRef.result).subscribe({
-            next: (machine: ExamMachine) => {
-                if (machine) {
-                    reservation.machine = machine;
-                }
-            },
-            error: noop,
+        this.modal.result$<ExamMachine>(modalRef).subscribe((machine) => {
+            if (machine) {
+                reservation.machine = machine;
+            }
         });
     };
 
-    cancelReservation = (reservation: Reservation): Promise<void> => {
-        const modalRef = this.modal.open(RemoveReservationDialogComponent, {
-            backdrop: 'static',
-            keyboard: false,
-        });
+    cancelReservation$ = (reservation: Reservation): Observable<void> => {
+        const modalRef = this.modal.openRef(RemoveReservationDialogComponent);
         modalRef.componentInstance.reservation = reservation;
-        return modalRef.result;
+        return this.modal.result$<void>(modalRef);
     };
 
     listReservations$ = (params: Selection) => {
@@ -84,7 +75,9 @@ export class ReservationService {
         return forkJoin([this.http.get<Reservation[]>('/app/reservations', { params: params }), eventRequest]).pipe(
             map(([reservations, enrolments]) => {
                 const events: Partial<Reservation>[] = enrolments.map((ee) => {
+                    // This is hacky. We use examination events as reservations when they are a completely different concept.
                     return {
+                        id: -ee.id, // Use negative enrolment ID to avoid clashing with reservation IDs
                         user: ee.user,
                         enrolment: ee,
                         startAt: ee.examinationEventConfiguration?.examinationEvent.start,

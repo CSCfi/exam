@@ -235,13 +235,9 @@ export class CalendarComponent implements OnInit {
             .add(() => (this.confirming = false));
     };
 
-    setOrganisation(org: Organisation) {
-        this.selectedOrganisation = org;
-    }
+    setOrganisation = (org: Organisation) => (this.selectedOrganisation = org);
 
-    printExamDuration(exam: { duration: number }) {
-        return this.DateTimeService.printExamDuration(exam);
-    }
+    printExamDuration = (exam: ExamInfo) => this.DateTimeService.formatDuration(exam.duration);
 
     private asDateTime = (date: string, tz: string): DateTime => DateTime.fromISO(date, { zone: tz });
 

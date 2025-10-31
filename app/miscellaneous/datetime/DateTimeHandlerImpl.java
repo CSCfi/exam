@@ -42,7 +42,7 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
             gaps.add(searchInterval);
             return gaps;
         }
-        // create a sub-list that excludes interval which does not overlap with
+        // create a sub-list that excludes an interval which does not overlap with
         // searchInterval
         List<Interval> subReservedList = removeNonOverlappingIntervals(reserved, searchInterval);
         DateTime subEarliestStart = subReservedList.getFirst().getStart();
@@ -281,7 +281,7 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
         List<OpeningHours> availableHours = new ArrayList<>();
         if (!extensionEvents.isEmpty()) {
             List<Interval> unifiedIntervals = mergeSlots(
-                Stream.concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream()).toList()
+                Stream.concat(workingHours.stream().map(OpeningHours::hours), extensionEvents.stream()).toList()
             );
             int offset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now().withDayOfYear(1));
             workingHours.clear();
@@ -294,9 +294,9 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
         }
         if (!restrictionEvents.isEmpty()) {
             for (OpeningHours hours : workingHours) {
-                Interval slot = hours.getHours();
+                Interval slot = hours.hours();
                 for (Interval gap : findGaps(restrictionEvents, slot)) {
-                    availableHours.add(new OpeningHours(gap, hours.getTimezoneOffset()));
+                    availableHours.add(new OpeningHours(gap, hours.timezoneOffset()));
                 }
             }
         } else {

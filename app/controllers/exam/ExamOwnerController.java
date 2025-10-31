@@ -16,8 +16,8 @@ import models.user.User;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class ExamOwnerController extends BaseController {
 
@@ -52,7 +52,7 @@ public class ExamOwnerController extends BaseController {
             return notFound();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
+        if (!user.isAdminOrSupport() && !exam.isOwnedOrCreatedBy(user)) {
             return forbidden("i18n_error_access_forbidden");
         }
         exam.getExamOwners().add(owner);

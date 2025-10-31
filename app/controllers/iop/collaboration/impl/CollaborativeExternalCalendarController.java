@@ -14,7 +14,7 @@ import io.ebean.DB;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -33,9 +33,10 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExternalCalendarReservationSanitizer;
 import security.Authenticated;
+import validation.calendar.ExternalCalendarReservationValidator;
+import validation.calendar.ExternalReservationDTO;
+import validation.core.Attrs;
 
 public class CollaborativeExternalCalendarController extends CollaborativeCalendarController {
 
@@ -43,7 +44,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
     CalendarHandler calendarHandler;
 
     @Authenticated
-    @With(ExternalCalendarReservationSanitizer.class)
+    @With(ExternalCalendarReservationValidator.class)
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> requestReservation(Http.Request request) {
         if (!configReader.isVisitingExaminationSupported()) {
@@ -51,12 +52,13 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Parse request body
-        String orgRef = request.attrs().get(Attrs.ORG_REF);
-        String roomRef = request.attrs().get(Attrs.ROOM_REF);
-        DateTime start = request.attrs().get(Attrs.START_DATE);
-        DateTime end = request.attrs().get(Attrs.END_DATE);
-        Long examId = request.attrs().get(Attrs.EXAM_ID);
-        Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
+        ExternalReservationDTO dto = request.attrs().get(Attrs.EXT_STUDENT_RESERVATION);
+        String orgRef = dto.orgRef();
+        String roomRef = dto.roomRef();
+        DateTime start = dto.start();
+        DateTime end = dto.end();
+        Long examId = dto.examId();
+        List<Long> sectionIds = dto.getSectionIdsAsJava();
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
 
         CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
@@ -86,7 +88,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                 return wrapAsPromise(badEnrolment.get());
             }
             // Make ext request here
-            // Lets do this
+            // Let's do this
             URL url;
             try {
                 url = parseUrl(orgRef, roomRef);
@@ -151,7 +153,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                 if (!exam.hasState(Exam.State.PUBLISHED)) {
                     return wrapAsPromise(notFound("i18n_error_exam_not_found"));
                 }
-                // Also sanity check the provided search date
+                // Also, sanity-check the provided search date
                 try {
                     calendarHandler.parseSearchDate(date.get(), exam, null);
                 } catch (IllegalArgumentException e) {

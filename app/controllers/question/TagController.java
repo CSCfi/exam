@@ -9,7 +9,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +20,8 @@ import models.user.Role;
 import models.user.User;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class TagController extends BaseController {
 
@@ -37,7 +36,7 @@ public class TagController extends BaseController {
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Tag> query = DB.find(Tag.class).where();
+        var query = DB.find(Tag.class).where();
         if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             query = query.where().eq("creator.id", user.getId());
         }

@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.iop.collaboration.api.CollaborativeAttachmentInterface;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -40,8 +39,7 @@ public class CollaborativeAttachmentController
 
     @Override
     public Optional<CollaborativeExam> getExternalExam(Long eid, Http.Request request) {
-        final ExpressionList<CollaborativeExam> query = DB.find(CollaborativeExam.class).where().eq("id", eid);
-        return query.findOneOrEmpty();
+        return DB.find(CollaborativeExam.class).where().eq("id", eid).findOneOrEmpty();
     }
 
     @Override
@@ -117,55 +115,55 @@ public class CollaborativeAttachmentController
         Http.Request request
     ) {
         return downloadAssessment(exam.getExternalRef(), assessmentRef).thenComposeAsync(optionalAssessment -> {
-                if (optionalAssessment.isPresent()) {
-                    MultipartForm mf = getForm(request);
-                    Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
-                    return uploadAssessmentAttachment(filePart, optionalAssessment.get()).thenComposeAsync(oa -> {
-                            if (oa.isEmpty()) {
-                                return CompletableFuture.completedFuture(Results.internalServerError());
-                            }
-                            JsonNode attachment = oa.get().get("exam").get("examFeedback").get("attachment");
-                            return uploadAssessment(exam, assessmentRef, oa.get()).thenApplyAsync(revision -> {
-                                    if (revision.isPresent()) {
-                                        ((ObjectNode) attachment).put("rev", revision.get());
-                                        return ok(attachment);
-                                    }
-                                    return internalServerError();
-                                });
-                        });
-                }
-                return wrapAsPromise(notFound());
-            });
+            if (optionalAssessment.isPresent()) {
+                MultipartForm mf = getForm(request);
+                Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
+                return uploadAssessmentAttachment(filePart, optionalAssessment.get()).thenComposeAsync(oa -> {
+                    if (oa.isEmpty()) {
+                        return CompletableFuture.completedFuture(Results.internalServerError());
+                    }
+                    JsonNode attachment = oa.get().get("exam").get("examFeedback").get("attachment");
+                    return uploadAssessment(exam, assessmentRef, oa.get()).thenApplyAsync(revision -> {
+                        if (revision.isPresent()) {
+                            ((ObjectNode) attachment).put("rev", revision.get());
+                            return ok(attachment);
+                        }
+                        return internalServerError();
+                    });
+                });
+            }
+            return wrapAsPromise(notFound());
+        });
     }
 
     @Override
     public CompletionStage<Result> deleteExternalAssessment(CollaborativeExam exam, String assessmentRef) {
         return downloadAssessment(exam.getExternalRef(), assessmentRef).thenComposeAsync(optionalAssessment -> {
-                if (optionalAssessment.isPresent()) {
-                    JsonNode assessment = optionalAssessment.get();
-                    return removeAssessmentAttachment(assessment).thenComposeAsync(result -> {
-                            if (result.status() != OK) {
-                                return CompletableFuture.completedFuture(Results.internalServerError());
-                            }
-                            JsonNode feedbackNode = assessment.get("exam").get("examFeedback");
-                            ((ObjectNode) feedbackNode).remove("attachment");
-                            return uploadAssessment(exam, assessmentRef, assessment).thenApplyAsync(revision -> {
-                                    if (revision.isPresent()) {
-                                        return ok(Json.newObject().put("rev", revision.get()));
-                                    }
-                                    return internalServerError();
-                                });
-                        });
-                }
-                return wrapAsPromise(notFound());
-            });
+            if (optionalAssessment.isPresent()) {
+                JsonNode assessment = optionalAssessment.get();
+                return removeAssessmentAttachment(assessment).thenComposeAsync(result -> {
+                    if (result.status() != OK) {
+                        return CompletableFuture.completedFuture(Results.internalServerError());
+                    }
+                    JsonNode feedbackNode = assessment.get("exam").get("examFeedback");
+                    ((ObjectNode) feedbackNode).remove("attachment");
+                    return uploadAssessment(exam, assessmentRef, assessment).thenApplyAsync(revision -> {
+                        if (revision.isPresent()) {
+                            return ok(Json.newObject().put("rev", revision.get()));
+                        }
+                        return internalServerError();
+                    });
+                });
+            }
+            return wrapAsPromise(notFound());
+        });
     }
 
     @Override
     public boolean setExam(CollaborativeExam collaborativeExam, Exam exam, User user) {
         try {
             return uploadExam(collaborativeExam, exam, user)
-                .thenApply(result -> result.status() == 200)
+                .thenApply(result -> result.status() == Http.Status.OK)
                 .toCompletableFuture()
                 .get();
         } catch (InterruptedException | ExecutionException e) {

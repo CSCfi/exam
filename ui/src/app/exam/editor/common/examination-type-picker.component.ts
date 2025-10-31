@@ -12,7 +12,6 @@ import { ExamService } from 'src/app/exam/exam.service';
 type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
 
 @Component({
-    selector: 'xm-examination-type-selector',
     imports: [TranslateModule, NgbAccordionModule, NgClass],
     template: `
         <div class="modal-header">

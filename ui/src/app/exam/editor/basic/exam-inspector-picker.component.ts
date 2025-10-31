@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input, inject } from '@angular/core';
@@ -15,12 +14,11 @@ import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
 import type { Exam, ExamInspection } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
-import { UserService } from 'src/app/shared/user/user.service';
 
 @Component({
     selector: 'xm-exam-inspector-picker',
     templateUrl: './exam-inspector-picker.component.html',
-    imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule, NgClass],
+    imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
     styles: '.vbottom { vertical-align: bottom !important }',
     styleUrls: ['../../exam.shared.scss'],
 })
@@ -37,7 +35,6 @@ export class ExamInspectorSelectorComponent implements OnInit {
 
     private http = inject(HttpClient);
     private toast = inject(ToastrService);
-    private User = inject(UserService);
 
     constructor() {
         this.newInspector = {};

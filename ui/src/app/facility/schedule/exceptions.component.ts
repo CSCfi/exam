@@ -3,12 +3,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { from } from 'rxjs';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import type { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FilterByPipe } from 'src/app/shared/filter/filter-by.pipe';
 import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.component';
 
@@ -29,7 +28,7 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
         }
 
         @for (exception of orderedExceptions | filterBy: filter; track exception; let i = $index) {
-            <div class="row" [class]="i % 2 === 0 ? 'background-light-blue' : ''">
+            <div class="row mb-2" [class]="i % 2 === 0 ? 'background-light-blue' : ''">
                 <div class="col">
                     {{ formatDate(exception) }}
                 </div>
@@ -38,7 +37,7 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
                     {{ exception.outOfService ? ('i18n_room_out_of_service' | translate) : '' }}
                 </div>
                 <div class="col-3">
-                    <button class="btn btn-outline-danger pointer" (click)="deleteException(exception)">
+                    <button class="btn btn-sm btn-outline-danger pointer" (click)="deleteException(exception)">
                         {{ 'i18n_exam_remove' | translate }}
                     </button>
                 </div>
@@ -71,7 +70,7 @@ export class ExceptionListComponent implements OnInit, OnChanges {
     orderedExceptions: ExceptionWorkingHours[] = [];
 
     private roomService = inject(RoomService);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
 
     constructor() {
         this.filter = () => true;
@@ -106,19 +105,13 @@ export class ExceptionListComponent implements OnInit, OnChanges {
     createExceptionCallback = (exceptions: ExceptionWorkingHours[]) => this.created.emit(exceptions);
 
     deleteException = (exception: ExceptionWorkingHours) => {
-        const modal = this.modal.open(ExceptionDeleteDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+        const modal = this.modal.openRef(ExceptionDeleteDialogComponent, { size: 'lg' });
         modal.componentInstance.message = this.formatDate(exception);
         modal.componentInstance.exception = exception;
-        from(modal.result).subscribe({
-            next: () => {
-                this.exceptions.splice(this.exceptions.indexOf(exception), 1);
-                this.init();
-                this.removed.emit(exception);
-            },
+        this.modal.result$<void>(modal).subscribe(() => {
+            this.exceptions.splice(this.exceptions.indexOf(exception), 1);
+            this.init();
+            this.removed.emit(exception);
         });
     };
 

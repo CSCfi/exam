@@ -66,10 +66,6 @@
                 {
                   "replace": "ui/src/environments/environment.ts",
                   "with": "ui/src/environments/environment.prod.ts"
-                },
-                {
-                  "replace": "ui/src/app/interceptors/auth-interceptor.ts",
-                  "with": "ui/src/app/interceptors/auth-interceptor.prod.ts"
                 }
               ],
               "outputHashing": "all",
@@ -109,10 +105,9 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "main": "ui/src/test.ts",
-            "polyfills": "ui/src/polyfills.ts",
+            "karmaConfig": "karma.conf.js",
+            "polyfills": ["@angular/localize/init", "ui/src/polyfills.ts"],
             "tsConfig": "ui/tsconfig.spec.json",
-            "karmaConfig": "ui/karma.conf.js",
             "inlineStyleLanguage": "scss",
             "assets": [
               "ui/src/favicon.ico", 

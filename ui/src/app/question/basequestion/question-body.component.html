@@ -40,26 +40,7 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- Type specific content -->
     @switch (question.type) {
         @case ('EssayQuestion') {
-            <xm-essay-editor [question]="question" />
-            <!-- Evaluation type - not allowed if question is in use in other published exam. -->
-            <div class="row mt-3">
-                <div class="col-md-3">
-                    {{ 'i18n_evaluation_type' | translate }}
-                </div>
-                <div class="col-md-3">
-                    <select
-                        id="evaluationType"
-                        name="evaluationType"
-                        class="form-select w-75"
-                        [ngModel]="question.defaultEvaluationType"
-                        (ngModelChange)="updateEvaluationType($event)"
-                        required="question.type == 'EssayQuestion'"
-                    >
-                        <option value="Points">{{ 'i18n_word_points' | translate }}</option>
-                        <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
-                    </select>
-                </div>
-            </div>
+            <xm-essay-editor [question]="question" [lotteryOn]="lotteryOn" />
         }
         @case ('MultipleChoiceQuestion') {
             <xm-multiple-choice-editor

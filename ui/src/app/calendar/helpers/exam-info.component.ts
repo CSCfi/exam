@@ -120,5 +120,5 @@ export class CalendarExamInfoComponent implements OnInit {
         );
     }
 
-    printExamDuration = (exam: { duration: number }) => this.DateTimeService.printExamDuration(exam);
+    printExamDuration = (info: ExamInfo) => this.DateTimeService.formatDuration(info.duration);
 }

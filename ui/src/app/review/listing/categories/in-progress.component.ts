@@ -6,9 +6,8 @@ import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { NgbCollapse, NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { noop } from 'rxjs';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ArchiveDownloadComponent } from 'src/app/review/listing/dialogs/archive-download.component';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
@@ -17,6 +16,7 @@ import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
@@ -50,7 +50,7 @@ export class InProgressReviewsComponent implements OnInit {
     @Input() collaborative = false;
     view!: ReviewListView;
 
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private ReviewList = inject(ReviewListService);
     private Session = inject(SessionService);
     private Files = inject(FileService);
@@ -76,12 +76,8 @@ export class InProgressReviewsComponent implements OnInit {
 
     getAnswerAttachments = () =>
         this.modal
-            .open(ArchiveDownloadComponent, {
-                backdrop: 'static',
-                keyboard: true,
-            })
-            .result.then((params: { $value: { start: string; end: string } }) =>
+            .open$<{ $value: { start: string; end: string } }>(ArchiveDownloadComponent)
+            .subscribe((params) =>
                 this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params.$value),
-            )
-            .catch(noop);
+            );
 }

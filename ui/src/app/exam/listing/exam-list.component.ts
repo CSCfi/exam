@@ -6,10 +6,10 @@ import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, from } from 'rxjs';
+import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ExaminationTypeSelectorComponent } from 'src/app/exam/editor/common/examination-type-picker.component';
 import type { Exam, Implementation } from 'src/app/exam/exam.model';
@@ -17,6 +17,7 @@ import { ExamService } from 'src/app/exam/exam.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
@@ -63,10 +64,10 @@ export class ExamListingComponent implements OnInit, OnDestroy {
     private translate = inject(TranslateService);
     private router = inject(Router);
     private http = inject(HttpClient);
-    private modal = inject(NgbModal);
     private toast = inject(ToastrService);
     private Confirmation = inject(ConfirmationDialogService);
     private Exam = inject(ExamService);
+    private Modal = inject(ModalService);
 
     ngOnDestroy() {
         this.ngUnsubscribe.next(undefined);
@@ -110,12 +111,8 @@ export class ExamListingComponent implements OnInit, OnDestroy {
     createExam = (executionType: Implementation) => this.Exam.createExam(executionType);
 
     copyExam = (exam: Exam) =>
-        from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
-            .pipe(
-                switchMap((data: { type: string; examinationType: string }) =>
-                    this.http.post<Exam>(`/app/exams/${exam.id}`, data),
-                ),
-            )
+        this.Modal.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent)
+            .pipe(switchMap((data) => this.http.post<Exam>(`/app/exams/${exam.id}`, data)))
             .subscribe({
                 next: (resp) => {
                     this.toast.success(this.translate.instant('i18n_exam_copied'));

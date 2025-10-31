@@ -70,8 +70,8 @@ class NoShowHandlerImpl @Inject (
   override def handleNoShowAndNotify(enrolment: ExamEnrolment): Unit =
     val exam = enrolment.getExam
     if Option(exam).exists(_.isPrivate) then
-      // For no-shows with private examinations we remove the reservation so student can re-reserve.
-      // This is needed because student is not able to re-enroll by himself.
+      // For no-shows with private examinations we remove the reservation so a student can re-reserve.
+      // This is needed because a student is not able to re-enroll by themselves.
       val reservation = enrolment.getReservation
       val eec         = enrolment.getExaminationEventConfiguration
       enrolment.setReservation(null)

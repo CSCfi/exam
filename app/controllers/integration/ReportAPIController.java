@@ -7,7 +7,6 @@ package controllers.integration;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import controllers.base.BaseController;
 import io.ebean.DB;
-import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.List;
 import java.util.Map;
@@ -29,17 +28,17 @@ public class ReportAPIController extends BaseController {
     public Result getExamEnrolments(Optional<String> start, Optional<String> end) {
         PathProperties pp = PathProperties.parse(
             "(id, enrolledOn, noShow, " +
-            "reservation(id, machine(id, name, room(name, roomCode)), startAt, endAt, externalReservation(orgName)), " +
-            "examinationEventConfiguration(examinationEvent(start)), " +
-            "exam(id, course(name, code, credits, identifier, courseImplementation, " +
-            "gradeScale(description, displayName), organisation(code, name)), " +
-            "softwares(name), duration, examType(type), creditType(type), executionType(type), " +
-            "implementation, trialCount, answerLanguage, periodStart, periodEnd, " +
-            "examParticipation(started, ended, id))" +
-            ")"
+                "reservation(id, machine(id, name, room(name, roomCode)), startAt, endAt, externalReservation(orgName)), " +
+                "examinationEventConfiguration(examinationEvent(start)), " +
+                "exam(id, course(name, code, credits, identifier, courseImplementation, " +
+                "gradeScale(description, displayName), organisation(code, name)), " +
+                "softwares(name), duration, examType(type), creditType(type), executionType(type), " +
+                "implementation, trialCount, answerLanguage, periodStart, periodEnd, " +
+                "examParticipation(started, ended, id))" +
+                ")"
         );
 
-        Query<ExamEnrolment> query = DB.find(ExamEnrolment.class);
+        var query = DB.find(ExamEnrolment.class);
         pp.apply(query);
 
         List<ExamEnrolment> participations = query
@@ -55,7 +54,7 @@ public class ReportAPIController extends BaseController {
             .filter(ee -> filterByDate(ee, start, end))
             .toList();
 
-        /* Relations from exam to software exist on parent exam, therefore fetch parent exam IDs separately */
+        /* Relations from exam to software exist on the parent exam. Therefore, fetch parent exam IDs separately */
         Set<Long> parentExamIds = participations
             .stream()
             .filter(participation -> participation.getExam() != null && participation.getExam().getParent() != null)

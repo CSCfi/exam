@@ -14,12 +14,9 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     selector: 'xm-wmc-option-editor',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
-        <div ngModelGroup="wmcOptions" class="m-0 p-0 exclude">
-            <div class="row">
-                <div
-                    class="col-md-6 question-option-empty"
-                    [ngClass]="option.defaultScore > 0 ? 'question-correct-option' : ''"
-                >
+        <div ngModelGroup="wmcOptions" class="m-0 p-0">
+            <div class="row my-2">
+                <div class="col-md-6 me-3 question-option-empty" [ngClass]="getOptionStyle()">
                     <textarea
                         id="optionText-{{ index }}"
                         name="optionText-{{ index }}"
@@ -30,15 +27,13 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
                         required
                     ></textarea>
                 </div>
-                <div
-                    class="col-md-2 question-option-empty-radio"
-                    [ngClass]="option.defaultScore > 0 ? 'question-correct-option-radio' : ''"
-                >
+                <div class="col-md-2 question-option-empty-radio" [ngClass]="getOptionStyle()">
                     <input
                         id="optionScore-{{ index }}"
                         name="optionScore-{{ index }}"
                         class="question-option-input points"
                         type="number"
+                        step="0.01"
                         lang="en"
                         [(ngModel)]="option.defaultScore"
                         xmFixedPrecision
@@ -75,5 +70,11 @@ export class WeightedMultipleChoiceOptionEditorComponent {
         } else {
             this.toast.error(this.translate.instant('i18n_action_disabled_minimum_options'));
         }
+    };
+
+    getOptionStyle = () => {
+        if (this.option.defaultScore > 0) return 'question-correct-option';
+        else if (this.option.defaultScore < 0) return 'question-incorrect-option';
+        else return '';
     };
 }

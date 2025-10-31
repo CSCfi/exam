@@ -4,21 +4,21 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { noop } from 'rxjs';
+import { tap } from 'rxjs';
 import { Address, Availability, MaintenancePeriod, WorkingHour } from 'src/app/facility/facility.model';
 import { ExceptionDialogComponent } from 'src/app/facility/schedule/exception-dialog.component';
 import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
     private http = inject(HttpClient);
-    private ngbModal = inject(NgbModal);
+    private modal = inject(ModalService);
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private dialogs = inject(ConfirmationDialogService);
@@ -79,51 +79,31 @@ export class RoomService {
             error: (err) => this.toast.error(err),
         });
 
-    addExceptions = (ids: number[], exceptions: ExceptionWorkingHours[]) =>
-        new Promise<ExceptionWorkingHours[]>((resolve, reject) => {
-            this.updateExceptions$(ids, exceptions).subscribe({
-                next: (data: ExceptionWorkingHours[]) => {
-                    this.toast.info(this.translate.instant('i18n_exception_time_added'));
-                    resolve(data);
-                },
-                error: (error) => {
-                    this.toast.error(error);
-                    reject();
-                },
-            });
-        });
+    addExceptions$ = (ids: number[], exceptions: ExceptionWorkingHours[]) =>
+        this.updateExceptions$(ids, exceptions).pipe(
+            tap({
+                next: () => this.toast.info(this.translate.instant('i18n_exception_time_added')),
+                error: (error) => this.toast.error(error),
+            }),
+        );
 
     openExceptionDialog = (
         callBack: (exception: ExceptionWorkingHours[]) => void,
         outOfService?: boolean,
         exceptions?: ExceptionWorkingHours[],
     ) => {
-        const modalRef = this.ngbModal.open(ExceptionDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+        const modalRef = this.modal.openRef(ExceptionDialogComponent, { size: 'lg' });
         modalRef.componentInstance.outOfService = outOfService;
         modalRef.componentInstance.exceptions = exceptions;
-        modalRef.result
-            .then((exceptions: ExceptionWorkingHours[]) => {
-                callBack(exceptions);
-            })
-            .catch(noop);
+        this.modal.result$<ExceptionWorkingHours[]>(modalRef).subscribe(callBack);
     };
-    deleteException = (roomId: number, exceptionId: number) =>
-        new Promise<void>((resolve, reject) => {
-            this.removeException$(roomId, exceptionId).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('i18n_exception_time_removed'));
-                    resolve();
-                },
-                error: (error) => {
-                    this.toast.error(error);
-                    reject(error);
-                },
-            });
-        });
+    deleteException$ = (roomId: number, exceptionId: number) =>
+        this.removeException$(roomId, exceptionId).pipe(
+            tap({
+                next: () => this.toast.info(this.translate.instant('i18n_exception_time_removed')),
+                error: (error) => this.toast.error(error),
+            }),
+        );
 
     formatExceptionEvent = (event: ExceptionWorkingHours) => {
         event.startDate = DateTime.fromISO(event.startDate).toISO() || '';

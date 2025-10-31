@@ -128,7 +128,7 @@ export class QuestionBodyComponent implements OnInit {
     };
 
     selectFile = () =>
-        this.Attachment.selectFile(true).then((data) => {
+        this.Attachment.selectFile$(true).subscribe((data) => {
             this.question.attachment = {
                 ...this.question.attachment,
                 modified: true,
@@ -163,13 +163,6 @@ export class QuestionBodyComponent implements OnInit {
     hasUploadedAttachment = () => {
         const a = this.question.attachment;
         return a && (a.id || a.externalId);
-    };
-
-    updateEvaluationType = ($event: string) => {
-        this.question.defaultEvaluationType = $event;
-        if ($event === 'Selection') {
-            delete this.question.defaultMaxScore;
-        }
     };
 
     removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);

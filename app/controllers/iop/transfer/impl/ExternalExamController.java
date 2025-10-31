@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.admin.SettingsController;
 import controllers.base.BaseController;
+import controllers.exam.copy.ExamCopyContext;
 import controllers.examination.ExaminationController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
@@ -28,7 +29,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -145,8 +145,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
             inspection.save();
         }
         Set<ExamSection> sections = new TreeSet<>(src.getExamSections());
+        ExamCopyContext context = ExamCopyContext.forCopyWithAnswers(user).build();
         for (ExamSection es : sections) {
-            ExamSection esCopy = es.copyWithAnswers(clone, parent != null);
+            ExamSection esCopy = es.copy(clone, context);
             esCopy.setCreatorWithDate(user);
             esCopy.setModifierWithDate(user);
             esCopy.save();
@@ -211,7 +212,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
                     CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
                 );
         } else {
-            // Fetch external attachments to local exam.
+            // Fetch external attachments for the local exam.
             externalAttachmentLoader.fetchExternalAttachmentsAsLocal(clone);
             return wrapAsPromise(created());
         }
@@ -226,12 +227,11 @@ public class ExternalExamController extends BaseController implements ExternalEx
             .scheduler()
             .scheduleOnce(
                 Duration.create(1, TimeUnit.SECONDS),
-                () -> {
+                () ->
                     recipients.forEach(r -> {
                         emailComposer.composePrivateExamEnded(r, exam);
                         logger.info("Email sent to {}", r.getEmail());
-                    });
-                },
+                    }),
                 actor.dispatcher()
             );
     }
@@ -290,9 +290,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
                     futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
                 );
             return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
+                .thenComposeAsync(_ -> wrapAsPromise(ok(exam, getPath())))
                 .exceptionally(t -> {
-                    logger.error(String.format("Could not provide enrolment [id=%s]", enrolment.getId()), t);
+                    logger.error("Could not provide enrolment [id={}]", enrolment.getId(), t);
                     return internalServerError();
                 });
         }
@@ -324,7 +324,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             // Set references so that:
             // - external ref is the reference we got from outside. Must not be changed.
             // - local ref is a UUID X. It is used locally for referencing the exam
-            // - content's hash is set to X in order to simplify things with frontend
+            // - content's hash is set to X in order to simplify things with the frontend
 
             String externalRef = document.getHash();
             String ref = UUID.randomUUID().toString();
@@ -355,19 +355,19 @@ public class ExternalExamController extends BaseController implements ExternalEx
                         Question::getType
                     );
                     if (questionType.isPresent() && questionType.get() == Question.Type.ClaimChoiceQuestion) {
-                        Set<ExamSectionQuestionOption> sorted = esq
+                        // For ClaimChoiceQuestion, ensure options are sorted by ID
+                        // (needed because JSON deserialization doesn't apply @OrderBy)
+                        List<ExamSectionQuestionOption> sorted = esq
                             .getOptions()
                             .stream()
-                            .collect(
-                                Collectors.toCollection(() ->
-                                    new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
-                                )
-                            );
+                            .sorted(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
+                            .toList();
                         esq.setOptions(sorted);
-                    } else {
+                    } else if (esq.isOptionShufflingOn()) {
+                        // Shuffle options for non-claim-choice questions
                         List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
                         Collections.shuffle(shuffled);
-                        esq.setOptions(new HashSet<>(shuffled));
+                        esq.setOptions(shuffled);
                     }
                 });
 
@@ -401,14 +401,14 @@ public class ExternalExamController extends BaseController implements ExternalEx
         return request.get().thenApplyAsync(onSuccess);
     }
 
-    private static Query<ExamEnrolment> createQuery() {
-        Query<ExamEnrolment> query = DB.find(ExamEnrolment.class);
+    private Query<ExamEnrolment> createQuery() {
+        var query = DB.find(ExamEnrolment.class);
         PathProperties props = ExaminationController.getPath(true);
         props.apply(query);
         return query;
     }
 
-    private static Optional<ExamEnrolment> getPrototype(String ref) {
+    private Optional<ExamEnrolment> getPrototype(String ref) {
         return createQuery()
             .where()
             .eq("reservation.externalRef", ref)

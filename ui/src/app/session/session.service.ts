@@ -6,12 +6,12 @@ import { HttpClient } from '@angular/common/http';
 import type { OnDestroy } from '@angular/core';
 import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable, Unsubscribable } from 'rxjs';
-import { Subject, defer, from, interval, of, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { Subject, defer, interval, of, throwError } from 'rxjs';
+import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { StorageService } from 'src/app/shared/storage/storage.service';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { ExternalLoginConfirmationDialogComponent } from './eula/external-login-confirmation-dialog.component';
@@ -33,7 +33,7 @@ export class SessionService implements OnDestroy {
     private router = inject(Router);
     private Storage = inject(StorageService);
     private document = inject<Document>(DOCUMENT);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private toast = inject(ToastrService);
 
     private PING_INTERVAL: number = 30 * 1000;
@@ -161,11 +161,14 @@ export class SessionService implements OnDestroy {
             .pipe(
                 switchMap((u) => this.prepareUser$(u)),
                 switchMap((u) => this.processLogin$(u)),
+                mergeMap((u) =>
+                    this.http.get<{ prefix: string }>('/app/settings/coursecodeprefix').pipe(
+                        tap((data) => this.Storage.set('COURSE_CODE_PREFIX', data.prefix)),
+                        map(() => u),
+                    ),
+                ),
                 tap((u) => {
                     this.Storage.set('EXAM_USER', u);
-                    this.http
-                        .get<{ prefix: string }>('/app/settings/coursecodeprefix')
-                        .subscribe((data) => this.Storage.set('COURSE_CODE_PREFIX', data.prefix));
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
                     if (u) {
@@ -185,11 +188,11 @@ export class SessionService implements OnDestroy {
     translate$ = (lang: string) => this.i18n.use(lang).pipe(tap(() => (this.document.documentElement.lang = lang)));
 
     private processLogin$ = (user: User): Observable<User> => {
-        const externalLoginConfirmation$ = (u: User): Observable<User> =>
-            defer(() => (u.externalUserOrg ? this.openExernalLoginConfirmationModal$(u) : of(u)));
-        const userAgreementConfirmation$ = (u: User): Observable<User> =>
+        const externalLoginConfirmation$ = (u: User) =>
+            defer(() => (u.externalUserOrg ? this.openExternalLoginConfirmationModal$(u) : of(u)));
+        const userAgreementConfirmation$ = (u: User) =>
             defer(() => (!u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
-        const roleSelectionConfirmation$ = (u: User): Observable<User> =>
+        const roleSelectionConfirmation$ = (u: User) =>
             defer(() => (!u.loginRole ? this.openRoleSelectModal$(u) : of(u)));
         return externalLoginConfirmation$(user).pipe(
             switchMap(roleSelectionConfirmation$),
@@ -197,38 +200,25 @@ export class SessionService implements OnDestroy {
         );
     };
 
-    private openExernalLoginConfirmationModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(ExternalLoginConfirmationDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'm',
-        });
+    private openExternalLoginConfirmationModal$(user: User): Observable<User> {
+        const modalRef = this.modal.openRef(ExternalLoginConfirmationDialogComponent, { size: 'm' });
         modalRef.componentInstance.user = user;
-        return from(modalRef.result).pipe(map(() => user));
+        return this.modal.result$(modalRef).pipe(map(() => user));
     }
 
     private openUserAgreementModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(EulaDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
-        return from(modalRef.result).pipe(
+        return this.modal.open$(EulaDialogComponent, { size: 'lg' }).pipe(
             switchMap(() => this.http.put('/app/users/agreement', {})),
             map(() => ({ ...user, userAgreementAccepted: true })),
         );
     }
 
     private openRoleSelectModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(SelectRoleDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'm',
-        });
+        const modalRef = this.modal.openRef(SelectRoleDialogComponent, { size: 'm' });
         modalRef.componentInstance.user = user;
-        return from(modalRef.result).pipe(
-            switchMap((role: Role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
-            map((role: Role) => {
+        return this.modal.result$<Role>(modalRef).pipe(
+            switchMap((role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
+            map((role) => {
                 user.loginRole = role.name;
                 user.isAdmin = role.name === 'ADMIN';
                 user.isSupport = role.name === 'SUPPORT';

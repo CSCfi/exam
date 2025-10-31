@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalFacilityAPI;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -45,11 +44,11 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
+import validation.core.Attrs;
 
 public class RoomController extends BaseController {
 
@@ -83,7 +82,7 @@ public class RoomController extends BaseController {
         if (room.getExternalRef() != null && examVisitActivated) {
             return externalApi
                 .updateFacility(room)
-                .thenApplyAsync(x -> ok(Json.newObject()))
+                .thenApplyAsync(_ -> ok(Json.newObject()))
                 .exceptionally(throwable -> internalServerError(Json.newObject().put("error", throwable.getMessage())));
         } else {
             return wrapAsPromise(ok());
@@ -113,7 +112,7 @@ public class RoomController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("SUPPORT"), @Group("ADMIN"), @Group("STUDENT") })
     @SensitiveDataPolicy(sensitiveFieldNames = { "internalPassword", "externalPassword" })
     public Result getExamRooms(Http.Request request) {
-        ExpressionList<ExamRoom> query = DB.find(ExamRoom.class)
+        var query = DB.find(ExamRoom.class)
             .fetch("accessibilities")
             .fetch("examMachines")
             .fetch("defaultWorkingHours")
@@ -303,7 +302,7 @@ public class RoomController extends BaseController {
         List<ExamRoom> rooms = DB.find(ExamRoom.class).where().idIn(roomIds).findList();
         DefaultWorkingHours hours = parseWorkingHours(root);
         for (ExamRoom examRoom : rooms) {
-            // Find out if there's overlap. Remove those
+            // Find out if there's any overlap. Remove those
             List<DefaultWorkingHours> existing = DB.find(DefaultWorkingHours.class)
                 .where()
                 .eq("room", examRoom)
@@ -314,7 +313,7 @@ public class RoomController extends BaseController {
                 .filter(dwh -> dwh.overlaps(hours))
                 .toList();
             DB.deleteAll(overlapping);
-            examRoom.getDefaultWorkingHours().removeAll(overlapping);
+            overlapping.forEach(examRoom.getDefaultWorkingHours()::remove);
 
             hours.setRoom(examRoom);
             DateTime end = new DateTime(hours.getEndTime());
@@ -367,7 +366,7 @@ public class RoomController extends BaseController {
             for (JsonNode hours : node.get("hours")) {
                 ExamStartingHour esh = new ExamStartingHour();
                 esh.setRoom(examRoom);
-                // Deliberately use first/second of Jan to have no DST in effect
+                // Deliberately use the first/second of Jan to have no DST in effect
                 DateTime startTime = DateTime.parse(hours.asText(), formatter).withDayOfYear(1);
                 esh.setStartingHour(startTime.toDate());
                 esh.setTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(startTime));
@@ -380,8 +379,8 @@ public class RoomController extends BaseController {
     }
 
     private ExceptionWorkingHours parse(JsonNode node) {
-        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("start").asText());
-        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("end").asText());
+        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("startDate").asText());
+        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("endDate").asText());
         ExceptionWorkingHours hours = new ExceptionWorkingHours();
         hours.setStartDate(startDate.toDate());
         hours.setEndDate(endDate.toDate());
@@ -472,7 +471,7 @@ public class RoomController extends BaseController {
         room.update();
 
         if (room.getExternalRef() != null && examVisitActivated) {
-            return externalApi.inactivateFacility(room.getId()).thenApplyAsync(response -> ok(Json.toJson(room)));
+            return externalApi.inactivateFacility(room.getId()).thenApplyAsync(_ -> ok(Json.toJson(room)));
         } else {
             return wrapAsPromise(ok(Json.toJson(room)));
         }
@@ -488,7 +487,7 @@ public class RoomController extends BaseController {
         room.update();
 
         if (room.getExternalRef() != null && examVisitActivated) {
-            return externalApi.activateFacility(room.getId()).thenApplyAsync(response -> ok(Json.toJson(room)));
+            return externalApi.activateFacility(room.getId()).thenApplyAsync(_ -> ok(Json.toJson(room)));
         } else {
             return wrapAsPromise(ok(Json.toJson(room)));
         }

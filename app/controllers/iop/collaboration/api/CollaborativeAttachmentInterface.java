@@ -318,19 +318,20 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
     default CompletionStage<Result> downloadExternalAttachment(String id) {
         final Optional<URL> url = parseUrl("/api/attachments/%s", id);
-        if (url.isEmpty()) {
-            return CompletableFuture.completedFuture(Results.internalServerError());
-        }
-        return getWsClient()
-            .url(url.get().toString())
-            .get()
-            .thenCompose(response -> {
-                if (response.getStatus() != Http.Status.OK) {
-                    return CompletableFuture.completedFuture(Results.status(response.getStatus()));
-                }
-                final JsonNode node = response.asJson();
-                return download(id, node.path("mimeType").asText(), node.path("displayName").asText());
-            });
+        return url
+            .map(value ->
+                getWsClient()
+                    .url(value.toString())
+                    .get()
+                    .thenCompose(response -> {
+                        if (response.getStatus() != Http.Status.OK) {
+                            return CompletableFuture.completedFuture(Results.status(response.getStatus()));
+                        }
+                        final JsonNode node = response.asJson();
+                        return download(id, node.path("mimeType").asText(), node.path("displayName").asText());
+                    })
+            )
+            .orElseGet(() -> CompletableFuture.completedFuture(Results.internalServerError()));
     }
 
     default CompletionStage<Result> downloadExternalAttachment(Attachment attachment) {
@@ -347,22 +348,23 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
 
     default CompletionStage<Result> download(String id, String mimeType, String fileName) {
         final Optional<URL> url = parseUrl("/api/attachments/%s/download", id);
-        if (url.isEmpty()) {
-            return CompletableFuture.completedFuture(Results.internalServerError());
-        }
-        return getWsClient()
-            .url(url.get().toString())
-            .stream()
-            .thenCompose(response -> {
-                if (response.getStatus() != Http.Status.OK) {
-                    return CompletableFuture.completedFuture(Results.status(response.getStatus()));
-                }
-                try {
-                    return serveAsBase64Stream(mimeType, fileName, response.getBodyAsSource());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        return url
+            .map(value ->
+                getWsClient()
+                    .url(value.toString())
+                    .stream()
+                    .thenCompose(response -> {
+                        if (response.getStatus() != Http.Status.OK) {
+                            return CompletableFuture.completedFuture(Results.status(response.getStatus()));
+                        }
+                        try {
+                            return serveAsBase64Stream(mimeType, fileName, response.getBodyAsSource());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+            )
+            .orElseGet(() -> CompletableFuture.completedFuture(Results.internalServerError()));
     }
 
     default CompletionStage<Result> deleteExternalAttachment(
@@ -382,24 +384,25 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         }
 
         final Optional<URL> url = parseUrl("/api/attachments/%s", externalId);
-        if (url.isEmpty()) {
-            return CompletableFuture.completedFuture(Results.internalServerError());
-        }
-        return getWsClient()
-            .url(url.get().toString())
-            .delete()
-            .thenApply(wsResponse -> new Result(wsResponse.getStatus()))
-            .thenComposeAsync(result -> {
-                if (result.status() != OK && result.status() != NOT_FOUND) {
-                    return CompletableFuture.completedFuture(result);
-                }
+        return url
+            .map(value ->
+                getWsClient()
+                    .url(value.toString())
+                    .delete()
+                    .thenApply(wsResponse -> new Result(wsResponse.getStatus()))
+                    .thenComposeAsync(result -> {
+                        if (result.status() != OK && result.status() != NOT_FOUND) {
+                            return CompletableFuture.completedFuture(result);
+                        }
 
-                attachmentContainer.setAttachment(null);
-                if (setExam(externalExam, exam, user)) {
-                    return CompletableFuture.completedFuture(Results.ok());
-                }
-                return CompletableFuture.completedFuture(Results.internalServerError());
-            });
+                        attachmentContainer.setAttachment(null);
+                        if (setExam(externalExam, exam, user)) {
+                            return CompletableFuture.completedFuture(Results.ok());
+                        }
+                        return CompletableFuture.completedFuture(Results.internalServerError());
+                    })
+            )
+            .orElseGet(() -> CompletableFuture.completedFuture(Results.internalServerError()));
     }
 
     default Optional<URL> parseUrl(String url, String id) {

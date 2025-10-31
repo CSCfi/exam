@@ -51,7 +51,7 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
         request.path match
           case path if path == "/app/session" && request.method == "GET" =>
             s.get("upcomingExamHash") match {
-              case Some(_) => // Don't let session expire when awaiting exam to start
+              case Some(_) => // Don't let the session expire when awaiting the exam to start
                 response.withSession(s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now)))
               case _ => response.withSession(s)
             }
@@ -62,7 +62,7 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
   override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
     rh.path match
       case "/app/logout" => next.apply(rh)
-      // Disable caching for index page so that CSRF cookie can be injected without worries
+      // Disable caching for the index page so that CSRF cookie can be injected without worries
       case p if p.startsWith("/app") | p.startsWith("/integration") =>
-        next.apply(rh).map(processResult(_)(rh))
+        next.apply(rh).map(processResult(_)(using rh))
       case _ => next.apply(rh).map(_.withHeaders(("Cache-Control", "no-cache")))

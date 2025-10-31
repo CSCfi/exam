@@ -10,17 +10,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
-import controllers.base.SectionQuestionHandler;
 import impl.ExamUpdaterImpl;
+import impl.SectionQuestionHandler;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
+import io.vavr.Tuple2;
+import io.vavr.control.Either;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
@@ -40,10 +42,11 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.SanitizingHelper;
-import sanitizers.SectionQuestionSanitizer;
 import security.Authenticated;
+import validation.SanitizingHelper;
+import validation.core.Attrs;
+import validation.section.SectionQuestionDTO;
+import validation.section.SectionQuestionValidator;
 
 public class ExamSectionController extends BaseController implements SectionQuestionHandler {
 
@@ -88,88 +91,70 @@ public class ExamSectionController extends BaseController implements SectionQues
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result removeSection(Long eid, Long sid, Http.Request request) {
-        Optional<Exam> oe = DB.find(Exam.class)
-            .fetch("examOwners")
-            .fetch("examSections")
-            .where()
-            .idEq(eid)
-            .findOneOrEmpty();
-        ExamSection section = DB.find(ExamSection.class, sid);
-        if (oe.isEmpty() || section == null) {
-            return notFound("i18n_error_not_found");
-        }
-        Exam exam = oe.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        // Not allowed to remove a section if optional sections exist and there are upcoming reservations
-        boolean optionalSectionsExist = exam.getExamSections().stream().anyMatch(ExamSection::isOptional);
-        if (optionalSectionsExist && !examUpdater.isAllowedToUpdate(exam, user)) {
-            return forbidden("i18n_error_future_reservations_exist");
-        }
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
-            exam.getExamSections().remove(section);
-            // Decrease sequences for the entries above the inserted one
-            int seq = section.getSequenceNumber();
-            for (ExamSection es : exam.getExamSections()) {
-                int num = es.getSequenceNumber();
-                if (num >= seq) {
-                    es.setSequenceNumber(num - 1);
-                    es.update();
+        return findOrFail(eid, sid, user)
+            .map(t -> {
+                var exam = t._1;
+                var section = t._2;
+                // Not allowed to remove a section if optional sections exist and there are upcoming reservations
+                boolean optionalSectionsExist = exam.getExamSections().stream().anyMatch(ExamSection::isOptional);
+                if (optionalSectionsExist && !examUpdater.isAllowedToUpdate(exam, user)) {
+                    return forbidden("i18n_error_future_reservations_exist");
                 }
-            }
-            section.delete();
-            return ok();
-        } else {
-            return forbidden("i18n_error_access_forbidden");
-        }
+                exam.getExamSections().remove(section);
+                // Decrease sequences for the entries above the inserted one
+                int seq = section.getSequenceNumber();
+                for (ExamSection es : exam.getExamSections()) {
+                    int num = es.getSequenceNumber();
+                    if (num >= seq) {
+                        es.setSequenceNumber(num - 1);
+                        es.update();
+                    }
+                }
+                section.delete();
+                return ok();
+            })
+            .getOrElseGet(Function.identity());
     }
 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateSection(Long eid, Long sid, Http.Request request) {
-        Optional<Exam> oe = DB.find(Exam.class)
-            .fetch("examOwners")
-            .fetch("examSections")
-            .where()
-            .idEq(eid)
-            .findOneOrEmpty();
-        ExamSection section = DB.find(ExamSection.class, sid);
-        if (oe.isEmpty() || section == null) {
-            return notFound("i18n_error_not_found");
-        }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!oe.get().isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
-            return unauthorized("i18n_error_access_forbidden");
-        }
+        return findOrFail(eid, sid, user)
+            .map(t -> {
+                var section = t._2;
+                ExamSection form = formFactory
+                    // TODO: use validator
+                    .form(ExamSection.class)
+                    .bindFromRequest(
+                        request,
+                        "id",
+                        "name",
+                        "expanded",
+                        "lotteryOn",
+                        "lotteryItemCount",
+                        "description",
+                        "optional"
+                    )
+                    .get();
 
-        ExamSection form = formFactory
-            .form(ExamSection.class)
-            .bindFromRequest(
-                request,
-                "id",
-                "name",
-                "expanded",
-                "lotteryOn",
-                "lotteryItemCount",
-                "description",
-                "optional"
-            )
-            .get();
-
-        section.setName(form.getName());
-        section.setExpanded(form.isExpanded());
-        section.setLotteryOn(form.isLotteryOn());
-        section.setLotteryItemCount(Math.max(1, form.getLotteryItemCount()));
-        section.setDescription(form.getDescription());
-        // Disallow changing optionality if future reservations exist
-        if (section.isOptional() != form.isOptional() && !examUpdater.isAllowedToUpdate(section.getExam(), user)) {
-            return badRequest("i18n_error_future_reservations_exist");
-        }
-
-        section.setOptional(form.isOptional());
-
-        section.update();
-
-        return ok(section);
+                section.setName(form.getName());
+                section.setExpanded(form.isExpanded());
+                section.setLotteryOn(form.isLotteryOn());
+                section.setLotteryItemCount(Math.max(1, form.getLotteryItemCount()));
+                section.setDescription(form.getDescription());
+                // Disallow changing optionality if future reservations exist
+                if (
+                    section.isOptional() != form.isOptional() && !examUpdater.isAllowedToUpdate(section.getExam(), user)
+                ) {
+                    return badRequest("i18n_error_future_reservations_exist");
+                }
+                section.setOptional(form.isOptional());
+                section.update();
+                return ok(section);
+            })
+            .getOrElseGet(Function.identity());
     }
 
     @Authenticated
@@ -179,28 +164,28 @@ public class ExamSectionController extends BaseController implements SectionQues
         int from = Integer.parseInt(df.get("from"));
         int to = Integer.parseInt(df.get("to"));
         return checkBounds(from, to).orElseGet(() -> {
-                Exam exam = DB.find(Exam.class).fetch("examSections").where().idEq(eid).findOne();
-                if (exam == null) {
-                    return notFound("i18n_error_exam_not_found");
-                }
-                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
-                    // Reorder by sequenceNumber (TreeSet orders the collection based on it)
-                    List<ExamSection> sections = new ArrayList<>(new TreeSet<>(exam.getExamSections()));
-                    ExamSection prev = sections.get(from);
-                    boolean removed = sections.remove(prev);
-                    if (removed) {
-                        sections.add(to, prev);
-                        for (int i = 0; i < sections.size(); ++i) {
-                            ExamSection section = sections.get(i);
-                            section.setSequenceNumber(i);
-                            section.update();
-                        }
+            Exam exam = DB.find(Exam.class).fetch("examSections").where().idEq(eid).findOne();
+            if (exam == null) {
+                return notFound("i18n_error_exam_not_found");
+            }
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
+                // Reorder by sequenceNumber (TreeSet orders the collection based on it)
+                List<ExamSection> sections = new ArrayList<>(new TreeSet<>(exam.getExamSections()));
+                ExamSection prev = sections.get(from);
+                boolean removed = sections.remove(prev);
+                if (removed) {
+                    sections.add(to, prev);
+                    for (int i = 0; i < sections.size(); ++i) {
+                        ExamSection section = sections.get(i);
+                        section.setSequenceNumber(i);
+                        section.update();
                     }
-                    return ok();
                 }
-                return forbidden("i18n_error_access_forbidden");
-            });
+                return ok();
+            }
+            return forbidden("i18n_error_access_forbidden");
+        });
     }
 
     @Authenticated
@@ -210,38 +195,55 @@ public class ExamSectionController extends BaseController implements SectionQues
         int from = Integer.parseInt(df.get("from"));
         int to = Integer.parseInt(df.get("to"));
         return checkBounds(from, to).orElseGet(() -> {
-                Exam exam = DB.find(Exam.class, eid);
-                if (exam == null) {
-                    return notFound("i18n_error_exam_not_found");
+            Exam exam = DB.find(Exam.class, eid);
+            if (exam == null) {
+                return notFound("i18n_error_exam_not_found");
+            }
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+            if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
+                ExamSection section = DB.find(ExamSection.class, sid);
+                if (section == null) {
+                    return notFound("section not found");
                 }
-                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
-                    ExamSection section = DB.find(ExamSection.class, sid);
-                    if (section == null) {
-                        return notFound("section not found");
+                // Reorder by sequenceNumber (TreeSet orders the collection based on it)
+                List<ExamSectionQuestion> questions = new ArrayList<>(new TreeSet<>(section.getSectionQuestions()));
+                ExamSectionQuestion prev = questions.get(from);
+                boolean removed = questions.remove(prev);
+                if (removed) {
+                    questions.add(to, prev);
+                    for (int i = 0; i < questions.size(); ++i) {
+                        ExamSectionQuestion question = questions.get(i);
+                        question.setSequenceNumber(i);
+                        question.update();
                     }
-                    // Reorder by sequenceNumber (TreeSet orders the collection based on it)
-                    List<ExamSectionQuestion> questions = new ArrayList<>(new TreeSet<>(section.getSectionQuestions()));
-                    ExamSectionQuestion prev = questions.get(from);
-                    boolean removed = questions.remove(prev);
-                    if (removed) {
-                        questions.add(to, prev);
-                        for (int i = 0; i < questions.size(); ++i) {
-                            ExamSectionQuestion question = questions.get(i);
-                            question.setSequenceNumber(i);
-                            question.update();
-                        }
-                    }
-                    return ok();
                 }
-                return forbidden("i18n_error_access_forbidden");
-            });
+                return ok();
+            }
+            return forbidden("i18n_error_access_forbidden");
+        });
     }
 
-    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body, Http.Request request) {
+    private Either<Result, Tuple2<Exam, ExamSection>> findOrFail(Long eid, Long sid, User user) {
+        Optional<Exam> oe = DB.find(Exam.class)
+            .fetch("examOwners")
+            .fetch("examSections")
+            .where()
+            .idEq(eid)
+            .findOneOrEmpty();
+        ExamSection section = DB.find(ExamSection.class, sid);
+        if (oe.isEmpty() || section == null) {
+            return Either.left(notFound("i18n_error_not_found"));
+        }
+        if (!oe.get().isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
+            return Either.left(unauthorized("i18n_error_access_forbidden"));
+        }
+        return Either.right(new Tuple2<>(oe.get(), section));
+    }
+
+    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body, SectionQuestionDTO dto) {
         sectionQuestion.setMaxScore(round(SanitizingHelper.parse("maxScore", body, Double.class).orElse(null)));
-        sectionQuestion.setAnswerInstructions(request.attrs().getOptional(Attrs.ANSWER_INSTRUCTIONS).orElse(null));
-        sectionQuestion.setEvaluationCriteria(request.attrs().getOptional(Attrs.EVALUATION_CRITERIA).orElse(null));
+        sectionQuestion.setAnswerInstructions(dto.getAnswerInstructionsOrNull());
+        sectionQuestion.setEvaluationCriteria(dto.getEvaluationCriteriaOrNull());
         sectionQuestion.setEvaluationType(
             SanitizingHelper.parseEnum("evaluationType", body, Question.EvaluationType.class).orElse(null)
         );
@@ -276,7 +278,7 @@ public class ExamSectionController extends BaseController implements SectionQues
 
         DB.updateAll(section.getSectionQuestions());
 
-        // Insert new section question
+        // Insert a new section question
         sectionQuestion.setCreator(user);
         sectionQuestion.setCreated(DateTime.now());
         sectionQuestion.setExamSection(section);
@@ -374,7 +376,7 @@ public class ExamSectionController extends BaseController implements SectionQues
                 esq.update();
             }
         }
-        // Update lottery item count if needed
+        // Update the lottery item count if needed
         if (section.isLotteryOn() && section.getLotteryItemCount() > section.getSectionQuestions().size()) {
             section.setLotteryItemCount(section.getSectionQuestions().size());
         }
@@ -439,8 +441,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             .collect(Collectors.toSet());
         Set<Long> providedIds = StreamSupport.stream(node.spliterator(), false)
             .map(n -> n.get("option"))
-            .filter(n -> SanitizingHelper.parse("id", n, Long.class).isPresent())
-            .map(n -> SanitizingHelper.parse("id", n, Long.class).get())
+            .flatMap(n -> SanitizingHelper.parse("id", n, Long.class).stream())
             .collect(Collectors.toSet());
         // Updates
         StreamSupport.stream(node.spliterator(), false)
@@ -460,15 +461,15 @@ public class ExamSectionController extends BaseController implements SectionQues
         StreamSupport.stream(node.spliterator(), false)
             .filter(o -> SanitizingHelper.parse("id", o, Long.class).isEmpty())
             .forEach(o -> createOptionBasedOnExamQuestion(question, esq, user, o));
-        // Finally update own option scores:
+        // Finally, update own option scores:
         for (JsonNode option : node) {
             SanitizingHelper.parse("id", option, Long.class).ifPresent(id -> {
-                    ExamSectionQuestionOption esqo = DB.find(ExamSectionQuestionOption.class, id);
-                    if (esqo != null) {
-                        esqo.setScore(round(SanitizingHelper.parse("score", option, Double.class).orElse(null)));
-                        esqo.update();
-                    }
-                });
+                ExamSectionQuestionOption esqo = DB.find(ExamSectionQuestionOption.class, id);
+                if (esqo != null) {
+                    esqo.setScore(round(SanitizingHelper.parse("score", option, Double.class).orElse(null)));
+                    esqo.update();
+                }
+            });
         }
     }
 
@@ -478,44 +479,44 @@ public class ExamSectionController extends BaseController implements SectionQues
 
     private boolean hasValidClaimChoiceOptions(ArrayNode an) {
         boolean hasCorrectOption = StreamSupport.stream(an.spliterator(), false).anyMatch(n -> {
-                ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
-                    "claimChoiceType",
-                    n.get("option"),
-                    ClaimChoiceOptionType.class
-                ).orElse(null);
-                double score = n.get("score").asDouble();
-                return type != ClaimChoiceOptionType.SkipOption && score > 0;
-            });
+            ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
+                "claimChoiceType",
+                n.get("option"),
+                ClaimChoiceOptionType.class
+            ).orElse(null);
+            double score = n.get("score").asDouble();
+            return type != ClaimChoiceOptionType.SkipOption && score > 0;
+        });
 
         boolean hasIncorrectOption = StreamSupport.stream(an.spliterator(), false).anyMatch(n -> {
-                ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
-                    "claimChoiceType",
-                    n.get("option"),
-                    ClaimChoiceOptionType.class
-                ).orElse(null);
-                double score = n.get("score").asDouble();
-                return type != ClaimChoiceOptionType.SkipOption && score <= 0;
-            });
+            ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
+                "claimChoiceType",
+                n.get("option"),
+                ClaimChoiceOptionType.class
+            ).orElse(null);
+            double score = n.get("score").asDouble();
+            return type != ClaimChoiceOptionType.SkipOption && score <= 0;
+        });
 
         boolean hasSkipOption = StreamSupport.stream(an.spliterator(), false).anyMatch(n -> {
-                ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
-                    "claimChoiceType",
-                    n.get("option"),
-                    ClaimChoiceOptionType.class
-                ).orElse(null);
-                double score = n.get("score").asDouble();
-                return type == ClaimChoiceOptionType.SkipOption && score == 0;
-            });
+            ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
+                "claimChoiceType",
+                n.get("option"),
+                ClaimChoiceOptionType.class
+            ).orElse(null);
+            double score = n.get("score").asDouble();
+            return type == ClaimChoiceOptionType.SkipOption && score == 0;
+        });
 
         return hasCorrectOption && hasIncorrectOption && hasSkipOption;
     }
 
     @Authenticated
-    @With(SectionQuestionSanitizer.class)
+    @With(SectionQuestionValidator.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateDistributedExamQuestion(Long eid, Long sid, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<ExamSectionQuestion> query = DB.find(ExamSectionQuestion.class).where().idEq(qid);
+        var query = DB.find(ExamSectionQuestion.class).where().idEq(qid);
         if (user.hasRole(Role.Name.TEACHER)) {
             query = query.eq("examSection.exam.examOwners", user);
         }
@@ -550,18 +551,19 @@ public class ExamSectionController extends BaseController implements SectionQues
         }
 
         // Update question: text
-        question.setQuestion(request.attrs().getOptional(Attrs.QUESTION_TEXT).orElse(null));
+        SectionQuestionDTO dto = request.attrs().get(Attrs.SECTION_QUESTION);
+        question.setQuestion(dto.getQuestionTextOrNull());
         question.update();
-        updateExamQuestion(examSectionQuestion, body, request);
+        updateExamQuestion(examSectionQuestion, body, dto);
         examSectionQuestion.update();
         if (
             question.getType() != Question.Type.EssayQuestion && question.getType() != Question.Type.ClozeTestQuestion
         ) {
             // Process the options, this has an impact on the base question options as well as all the section questions
-            // utilizing those.
+            // using those.
             processExamQuestionOptions(question, examSectionQuestion, (ArrayNode) body.get("options"), user);
         }
-        // A bit dumb, re-fetch from database to get the updated options right in response. Could be made more elegantly
+        // A bit dumb, re-fetch from the database to get the updated options right in response. Could be made more elegantly
         return ok(query.findOne(), pp);
     }
 
@@ -569,7 +571,7 @@ public class ExamSectionController extends BaseController implements SectionQues
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("SUPPORT") })
     public Result updateUndistributedExamQuestion(Long eid, Long sid, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<ExamSectionQuestion> query = DB.find(ExamSectionQuestion.class).where().idEq(qid);
+        var query = DB.find(ExamSectionQuestion.class).where().idEq(qid);
         if (user.hasRole(Role.Name.TEACHER)) {
             query = query.eq("examSection.exam.examOwners", user);
         }
@@ -595,7 +597,7 @@ public class ExamSectionController extends BaseController implements SectionQues
             return notFound();
         }
         Question question = esq.getQuestion();
-        // ATM it is enough that question is bound to multiple exams
+        // ATM it is enough that a question is bound to multiple exams
         boolean isDistributed =
             question
                 .getExamSectionQuestions()
@@ -621,7 +623,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<ExamSection> query = DB.find(ExamSection.class).where();
+        var query = DB.find(ExamSection.class).where();
         if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             query = query.where().eq("creator.id", user.getId());
         }

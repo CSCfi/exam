@@ -7,7 +7,6 @@ package controllers.iop.transfer.impl;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalAttachmentInterface;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -63,8 +62,8 @@ public class ExternalAttachmentController extends BaseController implements Exte
 
     @Override
     public Optional<ExternalExam> getExternalExam(String id, Http.Request request) {
-        final User user = getUser(request);
-        final ExpressionList<ExternalExam> query = DB.find(ExternalExam.class).where().eq("hash", id);
+        User user = getUser(request);
+        var query = DB.find(ExternalExam.class).where().eq("hash", id);
         if (user.hasRole(Role.Name.STUDENT)) {
             query.eq("creator", user);
         }

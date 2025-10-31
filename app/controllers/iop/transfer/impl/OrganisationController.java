@@ -56,7 +56,7 @@ public class OrganisationController extends BaseController {
                 for (JsonNode org : node) {
                     ((ObjectNode) org).put("homeOrg", org.get("_id").asText().equals(localRef));
 
-                    // Cache facility data for external organizations and set password requirement flag
+                    // Cache facility data for external organizations and set the password requirement flag
                     if (org.has("facilities") && org.get("facilities").isArray()) {
                         ArrayNode facilities = (ArrayNode) org.get("facilities");
                         for (JsonNode facility : facilities) {
@@ -65,7 +65,7 @@ public class OrganisationController extends BaseController {
                                 facility.has("externalPassword") &&
                                 !facility.get("externalPassword").asText().isEmpty();
 
-                            // Set flag for client to know if password is required
+                            // Set the flag for a client to know if a password is required
                             facilityObj.put("externalPasswordRequired", hasPassword);
 
                             if (facility.has("_id") && hasPassword) {

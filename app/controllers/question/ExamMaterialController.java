@@ -7,7 +7,7 @@ package controllers.question;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
-import controllers.base.SectionQuestionHandler;
+import impl.SectionQuestionHandler;
 import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.util.Optional;
@@ -18,8 +18,8 @@ import models.user.User;
 import org.springframework.beans.BeanUtils;
 import play.mvc.Http;
 import play.mvc.Result;
-import sanitizers.Attrs;
 import security.Authenticated;
+import validation.core.Attrs;
 
 public class ExamMaterialController extends QuestionController implements SectionQuestionHandler {
 
@@ -91,15 +91,15 @@ public class ExamMaterialController extends QuestionController implements Sectio
         ExamMaterial em = DB.find(ExamMaterial.class, materialId);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return getOwnershipError(em, user).orElseGet(() -> {
-                Optional<ExamSection> oes = getSection(sectionId, user);
-                if (oes.isPresent()) {
-                    ExamSection es = oes.get();
-                    es.getExamMaterials().add(em);
-                    es.update();
-                    return ok();
-                }
-                return notFound();
-            });
+            Optional<ExamSection> oes = getSection(sectionId, user);
+            if (oes.isPresent()) {
+                ExamSection es = oes.get();
+                es.getExamMaterials().add(em);
+                es.update();
+                return ok();
+            }
+            return notFound();
+        });
     }
 
     @Authenticated
@@ -108,14 +108,14 @@ public class ExamMaterialController extends QuestionController implements Sectio
         ExamMaterial em = DB.find(ExamMaterial.class, materialId);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return getOwnershipError(em, user).orElseGet(() -> {
-                Optional<ExamSection> oes = getSection(sectionId, user);
-                if (oes.isPresent()) {
-                    ExamSection es = oes.get();
-                    es.getExamMaterials().remove(em);
-                    es.update();
-                    return ok();
-                }
-                return notFound();
-            });
+            Optional<ExamSection> oes = getSection(sectionId, user);
+            if (oes.isPresent()) {
+                ExamSection es = oes.get();
+                es.getExamMaterials().remove(em);
+                es.update();
+                return ok();
+            }
+            return notFound();
+        });
     }
 }

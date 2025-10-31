@@ -4,10 +4,10 @@
 
 package repository;
 
+import controllers.exam.copy.ExamCopyContext;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.ExpressionList;
 import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.text.PathProperties;
@@ -65,7 +65,10 @@ public class ExaminationRepository {
             Set<Long> ids = reservation == null
                 ? Collections.emptySet()
                 : enrolment.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
-            Exam studentExam = prototype.copyForStudent(user, isCollaborative, ids);
+            ExamCopyContext context = isCollaborative
+                ? ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids).build()
+                : ExamCopyContext.forStudentExam(user).withSelectedSections(ids).build();
+            Exam studentExam = prototype.createCopy(context);
             studentExam.setState(Exam.State.INITIALIZED);
             studentExam.setCreator(user);
             if (!isCollaborative) {
@@ -126,9 +129,9 @@ public class ExaminationRepository {
                         now = reservation == null
                             ? dateTimeHandler.adjustDST(DateTime.now())
                             : dateTimeHandler.adjustDST(
-                                DateTime.now(),
-                                enrolment.getReservation().getMachine().getRoom()
-                            );
+                                  DateTime.now(),
+                                  enrolment.getReservation().getMachine().getRoom()
+                              );
                     }
                     examParticipation.setStarted(now);
                     db.save(examParticipation);
@@ -171,7 +174,7 @@ public class ExaminationRepository {
     ) {
         return CompletableFuture.supplyAsync(
             () -> {
-                ExpressionList<Exam> query = createQuery(pp).where().eq("hash", hash).eq("creator", user);
+                var query = createQuery(pp).where().eq("hash", hash).eq("creator", user);
                 if (ce == null) {
                     query = query.isNotNull("parent");
                 }
@@ -198,7 +201,7 @@ public class ExaminationRepository {
     }
 
     private Query<Exam> createQuery(PathProperties pp) {
-        Query<Exam> query = db.find(Exam.class);
+        var query = db.find(Exam.class);
         pp.apply(query);
         return query;
     }

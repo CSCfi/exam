@@ -118,13 +118,13 @@ class SystemInitializer @Inject() (
     // If it's a Monday after scheduled run time -> postpone
     val postponedRun = if !normalNextRun.isAfter(now) then normalNextRun.plusWeeks(1) else normalNextRun
     val nextRun =
-      // Case for: now there's no DST but by next run there will be.
+      // Case for: now there's no DST in effect, but by the next run there will be.
       if adjustedHours == 5 && !defaultTimeZone.isStandardOffset(postponedRun.getMillis) then postponedRun.minusHours(1)
-      // Case for: now there's DST but by next run there won't be
+      // Case for: now there's DST in effect, but by the next run there won't be
       else if adjustedHours != 5 && defaultTimeZone.isStandardOffset(postponedRun.getMillis) then
         postponedRun.plusHours(1)
       else postponedRun
     logger.info(s"Scheduled next weekly report to be run at $nextRun")
-    // Increase delay with one second so that this won't fire off before intended time. This may happen because of
+    // Increase delay with one second so that this won't fire off before the intended time. This may happen because of
     // millisecond-level rounding issues and possibly cause resending of messages.
     Seconds.secondsBetween(now, nextRun).getSeconds + 1

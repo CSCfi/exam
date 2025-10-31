@@ -64,7 +64,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         return clozeTestAnswer;
     }
 
-    // This sets up the question so that it can be displayed to student
+    // This sets up the question so that it can be displayed to a student
     public void setQuestion(ExamSectionQuestion esq) {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
@@ -84,7 +84,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             b.attr("class", "cloze-input mt-2");
             if (isNumeric) {
                 b.attr("step", "any");
-                // Hacky, but this should allow for using both comma and period as decimal separator even in Firefox
+                // Hacky, but this should allow using both comma and period as decimal separator even in Firefox
                 // regardless of browser language.
                 b.attr("lang", "fi");
             }
@@ -204,11 +204,12 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             .replaceAll("\\| ", "|");
         // Generate the regex pattern. Replace '*' with '.*' and put the whole
         // thing in braces if there's a '|'.
-        // For escaped '\*' and '\|' we have to first replace occurrences with special
+        // For escaped '\*' and '\|' we have to first replace occurrences with a special
         // escape sequence until restoring them in the regex.
         final String ESC = "__!ESC__";
         String regex = escapeSpecialRegexChars(correctAnswer)
-            // Also backlashes will be escaped on escapeSpecialRegexChars call, therefore '\\*' pattern needs to be replaced
+            // Also, backlashes will be escaped on escapeSpecialRegexChars call.
+            // Therefore, a pattern with '\\*' needs to be replaced
             .replaceAll("\\Q\\\\*\\E", ESC)
             .replace("*", ".*")
             .replace(ESC, "\\*")

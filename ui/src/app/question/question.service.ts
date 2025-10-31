@@ -6,8 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { SessionService } from 'src/app/session/session.service';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
@@ -71,51 +71,39 @@ export class QuestionService {
 
     getQuestion = (id: number): Observable<ReverseQuestion> => this.http.get<ReverseQuestion>(this.questionsApi(id));
 
-    createQuestion = (question: QuestionDraft): Promise<Question> => {
-        const body = this.getQuestionData(question);
-        // TODO: make this a pipe
-        return new Promise<Question>((resolve, reject) => {
-            this.http.post<Question>(this.questionsApi(), body).subscribe({
-                next: (response) => {
-                    this.toast.info(this.translate.instant('i18n_question_added'));
-                    if (question.attachment && question.attachment.file && question.attachment.modified) {
-                        this.Files.upload<Attachment>('/app/attachment/question', question.attachment.file, {
-                            questionId: response.id.toString(),
-                        }).then((resp) => {
-                            question.attachment = resp;
-                            resolve(response);
-                        });
-                    } else {
-                        resolve(response);
-                    }
-                },
-                error: reject,
-            });
-        });
-    };
-
-    updateQuestion = (question: Question): Promise<Question> => {
-        const body = this.getQuestionData(question);
-        return new Promise<Question>((resolve) => {
-            this.http.put<Question>(this.questionsApi(question.id), body).subscribe((response) => {
-                this.toast.info(this.translate.instant('i18n_question_saved'));
+    createQuestion$ = (question: QuestionDraft): Observable<Question> =>
+        this.http.post<Question>(this.questionsApi(), this.getQuestionData(question)).pipe(
+            tap(() => this.toast.info(this.translate.instant('i18n_question_added'))),
+            switchMap((response) => {
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
-                    this.Files.upload<Attachment>('/app/attachment/question', question.attachment.file, {
-                        questionId: question.id.toString(),
-                    }).then((resp) => {
-                        question.attachment = resp;
-                        resolve(response);
-                    });
-                } else if (question.attachment && question.attachment.removed) {
-                    this.Attachment.eraseQuestionAttachment(question).then(function () {
-                        resolve(response);
-                    });
-                } else {
-                    resolve(response);
+                    return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
+                        questionId: response.id.toString(),
+                    }).pipe(
+                        tap((resp) => (question.attachment = resp)),
+                        map(() => response),
+                    );
                 }
-            });
-        });
-    };
+                return of(response);
+            }),
+        );
+
+    updateQuestion$ = (question: Question): Observable<Question> =>
+        this.http.put<Question>(this.questionsApi(question.id), this.getQuestionData(question)).pipe(
+            tap(() => this.toast.info(this.translate.instant('i18n_question_saved'))),
+            switchMap((response) => {
+                if (question.attachment && question.attachment.file && question.attachment.modified) {
+                    return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
+                        questionId: question.id.toString(),
+                    }).pipe(
+                        tap((resp) => (question.attachment = resp)),
+                        map(() => response),
+                    );
+                } else if (question.attachment && question.attachment.removed) {
+                    return this.Attachment.eraseQuestionAttachment$(question).pipe(map(() => response));
+                }
+                return of(response);
+            }),
+        );
 
     updateDistributedExamQuestion$ = (
         question: Question,
@@ -147,21 +135,27 @@ export class QuestionService {
                 data,
             )
             .pipe(
-                map((response) => {
-                    Object.assign(response.question, question);
+                tap((response) => Object.assign(response.question, question)),
+                switchMap((response) => {
                     if (question.attachment && question.attachment.modified && question.attachment.file) {
-                        this.Files.upload<Attachment>('/app/attachment/question', question.attachment.file, {
+                        return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
                             questionId: question.id.toString(),
-                        }).then((resp) => {
-                            question.attachment = resp;
-                            response.question.attachment = question.attachment;
-                        });
+                        }).pipe(
+                            tap((resp) => {
+                                question.attachment = resp;
+                                response.question.attachment = question.attachment;
+                            }),
+                            map(() => response),
+                        );
                     } else if (question.attachment && question.attachment.removed) {
-                        this.Attachment.eraseQuestionAttachment(question).then(() => {
-                            delete response.question.attachment;
-                        });
+                        return this.Attachment.eraseQuestionAttachment$(question).pipe(
+                            map(() => {
+                                delete response.question.attachment;
+                                return response;
+                            }),
+                        );
                     }
-                    return response;
+                    return of(response);
                 }),
             );
     };
