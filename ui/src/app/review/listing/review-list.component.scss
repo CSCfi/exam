@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/definitions.scss' as shared;
+
 .unstyled-link,
 .unstyled-link:hover,
 .unstyled-link:active {
@@ -14,7 +16,7 @@
 .review-list-link {
     font-family: Arimo, Helvetica-Neue, Helvetica;
     font-weight: bold;
-    color: #266b99;
+    color: shared.$exam-blue;
     font-size: 16px;
     text-decoration: none;
     cursor: pointer;

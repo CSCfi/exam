@@ -74,10 +74,10 @@ interface LoadingState {
                                 }}
                             }
                             @case ('periodStart') {
-                                Tenttiperiodi alkaa (nouseva)
+                                {{ 'i18n_exam_period_start_ascending' | translate }}
                             }
                             @case ('periodEnd') {
-                                Tenttiperiodi päättyy (nouseva)
+                                {{ 'i18n_exam_period_end_ascending' | translate }}
                             }
                             @default {
                                 <!-- empty -->
@@ -92,10 +92,10 @@ interface LoadingState {
                             {{ 'i18n_exam_name_descending' | translate }}
                         </button>
                         <button ngbDropdownItem role="presentation" (click)="updateSorting('periodStart', false)">
-                            Tenttiperiodi alkaa (nouseva)
+                            {{ 'i18n_exam_period_start_ascending' | translate }}
                         </button>
                         <button ngbDropdownItem role="presentation" (click)="updateSorting('periodEnd', false)">
-                            Tenttiperiodi päättyy (nouseva)
+                            {{ 'i18n_exam_period_end_ascending' | translate }}
                         </button>
                     </div>
                 </div>

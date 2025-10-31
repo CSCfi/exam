@@ -8,6 +8,7 @@
 @use 'bootstrap/scss/bootstrap';
 @use 'ngx-toastr/toastr';
 @use 'bootstrap-icons/font/bootstrap-icons.css';
+@use './app/shared/definitions.scss' as shared;
 /* fonts */
 @font-face {
     font-family: Arimo;
@@ -149,13 +150,13 @@ textarea.ng-invalid {
         }
     }
     td > a {
-        color: #267b99;
+        color: shared.$exam-blue;
         font-weight: bold;
     }
 }
 /* commonly used link styling, let's see if it's needed for long */
 .xm-link {
-    color: #266b99;
+    color: shared.$exam-blue;
     font-weight: bold;
     text-decoration: none;
     cursor: pointer;
@@ -163,7 +164,7 @@ textarea.ng-invalid {
 .exam-title-button {
     font-size: 16px;
     font-weight: 500;
-    color: #266b99;
+    color: shared.$exam-blue;
     background: transparent;
     border: none;
     padding: 8px 12px;
@@ -174,7 +175,7 @@ textarea.ng-invalid {
     
     &:hover, &:focus {
         color: white;
-        background-color: #266b99;
+        background-color: shared.$exam-blue;
     }
     
     .arrow_icon {

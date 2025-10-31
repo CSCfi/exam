@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/definitions.scss' as shared;
+
 .active-enrolment-container {
     // todo: use global container?
     border-radius: 4px;
@@ -21,7 +23,7 @@
 .active-enrolment-heading {
     a {
         font-size: 20px;
-        color: #266b99;
+        color: shared.$exam-blue;
         text-decoration: none;
     }
 }
