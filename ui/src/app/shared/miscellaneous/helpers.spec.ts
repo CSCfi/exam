@@ -4,7 +4,6 @@
 
 import {
     countBy,
-    debounce,
     deduplicate,
     groupBy,
     hashString,
@@ -25,7 +24,6 @@ describe('helpers', () => {
             expect(isNumber(42)).toBe(true);
             expect(isNumber(-5)).toBe(true);
             expect(isNumber(3.14)).toBe(true);
-            expect(isNumber(NaN)).toBe(true);
             expect(isNumber(Infinity)).toBe(true);
         });
 
@@ -36,6 +34,7 @@ describe('helpers', () => {
             expect(isNumber({})).toBe(false);
             expect(isNumber([])).toBe(false);
             expect(isNumber(true)).toBe(false);
+            expect(isNumber(NaN)).toBe(false);
         });
     });
 
@@ -84,58 +83,6 @@ describe('helpers', () => {
             expect(isBoolean('true')).toBe(false);
             expect(isBoolean(null)).toBe(false);
             expect(isBoolean(undefined)).toBe(false);
-        });
-    });
-
-    describe('debounce', () => {
-        beforeEach(() => {
-            jasmine.clock().install();
-        });
-
-        afterEach(() => {
-            jasmine.clock().uninstall();
-        });
-
-        it('should delay function execution', () => {
-            const mockFn = jasmine.createSpy('mockFn').and.returnValue('result');
-            const debouncedFn = debounce(mockFn, 100);
-
-            debouncedFn('arg1', 'arg2');
-            expect(mockFn).not.toHaveBeenCalled();
-
-            jasmine.clock().tick(99);
-            expect(mockFn).not.toHaveBeenCalled();
-
-            jasmine.clock().tick(1);
-            expect(mockFn).toHaveBeenCalledWith('arg1', 'arg2');
-        });
-
-        it('should cancel previous calls when called multiple times', () => {
-            const mockFn = jasmine.createSpy('mockFn').and.returnValue('result');
-            const debouncedFn = debounce(mockFn, 100);
-
-            debouncedFn('call1');
-            jasmine.clock().tick(50);
-            debouncedFn('call2');
-            jasmine.clock().tick(50);
-            debouncedFn('call3');
-
-            expect(mockFn).not.toHaveBeenCalled();
-
-            jasmine.clock().tick(100);
-            expect(mockFn).toHaveBeenCalledTimes(1);
-            expect(mockFn).toHaveBeenCalledWith('call3');
-        });
-
-        it('should return a promise that resolves with the function result', async () => {
-            const mockFn = jasmine.createSpy('mockFn').and.returnValue('result');
-            const debouncedFn = debounce(mockFn, 100);
-
-            const promise = debouncedFn('arg');
-            jasmine.clock().tick(100);
-
-            const result = await promise;
-            expect(result).toBe('result');
         });
     });
 

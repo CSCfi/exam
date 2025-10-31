@@ -32,28 +32,21 @@ public class JsonFilterTest {
             "UTF-8"
         );
         final ArrayNode array = (ArrayNode) Json.parse(json);
-        final JsonNode node1 = array.get(0);
-        final JsonNode item = node1.get("item");
-        final JsonNode description = item.get("description");
-        final ArrayNode offers = (ArrayNode) item.get("offers");
-
         final String[] filters = new String[] { "creator", "modifier" };
-        assertThatJsonHasProperties(node1, filters);
-        assertThatJsonHasProperties(item, filters);
-        assertThatJsonHasProperties(description, filters);
-        offers.forEach(offer -> assertThatJsonHasProperties(offer, filters));
 
         // Filter json
-        JsonFilter.filterProperties(
-            node1,
+        JsonNode filtered = JsonFilter.filter(
+            array,
             CollectionConverters.asScala(Collections.emptySet()).toSet(),
-            CollectionConverters.asScala(Arrays.asList(filters)).toSeq()
+            CollectionConverters.asScala(Arrays.asList(filters)).toSet()
         );
 
         // Check that node1 does not have properties
-        assertThatJsonDoesNotHaveProperties(node1, filters);
-        assertThatJsonDoesNotHaveProperties(item, filters);
-        assertThatJsonDoesNotHaveProperties(description, filters);
+        assertThatJsonDoesNotHaveProperties(filtered.get(0), filters);
+        assertThatJsonDoesNotHaveProperties(filtered.get(1), filters);
+        assertThatJsonDoesNotHaveProperties(filtered.get(0).get("item"), filters);
+        assertThatJsonDoesNotHaveProperties(filtered.get(0).get("item").get("description"), filters);
+        var offers = filtered.get(0).get("item").get("offers");
         offers.forEach(offer -> assertThatJsonDoesNotHaveProperties(offer, filters));
     }
 
@@ -72,13 +65,13 @@ public class JsonFilterTest {
         // Filter json
         final Set<Long> ids = new HashSet<>();
         ids.add(2L);
-        JsonFilter.filterProperties(
+        JsonNode filtered = JsonFilter.filter(
             root,
             CollectionConverters.asScala(ids).toSet(),
-            CollectionConverters.asScala(Arrays.asList(filters)).toSeq()
+            CollectionConverters.asScala(Arrays.asList(filters)).toSet()
         );
 
-        final ArrayNode array = (ArrayNode) root;
+        final ArrayNode array = (ArrayNode) filtered;
         final JsonNode node1 = array.get(0);
         final JsonNode item = node1.get("item");
         final JsonNode description = item.get("description");

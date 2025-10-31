@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { NgbAccordionDirective, NgbAccordionModule, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -19,11 +19,10 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
         </div>
         <div class="modal-body">
             <div ngbAccordion #acc="ngbAccordion">
+                <!-- First Panel: Execution Types -->
                 <div ngbAccordionItem="executionType">
                     <h2 ngbAccordionHeader>
-                        <button ngbAccordionButton>
-                            {{ 'i18n_choose_execution_type' | translate }}
-                        </button>
+                        <button ngbAccordionButton>{{ 'i18n_choose_execution_type' | translate }}</button>
                     </h2>
                     <div ngbAccordionCollapse>
                         <div ngbAccordionBody>
@@ -32,16 +31,25 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                                     <div>
                                         @if (type.examinationTypes.length > 0) {
                                             <a
+                                                #link
+                                                tabindex="0"
                                                 class="pointer"
                                                 [ngClass]="{ 'selected-type': selectedType === type }"
+                                                [attr.aria-current]="selectedType === type ? 'true' : 'false'"
                                                 (click)="selectType(type)"
-                                                autofocus
+                                                (keydown)="onKeyDown($event, 0)"
                                             >
                                                 {{ type.name | translate }}
                                             </a>
                                         }
                                         @if (type.examinationTypes.length === 0) {
-                                            <a class="pointer" (click)="selectConfig(type.type)">
+                                            <a
+                                                #link
+                                                tabindex="0"
+                                                class="pointer"
+                                                (click)="selectConfig(type.type)"
+                                                (keydown)="onKeyDown($event, 0)"
+                                            >
                                                 {{ type.name | translate }}
                                             </a>
                                         }
@@ -51,21 +59,27 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                         </div>
                     </div>
                 </div>
+
+                <!-- Second Panel: Examination Types -->
                 <div
                     ngbAccordionItem="examinationType"
                     [disabled]="!selectedType || selectedType.examinationTypes.length === 0"
                 >
                     <h2 ngbAccordionHeader>
-                        <button ngbAccordionButton>
-                            {{ 'i18n_examination_type' | translate }}
-                        </button>
+                        <button ngbAccordionButton>{{ 'i18n_examination_type' | translate }}</button>
                     </h2>
                     <div ngbAccordionCollapse>
                         <div ngbAccordionBody>
                             <ng-template>
-                                @for (et of selectedType.examinationTypes; track et) {
+                                @for (et of selectedType?.examinationTypes; track et) {
                                     <div>
-                                        <a class="pointer" (click)="selectConfig(selectedType.type, et.type)">
+                                        <a
+                                            #link
+                                            tabindex="0"
+                                            class="pointer"
+                                            (click)="selectConfig(selectedType.type, et.type)"
+                                            (keydown)="onKeyDown($event, 1)"
+                                        >
                                             {{ et.name | translate }}
                                         </a>
                                     </div>
@@ -76,10 +90,9 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                 </div>
             </div>
         </div>
+
         <div class="modal-footer">
-            <button class="btn btn-sm btn-danger" (click)="cancel()">
-                {{ 'i18n_button_cancel' | translate }}
-            </button>
+            <button class="btn btn-sm btn-danger" (click)="cancel()">{{ 'i18n_button_cancel' | translate }}</button>
         </div>
     `,
     styles: [
@@ -89,13 +102,22 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                 font-weight: bold;
                 text-decoration: none;
             }
+            a.pointer:focus {
+                outline: none;
+                font-weight: bold;
+                color: black;
+            }
         `,
     ],
 })
 export class ExaminationTypeSelectorComponent implements OnInit {
     @ViewChild('acc', { static: false }) acc!: NgbAccordionDirective;
+    @ViewChildren('link') links!: QueryList<ElementRef>;
+
     executionTypes: ExamConfig[] = [];
     selectedType!: ExamConfig;
+    focusedIndex = 0;
+    activePanel = 0; // 0 = first panel, 1 = second panel
 
     private http = inject(HttpClient);
     private modal = inject(NgbActiveModal);
@@ -119,18 +141,93 @@ export class ExaminationTypeSelectorComponent implements OnInit {
                         }
                         return { ...t, examinationTypes: implementations };
                     });
+
+                    // Expand first panel and focus first link
+                    setTimeout(() => {
+                        this.acc.expand('executionType');
+                        const firstLinks = this.getCurrentPanelLinks(0);
+                        if (firstLinks.length) firstLinks[0].nativeElement.focus();
+                    }, 100);
                 });
-                this.acc.expand('executionType');
             });
     }
 
-    selectType = (type: ExamConfig) => {
+    onKeyDown(event: KeyboardEvent, panelIndex: number) {
+        const firstPanelLinks = this.getCurrentPanelLinks(0);
+        const secondPanelLinks = this.getCurrentPanelLinks(1);
+
+        let currentLinks = panelIndex === 0 ? firstPanelLinks : secondPanelLinks;
+
+        if (!currentLinks.length) return;
+
+        if (event.key === 'ArrowDown') {
+            this.focusedIndex++;
+
+            if (this.focusedIndex >= currentLinks.length) {
+                // Move to next panel if exists
+                if (panelIndex === 0 && secondPanelLinks.length) {
+                    this.focusedIndex = 0;
+                    currentLinks = secondPanelLinks;
+                    this.activePanel = 1;
+                } else {
+                    this.focusedIndex = 0; // wrap around in current panel
+                }
+            }
+
+            currentLinks[this.focusedIndex].nativeElement.focus();
+            event.preventDefault();
+        } else if (event.key === 'ArrowUp') {
+            this.focusedIndex--;
+
+            if (this.focusedIndex < 0) {
+                // Move to previous panel if exists
+                if (panelIndex === 1 && firstPanelLinks.length) {
+                    currentLinks = firstPanelLinks;
+                    this.focusedIndex = currentLinks.length - 1;
+                    this.activePanel = 0;
+                } else {
+                    this.focusedIndex = currentLinks.length - 1; // wrap around
+                }
+            }
+
+            currentLinks[this.focusedIndex].nativeElement.focus();
+            event.preventDefault();
+        } else if (event.key === 'Enter') {
+            currentLinks[this.focusedIndex].nativeElement.click();
+            event.preventDefault();
+        }
+    }
+
+    selectType(type: ExamConfig) {
         this.selectedType = type;
-        setTimeout(() => this.acc.expand('examinationType'), 100);
-    };
+        this.activePanel = 1;
 
-    selectConfig = (type: string, examinationType = 'AQUARIUM') =>
-        this.modal.close({ type: type, examinationType: examinationType });
+        // Expand second panel
+        setTimeout(() => {
+            this.acc.expand('examinationType');
 
-    cancel = () => this.modal.dismiss();
+            // Focus first link of second panel
+            const nextPanelLinks = this.getCurrentPanelLinks(1);
+            this.focusedIndex = 0;
+            if (nextPanelLinks.length) nextPanelLinks[0].nativeElement.focus();
+        }, 100);
+    }
+
+    selectConfig(type: string, examinationType = 'AQUARIUM') {
+        this.modal.close({ type, examinationType });
+    }
+
+    cancel() {
+        this.modal.dismiss();
+    }
+
+    private getCurrentPanelLinks(panelIndex: number): ElementRef[] {
+        const allLinks = this.links.toArray();
+        if (panelIndex === 0) {
+            return allLinks.slice(0, this.executionTypes.length);
+        } else {
+            const startIndex = this.executionTypes.length;
+            return allLinks.slice(startIndex, allLinks.length);
+        }
+    }
 }

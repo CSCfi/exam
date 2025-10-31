@@ -43,15 +43,15 @@ abstract class JsonFilterAction<T> extends Action<T> {
             .consumeData(materializer)
             .thenApply(body -> {
                 JsonNode json = Json.parse(body.decodeString("UTF-8"));
-                JsonFilter.filterProperties(
+                JsonNode filtered = JsonFilter.filter(
                     json,
                     CollectionConverters.asScala(ids).toSet(),
-                    CollectionConverters.asScala(Arrays.asList(properties)).toSeq()
+                    CollectionConverters.asScala(Arrays.asList(properties)).toSet()
                 );
                 return new Result(
                     result.status(),
                     result.headers(),
-                    HttpEntity.fromString(Json.stringify(json), "UTF-8")
+                    HttpEntity.fromString(Json.stringify(filtered), "UTF-8")
                 );
             });
     }
