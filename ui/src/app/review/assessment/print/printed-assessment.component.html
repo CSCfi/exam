@@ -195,46 +195,42 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         }
         @if (getTeacherCount() > 0) {
-            <div>
-                <div class="row firefox-print-fix">
-                    <div class="col-md-3">
-                        <strong>{{ 'i18n_exam_owners' | translate }}:</strong>
-                    </div>
-                    <div class="col-md-9">
-                        @for (teacher of exam.parent?.examOwners; track teacher; let isLast = $last) {
-                            <span>
-                                {{ teacher.firstName }} {{ teacher.lastName }}
-                                @if (!isLast) {
-                                    <span>,&nbsp;</span>
-                                }
-                            </span>
-                        }
-                    </div>
+            <div class="row firefox-print-fix">
+                <div class="col-md-3">
+                    <strong>{{ 'i18n_exam_owners' | translate }}:</strong>
                 </div>
-                <div class="row firefox-print-fix">
-                    <div class="col-md-3">
-                        <strong
-                            >{{ 'i18n_exam_instructor' | translate }} ({{
-                                'i18n_inspection_status' | translate
-                            }}):</strong
-                        >
-                    </div>
-                    <div class="col-md-9">
-                        @for (inspection of exam.examInspections; track inspection; let isLast = $last) {
-                            <span>
-                                <span>{{ inspection.user?.firstName }} {{ inspection.user?.lastName }}</span>
-                                @if (inspection.ready) {
-                                    <span>({{ 'i18n_ready' | translate }})</span>
-                                }
-                                @if (!inspection.ready) {
-                                    <span>({{ 'i18n_in_progress' | translate }})</span>
-                                }
-                                @if (!isLast) {
-                                    <span>,&nbsp;</span>
-                                }
-                            </span>
-                        }
-                    </div>
+                <div class="col-md-9">
+                    @for (teacher of exam.parent?.examOwners; track teacher; let isLast = $last) {
+                        <span>
+                            {{ teacher.firstName }} {{ teacher.lastName }}
+                            @if (!isLast) {
+                                <span>,&nbsp;</span>
+                            }
+                        </span>
+                    }
+                </div>
+            </div>
+            <div class="row firefox-print-fix">
+                <div class="col-md-3">
+                    <strong
+                        >{{ 'i18n_exam_instructor' | translate }} ({{ 'i18n_inspection_status' | translate }}):</strong
+                    >
+                </div>
+                <div class="col-md-9">
+                    @for (inspection of exam.examInspections; track inspection; let isLast = $last) {
+                        <span>
+                            <span>{{ inspection.user?.firstName }} {{ inspection.user?.lastName }}</span>
+                            @if (inspection.ready) {
+                                <span>({{ 'i18n_ready' | translate }})</span>
+                            }
+                            @if (!inspection.ready) {
+                                <span>({{ 'i18n_in_progress' | translate }})</span>
+                            }
+                            @if (!isLast) {
+                                <span>,&nbsp;</span>
+                            }
+                        </span>
+                    }
                 </div>
             </div>
         }

@@ -93,26 +93,19 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row mt-3">
         <div class="col-6">
             @if (exam) {
-                <div>{{ 'i18n_course_name' | translate }}:</div>
+                <span class="d-block">{{ 'i18n_course_name' | translate }}:</span>
             }
-
             @if (exam && exam.course) {
-                <div>
-                    <span class="exam-code">
-                        <strong><xm-course-code [course]="exam.course"></xm-course-code></strong>
-                    </span>
-                    {{ exam.course.name }}
-                </div>
+                <span class="exam-code d-block">
+                    <strong><xm-course-code [course]="exam.course"></xm-course-code></strong>
+                </span>
+                {{ exam.course.name }}
             }
         </div>
         <div class="col-6">
             @if (exam) {
-                <div>{{ 'i18n_teachers' | translate }}:</div>
-            }
-            @if (exam) {
-                <div>
-                    <xm-teacher-list [exam]="exam"></xm-teacher-list>
-                </div>
+                <span class="d-block">{{ 'i18n_teachers' | translate }}:</span>
+                <xm-teacher-list [exam]="exam"></xm-teacher-list>
             }
         </div>
     </div>
@@ -129,12 +122,10 @@ SPDX-License-Identifier: EUPL-1.2
     @if (!reservation) {
         <div class="row mt-3">
             <div class="col">
-                <div>{{ 'i18n_exam_validity' | translate }}:</div>
-                <div>
-                    {{ exam?.periodStart || collabExam.periodStart | date: 'dd.MM.yyyy' }}
-                    &ndash;
-                    {{ exam?.periodEnd || collabExam.periodEnd | date: 'dd.MM.yyyy' }}
-                </div>
+                <span class="d-block">{{ 'i18n_exam_validity' | translate }}:</span>
+                {{ exam?.periodStart || collabExam.periodStart | date: 'dd.MM.yyyy' }}
+                &ndash;
+                {{ exam?.periodEnd || collabExam.periodEnd | date: 'dd.MM.yyyy' }}
             </div>
         </div>
         @if (enrolment().reservationCanceled) {
@@ -147,91 +138,75 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         }
     } @else {
-        <div>
-            <div class="row mt-3">
-                <div class="col-md-3 col-lg-2">{{ 'i18n_exam_room' | translate }}:</div>
-                @if (reservation.machine) {
-                    <div class="col-md-9 col-lg-10">
-                        {{ reservation.machine.name }}&nbsp;&nbsp;|&nbsp;&nbsp;{{ reservation.machine.room.name }} ({{
-                            reservation.machine.room.roomCode
-                        }})
-                    </div>
-                }
-                @if (reservation.externalReservation) {
-                    <div class="col-sm-12">
-                        @if (reservation.externalReservation.orgName) {
-                            <span>
-                                <strong>{{ 'i18n_faculty_name' | translate | uppercase }}:</strong>
-                                {{ reservation.externalReservation.orgName }} ({{
-                                    reservation.externalReservation.orgCode
-                                }})<br />
-                            </span>
-                        }
-                        <strong>{{ 'i18n_room_campus' | translate | uppercase }}:</strong>
-                        {{ reservation.externalReservation.campus }}<br />
-                        <strong>{{ 'i18n_room_building_name' | translate | uppercase }}:</strong>
-                        {{ reservation.externalReservation.buildingName }}<br />
-                        <strong>{{ 'i18n_exam_room' | translate | uppercase }}:</strong>
-                        {{ reservation.externalReservation.roomName }}
-                        ({{ reservation.externalReservation.roomCode }})<br />
-                        <strong>{{ 'i18n_exam_machine' | translate | uppercase }}:</strong>
-                        {{ reservation.externalReservation.machineName }}<br />
-                        {{ reservation.externalReservation.mailAddress.street }},
-                        {{ reservation.externalReservation.mailAddress.zip }}&nbsp;
-                        {{ reservation.externalReservation.mailAddress.city | uppercase }}
-                    </div>
-                }
-                <div class="clearfix visible-xs"></div>
-                <div class="clearfix visible-sm"></div>
-                <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'i18n_reservation' | translate }}:</div>
-                <div class="col-md-9 col-lg-10 mt-md-2">
-                    {{ reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
-                    {{ enrolment().occasion?.startAt }} &ndash; {{ enrolment().occasion?.endAt }} ({{
-                        enrolment().occasion?.tz
+        <div class="row mt-3">
+            <div class="col-md-3 col-lg-2">{{ 'i18n_exam_room' | translate }}:</div>
+            @if (reservation.machine) {
+                <div class="col-md-9 col-lg-10">
+                    {{ reservation.machine.name }}&nbsp;&nbsp;|&nbsp;&nbsp;{{ reservation.machine.room.name }} ({{
+                        reservation.machine.room.roomCode
                     }})
                 </div>
-            </div>
-            @if (getRoomInstruction()) {
-                <div class="row mt-3">
-                    <div class="col">
-                        <button
-                            class="btn btn-outline-secondary"
-                            (click)="showGuide.set(!showGuide())"
-                            (keydown.enter)="showGuide.set(!showGuide())"
-                            [attr.aria-expanded]="showGuide()"
-                        >
-                            {{ 'i18n_room_guidance' | translate }}
-                            <img
-                                class="arrow_icon"
-                                [hidden]="showGuide()"
-                                alt=""
-                                src="/assets/images/arrow_right.png"
-                            />
-                            <img
-                                class="arrow_icon"
-                                [hidden]="!showGuide()"
-                                alt=""
-                                src="/assets/images/arrow_down.png"
-                            />
-                        </button>
-                    </div>
-                    <div class="row mt-3" [ngbCollapse]="!showGuide()">
-                        <div class="col-12">
-                            {{ getRoomInstruction() }}
-                        </div>
-                    </div>
+            }
+            @if (reservation.externalReservation) {
+                <div class="col-sm-12">
+                    @if (reservation.externalReservation.orgName) {
+                        <span>
+                            <strong>{{ 'i18n_faculty_name' | translate | uppercase }}:</strong>
+                            {{ reservation.externalReservation.orgName }} ({{
+                                reservation.externalReservation.orgCode
+                            }})<br />
+                        </span>
+                    }
+                    <strong>{{ 'i18n_room_campus' | translate | uppercase }}:</strong>
+                    {{ reservation.externalReservation.campus }}<br />
+                    <strong>{{ 'i18n_room_building_name' | translate | uppercase }}:</strong>
+                    {{ reservation.externalReservation.buildingName }}<br />
+                    <strong>{{ 'i18n_exam_room' | translate | uppercase }}:</strong>
+                    {{ reservation.externalReservation.roomName }}
+                    ({{ reservation.externalReservation.roomCode }})<br />
+                    <strong>{{ 'i18n_exam_machine' | translate | uppercase }}:</strong>
+                    {{ reservation.externalReservation.machineName }}<br />
+                    {{ reservation.externalReservation.mailAddress.street }},
+                    {{ reservation.externalReservation.mailAddress.zip }}&nbsp;
+                    {{ reservation.externalReservation.mailAddress.city | uppercase }}
                 </div>
             }
+            <div class="clearfix visible-xs"></div>
+            <div class="clearfix visible-sm"></div>
+            <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'i18n_reservation' | translate }}:</div>
+            <div class="col-md-9 col-lg-10 mt-md-2">
+                {{ reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
+                {{ enrolment().occasion?.startAt }} &ndash; {{ enrolment().occasion?.endAt }} ({{
+                    enrolment().occasion?.tz
+                }})
+            </div>
         </div>
-    }
-    @if (exam && eventConfig && exam.implementation !== 'AQUARIUM') {
-        <div>
-            <div class="row mt-3 justify-content-start">
-                <div>{{ 'i18n_examination_event' | translate }}:</div>
-                <div>
-                    {{ eventConfig?.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm zzzz' }}
+        @if (getRoomInstruction()) {
+            <div class="row mt-3">
+                <div class="col">
+                    <button
+                        class="btn btn-outline-secondary"
+                        (click)="showGuide.set(!showGuide())"
+                        (keydown.enter)="showGuide.set(!showGuide())"
+                        [attr.aria-expanded]="showGuide()"
+                    >
+                        {{ 'i18n_room_guidance' | translate }}
+                        <img class="arrow_icon" [hidden]="showGuide()" alt="" src="/assets/images/arrow_right.png" />
+                        <img class="arrow_icon" [hidden]="!showGuide()" alt="" src="/assets/images/arrow_down.png" />
+                    </button>
+                </div>
+                <div class="row mt-3" [ngbCollapse]="!showGuide()">
+                    <div class="col-12">
+                        {{ getRoomInstruction() }}
+                    </div>
                 </div>
             </div>
+        }
+    }
+    @if (exam && eventConfig && exam.implementation !== 'AQUARIUM') {
+        <div class="row mt-3 justify-content-start">
+            <span class="d-block">{{ 'i18n_examination_event' | translate }}:</span>
+            {{ eventConfig?.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm zzzz' }}
         </div>
     }
 
@@ -239,12 +214,10 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row mt-3 justify-content-start">
             <div class="col">
                 <div class="row">
-                    <div>{{ 'i18n_instructions' | translate }}:</div>
-                    <div>
-                        <span class="me-2">
-                            {{ eventConfig.examinationEvent.description }}
-                        </span>
-                    </div>
+                    {{ 'i18n_instructions' | translate }}:
+                    <span class="d-block me-2">
+                        {{ eventConfig.examinationEvent.description }}
+                    </span>
                 </div>
             </div>
         </div>
@@ -254,14 +227,12 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row mt-3 justify-content-start">
             <div class="col">
                 <div class="row">
-                    <div>{{ 'i18n_seb_file' | translate }}:</div>
-                    <div>
-                        <span class="me-2">
-                            <button (click)="downloadSebFile()" class="mt-1 btn btn-outline-secondary">
-                                <strong>{{ 'i18n_download' | translate }}</strong>
-                            </button>
-                        </span>
-                    </div>
+                    {{ 'i18n_seb_file' | translate }}:
+                    <span class="d-block me-2">
+                        <button (click)="downloadSebFile()" class="mt-1 btn btn-outline-secondary">
+                            <strong>{{ 'i18n_download' | translate }}</strong>
+                        </button>
+                    </span>
                 </div>
             </div>
         </div>

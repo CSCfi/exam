@@ -65,31 +65,27 @@ import { ExamSection } from 'src/app/exam/exam.model';
                             </div>
                         </div>
                         @if (section.examMaterials.length > 0) {
-                            <div>
-                                <div class="row">
-                                    <div class="col">
-                                        <strong>{{ 'i18n_exam_materials' | translate }}</strong>
-                                    </div>
+                            <div class="row">
+                                <div class="col">
+                                    <strong>{{ 'i18n_exam_materials' | translate }}</strong>
                                 </div>
-                                @for (material of section.examMaterials; track material.id) {
-                                    <div>
-                                        <div class="row">
-                                            <span class="col">
-                                                {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
-                                                @if (material.author) {
-                                                    <span>
-                                                        {{ 'i18n_author' | translate | uppercase }}:
-                                                        {{ material.author }}
-                                                    </span>
-                                                }
-                                                @if (material.isbn) {
-                                                    <span> ISBN: {{ material.isbn }} </span>
-                                                }
-                                            </span>
-                                        </div>
-                                    </div>
-                                }
                             </div>
+                            @for (material of section.examMaterials; track material.id) {
+                                <div class="row">
+                                    <span class="col">
+                                        {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
+                                        @if (material.author) {
+                                            <span>
+                                                {{ 'i18n_author' | translate | uppercase }}:
+                                                {{ material.author }}
+                                            </span>
+                                        }
+                                        @if (material.isbn) {
+                                            <span> ISBN: {{ material.isbn }} </span>
+                                        }
+                                    </span>
+                                </div>
+                            }
                         }
                     </div>
                 }

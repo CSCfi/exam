@@ -16,38 +16,36 @@ import { AccessibilityService } from './accessibility.service';
     template: `<div class="row">
         <div class="col-md-12">
             <div class="facility-info-text">{{ 'i18n_room_accessibility_info' | translate }}</div>
-            <div>
-                <span class="dropdown" ngbDropdown>
-                    <button
-                        ngbDropdownToggle
-                        class="btn btn-outline-secondary"
-                        type="button"
-                        id="dropDownMenu1"
-                        aria-expanded="true"
-                    >
-                        {{ selectedAccessibilities() }}&nbsp;<span class="caret"></span>
-                    </button>
-                    <div
-                        ngbDropdownMenu
-                        style="padding-left: 0; min-width: 17em"
-                        role="menu"
-                        aria-labelledby="dropDownMenu1"
-                    >
-                        @for (ac of accessibilities; track ac) {
-                            <button
-                                ngbDropdownItem
-                                role="presentation"
-                                class="pointer"
-                                [ngClass]="isSelected(ac) ? 'active' : ''"
-                                (click)="updateAccessibility(ac)"
-                                (keydown.enter)="updateAccessibility(ac)"
-                            >
-                                {{ ac.name }}
-                            </button>
-                        }
-                    </div>
-                </span>
-            </div>
+            <span class="dropdown" ngbDropdown>
+                <button
+                    ngbDropdownToggle
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="dropDownMenu1"
+                    aria-expanded="true"
+                >
+                    {{ selectedAccessibilities() }}&nbsp;<span class="caret"></span>
+                </button>
+                <div
+                    ngbDropdownMenu
+                    style="padding-left: 0; min-width: 17em"
+                    role="menu"
+                    aria-labelledby="dropDownMenu1"
+                >
+                    @for (ac of accessibilities; track ac) {
+                        <button
+                            ngbDropdownItem
+                            role="presentation"
+                            class="pointer"
+                            [ngClass]="isSelected(ac) ? 'active' : ''"
+                            (click)="updateAccessibility(ac)"
+                            (keydown.enter)="updateAccessibility(ac)"
+                        >
+                            {{ ac.name }}
+                        </button>
+                    }
+                </div>
+            </span>
         </div>
     </div>`,
     imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass, TranslateModule],

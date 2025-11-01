@@ -12,7 +12,7 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
 
 @Component({
     imports: [FormsModule, TranslateModule, DateTimePickerComponent],
-    template: `<div>
+    template: `
         <div class="modal-header">
             <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{ 'i18n_maintenance_period' | translate }}</h4>
         </div>
@@ -65,7 +65,7 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
-    </div> `,
+    `,
 })
 export class MaintenancePeriodDialogComponent implements OnInit {
     @Input() period?: MaintenancePeriod;

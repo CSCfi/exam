@@ -44,27 +44,24 @@ SPDX-License-Identifier: EUPL-1.2
                                 {{ accessibility.name }}
                             </div>
                             @if (accessibility.showName) {
-                                <div>
-                                    <form role="form">
-                                        <div class="input-group">
-                                            <input
-                                                type="text"
-                                                class="form-control input-sm"
-                                                name="accessibility-name"
-                                                [(ngModel)]="accessibility.name"
-                                                autofocus
-                                            />
-                                            <span
-                                                class="input-group-text pointer"
-                                                (click)="
-                                                    accessibility.showName = !accessibility.showName;
-                                                    update(accessibility)
-                                                "
-                                                >{{ 'i18n_add' | translate }}</span
-                                            >
-                                        </div>
-                                    </form>
-                                </div>
+                                <form role="form">
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control input-sm"
+                                            name="accessibility-name"
+                                            [(ngModel)]="accessibility.name"
+                                            autofocus
+                                        />
+                                        <span
+                                            class="input-group-text pointer"
+                                            (click)="
+                                                accessibility.showName = !accessibility.showName; update(accessibility)
+                                            "
+                                            >{{ 'i18n_add' | translate }}</span
+                                        >
+                                    </div>
+                                </form>
                             }
                         </td>
                         <td>

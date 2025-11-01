@@ -273,28 +273,21 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 
 @if (view.toggle && view.filtered.length > 0) {
-    <div>
-        <!-- Buttons -->
-        <div class="ps-0 pe-0 mb-3 w-100 d-flex justify-content-between align-items-center">
-            <div>
-                <div class="speed-review-csv mb-2">
-                    <a class="pointer" (click)="printSelected(false)">{{
-                        'i18n_print_selected_to_file' | translate
-                    }}</a>
-                </div>
-                @if (!collaborative) {
-                    <div class="speed-review-csv mb-2">
-                        <a class="pointer" (click)="printSelected(true)">{{
-                            'i18n_print_selected_to_excel' | translate
-                        }}</a>
-                    </div>
-                }
-            </div>
-            @if (!collaborative) {
-                <button class="btn btn-success" (click)="archiveSelected()">
-                    {{ 'i18n_archive_selected' | translate }}
-                </button>
-            }
+    <!-- Buttons -->
+    <div class="ps-0 pe-0 mb-3 w-100 d-flex justify-content-between align-items-center">
+        <div class="speed-review-csv mb-2">
+            <a class="pointer" (click)="printSelected(false)">{{ 'i18n_print_selected_to_file' | translate }}</a>
         </div>
+        @if (!collaborative) {
+            <div class="speed-review-csv mb-2">
+                <a class="pointer" (click)="printSelected(true)">{{ 'i18n_print_selected_to_excel' | translate }}</a>
+            </div>
+        }
+
+        @if (!collaborative) {
+            <button class="btn btn-success" (click)="archiveSelected()">
+                {{ 'i18n_archive_selected' | translate }}
+            </button>
+        }
     </div>
 }

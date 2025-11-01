@@ -122,32 +122,30 @@ SPDX-License-Identifier: EUPL-1.2
                                     {{ 'i18n_no_name' | translate }}
                                 </span>
                             }
-                            <div>
-                                <span>
-                                    @if (!disableLinks) {
-                                        <button
-                                            class="pointer btn btn-link btn-sm"
-                                            [routerLink]="[question.id, 'edit']"
-                                            [queryParams]="{ nextState: 'questions' }"
-                                        >
-                                            {{ question.id }}
-                                        </button>
-                                    }
-                                    @if (disableLinks) {
-                                        <span>#{{ question.id }}</span>
-                                    }
-                                    @if (question.questionOwners.length > 1) {
-                                        <i
-                                            class="bi-people ps-2 text-primary"
-                                            ngbPopover="{{ 'i18n_question_owners' | translate }}: {{
-                                                printOwners(question)
-                                            }}"
-                                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                            triggers="mouseenter:mouseleave"
-                                        ></i>
-                                    }
-                                </span>
-                            </div>
+                            <span class="d-block">
+                                @if (!disableLinks) {
+                                    <button
+                                        class="pointer btn btn-link btn-sm"
+                                        [routerLink]="[question.id, 'edit']"
+                                        [queryParams]="{ nextState: 'questions' }"
+                                    >
+                                        {{ question.id }}
+                                    </button>
+                                }
+                                @if (disableLinks) {
+                                    <span>#{{ question.id }}</span>
+                                }
+                                @if (question.questionOwners.length > 1) {
+                                    <i
+                                        class="bi-people ps-2 text-primary"
+                                        ngbPopover="{{ 'i18n_question_owners' | translate }}: {{
+                                            printOwners(question)
+                                        }}"
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                        triggers="mouseenter:mouseleave"
+                                    ></i>
+                                }
+                            </span>
                         </td>
                         <td>
                             <span>

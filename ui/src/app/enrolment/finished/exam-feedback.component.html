@@ -61,50 +61,48 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 
 @if (scores) {
-    <div>
-        <!-- total score: only show if not maturity and actual grade given -->
-        <div class="row" [hidden]="assessment.executionType.type === 'MATURITY' || assessment.grade?.name === 'NONE'">
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_total_score' | translate }}:</div>
-                    <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ scores.totalScore }} / {{ scores.maxScore }}</div>
+    <!-- total score: only show if not maturity and actual grade given -->
+    <div class="row" [hidden]="assessment.executionType.type === 'MATURITY' || assessment.grade?.name === 'NONE'">
+        <div class="col-12">
+            <div class="row">
+                <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_total_score' | translate }}:</div>
+                <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ scores.totalScore }} / {{ scores.maxScore }}</div>
+            </div>
+            @if (
+                !collaborative &&
+                (assessment.state === 'GRADED_LOGGED' || assessment.state === 'ARCHIVED') &&
+                assessment.gradingType !== 'NOT_GRADED'
+            ) {
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <button
+                            class="btn btn-outline-secondary"
+                            (keydown.enter)="downloadScoreReport()"
+                            (click)="downloadScoreReport()"
+                        >
+                            {{ 'i18n_download_report_excel' | translate }}
+                        </button>
+                    </div>
                 </div>
-                @if (
-                    !collaborative &&
-                    (assessment.state === 'GRADED_LOGGED' || assessment.state === 'ARCHIVED') &&
-                    assessment.gradingType !== 'NOT_GRADED'
-                ) {
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <button
-                                class="btn btn-outline-secondary"
-                                (keydown.enter)="downloadScoreReport()"
-                                (click)="downloadScoreReport()"
-                            >
-                                {{ 'i18n_download_report_excel' | translate }}
-                            </button>
-                        </div>
-                    </div>
-                }
-            </div>
+            }
         </div>
-        <!-- approved and rejected: only show if not maturity and actual grade given -->
-        <div class="row" [hidden]="assessment.executionType.type === 'MATURITY' || assessment.grade?.name === 'NONE'">
-            <div class="col-12">
-                <!-- only show if approved or rejected answer count is given -->
-                @if (scores.hasApprovedRejectedAnswers) {
-                    <div class="row">
-                        <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_approved' | translate }}:</div>
-                        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ scores.approvedAnswerCount }}
-                        </div>
-                        <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_rejected' | translate }}:</div>
-                        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ scores.rejectedAnswerCount }}
-                        </div>
+    </div>
+    <!-- approved and rejected: only show if not maturity and actual grade given -->
+    <div class="row" [hidden]="assessment.executionType.type === 'MATURITY' || assessment.grade?.name === 'NONE'">
+        <div class="col-12">
+            <!-- only show if approved or rejected answer count is given -->
+            @if (scores.hasApprovedRejectedAnswers) {
+                <div class="row">
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_approved' | translate }}:</div>
+                    <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ scores.approvedAnswerCount }}
                     </div>
-                }
-            </div>
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_rejected' | translate }}:</div>
+                    <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ scores.rejectedAnswerCount }}
+                    </div>
+                </div>
+            }
         </div>
     </div>
 }
@@ -220,25 +218,23 @@ SPDX-License-Identifier: EUPL-1.2
     (assessment.state === 'GRADED_LOGGED' || assessment.state === 'ARCHIVED') &&
     assessment.gradingType !== 'NOT_GRADED'
 ) {
-    <div>
-        <div class="row mt-2">
+    <div class="row mt-2">
+        <div class="col-12">
+            <strong>{{ 'i18n_examination_answer' | translate }}</strong>
+        </div>
+    </div>
+    <div class="row">
+        @if (assessmentWithAnswers) {
             <div class="col-12">
-                <strong>{{ 'i18n_examination_answer' | translate }}</strong>
+                <button class="btn btn-outline-secondary" (keydown.enter)="showAnswers()" (click)="showAnswers()">
+                    {{ 'i18n_show' | translate }}
+                </button>
             </div>
-        </div>
-        <div class="row">
-            @if (assessmentWithAnswers) {
-                <div class="col-12">
-                    <button class="btn btn-outline-secondary" (keydown.enter)="showAnswers()" (click)="showAnswers()">
-                        {{ 'i18n_show' | translate }}
-                    </button>
-                </div>
-            }
-            @if (!assessmentWithAnswers) {
-                <div class="col-12">
-                    {{ 'i18n_not_available' | translate }}
-                </div>
-            }
-        </div>
+        }
+        @if (!assessmentWithAnswers) {
+            <div class="col-12">
+                {{ 'i18n_not_available' | translate }}
+            </div>
+        }
     </div>
 }

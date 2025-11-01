@@ -25,11 +25,11 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="alert alert-warning form-text mb-2">
             {{ 'i18n_maintenance_periods' | translate }}
             @for (period of maintenancePeriods | orderBy: 'startsAt'; track period) {
-                <div>
+                <span class="d-block">
                     {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
                     {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
                     {{ period.description }}
-                </div>
+                </span>
             }
         </div>
     }

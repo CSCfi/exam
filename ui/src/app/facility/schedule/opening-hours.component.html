@@ -11,10 +11,10 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         <div class="col row">
             @if (!dwh.editing) {
-                <div class="col d-flex justify-content-around align-self-center">
-                    <div>{{ workingHourFormat(dwh.displayStartingTime) }}</div>
-                    <div class="align-self-center">-</div>
-                    <div>{{ workingHourFormat(dwh.displayEndingTime) }}</div>
+                <div class="col d-flex justify-content-between align-items-center text-center">
+                    <span class="flex-grow-1 text-start">{{ workingHourFormat(dwh.displayStartingTime) }}</span>
+                    <span class="flex-grow-0">&ndash;</span>
+                    <span class="flex-grow-1 text-end">{{ workingHourFormat(dwh.displayEndingTime) }}</span>
                 </div>
             }
             @if (dwh.editing) {
@@ -25,7 +25,7 @@ SPDX-License-Identifier: EUPL-1.2
                         [minuteStep]="15"
                         [(ngModel)]="dwh.pickStartingTime"
                     ></ngb-timepicker>
-                    <div class="align-self-center">-</div>
+                    <div class="align-self-center">&ndash;</div>
                     <ngb-timepicker
                         name="timepicker"
                         size="small"

@@ -38,24 +38,22 @@ SPDX-License-Identifier: EUPL-1.2
                                 {{ sw.name }}
                             </div>
                             @if (sw.showName) {
-                                <div>
-                                    <form role="form">
-                                        <div class="input-group">
-                                            <input
-                                                type="text"
-                                                class="form-control input-sm"
-                                                name="accessibility-name"
-                                                [(ngModel)]="sw.name"
-                                                autofocus
-                                            />
-                                            <span
-                                                class="input-group-text pointer"
-                                                (click)="sw.showName = !sw.showName; updateSoftware(sw)"
-                                                >{{ 'i18n_add' | translate }}</span
-                                            >
-                                        </div>
-                                    </form>
-                                </div>
+                                <form role="form">
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control input-sm"
+                                            name="accessibility-name"
+                                            [(ngModel)]="sw.name"
+                                            autofocus
+                                        />
+                                        <span
+                                            class="input-group-text pointer"
+                                            (click)="sw.showName = !sw.showName; updateSoftware(sw)"
+                                            >{{ 'i18n_add' | translate }}</span
+                                        >
+                                    </div>
+                                </form>
                             }
                         </td>
                         <td>

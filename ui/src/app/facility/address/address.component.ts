@@ -12,7 +12,7 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
 
 @Component({
     selector: 'xm-room-address',
-    template: `<div>
+    template: `
         <form
             role="form"
             #addressForm="ngForm"
@@ -82,7 +82,7 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                 </div>
             </div>
         </form>
-    </div> `,
+    `,
     styleUrls: ['../rooms/rooms.component.scss'],
     imports: [FormsModule, NgbPopover, TranslateModule],
 })

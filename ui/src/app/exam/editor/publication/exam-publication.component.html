@@ -58,16 +58,14 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                     <div class="row">
                         <div class="col-md-3">
-                            <div>
-                                {{ 'i18n_exam_validity' | translate }}
-                                <sup
-                                    ngbPopover="{{ 'i18n_exam_validity_description' | translate }}"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                </sup>
-                            </div>
+                            {{ 'i18n_exam_validity' | translate }}
+                            <sup
+                                ngbPopover="{{ 'i18n_exam_validity_description' | translate }}"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                            >
+                                <img src="/assets/images/icon_tooltip.svg" alt="" />
+                            </sup>
                         </div>
                         <div class="col-md-3">
                             <xm-date-picker

@@ -98,12 +98,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
                                     @if (examInfo.course) {
-                                        <div>
-                                            @if (examInfo) {
-                                                <xm-course-code [course]="examInfo.course"></xm-course-code>
-                                            }
-                                            {{ examInfo.course.name }}
-                                        </div>
+                                        <xm-course-code [course]="examInfo.course"></xm-course-code>
+                                        {{ examInfo.course.name }}
                                     }
                                 </div>
                                 <div class="mt-2 col-12 col-sm-6 col-md-6 col-lg-6">

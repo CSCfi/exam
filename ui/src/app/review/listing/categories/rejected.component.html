@@ -4,18 +4,16 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div>
-    <div class="xm-paragraph-title">
-        {{ 'i18n_exam_rejected' | translate }}
-        <a (click)="view.toggle = !view.toggle" class="pointer" [attr.aria-expanded]="view.toggle">
-            @if (!view.toggle) {
-                <img src="/assets/images/icon_list_show_right.svg" alt="" />
-            }
-            @if (view.toggle) {
-                <img src="/assets/images/icon_list_show_down.svg" alt="" />
-            }
-        </a>
-    </div>
+<div class="xm-paragraph-title">
+    {{ 'i18n_exam_rejected' | translate }}
+    <a (click)="view.toggle = !view.toggle" class="pointer" [attr.aria-expanded]="view.toggle">
+        @if (!view.toggle) {
+            <img src="/assets/images/icon_list_show_right.svg" alt="" />
+        }
+        @if (view.toggle) {
+            <img src="/assets/images/icon_list_show_down.svg" alt="" />
+        }
+    </a>
 </div>
 
 <div [ngbCollapse]="!view.toggle" [hidden]="view.items.length === 0">

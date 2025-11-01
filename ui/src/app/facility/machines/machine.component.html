@@ -9,79 +9,112 @@ SPDX-License-Identifier: EUPL-1.2
     <xm-page-content [content]="content" />
 }
 <ng-template #content>
-    <form #machineForm="ngForm" class="container">
+    <form #machineForm="ngForm">
         <div class="row">
             <div class="col-md-6">
-                <div class="facility-info-text">
+                <label for="machineName" class="form-label">
                     {{ 'i18n_machine_name' | translate }}
-                </div>
-                <div>
-                    <input name="name" required type="text" class="form-control" [(ngModel)]="machine.name" autofocus />
+                </label>
+                <input
+                    id="machineName"
+                    name="name"
+                    required
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="machine.name"
+                    autofocus
+                />
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-12">
+                <div class="form-check">
+                    <input
+                        id="accessible"
+                        name="accessible"
+                        type="checkbox"
+                        class="form-check-input"
+                        [(ngModel)]="machine.accessible"
+                    />
+                    <label class="form-check-label" for="accessible">
+                        {{ 'i18n_machine_accessible' | translate }}
+                    </label>
                 </div>
             </div>
         </div>
         <div class="row mt-2">
             <div class="col-md-12">
-                <div class="checkbox">
-                    <label>
-                        <input name="accessible" type="checkbox" [(ngModel)]="machine.accessible" />
-                        {{ 'i18n_machine_accessible' | translate }}
-                    </label>
-                </div>
-                <div class="facility-info-text">
+                <label for="machineAccessibility" class="form-label">
                     {{ 'i18n_machine_accessibility' | translate }}
-                </div>
-                <div>
-                    <input
-                        type="text"
-                        name="accessibility"
-                        [disabled]="!machine.accessible"
-                        class="form-control"
-                        [(ngModel)]="machine.accessibilityInfo"
-                    />
-                </div>
+                </label>
+                <input
+                    id="machineAccessibility"
+                    type="text"
+                    name="accessibility"
+                    [disabled]="!machine.accessible"
+                    class="form-control"
+                    [(ngModel)]="machine.accessibilityInfo"
+                />
             </div>
         </div>
         <!-- Other indentifier & Surveillance camera information -->
-        <div class="row">
+        <div class="row mt-2">
             <div class="col-md-6">
-                <div class="facility-info-text">{{ 'i18n_machine_other_identifier' | translate }}</div>
-                <div>
-                    <input name="identifier" type="text" class="form-control" [(ngModel)]="machine.otherIdentifier" />
-                </div>
+                <label for="machineOtherIdentifier" class="form-label">{{
+                    'i18n_machine_other_identifier' | translate
+                }}</label>
+                <input
+                    id="machineOtherIdentifier"
+                    name="identifier"
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="machine.otherIdentifier"
+                />
             </div>
             <div class="col-md-6">
-                <div class="facility-info-text">{{ 'i18n_machine_surveillance_camera' | translate }}</div>
-                <div>
-                    <input
-                        name="surveillance"
-                        type="text"
-                        class="form-control"
-                        [(ngModel)]="machine.surveillanceCamera"
-                    />
-                </div>
+                <label for="machineSurveillanceCamera" class="form-label">{{
+                    'i18n_machine_surveillance_camera' | translate
+                }}</label>
+                <input
+                    id="machineSurveillanceCamera"
+                    name="surveillance"
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="machine.surveillanceCamera"
+                />
             </div>
         </div>
         <!-- Video recordings & IP-address information -->
-        <div class="row">
+        <div class="row mt-2">
             <!-- Video recordings URL -->
             <div class="col-md-6">
-                <div class="facility-info-text">{{ 'i18n_machine_video_recordings' | translate }}</div>
-                <div>
-                    <input type="text" name="video" class="form-control" [(ngModel)]="machine.videoRecordings" />
-                </div>
+                <label for="machineVideoRecordings" class="form-label">{{
+                    'i18n_machine_video_recordings' | translate
+                }}</label>
+                <input
+                    id="machineVideoRecordings"
+                    name="video"
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="machine.videoRecordings"
+                />
             </div>
             <div class="col-md-6">
-                <div class="facility-info-text">{{ 'i18n_machine_ip_address' | translate }}</div>
-                <div>
-                    <input type="text" name="ip" required class="form-control" [(ngModel)]="machine.ipAddress" />
-                </div>
+                <label for="machineIpAddress" class="form-label">{{ 'i18n_machine_ip_address' | translate }}</label>
+                <input
+                    id="machineIpAddress"
+                    name="ip"
+                    type="text"
+                    required
+                    class="form-control"
+                    [(ngModel)]="machine.ipAddress"
+                />
             </div>
         </div>
         <!--Software-->
-        <div class="row">
+        <div class="row mt-3">
             <div class="col-md-12">
-                <div class="facility-info-text">{{ 'i18n_machine_softwares' | translate }}</div>
+                <span class="d-block">{{ 'i18n_machine_softwares' | translate }}:</span>
                 @for (software of software; track software) {
                     <span class="badge me-1 mb-1 pointer" [ngClass]="software.class" (click)="toggleSoftware(software)">
                         {{ software.name }}
@@ -90,23 +123,29 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
         <!-- Service status -->
-        <div class="row mt-2">
+        <div class="row mt-3">
             <div class="col-md-12">
-                <div class="checkbox">
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="outOfService"
-                            [(ngModel)]="machine.outOfService"
-                            (change)="setReason()"
-                        />
+                <div class="form-check">
+                    <input
+                        id="outOfService"
+                        name="outOfService"
+                        type="checkbox"
+                        class="form-check-input"
+                        [(ngModel)]="machine.outOfService"
+                        (change)="setReason()"
+                        aria-checked="{{ machine.outOfService }}"
+                    />
+                    <label class="form-check-label" for="outOfService">
                         {{ 'i18n_out_of_service' | translate }}
                     </label>
                 </div>
-                <div class="facility-info-text">
-                    {{ 'i18n_reason' | translate }}
-                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-6">
+                <label for="statusComment" class="form-label">{{ 'i18n_reason' | translate }}</label>
                 <textarea
+                    id="statusComment"
                     name="statusComment"
                     [disabled]="!machine.outOfService"
                     class="form-control"

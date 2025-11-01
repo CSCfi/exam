@@ -48,9 +48,9 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
         </div>
         <div class="row mt-3">
             <div class="col-md">
-                <span [hidden]="collaborative">{{ 'i18n_course_name' | translate }}:</span>
+                <span class="d-block" [hidden]="collaborative">{{ 'i18n_course_name' | translate }}:</span>
                 @if (!collaborative && exam.course) {
-                    <div><xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}</div>
+                    <xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}
                 }
             </div>
             <div class="col">

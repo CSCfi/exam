@@ -85,29 +85,27 @@ SPDX-License-Identifier: EUPL-1.2
         @if (config) {
             <form role="form" #gradesForm="ngForm" xmUniqueValues name="gradeEvaluations">
                 @for (ge of config.gradeEvaluations | orderBy: 'grade.name'; track ge) {
-                    <div>
-                        <div class="row ps-3 mb-2">
-                            <div class="col-md-2">
-                                {{ getGradeDisplayName(ge.grade) }}
-                            </div>
-                            <div class="col-md-4">
-                                <input
-                                    [disabled]="!autoevaluation.enabled"
-                                    name="ge-{{ ge.grade.id }}"
-                                    type="number"
-                                    lang="en"
-                                    class="form-control autoevaluation-inputs"
-                                    [(ngModel)]="ge.percentage"
-                                    (change)="propertyChanged()"
-                                    [min]="0"
-                                    [max]="100"
-                                    required
-                                />
-                                <span class="ms-2">%</span>
-                            </div>
-                            <div class="col-md-4 autoevaluation-numbers">
-                                {{ calculatePointLimit(ge) }}
-                            </div>
+                    <div class="row ps-3 mb-2">
+                        <div class="col-md-2">
+                            {{ getGradeDisplayName(ge.grade) }}
+                        </div>
+                        <div class="col-md-4">
+                            <input
+                                [disabled]="!autoevaluation.enabled"
+                                name="ge-{{ ge.grade.id }}"
+                                type="number"
+                                lang="en"
+                                class="form-control autoevaluation-inputs"
+                                [(ngModel)]="ge.percentage"
+                                (change)="propertyChanged()"
+                                [min]="0"
+                                [max]="100"
+                                required
+                            />
+                            <span class="ms-2">%</span>
+                        </div>
+                        <div class="col-md-4 autoevaluation-numbers">
+                            {{ calculatePointLimit(ge) }}
                         </div>
                     </div>
                 }

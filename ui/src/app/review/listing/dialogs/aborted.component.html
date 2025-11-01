@@ -117,21 +117,19 @@ SPDX-License-Identifier: EUPL-1.2
                                         review.examParticipation.exam.trialCount &&
                                         review.examParticipation.exam.examEnrolments[0]
                                     ) {
-                                        <div>
-                                            <button
-                                                [disabled]="
-                                                    review.examParticipation.exam.examEnrolments[0].retrialPermitted
-                                                "
-                                                (click)="permitRetrial(review.examParticipation.exam.examEnrolments[0])"
-                                                class="btn btn-sm btn-outline-primary"
-                                            >
-                                                {{
-                                                    review.examParticipation.exam.examEnrolments[0].retrialPermitted
-                                                        ? ('i18n_retrial_permitted' | translate)
-                                                        : ('i18n_permit_retrial' | translate)
-                                                }}
-                                            </button>
-                                        </div>
+                                        <button
+                                            [disabled]="
+                                                review.examParticipation.exam.examEnrolments[0].retrialPermitted
+                                            "
+                                            (click)="permitRetrial(review.examParticipation.exam.examEnrolments[0])"
+                                            class="btn btn-sm btn-outline-primary"
+                                        >
+                                            {{
+                                                review.examParticipation.exam.examEnrolments[0].retrialPermitted
+                                                    ? ('i18n_retrial_permitted' | translate)
+                                                    : ('i18n_permit_retrial' | translate)
+                                            }}
+                                        </button>
                                     }
                                     @if (!review.examParticipation.exam.trialCount) {
                                         <div class="text-muted">

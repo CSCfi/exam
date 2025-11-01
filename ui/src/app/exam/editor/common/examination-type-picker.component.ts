@@ -28,32 +28,30 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                         <div ngbAccordionBody>
                             <ng-template>
                                 @for (type of executionTypes; track type) {
-                                    <div>
-                                        @if (type.examinationTypes.length > 0) {
-                                            <a
-                                                #link
-                                                tabindex="0"
-                                                class="pointer"
-                                                [ngClass]="{ 'selected-type': selectedType === type }"
-                                                [attr.aria-current]="selectedType === type ? 'true' : 'false'"
-                                                (click)="selectType(type)"
-                                                (keydown)="onKeyDown($event, 0)"
-                                            >
-                                                {{ type.name | translate }}
-                                            </a>
-                                        }
-                                        @if (type.examinationTypes.length === 0) {
-                                            <a
-                                                #link
-                                                tabindex="0"
-                                                class="pointer"
-                                                (click)="selectConfig(type.type)"
-                                                (keydown)="onKeyDown($event, 0)"
-                                            >
-                                                {{ type.name | translate }}
-                                            </a>
-                                        }
-                                    </div>
+                                    @if (type.examinationTypes.length > 0) {
+                                        <a
+                                            #link
+                                            tabindex="0"
+                                            class="pointer"
+                                            [ngClass]="{ 'selected-type': selectedType === type }"
+                                            [attr.aria-current]="selectedType === type ? 'true' : 'false'"
+                                            (click)="selectType(type)"
+                                            (keydown)="onKeyDown($event, 0)"
+                                        >
+                                            {{ type.name | translate }}
+                                        </a>
+                                    }
+                                    @if (type.examinationTypes.length === 0) {
+                                        <a
+                                            #link
+                                            tabindex="0"
+                                            class="pointer"
+                                            (click)="selectConfig(type.type)"
+                                            (keydown)="onKeyDown($event, 0)"
+                                        >
+                                            {{ type.name | translate }}
+                                        </a>
+                                    }
                                 }
                             </ng-template>
                         </div>
@@ -72,17 +70,15 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                         <div ngbAccordionBody>
                             <ng-template>
                                 @for (et of selectedType?.examinationTypes; track et) {
-                                    <div>
-                                        <a
-                                            #link
-                                            tabindex="0"
-                                            class="pointer"
-                                            (click)="selectConfig(selectedType.type, et.type)"
-                                            (keydown)="onKeyDown($event, 1)"
-                                        >
-                                            {{ et.name | translate }}
-                                        </a>
-                                    </div>
+                                    <a
+                                        #link
+                                        tabindex="0"
+                                        class="pointer"
+                                        (click)="selectConfig(selectedType.type, et.type)"
+                                        (keydown)="onKeyDown($event, 1)"
+                                    >
+                                        {{ et.name | translate }}
+                                    </a>
                                 }
                             </ng-template>
                         </div>

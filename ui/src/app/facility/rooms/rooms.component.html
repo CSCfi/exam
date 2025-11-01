@@ -30,25 +30,22 @@ SPDX-License-Identifier: EUPL-1.2
             </h4>
             <div class="toggleMessage col-md">
                 <div class="d-flex justify-content-between">
-                    <div>
-                        {{ 'i18n_exam_basic_information_tab' | translate }}
-                        <a
-                            [routerLink]="['/staff/rooms', room.id]"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            ngbPopover="{{ 'i18n_edit' | translate }}"
-                        >
-                            <i class="bi-pencil"></i>
-                        </a>
-                    </div>
-                    <div>
-                        <span class="me-2">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
-                        @if (room.addressVisible) {
-                            <i class="bi-chevron-down pointer" (click)="room.addressVisible = false"></i>
-                        } @else {
-                            <i class="bi-chevron-right pointer" (click)="room.addressVisible = true"></i>
-                        }
-                    </div>
+                    {{ 'i18n_exam_basic_information_tab' | translate }}
+                    <a
+                        [routerLink]="['/staff/rooms', room.id]"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        ngbPopover="{{ 'i18n_edit' | translate }}"
+                    >
+                        <i class="bi-pencil"></i>
+                    </a>
+                    <br />
+                    <span class="me-2">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
+                    @if (room.addressVisible) {
+                        <i class="bi-chevron-down pointer" (click)="room.addressVisible = false"></i>
+                    } @else {
+                        <i class="bi-chevron-right pointer" (click)="room.addressVisible = true"></i>
+                    }
                 </div>
                 <div [hidden]="!room.addressVisible">
                     <!-- Room Code & Accessibility Info -->
@@ -114,9 +111,7 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
             <div class="toggleMessage col-md border-top-none">
                 <div class="d-flex justify-content-between">
-                    <div>
-                        {{ 'i18n_openinghours_exception_datetimes' | translate }}
-                    </div>
+                    {{ 'i18n_openinghours_exception_datetimes' | translate }}
                     <div class="d-flex justify-content-end">
                         <span class="me-2 d-" [hidden]="room.availabilityVisible">
                             @for (
@@ -127,18 +122,18 @@ SPDX-License-Identifier: EUPL-1.2
                                     @if (timetable.length > 0) {
                                         <div class="bg-success custom-green-dot me-2"></div>
                                     }
-                                    <div>{{ timetable }}</div>
+                                    {{ timetable }}
                                 </div>
                             }
                         </span>
-                        <div>
+                        <span class="d-block">
                             @if (room.availabilityVisible) {
                                 <i class="bi-chevron-down pointer" (click)="switchVisibility(room)"></i>
                             }
                             @if (!room.availabilityVisible) {
                                 <i class="bi-chevron-right pointer" (click)="switchVisibility(room)"></i>
                             }
-                        </div>
+                        </span>
                     </div>
                 </div>
                 <div class="row" [hidden]="room.availabilityVisible">

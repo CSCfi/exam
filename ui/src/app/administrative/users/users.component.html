@@ -294,14 +294,12 @@ SPDX-License-Identifier: EUPL-1.2
                 </tbody>
             </table>
             @if (filteredUsers.length > pageSize) {
-                <div>
-                    <xm-paginator
-                        [items]="filteredUsers"
-                        (pageSelected)="pageSelected($event)"
-                        [pageSize]="pageSize"
-                        [currentPage]="currentPage"
-                    ></xm-paginator>
-                </div>
+                <xm-paginator
+                    [items]="filteredUsers"
+                    (pageSelected)="pageSelected($event)"
+                    [pageSize]="pageSize"
+                    [currentPage]="currentPage"
+                ></xm-paginator>
             }
         </div>
     </div>

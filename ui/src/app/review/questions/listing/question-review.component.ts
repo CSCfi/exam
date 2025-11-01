@@ -15,20 +15,19 @@ import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
     selector: 'xm-question-review',
     template: `<div class="xm-study-item-container mx-0">
         <div class="review-points-exam d-flex justify-content-between">
-            <div>
-                @if (getAssessedAnswerCount() === review.answers.length) {
-                    <img src="/assets/images/icon_question_type_ready.png" />
-                }
-                @if (getAssessedAnswerCount() !== review.answers.length) {
-                    <img src="/assets/images/icon_question_type_ready_grey.png" />
-                }
+            @if (getAssessedAnswerCount() === review.answers.length) {
+                <img src="/assets/images/icon_question_type_ready.png" />
+            }
+            @if (getAssessedAnswerCount() !== review.answers.length) {
+                <img src="/assets/images/icon_question_type_ready_grey.png" />
+            }
 
-                <span class="ms-2">
-                    {{ getAssessedAnswerCount() }} / {{ review.answers.length }}
-                    {{ 'i18n_graded' | translate | lowercase }}
-                </span>
-            </div>
-            <span class="float-end">
+            <span class="ms-2">
+                {{ getAssessedAnswerCount() }} / {{ review.answers.length }}
+                {{ 'i18n_graded' | translate | lowercase }}
+            </span>
+
+            <span class="d-block float-end">
                 <input
                     type="checkbox"
                     (change)="reviewSelected()"
@@ -68,18 +67,10 @@ import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
         </div>
 
         @if (review.expanded) {
-            <div>
-                @if (
-                    review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0
-                ) {
-                    <img src="/assets/images/icon_info.png" alt="" />
-                }
-                @if (
-                    review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0
-                ) {
-                    <span class="ps-2"> {{ review.question.defaultAnswerInstructions }}</span>
-                }
-            </div>
+            @if (review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0) {
+                <img src="/assets/images/icon_info.png" alt="" />
+                <span class="ps-2"> {{ review.question.defaultAnswerInstructions }}</span>
+            }
         }
     </div>`,
     styleUrls: ['./question-review.component.scss'],

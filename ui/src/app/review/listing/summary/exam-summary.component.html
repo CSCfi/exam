@@ -13,278 +13,276 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
 
-    <div>
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_exam_name' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_exam_name_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            <div class="col-md-6">{{ exam.name }}</div>
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_exam_name' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_exam_name_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
         </div>
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_course_name' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_course_name_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            <div class="col-md-6">{{ exam.course?.name }}</div>
+        <div class="col-md-6">{{ exam.name }}</div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_course_name' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_course_name_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
         </div>
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_exam_validity' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_exam_validity_period_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
+        <div class="col-md-6">{{ exam.course?.name }}</div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_exam_validity' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_exam_validity_period_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+        <div class="col-md-6">
+            {{ exam.periodStart | date: 'dd.MM.yyyy' }} -
+            {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_exam_amount_questions' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_exam_amount_questions_description' | translate }}"
+                triggers="mouseenter:mouseleave"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+        @if (exam) {
             <div class="col-md-6">
-                {{ exam.periodStart | date: 'dd.MM.yyyy' }} -
-                {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_exam_amount_questions' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_exam_amount_questions_description' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            @if (exam) {
-                <div class="col-md-6">
-                    {{ getQuestionCounts() }}
-                </div>
-            }
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_exam_amount_reservations' | translate }} /
-                {{ 'i18n_exam_amount_participations' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_exam_amount_reservations_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            @if (reviews) {
-                <div class="col-md-6">
-                    {{ gradedCount }} / {{ getRegisteredCount() }} ({{
-                        (gradedCount / getRegisteredCount()) * 100 | number: '1.0-1'
-                    }}%)
-                </div>
-            }
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_exam_average_time' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_exam_average_time_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            @if (reviews.length > 0) {
-                <div class="col-md-6">{{ getAverageTime() | number: '1.0-1' }} min</div>
-            }
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_aborted_exams' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_aborted_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            <div class="col-md-6">
-                <a class="underline" (click)="openAborted()">
-                    <strong>{{ abortedExams.length }}</strong>
-                </a>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_no_shows' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_no_shows_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            <div class="col-md-6">
-                <a class="underline" (click)="openNoShows()">
-                    <strong>{{ noShows.length }}</strong>
-                </a>
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-12 xm-paragraph-title">
-                {{ 'i18n_feedback_summary' | translate }}
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_feedback_messages_read' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_feedback_summary_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            @if (reviews) {
-                <div class="col-md-6">
-                    {{ this.getReadFeedback() }} / {{ this.getTotalFeedback() }} ({{
-                        getFeedbackPercentage() | number: '1.0-1'
-                    }}%)
-                </div>
-            }
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-12 xm-paragraph-title">
-                {{ 'i18n_exam_grade_distribution' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_exam_grade_distribution_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-        </div>
-
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <canvas id="gradeDistributionChart"></canvas>
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-12 xm-paragraph-title">
-                {{ 'i18n_section_averages' | translate }}
-                <sup
-                    class="ps-1"
-                    ngbPopover="{{ 'i18n_section_averages_tooltip' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-        </div>
-
-        <div class="mar40">
-            @for (kv of sectionScores | keyvalue; track kv) {
-                <div class="row mt-3">
-                    <div class="col-md-3">
-                        {{ kv.key }}
-                    </div>
-                    @if (kv.value.max > 0) {
-                        <div class="col-md-9">
-                            {{ calcAverage(kv.value.totals) | number: '1.2-2' }} / {{ kv.value.max | number: '1.2-2' }}
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-12 xm-paragraph-title">
-                {{ 'i18n_exam_grade_time' | translate }}
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-12">
-                <canvas height="300" id="gradeTimeChart"></canvas>
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-12 xm-paragraph-title">
-                {{ 'i18n_examination_time_distribution' | translate }}
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-12">
-                <canvas height="300" id="examinationDateDistributionChart"></canvas>
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-12 xm-paragraph-title">
-                {{ 'i18n_question_score_statistics' | translate }}
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-12">
-                <canvas height="300" id="questionScoreChart"></canvas>
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-12 xm-paragraph-title">
-                {{ 'i18n_question_approval_statistics' | translate }}
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-12">
-                <canvas height="300" id="approvalRatingChart"></canvas>
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-12 xm-paragraph-title">
-                {{ 'i18n_exam_question_scores_report' | translate }}
-            </div>
-        </div>
-
-        @if (reviews.length > 0) {
-            <div class="row">
-                <div class="col-md-12 mt-3">
-                    <a class="pointer" (click)="printQuestionScoresReport()">
-                        {{ 'i18n_exam_print_question_scores_report' | translate }}
-                    </a>
-                </div>
+                {{ getQuestionCounts() }}
             </div>
         }
     </div>
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_exam_amount_reservations' | translate }} /
+            {{ 'i18n_exam_amount_participations' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_exam_amount_reservations_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+        @if (reviews) {
+            <div class="col-md-6">
+                {{ gradedCount }} / {{ getRegisteredCount() }} ({{
+                    (gradedCount / getRegisteredCount()) * 100 | number: '1.0-1'
+                }}%)
+            </div>
+        }
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_exam_average_time' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_exam_average_time_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+        @if (reviews.length > 0) {
+            <div class="col-md-6">{{ getAverageTime() | number: '1.0-1' }} min</div>
+        }
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_aborted_exams' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_aborted_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+        <div class="col-md-6">
+            <a class="underline" (click)="openAborted()">
+                <strong>{{ abortedExams.length }}</strong>
+            </a>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_no_shows' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_no_shows_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+        <div class="col-md-6">
+            <a class="underline" (click)="openNoShows()">
+                <strong>{{ noShows.length }}</strong>
+            </a>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12 xm-paragraph-title">
+            {{ 'i18n_feedback_summary' | translate }}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_feedback_messages_read' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_feedback_summary_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+        @if (reviews) {
+            <div class="col-md-6">
+                {{ this.getReadFeedback() }} / {{ this.getTotalFeedback() }} ({{
+                    getFeedbackPercentage() | number: '1.0-1'
+                }}%)
+            </div>
+        }
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12 xm-paragraph-title">
+            {{ 'i18n_exam_grade_distribution' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_exam_grade_distribution_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+    </div>
+
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <canvas id="gradeDistributionChart"></canvas>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12 xm-paragraph-title">
+            {{ 'i18n_section_averages' | translate }}
+            <sup
+                class="ps-1"
+                ngbPopover="{{ 'i18n_section_averages_tooltip' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+    </div>
+
+    <div class="mar40">
+        @for (kv of sectionScores | keyvalue; track kv) {
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    {{ kv.key }}
+                </div>
+                @if (kv.value.max > 0) {
+                    <div class="col-md-9">
+                        {{ calcAverage(kv.value.totals) | number: '1.2-2' }} / {{ kv.value.max | number: '1.2-2' }}
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12 xm-paragraph-title">
+            {{ 'i18n_exam_grade_time' | translate }}
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <canvas height="300" id="gradeTimeChart"></canvas>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12 xm-paragraph-title">
+            {{ 'i18n_examination_time_distribution' | translate }}
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <canvas height="300" id="examinationDateDistributionChart"></canvas>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12 xm-paragraph-title">
+            {{ 'i18n_question_score_statistics' | translate }}
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <canvas height="300" id="questionScoreChart"></canvas>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12 xm-paragraph-title">
+            {{ 'i18n_question_approval_statistics' | translate }}
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <canvas height="300" id="approvalRatingChart"></canvas>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12 xm-paragraph-title">
+            {{ 'i18n_exam_question_scores_report' | translate }}
+        </div>
+    </div>
+
+    @if (reviews.length > 0) {
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <a class="pointer" (click)="printQuestionScoresReport()">
+                    {{ 'i18n_exam_print_question_scores_report' | translate }}
+                </a>
+            </div>
+        </div>
+    }
 </div>

@@ -44,10 +44,8 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                             <div class="col-6 col-sm-6 col-md-4 col-lg-4">{{ 'i18n_course_name' | translate }}:</div>
                             <div class="col-6 col-sm-6 col-md-4 col-lg-4">
                                 @if (!collaborative) {
-                                    <div>
-                                        <xm-course-code [course]="examInfo.course"></xm-course-code>
-                                        {{ examInfo.course.name }}
-                                    </div>
+                                    <xm-course-code [course]="examInfo.course"></xm-course-code>
+                                    {{ examInfo.course.name }}
                                 }
                             </div>
                             <div class="clearfix visible-xs"></div>

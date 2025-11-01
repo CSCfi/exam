@@ -129,14 +129,10 @@ SPDX-License-Identifier: EUPL-1.2
                             @if (esq.evaluationType === 'Selection') {
                                 <div class="col-md-8">
                                     @if (esq.essayAnswer?.evaluatedScore === 1) {
-                                        <div>
-                                            {{ 'i18n_approved' | translate | uppercase }}
-                                        </div>
+                                        {{ 'i18n_approved' | translate | uppercase }}
                                     }
                                     @if (esq.essayAnswer?.evaluatedScore !== 1) {
-                                        <div>
-                                            {{ 'i18n_rejected' | translate | uppercase }}
-                                        </div>
+                                        {{ 'i18n_rejected' | translate | uppercase }}
                                     }
                                 </div>
                             }
@@ -144,36 +140,32 @@ SPDX-License-Identifier: EUPL-1.2
                     }
                     <!-- MULTICHOICE -->
                     @if (isMultiChoice(esq)) {
-                        <div>
-                            <div class="row mt-1">
-                                <div class="col-md-4">
-                                    <strong>{{ 'i18n_exam_answer' | translate }}:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                    @for (option of getAnsweredOptions(esq); track option) {
-                                        <div class="row">
-                                            <div class="col-md-12" [xmMathJax]="option.option.option"></div>
-                                        </div>
-                                    }
-                                </div>
+                        <div class="row mt-1">
+                            <div class="col-md-4">
+                                <strong>{{ 'i18n_exam_answer' | translate }}:</strong>
                             </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>{{ 'i18n_comments' | translate }}: </strong>
-                                </div>
-                                <div class="col-md-8">{{ esq.derivedAssessedScore }} / {{ esq.derivedMaxScore }}</div>
+                            <div class="col-md-8">
+                                @for (option of getAnsweredOptions(esq); track option) {
+                                    <div class="row">
+                                        <div class="col-md-12" [xmMathJax]="option.option.option"></div>
+                                    </div>
+                                }
                             </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>{{ 'i18n_comments' | translate }}: </strong>
+                            </div>
+                            <div class="col-md-8">{{ esq.derivedAssessedScore }} / {{ esq.derivedMaxScore }}</div>
                         </div>
                     }
                     <!-- CLOZE TEST -->
                     @if (esq.question.type === 'ClozeTestQuestion') {
-                        <div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>{{ 'i18n_comments' | translate }}:</strong>
-                                </div>
-                                <div class="col-md-8">{{ esq.derivedAssessedScore }} / {{ esq.derivedMaxScore }}</div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>{{ 'i18n_comments' | translate }}:</strong>
                             </div>
+                            <div class="col-md-8">{{ esq.derivedAssessedScore }} / {{ esq.derivedMaxScore }}</div>
                         </div>
                     }
                 </div>

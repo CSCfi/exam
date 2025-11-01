@@ -42,10 +42,8 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 </div>
                 <!-- DESCRIPTION FOR SECTION -->
                 @if (section.description && section.description.length > 0) {
-                    <div>
-                        <img src="/assets/images/icon_info.svg" alt="" />
-                        <span class="ps-2">{{ section.description }}</span>
-                    </div>
+                    <img src="/assets/images/icon_info.svg" alt="" />
+                    <span class="ps-2">{{ section.description }}</span>
                 }
             </div>
         </div>

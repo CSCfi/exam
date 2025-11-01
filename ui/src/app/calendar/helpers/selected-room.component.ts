@@ -27,10 +27,8 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         </div>
         <div class="row mt-2">
             <div class="col-md-2 col-12">
-                <div>{{ 'i18n_room_default_working_hours' | translate }}</div>
-                <div>
-                    <small class="text-muted">({{ room.localTimezone }})</small>
-                </div>
+                <span class="d-block">{{ 'i18n_room_default_working_hours' | translate }}</span>
+                <small class="text-muted">({{ room.localTimezone }})</small>
             </div>
             <div class="col-md-10 col-12">
                 @for (oh of openingHours(); track oh.ord) {
@@ -67,14 +65,12 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 <div class="col-md-2 col-12">{{ 'i18n_maintenance_periods' | translate }}:</div>
                 <div class="col-md-10 col-12">
                     @for (period of thisWeeksMaintenancePeriods() | orderBy: 'startsAt'; track period.id) {
-                        <div>
-                            {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
-                            {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
-                            {{ period.description }}
-                            @if (period.remote) {
-                                <span class="text-danger">(remote)</span>
-                            }
-                        </div>
+                        {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
+                        {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+                        {{ period.description }}
+                        @if (period.remote) {
+                            <span class="text-danger">(remote)</span>
+                        }
                     }
                 </div>
             </div>

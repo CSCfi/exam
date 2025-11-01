@@ -44,9 +44,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 <div class="exam-not-answered">
                     <div class="make-inline float-start">
                         @if (option.score >= 0) {
-                            <div>
-                                <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
-                            </div>
+                            <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
                         } @else {
                             <img src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
                         }

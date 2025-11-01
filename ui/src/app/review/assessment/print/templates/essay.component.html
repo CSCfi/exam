@@ -59,9 +59,9 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="sub-content-row col-md-9">
             <div [hidden]="sectionQuestion.essayAnswer?.attachment">N/A</div>
             @if (sectionQuestion.essayAnswer?.attachment) {
-                <div>
+                <span class="d-block">
                     {{ sectionQuestion.essayAnswer?.attachment?.fileName }}
-                </div>
+                </span>
             }
         </div>
     </div>
@@ -90,21 +90,15 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         <div class="sub-content-row col-md-9">
             @if (sectionQuestion.evaluationType === 'Points') {
-                <span> {{ getScore() }} / {{ sectionQuestion.maxScore }} </span>
+                {{ getScore() }} / {{ sectionQuestion.maxScore }}
             }
             @if (sectionQuestion.evaluationType === 'Selection') {
-                <span>
-                    @if (sectionQuestion.essayAnswer?.evaluatedScore === 1) {
-                        <div>
-                            {{ 'i18n_approved' | translate }}
-                        </div>
-                    }
-                    @if (sectionQuestion.essayAnswer?.evaluatedScore === 0) {
-                        <div>
-                            {{ 'i18n_rejected' | translate }}
-                        </div>
-                    }
-                </span>
+                @if (sectionQuestion.essayAnswer?.evaluatedScore === 1) {
+                    {{ 'i18n_approved' | translate }}
+                }
+                @if (sectionQuestion.essayAnswer?.evaluatedScore === 0) {
+                    {{ 'i18n_rejected' | translate }}
+                }
             }
         </div>
     </div>

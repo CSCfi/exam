@@ -103,27 +103,25 @@ SPDX-License-Identifier: EUPL-1.2
                             </td>
                             <td>
                                 @for (inspection of review.examParticipation.exam.examInspections; track inspection) {
-                                    <div>
-                                        <span [ngClass]="inspection.ready ? 'text-success' : 'text-danger'">
-                                            <span
-                                                [ngClass]="
-                                                    isOwner(inspection.user, review.examParticipation.exam.examOwners)
-                                                        ? 'bold'
-                                                        : ''
-                                                "
-                                            >
-                                                {{ inspection.user.firstName }} {{ inspection.user.lastName }}
-                                            </span>
-                                            <span>
-                                                @if (inspection.ready) {
-                                                    <span>({{ 'i18n_ready' | translate }})</span>
-                                                }
-                                                @if (!inspection.ready) {
-                                                    <span>({{ 'i18n_in_progress' | translate }})</span>
-                                                }
-                                            </span>
+                                    <span class="d-block" [ngClass]="inspection.ready ? 'text-success' : 'text-danger'">
+                                        <span
+                                            [ngClass]="
+                                                isOwner(inspection.user, review.examParticipation.exam.examOwners)
+                                                    ? 'bold'
+                                                    : ''
+                                            "
+                                        >
+                                            {{ inspection.user.firstName }} {{ inspection.user.lastName }}
                                         </span>
-                                    </div>
+                                        <span>
+                                            @if (inspection.ready) {
+                                                <span>({{ 'i18n_ready' | translate }})</span>
+                                            }
+                                            @if (!inspection.ready) {
+                                                <span>({{ 'i18n_in_progress' | translate }})</span>
+                                            }
+                                        </span>
+                                    </span>
                                 }
                             </td>
                             <td class="text-success">
@@ -187,14 +185,12 @@ SPDX-License-Identifier: EUPL-1.2
     }
     @if (toggleReviews) {
         @if (examReviews.length > pageSize) {
-            <div>
-                <xm-paginator
-                    [items]="examReviews"
-                    (pageSelected)="pageSelected($event)"
-                    [pageSize]="pageSize"
-                    [currentPage]="currentPage"
-                ></xm-paginator>
-            </div>
+            <xm-paginator
+                [items]="examReviews"
+                (pageSelected)="pageSelected($event)"
+                [pageSize]="pageSize"
+                [currentPage]="currentPage"
+            ></xm-paginator>
         }
     }
 

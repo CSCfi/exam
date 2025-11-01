@@ -10,15 +10,13 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-2">{{ 'i18n_grading_inspector' | translate }}:</div>
     <div class="col-md-4">
         @for (inspection of exam.examInspections; track inspection) {
-            <div>
-                <xm-r-inspection
-                    [inspection]="inspection"
-                    [user]="user"
-                    [disabled]="isGraded() || isReadOnly()"
-                    (inspected)="inspectionDone()"
-                >
-                </xm-r-inspection>
-            </div>
+            <xm-r-inspection
+                [inspection]="inspection"
+                [user]="user"
+                [disabled]="isGraded() || isReadOnly()"
+                (inspected)="inspectionDone()"
+            >
+            </xm-r-inspection>
         }
     </div>
 </div>
@@ -32,20 +30,16 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-2">{{ 'i18n_exam_owners' | translate }}:</div>
     <div class="col-md-4">
         @if (!collaborative) {
-            <div>
-                @for (teacher of exam.parent?.examOwners; track teacher) {
-                    <span> {{ teacher.firstName }} {{ teacher.lastName }} </span>
-                }
-            </div>
+            @for (teacher of exam.parent?.examOwners; track teacher) {
+                <span> {{ teacher.firstName }} {{ teacher.lastName }} </span>
+            }
         }
         @if (collaborative) {
-            <div>
-                @for (teacher of exam.examOwners; track teacher) {
-                    <span>
-                        {{ teacher.email }}
-                    </span>
-                }
-            </div>
+            @for (teacher of exam.examOwners; track teacher) {
+                <span>
+                    {{ teacher.email }}
+                </span>
+            }
         }
     </div>
     <div class="col-md-2">{{ 'i18n_exam_instructor' | translate }}:</div>

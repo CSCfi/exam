@@ -22,60 +22,42 @@ import { QuestionReviewComponent } from './question-review.component';
         </div>
 
         @if (reviews.length === 0) {
-            <div>
-                <div class="mt-2">
-                    <h3>{{ 'i18n_no_questions_to_review' | translate }}</h3>
-                </div>
+            <div class="mt-2">
+                <h3>{{ 'i18n_no_questions_to_review' | translate }}</h3>
             </div>
         }
         @if (reviews.length > 0) {
-            <div>
-                <div class="mt-2 d-flex justify-content-between">
-                    <div>
-                        <strong class="question-review-toolbar-text"
-                            >{{ selectedReviews.length }} {{ 'i18n_questions_selected' | translate }}</strong
-                        >
-                    </div>
-                    <div>
-                        <button
-                            [disabled]="selectedReviews.length === 0"
-                            class="btn btn-success float-end"
-                            (click)="startReview()"
-                        >
-                            {{ 'i18n_review_selected' | translate }} ({{ selectedReviews.length }})
-                        </button>
-                    </div>
-                </div>
-                <span class="mt-2 mb-2 d-flex justify-content-between">
-                    <span class="question-review-title">{{ 'i18n_select_question_reviews' | translate }}</span>
-                    <span class="form-group">
-                        <label class="me-2" for="select-all">{{ 'i18n_check_uncheck_all' | translate }}</label>
-                        <input id="select-all" type="checkbox" (change)="selectAll()" [(ngModel)]="selectionToggle" />
-                    </span>
+            <div class="mt-2 d-flex justify-content-between">
+                <strong class="d-block question-review-toolbar-text"
+                    >{{ selectedReviews.length }} {{ 'i18n_questions_selected' | translate }}</strong
+                >
+
+                <button
+                    [disabled]="selectedReviews.length === 0"
+                    class="btn btn-success float-end"
+                    (click)="startReview()"
+                >
+                    {{ 'i18n_review_selected' | translate }} ({{ selectedReviews.length }})
+                </button>
+            </div>
+            <span class="mt-2 mb-2 d-flex justify-content-between">
+                <span class="question-review-title">{{ 'i18n_select_question_reviews' | translate }}</span>
+                <span class="form-group">
+                    <label class="me-2" for="select-all">{{ 'i18n_check_uncheck_all' | translate }}</label>
+                    <input id="select-all" type="checkbox" (change)="selectAll()" [(ngModel)]="selectionToggle" />
                 </span>
-                <div>
-                    @for (review of reviews; track review) {
-                        <xm-question-review [review]="review" (selected)="onReviewSelection($event)">
-                        </xm-question-review>
-                    }
-                </div>
-                <div class="mt-2 d-flex justify-content-between">
-                    <!-- Might make sense to make this a separate component as it is used twice here-->
-                    <span>
-                        <strong class="question-review-toolbar-text"
-                            >{{ selectedReviews.length }} {{ 'i18n_questions_selected' | translate }}</strong
-                        >
-                    </span>
-                    <div>
-                        <button
-                            [disabled]="selectedReviews.length === 0"
-                            class="btn btn-success"
-                            (click)="startReview()"
-                        >
-                            {{ 'i18n_review_selected' | translate }} ({{ selectedReviews.length }})
-                        </button>
-                    </div>
-                </div>
+            </span>
+            @for (review of reviews; track review) {
+                <xm-question-review [review]="review" (selected)="onReviewSelection($event)"> </xm-question-review>
+            }
+            <div class="mt-2 d-flex justify-content-between">
+                <!-- Might make sense to make this a separate component as it is used twice here-->
+                <strong class="question-review-toolbar-text"
+                    >{{ selectedReviews.length }} {{ 'i18n_questions_selected' | translate }}</strong
+                >
+                <button [disabled]="selectedReviews.length === 0" class="btn btn-success" (click)="startReview()">
+                    {{ 'i18n_review_selected' | translate }} ({{ selectedReviews.length }})
+                </button>
             </div>
         }
     </div>`,
