@@ -37,9 +37,9 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
-import validation.calendar.ReservationCreationValidator;
-import validation.calendar.ReservationDTO;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
+import validation.scala.calendar.ReservationCreationValidator;
+import validation.scala.calendar.ReservationDTO;
 
 public class CalendarController extends BaseController {
 

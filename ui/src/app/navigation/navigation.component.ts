@@ -8,7 +8,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, forkJoin } from 'rxjs';
+import { Subject, forkJoin, of } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
 import type { User } from 'src/app/session/session.model';
@@ -50,29 +50,24 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ExaminationStatus.aquariumLoggedIn$
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe(() => this.getLinks(false, false));
-        this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user: User | undefined) => {
+        this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user) => {
             this.user = user;
             this.getLinks(true);
         });
     }
 
     ngOnInit() {
-        // Add a small timeout because there is some race condition/view update problem with initial link
-        // loading if there is an examination starting or started. To be fixed properly if solution found.
-        window.setTimeout(() => {
-            this.user = this.Session.getUser();
-            if (this.user?.isAdmin) {
-                this.Navigation.getAppVersion$().subscribe({
-                    next: (resp) => (this.appVersion = resp.appVersion),
-                    error: (err) => this.toast.error(err),
-                });
-                this.getLinks(true, true);
-            } else if (this.user) {
-                this.getLinks(true);
-            } else {
-                this.getLinks(false);
-            }
-        }, 200);
+        if (this.user?.isAdmin) {
+            this.Navigation.getAppVersion$().subscribe({
+                next: (resp) => (this.appVersion = resp.appVersion),
+                error: (err) => this.toast.error(err),
+            });
+            this.getLinks(true, true);
+        } else if (this.user) {
+            this.getLinks(true);
+        } else {
+            this.getLinks(false);
+        }
     }
 
     ngOnDestroy() {
@@ -90,22 +85,25 @@ export class NavigationComponent implements OnInit, OnDestroy {
     switchLanguage = (key: string) => this.Session.switchLanguage(key);
 
     private getLinks = (checkInteroperability: boolean, checkByod = false) => {
-        if (checkInteroperability && checkByod) {
-            forkJoin([this.Navigation.getInteroperability$(), this.Navigation.getByodSupport$()]).subscribe({
-                next: ([iop, byod]) =>
-                    (this.links = this.Navigation.getLinks(
-                        iop.isExamCollaborationSupported,
-                        byod.sebExaminationSupported || byod.homeExaminationSupported,
-                    )),
-                error: (err) => this.toast.error(err),
-            });
-        } else if (checkInteroperability) {
-            this.Navigation.getInteroperability$().subscribe({
-                next: (resp) => (this.links = this.Navigation.getLinks(resp.isExamCollaborationSupported, false)),
-                error: (err) => this.toast.error(err),
-            });
-        } else {
+        if (!checkInteroperability && !checkByod) {
             this.links = this.Navigation.getLinks(false, false);
+            return;
         }
+        const interoperability$ = checkInteroperability
+            ? this.Navigation.getInteroperability$()
+            : of({ isExamCollaborationSupported: false });
+
+        const byod$ = checkByod
+            ? this.Navigation.getByodSupport$()
+            : of({ sebExaminationSupported: false, homeExaminationSupported: false });
+
+        forkJoin([interoperability$, byod$]).subscribe({
+            next: ([iop, byod]) =>
+                (this.links = this.Navigation.getLinks(
+                    iop.isExamCollaborationSupported,
+                    byod.sebExaminationSupported || byod.homeExaminationSupported,
+                )),
+            error: (err) => this.toast.error(err),
+        });
     };
 }

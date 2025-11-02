@@ -22,7 +22,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import security.Authenticated;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 public class CollaborativeStudentActionController extends CollaborationController {
 

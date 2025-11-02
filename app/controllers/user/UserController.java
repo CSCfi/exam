@@ -27,8 +27,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import security.Authenticated;
-import validation.UserLanguageSanitizer;
-import validation.core.Attrs;
+import validation.java.UserLanguageSanitizer;
+import validation.java.core.Attrs;
 
 public class UserController extends BaseController {
 

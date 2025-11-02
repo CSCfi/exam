@@ -24,7 +24,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "claimChoiceType", "configKey" })
 public class ExamAnswerController extends BaseController {

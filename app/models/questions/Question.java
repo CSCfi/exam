@@ -39,7 +39,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
 import play.mvc.Result;
 import play.mvc.Results;
-import validation.SanitizingHelper;
+import validation.java.SanitizingHelper;
 
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {

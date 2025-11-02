@@ -48,7 +48,7 @@ import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 public class RoomController extends BaseController {
 

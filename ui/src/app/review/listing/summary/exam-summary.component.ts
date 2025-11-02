@@ -104,7 +104,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
             this.Files.download(
                 url,
                 this.translate.instant('i18n_grading_info') + '_' + DateTime.now().toFormat('dd-MM-yyyy') + '.xlsx',
-                { childIds: ids.map((i) => i.toString()) },
+                { ids: ids },
                 true,
             );
         }

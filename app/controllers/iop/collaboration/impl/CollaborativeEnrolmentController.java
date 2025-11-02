@@ -31,7 +31,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import security.Authenticated;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 public class CollaborativeEnrolmentController extends CollaborationController {
 

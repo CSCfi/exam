@@ -19,7 +19,7 @@ import org.springframework.beans.BeanUtils;
 import play.mvc.Http;
 import play.mvc.Result;
 import security.Authenticated;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 public class ExamMaterialController extends QuestionController implements SectionQuestionHandler {
 

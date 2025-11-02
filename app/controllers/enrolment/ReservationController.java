@@ -42,7 +42,7 @@ import play.mvc.Result;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.Anonymous;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 public class ReservationController extends BaseController {
 

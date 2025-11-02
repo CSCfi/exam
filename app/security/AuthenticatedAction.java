@@ -19,7 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import repository.UserRepository;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 public class AuthenticatedAction extends Action<Authenticated> {
 

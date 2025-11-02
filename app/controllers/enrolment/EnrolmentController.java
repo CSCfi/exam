@@ -47,10 +47,10 @@ import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.CollectionConverters;
 import scala.jdk.javaapi.FutureConverters;
 import security.Authenticated;
-import validation.EnrolmentCourseInformationSanitizer;
-import validation.EnrolmentInformationSanitizer;
-import validation.StudentEnrolmentSanitizer;
-import validation.core.Attrs;
+import validation.java.EnrolmentCourseInformationSanitizer;
+import validation.java.EnrolmentInformationSanitizer;
+import validation.java.StudentEnrolmentSanitizer;
+import validation.java.core.Attrs;
 
 public class EnrolmentController extends BaseController {
 

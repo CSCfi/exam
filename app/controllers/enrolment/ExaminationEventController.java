@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import validation.ExaminationDateSanitizer;
-import validation.core.Attrs;
-import validation.exam.ExaminationEventDTO;
-import validation.exam.ExaminationEventValidator;
+import validation.java.ExaminationDateSanitizer;
+import validation.java.core.Attrs;
+import validation.scala.exam.ExaminationEventDTO;
+import validation.scala.exam.ExaminationEventValidator;
 
 public class ExaminationEventController extends BaseController {
 

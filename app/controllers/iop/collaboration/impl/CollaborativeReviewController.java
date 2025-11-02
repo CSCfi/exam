@@ -56,8 +56,8 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import system.interceptors.Anonymous;
-import validation.ExternalRefCollectionSanitizer;
-import validation.core.Attrs;
+import validation.java.ExternalRefCollectionSanitizer;
+import validation.java.core.Attrs;
 
 public class CollaborativeReviewController extends CollaborationController {
 

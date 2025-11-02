@@ -55,9 +55,9 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import system.interceptors.Anonymous;
-import validation.CommentSanitizer;
-import validation.core.Attrs;
-import validation.other.CommaJoinedListValidator;
+import validation.java.CommentSanitizer;
+import validation.java.core.Attrs;
+import validation.scala.CommaJoinedListValidator;
 
 public class ReviewController extends BaseController {
 

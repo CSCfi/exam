@@ -54,9 +54,9 @@ import play.mvc.Result;
 import play.mvc.With;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
-import validation.calendar.ExternalCalendarReservationValidator;
-import validation.calendar.ExternalReservationDTO;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
+import validation.scala.calendar.ExternalCalendarReservationValidator;
+import validation.scala.calendar.ExternalReservationDTO;
 
 public class ExternalCalendarController extends BaseController {
 

@@ -32,7 +32,7 @@ import play.data.DynamicForm;
 import play.mvc.Http;
 import play.mvc.Result;
 import security.Authenticated;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 public class CollaborativeExamSectionController extends CollaborationController implements SectionQuestionHandler {
 

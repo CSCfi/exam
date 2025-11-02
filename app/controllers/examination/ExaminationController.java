@@ -56,11 +56,11 @@ import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.ExamActionRouter;
 import system.interceptors.SensitiveDataPolicy;
-import validation.answer.ClozeTestAnswerDTO;
-import validation.answer.ClozeTestAnswerValidator;
-import validation.answer.EssayAnswerDTO;
-import validation.answer.EssayAnswerValidator;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
+import validation.scala.answer.ClozeTestAnswerDTO;
+import validation.scala.answer.ClozeTestAnswerValidator;
+import validation.scala.answer.EssayAnswerDTO;
+import validation.scala.answer.EssayAnswerValidator;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "claimChoiceType", "configKey" })
 public class ExaminationController extends BaseController {

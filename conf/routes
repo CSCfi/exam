@@ -459,13 +459,13 @@ GET           /app/statistics/student/:id/:from/:to                             
 
 ################# Reports interface ##################
 
-GET           /app/reports/participations                                         controllers.admin.ReportController.getExamParticipations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
+GET           /app/reports/participations                                         controllers.admin.ReportController.listParticipations(dept: Option[String], start: Option[String], end: Option[String])
 GET           /app/reports/departments                                            controllers.admin.ReportController.listDepartments
-GET           /app/reports/exams                                                  controllers.admin.ReportController.getPublishedExams(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
-GET           /app/reports/reservations                                           controllers.admin.ReportController.getReservations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
-GET           /app/reports/reservations/iop                                       controllers.admin.ReportController.getIopReservations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
-GET           /app/reports/responses                                              controllers.admin.ReportController.getResponses(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
-POST          /app/reports/questionreport/:id                                     controllers.admin.ReportController.exportExamQuestionScoresAsExcel(id: Long, request: Request)
+GET           /app/reports/exams                                                  controllers.admin.ReportController.listPublishedExams(dept: Option[String], start: Option[String], end: Option[String])
+GET           /app/reports/reservations                                           controllers.admin.ReportController.listReservations(dept: Option[String], start: Option[String], end: Option[String])
+GET           /app/reports/reservations/iop                                       controllers.admin.ReportController.listIopReservations(dept: Option[String], start: Option[String], end: Option[String])
+GET           /app/reports/responses                                              controllers.admin.ReportController.listResponses(dept: Option[String], start: Option[String], end: Option[String])
+POST          /app/reports/questionreport/:id                                     controllers.admin.ReportController.exportExamQuestionScoresAsExcel(id: Long)
 
 ################# Maintenance period interface ##################
 GET           /app/maintenance                                                    controllers.facility.MaintenancePeriodController.listMaintenancePeriods

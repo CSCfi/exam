@@ -44,8 +44,8 @@ import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
-import validation.ExamRecordSanitizer;
-import validation.core.Attrs;
+import validation.java.ExamRecordSanitizer;
+import validation.java.core.Attrs;
 
 public class ExamRecordController extends BaseController {
 

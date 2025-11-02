@@ -22,7 +22,12 @@ export class FileService {
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
 
-    download(url: string, filename: string, params?: Record<string, string | string[]>, post?: boolean) {
+    download(
+        url: string,
+        filename: string,
+        params?: Record<string, string | string[] | number | number[] | boolean | boolean[]>,
+        post?: boolean,
+    ) {
         const method = post ? 'POST' : 'GET';
         this.http
             .request(method, url, {

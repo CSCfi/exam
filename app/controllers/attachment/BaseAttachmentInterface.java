@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
 import play.mvc.Result;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 public interface BaseAttachmentInterface<T> {
     CompletionStage<Result> downloadExamAttachment(T id, Http.Request request);

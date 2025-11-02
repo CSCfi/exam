@@ -47,7 +47,7 @@ import scala.jdk.javaapi.CollectionConverters;
 import scala.jdk.javaapi.FutureConverters;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption" })
 @Restrict({ @Group("STUDENT") })

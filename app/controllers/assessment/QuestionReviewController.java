@@ -26,7 +26,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import security.Authenticated;
 import system.interceptors.Anonymous;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 public class QuestionReviewController extends BaseController {
 

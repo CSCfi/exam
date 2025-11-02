@@ -43,10 +43,10 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import security.Authenticated;
-import validation.SanitizingHelper;
-import validation.core.Attrs;
-import validation.section.SectionQuestionDTO;
-import validation.section.SectionQuestionValidator;
+import validation.java.SanitizingHelper;
+import validation.java.core.Attrs;
+import validation.scala.section.SectionQuestionDTO;
+import validation.scala.section.SectionQuestionValidator;
 
 public class ExamSectionController extends BaseController implements SectionQuestionHandler {
 

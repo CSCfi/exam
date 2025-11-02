@@ -40,9 +40,9 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.CollectionConverters;
 import security.Authenticated;
-import validation.EmailSanitizer;
-import validation.core.Attrs;
-import validation.exam.ExamUpdateValidator;
+import validation.java.EmailSanitizer;
+import validation.java.core.Attrs;
+import validation.scala.exam.ExamUpdateValidator;
 
 public class CollaborativeExamController extends CollaborationController {
 

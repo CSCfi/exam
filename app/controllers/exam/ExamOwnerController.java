@@ -17,7 +17,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import security.Authenticated;
-import validation.core.Attrs;
+import validation.java.core.Attrs;
 
 public class ExamOwnerController extends BaseController {
 

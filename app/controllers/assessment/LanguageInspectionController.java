@@ -33,8 +33,8 @@ import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
-import validation.CommentSanitizer;
-import validation.core.Attrs;
+import validation.java.CommentSanitizer;
+import validation.java.core.Attrs;
 
 public class LanguageInspectionController extends BaseController {
 

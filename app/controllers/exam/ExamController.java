@@ -46,9 +46,9 @@ import play.mvc.Result;
 import play.mvc.With;
 import security.Authenticated;
 import system.interceptors.Anonymous;
-import validation.core.Attrs;
-import validation.exam.ExamDraftValidator;
-import validation.exam.ExamUpdateValidator;
+import validation.java.core.Attrs;
+import validation.scala.exam.ExamDraftValidator;
+import validation.scala.exam.ExamUpdateValidator;
 
 public class ExamController extends BaseController {
 
