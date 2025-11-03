@@ -90,31 +90,27 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
     </div>
-    <div class="row mt-3">
-        <div class="col-6">
-            @if (exam) {
-                <div>{{ 'i18n_course_name' | translate }}:</div>
-            }
-
-            @if (exam && exam.course) {
-                <div>
-                    <span class="exam-code">
-                        <strong><xm-course-code [course]="exam.course"></xm-course-code></strong>
-                    </span>
-                    {{ exam.course.name }}
+    <div class="mt-3">
+        @if (exam) {
+            <div class="row mb-2">
+                <div class="col-md-3">{{ 'i18n_course_name' | translate }}:</div>
+                <div class="col-md-9">
+                    @if (exam.course) {
+                        <span class="exam-code" [attr.aria-label]="'i18n_course_code' | translate">
+                            <strong><xm-course-code [course]="exam.course"></xm-course-code></strong>
+                        </span>
+                        {{ exam.course.name }}
+                    }
                 </div>
-            }
-        </div>
-        <div class="col-6">
-            @if (exam) {
-                <div>{{ 'i18n_teachers' | translate }}:</div>
-            }
-            @if (exam) {
-                <div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-md-3">{{ 'i18n_teachers' | translate }}:</div>
+                <div class="col-md-9">
                     <xm-teacher-list [exam]="exam"></xm-teacher-list>
                 </div>
-            }
-        </div>
+            </div>
+        }
     </div>
     @if (exam) {
         <div class="row mt-3">
@@ -127,14 +123,12 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
     @if (!reservation) {
-        <div class="row mt-3">
-            <div class="col">
-                <div>{{ 'i18n_exam_validity' | translate }}:</div>
-                <div>
-                    {{ exam?.periodStart || collabExam.periodStart | date: 'dd.MM.yyyy' }}
-                    &ndash;
-                    {{ exam?.periodEnd || collabExam.periodEnd | date: 'dd.MM.yyyy' }}
-                </div>
+        <div class="row mt-3 mb-2">
+            <div class="col-md-3">{{ 'i18n_exam_validity' | translate }}:</div>
+            <div class="col-md-9">
+                {{ exam?.periodStart || collabExam.periodStart | date: 'dd.MM.yyyy' }}
+                &ndash;
+                {{ exam?.periodEnd || collabExam.periodEnd | date: 'dd.MM.yyyy' }}
             </div>
         </div>
         @if (enrolment().reservationCanceled) {
@@ -225,76 +219,66 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
     @if (exam && eventConfig && exam.implementation !== 'AQUARIUM') {
-        <div>
-            <div class="row mt-3 justify-content-start">
-                <div>{{ 'i18n_examination_event' | translate }}:</div>
-                <div>
-                    {{ eventConfig?.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm zzzz' }}
-                </div>
+        <div class="row mt-3 mb-2">
+            <div class="col-md-3">{{ 'i18n_examination_event' | translate }}:</div>
+            <div class="col-md-9">
+                {{ eventConfig?.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm zzzz' }}
             </div>
         </div>
     }
 
     @if (exam && eventConfig && exam.implementation !== 'AQUARIUM') {
-        <div class="row mt-3 justify-content-start">
-            <div class="col">
-                <div class="row">
-                    <div>{{ 'i18n_instructions' | translate }}:</div>
-                    <div>
-                        <span class="me-2">
-                            {{ eventConfig.examinationEvent.description }}
-                        </span>
-                    </div>
-                </div>
+        <div class="row mt-3 mb-2">
+            <div class="col-md-3">{{ 'i18n_instructions' | translate }}:</div>
+            <div class="col-md-9">
+                <span class="me-2">
+                    {{ eventConfig.examinationEvent.description }}
+                </span>
             </div>
         </div>
     }
 
     @if (exam && exam.implementation === 'CLIENT_AUTH') {
-        <div class="row mt-3 justify-content-start">
-            <div class="col">
-                <div class="row">
-                    <div>{{ 'i18n_seb_file' | translate }}:</div>
-                    <div>
-                        <span class="me-2">
-                            <button (click)="downloadSebFile()" class="mt-1 btn btn-outline-secondary">
-                                <strong>{{ 'i18n_download' | translate }}</strong>
-                            </button>
-                        </span>
-                    </div>
-                </div>
+        <div class="row mt-3 mb-2">
+            <div class="col-md-3">{{ 'i18n_seb_file' | translate }}:</div>
+            <div class="col-md-9">
+                <span class="me-2">
+                    <button (click)="downloadSebFile()" class="mt-1 btn btn-outline-secondary">
+                        <strong>{{ 'i18n_download' | translate }}</strong>
+                    </button>
+                </span>
             </div>
         </div>
     }
     @if (reservation && enrolment().optionalSections.length > 0) {
         <xm-optional-sections [selectedSections]="enrolment().optionalSections" [allSections]="exam.examSections" />
     }
-    <div class="row mb-3 mt-2">
-        <div class="col">
-            <button
-                class="btn btn-outline-secondary"
-                [attr.aria-expanded]="showInstructions()"
-                [hidden]="!exam?.enrollInstruction && !collabExam?.enrollInstruction"
-                (click)="showInstructions.set(!showInstructions())"
-                [attr.aria-expanded]="showInstructions()"
-            >
-                {{ 'i18n_view_instructions' | translate }}
-                <i [hidden]="showInstructions()" class="bi bi-chevron-right"></i>
-                <i [hidden]="!showInstructions()" class="bi bi-chevron-down"></i>
-            </button>
+    @if (exam?.enrollInstruction || collabExam?.enrollInstruction) {
+        <div class="row mb-3 mt-2">
+            <div class="col">
+                <button
+                    class="btn btn-outline-secondary"
+                    [attr.aria-expanded]="showInstructions()"
+                    [hidden]="!exam?.enrollInstruction && !collabExam?.enrollInstruction"
+                    (click)="showInstructions.set(!showInstructions())"
+                    [attr.aria-expanded]="showInstructions()"
+                >
+                    {{ 'i18n_view_instructions' | translate }}
+                    <i [hidden]="showInstructions()" class="bi bi-chevron-right"></i>
+                    <i [hidden]="!showInstructions()" class="bi bi-chevron-down"></i>
+                </button>
+            </div>
+            <div aria-live="polite" class="row mb-3 mt-3">
+                @if (showInstructions()) {
+                    <div [xmMathJax]="exam?.enrollInstruction || collabExam?.enrollInstruction || ''"></div>
+                }
+            </div>
         </div>
-
-        <div class="col flex justify-content-end mb-3">
-            <xm-active-enrolment-menu
-                class="col"
-                [enrolment]="enrolment()"
-                (removed)="enrolmentRemoved($event)"
-            ></xm-active-enrolment-menu>
-        </div>
-    </div>
-    <div aria-live="polite" class="row mb-3 mt-3">
-        @if (showInstructions()) {
-            <div [xmMathJax]="exam?.enrollInstruction || collabExam?.enrollInstruction || ''"></div>
-        }
+    }
+    <div class="row mb-3">
+        <xm-active-enrolment-menu
+            [enrolment]="enrolment()"
+            (removed)="enrolmentRemoved($event)"
+        ></xm-active-enrolment-menu>
     </div>
 </div>
