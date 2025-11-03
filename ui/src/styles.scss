@@ -161,33 +161,7 @@ textarea.ng-invalid {
     text-decoration: none;
     cursor: pointer;
 }
-.exam-title-button {
-    font-size: 16px;
-    font-weight: 500;
-    color: shared.$exam-blue;
-    background: transparent;
-    border: none;
-    padding: 8px 12px;
-    display: inline-flex;
-    align-items: center;
-    transition: all 0.3s ease;
-    border-radius: 6px;
-    
-    &:hover, &:focus {
-        color: white;
-        background-color: shared.$exam-blue;
-    }
-    
-    .arrow_icon {
-        margin-left: 8px;
-        filter: invert(42%) sepia(40%) saturate(459%) hue-rotate(166deg) brightness(89%) contrast(85%);
-        transition: all 0.3s ease;
-    }
 
-    &:hover .arrow_icon, &:focus .arrow_icon {
-        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
-    }
-}
 /* numeric input */
 .xm-numeric-input {
     max-width: 7em;
@@ -235,9 +209,8 @@ textarea.ng-invalid {
         0px 0px 0px 1.5px rgb(255, 255, 255),
         0px 0px 0px 4px rgb(68, 120, 247) !important;
 }
-.search-append{
-  border: #dee2e6 1px solid;
-  border-radius: 5px;
-  padding: 6px;
+.search-append {
+    border: #dee2e6 1px solid;
+    border-radius: 5px;
+    padding: 6px;
 }
-
