@@ -81,16 +81,9 @@ export const APP_ROUTES: Route[] = [
     },
     {
         path: 'exams',
-        loadComponent: () => import('./enrolment/search/exam-search.component').then((mod) => mod.ExamSearchComponent),
-        title: () => buildTitle('i18n_exams_title'),
-    },
-    {
-        path: 'exams/collaborative',
         loadComponent: () =>
-            import('./enrolment/search/collaborative-exam-search.component').then(
-                (mod) => mod.CollaborativeExamSearchComponent,
-            ),
-        title: () => buildTitle('i18n_collaborative_exams_title'),
+            import('./enrolment/search/exam-search-tabs.component').then((mod) => mod.ExamSearchTabsComponent),
+        title: () => buildTitle('i18n_exams_title'),
     },
     {
         path: 'participations',

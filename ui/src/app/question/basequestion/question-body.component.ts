@@ -128,7 +128,7 @@ export class QuestionBodyComponent implements OnInit {
     };
 
     selectFile = () =>
-        this.Attachment.selectFile(true).then((data) => {
+        this.Attachment.selectFile$(true).subscribe((data) => {
             this.question.attachment = {
                 ...this.question.attachment,
                 modified: true,

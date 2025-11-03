@@ -5,7 +5,7 @@
 import { DatePipe, DecimalPipe, KeyValuePipe } from '@angular/common';
 import { Component, OnChanges, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
 import { DateTime } from 'luxon';
@@ -16,6 +16,7 @@ import { AbortedExamsComponent } from 'src/app/review/listing/dialogs/aborted.co
 import { NoShowsComponent } from 'src/app/review/listing/dialogs/no-shows.component';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import type { Review } from 'src/app/review/review.model';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { ChartService } from './chart.service';
 import { ExamSummaryService } from './exam-summary.service';
@@ -42,7 +43,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
 
     private route = inject(ActivatedRoute);
     private translate = inject(TranslateService);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private ChartService = inject(ChartService);
     private ExamSummary = inject(ExamSummaryService);
     private ReviewList = inject(ReviewListService);
@@ -110,9 +111,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
     };
 
     openAborted = () => {
-        const modalRef = this.modal.open(AbortedExamsComponent, {
-            backdrop: 'static',
-            keyboard: true,
+        const modalRef = this.modal.openRef(AbortedExamsComponent, {
             windowClass: 'question-editor-modal',
             size: 'xl',
         });
@@ -121,9 +120,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
     };
 
     openNoShows = () => {
-        const modalRef = this.modal.open(NoShowsComponent, {
-            backdrop: 'static',
-            keyboard: true,
+        const modalRef = this.modal.openRef(NoShowsComponent, {
             windowClass: 'question-editor-modal',
             size: 'xl',
         });

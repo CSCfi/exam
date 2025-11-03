@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/definitions.scss' as shared;
+
 .active-enrolment-container {
     // todo: use global container?
     border-radius: 4px;
@@ -21,43 +23,13 @@
 .active-enrolment-heading {
     a {
         font-size: 20px;
-        color: #266b99;
+        color: shared.$exam-blue;
         text-decoration: none;
     }
 }
 
 .exam-title-button {
     font-size: 24px;
-    font-weight: 500;
-    color: #266b99;
-    background: transparent;
-    border: none;
-    padding: 0;
-    text-align: left;
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    margin: 0;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border-radius: 6px;
-    padding: 8px 12px;
-    
-    &:hover, &:focus {
-        color: white;
-        background-color: #266b99;
-        text-decoration: none;
-    }
-    
-    .arrow_icon {
-        margin-left: 8px;
-        filter: invert(42%) sepia(40%) saturate(459%) hue-rotate(166deg) brightness(89%) contrast(85%);
-        transition: all 0.3s ease;
-    }
-
-    &:hover .arrow_icon, &:focus .arrow_icon {
-        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
-    }
 }
 
 .exam-ready {

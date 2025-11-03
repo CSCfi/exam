@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { inject, Injectable } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { from, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
+import { ModalService } from './modal.service';
 
 @Injectable({ providedIn: 'root' })
 export class ConfirmationDialogService {
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
 
     open$(
         title: string,
@@ -17,14 +17,11 @@ export class ConfirmationDialogService {
         confirmButtonText?: string,
         cancelButtonText?: string,
     ): Observable<boolean> {
-        const modalRef = this.modal.open(ConfirmationDialogComponent, {
-            backdrop: 'static',
-            keyboard: false,
-        });
+        const modalRef = this.modal.openRef(ConfirmationDialogComponent);
         modalRef.componentInstance.title = title;
         modalRef.componentInstance.description = description;
         modalRef.componentInstance.confirmButtonText = confirmButtonText;
         modalRef.componentInstance.cancelButtonText = cancelButtonText;
-        return from(modalRef.result);
+        return this.modal.result$<boolean>(modalRef);
     }
 }

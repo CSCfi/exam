@@ -10,16 +10,20 @@ import { catchError } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class ModalService {
     private ngbModal = inject(NgbModal);
+    private readonly defaultOptions: NgbModalOptions = {
+        backdrop: 'static',
+        keyboard: true,
+    };
 
     open$<T>(component: Type<unknown>, options?: NgbModalOptions): Observable<T> {
-        const modalRef: NgbModalRef = this.ngbModal.open(component, options);
+        const modalRef: NgbModalRef = this.ngbModal.open(component, { ...this.defaultOptions, ...options });
         return from(modalRef.result as Promise<T>).pipe(
             catchError(() => EMPTY), // User dismissed modal - complete gracefully
         );
     }
 
     openRef(component: Type<unknown>, options?: NgbModalOptions): NgbModalRef {
-        return this.ngbModal.open(component, options);
+        return this.ngbModal.open(component, { ...this.defaultOptions, ...options });
     }
 
     result$<T>(modalRef: NgbModalRef): Observable<T> {

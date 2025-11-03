@@ -7,7 +7,6 @@ import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
@@ -58,7 +57,6 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
 
     private router = inject(Router);
     private translate = inject(TranslateService);
-    private modal = inject(NgbModal);
     private ModalService = inject(ModalService);
     private toast = inject(ToastrService);
     private Dashboard = inject(TeacherDashboardService);
@@ -102,7 +100,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
 
     search = (text: string) => this.filterChanged.next(text);
 
-    printExamDuration = (exam: Exam) => this.DateTime.printExamDuration(exam);
+    printExamDuration = (exam: Exam) => this.DateTime.formatDuration(exam.duration);
 
     getUsername = () => this.Session.getUserName();
 

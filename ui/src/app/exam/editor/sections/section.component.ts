@@ -20,12 +20,11 @@ import {
     NgbDropdownItem,
     NgbDropdownMenu,
     NgbDropdownToggle,
-    NgbModal,
     NgbPopover,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { from, noop } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
@@ -34,6 +33,7 @@ import { QuestionScoringService } from 'src/app/question/question-scoring.servic
 import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { SectionQuestionComponent } from './section-question.component';
@@ -73,7 +73,7 @@ export class SectionComponent {
 
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private toast = inject(ToastrService);
     private dialogs = inject(ConfirmationDialogService);
     private QuestionScore = inject(QuestionScoringService);
@@ -92,18 +92,18 @@ export class SectionComponent {
     clearAllQuestions = () =>
         this.dialogs
             .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_remove_all_questions'))
+            .pipe(
+                switchMap(() =>
+                    this.http.delete(
+                        this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions`),
+                    ),
+                ),
+            )
             .subscribe({
                 next: () => {
-                    this.http
-                        .delete(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions`))
-                        .subscribe({
-                            next: () => {
-                                this.section.sectionQuestions.splice(0, this.section.sectionQuestions.length);
-                                this.section.lotteryOn = false;
-                                this.toast.info(this.translate.instant('i18n_all_questions_removed'));
-                            },
-                            error: (err) => this.toast.error(err),
-                        });
+                    this.section.sectionQuestions.splice(0, this.section.sectionQuestions.length);
+                    this.section.lotteryOn = false;
+                    this.toast.info(this.translate.instant('i18n_all_questions_removed'));
                 },
                 error: (err) => this.toast.error(err),
             });
@@ -225,20 +225,15 @@ export class SectionComponent {
             this.toast.error(this.translate.instant('i18n_error_drop_disabled_lottery_on'));
             return;
         }
-        const modal = this.modal.open(QuestionSelectorComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            windowClass: 'xm-xxl-modal',
-        });
+        const modal = this.modal.openRef(QuestionSelectorComponent, { windowClass: 'xm-xxl-modal' });
         modal.componentInstance.examId = this.examId;
         modal.componentInstance.sectionId = this.section.id;
         modal.componentInstance.questionCount = this.section.sectionQuestions.length;
-        modal.result
-            .then(
-                (questions: ExamSectionQuestion[]) =>
-                    (this.section.sectionQuestions = [...this.section.sectionQuestions, ...questions]),
-            )
-            .catch(noop);
+        this.modal
+            .result$<ExamSectionQuestion[]>(modal)
+            .subscribe(
+                (questions) => (this.section.sectionQuestions = [...this.section.sectionQuestions, ...questions]),
+            );
     };
 
     getSectionTotalScore = () => this.Exam.getSectionMaxScore(this.section);
@@ -315,10 +310,10 @@ export class SectionComponent {
         }
 
         if (attachment.modified && attachment.file) {
-            this.Files.upload<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
+            this.Files.upload$<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
                 examId: this.examId.toString(),
                 questionId: data.id.toString(),
-            }).then((resp) => {
+            }).subscribe((resp) => {
                 question.attachment = resp;
                 callback();
             });
@@ -326,15 +321,15 @@ export class SectionComponent {
     };
 
     private openBaseQuestionEditor = () => {
-        const modal = this.modal.open(BaseQuestionEditorComponent, {
-            backdrop: 'static',
-            keyboard: false,
+        const modal = this.modal.openRef(BaseQuestionEditorComponent, {
             windowClass: 'question-editor-modal',
             size: 'xl',
         });
         modal.componentInstance.newQuestion = true;
         modal.componentInstance.collaborative = this.collaborative;
         modal.componentInstance.isPopup = true;
-        from(modal.result).subscribe((resp) => this.insertExamQuestion(resp, this.section.sectionQuestions.length));
+        this.modal
+            .result$<Question>(modal)
+            .subscribe((resp) => this.insertExamQuestion(resp, this.section.sectionQuestions.length));
     };
 }

@@ -49,7 +49,7 @@ export class EnrolmentDetailsComponent {
             this.exam.gradeScale || (this.exam.course ? this.exam.course.gradeScale : undefined),
         );
 
-    printExamDuration = () => this.DateTime.printExamDuration(this.exam);
+    printExamDuration = () => this.DateTime.formatDuration(this.exam.duration);
 
     makeReservation = () => {
         if (this.exam.implementation !== 'AQUARIUM') {

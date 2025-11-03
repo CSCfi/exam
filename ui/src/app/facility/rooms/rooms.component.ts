@@ -118,7 +118,7 @@ export class RoomListComponent implements OnInit {
     enableRoom = (room: ExamRoom) => this.roomService.enableRoom(room);
 
     addExceptions = (exceptions: ExceptionWorkingHours[], examRoom: ExamRoom) => {
-        this.roomService.addExceptions([examRoom.id], exceptions).then((data) => {
+        this.roomService.addExceptions$([examRoom.id], exceptions).subscribe((data) => {
             const dataList: ExceptionWorkingHours[] = [];
             data.forEach((d) => {
                 if (!dataList.map((e) => e.id).includes(d.id)) {
@@ -130,7 +130,7 @@ export class RoomListComponent implements OnInit {
     };
 
     deleteException = (exception: ExceptionWorkingHours, examRoom: ExamRoom) => {
-        this.roomService.deleteException(examRoom.id, exception.id);
+        this.roomService.deleteException$(examRoom.id, exception.id).subscribe();
     };
     getNextExceptionEvent(ees: ExceptionWorkingHours[]): ExceptionWorkingHours[] {
         return ees

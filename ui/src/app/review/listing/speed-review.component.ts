@@ -7,12 +7,12 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import { forkJoin, noop, throwError } from 'rxjs';
+import { forkJoin, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Course, Exam, Grade, GradeScale, NoGrade, SelectableGrade } from 'src/app/exam/exam.model';
@@ -28,6 +28,7 @@ import { DateTimeService } from 'src/app/shared/date/date.service';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
 import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
@@ -75,7 +76,7 @@ export class SpeedReviewComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private translate = inject(TranslateService);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
     private toast = inject(ToastrService);
     private Exam = inject(ExamService);
     private CommonExam = inject(CommonExamService);
@@ -108,7 +109,7 @@ export class SpeedReviewComponent implements OnInit {
                             examParticipation: r,
                             grades: this.initGrades(r.exam),
                             displayName: r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id.toString(),
-                            duration: this.DateTime.getDuration(r.duration),
+                            duration: this.DateTime.formatDurationString(r.duration),
                             isUnderLanguageInspection: (r.exam.languageInspection &&
                                 !r.exam.languageInspection.finishedAt) as boolean,
                             selected: false,
@@ -120,10 +121,7 @@ export class SpeedReviewComponent implements OnInit {
     }
 
     showFeedbackEditor = (review: Review) => {
-        const modalRef = this.modal.open(SpeedReviewFeedbackComponent, {
-            backdrop: 'static',
-            keyboard: true,
-        });
+        const modalRef = this.modal.openRef(SpeedReviewFeedbackComponent);
         modalRef.componentInstance.exam = review.examParticipation.exam;
     };
 
@@ -174,16 +172,14 @@ export class SpeedReviewComponent implements OnInit {
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, {}, 'i18n_import_grades_from_csv').then((result) => {
-            this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {})
-                .then(() => {
-                    this.toast.success(`${this.translate.instant('i18n_csv_uploaded_successfully')}`);
+        this.Attachment.selectFile$(false, {}, 'i18n_import_grades_from_csv').subscribe((result) => {
+            this.Files.upload$('/app/gradeimport', result.$value.attachmentFile, {}).subscribe({
+                next: () => {
+                    this.toast.success(this.translate.instant('i18n_csv_uploaded_successfully'));
                     this.reload();
-                })
-                .catch(() => {
-                    this.toast.info(`${this.translate.instant('i18n_csv_uploading_cancelled')}`);
-                    return noop;
-                });
+                },
+                error: (err) => this.toast.error(err),
+            });
         });
     };
 

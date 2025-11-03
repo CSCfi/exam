@@ -5,7 +5,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, input, OnInit, signal } from '@angular/core';
-import { NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
@@ -14,6 +14,7 @@ import { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 
 @Component({
     imports: [NgbPopoverModule, TranslateModule, DatePipe],
@@ -79,7 +80,7 @@ export class ExaminationEventsComponent implements OnInit {
     maintenancePeriods = signal<MaintenancePeriod[]>([]);
 
     private HttpClient = inject(HttpClient);
-    private ModalService = inject(NgbModal);
+    private ModalService = inject(ModalService);
     private ToastrService = inject(ToastrService);
     private TranslateService = inject(TranslateService);
     private ConfirmationDialogService = inject(ConfirmationDialogService);
@@ -95,44 +96,30 @@ export class ExaminationEventsComponent implements OnInit {
         DateTime.fromISO(this.exam().periodEnd as string).startOf('day') < DateTime.now().startOf('day');
 
     addExaminationEvent = () => {
-        const modalRef = this.ModalService.open(ExaminationEventDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+        const modalRef = this.ModalService.openRef(ExaminationEventDialogComponent, { size: 'lg' });
         modalRef.componentInstance.requiresPassword = this.exam().implementation === 'CLIENT_AUTH';
         modalRef.componentInstance.examMinDate = this.exam().periodStart;
         modalRef.componentInstance.examMaxDate = this.exam().periodEnd;
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods();
         modalRef.componentInstance.examId = this.exam().id;
         modalRef.componentInstance.duration = this.exam().duration;
-        modalRef.result
-            .then((data: ExaminationEventConfiguration) => this.exam().examinationEventConfigurations.push(data))
-            .catch((err) => {
-                if (err) this.ToastrService.error(err);
-            });
+        this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((data) =>
+            this.exam().examinationEventConfigurations.push(data),
+        );
     };
 
     modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
-        const modalRef = this.ModalService.open(ExaminationEventDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+        const modalRef = this.ModalService.openRef(ExaminationEventDialogComponent, { size: 'lg' });
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam().implementation === 'CLIENT_AUTH';
         modalRef.componentInstance.examMaxDate = this.exam().periodEnd;
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods();
         modalRef.componentInstance.examId = this.exam().id;
         modalRef.componentInstance.duration = this.exam().duration;
-        modalRef.result
-            .then((config: ExaminationEventConfiguration) => {
-                const index = this.exam().examinationEventConfigurations.indexOf(configuration);
-                this.exam().examinationEventConfigurations.splice(index, 1, config); // CHECK
-            })
-            .catch((err) => {
-                if (err) this.ToastrService.error(err);
-            });
+        this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((config) => {
+            const index = this.exam().examinationEventConfigurations.indexOf(configuration);
+            this.exam().examinationEventConfigurations.splice(index, 1, config);
+        });
     };
 
     removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {

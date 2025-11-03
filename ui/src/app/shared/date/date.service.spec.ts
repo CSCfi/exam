@@ -26,37 +26,33 @@ describe('DateTimeService', () => {
 
     describe('printExamDuration', () => {
         it('should format duration with only hours', () => {
-            expect(service.printExamDuration({ duration: 120 })).toBe('2 h');
-            expect(service.printExamDuration({ duration: 60 })).toBe('1 h');
+            expect(service.formatDuration(120)).toBe('2 h');
+            expect(service.formatDuration(60)).toBe('1 h');
         });
 
         it('should format duration with only minutes', () => {
-            expect(service.printExamDuration({ duration: 45 })).toBe('45 min');
-            expect(service.printExamDuration({ duration: 30 })).toBe('30 min');
+            expect(service.formatDuration(45)).toBe('45 min');
+            expect(service.formatDuration(30)).toBe('30 min');
         });
 
         it('should format duration with hours and minutes', () => {
-            expect(service.printExamDuration({ duration: 90 })).toBe('1 h 30 min');
-            expect(service.printExamDuration({ duration: 125 })).toBe('2 h 5 min');
+            expect(service.formatDuration(90)).toBe('1 h 30 min');
+            expect(service.formatDuration(125)).toBe('2 h 5 min');
         });
 
         it('should return empty string for zero duration', () => {
-            expect(service.printExamDuration({ duration: 0 })).toBe('');
-        });
-
-        it('should return empty string for undefined duration', () => {
-            expect(service.printExamDuration({ duration: undefined as unknown as number })).toBe('');
+            expect(service.formatDuration(0)).toBe('');
         });
     });
 
     describe('getDuration', () => {
         it('should format ISO timestamp as HH:mm', () => {
-            expect(service.getDuration('2024-10-08T14:30:00Z')).toBe('14:30');
-            expect(service.getDuration('2024-10-08T09:05:00Z')).toBe('09:05');
+            expect(service.formatDurationString('2024-10-08T14:30:00Z')).toBe('14:30');
+            expect(service.formatDurationString('2024-10-08T09:05:00Z')).toBe('09:05');
         });
 
         it('should handle midnight', () => {
-            expect(service.getDuration('2024-10-08T00:00:00Z')).toBe('00:00');
+            expect(service.formatDurationString('2024-10-08T00:00:00Z')).toBe('00:00');
         });
     });
 

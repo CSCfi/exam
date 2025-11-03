@@ -50,10 +50,6 @@
                 {
                   "replace": "ui/src/environments/environment.ts",
                   "with": "ui/src/environments/environment.prod.ts"
-                },
-                {
-                  "replace": "ui/src/app/interceptors/auth-interceptor.ts",
-                  "with": "ui/src/app/interceptors/auth-interceptor.prod.ts"
                 }
               ],
               "outputHashing": "all",

@@ -57,7 +57,7 @@ export class ExaminationEssayQuestionComponent implements OnInit {
         if (this.isPreview || !this.exam) {
             return;
         }
-        this.Attachment.selectFile(false).then((data) => {
+        this.Attachment.selectFile$(false).subscribe((data) => {
             if (this.exam?.external) {
                 this.Files.uploadAnswerAttachment(
                     '/app/iop/attachment/question/answer',

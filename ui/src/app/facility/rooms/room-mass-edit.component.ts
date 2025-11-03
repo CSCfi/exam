@@ -127,19 +127,14 @@ export class MultiRoomComponent implements OnInit {
 
     addExceptions = (exceptions: ExceptionWorkingHours[]) =>
         this.roomService
-            .addExceptions(
+            .addExceptions$(
                 this.rooms.filter((r) => r.selected).map((r) => r.id),
                 exceptions,
             )
-            .then(() => {
-                this.loadRooms();
-            });
+            .subscribe(() => this.loadRooms());
 
-    deleteException = (exception: ExceptionWorkingHours, room: ExamRoom) => {
-        this.roomService.deleteException(room.id, exception.id).then(() => {
-            this.loadRooms();
-        });
-    };
+    deleteException = (exception: ExceptionWorkingHours, room: ExamRoom) =>
+        this.roomService.deleteException$(room.id, exception.id).subscribe(() => this.loadRooms());
 
     addMultiRoomException = (outOfService: boolean) => {
         const allExceptions = this.rooms

@@ -8,6 +8,7 @@ import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { switchMap } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { MaturityService } from 'src/app/review/assessment/maturity/maturity.service';
@@ -64,17 +65,22 @@ export class StatementComponent {
 
     removeAttachment = () => this.Attachment.removeStatementAttachment(this.exam);
 
-    selectFile = () => {
-        this.Attachment.selectFile(false, {}).then((res: FileResult) =>
-            this.Maturity.saveInspectionStatement$(this.exam).subscribe(() => {
-                this.Files.upload<Attachment>(
-                    `/app/attachment/exam/${this.exam.id}/statement`,
-                    res.$value.attachmentFile,
-                    { examId: this.exam.id.toString() },
-                ).then((resp) => {
-                    this.exam.languageInspection.statement.attachment = resp;
-                });
-            }),
-        );
-    };
+    selectFile = () =>
+        this.Attachment.selectFile$(false, {})
+            .pipe(
+                switchMap((res: FileResult) =>
+                    this.Maturity.saveInspectionStatement$(this.exam).pipe(
+                        switchMap(() =>
+                            this.Files.upload$<Attachment>(
+                                `/app/attachment/exam/${this.exam.id}/statement`,
+                                res.$value.attachmentFile,
+                                { examId: this.exam.id.toString() },
+                            ),
+                        ),
+                    ),
+                ),
+            )
+            .subscribe((resp) => {
+                this.exam.languageInspection.statement.attachment = resp;
+            });
 }
