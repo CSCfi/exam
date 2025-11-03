@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
 # Scala Validators for Play Framework
 
 This document explains how to use the Scala-friendly validator system with Play Framework Scala controllers.
@@ -34,13 +38,13 @@ class MyController @Inject()(
 ### Step 2: Use with andThen
 
 ```scala
-import validation.scala.ScalaCommaJoinedListValidator
+import validation.scala.CommaJoinedListValidator
 import validation.scala.core.ScalaAttrs
 
 def myAction: Action[AnyContent] =
   Action
     .andThen(authorized(Seq(Role.Name.ADMIN)))
-    .andThen(validators.validated(ScalaCommaJoinedListValidator)) { request =>
+    .andThen(validators.validated(CommaJoinedListValidator)) { request =>
       val ids = request.attrs(ScalaAttrs.ID_LIST)
       Ok(s"Processing IDs: $ids")
     }

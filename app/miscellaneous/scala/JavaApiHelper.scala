@@ -4,19 +4,19 @@
 
 package miscellaneous.scala
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import io.ebean.Model
-import play.api.libs.json.jackson.PlayJsonMapperModule
-import play.api.libs.json.{JsValue, JsonConfig}
-import play.libs.Json as JavaJson
+import io.ebean.{DB, Model}
+import play.api.libs.json.{JsValue, Json}
+
+import scala.jdk.CollectionConverters.*
 
 trait JavaApiHelper:
 
-  private val jsonSettings = JsonConfig.settings
-  private val mapper       = new ObjectMapper().registerModule(new PlayJsonMapperModule(jsonSettings))
-
   extension [T <: Model](model: T)
-    def asJson: JsValue = mapper.readValue(JavaJson.toJson(model).toString, classOf[JsValue])
+    def asJson: JsValue = 
+      // Use Ebean's JSON service which has proper circular reference handling + Joda support
+      Json.parse(DB.json().toJson(model))
 
   extension [T <: Model](model: Iterable[T])
-    def asJson: JsValue = mapper.readValue(JavaJson.toJson(model).toString, classOf[JsValue])
+    def asJson: JsValue = 
+      // Use Ebean's JSON service which has proper circular reference handling + Joda support
+      Json.parse(DB.json().toJson(model.toSeq.asJava))

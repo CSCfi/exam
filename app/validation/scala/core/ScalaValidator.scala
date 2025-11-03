@@ -7,7 +7,6 @@ package validation.scala.core
 import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json.JsValue
 import play.api.mvc.*
-import validation.scala.core.SanitizingException
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -77,14 +76,14 @@ trait PlayJsonValidator:
       case None =>
         Left(Results.BadRequest("JSON body required"))
 
-  /** Create an ActionFilter that applies this validator
+  /** Create an ActionRefiner that applies this validator and enriches the request
     */
-  def filter(implicit ec: ExecutionContext): ActionFilter[Request] = new ActionFilter[Request] {
+  def filter(implicit ec: ExecutionContext): ActionRefiner[Request, Request] = new ActionRefiner[Request, Request] {
     override def executionContext: ExecutionContext = ec
 
-    override def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
+    override def refine[A](input: Request[A]): Future[Either[Result, Request[A]]] = Future.successful {
       validate(input.asInstanceOf[Request[AnyContent]]) match
-        case Left(errorResult) => Some(errorResult)
-        case Right(_)          => None
+        case Left(errorResult) => Left(errorResult)
+        case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[A]])
     }
   }

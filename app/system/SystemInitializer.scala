@@ -15,10 +15,9 @@ import play.api.{Environment, Logging, Mode}
 import repository.DatabaseExecutionContext
 
 import java.nio.charset.Charset
-import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.Future
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.control.Exception.catching
 
@@ -70,15 +69,10 @@ class SystemInitializer @Inject() (
   }
 
   private def schedule(actor: ActorRef, delay: Int, interval: Int): Cancellable =
-    system.scheduler.scheduleAtFixedRate(
-      Duration.create(delay, TimeUnit.SECONDS),
-      Duration.create(interval, TimeUnit.MINUTES),
-      actor,
-      "tick"
-    )
+    system.scheduler.scheduleAtFixedRate(delay.seconds, interval.minutes, actor, "tick")
 
   private def scheduleWeeklyReport(): Unit =
-    val delay = Duration.create(secondsUntilNextMondayRun(), TimeUnit.SECONDS)
+    val delay = secondsUntilNextMondayRun().seconds
     if reporter.nonEmpty then reporter.get.cancel()
     val newTask = system.scheduler.scheduleOnce(
       delay,

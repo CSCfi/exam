@@ -23,6 +23,8 @@ object SanitizingHelper:
     .addAttributes("a", "target")
     .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
     .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption")
+    .addTags("math-field")
+    .addAttributes("math-field", "data-expression", "read-only", "math-virtual-keyboard-policy")
 
   // Parse a field from JsonNode with type safety.
   def parse[T: ClassTag](fieldName: String, node: JsonNode): Option[T] =

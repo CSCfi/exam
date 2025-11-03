@@ -4,20 +4,30 @@
 
 package validation.scala
 
-import com.fasterxml.jackson.databind.JsonNode
-import play.mvc.Http
+import play.api.libs.json.*
+import play.api.mvc.*
 import validation.scala.core.*
-import validation.java.core.{Attrs, ValidatorAction}
 
-import scala.jdk.CollectionConverters.*
+object CommaJoinedListValidator extends PlayJsonValidator:
 
-class CommaJoinedListValidator extends ValidatorAction:
-
-  override def sanitize(req: Http.Request, body: JsonNode): Http.Request = {
+  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
     // Alternative path for file download requests that have params field
-    val root = if body.path("params.ids").isArray then body.get("params") else body
-    SanitizingHelper.parseCommaSeparated[java.lang.Long]("ids", root) match
-      case Some(ids) if ids.nonEmpty => req.addAttr(Attrs.ID_COLLECTION, ids.asJava)
-      case Some(_)                   => throw SanitizingException("empty list")
-      case None                      => throw SanitizingException("bad list")
-  }
+    val root: JsValue = (json \ "params" \ "ids").toOption match
+      case Some(_) => (json \ "params").as[JsValue]
+      case None    => json
+
+    // Try parsing as Long IDs first
+    PlayJsonHelper.parseCommaSeparatedLongs("ids", root) match
+      case Some(ids) if ids.nonEmpty =>
+        Right(request.addAttr(ScalaAttrs.ID_LIST, ids))
+      case Some(_) =>
+        Left(Results.BadRequest("empty list"))
+      case None =>
+        // If Long parsing failed, try parsing as Strings
+        PlayJsonHelper.parseCommaSeparatedStrings("ids", root) match
+          case Some(stringIds) if stringIds.nonEmpty =>
+            Right(request.addAttr(ScalaAttrs.STRING_LIST, stringIds))
+          case Some(_) =>
+            Left(Results.BadRequest("empty list"))
+          case None =>
+            Left(Results.BadRequest("no ids found"))

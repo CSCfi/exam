@@ -154,68 +154,66 @@ private object ExamParser:
       }
 
     // Handle feedback config
-    (body \ "feedbackConfig").asOpt[JsValue].foreach { node =>
-      node match
-        case JsNull => exam.setExamFeedbackConfig(null)
-        case obj: JsObject =>
-          val config = new models.assessment.ExamFeedbackConfig()
-          config.setReleaseType(
-            PlayJsonHelper
-              .parseEnum("releaseType", obj, classOf[models.assessment.ExamFeedbackConfig.ReleaseType])
-              .getOrElse(throw SanitizingException("bad releaseType"))
-          )
+    (body \ "feedbackConfig").asOpt[JsValue] match
+      case Some(JsNull) =>
+        exam.setExamFeedbackConfig(null)
+      case Some(obj: JsObject) =>
+        val config = new models.assessment.ExamFeedbackConfig()
+        config.setReleaseType(
           PlayJsonHelper
-            .parse[Long]("releaseDate", obj)
-            .foreach(rd => config.setReleaseDate(new org.joda.time.DateTime(rd)))
-          exam.setExamFeedbackConfig(config)
-        case _ => // ignore
-    }
+            .parseEnum("releaseType", obj, classOf[models.assessment.ExamFeedbackConfig.ReleaseType])
+            .getOrElse(throw SanitizingException("bad releaseType"))
+        )
+        PlayJsonHelper
+          .parse[Long]("releaseDate", obj)
+          .foreach(rd => config.setReleaseDate(new org.joda.time.DateTime(rd)))
+        exam.setExamFeedbackConfig(config)
+      case _ => // None or other JsValue types
 
     // Handle auto-evaluation config
-    (body \ "evaluationConfig").asOpt[JsValue].foreach { node =>
-      node match
-        case JsNull => exam.setAutoEvaluationConfig(null)
-        case obj: JsObject =>
-          val config = new models.assessment.AutoEvaluationConfig()
-          config.setReleaseType(
-            PlayJsonHelper
-              .parseEnum("releaseType", obj, classOf[models.assessment.AutoEvaluationConfig.ReleaseType])
-              .getOrElse(throw SanitizingException("bad releaseType"))
-          )
-          config.setAmountDays(
-            PlayJsonHelper.parse[Int]("amountDays", obj).map(Integer.valueOf).orNull
-          )
+    (body \ "evaluationConfig").asOpt[JsValue] match
+      case Some(JsNull) =>
+        exam.setAutoEvaluationConfig(null)
+      case Some(obj: JsObject) =>
+        val config = new models.assessment.AutoEvaluationConfig()
+        config.setReleaseType(
           PlayJsonHelper
-            .parse[Long]("releaseDate", obj)
-            .foreach(rd => config.setReleaseDate(new Date(rd)))
-          config.setGradeEvaluations(new util.HashSet())
+            .parseEnum("releaseType", obj, classOf[models.assessment.AutoEvaluationConfig.ReleaseType])
+            .getOrElse(throw SanitizingException("bad releaseType"))
+        )
+        config.setAmountDays(
+          PlayJsonHelper.parse[Int]("amountDays", obj).map(Integer.valueOf).orNull
+        )
+        PlayJsonHelper
+          .parse[Long]("releaseDate", obj)
+          .foreach(rd => config.setReleaseDate(new Date(rd)))
+        config.setGradeEvaluations(new util.HashSet())
 
-          (obj \ "gradeEvaluations").asOpt[List[JsValue]].foreach { gradeEvaluations =>
-            gradeEvaluations.foreach { evaluation =>
-              val ge = new models.assessment.GradeEvaluation()
+        (obj \ "gradeEvaluations").asOpt[List[JsValue]].foreach { gradeEvaluations =>
+          gradeEvaluations.foreach { evaluation =>
+            val ge = new models.assessment.GradeEvaluation()
 
-              val gradeObj = (evaluation \ "grade").asOpt[JsObject]
-                .filter(g => (g \ "id").isDefined)
+            val gradeObj = (evaluation \ "grade").asOpt[JsObject]
+              .filter(g => (g \ "id").isDefined)
+              .getOrElse(throw SanitizingException("invalid grade"))
+
+            val grade = new models.exam.Grade()
+            grade.setId(
+              PlayJsonHelper
+                .parse[Int]("id", gradeObj)
                 .getOrElse(throw SanitizingException("invalid grade"))
-
-              val grade = new models.exam.Grade()
-              grade.setId(
-                PlayJsonHelper
-                  .parse[Int]("id", gradeObj)
-                  .getOrElse(throw SanitizingException("invalid grade"))
-              )
-              ge.setGrade(grade)
-              ge.setPercentage(
-                PlayJsonHelper
-                  .parse[Int]("percentage", evaluation)
-                  .getOrElse(throw SanitizingException("no percentage"))
-              )
-              config.getGradeEvaluations.add(ge)
-            }
+            )
+            ge.setGrade(grade)
+            ge.setPercentage(
+              PlayJsonHelper
+                .parse[Int]("percentage", evaluation)
+                .getOrElse(throw SanitizingException("no percentage"))
+            )
+            config.getGradeEvaluations.add(ge)
           }
+        }
 
-          exam.setAutoEvaluationConfig(config)
-        case _ => // ignore
-    }
+        exam.setAutoEvaluationConfig(config)
+      case _ => // None or other JsValue types
 
     exam

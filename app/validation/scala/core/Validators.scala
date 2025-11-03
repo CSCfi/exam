@@ -4,7 +4,7 @@
 
 package validation.scala.core
 
-import play.api.mvc.ActionFilter
+import play.api.mvc.ActionRefiner
 import security.scala.AuthExecutionContext
 
 import javax.inject.Inject
@@ -13,7 +13,7 @@ import javax.inject.Inject
   */
 class Validators @Inject() (implicit ec: AuthExecutionContext):
 
-  /** Create a validator filter from a PlayJsonValidator instance
+  /** Create a validator refiner from a PlayJsonValidator instance
     */
-  def validated(validator: PlayJsonValidator): ActionFilter[play.api.mvc.Request] =
+  def validated(validator: PlayJsonValidator): ActionRefiner[play.api.mvc.Request, play.api.mvc.Request] =
     validator.filter

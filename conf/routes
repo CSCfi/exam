@@ -54,10 +54,10 @@ DELETE        /app/exam/:eid/owner/:uid                                       co
 
 
 ############### Exam inspection interface ###############
-GET           /app/exam/:id/inspections                                       controllers.assessment.ExamInspectionController.getExamInspections(id: Long)
-POST          /app/exams/:eid/inspector/:uid                                  controllers.assessment.ExamInspectionController.addInspection(eid: Long, uid: Long, request: Request)
+GET           /app/exam/:id/inspections                                       controllers.assessment.ExamInspectionController.listInspections(id: Long)
+POST          /app/exams/:eid/inspector/:uid                                  controllers.assessment.ExamInspectionController.addInspection(eid: Long, uid: Long)
 DELETE        /app/exams/inspector/:id                                        controllers.assessment.ExamInspectionController.deleteInspection(id: Long)
-PUT           /app/exams/inspection/:id                                       controllers.assessment.ExamInspectionController.setInspectionOutcome(id: Long, request: Request)
+PUT           /app/exams/inspection/:id                                       controllers.assessment.ExamInspectionController.setOutcome(id: Long)
 
 ############### Printout exam interface ###############
 POST          /app/exam/:id/examinationdate                                   controllers.enrolment.ExaminationEventController.insertExaminationDate(id: Long, request: Request)
@@ -142,21 +142,21 @@ PUT           /app/exams/:eid/sections/:sid/questions/:qid                    co
 PUT           /app/exams/:eid/sections/:sid/questions/:qid/distributed        controllers.exam.ExamSectionController.updateDistributedExamQuestion(eid: Long, sid: Long, qid: Long, request: Request)
 
 ############### Review interface ###############
-GET           /app/reviews/:id                                                controllers.assessment.ReviewController.getExamReviews(id: Long, request: Request)
-PUT           /app/review/:id                                                 controllers.assessment.ReviewController.reviewExam(id: Long, request: Request)
-PUT           /app/review/:id/info                                            controllers.assessment.ReviewController.updateAssessmentInfo(id: Long, request: Request)
-PUT           /app/review/examquestion/:id/score                              controllers.assessment.ReviewController.scoreExamQuestion(id: Long, request: Request)
-PUT           /app/review/examquestion/:id/score/force                        controllers.assessment.ReviewController.forceScoreExamQuestion(id: Long, request: Request)
-PUT           /app/review/:eid/comment                                        controllers.assessment.ReviewController.updateComment(eid: Long, request: Request)
-PUT           /app/review/:eid/comment/:cid/feedbackstatus                    controllers.assessment.ReviewController.setCommentStatusRead(eid: Long, cid: Long, request: Request)
-GET           /app/noshows/:eid                                               controllers.assessment.ReviewController.listNoShows(eid: Long, collaborative: java.util.Optional[java.lang.Boolean], request: Request)
-PUT           /app/reviews/archive                                            controllers.assessment.ReviewController.archiveExams(request: Request)
-GET           /app/review/:eid                                                controllers.assessment.ReviewController.getExamReview(eid: Long, request: Request)
+GET           /app/reviews/:id                                                controllers.assessment.ReviewController.listReviews(id: Long)
+PUT           /app/review/:id                                                 controllers.assessment.ReviewController.reviewExam(id: Long)
+PUT           /app/review/:id/info                                            controllers.assessment.ReviewController.updateAssessmentInfo(id: Long)
+PUT           /app/review/examquestion/:id/score                              controllers.assessment.ReviewController.scoreExamQuestion(id: Long)
+PUT           /app/review/examquestion/:id/score/force                        controllers.assessment.ReviewController.forceScoreExamQuestion(id: Long)
+PUT           /app/review/:eid/comment                                        controllers.assessment.ReviewController.updateComment(eid: Long)
+PUT           /app/review/:eid/comment/:cid/feedbackstatus                    controllers.assessment.ReviewController.markCommentAsRead(eid: Long, cid: Long)
+GET           /app/noshows/:eid                                               controllers.assessment.ReviewController.listNoShows(eid: Long, collaborative: Option[Boolean])
+PUT           /app/reviews/archive                                            controllers.assessment.ReviewController.archiveExams
+GET           /app/review/:eid                                                controllers.assessment.ReviewController.getReview(eid: Long)
 GET           /app/review/:id/locked                                          controllers.assessment.ReviewController.hasLockedAssessments(id: Long)
-GET           /app/examparticipations/:eid                                    controllers.assessment.ReviewController.getParticipationsForExamAndUser(eid: Long, request: Request)
-GET           /app/usernoshows/:eid                                           controllers.assessment.ReviewController.listNoShowsForExamAndUser(eid: Long, request: Request)
-POST          /app/email/inspection/:eid                                      controllers.assessment.ReviewController.sendInspectionMessage(eid: Long, request: Request)
-POST          /app/review/:id/inspection                                      controllers.assessment.ReviewController.addInspectionComment(id: Long, request: Request)
+GET           /app/examparticipations/:eid                                    controllers.assessment.ReviewController.listParticipationsForExamAndUser(eid: Long)
+GET           /app/usernoshows/:eid                                           controllers.assessment.ReviewController.listNoShowsForExamAndUser(eid: Long)
+POST          /app/email/inspection/:eid                                      controllers.assessment.ReviewController.sendInspectionMessage(eid: Long)
+POST          /app/review/:id/inspection                                      controllers.assessment.ReviewController.addComment(id: Long)
 POST          /app/gradeimport                                                controllers.assessment.ReviewDocumentsController.importGrades
 GET           /app/exam/:eid/attachments                                      controllers.assessment.ReviewDocumentsController.getArchivedAttachments(eid: Long, start: Option[String], end: Option[String])
 

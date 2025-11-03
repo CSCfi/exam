@@ -15,8 +15,8 @@ import play.api.Logging
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration.Duration
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.{Duration, DurationInt}
+import scala.jdk.CollectionConverters.*
 
 class AutoEvaluationHandlerImpl @Inject (
     private val composer: EmailComposer,
@@ -36,10 +36,7 @@ class AutoEvaluationHandlerImpl @Inject (
         exam.setAutoEvaluationNotified(DateTime.now)
         exam.update()
         val student = exam.getCreator
-        actor.scheduler.scheduleOnce(
-          Duration.create(5, TimeUnit.SECONDS),
-          () => composer.composeInspectionReady(student, null, exam)
-        )
+        actor.scheduler.scheduleOnce(5.seconds, () => composer.composeInspectionReady(student, null, exam))
         logger.debug(s"Mail sent about automatic evaluation to ${student.getEmail}")
 
   private def process(exam: Exam): Unit =

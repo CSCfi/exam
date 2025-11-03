@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.admin
 
 import io.ebean.text.PathProperties
@@ -15,7 +19,7 @@ import play.api.mvc.*
 import security.scala.Auth.authorized
 import security.scala.AuthExecutionContext
 import validation.scala.core.{ScalaAttrs, Validators}
-import validation.scala.ScalaCommaJoinedListValidator
+import validation.scala.CommaJoinedListValidator
 
 import java.util.Base64
 import javax.inject.Inject
@@ -173,7 +177,7 @@ class ReportController @Inject() (
   def exportExamQuestionScoresAsExcel(examId: Long): Action[AnyContent] =
     Action
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
-      .andThen(validators.validated(ScalaCommaJoinedListValidator)) { request =>
+      .andThen(validators.validated(CommaJoinedListValidator)) { request =>
         val childIds = request.attrs(ScalaAttrs.ID_LIST)
         Try(excelBuilder.buildScoreExcel(examId, childIds.map(Long.box).asJava)) match
           case Success(bos) =>
