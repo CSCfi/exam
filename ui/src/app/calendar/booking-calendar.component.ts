@@ -214,7 +214,5 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
         };
     }
     // Fix for FullCalendar locale
-    private resolveCalendarLocale(lang: string): string {
-        return lang === 'en' ? 'en-gb' : lang;
-    }
+    private resolveCalendarLocale = (lang: string) => (lang === 'en' ? 'en-gb' : lang);
 }
