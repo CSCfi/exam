@@ -39,6 +39,7 @@ import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
 import scala.jdk.javaapi.CollectionConverters;
+import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import validation.java.EmailSanitizer;
 import validation.java.core.Attrs;
@@ -212,11 +213,20 @@ public class CollaborativeExamController extends CollaborationController {
                         if (isAuthorizedToView(exam, user, homeOrg)) {
                             Exam.State previousState = exam.getState();
                             Optional<Result> error = Stream.of(
-                                examUpdater.updateTemporalFieldsAndValidate(exam, user, payload),
-                                examUpdater.updateStateAndValidate(exam, user, payload)
+                                OptionConverters.toJava(
+                                    examUpdater
+                                        .updateTemporalFieldsAndValidate(exam, user, payload)
+                                        .map(play.api.mvc.Result::asJava)
+                                ),
+                                OptionConverters.toJava(
+                                    examUpdater
+                                        .updateStateAndValidate(exam, user, payload)
+                                        .map(play.api.mvc.Result::asJava)
+                                )
                             )
                                 .flatMap(Optional::stream)
                                 .findFirst();
+
                             if (error.isPresent()) {
                                 return wrapAsPromise(error.get());
                             }
@@ -264,7 +274,9 @@ public class CollaborativeExamController extends CollaborationController {
                 return downloadExam(ce).thenComposeAsync(result -> {
                     if (result.isPresent()) {
                         Exam exam = result.get();
-                        Optional<Result> error = examUpdater.updateLanguage(exam, code, user);
+                        Optional<Result> error = OptionConverters.toJava(
+                            examUpdater.updateLanguage(exam, code, user).map(play.api.mvc.Result::asJava)
+                        );
                         return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, user);
                     }
                     return wrapAsPromise(notFound());

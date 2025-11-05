@@ -4,12 +4,14 @@
 
 package miscellaneous.csv
 
+import com.google.inject.ImplementedBy
 import com.opencsv.exceptions.CsvException
 import models.user.{Role, User}
 import play.api.libs.json.JsValue
 
 import java.io.File
 
+@ImplementedBy(classOf[CsvBuilderImpl])
 trait CsvBuilder:
   @throws[java.io.IOException]
   def build(startDate: Long, endDate: Long): File

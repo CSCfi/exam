@@ -214,8 +214,7 @@ class ExternalCourseHandlerImpl @Inject (
     val urlConfigPrefix = "exam.integration.courseUnitInfo.url"
     val configPathForOrg =
       Option(organisation)
-        .map(_.getCode)
-        .nonNull
+        .flatMap(o => Option(o.getCode))
         .flatMap(c => Option(s"$urlConfigPrefix.$c").filter(configReader.hasPath))
     val configPath = configPathForOrg.orElse {
       val path = String.format("%s.%s", urlConfigPrefix, "default")

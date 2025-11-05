@@ -9,7 +9,6 @@ import org.joda.time.DateTime
 import play.api.libs.json.*
 import validation.scala.core.SanitizingException
 import validation.scala.core.*
-import validation.java.core.Attrs
 
 import scala.jdk.CollectionConverters.*
 

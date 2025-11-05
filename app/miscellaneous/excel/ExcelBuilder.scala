@@ -4,12 +4,14 @@
 
 package miscellaneous.excel
 
+import com.google.inject.ImplementedBy
 import models.exam.Exam
 import models.user.User
 import play.i18n.MessagesApi
 
 import java.io.ByteArrayOutputStream
 
+@ImplementedBy(classOf[ExcelBuilderImpl])
 trait ExcelBuilder:
 
   @throws[java.io.IOException]

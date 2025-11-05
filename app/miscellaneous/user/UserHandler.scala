@@ -4,8 +4,9 @@
 
 package miscellaneous.user
 
+import com.google.inject.ImplementedBy
 import io.ebean.ExpressionList
 
+@ImplementedBy(classOf[UserHandlerImpl])
 trait UserHandler:
   def applyNameSearch[T](prefix: String, query: ExpressionList[T], filter: String): ExpressionList[T]
-

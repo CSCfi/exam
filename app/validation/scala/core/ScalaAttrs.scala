@@ -5,6 +5,7 @@
 package validation.scala.core
 
 import play.api.libs.typedmap.TypedKey
+import validation.scala.calendar.{ReservationDTO, ExternalReservationDTO}
 
 /** Scala-friendly typed keys for request attributes
   */
@@ -16,3 +17,7 @@ object ScalaAttrs:
   val COMMENT: TypedKey[String]          = TypedKey[String]("comment")
   val COMMENT_ID: TypedKey[Long]         = TypedKey[Long]("commentId")
   val FEEDBACK_STATUS: TypedKey[Boolean] = TypedKey[Boolean]("feedbackStatus")
+  
+  // Reservation validation
+  val ATTR_STUDENT_RESERVATION: TypedKey[ReservationDTO] = TypedKey[ReservationDTO]("studentReservation")
+  val ATTR_EXT_RESERVATION: TypedKey[ExternalReservationDTO] = TypedKey[ExternalReservationDTO]("externalReservation")

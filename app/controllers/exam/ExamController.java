@@ -44,6 +44,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.Anonymous;
 import validation.java.core.Attrs;
@@ -359,10 +360,11 @@ public class ExamController extends BaseController {
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             return examUpdater
                 .updateTemporalFieldsAndValidate(exam, user, payload)
-                .orElseGet(() ->
+                .getOrElse(() ->
                     examUpdater
                         .updateStateAndValidate(exam, user, payload)
-                        .orElseGet(() -> handleExamUpdate(exam, user, payload))
+                        .map(play.api.mvc.Result::asJava)
+                        .getOrElse(() -> handleExamUpdate(exam, user, payload))
                 );
         } else {
             return forbidden("i18n_error_access_forbidden");
@@ -419,12 +421,12 @@ public class ExamController extends BaseController {
             return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return examUpdater
-            .updateLanguage(exam, code, user)
-            .orElseGet(() -> {
-                exam.update();
-                return ok();
-            });
+        return OptionConverters.toJava(
+            examUpdater.updateLanguage(exam, code, user).map(play.api.mvc.Result::asJava)
+        ).orElseGet(() -> {
+            exam.update();
+            return ok();
+        });
     }
 
     @Authenticated

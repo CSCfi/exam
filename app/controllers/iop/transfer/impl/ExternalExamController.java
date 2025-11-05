@@ -197,7 +197,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (clone.getState().equals(Exam.State.REVIEW)) {
             GeneralSettings settings = configReader.getOrCreateSettings(
                 "review_deadline",
-                null,
+                OptionConverters.toScala(Optional.empty()),
                 OptionConverters.toScala(Optional.of("14"))
             );
             int deadlineDays = Integer.parseInt(settings.getValue());

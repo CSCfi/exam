@@ -57,9 +57,9 @@ class NoShowHandlerImpl @Inject (
     val locals = noShows.filter(isNoShow).filter(ns => isLocal(ns) || isCollaborative(ns))
     locals.foreach(handleNoShowAndNotify)
     val externals = noShows.filter(ns =>
-      val ref = Option(ns.getReservation).map(_.getExternalRef).nonNull
+      val ref = Option(ns.getReservation).flatMap(r => Option(r.getExternalRef))
       ref.nonEmpty && !ns.getReservation.isSentAsNoShow &&
-      (Option(ns.getUser).isEmpty || Option(ns.getExternalExam).map(_.getStarted).nonNull.isEmpty)
+      (Option(ns.getUser).isEmpty || Option(ns.getExternalExam).flatMap(e => Option(e.getStarted)).isEmpty)
     )
     // Send to XM for further processing
     // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed

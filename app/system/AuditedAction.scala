@@ -28,6 +28,9 @@ class AuditedAction @Inject() (parser: BodyParsers.Default)(implicit ec: Executi
       val logEntry = s"$userString $method $uri"
       // Do not log body of data import request to avoid logs getting unreadable.
       if method == "POST" || method == "PUT" && request.path != "/integration/iop/import" then
-        val json = if !request.hasBody then None else request.body.asInstanceOf[AnyContent].asJson
+        val json = request.body match
+          case ac: AnyContent => ac.asJson
+          case jv: play.api.libs.json.JsValue => Some(jv)
+          case _ => None
         logger.debug(s"$logEntry data: ${json.getOrElse("")}")
       else logger.debug(logEntry)
