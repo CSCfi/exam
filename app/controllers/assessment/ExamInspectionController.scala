@@ -57,9 +57,9 @@ class ExamInspectionController @Inject() (
               c.setComment(text)
               inspection.setComment(c)
               c.save()
-              actorSystem.scheduler.scheduleOnce(
-                1.seconds
-              )(emailComposer.composeExamReviewRequest(recipient, user, exam, text))
+              actorSystem.scheduler.scheduleOnce(1.seconds)(
+                emailComposer.composeExamReviewRequest(recipient, user, exam, text)
+              )
             case None => ()
           inspection.save()
           // Add also as inspector to ongoing child exams if not already there.

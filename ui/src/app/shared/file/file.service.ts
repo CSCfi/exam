@@ -25,7 +25,7 @@ export class FileService {
     download(
         url: string,
         filename: string,
-        params?: Record<string, string | string[] | number | number[] | boolean | boolean[]>,
+        params?: Record<string, string | string[] | number | number[] | boolean | boolean[] | (string | number)[]>,
         post?: boolean,
     ) {
         const method = post ? 'POST' : 'GET';

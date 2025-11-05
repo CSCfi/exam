@@ -130,7 +130,7 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
         this.Files.download(
             url + this.exam.id,
             `${this.translate.instant('i18n_grading_info')}_${DateTime.now().toFormat('dd-MM-yyyy')}.${fileType}`,
-            { childIds: ids.map((i) => i.toString()) },
+            { ids: ids },
             true,
         );
     };

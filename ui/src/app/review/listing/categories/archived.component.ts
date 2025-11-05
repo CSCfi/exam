@@ -100,7 +100,7 @@ export class ArchivedReviewsComponent implements OnInit {
         this.Files.download(
             url + this.exam.id,
             `${this.Translate.instant('i18n_grading_info')}_${DateTime.now().toFormat('dd-MM-yyyy')}.xlsx`,
-            { childIds: ids.map((i) => i.toString()) },
+            { ids: ids },
             true,
         );
     };

@@ -75,11 +75,11 @@ GET           /app/examinationevents/conflicting                              co
 GET           /app/exam/:id/questions                                         controllers.assessment.QuestionReviewController.getEssays(id: Long, ids: java.util.Optional[LongList], request: Request)
 
 ############### Exam record interface ###############
-POST          /app/exam/record                                                controllers.assessment.ExamRecordController.addExamRecord(request: Request)
-POST          /app/exam/register                                              controllers.assessment.ExamRecordController.registerExamWithoutRecord(request: Request)
-GET           /app/exam/record                                                controllers.assessment.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
-POST          /app/exam/record/export/:id                                     controllers.assessment.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long, request: Request)
-POST          /app/exam/record/export/report/:id                              controllers.assessment.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long, request: Request)
+POST          /app/exam/record                                                controllers.assessment.ExamRecordController.addExamRecord()
+POST          /app/exam/register                                              controllers.assessment.ExamRecordController.registerExamWithoutRecord()
+GET           /app/exam/record                                                controllers.assessment.ExamRecordController.exportExamRecordsAsCsv(start: Long, end: Long)
+POST          /app/exam/record/export/:id                                     controllers.assessment.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
+POST          /app/exam/record/export/report/:id                              controllers.assessment.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
 
 
 ############### Student exam execution interface ###############
@@ -104,7 +104,7 @@ POST          /app/iop/student/exam/:hash/clozetest/:questionId               co
 ############### Student actions interface #########
 GET           /app/feedback/exams/:eid                                        controllers.enrolment.StudentActionsController.getExamFeedback(eid: Long, request: Request)
 GET           /app/feedback/exams/:eid/score                                  controllers.enrolment.StudentActionsController.getExamScore(eid: Long, request: Request)
-GET           /app/feedback/exams/:eid/answers                                controllers.assessment.ExamAnswerController.getAnswers(eid: Long, request: Request)
+GET           /app/feedback/exams/:eid/answers                                controllers.assessment.ExamAnswerController.listAnswers(eid: Long)
 GET           /app/feedback/exams/:eid/report                                 controllers.enrolment.StudentActionsController.getExamScoreReport(eid: Long, request: Request)
 GET           /app/student/finishedexams                                      controllers.enrolment.StudentActionsController.getFinishedExams(filter: java.util.Optional[String], request: Request)
 GET           /app/student/enrolments                                         controllers.enrolment.StudentActionsController.getEnrolmentsForUser(request: Request)
@@ -161,11 +161,11 @@ POST          /app/gradeimport                                                co
 GET           /app/exam/:eid/attachments                                      controllers.assessment.ReviewDocumentsController.getArchivedAttachments(eid: Long, start: Option[String], end: Option[String])
 
 ############### Language inspection interface ###############
-GET           /app/inspections                                                controllers.assessment.LanguageInspectionController.listInspections(month: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
-POST          /app/inspection                                                 controllers.assessment.LanguageInspectionController.createInspection(request: Request)
-PUT           /app/inspection/:id                                             controllers.assessment.LanguageInspectionController.assignInspection(id: Long, request: Request)
-PUT           /app/inspection/:id/approval                                    controllers.assessment.LanguageInspectionController.setApproval(id: Long, request: Request)
-PUT           /app/inspection/:id/statement                                   controllers.assessment.LanguageInspectionController.setStatement(id: Long, request: Request)
+GET           /app/inspections                                                controllers.assessment.LanguageInspectionController.listInspections(month: Option[String], start: Option[Long], end: Option[Long])
+POST          /app/inspection                                                 controllers.assessment.LanguageInspectionController.createInspection()
+PUT           /app/inspection/:id                                             controllers.assessment.LanguageInspectionController.assignInspection(id: Long)
+PUT           /app/inspection/:id/approval                                    controllers.assessment.LanguageInspectionController.setApproval(id: Long)
+PUT           /app/inspection/:id/statement                                   controllers.assessment.LanguageInspectionController.setStatement(id: Long)
 
 ############### Enrolment interface ###############
 

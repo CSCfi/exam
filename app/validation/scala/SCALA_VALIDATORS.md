@@ -17,10 +17,9 @@ The validator system provides a way to validate and sanitize request bodies in S
 ### Core Components (in `validation.scala.core`)
 
 1. **`PlayJsonValidator`** - Base trait for Play JSON-based validators (recommended)
-2. **`JsonBodyValidator`** - Legacy Jackson-based validator (deprecated)
-3. **`Validators`** - Injectable factory for creating validator filters
-4. **`ScalaAttrs`** - Typed keys for storing validated data in request attributes
-5. **`PlayValidator[T]`** - Advanced validator with error accumulation using Cats ValidatedNel
+2. **`Validators`** - Injectable factory for creating validator filters
+3. **`ScalaAttrs`** - Typed keys for storing validated data in request attributes
+4. **`PlayValidator[T]`** - Advanced validator with error accumulation using Cats ValidatedNel
 
 ## Usage
 

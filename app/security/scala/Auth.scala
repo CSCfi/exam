@@ -14,9 +14,10 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-// TODO: Support for permissions
 object Auth:
-  val ATTR_USER: TypedKey[User] = TypedKey[User]("authenticatedUser")
+  val ATTR_USER: TypedKey[User]               = TypedKey[User]("authenticatedUser")
+  val ATTR_PERMISSIONS: TypedKey[Set[String]] = TypedKey[Set[String]]("userPermissions")
+
   case class AuthenticatedAction @Inject() (override val parser: BodyParsers.Default)(implicit
       ec: AuthExecutionContext
   ) extends ActionBuilderImpl(parser):
@@ -33,7 +34,16 @@ object Auth:
         }(using executionContext).flatMap {
           case Some(user) =>
             user.setLoginRole(Role.Name.valueOf(request.session("role")))
-            block(request.addAttr(ATTR_USER, user))
+
+            // Parse permissions from session (comma-separated string)
+            val permissions = request.session
+              .get("permissions")
+              .map(_.split(",").map(_.trim).filter(_.nonEmpty).toSet)
+              .getOrElse(Set.empty[String])
+
+            val enrichedRequest = request.addAttr(ATTR_USER, user).addAttr(ATTR_PERMISSIONS, permissions)
+
+            block(enrichedRequest)
           case None => failure
         }(using executionContext)
       else failure
@@ -53,6 +63,6 @@ object Auth:
             // Fallback: check session directly (when used standalone)
             input.session.get("role").flatMap(r => Try(Role.Name.valueOf(r)).toOption) match
               case Some(role) if roles.contains(role) => None
-              case _ => Some(Unauthorized("Authentication required"))
+              case _                                  => Some(Unauthorized("Authentication required"))
       }
     }

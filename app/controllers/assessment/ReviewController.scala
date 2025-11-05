@@ -50,7 +50,7 @@ class ReviewController @Inject() (
   def listParticipationsForExamAndUser(eid: Long): Action[AnyContent] =
     authenticated
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))
-      .andThen(anonymous(Set("user", "preEnrolledUserEmail", "grade"), "ids")) { request =>
+      .andThen(anonymous(Set("user", "preEnrolledUserEmail", "grade"))) { request =>
         Option(DB.find(classOf[Exam], eid)) match
           case Some(exam) =>
             val participations = DB
@@ -74,7 +74,7 @@ class ReviewController @Inject() (
   def listNoShowsForExamAndUser(eid: Long): Action[AnyContent] =
     authenticated
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))
-      .andThen(anonymous(Set("user", "preEnrolledUserEmail"), "ids")) { request =>
+      .andThen(anonymous(Set("user", "preEnrolledUserEmail"))) { request =>
         Option(DB.find(classOf[Exam], eid)) match
           case Some(exam) =>
             val enrolments = DB
@@ -94,7 +94,7 @@ class ReviewController @Inject() (
   def getReview(eid: Long): Action[AnyContent] =
     authenticated
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))
-      .andThen(anonymous(Set("user", "preEnrolledUserEmail", "creator", "modifier", "reservation"), "ids")) { request =>
+      .andThen(anonymous(Set("user", "preEnrolledUserEmail", "creator", "modifier", "reservation"))) { request =>
         val user    = request.attrs(Auth.ATTR_USER)
         val isAdmin = user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
         val states = Set(
@@ -135,7 +135,7 @@ class ReviewController @Inject() (
   def listReviews(eid: Long): Action[AnyContent] =
     authenticated
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))
-      .andThen(anonymous(Set("user", "creator", "modifier"), "ids")) { request =>
+      .andThen(anonymous(Set("user", "creator", "modifier"))) { request =>
         val user = request.attrs(Auth.ATTR_USER)
         val pp = PathProperties.parse(
           "(" +
@@ -347,7 +347,7 @@ class ReviewController @Inject() (
   def listNoShows(eid: Long, collaborative: Option[Boolean]): Action[AnyContent] =
     authenticated
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))
-      .andThen(anonymous(Set("user"), "ids")) { request =>
+      .andThen(anonymous(Set("user"))) { request =>
         val el = DB
           .find(classOf[ExamEnrolment])
           .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
@@ -541,11 +541,9 @@ class ReviewController @Inject() (
     Ok
 
   private def notifyPartiesAboutPrivateExamRejection(user: User, exam: Exam): Unit =
-    actorSystem.scheduler.scheduleOnce(
-      1.second,
-      () =>
-        emailComposer.composeInspectionReady(exam.getCreator, user, exam)
-        logger.info("Inspection rejection notification email sent")
-    )
+    actorSystem.scheduler.scheduleOnce(1.second) {
+      emailComposer.composeInspectionReady(exam.getCreator, user, exam)
+      logger.info("Inspection rejection notification email sent")
+    }
 
   private def round(src: Double): Double = Math.round(src * 100) / 100.0
