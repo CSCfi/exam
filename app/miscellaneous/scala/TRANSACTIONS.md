@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 # Ebean Transactions in Scala
 
 Guide to using Ebean transactions in Scala controllers.

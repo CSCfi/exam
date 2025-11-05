@@ -72,7 +72,7 @@ GET           /app/examinationevents                                          co
 GET           /app/examinationevents/conflicting                              controllers.enrolment.ExaminationEventController.listOverlappingExaminationEvents(start: String, duration: Int)
 
 ############### Question review interface ###############
-GET           /app/exam/:id/questions                                         controllers.assessment.QuestionReviewController.getEssays(id: Long, ids: java.util.Optional[LongList], request: Request)
+GET           /app/exam/:id/questions                                         controllers.assessment.QuestionReviewController.listEssays(id: Long, ids: Option[List[Long]])
 
 ############### Exam record interface ###############
 POST          /app/exam/record                                                controllers.assessment.ExamRecordController.addExamRecord()
@@ -259,23 +259,23 @@ POST          /app/softwares/:name                                             c
 PUT           /app/softwares/:id/:name                                         controllers.facility.ExamMachineController.updateSoftware(id: Long, name: String)
 
 ############## Attachment ############################
-POST          /app/attachment/question                                          controllers.attachment.AttachmentController.addAttachmentToQuestion(request: Request)
+POST          /app/attachment/question                                          controllers.attachment.AttachmentController.addAttachmentToQuestion()
 DELETE        /app/attachment/question/:id                                      controllers.attachment.AttachmentController.deleteQuestionAttachment(id: Long)
-GET           /app/attachment/question/:id                                      controllers.attachment.AttachmentController.downloadQuestionAttachment(id: Long, request: Request)
-POST          /app/attachment/question/answer                                   controllers.attachment.AttachmentController.addAttachmentToQuestionAnswer(request: Request)
-DELETE        /app/attachment/question/:qid/answer                              controllers.attachment.AttachmentController.deleteQuestionAnswerAttachment(qid: Long, request: Request)
-GET           /app/attachment/question/:qid/answer                              controllers.attachment.AttachmentController.downloadQuestionAnswerAttachment(qid: Long, request: Request)
-POST          /app/attachment/exam                                              controllers.attachment.AttachmentController.addAttachmentToExam(request: Request)
-DELETE        /app/attachment/exam/:id                                          controllers.attachment.AttachmentController.deleteExamAttachment(id: Long, request: Request)
-GET           /app/attachment/exam/:id                                          controllers.attachment.AttachmentController.downloadExamAttachment(id: Long, request: Request)
+GET           /app/attachment/question/:id                                      controllers.attachment.AttachmentController.downloadQuestionAttachment(id: Long)
+POST          /app/attachment/question/answer                                   controllers.attachment.AttachmentController.addAttachmentToQuestionAnswer()
+DELETE        /app/attachment/question/:qid/answer                              controllers.attachment.AttachmentController.deleteQuestionAnswerAttachment(qid: Long)
+GET           /app/attachment/question/:qid/answer                              controllers.attachment.AttachmentController.downloadQuestionAnswerAttachment(qid: Long)
+POST          /app/attachment/exam                                              controllers.attachment.AttachmentController.addAttachmentToExam()
+DELETE        /app/attachment/exam/:id                                          controllers.attachment.AttachmentController.deleteExamAttachment(id: Long)
+GET           /app/attachment/exam/:id                                          controllers.attachment.AttachmentController.downloadExamAttachment(id: Long)
 
-POST          /app/attachment/exam/:id/feedback                                 controllers.attachment.AttachmentController.addFeedbackAttachment(id: Long, request: Request)
-DELETE        /app/attachment/exam/:id/feedback                                 controllers.attachment.AttachmentController.deleteFeedbackAttachment(id: Long, request: Request)
-GET           /app/attachment/exam/:id/feedback                                 controllers.attachment.AttachmentController.downloadFeedbackAttachment(id: Long, request: Request)
+POST          /app/attachment/exam/:id/feedback                                 controllers.attachment.AttachmentController.addFeedbackAttachment(id: Long)
+DELETE        /app/attachment/exam/:id/feedback                                 controllers.attachment.AttachmentController.deleteFeedbackAttachment(id: Long)
+GET           /app/attachment/exam/:id/feedback                                 controllers.attachment.AttachmentController.downloadFeedbackAttachment(id: Long)
 
-POST          /app/attachment/exam/:id/statement                                controllers.attachment.AttachmentController.addStatementAttachment(id: Long, request: Request)
-DELETE        /app/attachment/exam/:id/statement                                controllers.attachment.AttachmentController.deleteStatementAttachment(id: Long, request: Request)
-GET           /app/attachment/exam/:id/statement                                controllers.attachment.AttachmentController.downloadStatementAttachment(id: Long, request: Request)
+POST          /app/attachment/exam/:id/statement                                controllers.attachment.AttachmentController.addStatementAttachment(id: Long)
+DELETE        /app/attachment/exam/:id/statement                                controllers.attachment.AttachmentController.deleteStatementAttachment(id: Long)
+GET           /app/attachment/exam/:id/statement                                controllers.attachment.AttachmentController.downloadStatementAttachment(id: Long)
 
 ############### External Attachment ##################
 GET           /app/iop/attachment/exam/:hash                                    controllers.iop.transfer.impl.ExternalAttachmentController.downloadExamAttachment(hash: String, request: Request)
@@ -380,7 +380,7 @@ DELETE        /app/iop/collab/attachment/exam/:id/statement                     
 GET           /app/iop/collab/attachment/exam/:id/statement                      controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadStatementAttachment(id: Long, request: Request)
 
 ############# Integration data transfer #################
-POST          /app/iop/export                                                    controllers.iop.transfer.impl.DataTransferController.exportData(request: Request)
+POST          /app/iop/export                                                    controllers.iop.transfer.impl.DataTransferController.exportData()
 
 ############# Integration m2m resources #################
 GET           /integration/iop/slots                                             controllers.iop.transfer.impl.ExternalCalendarController.provideSlots(roomId: java.util.Optional[String], date: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String], duration: java.util.Optional[java.lang.Integer])
@@ -396,9 +396,9 @@ POST          /integration/iop/exams/:ref                                       
 + nocsrf
 POST          /integration/iop/reservations/:ref/noshow                          controllers.iop.transfer.impl.ExternalExamController.addNoShow(ref: String)
 + nocsrf
-POST          /integration/iop/import                                            controllers.iop.transfer.impl.DataTransferController.importData(request: Request)
+POST          /integration/iop/import                                            controllers.iop.transfer.impl.DataTransferController.importData()
 + nocsrf
-POST          /integration/iop/import/attachment/question/:id                    controllers.iop.transfer.impl.DataTransferController.importQuestionAttachment(id: Long, request: Request)
+POST          /integration/iop/import/attachment/question/:id                    controllers.iop.transfer.impl.DataTransferController.importQuestionAttachment(id: Long)
 GET           /integration/iop/reservations/:ref/instructions                    controllers.admin.SettingsController.provideMaturityInstructions(ref: String, lang: String)
 
 ################# Time interface ######################
@@ -422,12 +422,12 @@ POST          /app/tags/questions                                               
 
 GET           /app/config                                                        controllers.admin.SettingsController.getConfig
 GET           /app/settings/agreement                                            controllers.admin.SettingsController.getUserAgreement
-PUT           /app/settings/agreement                                            controllers.admin.SettingsController.updateUserAgreement(request: Request)
+PUT           /app/settings/agreement                                            controllers.admin.SettingsController.updateUserAgreement()
 GET           /app/settings/byod                                                 controllers.admin.SettingsController.getByodSupport
 GET           /app/settings/deadline                                             controllers.admin.SettingsController.getDeadline
-PUT           /app/settings/deadline                                             controllers.admin.SettingsController.setDeadline(request: Request)
+PUT           /app/settings/deadline                                             controllers.admin.SettingsController.setDeadline()
 GET           /app/settings/reservationWindow                                    controllers.admin.SettingsController.getReservationWindowSize
-PUT           /app/settings/reservationWindow                                    controllers.admin.SettingsController.setReservationWindowSize(request: Request)
+PUT           /app/settings/reservationWindow                                    controllers.admin.SettingsController.setReservationWindowSize()
 GET           /app/settings/hostname                                             controllers.admin.SettingsController.getHostname
 GET           /app/settings/durations                                            controllers.admin.SettingsController.getExamDurations
 GET           /app/settings/maxDuration                                          controllers.admin.SettingsController.getExamMaxDuration
@@ -440,7 +440,7 @@ GET           /app/settings/iop/examCollaboration                               
 GET           /app/settings/anonymousReviewEnabled                               controllers.admin.SettingsController.isAnonymousReviewEnabled
 GET           /app/settings/maxfilesize                                          controllers.admin.SettingsController.getMaxFilesize
 GET           /app/settings/appVersion                                           controllers.admin.SettingsController.getAppVersion
-GET           /app/settings/maturityInstructions                                 controllers.admin.SettingsController.getMaturityInstructions(lang: String, ref: java.util.Optional[String])
+GET           /app/settings/maturityInstructions                                 controllers.admin.SettingsController.getMaturityInstructions(lang: String, ref: Option[String])
 GET           /app/settings/examinationQuitLink                                  controllers.admin.SettingsController.getExaminationQuitLink
 GET           /app/settings/coursecodeprefix                                     controllers.admin.SettingsController.getCourseCodePrefix
 GET           /app/settings/byodmaxparticipants                                  controllers.admin.SettingsController.getByodMaxParticipants

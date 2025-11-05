@@ -27,6 +27,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
 import play.mvc.Result;
+import scala.jdk.javaapi.CollectionConverters;
 
 public class AvailabilityController extends BaseController {
 
@@ -87,8 +88,9 @@ public class AvailabilityController extends BaseController {
         Set<Interval> allSlots = new LinkedHashSet<>();
         LocalDate window = searchStart.toLocalDate();
         while (!window.isAfter(searchEnd.toLocalDate())) {
-            List<Interval> slotsForDate = dateTimeHandler
-                .getWorkingHoursForDate(window, room)
+            List<Interval> slotsForDate = CollectionConverters.asJava(
+                dateTimeHandler.getWorkingHoursForDate(window, room)
+            )
                 .stream()
                 .map(oh ->
                     new Interval(

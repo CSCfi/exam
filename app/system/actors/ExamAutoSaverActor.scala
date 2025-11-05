@@ -4,9 +4,9 @@
 
 package system.actors
 
-import controllers.admin.SettingsController
 import impl.mail.EmailComposer
 import io.ebean.DB
+import miscellaneous.config.ConfigReader
 import miscellaneous.datetime.DateTimeHandler
 import miscellaneous.scala.DbApiHelper
 import models.enrolment.{ExamEnrolment, ExamParticipation}
@@ -17,11 +17,14 @@ import play.api.Logging
 
 import java.io.IOException
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.control.Exception.catching
 
-class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private val dateTimeHandler: DateTimeHandler)
-    extends AbstractActor
+class ExamAutoSaverActor @Inject (
+    private val composer: EmailComposer,
+    private val configReader: ConfigReader,
+    private val dateTimeHandler: DateTimeHandler
+) extends AbstractActor
     with Logging
     with DbApiHelper:
 
@@ -73,7 +76,7 @@ class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private v
       if participationTimeLimit.isBefore(now) then
         participation.setEnded(now)
         participation.setDuration(new DateTime(participation.getEnded.getMillis - participation.getStarted.getMillis))
-        val settings     = SettingsController.getOrCreateSettings("review_deadline", null, "14")
+        val settings     = configReader.getOrCreateSettings("review_deadline", None, Some("14"))
         val deadlineDays = settings.getValue.toInt
         val deadline     = new DateTime(participation.getEnded).plusDays(deadlineDays)
         participation.setDeadline(deadline)

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.assessment
 
 import controllers.base.scala.ExamBaseController
@@ -11,9 +15,11 @@ import models.user.Role
 import org.apache.pekko.actor.ActorSystem
 import org.joda.time.DateTime
 import play.api.Logging
+import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext, CombinedRoleAndPermissionFilter, PermissionFilter}
+import system.AuditedAction
 import validation.scala.CommentValidator
 import validation.scala.core.{ScalaAttrs, Validators}
 
@@ -28,6 +34,7 @@ class LanguageInspectionController @Inject() (
     val controllerComponents: ControllerComponents,
     val validators: Validators,
     val authenticated: AuthenticatedAction,
+    val audited: AuditedAction,
     val actorSystem: ActorSystem,
     val emailComposer: EmailComposer,
     implicit val ec: AuthExecutionContext
@@ -55,11 +62,11 @@ class LanguageInspectionController @Inject() (
         Ok(filteredQuery.distinct.asJson)
     }
 
-  def createInspection(): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      request.body.asJson match
-        case Some(json) =>
-          val examId = (json \ "examId").as[Long]
+  def createInspection(): Action[JsValue] =
+    authenticated
+      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)).andThen(audited))(parse.json) {
+        request =>
+          val examId = (request.body \ "examId").as[Long]
           Option(DB.find(classOf[Exam], examId)) match
             case Some(exam) =>
               if Option(exam.getLanguageInspection).isDefined then Forbidden("already sent for inspection")
@@ -71,8 +78,7 @@ class LanguageInspectionController @Inject() (
                 inspection.save()
                 Ok
             case None => BadRequest
-        case None => BadRequest
-    }
+      }
 
   def assignInspection(id: Long): Action[AnyContent] =
     authenticated.andThen(PermissionFilter(Type.CAN_INSPECT_LANGUAGE)) { request =>
@@ -88,38 +94,36 @@ class LanguageInspectionController @Inject() (
         case None => NotFound("inspection not found")
     }
 
-  def setApproval(id: Long): Action[AnyContent] = authenticated.andThen(PermissionFilter(Type.CAN_INSPECT_LANGUAGE)) {
-    request =>
-      request.body.asJson match
-        case Some(json) =>
-          (json \ "approved").asOpt[Boolean] match
-            case Some(approval) =>
-              Option(DB.find(classOf[LanguageInspection], id)) match
-                case Some(inspection) =>
-                  if Option(inspection.getStartedAt).isEmpty then Forbidden("Inspection not assigned")
-                  if Option(inspection.getFinishedAt).isEmpty then Forbidden("Inspection already finalized")
-                  if Option(inspection.getStatement).isEmpty || inspection.getStatement.getComment.isEmpty then
-                    Forbidden("No statement given")
-                  inspection.setFinishedAt(new Date)
-                  inspection.setApproved(approval)
-                  val user = request.attrs(Auth.ATTR_USER)
-                  inspection.setModifierWithDate(user)
-                  inspection.update()
+  def setApproval(id: Long): Action[JsValue] =
+    authenticated.andThen(PermissionFilter(Type.CAN_INSPECT_LANGUAGE))(parse.json).andThen(audited) { request =>
+      (request.body \ "approved").asOpt[Boolean] match
+        case Some(approval) =>
+          Option(DB.find(classOf[LanguageInspection], id)) match
+            case Some(inspection) =>
+              if Option(inspection.getStartedAt).isEmpty then Forbidden("Inspection not assigned")
+              if Option(inspection.getFinishedAt).isEmpty then Forbidden("Inspection already finalized")
+              if Option(inspection.getStatement).isEmpty || inspection.getStatement.getComment.isEmpty then
+                Forbidden("No statement given")
+              inspection.setFinishedAt(new Date)
+              inspection.setApproved(approval)
+              val user = request.attrs(Auth.ATTR_USER)
+              inspection.setModifierWithDate(user)
+              inspection.update()
 
-                  val recipients = inspection.getExam.getParent.getExamOwners.asScala
-                  actorSystem.scheduler.scheduleOnce(1.seconds)(recipients.foreach(r =>
-                    emailComposer.composeLanguageInspectionFinishedMessage(r, user, inspection)
-                    logger.info(s"Language inspection finalization email sent to ${r.getEmail}")
-                  ))
-                  Ok
-                case None => NotFound("inspection not found")
-            case None => BadRequest
+              val recipients = inspection.getExam.getParent.getExamOwners.asScala
+              actorSystem.scheduler.scheduleOnce(1.seconds)(recipients.foreach(r =>
+                emailComposer.composeLanguageInspectionFinishedMessage(r, user, inspection)
+                logger.info(s"Language inspection finalization email sent to ${r.getEmail}")
+              ))
+              Ok
+            case None => NotFound("inspection not found")
         case None => BadRequest
-  }
+    }
 
   def setStatement(id: Long): Action[AnyContent] = authenticated
     .andThen(PermissionFilter(Type.CAN_INSPECT_LANGUAGE))
-    .andThen(validators.validated(CommentValidator)) { request =>
+    .andThen(validators.validated(CommentValidator))
+    .andThen(audited) { request =>
       request.attrs.get(ScalaAttrs.COMMENT) match
         case Some(comment) =>
           Option(DB.find(classOf[LanguageInspection], id)) match

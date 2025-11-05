@@ -7,15 +7,35 @@ package miscellaneous.config
 import com.typesafe.config.Config
 import io.ebean.DB
 import miscellaneous.scala.DbApiHelper
+import models.admin.GeneralSettings
 import models.exam.ExamExecutionType
 import models.user.Role
 import org.joda.time.{DateTime, DateTimeZone, Period}
 
 import java.util.UUID
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader with DbApiHelper:
+  override def getOrCreateSettings(name: String, value: Option[String], defaultValue: Option[String]): GeneralSettings =
+    val gs = DB.find(classOf[GeneralSettings]).where().eq("name", name).find.getOrElse {
+      val newGs = new GeneralSettings()
+      newGs.setName(name)
+      newGs.save()
+      newGs
+    }
+    value.foreach { v =>
+      gs.setValue(v)
+      gs.update()
+    }
+
+    if Option(gs.getValue).isEmpty then
+      defaultValue.foreach { dv =>
+        gs.setValue(dv)
+        gs.update()
+      }
+    gs
+
   override def getDefaultTimeZone: DateTimeZone = {
     val id = config.getString("exam.application.timezone")
     DateTimeZone.forID(id)

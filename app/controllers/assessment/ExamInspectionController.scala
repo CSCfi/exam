@@ -12,9 +12,11 @@ import models.assessment.{Comment, ExamInspection}
 import models.exam.Exam
 import models.user.{Role, User}
 import org.apache.pekko.actor.ActorSystem
+import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 import validation.scala.CommentValidator
 import validation.scala.core.{ScalaAttrs, Validators}
 
@@ -26,6 +28,7 @@ class ExamInspectionController @Inject() (
     val controllerComponents: ControllerComponents,
     val validators: Validators,
     val authenticated: AuthenticatedAction,
+    val audited: AuditedAction,
     val actorSystem: ActorSystem,
     val emailComposer: EmailComposer,
     implicit val ec: AuthExecutionContext
@@ -35,7 +38,8 @@ class ExamInspectionController @Inject() (
 
   def addInspection(eid: Long, uid: Long): Action[AnyContent] = authenticated
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))
-    .andThen(validators.validated(CommentValidator)) { request =>
+    .andThen(validators.validated(CommentValidator))
+    .andThen(audited) { request =>
       val recipient = Option(DB.find(classOf[User], uid))
       val exam      = Option(DB.find(classOf[Exam], eid))
       (exam, recipient) match
@@ -79,19 +83,19 @@ class ExamInspectionController @Inject() (
         case _ => NotFound
     }
 
-  def setOutcome(id: Long): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      request.body.asJson match
-        case Some(json) =>
-          Option(DB.find(classOf[ExamInspection], id)) match
-            case Some(inspection) =>
-              val ready = (json \ "ready").asOpt[Boolean].getOrElse(false)
-              inspection.setReady(ready)
-              inspection.update()
-              Ok
-            case None => NotFound
-        case None => BadRequest
-    }
+  def setOutcome(id: Long): Action[JsValue] =
+    Action
+      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+      .andThen(audited)(parse.json) { request =>
+        Option(DB.find(classOf[ExamInspection], id)) match
+          case Some(inspection) =>
+            val ready = (request.body \ "ready").asOpt[Boolean].getOrElse(false)
+            inspection.setReady(ready)
+            inspection.update()
+            Ok
+          case None => NotFound
+
+      }
 
   def listInspections(id: Long): Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>

@@ -5,14 +5,16 @@
 package miscellaneous.config
 
 import com.google.inject.ImplementedBy
+import models.admin.GeneralSettings
 import models.user.Role
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @ImplementedBy(classOf[ConfigReaderImpl])
 trait ConfigReader:
+  def getOrCreateSettings(name: String, value: Option[String], defaultValue: Option[String]): GeneralSettings
   def getDefaultTimeZone: DateTimeZone
   def getHostName: String
   def getMaxFileSize: Int

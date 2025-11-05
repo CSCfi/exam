@@ -8,7 +8,6 @@ import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import controllers.admin.SettingsController;
 import controllers.base.BaseController;
 import controllers.exam.copy.ExamCopyContext;
 import controllers.examination.ExaminationController;
@@ -74,6 +73,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
+import scala.jdk.javaapi.OptionConverters;
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
 
@@ -195,7 +195,11 @@ public class ExternalExamController extends BaseController implements ExternalEx
         ep.setDuration(new DateTime(ee.getFinished().getMillis() - ee.getStarted().getMillis()));
 
         if (clone.getState().equals(Exam.State.REVIEW)) {
-            GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
+            GeneralSettings settings = configReader.getOrCreateSettings(
+                "review_deadline",
+                null,
+                OptionConverters.toScala(Optional.of("14"))
+            );
             int deadlineDays = Integer.parseInt(settings.getValue());
             DateTime deadline = ee.getFinished().plusDays(deadlineDays);
             ep.setDeadline(deadline);

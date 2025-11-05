@@ -24,6 +24,7 @@ import play.api.libs.json.*
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 import system.interceptors.scala.AnonymousJsonFilter
 import validation.scala.core.{ScalaAttrs, Validators}
 import validation.scala.{CommaJoinedListValidator, CommentValidator}
@@ -36,6 +37,7 @@ class ReviewController @Inject() (
     val controllerComponents: ControllerComponents,
     val validators: Validators,
     val authenticated: AuthenticatedAction,
+    val audited: AuditedAction,
     val anonymous: AnonymousJsonFilter,
     val emailComposer: EmailComposer,
     val fileHandler: FileHandler,
@@ -196,153 +198,145 @@ class ReviewController @Inject() (
         writeAnonymousResult(request, Ok(Json.toJson(participations)), anonIds)
       }
 
-  def scoreExamQuestion(id: Long): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
-      request.body.asJson match
-        case Some(json) =>
-          Option(DB.find(classOf[ExamSectionQuestion], id)) match
-            case Some(question) =>
-              val essayAnswer = Option(question.getEssayAnswer) match
-                case Some(answer) => answer
-                case None =>
-                  val answer = new EssayAnswer
-                  answer.save()
-                  question.setEssayAnswer(answer)
-                  question.update()
-                  answer
-              val score = (json \ "evaluatedScore").asOpt[Double]
-              essayAnswer.setEvaluatedScore(round(score.fold(null: java.lang.Double)(Double.box)))
-              essayAnswer.update()
+  def scoreExamQuestion(id: Long): Action[JsValue] =
+    Action
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))
+      .andThen(audited)(parse.json) { request =>
+        Option(DB.find(classOf[ExamSectionQuestion], id)) match
+          case Some(question) =>
+            val essayAnswer = Option(question.getEssayAnswer) match
+              case Some(answer) => answer
+              case None =>
+                val answer = new EssayAnswer
+                answer.save()
+                question.setEssayAnswer(answer)
+                question.update()
+                answer
+            val score = (request.body \ "evaluatedScore").asOpt[Double]
+            essayAnswer.setEvaluatedScore(round(score.fold(null: java.lang.Double)(Double.box)))
+            essayAnswer.update()
+            Ok
+          case None => BadRequest
+      }
+
+  def forceScoreExamQuestion(id: Long): Action[JsValue] =
+    authenticated
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))
+      .andThen(audited)(parse.json) { request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        DB.find(classOf[ExamSectionQuestion])
+          .fetch("examSection.exam.parent.examOwners")
+          .where()
+          .idEq(id)
+          .ne("question.type", Question.Type.EssayQuestion)
+          .find match
+          case Some(esq) =>
+            val exam = esq.getExamSection.getExam
+            if isDisallowedToScore(exam, user) then Forbidden("No permission to update scoring of this exam")
+            if exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
+            then Forbidden("Not allowed to update scoring of this exam")
+            val score = (request.body \ "forcedScore").asOpt[Double]
+            if score.isDefined && (score.get < esq.getMinScore || score.get > esq.getMaxAssessedScore) then Forbidden
+            else
+              esq.setForcedScore(round(score.fold(null: java.lang.Double)(Double.box)))
+              esq.update()
               Ok
-            case None => BadRequest
-        case None => BadRequest
-    }
+          case None => NotFound
+      }
 
-  def forceScoreExamQuestion(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      request.body.asJson match
-        case Some(json) =>
-          DB.find(classOf[ExamSectionQuestion])
-            .fetch("examSection.exam.parent.examOwners")
-            .where()
-            .idEq(id)
-            .ne("question.type", Question.Type.EssayQuestion)
-            .find match
-            case Some(esq) =>
-              val exam = esq.getExamSection.getExam
-              if isDisallowedToScore(exam, user) then Forbidden("No permission to update scoring of this exam")
-              if exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
-              then Forbidden("Not allowed to update scoring of this exam")
-              val score = (json \ "forcedScore").asOpt[Double]
-              if score.isDefined && (score.get < esq.getMinScore || score.get > esq.getMaxAssessedScore) then Forbidden
-              else
-                esq.setForcedScore(round(score.fold(null: java.lang.Double)(Double.box)))
-                esq.update()
-                Ok
-            case None => NotFound
-        case None => BadRequest
-    }
-
-  def updateAssessmentInfo(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER))) { request =>
-      request.body.asJson match
-        case Some(json) =>
-          val info = (json \ "assessmentInfo").asOpt[String]
-          DB.find(classOf[Exam])
-            .fetch("parent.creator")
-            .where()
-            .idEq(id)
-            .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
-            .find match
-            case Some(exam) =>
-              val user = request.attrs(Auth.ATTR_USER)
-              if !exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
-                isDisallowedToModify(exam, user, exam.getState)
-              then Forbidden("You are not allowed to modify this object")
-              exam.setAssessmentInfo(info.orNull)
-              exam.update()
-              Ok
-            case None => NotFound
-        case None => BadRequest
-    }
-
-  def reviewExam(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      DB.find(classOf[Exam]).fetch("parent").fetch("parent.creator").where.idEq(id).find match
+  def updateAssessmentInfo(id: Long): Action[JsValue] =
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER)))(parse.json).andThen(audited) { request =>
+      val info = (request.body \ "assessmentInfo").asOpt[String]
+      DB.find(classOf[Exam])
+        .fetch("parent.creator")
+        .where()
+        .idEq(id)
+        .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
+        .find match
         case Some(exam) =>
           val user = request.attrs(Auth.ATTR_USER)
-          request.body.asJson match {
-            case Some(json) =>
-              val newState = Exam.State.valueOf((json \ "state").asOpt[String].orNull)
-              if isDisallowedToModify(exam, user, newState)
-              then Forbidden("You are not allowed to modify this object")
-              if exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
-              then Forbidden("Not allowed to update grading of this exam")
-              if isRejectedInLanguageInspection(exam, user, newState) then
-                // Just update state, do not allow other modifications here
-                updateReviewState(user, exam, newState, true)
-              val grade          = (json \ "grade").asOpt[Int]
-              val additionalInfo = (json \ "additionalInfo").asOpt[String].orNull
-              val gradingType    = Grade.Type.valueOf((json \ "gradingType").asOpt[String].orNull)
-              val examType = (json \ "creditType").asOpt[String].flatMap { creditType =>
-                DB.find(classOf[ExamType]).where().eq("type", creditType).find
-              }
-              exam.setCreditType(examType.orNull)
-              grade match
-                case Some(g) =>
-                  val examGrade = DB.find(classOf[Grade], g)
-                  val scale =
-                    if Option(exam.getGradeScale).isEmpty then exam.getCourse.getGradeScale else exam.getGradeScale
-                  if scale.getGrades.contains(examGrade) then
-                    exam.setGrade(examGrade)
-                    exam.setGradingType(Grade.Type.GRADED)
-                  else BadRequest("Invalid grade for this grade scale")
-                case None =>
+          if !exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
+            isDisallowedToModify(exam, user, exam.getState)
+          then Forbidden("You are not allowed to modify this object")
+          exam.setAssessmentInfo(info.orNull)
+          exam.update()
+          Ok
+        case None => NotFound
+    }
+
+  def reviewExam(id: Long): Action[JsValue] =
+    authenticated
+      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+      .andThen(audited)(parse.json) { request =>
+        DB.find(classOf[Exam]).fetch("parent").fetch("parent.creator").where.idEq(id).find match
+          case Some(exam) =>
+            val user     = request.attrs(Auth.ATTR_USER)
+            val newState = Exam.State.valueOf((request.body \ "state").asOpt[String].orNull)
+            if isDisallowedToModify(exam, user, newState)
+            then Forbidden("You are not allowed to modify this object")
+            if exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
+            then Forbidden("Not allowed to update grading of this exam")
+            if isRejectedInLanguageInspection(exam, user, newState) then
+              // Just update state, do not allow other modifications here
+              updateReviewState(user, exam, newState, true)
+            val grade          = (request.body \ "grade").asOpt[Int]
+            val additionalInfo = (request.body \ "additionalInfo").asOpt[String].orNull
+            val gradingType    = Grade.Type.valueOf((request.body \ "gradingType").asOpt[String].orNull)
+            val examType = (request.body \ "creditType").asOpt[String].flatMap { creditType =>
+              DB.find(classOf[ExamType]).where().eq("type", creditType).find
+            }
+            exam.setCreditType(examType.orNull)
+            grade match
+              case Some(g) =>
+                val examGrade = DB.find(classOf[Grade], g)
+                val scale =
+                  if Option(exam.getGradeScale).isEmpty then exam.getCourse.getGradeScale else exam.getGradeScale
+                if scale.getGrades.contains(examGrade) then
+                  exam.setGrade(examGrade)
+                  exam.setGradingType(Grade.Type.GRADED)
+                else BadRequest("Invalid grade for this grade scale")
+              case None =>
+                exam.setGrade(null)
+                if gradingType == Grade.Type.NOT_GRADED then
                   exam.setGrade(null)
-                  if gradingType == Grade.Type.NOT_GRADED then
-                    exam.setGrade(null)
-                    exam.setGradingType(Grade.Type.NOT_GRADED)
-                  else if gradingType == Grade.Type.POINT_GRADED then
-                    exam.setGrade(null)
-                    exam.setGradingType(Grade.Type.POINT_GRADED)
-                    // Forced partial credit type
-                    exam.setCreditType(DB.find(classOf[ExamType]).where().eq("type", "PARTIAL").findOne())
-              exam.setAdditionalInfo(additionalInfo)
-              exam.setAnswerLanguage((json \ "answerLanguage").asOpt[String].orNull)
-              exam.setCustomCredit((json \ "customCredit").asOpt[Double].map(Double.box).orNull)
-              updateReviewState(user, exam, newState, false)
-            case None => BadRequest
-          }
-        case None => NotFound("i18n_exam_not_found")
-    }
+                  exam.setGradingType(Grade.Type.NOT_GRADED)
+                else if gradingType == Grade.Type.POINT_GRADED then
+                  exam.setGrade(null)
+                  exam.setGradingType(Grade.Type.POINT_GRADED)
+                  // Forced partial credit type
+                  exam.setCreditType(DB.find(classOf[ExamType]).where().eq("type", "PARTIAL").findOne())
+            exam.setAdditionalInfo(additionalInfo)
+            exam.setAnswerLanguage((request.body \ "answerLanguage").asOpt[String].orNull)
+            exam.setCustomCredit((request.body \ "customCredit").asOpt[Double].map(Double.box).orNull)
+            updateReviewState(user, exam, newState, false)
 
-  def sendInspectionMessage(eid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
-      Option(DB.find(classOf[Exam], eid)) match
-        case Some(exam) =>
-          request.body.asJson match
-            case Some(json) =>
-              val loggedInUser = request.attrs(Auth.ATTR_USER)
-              val message      = (json \ "msg").asOpt[String].orNull
-              val inspections = DB
-                .find(classOf[ExamInspection])
-                .fetch("user")
-                .fetch("exam")
-                .where()
-                .eq("exam.id", exam.getId)
-                .ne("user", loggedInUser)
-                .distinct
-                .map(_.getUser)
-              val recipients = inspections ++ exam.getParent.getExamOwners.asScala.filterNot(_ == loggedInUser)
-              actorSystem.scheduler.scheduleOnce(1.seconds)(
-                recipients.foreach(user => emailComposer.composeInspectionMessage(user, loggedInUser, exam, message))
-              )
-              Ok
-            case None => BadRequest
+          case None => NotFound("i18n_exam_not_found")
+      }
 
-        case None => NotFound("i18n_error_exam_not_found")
-    }
+  def sendInspectionMessage(eid: Long): Action[JsValue] =
+    authenticated
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))
+      .andThen(audited)(parse.json) { request =>
+        Option(DB.find(classOf[Exam], eid)) match
+          case Some(exam) =>
+            val loggedInUser = request.attrs(Auth.ATTR_USER)
+            val message      = (request.body \ "msg").asOpt[String].orNull
+            val inspections = DB
+              .find(classOf[ExamInspection])
+              .fetch("user")
+              .fetch("exam")
+              .where()
+              .eq("exam.id", exam.getId)
+              .ne("user", loggedInUser)
+              .distinct
+              .map(_.getUser)
+            val recipients = inspections ++ exam.getParent.getExamOwners.asScala.filterNot(_ == loggedInUser)
+            actorSystem.scheduler.scheduleOnce(1.seconds)(
+              recipients.foreach(user => emailComposer.composeInspectionMessage(user, loggedInUser, exam, message))
+            )
+            Ok
+          case None => NotFound("i18n_error_exam_not_found")
+      }
 
   def listNoShows(eid: Long, collaborative: Option[Boolean]): Action[AnyContent] =
     authenticated

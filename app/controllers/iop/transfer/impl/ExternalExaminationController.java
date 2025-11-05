@@ -28,6 +28,7 @@ import java.util.function.Function;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 import miscellaneous.config.ByodConfigHandler;
+import miscellaneous.config.ConfigReader;
 import miscellaneous.datetime.DateTimeHandler;
 import models.enrolment.ExamEnrolment;
 import models.exam.Exam;
@@ -60,14 +61,15 @@ public class ExternalExaminationController extends ExaminationController {
     @Inject
     public ExternalExaminationController(
         EmailComposer emailComposer,
-        ActorSystem actor,
         ExaminationRepository examinationRepository,
+        ActorSystem actor,
         AutoEvaluationHandler autoEvaluationHandler,
         Environment environment,
         ClassLoaderExecutionContext httpExecutionContext,
         ExternalAttachmentLoader externalAttachmentLoader,
         ByodConfigHandler byodConfigHandler,
-        DateTimeHandler dateTimeHandler
+        DateTimeHandler dateTimeHandler,
+        ConfigReader configReader
     ) {
         super(
             emailComposer,
@@ -78,7 +80,8 @@ public class ExternalExaminationController extends ExaminationController {
             httpExecutionContext,
             externalAttachmentLoader,
             byodConfigHandler,
-            dateTimeHandler
+            dateTimeHandler,
+            configReader
         );
     }
 

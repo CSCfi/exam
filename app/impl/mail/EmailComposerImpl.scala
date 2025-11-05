@@ -62,12 +62,13 @@ class EmailComposerImpl @Inject() (
     val reviewLink    = s"$hostName/participations"
     val autoEvaluated = Option(reviewer).isEmpty && Option(exam.getAutoEvaluationConfig).nonEmpty
     val stringValues = Map(
-      "review_done"          -> messaging("email.template.review.ready", examInfo)(using lang),
-      "review_link"          -> reviewLink,
-      "review_link_text"     -> messaging("email.template.link.to.review")(using lang),
-      "main_system_info"     -> messaging("email.template.main.system.info")(using lang),
-      "main_system_url"      -> baseSystemUrl,
-      "review_autoevaluated" -> (if autoEvaluated then messaging("email.template.review.autoevaluated")(using lang) else "")
+      "review_done"      -> messaging("email.template.review.ready", examInfo)(using lang),
+      "review_link"      -> reviewLink,
+      "review_link_text" -> messaging("email.template.link.to.review")(using lang),
+      "main_system_info" -> messaging("email.template.main.system.info")(using lang),
+      "main_system_url"  -> baseSystemUrl,
+      "review_autoevaluated" -> (if autoEvaluated then messaging("email.template.review.autoevaluated")(using lang)
+                                 else "")
     )
     val content     = replaceAll(template, stringValues)
     val senderEmail = Option(reviewer).map(_.getEmail).nonNull.getOrElse(systemAccount)
@@ -183,7 +184,7 @@ class EmailComposerImpl @Inject() (
       "settings_file_info"     -> settingsFile
     )
     val content = replaceAll(template, stringValues)
-    if exam.getImplementation eq Exam.Implementation.CLIENT_AUTH then
+    if exam.getImplementation == Exam.Implementation.CLIENT_AUTH then
       // Attach a SEB config file
       val quitPassword =
         byodConfigHandler.getPlaintextPassword(config.getEncryptedQuitPassword, config.getQuitPasswordSalt)
@@ -202,7 +203,7 @@ class EmailComposerImpl @Inject() (
       attachment.setPath(file.getAbsolutePath)
       attachment.setDisposition(EmailAttachment.ATTACHMENT)
       attachment.setName(s"$fileName.seb")
-      if env.mode eq Mode.Dev then logger.info(s"Wrote SEB config file to ${file.getAbsolutePath}")
+      if env.mode == Mode.Dev then logger.info(s"Wrote SEB config file to ${file.getAbsolutePath}")
       emailSender.send(Mail(recipient.getEmail, systemAccount, subject, content, attachments = Set(attachment)))
     else emailSender.send(Mail(recipient.getEmail, systemAccount, subject, content))
 
@@ -398,17 +399,21 @@ class EmailComposerImpl @Inject() (
       "previousMachine"     -> messaging("email.template.reservation.change.previous")(using lang),
       "previousMachineName" -> messaging("email.template.reservation.machine", previous.getName)(using lang),
       "previousRoom"        -> messaging("email.template.reservation.room", previous.getRoom.getName)(using lang),
-      "previousBuilding"    -> messaging("email.template.reservation.building", previous.getRoom.getBuildingName)(using lang),
-      "currentMachine"      -> messaging("email.template.reservation.change.current")(using lang),
-      "currentMachineName"  -> messaging("email.template.reservation.machine", current.getName)(using lang),
-      "currentRoom"         -> messaging("email.template.reservation.room", current.getRoom.getName)(using lang),
-      "currentBuilding"     -> messaging("email.template.reservation.building", current.getRoom.getBuildingName)(using lang),
-      "examinationInfo"     -> messaging("email.template.reservation.exam.info")(using lang),
-      "examInfo"            -> messaging("email.template.reservation.exam", examInfo)(using lang),
-      "teachers"            -> messaging("email.template.reservation.teacher", teacherName)(using lang),
-      "reservationTime"     -> messaging("email.template.reservation.date", reservationDate)(using lang),
-      "cancellationInfo"    -> messaging("email.template.reservation.cancel.info")(using lang),
-      "cancellationLink"    -> hostName,
+      "previousBuilding" -> messaging("email.template.reservation.building", previous.getRoom.getBuildingName)(using
+        lang
+      ),
+      "currentMachine"     -> messaging("email.template.reservation.change.current")(using lang),
+      "currentMachineName" -> messaging("email.template.reservation.machine", current.getName)(using lang),
+      "currentRoom"        -> messaging("email.template.reservation.room", current.getRoom.getName)(using lang),
+      "currentBuilding" -> messaging("email.template.reservation.building", current.getRoom.getBuildingName)(using
+        lang
+      ),
+      "examinationInfo"      -> messaging("email.template.reservation.exam.info")(using lang),
+      "examInfo"             -> messaging("email.template.reservation.exam", examInfo)(using lang),
+      "teachers"             -> messaging("email.template.reservation.teacher", teacherName)(using lang),
+      "reservationTime"      -> messaging("email.template.reservation.date", reservationDate)(using lang),
+      "cancellationInfo"     -> messaging("email.template.reservation.cancel.info")(using lang),
+      "cancellationLink"     -> hostName,
       "cancellationLinkText" -> messaging("email.template.reservation.cancel.link.text")(using lang)
     )
     val content = replaceAll(template, values)
@@ -456,11 +461,11 @@ class EmailComposerImpl @Inject() (
       .map(e => s"${e.getName} (${e.getCourse.getCode.split("_")(0)})")
       .getOrElse(enrolment.getCollaborativeExam.getName)
     val stringValues = Map(
-      "message"  -> messaging("email.template.reservation.cancel.message.student")(using lang),
-      "exam"     -> messaging("email.template.reservation.exam", examName)(using lang),
-      "teacher"  -> messaging("email.template.reservation.teacher", getTeachersAsText(owners.asScala.toSet))(using lang),
-      "time"     -> messaging("email.template.reservation.date", time)(using lang),
-      "place"    -> messaging("email.template.reservation.room", room)(using lang),
+      "message" -> messaging("email.template.reservation.cancel.message.student")(using lang),
+      "exam"    -> messaging("email.template.reservation.exam", examName)(using lang),
+      "teacher" -> messaging("email.template.reservation.teacher", getTeachersAsText(owners.asScala.toSet))(using lang),
+      "time"    -> messaging("email.template.reservation.date", time)(using lang),
+      "place"   -> messaging("email.template.reservation.room", room)(using lang),
       "new_time" -> messaging("email.template.reservation.cancel.message.student.new.time")(using lang),
       "link"     -> hostName
     )
@@ -739,7 +744,9 @@ class EmailComposerImpl @Inject() (
               if Option(first.getReservation).nonEmpty then adjustDST(first.getReservation.getStartAt)
               else new DateTime(first.getExaminationEventConfiguration.getExaminationEvent.getStart, timeZone)
             commonValues + ("enrolments" ->
-              messaging("email.template.enrolment.first", enrolments.length, EmailComposerImpl.DTF.print(date))(using lang))
+              messaging("email.template.enrolment.first", enrolments.length, EmailComposerImpl.DTF.print(date))(using
+                lang
+              ))
 
         replaceAll(subTemplate, values)
       )

@@ -7,7 +7,6 @@ package impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Lists;
-import controllers.admin.SettingsController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
@@ -59,6 +58,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
+import scala.jdk.javaapi.CollectionConverters;
 
 public class CalendarHandlerImpl implements CalendarHandler {
 
@@ -256,7 +256,9 @@ public class CalendarHandlerImpl implements CalendarHandler {
     @Override
     public Collection<Interval> gatherSuitableSlots(ExamRoom room, LocalDate date, Integer examDuration) {
         // Resolve the opening hours for room and day
-        List<DateTimeHandler.OpeningHours> openingHours = dateTimeHandler.getWorkingHoursForDate(date, room);
+        List<DateTimeHandler.OpeningHours> openingHours = CollectionConverters.asJava(
+            dateTimeHandler.getWorkingHoursForDate(date, room)
+        );
         if (!openingHours.isEmpty()) {
             // Get suitable slots based on exam duration
             return allSlots(openingHours, room, date)
@@ -415,11 +417,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
 
     @Override
     public int getReservationWindowSize() {
-        String reservationWindow = SettingsController.getOrCreateSettings(
-            "reservation_window_size",
-            null,
-            null
-        ).getValue();
+        String reservationWindow = configReader.getOrCreateSettings("reservation_window_size", null, null).getValue();
         return reservationWindow != null ? Integer.parseInt(reservationWindow) : 0;
     }
 

@@ -18,6 +18,7 @@ import play.api.libs.json.{Json, Writes}
 import play.api.mvc.*
 import security.scala.Auth.authorized
 import security.scala.AuthExecutionContext
+import system.AuditedAction
 import validation.scala.core.{ScalaAttrs, Validators}
 import validation.scala.CommaJoinedListValidator
 
@@ -30,6 +31,7 @@ class ReportController @Inject() (
     val controllerComponents: ControllerComponents,
     val excelBuilder: ExcelBuilder,
     validators: Validators,
+    audited: AuditedAction,
     implicit val ec: AuthExecutionContext
 ) extends BaseController
     with DbApiHelper
@@ -177,9 +179,10 @@ class ReportController @Inject() (
   def exportExamQuestionScoresAsExcel(examId: Long): Action[AnyContent] =
     Action
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
-      .andThen(validators.validated(CommaJoinedListValidator)) { request =>
+      .andThen(validators.validated(CommaJoinedListValidator))
+      .andThen(audited) { request =>
         val childIds = request.attrs(ScalaAttrs.ID_LIST)
-        Try(excelBuilder.buildScoreExcel(examId, childIds.map(Long.box).asJava)) match
+        Try(excelBuilder.buildScoreExcel(examId, childIds)) match
           case Success(bos) =>
             val encoded = Base64.getEncoder.encodeToString(bos.toByteArray)
             Ok(encoded)

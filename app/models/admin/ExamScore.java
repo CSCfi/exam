@@ -12,7 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
-import miscellaneous.excel.ExcelBuilder.CellType;
+import miscellaneous.excel.CellType;
 import models.assessment.ExamRecord;
 import models.base.GeneratedIdentityModel;
 import models.exam.Exam;

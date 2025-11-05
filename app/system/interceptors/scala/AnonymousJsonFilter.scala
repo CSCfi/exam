@@ -29,34 +29,21 @@ class AnonymousJsonFilter @Inject() (implicit materializer: Materializer, ec: Ex
 
       override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
         block(request).flatMap { result =>
-          if (result.header.headers.contains(ANONYMOUS_HEADER)) {
+          if result.header.headers.contains(ANONYMOUS_HEADER) then
             val ids = request.attrs.get(TypedKey[Set[Long]](contextParamKey)).getOrElse(Set.empty)
             filterJsonResponse(result, ids, filteredProperties)
-          } else {
-            Future.successful(result)
-          }
+          else Future.successful(result)
         }
     }
 
   private def filterJsonResponse(result: Result, ids: Set[Long], properties: Set[String]): Future[Result] =
     val contentType = result.body.contentType.getOrElse("")
-
-    if (!contentType.equalsIgnoreCase("application/json") || properties.isEmpty) {
-      return Future.successful(result)
-    }
-
-    result.body match {
-      case HttpEntity.Strict(data, _) =>
-        filterStrictBody(result, data, ids, properties)
-
-      case _ =>
+    if !contentType.equalsIgnoreCase("application/json") || properties.isEmpty then Future.successful(result)
+    result.body match
+      case HttpEntity.Strict(data, _) => filterStrictBody(result, data, ids, properties)
+      case _                          =>
         // For streamed or chunked bodies, consume the stream first
-        result.body
-          .consumeData
-          .flatMap { data =>
-            filterStrictBody(result, data, ids, properties)
-          }
-    }
+        result.body.consumeData.flatMap(filterStrictBody(result, _, ids, properties))
 
   private def filterStrictBody(
       result: Result,
@@ -65,8 +52,8 @@ class AnonymousJsonFilter @Inject() (implicit materializer: Materializer, ec: Ex
       properties: Set[String]
   ): Future[Result] =
     Future {
-      val json = Json.parse(data.utf8String)
-      val filtered = JsonFilter.filter(json.as[JsonNode], ids, properties)
+      val json         = Json.parse(data.utf8String)
+      val filtered     = JsonFilter.filter(json.as[JsonNode], ids, properties)
       val filteredJson = Json.parse(play.libs.Json.stringify(filtered))
 
       Result(
@@ -76,8 +63,6 @@ class AnonymousJsonFilter @Inject() (implicit materializer: Materializer, ec: Ex
     }
 }
 
-/** Companion object providing constants for the anonymous JSON filter. */
-object AnonymousJsonFilter {
-  val ANONYMOUS_HEADER = "Anonymous"
+object AnonymousJsonFilter:
+  val ANONYMOUS_HEADER    = "Anonymous"
   val DEFAULT_CONTEXT_KEY = "ids"
-}

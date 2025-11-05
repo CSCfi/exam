@@ -44,6 +44,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
+import play.api.libs.json.JsValue;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.Json;
@@ -263,7 +264,9 @@ public class CollaborativeReviewController extends CollaborationController {
                                 calculateScores(root);
                                 File file;
                                 try {
-                                    file = csvBuilder.build(root);
+                                    // Convert Jackson JsonNode to Play JsValue
+                                    JsValue playJson = play.api.libs.json.Json.parse(root.toString());
+                                    file = csvBuilder.build(playJson);
                                 } catch (IOException e) {
                                     return internalServerError("i18n_error_creating_csv_file");
                                 }

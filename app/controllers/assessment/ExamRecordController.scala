@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.assessment
 
 import controllers.base.scala.ExamBaseController
@@ -17,9 +21,11 @@ import org.apache.pekko.actor.ActorSystem
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.Logging
+import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 import validation.scala.CommaJoinedListValidator
 import validation.scala.core.{ScalaAttrs, Validators}
 
@@ -33,6 +39,7 @@ class ExamRecordController @Inject() (
     val controllerComponents: ControllerComponents,
     val validators: Validators,
     val authenticated: AuthenticatedAction,
+    val audited: AuditedAction,
     val emailComposer: EmailComposer,
     val csvBuilder: CsvBuilder,
     val excelBuilder: ExcelBuilder,
@@ -47,70 +54,69 @@ class ExamRecordController @Inject() (
   private val XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
   @Transactional
-  def addExamRecord(): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { request =>
-      request.body.asJson match
-        case Some(json) =>
-          (json \ "id").asOpt[Long] match
-            case Some(id) =>
-              DB.find(classOf[Exam])
-                .fetch("parent")
-                .fetch("parent.creator")
-                .fetch("examSections.sectionQuestions.question")
-                .where()
-                .idEq(id)
-                .find match
-                case Some(exam) =>
-                  val user          = request.attrs(Auth.ATTR_USER)
-                  val gradeRequired = exam.getGradingType == Grade.Type.GRADED
-                  validateExamState(exam, gradeRequired, user).getOrElse {
-                    exam.setState(Exam.State.GRADED_LOGGED)
-                    exam.update()
-                    DB.find(classOf[ExamParticipation]).fetch("user").where.eq("exam.id", exam.getId).find match
-                      case Some(participation) =>
-                        val record = createRecord(exam, participation, gradeRequired)
-                        val score  = createScore(record, participation.getEnded)
-                        score.save()
-                        record.setExamScore(score)
-                        record.save()
-                        actorSystem.scheduler.scheduleOnce(1.seconds) {
-                          emailComposer.composeInspectionReady(exam.getCreator, user, exam)
-                          this.logger.info(s"Inspection ready notification email sent to ${user.getEmail}")
-                        }
-                        Ok("ok")
-                      case None => NotFound
-                  }
-                case None => NotFound
-            case None => BadRequest
-        case None => BadRequest
-    }
+  def addExamRecord(): Action[JsValue] =
+    authenticated
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
+      .andThen(audited)(parse.json) { request =>
+        (request.body \ "id").asOpt[Long] match
+          case Some(id) =>
+            DB.find(classOf[Exam])
+              .fetch("parent")
+              .fetch("parent.creator")
+              .fetch("examSections.sectionQuestions.question")
+              .where()
+              .idEq(id)
+              .find match
+              case Some(exam) =>
+                val user          = request.attrs(Auth.ATTR_USER)
+                val gradeRequired = exam.getGradingType == Grade.Type.GRADED
+                validateExamState(exam, gradeRequired, user).getOrElse {
+                  exam.setState(Exam.State.GRADED_LOGGED)
+                  exam.update()
+                  DB.find(classOf[ExamParticipation]).fetch("user").where.eq("exam.id", exam.getId).find match
+                    case Some(participation) =>
+                      val record = createRecord(exam, participation, gradeRequired)
+                      val score  = createScore(record, participation.getEnded)
+                      score.save()
+                      record.setExamScore(score)
+                      record.save()
+                      actorSystem.scheduler.scheduleOnce(1.seconds) {
+                        emailComposer.composeInspectionReady(exam.getCreator, user, exam)
+                        this.logger.info(s"Inspection ready notification email sent to ${user.getEmail}")
+                      }
+                      Ok("ok")
+                    case None => NotFound
+                }
+              case None => NotFound
+          case None => BadRequest
 
-  def registerExamWithoutRecord(): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { request =>
-      request.body.asJson match
-        case Some(json) =>
-          (json \ "id").asOpt[Long] match
-            case Some(id) =>
-              DB.find(classOf[Exam])
-                .fetch("languageInspection")
-                .fetch("parent")
-                .fetch("parent.creator")
-                .where()
-                .idEq(id)
-                .find match
-                case Some(exam) =>
-                  val user = request.attrs(Auth.ATTR_USER)
-                  validateExamState(exam, false, user).getOrElse {
-                    exam.setState(Exam.State.GRADED_LOGGED)
-                    exam.setGrade(null)
-                    exam.setGradingType(Grade.Type.NOT_GRADED)
-                    exam.update()
-                    Ok
-                  }
-                case None => NotFound("i18n_error_exam_not_found")
-            case None => BadRequest
-        case None => BadRequest
-    }
+      }
+
+  def registerExamWithoutRecord(): Action[JsValue] =
+    authenticated
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
+      .andThen(audited)(parse.json) { request =>
+        (request.body \ "id").asOpt[Long] match
+          case Some(id) =>
+            DB.find(classOf[Exam])
+              .fetch("languageInspection")
+              .fetch("parent")
+              .fetch("parent.creator")
+              .where()
+              .idEq(id)
+              .find match
+              case Some(exam) =>
+                val user = request.attrs(Auth.ATTR_USER)
+                validateExamState(exam, false, user).getOrElse {
+                  exam.setState(Exam.State.GRADED_LOGGED)
+                  exam.setGrade(null)
+                  exam.setGradingType(Grade.Type.NOT_GRADED)
+                  exam.update()
+                  Ok
+                }
+              case None => NotFound("i18n_error_exam_not_found")
+          case None => BadRequest
+      }
 
   def exportExamRecordsAsCsv(start: Long, end: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { request =>
@@ -128,7 +134,7 @@ class ExamRecordController @Inject() (
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
     .andThen(validators.validated(CommaJoinedListValidator)) { request =>
       val ids = request.attrs(ScalaAttrs.ID_LIST)
-      Try(csvBuilder.build(examId, ids.map(Long.box).asJava)) match
+      Try(csvBuilder.build(examId, ids)) match
         case Success(file) =>
           val contentDisposition = fileHandler.getContentDisposition(file)
           val content            = fileHandler.encodeAndDelete(file)
@@ -142,7 +148,7 @@ class ExamRecordController @Inject() (
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
     .andThen(validators.validated(CommaJoinedListValidator)) { request =>
       val ids = request.attrs(ScalaAttrs.ID_LIST)
-      Using(excelBuilder.build(examId, ids.map(Long.box).asJava)) { bos =>
+      Using(excelBuilder.build(examId, ids)) { bos =>
         Ok(Base64.getEncoder.encodeToString(bos.toByteArray))
           .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.xlsx\"")
           .as(XLSX_MIME)

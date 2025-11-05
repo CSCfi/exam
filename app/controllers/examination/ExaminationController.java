@@ -8,7 +8,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import controllers.admin.SettingsController;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import impl.AutoEvaluationHandler;
@@ -28,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 import miscellaneous.config.ByodConfigHandler;
+import miscellaneous.config.ConfigReader;
 import miscellaneous.datetime.DateTimeHandler;
 import models.admin.GeneralSettings;
 import models.assessment.ExamInspection;
@@ -74,6 +74,7 @@ public class ExaminationController extends BaseController {
     private final ExternalAttachmentLoader externalAttachmentLoader;
     private final ByodConfigHandler byodConfigHandler;
     protected final DateTimeHandler dateTimeHandler;
+    protected final ConfigReader configReader;
 
     private final Logger logger = LoggerFactory.getLogger(ExaminationController.class);
 
@@ -87,7 +88,8 @@ public class ExaminationController extends BaseController {
         ClassLoaderExecutionContext httpExecutionContext,
         ExternalAttachmentLoader externalAttachmentLoader,
         ByodConfigHandler byodConfigHandler,
-        DateTimeHandler dateTimeHandler
+        DateTimeHandler dateTimeHandler,
+        ConfigReader configReader
     ) {
         this.emailComposer = emailComposer;
         this.examinationRepository = examinationRepository;
@@ -98,6 +100,7 @@ public class ExaminationController extends BaseController {
         this.externalAttachmentLoader = externalAttachmentLoader;
         this.byodConfigHandler = byodConfigHandler;
         this.dateTimeHandler = dateTimeHandler;
+        this.configReader = configReader;
     }
 
     private Result postProcessClone(ExamEnrolment enrolment, Optional<Exam> oe) {
@@ -296,7 +299,11 @@ public class ExaminationController extends BaseController {
                     ExamParticipation ep = oep.get();
                     setDurations(ep);
 
-                    GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
+                    GeneralSettings settings = configReader.getOrCreateSettings(
+                        "review_deadline",
+                        null,
+                        OptionConverters.toScala(Optional.of("14"))
+                    );
                     int deadlineDays = Integer.parseInt(settings.getValue());
                     DateTime deadline = ep.getEnded().plusDays(deadlineDays);
                     ep.setDeadline(deadline);

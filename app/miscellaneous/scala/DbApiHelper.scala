@@ -20,5 +20,5 @@ trait DbApiHelper:
   // As a result, we get None as expected.
   extension [T](o: Option[T]) def nonNull: Option[T] = o.flatMap(Option(_))
 
-  extension [T <: Model](q: Query[T])
-    def distinct: Set[T] = q.findSet().asScala.toSet
+  extension [T <: Model](q: Query[T]) def distinct: Set[T] = q.findSet().asScala.toSet
+

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 # Session-Based Permission Checking
 
 Permissions are stored in the session for efficient, database-free authorization checks.
