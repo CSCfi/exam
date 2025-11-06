@@ -173,7 +173,6 @@ class CalendarController @Inject() (
                           case Some(old) if old.getExternalRef != null =>
                             externalReservationHandler
                               .removeReservation(old, user, "")
-                              .asScala
                               .flatMap { _ =>
                                 // Re-fetch enrolment
                                 val updatedEnrolmentOpt = Option(

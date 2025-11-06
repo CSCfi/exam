@@ -356,13 +356,13 @@ public class EnrolmentController extends BaseController {
             if (!enrolmentsWithFutureReservations.isEmpty()) {
                 ExamEnrolment enrolment = enrolmentsWithFutureReservations.getFirst();
                 Reservation reservation = enrolment.getReservation();
-                return externalReservationHandler
-                    .removeReservation(reservation, user, "")
-                    .thenApplyAsync(_ -> {
-                        enrolment.delete();
-                        ExamEnrolment newEnrolment = makeEnrolment(exam, user);
-                        return ok(newEnrolment);
-                    });
+                return FutureConverters.asJava(
+                    externalReservationHandler.removeReservation(reservation, user, "")
+                ).thenApplyAsync(_ -> {
+                    enrolment.delete();
+                    ExamEnrolment newEnrolment = makeEnrolment(exam, user);
+                    return ok(newEnrolment);
+                });
             }
             List<ExamEnrolment> enrolmentsWithFutureExaminationEvents = enrolments
                 .stream()

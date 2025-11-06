@@ -194,15 +194,6 @@ class CollaborativeExternalCalendarController @Inject() (
                               InternalServerError((root \ "message").asOpt[String].getOrElse("Connection refused"))
                             else
                               val slots = calendarHandler.postProcessSlots(root, dateValue, exam, user)
-                              implicit val timeSlotWrites: Writes[CalendarHandler.TimeSlot] = Writes { slot =>
-                                Json.obj(
-                                  "start"             -> slot.getStart,
-                                  "end"               -> slot.getEnd,
-                                  "availableMachines" -> slot.getAvailableMachines,
-                                  "ownReservation"    -> slot.isOwnReservation,
-                                  "conflictingExam"   -> Option(slot.getConflictingExam)
-                                )
-                              }
                               Ok(Json.toJson(slots.toSeq))
                           }
                         catch

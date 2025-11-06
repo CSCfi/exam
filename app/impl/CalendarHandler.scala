@@ -11,7 +11,7 @@ import models.facility.{ExamMachine, ExamRoom}
 import models.user.User
 import org.joda.time.{DateTime, Interval, LocalDate}
 import org.joda.time.format.ISODateTimeFormat
-import play.api.libs.json.JsValue
+import play.api.libs.json.{Json, JsValue, Writes}
 import play.api.mvc.Result
 
 import scala.concurrent.Future
@@ -77,16 +77,13 @@ object CalendarHandler:
     val ownReservation: Boolean = machineCount < 0
     val conflictingExam: String = exam
 
-    def getStart: String           = start
-    def getEnd: String             = end
-    def getAvailableMachines: Int  = availableMachines
-    def isOwnReservation: Boolean  = ownReservation
-    def getConflictingExam: String = conflictingExam
-
-    // Case class already provides equals and hashCode, but we need to match Java behavior
-    override def equals(obj: Any): Boolean = obj match
-      case that: TimeSlot => this.start == that.start && this.end == that.end
-      case _              => false
-
-    override def hashCode(): Int =
-      31 * start.hashCode + end.hashCode
+  object TimeSlot:
+    // JSON serialization for TimeSlot (excludes the Interval field to avoid Joda serialization issues)
+    implicit val writes: Writes[TimeSlot] = (slot: TimeSlot) =>
+      Json.obj(
+        "start"             -> slot.start,
+        "end"               -> slot.end,
+        "availableMachines" -> slot.availableMachines,
+        "ownReservation"    -> slot.ownReservation,
+        "conflictingExam"   -> slot.conflictingExam
+      )

@@ -21,10 +21,9 @@ import org.apache.pekko.actor.ActorSystem
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.*
 import play.api.Logging
-import play.api.libs.json.{JsArray, JsValue}
+import play.api.libs.json.{JsArray, JsValue, Json, Writes}
 import play.api.mvc.*
 import play.api.mvc.Results.*
-import play.libs.Json as JavaJson
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -93,7 +92,7 @@ class CalendarHandlerImpl @Inject() (
             catch case _: IllegalArgumentException => List.empty
           else List.empty
 
-        Ok(JavaJson.toJson(slots.asJava).toString).as("application/json")
+        Ok(Json.toJson(slots))
 
   override def isDoable(reservation: Reservation, aids: Seq[Long]): Boolean =
     val dtz        = DateTimeZone.forID(reservation.getMachine.getRoom.getLocalTimezone)
@@ -421,13 +420,11 @@ class CalendarHandlerImpl @Inject() (
       case Some(old) if Option(old.getExternalReservation).isDefined =>
         externalReservationHandler
           .removeExternalReservation(old)
-          .asScala
-          .map { javaErrorOpt =>
-            val errorOpt = javaErrorOpt.toScala
+          .map { errorOpt =>
             if errorOpt.isEmpty then
               DB.delete(old)
               postProcessRemoval(reservation, exam, user, machineNode)
-            errorOpt // Return None if success, Some(errorCode) if error
+            errorOpt.map(Int.box) // Return None if success, Some(errorCode) if error
           }
       case Some(old) =>
         DB.delete(old)

@@ -150,7 +150,6 @@ class ReservationController @Inject() (
           if reservation.getExternalReservation != null then
             externalReservationHandler
               .removeReservation(reservation, enrolment.getUser, msgOpt.getOrElse(""))
-              .asScala
               .map(_ => Ok)
           else
             enrolment.setReservation(null)

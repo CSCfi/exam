@@ -314,7 +314,7 @@ class ExternalCalendarController @Inject() (
       Option(DB.find(classOf[Reservation]).where().eq("externalRef", ref).findOne()) match
         case None => Future.successful(NotFound(f"No reservation with ref $ref."))
         case Some(reservation) =>
-          externalReservationHandler.removeReservation(reservation, user, "").asScala.map(_ => Ok)
+          externalReservationHandler.removeReservation(reservation, user, "").map(_ => Ok)
     }
 
   def requestReservationRevocation(ref: String): Action[AnyContent] =
@@ -402,17 +402,6 @@ class ExternalCalendarController @Inject() (
                       else
                         val root  = response.json
                         val slots = calendarHandler.postProcessSlots(root, d, exam, user)
-
-                        implicit val timeSlotWrites: Writes[CalendarHandler.TimeSlot] =
-                          (slot: CalendarHandler.TimeSlot) =>
-                            Json.obj(
-                              "start"             -> slot.start,
-                              "end"               -> slot.end,
-                              "availableMachines" -> slot.availableMachines,
-                              "ownReservation"    -> slot.ownReservation,
-                              "conflictingExam"   -> slot.conflictingExam
-                            )
-
                         Ok(Json.toJson(slots))
                     }
                 catch
