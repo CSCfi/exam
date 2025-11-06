@@ -5,12 +5,10 @@
 package validation.scala.exam
 
 import cats.data.ValidatedNel
-import com.fasterxml.jackson.databind.JsonNode
 import org.joda.time.DateTime
 import play.api.libs.json.*
-import play.mvc.Http
+import play.api.mvc.{Request, Result, Results}
 import validation.scala.core.*
-import validation.java.core.{Attrs, ValidatorAction}
 
 case class ExaminationEventDTO(
     start: DateTime,
@@ -18,18 +16,8 @@ case class ExaminationEventDTO(
     capacity: Int,
     settingsPassword: Option[String],
     quitPassword: Option[String]
-):
-  def getSettingsPasswordAsJava: java.util.Optional[String] =
-    settingsPassword match
-      case Some(pwd) => java.util.Optional.of(pwd)
-      case None      => java.util.Optional.empty()
-
-  def getQuitPasswordAsJava: java.util.Optional[String] =
-    quitPassword match
-      case Some(pwd) => java.util.Optional.of(pwd)
-      case None      => java.util.Optional.empty()
-
-class ExaminationEventValidator extends ValidatorAction:
+)
+object ExaminationEventValidator extends PlayJsonValidator:
 
   private object EventValidator:
     def get(body: JsValue): Either[ValidationException, ExaminationEventDTO] =
@@ -50,33 +38,41 @@ class ExaminationEventValidator extends ValidatorAction:
 
   private object EventParser:
     def parseFromJson(body: JsValue): ExaminationEventDTO =
-      val configNode = (body \ "config").asOpt[JsValue]
+      val configNode = (body \ "config")
+        .asOpt[JsValue]
         .getOrElse(throw SanitizingException("missing required data"))
 
-      val settingsPassword = (configNode \ "settingsPassword").asOpt[String]
+      val settingsPassword = (configNode \ "settingsPassword")
+        .asOpt[String]
         .filter(_.nonEmpty)
 
-      val quitPassword = (configNode \ "quitPassword").asOpt[String]
+      val quitPassword = (configNode \ "quitPassword")
+        .asOpt[String]
         .filter(_.nonEmpty)
 
-      val eventNode = (configNode \ "examinationEvent").asOpt[JsValue]
+      val eventNode = (configNode \ "examinationEvent")
+        .asOpt[JsValue]
         .getOrElse(throw SanitizingException("missing examinationEvent"))
 
       val start = PlayJsonHelper
         .parseDateTime("start", eventNode)
         .getOrElse(throw SanitizingException("missing or invalid start date"))
 
-      val description = (eventNode \ "description").asOpt[String]
+      val description = (eventNode \ "description")
+        .asOpt[String]
         .filter(_.nonEmpty)
         .getOrElse(throw SanitizingException("missing description"))
 
-      val capacity = (eventNode \ "capacity").asOpt[Int]
+      val capacity = (eventNode \ "capacity")
+        .asOpt[Int]
         .getOrElse(throw SanitizingException("missing or invalid capacity"))
 
       ExaminationEventDTO(start, description, capacity, settingsPassword, quitPassword)
 
-  override def sanitize(req: Http.Request, body: JsonNode): Http.Request =
-    val jsValue = Json.parse(body.toString)
-    EventValidator.get(jsValue) match
-      case Right(event) => req.addAttr(Attrs.EXAMINATION_EVENT, event)
-      case Left(ex)     => throw ex
+  override def sanitize(
+      request: Request[play.api.mvc.AnyContent],
+      json: JsValue
+  ): Either[Result, Request[play.api.mvc.AnyContent]] =
+    EventValidator.get(json) match
+      case Right(event) => Right(request.addAttr(ScalaAttrs.EXAMINATION_EVENT, event))
+      case Left(ex)     => Left(Results.BadRequest(ex.getMessage))

@@ -1,0 +1,112 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package controllers.integration
+
+import io.ebean.DB
+import io.ebean.text.PathProperties
+import miscellaneous.datetime.DateTimeHandler
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
+import models.enrolment.Reservation
+import models.exam.Exam
+import models.facility.ExamRoom
+import org.joda.time.LocalDate
+import org.joda.time.format.ISODateTimeFormat
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import security.scala.Auth.subjectNotPresent
+
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
+import scala.jdk.CollectionConverters.*
+
+class ReservationAPIController @Inject() (
+    dateTimeHandler: DateTimeHandler,
+    val controllerComponents: ControllerComponents,
+    implicit val ec: ExecutionContext
+) extends BaseController
+    with DbApiHelper
+    with JavaApiHelper:
+
+  def getReservations(start: Option[String], end: Option[String], roomId: Option[Long]): Action[AnyContent] =
+    Action.andThen(subjectNotPresent) { _ =>
+      val pp = PathProperties.parse(
+        "(startAt, endAt, externalUserRef, " +
+          "user(firstName, lastName, email, userIdentifier), " +
+          "enrolment(noShow, " +
+          "exam(id, name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)), course(name, code, credits, " +
+          "identifier, gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation))), " +
+          "collaborativeExam(name)" +
+          "), " +
+          "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))"
+      )
+      val query = DB.find(classOf[Reservation])
+      pp.apply(query)
+      var el = query
+        .where()
+        .or()  // *
+        .and() // **
+        .isNotNull("enrolment")
+        .or() // ***
+        .isNotNull("enrolment.collaborativeExam")
+        .ne("enrolment.exam.state", Exam.State.DELETED)
+        .endOr()  // ***
+        .endAnd() // **
+        .isNotNull("externalUserRef")
+        .endOr() // *
+
+      start.foreach { s =>
+        val startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(s)
+        el = el.ge("startAt", startDate.toDate)
+      }
+
+      end.foreach { e =>
+        val endDate = ISODateTimeFormat.dateTimeParser().parseDateTime(e)
+        el = el.lt("endAt", endDate.toDate)
+      }
+
+      roomId.foreach { id =>
+        el = el.eq("machine.room.id", id)
+      }
+
+      val reservations = el.distinct
+        .map { r =>
+          r.setStartAt(dateTimeHandler.normalize(r.getStartAt, r))
+          r.setEndAt(dateTimeHandler.normalize(r.getEndAt, r))
+          r
+        }
+        .toList
+        .sortBy(r => r.getStartAt.getMillis)
+
+      Ok(reservations.asJson(pp))
+    }
+
+  def getRooms: Action[AnyContent] =
+    Action.andThen(subjectNotPresent) { _ =>
+      val pp    = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
+      val query = DB.find(classOf[ExamRoom])
+      pp.apply(query)
+      val rooms = query.orderBy("name").list
+      Ok(rooms.asJson(pp))
+    }
+
+  def getRoomOpeningHours(roomId: Long, date: Option[String]): Action[AnyContent] =
+    Action.andThen(subjectNotPresent) { _ =>
+      date match
+        case None => BadRequest("no search date given")
+        case Some(d) =>
+          val searchDate = ISODateTimeFormat.dateParser().parseLocalDate(d)
+          val pp         = PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))")
+          val query      = DB.find(classOf[ExamRoom])
+          pp.apply(query)
+          query.where().idEq(roomId).find match
+            case None => NotFound("room not found")
+            case Some(room) =>
+              val filteredEvents = room.getCalendarExceptionEvents.asScala.filter { ee =>
+                val start = new LocalDate(ee.getStartDate).withDayOfMonth(1)
+                val end   = new LocalDate(ee.getEndDate).dayOfMonth().withMaximumValue()
+                !start.isAfter(searchDate) && !end.isBefore(searchDate)
+              }
+              room.setCalendarExceptionEvents(filteredEvents.asJava)
+              Ok(room.asJson(pp))
+    }

@@ -20,7 +20,7 @@ import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext, CombinedRoleAndPermissionFilter, PermissionFilter}
 import system.AuditedAction
-import validation.scala.CommentValidator
+import validation.scala.assessment.CommentValidator
 import validation.scala.core.{ScalaAttrs, Validators}
 
 import java.net.URLDecoder

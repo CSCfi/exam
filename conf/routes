@@ -5,25 +5,25 @@
 GET           /                                                               controllers.assets.FrontendController.index()
 
 ############### Session interface ############
-GET           /app/session                                                    controllers.user.SessionController.checkSession(request: Request)
-PUT           /app/session                                                    controllers.user.SessionController.extendSession(request: Request)
-POST          /app/session                                                    controllers.user.SessionController.login(request: Request)
-DELETE        /app/session                                                    controllers.user.SessionController.logout(request: Request)
+GET           /app/session                                                    controllers.user.SessionController.checkSession()
+PUT           /app/session                                                    controllers.user.SessionController.extendSession()
+POST          /app/session                                                    controllers.user.SessionController.login()
+DELETE        /app/session                                                    controllers.user.SessionController.logout()
 
 ############### User interface ###############
 GET           /app/users/byrole/:role                                         controllers.user.UserController.listUsersByRole(role: String)
 GET           /app/users/teachers                                             controllers.user.UserController.listTeachers(q: String)
-GET           /app/users/question/owners/:role                                controllers.user.UserController.listQuestionOwners(role: String, q: String, qid: java.util.Optional[java.lang.Long], request: Request)
-PUT           /app/users/agreement                                            controllers.user.UserController.updateUserAgreementAccepted(request: Request)
-PUT           /app/user/lang                                                  controllers.user.UserController.updateLanguage(request: Request)
-GET           /app/users                                                      controllers.user.UserController.listUsers(filter: java.util.Optional[String])
+GET           /app/users/question/owners/:role                                controllers.user.UserController.listQuestionOwners(role: String, q: String, qid: Option[Long])
+PUT           /app/users/agreement                                            controllers.user.UserController.updateUserAgreementAccepted()
+PUT           /app/user/lang                                                  controllers.user.UserController.updateLanguage()
+GET           /app/users                                                      controllers.user.UserController.listUsers(filter: Option[String])
 POST          /app/users/:id/roles/:rname                                     controllers.user.UserController.addRole(id: Long, rname: String)
 DELETE        /app/users/:id/roles/:rname                                     controllers.user.UserController.removeRole(id: Long, rname: String)
-PUT           /app/users/roles/:rname                                         controllers.user.SessionController.setLoginRole(rname: String, request: Request)
+PUT           /app/users/roles/:rname                                         controllers.user.SessionController.setLoginRole(rname: String)
 GET           /app/students/:eid                                              controllers.user.UserController.listUnenrolledStudents(eid: Long, q: String)
-GET           /app/permissions                                                controllers.user.UserController.listPermissions
-POST          /app/permissions                                                controllers.user.UserController.grantUserPermission(request: Request)
-DELETE        /app/permissions                                                controllers.user.UserController.revokeUserPermission(request: Request)
+GET           /app/permissions                                                controllers.user.UserController.listPermissions()
+POST          /app/permissions                                                controllers.user.UserController.grantUserPermission()
+DELETE        /app/permissions                                                controllers.user.UserController.revokeUserPermission()
 
 ############### Exam interface ###############
 GET           /app/exams                                                      controllers.exam.ExamController.searchExams(filter: java.util.Optional[String], request: Request)
@@ -60,15 +60,15 @@ DELETE        /app/exams/inspector/:id                                        co
 PUT           /app/exams/inspection/:id                                       controllers.assessment.ExamInspectionController.setOutcome(id: Long)
 
 ############### Printout exam interface ###############
-POST          /app/exam/:id/examinationdate                                   controllers.enrolment.ExaminationEventController.insertExaminationDate(id: Long, request: Request)
+POST          /app/exam/:id/examinationdate                                   controllers.enrolment.ExaminationEventController.insertExaminationDate(id: Long)
 DELETE        /app/exam/:id/examinationdate/:edid                             controllers.enrolment.ExaminationEventController.removeExaminationDate(id: Long, edid: Long)
 GET           /app/exam/printouts                                             controllers.exam.ExamController.listPrintouts
 
 ############### Examination events interface ############
-POST          /app/exam/:eid/examinationevents                                controllers.enrolment.ExaminationEventController.insertExaminationEvent(eid: Long, request: Request)
-PUT           /app/exam/:eid/examinationevents/:eecid                         controllers.enrolment.ExaminationEventController.updateExaminationEvent(eid: Long, eecid: Long, request: Request)
+POST          /app/exam/:eid/examinationevents                                controllers.enrolment.ExaminationEventController.insertExaminationEvent(eid: Long)
+PUT           /app/exam/:eid/examinationevents/:eecid                         controllers.enrolment.ExaminationEventController.updateExaminationEvent(eid: Long, eecid: Long)
 DELETE        /app/exam/:eid/examinationevents/:eecid                         controllers.enrolment.ExaminationEventController.removeExaminationEvent(eid: Long, eecid: Long)
-GET           /app/examinationevents                                          controllers.enrolment.ExaminationEventController.listExaminationEvents(start: java.util.Optional[String], end: java.util.Optional[String])
+GET           /app/examinationevents                                          controllers.enrolment.ExaminationEventController.listExaminationEvents(start: Option[String], end: Option[String])
 GET           /app/examinationevents/conflicting                              controllers.enrolment.ExaminationEventController.listOverlappingExaminationEvents(start: String, duration: Int)
 
 ############### Question review interface ###############
@@ -102,16 +102,16 @@ POST          /app/iop/student/exam/:hash/question/:questionId                co
 POST          /app/iop/student/exam/:hash/clozetest/:questionId               controllers.iop.transfer.impl.ExternalExaminationController.answerClozeTest(hash: String, questionId: Long, request: Request)
 
 ############### Student actions interface #########
-GET           /app/feedback/exams/:eid                                        controllers.enrolment.StudentActionsController.getExamFeedback(eid: Long, request: Request)
-GET           /app/feedback/exams/:eid/score                                  controllers.enrolment.StudentActionsController.getExamScore(eid: Long, request: Request)
+GET           /app/feedback/exams/:eid                                        controllers.enrolment.StudentActionsController.getExamFeedback(eid: Long)
+GET           /app/feedback/exams/:eid/score                                  controllers.enrolment.StudentActionsController.getExamScore(eid: Long)
 GET           /app/feedback/exams/:eid/answers                                controllers.assessment.ExamAnswerController.listAnswers(eid: Long)
-GET           /app/feedback/exams/:eid/report                                 controllers.enrolment.StudentActionsController.getExamScoreReport(eid: Long, request: Request)
-GET           /app/student/finishedexams                                      controllers.enrolment.StudentActionsController.getFinishedExams(filter: java.util.Optional[String], request: Request)
-GET           /app/student/enrolments                                         controllers.enrolment.StudentActionsController.getEnrolmentsForUser(request: Request)
-GET           /app/student/exam/:eid/info                                     controllers.enrolment.StudentActionsController.getExamInfo(eid: Long, request: Request)
-GET           /app/student/exams                                              controllers.enrolment.StudentActionsController.listAvailableExams(filter: java.util.Optional[String], request: Request)
-GET           /app/student/enrolments/:eid                                    controllers.enrolment.StudentActionsController.getEnrolment(eid: Long, request: Request)
-GET           /app/student/enrolments/:eid/configFile                         controllers.enrolment.StudentActionsController.getExamConfigFile(eid: Long, request: Request)
+GET           /app/feedback/exams/:eid/report                                 controllers.enrolment.StudentActionsController.getExamScoreReport(eid: Long)
+GET           /app/student/finishedexams                                      controllers.enrolment.StudentActionsController.getFinishedExams(filter: Option[String])
+GET           /app/student/enrolments                                         controllers.enrolment.StudentActionsController.getEnrolmentsForUser()
+GET           /app/student/exam/:eid/info                                     controllers.enrolment.StudentActionsController.getExamInfo(eid: Long)
+GET           /app/student/exams                                              controllers.enrolment.StudentActionsController.listAvailableExams(filter: Option[String])
+GET           /app/student/enrolments/:eid                                    controllers.enrolment.StudentActionsController.getEnrolment(eid: Long)
+GET           /app/student/enrolments/:eid/configFile                         controllers.enrolment.StudentActionsController.getExamConfigFile(eid: Long)
 PUT           /app/enrolments/:id/retrial                                     controllers.enrolment.EnrolmentController.permitRetrial(id: Long)
 
 ############### Section interface ###############
@@ -172,15 +172,15 @@ PUT           /app/inspection/:id/statement                                   co
 GET           /app/enrolments                                                  controllers.enrolment.EnrolmentController.listEnrolledExams(code: String)
 GET           /app/enrolments/reservation/:id                                  controllers.enrolment.EnrolmentController.enrolmentsByReservation(id: Long)
 GET           /app/enrolments/:id                                              controllers.enrolment.EnrolmentController.getEnrolledExamInfo(code: String, id: Long)
-POST          /app/enrolments/:id                                              controllers.enrolment.EnrolmentController.createEnrolment(id: Long, request: Request)
-GET           /app/enrolments/exam/:id                                         controllers.enrolment.EnrolmentController.checkIfEnrolled(id: Long, request: Request)
-POST          /app/enrolments/student/:eid                                     controllers.enrolment.EnrolmentController.createStudentEnrolment(eid: Long, request: Request)
-DELETE        /app/enrolments/:id                                              controllers.enrolment.EnrolmentController.removeEnrolment(id: Long, request: Request)
-DELETE        /app/enrolments/student/:id                                      controllers.enrolment.EnrolmentController.removeStudentEnrolment(id: Long, request: Request)
-PUT           /app/enrolments/:eid                                             controllers.enrolment.EnrolmentController.updateEnrolment(eid: Long, request: Request)
-GET           /app/enrolments/room/:hash                                       controllers.enrolment.EnrolmentController.getRoomInfoFromEnrolment(hash: String, request: Request)
-POST          /app/enrolments/:eid/examination/:cid                            controllers.enrolment.EnrolmentController.addExaminationEventConfig(eid: Long, cid: Long, request: Request)
-DELETE        /app/enrolments/:eid/examination                                 controllers.enrolment.EnrolmentController.removeExaminationEventConfig(eid: Long, request: Request)
+POST          /app/enrolments/:id                                              controllers.enrolment.EnrolmentController.createEnrolment(id: Long)
+GET           /app/enrolments/exam/:id                                         controllers.enrolment.EnrolmentController.checkIfEnrolled(id: Long)
+POST          /app/enrolments/student/:eid                                     controllers.enrolment.EnrolmentController.createStudentEnrolment(eid: Long)
+DELETE        /app/enrolments/:id                                              controllers.enrolment.EnrolmentController.removeEnrolment(id: Long)
+DELETE        /app/enrolments/student/:id                                      controllers.enrolment.EnrolmentController.removeStudentEnrolment(id: Long)
+PUT           /app/enrolments/:eid                                             controllers.enrolment.EnrolmentController.updateEnrolment(eid: Long)
+GET           /app/enrolments/room/:hash                                       controllers.enrolment.EnrolmentController.getRoomInfoFromEnrolment(hash: String)
+POST          /app/enrolments/:eid/examination/:cid                            controllers.enrolment.EnrolmentController.addExaminationEventConfig(eid: Long, cid: Long)
+DELETE        /app/enrolments/:eid/examination                                 controllers.enrolment.EnrolmentController.removeExaminationEventConfig(eid: Long)
 DELETE        /app/enrolments/configs/:eecid                                   controllers.enrolment.EnrolmentController.removeExaminationEvent(eecid: Long)
 
 
@@ -206,27 +206,27 @@ GET           /app/questions/:id/preview/library                               c
 
 ############### Reservation interface ###############
 
-GET           /app/rooms                                                       controllers.facility.RoomController.getExamRooms(request: Request)
+GET           /app/rooms                                                       controllers.facility.RoomController.getExamRooms
 GET           /app/rooms/:id                                                   controllers.facility.RoomController.getExamRoom(id: Long)
-PUT           /app/rooms/:id                                                   controllers.facility.RoomController.updateExamRoom(id: Long, request: Request)
+PUT           /app/rooms/:id                                                   controllers.facility.RoomController.updateExamRoom(id: Long)
 DELETE        /app/rooms/:id                                                   controllers.facility.RoomController.inactivateExamRoom(id: Long)
 POST          /app/rooms/:id                                                   controllers.facility.RoomController.activateExamRoom(id: Long)
-POST          /app/rooms/:id/validate                                          controllers.facility.RoomController.validatePassword(id: Long, request: Request)
+POST          /app/rooms/:id/validate                                          controllers.facility.RoomController.validatePassword(id: Long)
 
-PUT           /app/address/:id                                                 controllers.facility.RoomController.updateExamRoomAddress(id: Long, request: Request)
+PUT           /app/address/:id                                                 controllers.facility.RoomController.updateExamRoomAddress(id: Long)
 
-POST          /app/workinghours                                                controllers.facility.RoomController.updateExamRoomWorkingHours(request: Request)
+POST          /app/workinghours                                                controllers.facility.RoomController.updateExamRoomWorkingHours()
 DELETE        /app/workinghours/:rid/:id                                       controllers.facility.RoomController.removeExamRoomWorkingHours(rid: Long, id: Long)
-PUT           /app/startinghours                                               controllers.facility.RoomController.updateExamStartingHours(request: Request)
-PUT           /app/exception                                                   controllers.facility.RoomController.addRoomExceptionHours(request: Request)
+PUT           /app/startinghours                                               controllers.facility.RoomController.updateExamStartingHours()
+PUT           /app/exception                                                   controllers.facility.RoomController.addRoomExceptionHours()
 DELETE        /app/rooms/:roomId/exception/:exceptionId                        controllers.facility.RoomController.removeRoomExceptionHour(roomId: Long, exceptionId: Long)
 
-POST          /app/room/:id/accessibility                                      controllers.facility.RoomController.updateExamRoomAccessibility(id: Long, request: Request)
+POST          /app/room/:id/accessibility                                      controllers.facility.RoomController.updateExamRoomAccessibility(id: Long)
 
 DELETE        /app/accessibility/:id                                           controllers.facility.AccessibilityController.removeAccessibility(id: Long)
-POST          /app/accessibility                                               controllers.facility.AccessibilityController.addAccessibility(request: Request)
-PUT           /app/accessibility                                               controllers.facility.AccessibilityController.updateAccessibility(request: Request)
-GET           /app/accessibility                                               controllers.facility.AccessibilityController.getAccessibilities
+POST          /app/accessibility                                               controllers.facility.AccessibilityController.addAccessibility()
+PUT           /app/accessibility                                               controllers.facility.AccessibilityController.updateAccessibility()
+GET           /app/accessibility                                               controllers.facility.AccessibilityController.listAccessibilityItems
 
 GET           /app/draft/rooms                                                 controllers.facility.RoomController.createExamRoomDraft
 
@@ -245,7 +245,7 @@ PUT           /app/reservations/:id/machine                                    c
 GET           /app/machines                                                    controllers.facility.ExamMachineController.getExamMachines
 GET           /app/machines/:id                                                controllers.facility.ExamMachineController.getExamMachine(id: Long)
 GET           /app/machines/:id/reservations                                   controllers.facility.ExamMachineController.getExamMachineReservationsFromNow(id: Long)
-PUT           /app/machines/:id                                                controllers.facility.ExamMachineController.updateExamMachine(id: Long, request: Request)
+PUT           /app/machines/:id                                                controllers.facility.ExamMachineController.updateExamMachine(id: Long)
 POST          /app/machines/:id                                                controllers.facility.ExamMachineController.insertExamMachine(id: Long)
 DELETE        /app/machines/:id                                                controllers.facility.ExamMachineController.removeExamMachine(id: Long)
 
@@ -289,20 +289,20 @@ GET           /app/iop/attachment/question/:qid/answer/:hash                    
 GET           /integration/record/:startDate                                     controllers.integration.ExamRecordAPIController.getNewRecords(startDate: String)
 
 # exams
-GET           /integration/exams/active                                          controllers.integration.ExamAPIController.getActiveExams(date: java.util.Optional[String])
+GET           /integration/exams/active                                          controllers.integration.ExamAPIController.getActiveExams(date: Option[String])
 
 # reservations
-GET           /integration/reservations                                          controllers.integration.ReservationAPIController.getReservations(start: java.util.Optional[String], end: java.util.Optional[String], roomId: java.util.Optional[java.lang.Long])
+GET           /integration/reservations                                          controllers.integration.ReservationAPIController.getReservations(start: Option[String], end: Option[String], roomId: Option[Long])
 GET           /integration/rooms                                                 controllers.integration.ReservationAPIController.getRooms
-GET           /integration/rooms/:id/openinghours                                controllers.integration.ReservationAPIController.getRoomOpeningHours(id: Long, date: java.util.Optional[String])
+GET           /integration/rooms/:id/openinghours                                controllers.integration.ReservationAPIController.getRoomOpeningHours(id: Long, date: Option[String])
 
 # reports
-GET           /integration/reports                                               controllers.integration.ReportAPIController.getExamEnrolments(start: java.util.Optional[String], end: java.util.Optional[String])
+GET           /integration/reports                                               controllers.integration.ReportAPIController.getExamEnrolments(start: Option[String], end: Option[String])
 
 ################# Transferred exam ######################
 PUT           /app/iop/facilities/:id                                            controllers.iop.transfer.impl.FacilityController.updateFacility(id: Long)
-GET           /app/iop/organisations                                             controllers.iop.transfer.impl.OrganisationController.listOrganisations
-GET           /app/iop/facilities                                                controllers.iop.transfer.impl.FacilityController.listFacilities(org: java.util.Optional[String])
+GET           /app/iop/organisations                                             controllers.iop.transfer.impl.OrganisationController.listOrganisations()
+GET           /app/iop/facilities                                                controllers.iop.transfer.impl.FacilityController.listFacilities(org: Option[String])
 GET           /app/iop/calendar/:examId/:roomRef                                 controllers.iop.transfer.impl.ExternalCalendarController.requestSlots(examId: Long, roomRef: String, org: Option[String], date: Option[String])
 POST          /app/iop/reservations/external                                     controllers.iop.transfer.impl.ExternalCalendarController.requestReservation()
 DELETE        /app/iop/reservations/external/:ref                                controllers.iop.transfer.impl.ExternalCalendarController.requestReservationRemoval(ref: String)
@@ -392,7 +392,7 @@ DELETE        /integration/iop/reservations/:ref                                
 DELETE        /integration/iop/reservations/:ref/force                           controllers.iop.transfer.impl.ExternalCalendarController.acknowledgeReservationRevocation(ref: String)
 GET           /integration/iop/reservations/:ref                                 controllers.iop.transfer.impl.ExternalExamController.provideEnrolment(ref: String)
 + nocsrf
-POST          /integration/iop/exams/:ref                                        controllers.iop.transfer.impl.ExternalExamController.addExamForAssessment(ref: String, request: Request)
+POST          /integration/iop/exams/:ref                                        controllers.iop.transfer.impl.ExternalExamController.addExamForAssessment(ref: String)
 + nocsrf
 POST          /integration/iop/reservations/:ref/noshow                          controllers.iop.transfer.impl.ExternalExamController.addNoShow(ref: String)
 + nocsrf
@@ -412,7 +412,7 @@ DELETE        /app/calendar/reservation/:id                                     
 GET           /app/availability/:roomId/:date                                    controllers.facility.AvailabilityController.getAvailability(roomId: Long, date: String)
 
 ################# Language interface ##################
-GET           /app/languages                                                     controllers.user.LanguageController.getSupportedLanguages
+GET           /app/languages                                                     controllers.user.LanguageController.listSupportedLanguages()
 
 ################# Tag interface ##################
 GET           /app/tags                                                          controllers.question.TagController.listTags(filter: java.util.Optional[String], courseIds: java.util.Optional[LongList], examIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], owner: java.util.Optional[LongList], request: Request)
@@ -474,7 +474,7 @@ PUT           /app/maintenance/:id                                              
 DELETE        /app/maintenance/:id                                                controllers.facility.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
 
 #######################################################
-GET           /app/attributes                                                     controllers.user.SessionController.getAttributes(request: Request)
+GET           /app/attributes                                                     controllers.user.SessionController.getAttributes
 
 # static assets
 GET           /*path                                                              controllers.assets.FrontendController.assetOrDefault(path)

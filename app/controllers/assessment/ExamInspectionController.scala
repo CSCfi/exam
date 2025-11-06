@@ -17,7 +17,7 @@ import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
 import system.AuditedAction
-import validation.scala.CommentValidator
+import validation.scala.assessment.CommentValidator
 import validation.scala.core.{ScalaAttrs, Validators}
 
 import javax.inject.Inject

@@ -35,7 +35,7 @@ object Auth:
           case Some(user) =>
             user.setLoginRole(Role.Name.valueOf(request.session("role")))
 
-            // Parse permissions from session (comma-separated string)
+            // Parse permissions from the session (comma-separated string)
             val permissions = request.session
               .get("permissions")
               .map(_.split(",").map(_.trim).filter(_.nonEmpty).toSet)
@@ -65,4 +65,12 @@ object Auth:
               case Some(role) if roles.contains(role) => None
               case _                                  => Some(Unauthorized("Authentication required"))
       }
+    }
+
+  def subjectNotPresent(implicit ec: ExecutionContext): ActionFilter[Request] =
+    new ActionFilter[Request] {
+      override def executionContext: ExecutionContext = ec
+      override def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful(
+        input.attrs.get(ATTR_USER).map(_ => Forbidden("User session exists"))
+      )
     }

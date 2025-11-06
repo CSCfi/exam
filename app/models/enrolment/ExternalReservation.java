@@ -4,12 +4,12 @@
 
 package models.enrolment;
 
-import controllers.facility.RoomLike;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import models.base.GeneratedIdentityModel;
 import models.facility.MailAddress;
+import models.facility.RoomLike;
 
 @Entity
 public class ExternalReservation extends GeneratedIdentityModel implements RoomLike {

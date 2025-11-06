@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-package controllers.facility;
+package models.facility;
 
 import play.i18n.Lang;
 

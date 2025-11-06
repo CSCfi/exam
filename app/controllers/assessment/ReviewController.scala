@@ -27,7 +27,8 @@ import security.scala.{Auth, AuthExecutionContext}
 import system.AuditedAction
 import system.interceptors.scala.AnonymousJsonFilter
 import validation.scala.core.{ScalaAttrs, Validators}
-import validation.scala.{CommaJoinedListValidator, CommentValidator}
+import validation.scala.CommaJoinedListValidator
+import validation.scala.assessment.CommentValidator
 
 import javax.inject.Inject
 import scala.concurrent.duration.*

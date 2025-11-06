@@ -5,7 +5,6 @@
 package models.facility;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import controllers.facility.RoomLike;
 import io.ebean.Finder;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

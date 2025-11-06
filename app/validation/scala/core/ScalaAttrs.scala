@@ -21,3 +21,17 @@ object ScalaAttrs:
   // Reservation validation
   val ATTR_STUDENT_RESERVATION: TypedKey[ReservationDTO] = TypedKey[ReservationDTO]("studentReservation")
   val ATTR_EXT_RESERVATION: TypedKey[ExternalReservationDTO] = TypedKey[ExternalReservationDTO]("externalReservation")
+  
+  // Enrolment validation
+  val COURSE_CODE: TypedKey[String]            = TypedKey[String]("code")
+  val ENROLMENT_INFORMATION: TypedKey[String]  = TypedKey[String]("enrolmentInformation")
+  val USER_ID: TypedKey[Long]                  = TypedKey[Long]("userId")
+  val EMAIL: TypedKey[String]                  = TypedKey[String]("email")
+  
+  // Examination event validation
+  val DATE: TypedKey[org.joda.time.LocalDate] = TypedKey[org.joda.time.LocalDate]("date")
+  val EXAMINATION_EVENT: TypedKey[validation.scala.exam.ExaminationEventDTO] = 
+    TypedKey[validation.scala.exam.ExaminationEventDTO]("examinationEvent")
+  
+  // User validation
+  val LANG: TypedKey[String] = TypedKey[String]("lang")

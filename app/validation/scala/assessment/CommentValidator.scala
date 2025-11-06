@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-package validation.scala
+package validation.scala.assessment
 
 import play.api.libs.json.*
 import play.api.mvc.*

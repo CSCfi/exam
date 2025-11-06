@@ -8,12 +8,11 @@ import controllers.iop.collaboration.api.CollaborativeExamLoader
 import controllers.iop.transfer.api.ExternalReservationHandler
 import impl.CalendarHandler
 import impl.mail.EmailComposer
-import io.ebean.{DB, FetchConfig}
 import io.ebean.text.PathProperties
+import io.ebean.{DB, FetchConfig}
 import miscellaneous.datetime.DateTimeHandler
 import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import miscellaneous.user.UserHandler
-import models.base.GeneratedIdentityModel
 import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
 import models.exam.Exam
 import models.facility.{ExamMachine, ExamRoom}
@@ -21,21 +20,19 @@ import models.user.{Role, User}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.Logging
-import play.api.libs.json.{JsArray, JsObject, Json}
+import play.api.libs.json.{JsArray, JsValue, Json}
 import play.api.mvc.*
-import security.scala.Auth
-import security.scala.Auth.authorized
-import security.scala.AuthExecutionContext
-import system.interceptors.scala.AnonymousJsonFilter
-import validation.java.core.Attrs
+import security.scala.Auth.{AuthenticatedAction, authorized}
+import security.scala.{Auth, AuthExecutionContext}
 
-import javax.inject.Inject
 import java.util.Date
+import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.jdk.FutureConverters.*
 
 class ReservationController @Inject() (
+    authenticated: AuthenticatedAction,
     emailComposer: EmailComposer,
     collaborativeExamLoader: CollaborativeExamLoader,
     externalReservationHandler: ExternalReservationHandler,
@@ -50,12 +47,12 @@ class ReservationController @Inject() (
     with Logging:
 
   def getExams(filter: Option[String]): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { request =>
       val user  = request.attrs(Auth.ATTR_USER)
       val props = PathProperties.parse("(id, name)")
       val q     = DB.createQuery(classOf[Exam])
       props.apply(q)
-      
+
       var el = q
         .where()
         .isNull("parent") // only Exam prototypes
@@ -75,19 +72,19 @@ class ReservationController @Inject() (
           .eq("shared", true)
           .endJunction()
 
-      Ok(asJson(el.findList().asScala))
+      Ok(el.list.asJson)
     }
 
-  def getExamRooms(): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
-      val examRooms = DB.find(classOf[ExamRoom]).select("id, name").fetch("examMachines", "id").findList()
-      Ok(asJson(examRooms.asScala))
+  def getExamRooms: Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
+      val examRooms = DB.find(classOf[ExamRoom]).select("id, name").fetch("examMachines", "id").list
+      Ok(examRooms.asJson)
     }
 
   private def asJsonUsers(users: Seq[User]): JsArray =
     JsArray(users.map { u =>
       var name = s"${u.getFirstName} ${u.getLastName}"
-      if u.getUserIdentifier != null then name += s" (${u.getUserIdentifier})"
+      if Option(u.getUserIdentifier).isDefined then name += s" (${u.getUserIdentifier})"
 
       Json.obj(
         "id"             -> u.getId.longValue,
@@ -99,37 +96,33 @@ class ReservationController @Inject() (
     })
 
   def getStudents(filter: Option[String]): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { _ =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { _ =>
       var el = DB.find(classOf[User]).where().eq("roles.name", "STUDENT")
       filter.foreach { f =>
         el = el.or().ilike("userIdentifier", s"%$f%")
         el = userHandler.applyNameSearch(null, el, f).endOr()
       }
-      Ok(asJsonUsers(el.findList().asScala.toSeq))
+      Ok(asJsonUsers(el.list))
     }
 
   def getTeachers(filter: Option[String]): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
       var el = DB.find(classOf[User]).where().eq("roles.name", "TEACHER")
       filter.foreach { f =>
         el = userHandler.applyNameSearch(null, el.or(), f).endOr()
       }
-      Ok(asJsonUsers(el.findList().asScala.toSeq))
+      Ok(asJsonUsers(el.list))
     }
 
   def removeReservation(id: Long): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
       val enrolment = Option(
         DB.find(classOf[ExamEnrolment]).where().eq("reservation.id", id).findOne()
       ).getOrElse(
         throw new IllegalArgumentException(s"No reservation with id $id for current user.")
       )
 
-      val participationOpt = Option(
-        DB.find(classOf[ExamParticipation]).where().eq("exam", enrolment.getExam).findOne()
-      )
-
-      participationOpt match
+      DB.find(classOf[ExamParticipation]).where().eq("exam", enrolment.getExam).find match
         case Some(participation) =>
           Future.successful(Forbidden(s"i18n_unable_to_remove_reservation (id=${participation.getId})."))
         case None =>
@@ -147,7 +140,7 @@ class ReservationController @Inject() (
               enrolment
             )
 
-          if reservation.getExternalReservation != null then
+          if Option(reservation.getExternalReservation).isDefined then
             externalReservationHandler
               .removeReservation(reservation, enrolment.getUser, msgOpt.getOrElse(""))
               .map(_ => Ok)
@@ -163,7 +156,7 @@ class ReservationController @Inject() (
     calendarHandler.isDoable(reservation, Seq.empty)
 
   def findAvailableMachines(reservationId: Long, roomId: Long): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
       val reservationOpt = Option(DB.find(classOf[Reservation], reservationId))
       val roomOpt        = Option(DB.find(classOf[ExamRoom], roomId))
 
@@ -172,34 +165,28 @@ class ReservationController @Inject() (
           val props = PathProperties.parse("(id, name)")
           val query = DB.createQuery(classOf[ExamMachine])
           props.apply(query)
-          
+
           val candidates = query
             .where()
             .eq("room.id", roomId)
             .ne("outOfService", true)
             .ne("archived", true)
-            .findList()
-            .asScala
-            .toSeq
+            .list
 
           val available = candidates.filter(machine => isBookable(machine, reservation))
           Ok(available.asJson)
         case _ => NotFound("Machine or room not found")
     }
 
-  def updateMachine(reservationId: Long): Action[JsObject] =
-    Action(parse.json[JsObject]).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
-      val reservationOpt = Option(DB.find(classOf[Reservation], reservationId))
-
-      reservationOpt match
+  def updateMachine(reservationId: Long): Action[JsValue] =
+    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
+      Option(DB.find(classOf[Reservation], reservationId)) match
         case None => Future.successful(NotFound("Reservation not found"))
         case Some(reservation) =>
           val machineId = (request.body \ "machineId").as[Long]
-          
-          val previous   = reservation.getMachine
-          val machineOpt = Option(DB.find(classOf[ExamMachine], machineId))
+          val previous  = reservation.getMachine
 
-          machineOpt match
+          Option(DB.find(classOf[ExamMachine], machineId)) match
             case None => Future.successful(NotFound("Machine not found"))
             case Some(machine) =>
               getReservationExam(reservation).flatMap {
@@ -220,8 +207,7 @@ class ReservationController @Inject() (
     }
 
   private def getReservationExam(reservation: Reservation): Future[Option[Exam]] =
-    if reservation.getEnrolment.getExam != null then
-      Future.successful(Some(reservation.getEnrolment.getExam))
+    if Option(reservation.getEnrolment.getExam).isDefined then Future.successful(Some(reservation.getEnrolment.getExam))
     else
       collaborativeExamLoader
         .downloadExam(reservation.getEnrolment.getCollaborativeExam)
@@ -236,8 +222,9 @@ class ReservationController @Inject() (
       start: Option[String],
       end: Option[String]
   ): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
-      var query = DB.find(classOf[ExamEnrolment])
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
+      var query = DB
+        .find(classOf[ExamEnrolment])
         .fetch("user", "id, firstName, lastName, email, userIdentifier")
         .fetch("exam", "id, name, state, trialCount, implementation")
         .fetch("exam.course", "code")
@@ -264,7 +251,7 @@ class ReservationController @Inject() (
       }
 
       state.foreach {
-        case "NO_SHOW"               => query = query.eq("noShow", true)
+        case "NO_SHOW"                                   => query = query.eq("noShow", true)
         case "EXTERNAL_UNFINISHED" | "EXTERNAL_FINISHED" => query = query.isNull("id") // Force empty result set
         case st => query = query.eq("exam.state", Exam.State.valueOf(st)).eq("noShow", false)
       }
@@ -294,12 +281,12 @@ class ReservationController @Inject() (
 
       val enrolments = query
         .orderBy("examinationEventConfiguration.examinationEvent.start")
-        .findList()
-        .asScala
+        .list
         .filter { ee =>
           end.forall { e =>
-            val endDate  = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
-            val eventEnd = ee.getExaminationEventConfiguration.getExaminationEvent.getStart.plusMinutes(ee.getExam.getDuration)
+            val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
+            val eventEnd =
+              ee.getExaminationEventConfiguration.getExaminationEvent.getStart.plusMinutes(ee.getExam.getDuration)
             eventEnd.isBefore(endDate)
           }
         }
@@ -323,8 +310,9 @@ class ReservationController @Inject() (
       end: Option[String],
       externalRef: Option[String]
   ): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
-      var query = DB.find(classOf[Reservation])
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
+      var query = DB
+        .find(classOf[Reservation])
         .fetch("enrolment", "noShow, retrialPermitted")
         .fetch("user", "id, firstName, lastName, email, userIdentifier")
         .fetch("enrolment.exam", "id, name, state, trialCount, implementation")
@@ -407,7 +395,7 @@ class ReservationController @Inject() (
           .eq("enrolment.exam.parent.examOwners.id", userId)
           .endJunction()
 
-      val reservations = query.orderBy("startAt").findSet().asScala.toSet
+      val reservations = query.orderBy("startAt").distinct
       val anonIds = reservations
         .filter(r =>
           r.getEnrolment != null &&
@@ -416,6 +404,5 @@ class ReservationController @Inject() (
         )
         .map(_.getId)
 
-      Ok(reservations.toSeq.asJson)
+      Ok(reservations.asJson)
     }
-
