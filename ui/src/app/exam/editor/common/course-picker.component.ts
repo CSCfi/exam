@@ -63,7 +63,7 @@ export class CoursePickerComponent implements OnInit {
             }),
             debounceTime(200),
             distinctUntilChanged(),
-            exhaustMap((term) => (term.length < 2 ? from([]) : this.Course.getCourses$(category, term))),
+            exhaustMap((term) => (term.trim().length < 2 ? from([]) : this.Course.getCourses$(category, term))),
             tap((courses) => {
                 this.toggleLoadingIcon(category, false);
                 if (courses.length === 0) {
