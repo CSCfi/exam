@@ -35,7 +35,7 @@ class CourseController @Inject() (
   ): Future[Result] =
     (filterType, criteria) match
       case (Some("code"), Some(c)) =>
-        externalApi.getCoursesByCode(user, c).map(cs => Results.Ok(cs.asJson))
+        externalApi.getCoursesByCode(user, c.trim).map(cs => Results.Ok(cs.asJson))
       case (Some("name"), Some(x)) if x.length >= 2 =>
         Future {
           DB.find(classOf[Course])
