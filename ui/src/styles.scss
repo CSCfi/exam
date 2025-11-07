@@ -11,6 +11,8 @@
 @use 'ckeditor5/ckeditor5.css';
 @use 'app/shared/ckeditor/ckeditor.styles.scss';
 
+@use './app/shared/definitions.scss' as shared;
+
 /* fonts */
 @font-face {
     font-family: Arimo;
@@ -152,17 +154,18 @@ textarea.ng-invalid {
         }
     }
     td > a {
-        color: #267b99;
+        color: shared.$exam-blue;
         font-weight: bold;
     }
 }
 /* commonly used link styling, let's see if it's needed for long */
 .xm-link {
-    color: #266b99;
+    color: shared.$exam-blue;
     font-weight: bold;
     text-decoration: none;
     cursor: pointer;
 }
+
 /* numeric input */
 .xm-numeric-input {
     max-width: 7em;
@@ -210,9 +213,8 @@ textarea.ng-invalid {
         0px 0px 0px 1.5px rgb(255, 255, 255),
         0px 0px 0px 4px rgb(68, 120, 247) !important;
 }
-.search-append{
-  border: #dee2e6 1px solid;
-  border-radius: 5px;
-  padding: 6px;
+.search-append {
+    border: #dee2e6 1px solid;
+    border-radius: 5px;
+    padding: 6px;
 }
-

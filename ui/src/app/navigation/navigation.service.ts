@@ -39,56 +39,28 @@ export class NavigationService {
         // Do not show if waiting for exam to begin
         const hidden = /waitingroom|wrongmachine|wrongroom|early/.test(this.router.url);
 
-        // Change the menu item title if student
-        const nameForDashboard = student ? 'i18n_user_enrolled_exams_title' : 'i18n_dashboard';
-
-        const collaborativeExamsSubmenu = {
-            hidden: true,
-            items: [
-                {
-                    route: student ? 'exams/collaborative' : 'staff/collaborative',
-                    visible: !support,
-                    name: 'i18n_collaborative_exams',
-                    iconPng: 'icon_admin_exams.png',
-                    submenu: { hidden: true, items: [] },
-                },
-            ],
-        };
-
-        const teacherCollaborativeExamsSubmenu =
-            teacher && interoperable
-                ? collaborativeExamsSubmenu
-                : {
-                      hidden: true,
-                      items: [],
-                      submenu: { hidden: true, items: [] },
-                  };
-        const studentCollaborativeExamsSubmenu =
-            student && interoperable
-                ? collaborativeExamsSubmenu
-                : {
-                      hidden: true,
-                      items: [],
-                      submenu: { hidden: true, items: [] },
-                  };
+        // Change the menu item title/route if student
+        const dashboardTitle = student ? 'i18n_user_enrolled_exams_title' : 'i18n_dashboard';
         const dashboardRoute = student ? 'dashboard' : admin || support ? 'staff/admin' : 'staff/teacher';
+
+        const emptySubmenu = { hidden: true, items: [] };
         return [
             {
                 route: dashboardRoute,
                 visible: !hidden,
-                name: nameForDashboard,
+                name: dashboardTitle,
                 iconPng: 'icon_enrols.svg',
-                submenu: teacherCollaborativeExamsSubmenu,
+                submenu: emptySubmenu,
             },
             {
                 route: 'staff/inspections',
                 visible: languageInspector,
                 name: 'i18n_language_inspections',
                 iconPng: 'icon_admin_lang_inspection.png',
-                submenu: { hidden: true, items: [] },
+                submenu: emptySubmenu,
             },
             {
-                route: 'staff/adminexams',
+                route: 'staff/admin/exams',
                 visible: admin || support,
                 name: 'i18n_exams',
                 iconPng: 'icon_admin_exams.png',
@@ -100,35 +72,35 @@ export class NavigationService {
                             visible: admin,
                             name: 'i18n_language_inspections',
                             iconPng: 'icon_admin_lang_inspection.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/printouts',
                             visible: admin,
                             name: 'i18n_printout_exams',
                             iconPng: 'icon_printouts.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/collaborative',
                             visible: admin && interoperable,
                             name: 'i18n_collaborative_exams',
                             iconPng: 'icon_admin_exams.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/examinationevents',
                             visible: admin && hasByod,
                             name: 'i18n_byod_exams',
                             iconPng: 'icon_admin_exams.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/questions',
                             visible: admin,
                             name: 'i18n_library_new',
                             iconPng: 'icon_questions.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                     ],
                 },
@@ -146,21 +118,21 @@ export class NavigationService {
                             visible: true,
                             name: 'i18n_reports',
                             iconPng: 'icon_reports.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/statistics',
                             visible: true,
                             name: 'i18n_statistics',
                             iconPng: 'icon_statistics.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/settings',
                             visible: true,
                             name: 'i18n_settings',
                             iconPng: 'icon_settings.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                     ],
                 },
@@ -170,20 +142,14 @@ export class NavigationService {
                 visible: admin || support,
                 name: 'i18n_users',
                 iconPng: 'icon_users.png',
-                submenu: {
-                    hidden: true,
-                    items: [],
-                },
+                submenu: emptySubmenu,
             },
             {
                 route: 'staff/questions',
                 visible: teacher,
                 name: 'i18n_library_new',
                 iconPng: 'icon_questions.png',
-                submenu: {
-                    hidden: true,
-                    items: [],
-                },
+                submenu: emptySubmenu,
             },
             {
                 route: 'staff/reservations',
@@ -191,17 +157,14 @@ export class NavigationService {
                 name: 'i18n_reservations_new',
                 iconSvg: 'icon_reservations.svg',
                 iconPng: 'icon_reservations.png',
-                submenu: {
-                    hidden: true,
-                    items: [],
-                },
+                submenu: emptySubmenu,
             },
             {
                 route: 'exams',
                 visible: student && !hidden,
                 name: 'i18n_exams',
                 iconPng: 'icon_exams.png',
-                submenu: studentCollaborativeExamsSubmenu,
+                submenu: emptySubmenu,
             },
             {
                 route: 'participations',
@@ -213,10 +176,10 @@ export class NavigationService {
                     items: [
                         {
                             route: 'participations/collaborative',
-                            visible: true,
+                            visible: interoperable,
                             name: 'i18n_collaborative_exam_responses',
                             iconPng: 'icon_finished.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                     ],
                 },
@@ -226,10 +189,7 @@ export class NavigationService {
                 visible: true,
                 name: 'i18n_logout',
                 iconPng: 'icon_admin_logout.png',
-                submenu: {
-                    hidden: true,
-                    items: [],
-                },
+                submenu: emptySubmenu,
             },
         ];
     }

@@ -223,7 +223,7 @@ export const STAFF_ROUTES: Route[] = [
                 title: () => buildTitle('i18n_language_inspection_reports_title'),
             },
             {
-                path: 'adminexams',
+                path: 'admin/exams',
                 component: ExamListingComponent,
                 title: () => buildTitle('i18n_admin_exams_title'),
             },

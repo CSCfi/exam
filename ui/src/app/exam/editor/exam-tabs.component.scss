@@ -4,8 +4,10 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+@use '../../shared/definitions.scss' as shared;
+
 .exam-status {
-    color: #266b99;
+    color: shared.$exam-blue;
     font-size: 22px;
     letter-spacing: 1.05px;
 }
