@@ -70,11 +70,3 @@ trait ExamBaseController extends JavaApiHelper:
   protected def serialize(obj: Any, props: PathProperties): JsValue =
     val jsonString = DB.json().toJson(obj, props)
     Json.parse(jsonString)
-
-  protected def ok(obj: Any, props: PathProperties): Result =
-    val jsonString = DB.json().toJson(obj, props)
-    Ok(jsonString).as("application/json")
-
-  protected def created(obj: Any, props: PathProperties): Result =
-    val jsonString = DB.json().toJson(obj, props)
-    Created(jsonString).as("application/json")

@@ -288,7 +288,7 @@ class ExaminationEventController @Inject() (
       }
 
       val exams = query.eq("exam.state", Exam.State.PUBLISHED).distinct
-      ok(exams, pp)
+      Ok(exams.asJson(pp))
     }
 
   def listOverlappingExaminationEvents(start: String, duration: Int): Action[AnyContent] =
@@ -304,5 +304,5 @@ class ExaminationEventController @Inject() (
         .distinct
         .filter(ee => !getEventEnding(ee).isBefore(startDate))
 
-      ok(events, pp)
+      Ok(events.asJson(pp))
     }

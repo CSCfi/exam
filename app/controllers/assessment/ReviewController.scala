@@ -411,7 +411,7 @@ class ReviewController @Inject() (
             comment.setComment(request.attrs.get(ScalaAttrs.COMMENT).orNull)
             comment.setExam(exam)
             comment.save()
-            ok(comment.asJson, PathProperties.parse("(creator(firstName, lastName, email), created, comment)"))
+            Ok(comment.asJson(PathProperties.parse("(creator(firstName, lastName, email), created, comment)")))
           case None => NotFound("i18n_error_exam_not_found")
       }
 
