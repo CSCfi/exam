@@ -48,9 +48,9 @@ GET           /app/executiontypes                                             co
 GET           /app/gradescales                                                controllers.exam.ExamController.getExamGradeScales
 
 ############### Exam owner interface ###############
-GET           /app/exam/:id/owners                                            controllers.exam.ExamOwnerController.getExamOwners(id: Long)
-POST          /app/exam/:eid/owner/:uid                                       controllers.exam.ExamOwnerController.insertExamOwner(eid: Long, uid: Long, request: Request)
-DELETE        /app/exam/:eid/owner/:uid                                       controllers.exam.ExamOwnerController.removeExamOwner(eid: Long, uid: Long, request: Request)
+GET           /app/exam/:id/owners                                            controllers.exam.ExamOwnerController.list(id: Long)
+POST          /app/exam/:eid/owner/:uid                                       controllers.exam.ExamOwnerController.add(eid: Long, uid: Long)
+DELETE        /app/exam/:eid/owner/:uid                                       controllers.exam.ExamOwnerController.remove(eid: Long, uid: Long)
 
 
 ############### Exam inspection interface ###############
@@ -83,23 +83,23 @@ POST          /app/exam/record/export/report/:id                              co
 
 
 ############### Student exam execution interface ###############
-POST          /app/student/exam/:hash                                         controllers.examination.ExaminationController.initializeExam(hash: String, request: Request)
-GET           /app/student/exam/:hash                                         controllers.examination.ExaminationController.startExam(hash: String, request: Request)
-PUT           /app/student/exam/:hash                                         controllers.examination.ExaminationController.turnExam(hash: String, request: Request)
-PUT           /app/student/exam/abort/:hash                                   controllers.examination.ExaminationController.abortExam(hash: String, request: Request)
+POST          /app/student/exam/:hash                                         controllers.examination.ExaminationController.initializeExam(hash: String)
+GET           /app/student/exam/:hash                                         controllers.examination.ExaminationController.startExam(hash: String)
+PUT           /app/student/exam/:hash                                         controllers.examination.ExaminationController.turnExam(hash: String)
+PUT           /app/student/exam/abort/:hash                                   controllers.examination.ExaminationController.abortExam(hash: String)
 
-POST          /app/student/exam/:hash/question/:qid/option                    controllers.examination.ExaminationController.answerMultiChoice(hash: String, qid: Long, request: Request)
-POST          /app/student/exam/:hash/question/:questionId                    controllers.examination.ExaminationController.answerEssay(hash: String, questionId: Long, request: Request)
-POST          /app/student/exam/:hash/clozetest/:questionId                   controllers.examination.ExaminationController.answerClozeTest(hash: String, questionId: Long, request: Request)
+POST          /app/student/exam/:hash/question/:qid/option                    controllers.examination.ExaminationController.answerMultiChoice(hash: String, qid: Long)
+POST          /app/student/exam/:hash/question/:questionId                    controllers.examination.ExaminationController.answerEssay(hash: String, questionId: Long)
+POST          /app/student/exam/:hash/clozetest/:questionId                   controllers.examination.ExaminationController.answerClozeTest(hash: String, questionId: Long)
 
 ############### External student exam execution interface ###############
-GET           /app/iop/student/exam/:hash                                     controllers.iop.transfer.impl.ExternalExaminationController.startExam(hash: String, request: Request)
-PUT           /app/iop/student/exam/:hash                                     controllers.iop.transfer.impl.ExternalExaminationController.turnExam(hash: String, request: Request)
-PUT           /app/iop/student/exam/abort/:hash                               controllers.iop.transfer.impl.ExternalExaminationController.abortExam(hash: String, request: Request)
+GET           /app/iop/student/exam/:hash                                     controllers.iop.transfer.impl.ExternalExaminationController.startExam(hash: String)
+PUT           /app/iop/student/exam/:hash                                     controllers.iop.transfer.impl.ExternalExaminationController.turnExam(hash: String)
+PUT           /app/iop/student/exam/abort/:hash                               controllers.iop.transfer.impl.ExternalExaminationController.abortExam(hash: String)
 
-POST          /app/iop/student/exam/:hash/question/:qid/option                controllers.iop.transfer.impl.ExternalExaminationController.answerMultiChoice(hash: String, qid: Long, request: Request)
-POST          /app/iop/student/exam/:hash/question/:questionId                controllers.iop.transfer.impl.ExternalExaminationController.answerEssay(hash: String, questionId: Long, request: Request)
-POST          /app/iop/student/exam/:hash/clozetest/:questionId               controllers.iop.transfer.impl.ExternalExaminationController.answerClozeTest(hash: String, questionId: Long, request: Request)
+POST          /app/iop/student/exam/:hash/question/:qid/option                controllers.iop.transfer.impl.ExternalExaminationController.answerMultiChoice(hash: String, qid: Long)
+POST          /app/iop/student/exam/:hash/question/:questionId                controllers.iop.transfer.impl.ExternalExaminationController.answerEssay(hash: String, questionId: Long)
+POST          /app/iop/student/exam/:hash/clozetest/:questionId               controllers.iop.transfer.impl.ExternalExaminationController.answerClozeTest(hash: String, questionId: Long)
 
 ############### Student actions interface #########
 GET           /app/feedback/exams/:eid                                        controllers.enrolment.StudentActionsController.getExamFeedback(eid: Long)
@@ -402,7 +402,7 @@ POST          /integration/iop/import/attachment/question/:id                   
 GET           /integration/iop/reservations/:ref/instructions                    controllers.admin.SettingsController.provideMaturityInstructions(ref: String, lang: String)
 
 ################# Time interface ######################
-GET           /app/time/:hash                                                    controllers.examination.TimeController.getRemainingExamTime(hash: String, request: Request)
+GET           /app/time/:hash                                                    controllers.examination.TimeController.getRemainingExamTime(hash: String)
 
 ################# Calendar interface ##################
 GET           /app/calendar/:examId/:roomId                                      controllers.calendar.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: Option[Seq[Long]])
@@ -415,8 +415,8 @@ GET           /app/availability/:roomId/:date                                   
 GET           /app/languages                                                     controllers.user.LanguageController.listSupportedLanguages()
 
 ################# Tag interface ##################
-GET           /app/tags                                                          controllers.question.TagController.listTags(filter: java.util.Optional[String], courseIds: java.util.Optional[LongList], examIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], owner: java.util.Optional[LongList], request: Request)
-POST          /app/tags/questions                                                controllers.question.TagController.addTagToQuestions(request: Request)
+GET           /app/tags                                                          controllers.question.TagController.listTags(filter: Option[String], courseIds: Option[List[Long]], examIds: Option[List[Long]], sectionIds: Option[List[Long]], owner: Option[List[Long]])
+POST          /app/tags/questions                                                controllers.question.TagController.addTagToQuestions()
 
 ################# General Settings interface ##################
 
