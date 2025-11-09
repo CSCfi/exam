@@ -4,11 +4,11 @@
 
 package controllers.attachment
 
-import controllers.base.scala.ExamBaseController
+import controllers.base.scala.AnonymousHandler
 import io.ebean.DB
 import miscellaneous.config.ConfigReader
 import miscellaneous.file.FileHandler
-import miscellaneous.scala.DbApiHelper
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.assessment.{Comment, LanguageInspection}
 import models.attachment.{Attachment, AttachmentContainer}
 import models.exam.Exam
@@ -26,10 +26,10 @@ import security.scala.{Auth, AuthExecutionContext, PermissionFilter}
 
 import java.io.File
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class AttachmentController @Inject()(
+class AttachmentController @Inject() (
     val controllerComponents: ControllerComponents,
     val authenticated: AuthenticatedAction,
     val configReader: ConfigReader,
@@ -37,8 +37,12 @@ class AttachmentController @Inject()(
     implicit val ec: AuthExecutionContext,
     implicit val mat: Materializer
 ) extends BaseController
-    with ExamBaseController
+    with JavaApiHelper
+    with AnonymousHandler
     with DbApiHelper:
+
+  override protected def executionContext: ExecutionContext = ec
+  override protected def materializer: Materializer         = mat
 
   def addAttachmentToQuestionAnswer(): Action[MultipartFormData[TemporaryFile]] =
     authenticated
@@ -73,7 +77,11 @@ class AttachmentController @Inject()(
                       case Success(newFilePath) =>
                         val answer = question.getEssayAnswer
                         fileHandler.removePrevious(answer)
-                        val attachment = fileHandler.createNew(filePart.filename, filePart.contentType.getOrElse("application/octet-stream"), newFilePath)
+                        val attachment = fileHandler.createNew(
+                          filePart.filename,
+                          filePart.contentType.getOrElse("application/octet-stream"),
+                          newFilePath
+                        )
                         answer.setAttachment(attachment)
                         answer.save()
                         Future.successful(Ok(answer.asJson))

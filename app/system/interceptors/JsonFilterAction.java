@@ -4,7 +4,6 @@
 
 package system.interceptors;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
@@ -13,8 +12,8 @@ import java.util.concurrent.CompletionStage;
 import javax.validation.constraints.NotNull;
 import miscellaneous.json.JsonFilter;
 import org.apache.pekko.stream.Materializer;
+import play.api.libs.json.JsValue;
 import play.http.HttpEntity;
-import play.libs.Json;
 import play.mvc.Action;
 import play.mvc.Result;
 import scala.jdk.javaapi.CollectionConverters;
@@ -42,8 +41,8 @@ abstract class JsonFilterAction<T> extends Action<T> {
             .body()
             .consumeData(materializer)
             .thenApply(body -> {
-                JsonNode json = Json.parse(body.decodeString("UTF-8"));
-                JsonNode filtered = JsonFilter.filter(
+                JsValue json = play.api.libs.json.Json.parse(body.decodeString("UTF-8"));
+                JsValue filtered = JsonFilter.filter(
                     json,
                     CollectionConverters.asScala(ids).toSet(),
                     CollectionConverters.asScala(Arrays.asList(properties)).toSet()
@@ -51,7 +50,7 @@ abstract class JsonFilterAction<T> extends Action<T> {
                 return new Result(
                     result.status(),
                     result.headers(),
-                    HttpEntity.fromString(Json.stringify(filtered), "UTF-8")
+                    HttpEntity.fromString(play.api.libs.json.Json.stringify(filtered), "UTF-8")
                 );
             });
     }

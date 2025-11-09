@@ -4,11 +4,10 @@
 
 package controllers.enrolment
 
-import controllers.base.scala.ExamBaseController
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import miscellaneous.config.{ByodConfigHandler, ConfigReader}
-import miscellaneous.scala.DbApiHelper
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.calendar.MaintenancePeriod
 import models.enrolment.{ExaminationEvent, ExaminationEventConfiguration}
 import models.exam.{Exam, ExaminationDate}
@@ -23,17 +22,18 @@ import validation.scala.exam.{ExaminationDateValidator, ExaminationEventValidato
 
 import java.util.UUID
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class ExaminationEventController @Inject() (
     byodConfigHandler: ByodConfigHandler,
     configReader: ConfigReader,
     authenticated: AuthenticatedAction,
     validators: Validators,
-    val controllerComponents: ControllerComponents
-)(implicit ec: scala.concurrent.ExecutionContext)
-    extends BaseController
+    val controllerComponents: ControllerComponents,
+    implicit val ec: ExecutionContext
+) extends BaseController
+    with JavaApiHelper
     with DbApiHelper
-    with ExamBaseController
     with Logging:
 
   // PRINTOUT EXAM RELATED -->

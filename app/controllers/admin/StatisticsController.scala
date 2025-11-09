@@ -4,9 +4,8 @@
 
 package controllers.admin
 
-import controllers.base.scala.ExamBaseController
 import io.ebean.DB
-import miscellaneous.scala.DbApiHelper
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
 import models.user.{Role, User}
@@ -30,8 +29,8 @@ class StatisticsController @Inject()(
     val authenticated: AuthenticatedAction,
     implicit val ec: AuthExecutionContext
 ) extends BaseController
-    with ExamBaseController
     with DbApiHelper
+    with JavaApiHelper
     with Logging:
 
   private val DTF       = DateTimeFormat.forPattern("dd.MM.yyyy")

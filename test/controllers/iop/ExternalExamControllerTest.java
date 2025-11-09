@@ -190,18 +190,6 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         attachmentServlet.setWaiter(new Waiter());
     }
 
-    @After
-    @Override
-    public void tearDown() throws IOException {
-        try {
-            logger.info("Cleaning test upload directory: {}", testUpload.toString());
-            FileUtils.deleteDirectory(testUpload.toFile());
-        } catch (IOException e) {
-            logger.error("Test upload directory delete failed!", e);
-        }
-        super.tearDown();
-    }
-
     @Test
     public void testRequestEnrolment() throws Exception {
         login("student@funet.fi");

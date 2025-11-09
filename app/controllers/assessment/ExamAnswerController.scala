@@ -4,9 +4,8 @@
 
 package controllers.assessment
 
-import controllers.base.scala.ExamBaseController
 import io.ebean.{DB, FetchConfig}
-import miscellaneous.scala.DbApiHelper
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.assessment.ExamFeedbackConfig.ReleaseType.{GIVEN_DATE, ONCE_LOCKED}
 import models.exam.{Exam, Grade}
 import models.questions.{ClozeTestAnswer, Question}
@@ -31,7 +30,7 @@ class ExamAnswerController @Inject() (
     val messaging: MessagesApi,
     implicit val ec: AuthExecutionContext
 ) extends SecureController
-    with ExamBaseController
+    with JavaApiHelper
     with DbApiHelper:
 
   override protected val sensitiveFields = Set("score", "defaultScore", "correctOption", "claimChoiceType", "configKey")

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.question
 
 import io.ebean.DB
@@ -14,7 +18,7 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters.*
 
-class TagController @Inject()(
+class TagController @Inject() (
     val controllerComponents: ControllerComponents,
     authenticated: AuthenticatedAction,
     implicit val ec: ExecutionContext

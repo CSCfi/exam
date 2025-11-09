@@ -4,7 +4,6 @@
 
 package system.interceptors.scala
 
-import com.fasterxml.jackson.databind.JsonNode
 import miscellaneous.json.JsonFilter
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.util.ByteString
@@ -30,7 +29,8 @@ class AnonymousJsonFilter @Inject() (implicit materializer: Materializer, ec: Ex
       override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
         block(request).flatMap { result =>
           if result.header.headers.contains(ANONYMOUS_HEADER) then
-            val ids = request.attrs.get(TypedKey[Set[Long]](contextParamKey)).getOrElse(Set.empty)
+            // Read IDs from result attributes (stored by writeAnonymousResult)
+            val ids = result.attrs.get(TypedKey[Set[Long]](contextParamKey)).getOrElse(Set.empty)
             filterJsonResponse(result, ids, filteredProperties)
           else Future.successful(result)
         }
@@ -52,13 +52,11 @@ class AnonymousJsonFilter @Inject() (implicit materializer: Materializer, ec: Ex
       properties: Set[String]
   ): Future[Result] =
     Future {
-      val json         = Json.parse(data.utf8String)
-      val filtered     = JsonFilter.filter(json.as[JsonNode], ids, properties)
-      val filteredJson = Json.parse(play.libs.Json.stringify(filtered))
+      val json = Json.parse(data.utf8String)
+      val filtered = JsonFilter.filter(json, ids, properties)
 
-      Result(
-        header = result.header,
-        body = HttpEntity.Strict(ByteString(Json.stringify(filteredJson)), Some("application/json"))
+      result.copy(
+        body = HttpEntity.Strict(ByteString(Json.stringify(filtered)), Some("application/json"))
       )
     }
 }

@@ -4,7 +4,6 @@
 
 package system.interceptors.scala
 
-import com.fasterxml.jackson.databind.JsonNode
 import miscellaneous.json.JsonFilter
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.util.ByteString
@@ -52,11 +51,10 @@ class SensitiveDataFilter @Inject() (implicit materializer: Materializer, ec: Ex
     Future {
       val json = Json.parse(data.utf8String)
       // Use JsonFilter with empty ID set to filter all occurrences of sensitive fields
-      val filtered     = JsonFilter.filter(json.as[JsonNode], Set.empty[Long], sensitiveFields)
-      val filteredJson = Json.parse(play.libs.Json.stringify(filtered))
+      val filtered = JsonFilter.filter(json, Set.empty[Long], sensitiveFields)
 
       Result(
         header = result.header,
-        body = HttpEntity.Strict(ByteString(Json.stringify(filteredJson)), Some("application/json"))
+        body = HttpEntity.Strict(ByteString(Json.stringify(filtered)), Some("application/json"))
       )
     }

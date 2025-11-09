@@ -13,7 +13,7 @@ import miscellaneous.json.JsonDeserializer
 import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.questions.{Question, Tag}
 import models.user.{Role, User}
-import org.apache.pekko.stream.IOResult
+import org.apache.pekko.stream.{IOResult, Materializer}
 import org.apache.pekko.stream.scaladsl.{FileIO, Source as ScalaSource}
 import org.apache.pekko.util.ByteString
 import play.api.Logging
@@ -40,9 +40,8 @@ class DataTransferController @Inject() (
     wsClient: WSClient,
     configReader: ConfigReader,
     fileHandler: FileHandler
-)(implicit ec: ExecutionContext)
+)(implicit ec: ExecutionContext, mat: Materializer)
     extends BaseController
-    with ExamBaseController
     with DbApiHelper
     with JavaApiHelper
     with Logging:

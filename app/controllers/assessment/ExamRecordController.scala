@@ -4,26 +4,26 @@
 
 package controllers.assessment
 
-import controllers.base.scala.ExamBaseController
 import impl.mail.EmailComposer
 import io.ebean.DB
 import io.ebean.annotation.Transactional
 import miscellaneous.csv.CsvBuilder
 import miscellaneous.excel.ExcelBuilder
 import miscellaneous.file.FileHandler
-import miscellaneous.scala.DbApiHelper
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.admin.ExamScore
 import models.assessment.ExamRecord
 import models.enrolment.ExamParticipation
 import models.exam.{Exam, Grade}
-import models.user.{Permission, Role, User}
+import models.user.*
 import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.mvc.*
-import security.scala.Auth.{AuthenticatedAction, authorized}
+import security.scala.Auth.*
 import security.scala.{Auth, AuthExecutionContext}
 import system.AuditedAction
 import validation.scala.CommaJoinedListValidator
@@ -32,8 +32,7 @@ import validation.scala.core.{ScalaAttrs, Validators}
 import java.util.Base64
 import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
-import scala.jdk.CollectionConverters.*
-import scala.util.{Failure, Success, Try, Using}
+import scala.util.*
 
 class ExamRecordController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -45,10 +44,11 @@ class ExamRecordController @Inject() (
     val excelBuilder: ExcelBuilder,
     val fileHandler: FileHandler,
     val actorSystem: ActorSystem,
-    implicit val ec: AuthExecutionContext
+    implicit val ec: AuthExecutionContext,
+    implicit val mat: Materializer
 ) extends BaseController
-    with ExamBaseController
     with DbApiHelper
+    with JavaApiHelper
     with Logging:
 
   private val XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

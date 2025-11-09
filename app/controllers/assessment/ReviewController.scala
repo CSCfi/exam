@@ -4,12 +4,12 @@
 
 package controllers.assessment
 
-import controllers.base.scala.ExamBaseController
+import controllers.base.scala.AnonymousHandler
 import impl.mail.EmailComposer
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Query}
 import miscellaneous.file.FileHandler
-import miscellaneous.scala.DbApiHelper
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.assessment.*
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.{Exam, ExamType, Grade}
@@ -17,6 +17,7 @@ import models.questions.{ClozeTestAnswer, EssayAnswer, Question}
 import models.sections.ExamSectionQuestion
 import models.user.{Permission, Role, User}
 import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.joda.time.DateTime
 import play.api.Logging
 import play.api.i18n.{Lang, MessagesApi}
@@ -26,11 +27,12 @@ import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
 import system.AuditedAction
 import system.interceptors.scala.AnonymousJsonFilter
-import validation.scala.core.{ScalaAttrs, Validators}
 import validation.scala.CommaJoinedListValidator
 import validation.scala.assessment.CommentValidator
+import validation.scala.core.{ScalaAttrs, Validators}
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -44,11 +46,16 @@ class ReviewController @Inject() (
     val fileHandler: FileHandler,
     val actorSystem: ActorSystem,
     val messaging: MessagesApi,
-    implicit val ec: AuthExecutionContext
+    implicit val ec: AuthExecutionContext,
+    implicit val mat: Materializer
 ) extends BaseController
-    with ExamBaseController
+    with AnonymousHandler
+    with JavaApiHelper
     with DbApiHelper
     with Logging:
+
+  override protected def executionContext: ExecutionContext = ec
+  override protected def materializer: Materializer         = mat
 
   def listParticipationsForExamAndUser(eid: Long): Action[AnyContent] =
     authenticated
@@ -196,7 +203,7 @@ class ReviewController @Inject() (
           )
         }.toSeq
 
-        writeAnonymousResult(request, Ok(Json.toJson(participations)), anonIds)
+        withAnonymousResult(request, Ok(Json.toJson(participations)), anonIds)
       }
 
   def scoreExamQuestion(id: Long): Action[JsValue] =
@@ -358,12 +365,12 @@ class ReviewController @Inject() (
         val query =
           if collaborative.getOrElse(false) then el.eq("collaborativeExam.id", eid)
           else el.or.eq("exam.id", eid).eq("exam.parent.id", eid).endOr
-        val enrolments     = query.distinct
-        val result: Result = Ok(enrolments.asJson)
-        val anonIds: Set[Long] = enrolments
+        val enrolments = query.distinct
+        val result     = Ok(enrolments.asJson)
+        val anonIds = enrolments
           .filter(ee => Option(ee.getCollaborativeExam).isDefined || ee.getExam.isAnonymous)
-          .map(_.getId)
-        writeAnonymousResult(request, result, anonIds)
+          .map(_.getId.longValue)
+        withAnonymousResult(request, result, anonIds)
       }
 
   def updateComment(eid: Long): Action[AnyContent] =

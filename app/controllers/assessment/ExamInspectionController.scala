@@ -4,14 +4,15 @@
 
 package controllers.assessment
 
-import controllers.base.scala.ExamBaseController
+import controllers.base.scala.AnonymousHandler
 import impl.mail.EmailComposer
 import io.ebean.DB
-import miscellaneous.scala.DbApiHelper
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.assessment.{Comment, ExamInspection}
 import models.exam.Exam
 import models.user.{Role, User}
 import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
@@ -21,6 +22,7 @@ import validation.scala.assessment.CommentValidator
 import validation.scala.core.{ScalaAttrs, Validators}
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -31,10 +33,15 @@ class ExamInspectionController @Inject() (
     val audited: AuditedAction,
     val actorSystem: ActorSystem,
     val emailComposer: EmailComposer,
-    implicit val ec: AuthExecutionContext
+    implicit val ec: AuthExecutionContext,
+    implicit val mat: Materializer
 ) extends BaseController
-    with ExamBaseController
+    with AnonymousHandler
+    with JavaApiHelper
     with DbApiHelper:
+
+  override protected def executionContext: ExecutionContext = ec
+  override protected def materializer: Materializer = mat
 
   def addInspection(eid: Long, uid: Long): Action[AnyContent] = authenticated
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))

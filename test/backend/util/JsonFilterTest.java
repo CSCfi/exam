@@ -7,8 +7,6 @@ package backend.util;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,7 +16,10 @@ import java.util.Set;
 import miscellaneous.json.JsonFilter;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import play.libs.Json;
+import play.api.libs.json.JsArray;
+import play.api.libs.json.JsObject;
+import play.api.libs.json.JsValue;
+import play.api.libs.json.Json;
 import scala.jdk.javaapi.CollectionConverters;
 
 public class JsonFilterTest {
@@ -31,23 +32,33 @@ public class JsonFilterTest {
             ),
             "UTF-8"
         );
-        final ArrayNode array = (ArrayNode) Json.parse(json);
+        final JsArray array = (JsArray) Json.parse(json);
         final String[] filters = new String[] { "creator", "modifier" };
 
         // Filter json
-        JsonNode filtered = JsonFilter.filter(
+        JsValue filtered = JsonFilter.filter(
             array,
             CollectionConverters.asScala(Collections.emptySet()).toSet(),
             CollectionConverters.asScala(Arrays.asList(filters)).toSet()
         );
 
+        JsArray filteredArray = (JsArray) filtered;
+        // Convert to a Java list for easier access
+        java.util.List<JsValue> arrayList = CollectionConverters.asJava(filteredArray.value());
+
         // Check that node1 does not have properties
-        assertThatJsonDoesNotHaveProperties(filtered.get(0), filters);
-        assertThatJsonDoesNotHaveProperties(filtered.get(1), filters);
-        assertThatJsonDoesNotHaveProperties(filtered.get(0).get("item"), filters);
-        assertThatJsonDoesNotHaveProperties(filtered.get(0).get("item").get("description"), filters);
-        var offers = filtered.get(0).get("item").get("offers");
-        offers.forEach(offer -> assertThatJsonDoesNotHaveProperties(offer, filters));
+        JsObject node0 = (JsObject) arrayList.getFirst();
+        JsObject node1Item = (JsObject) node0.value().get("item").get();
+        JsObject node1ItemDesc = (JsObject) node1Item.value().get("description").get();
+        JsArray node1ItemOffers = (JsArray) node1Item.value().get("offers").get();
+
+        assertThatJsonDoesNotHaveProperties(node0, filters);
+        assertThatJsonDoesNotHaveProperties((JsObject) arrayList.get(1), filters);
+        assertThatJsonDoesNotHaveProperties(node1Item, filters);
+        assertThatJsonDoesNotHaveProperties(node1ItemDesc, filters);
+
+        java.util.List<JsValue> offersList = CollectionConverters.asJava(node1ItemOffers.value());
+        offersList.forEach(offer -> assertThatJsonDoesNotHaveProperties((JsObject) offer, filters));
     }
 
     @Test
@@ -58,41 +69,45 @@ public class JsonFilterTest {
             ),
             "UTF-8"
         );
-        final JsonNode root = Json.parse(json);
+        final JsValue root = Json.parse(json);
 
         final String[] filters = new String[] { "creator", "modifier" };
 
         // Filter json
         final Set<Long> ids = new HashSet<>();
         ids.add(2L);
-        JsonNode filtered = JsonFilter.filter(
+        JsValue filtered = JsonFilter.filter(
             root,
             CollectionConverters.asScala(ids).toSet(),
             CollectionConverters.asScala(Arrays.asList(filters)).toSet()
         );
 
-        final ArrayNode array = (ArrayNode) filtered;
-        final JsonNode node1 = array.get(0);
-        final JsonNode item = node1.get("item");
-        final JsonNode description = item.get("description");
-        final ArrayNode offers = (ArrayNode) item.get("offers");
+        final JsArray array = (JsArray) filtered;
+        java.util.List<JsValue> arrayList = CollectionConverters.asJava(array.value());
+
+        final JsObject node1 = (JsObject) arrayList.getFirst();
+        final JsObject item = (JsObject) node1.value().get("item").get();
+        final JsObject description = (JsObject) item.value().get("description").get();
+        final JsArray offers = (JsArray) item.value().get("offers").get();
 
         // Check that node1 has still properties
         assertThatJsonHasProperties(node1, filters);
         assertThatJsonHasProperties(item, filters);
         assertThatJsonHasProperties(description, filters);
-        offers.forEach(offer -> assertThatJsonHasProperties(offer, filters));
+
+        java.util.List<JsValue> offersList = CollectionConverters.asJava(offers.value());
+        offersList.forEach(offer -> assertThatJsonHasProperties((JsObject) offer, filters));
 
         // Check that node2 does not have properties anymore.
-        final JsonNode node2 = array.get(1);
+        final JsObject node2 = (JsObject) arrayList.get(1);
         assertThatJsonDoesNotHaveProperties(node2, filters);
     }
 
-    private void assertThatJsonHasProperties(JsonNode jsonNode, String... props) {
-        Arrays.asList(props).forEach(p -> assertThat(jsonNode.has(p)).isTrue());
+    private void assertThatJsonHasProperties(JsObject jsonObject, String... props) {
+        Arrays.asList(props).forEach(p -> assertThat(jsonObject.keys().contains(p)).isTrue());
     }
 
-    private void assertThatJsonDoesNotHaveProperties(JsonNode jsonNode, String... props) {
-        Arrays.asList(props).forEach(p -> assertThat(jsonNode.has(p)).isFalse());
+    private void assertThatJsonDoesNotHaveProperties(JsObject jsonObject, String... props) {
+        Arrays.asList(props).forEach(p -> assertThat(jsonObject.keys().contains(p)).isFalse());
     }
 }

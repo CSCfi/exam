@@ -13,6 +13,7 @@ import models.exam.Exam
 import models.user.Permission.Type
 import models.user.Role
 import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsValue
@@ -27,8 +28,10 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+import miscellaneous.scala.JavaApiHelper
 
 class LanguageInspectionController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -37,10 +40,11 @@ class LanguageInspectionController @Inject() (
     val audited: AuditedAction,
     val actorSystem: ActorSystem,
     val emailComposer: EmailComposer,
-    implicit val ec: AuthExecutionContext
+    implicit val ec: AuthExecutionContext,
+    implicit val mat: Materializer
 ) extends BaseController
-    with ExamBaseController
     with DbApiHelper
+    with JavaApiHelper
     with Logging:
 
   def listInspections(month: Option[String], start: Option[Long], end: Option[Long]): Action[AnyContent] =

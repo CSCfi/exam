@@ -4,10 +4,9 @@
 
 package controllers.admin
 
-import controllers.base.scala.ExamBaseController
 import io.ebean.DB
 import miscellaneous.config.ConfigReader
-import miscellaneous.scala.DbApiHelper
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.admin.GeneralSettings
 import models.enrolment.ExamEnrolment
 import models.user.{Language, Role, User}
@@ -31,7 +30,7 @@ class SettingsController @Inject() (
     val wsClient: WSClient,
     implicit val ec: AuthExecutionContext
 ) extends BaseController
-    with ExamBaseController
+    with JavaApiHelper
     with DbApiHelper:
 
   // Helper methods

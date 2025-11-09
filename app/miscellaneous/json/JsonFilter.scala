@@ -4,37 +4,34 @@
 
 package miscellaneous.json
 
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import com.fasterxml.jackson.databind.node.{ArrayNode, ObjectNode}
-import scala.jdk.CollectionConverters.*
+import play.api.libs.json.*
 
 object JsonFilter:
-  private val mapper = new ObjectMapper()
 
-  def filter(node: JsonNode, ids: Set[Long], properties: Set[String]): JsonNode =
-    def helper(n: JsonNode, isTopLevel: Boolean): JsonNode =
+  def filter(node: JsValue, ids: Set[Long], properties: Set[String]): JsValue =
+    def helper(n: JsValue, isTopLevel: Boolean): JsValue =
       // Filter properties if a) not a top-level node and b) (ids is not empty and id is in ids)
-      if ids.nonEmpty && isTopLevel && n.has("id") && !ids.contains(n.get("id").asLong) then n
-      else
+      if ids.nonEmpty && isTopLevel then
         n match
-          case obj: ObjectNode =>
-            val transformed = obj.properties().asScala.foldLeft(mapper.createObjectNode()) { (acc, entry) =>
-              acc.set(entry.getKey, helper(entry.getValue, false))
-            }
-            properties.foldLeft(transformed) { (acc, p) =>
-              acc.remove(p)
-              acc
-            }
-          case arr: ArrayNode =>
-            val newArr = mapper.createArrayNode()
-            // Elements of root array are considered top-level
-            arr.elements.asScala.foreach { e =>
-              newArr.add(helper(e, isTopLevel))
-            }
-            newArr
+          case obj: JsObject =>
+            (obj \ "id").asOpt[Long] match
+              case Some(id) if !ids.contains(id) => n
+              case _ => filterObject(obj, properties, isTopLevel)
+          case _ => filterValue(n, properties, isTopLevel)
+      else
+        filterValue(n, properties, isTopLevel)
 
-          case other => other
+    def filterValue(n: JsValue, props: Set[String], topLevel: Boolean): JsValue = n match
+      case obj: JsObject => filterObject(obj, props, topLevel)
+      case arr: JsArray => JsArray(arr.value.map(e => helper(e, topLevel)))
+      case other => other
 
-    // const filtered = node.filter(n => ids.isEmpty || ids.has(n.id))
-    // helper(filtered)
+    def filterObject(obj: JsObject, props: Set[String], topLevel: Boolean): JsObject =
+      val transformed = obj.fields.foldLeft(Json.obj()) { case (acc, (key, value)) =>
+        acc + (key -> helper(value, false))
+      }
+      props.foldLeft(transformed) { (acc, prop) =>
+        acc - prop
+      }
+
     helper(node, isTopLevel = true)
