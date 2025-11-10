@@ -37,7 +37,7 @@ class ExamMachineController @Inject() (
       val pp    = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))")
       val query = DB.find(classOf[ExamMachine])
       pp.apply(query)
-      Option(query.where().idEq(id).findOne()) match
+      query.where().idEq(id).find match
         case None          => NotFound("machine not found")
         case Some(machine) => Ok(machine.asJson(pp))
     }

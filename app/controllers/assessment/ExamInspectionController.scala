@@ -4,7 +4,7 @@
 
 package controllers.assessment
 
-import controllers.base.scala.AnonymousHandler
+import controllers.base.AnonymousHandler
 import impl.mail.EmailComposer
 import io.ebean.DB
 import miscellaneous.scala.{DbApiHelper, JavaApiHelper}

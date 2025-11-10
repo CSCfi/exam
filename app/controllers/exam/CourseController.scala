@@ -71,11 +71,11 @@ class CourseController @Inject() (
     if !user.hasRole(Role.Name.ADMIN) then
       query = query
         .eq("exams.examOwners", user)
-    if examIds.getOrElse(Nil).nonEmpty then query = query.in("exams.id", examIds.get.asJava)
-    if sectionIds.getOrElse(Nil).nonEmpty then query = query.in("exams.examSections.id", sectionIds.get.asJava)
+    if examIds.getOrElse(Nil).nonEmpty then query = query.in("exams.id", examIds.get)
+    if sectionIds.getOrElse(Nil).nonEmpty then query = query.in("exams.examSections.id", sectionIds.get)
     if tagIds.getOrElse(Nil).nonEmpty then
-      query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
-    if ownerIds.getOrElse(Nil).nonEmpty then query = query.in("exams.examOwners.id", ownerIds.get.asJava)
+      query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get)
+    if ownerIds.getOrElse(Nil).nonEmpty then query = query.in("exams.examOwners.id", ownerIds.get)
     Ok(query.orderBy("name desc").list.asJson)
 
   // Actions ->

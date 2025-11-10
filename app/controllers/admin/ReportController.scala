@@ -96,7 +96,7 @@ class ReportController @Inject() (
 
       // Fill in rooms with no participations
 
-      val allRooms = DB.find(classOf[ExamRoom]).where().eq("outOfService", false).findList().asScala
+      val allRooms = DB.find(classOf[ExamRoom]).where().eq("outOfService", false).list
       val completeRoomMap = allRooms.foldLeft(roomMap) { (map, room) =>
         val key = s"${room.getId}___${room.getName}"
         if (map.contains(key)) map else map + (key -> Set.empty[Participation])

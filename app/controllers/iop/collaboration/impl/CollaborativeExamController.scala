@@ -1,0 +1,290 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package controllers.iop.collaboration.impl
+
+import controllers.iop.collaboration.api.CollaborativeExamLoader
+import impl.ExamUpdater
+import impl.mail.EmailComposer
+import io.ebean.DB
+import miscellaneous.config.ConfigReader
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
+import models.exam.{Exam, ExamExecutionType, ExamType, Grade, GradeScale}
+import models.iop.CollaborativeExam
+import models.sections.ExamSection
+import models.user.{Language, Role, User}
+import org.apache.pekko.actor.ActorSystem
+import org.joda.time.DateTime
+import play.api.Logging
+import play.api.libs.json.{JsArray, JsNumber, JsValue, Json}
+import play.api.libs.json.Json.*
+import play.api.libs.ws.JsonBodyWritables
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
+import play.data.validation.Constraints
+import security.scala.Auth
+import security.scala.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
+import validation.scala.exam.ExamValidator
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
+
+class CollaborativeExamController @Inject() (
+    wsClient: play.api.libs.ws.WSClient,
+    examUpdater: ExamUpdater,
+    examLoader: CollaborativeExamLoader,
+    configReader: ConfigReader,
+    actorSystem: ActorSystem,
+    emailComposer: EmailComposer,
+    authenticated: AuthenticatedAction,
+    override val controllerComponents: ControllerComponents
+)(implicit ec: ExecutionContext)
+    extends CollaborationController(wsClient, examUpdater, examLoader, configReader, controllerComponents)
+    with DbApiHelper
+    with JavaApiHelper
+    with JsonBodyWritables
+    with Logging:
+
+  // Helper to convert Play JSON to Jackson JSON (for models that still use Jackson)
+  private def toJacksonJson(value: play.api.libs.json.JsValue): com.fasterxml.jackson.databind.JsonNode =
+    play.libs.Json.parse(play.api.libs.json.Json.stringify(value))
+
+  private def prepareDraft(user: User): Exam =
+    val examExecutionType = DB
+      .find(classOf[ExamExecutionType])
+      .where()
+      .eq("type", ExamExecutionType.Type.PUBLIC.toString)
+      .findOne()
+
+    val exam = new Exam()
+    exam.generateHash()
+    exam.setState(Exam.State.DRAFT)
+    exam.setExecutionType(examExecutionType)
+    cleanUser(user)
+    exam.setCreatorWithDate(user)
+
+    val examSection = new ExamSection()
+    examSection.setCreatorWithDate(user)
+    examSection.setId(newId())
+    examSection.setExam(exam)
+    examSection.setExpanded(true)
+    examSection.setSequenceNumber(0)
+
+    exam.getExamSections.add(examSection)
+
+    exam.getExamLanguages.add(DB.find(classOf[Language], "fi"))
+    exam.setExamType(DB.find(classOf[ExamType], 2)) // Final
+    exam.setGradeScale(DB.find(classOf[GradeScale]).list.head)
+
+    val start = DateTime.now().withTimeAtStartOfDay()
+    exam.setPeriodStart(start)
+    exam.setPeriodEnd(start.plusDays(1))
+    exam.setDuration(configReader.getExamDurationsJava.asScala.head)
+
+    exam.setTrialCount(1)
+    exam.setAnonymous(true)
+    exam.setGradingType(Grade.Type.GRADED)
+
+    exam
+
+  def searchExams(filter: Option[String]): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
+      val user      = request.attrs(Auth.ATTR_USER)
+      val homeOrg   = configReader.getHomeOrganisationRef
+      val wsRequest = getSearchRequest(filter)
+
+      wsRequest.get().map { response =>
+        findExamsToProcess(response) match
+          case Left(result) => result
+          case Right(items) =>
+            val exams = items
+              .map { case (ce, rev) => ce.getExam(toJacksonJson(rev)) }
+              .filter(exam => isAuthorizedToView(exam, user, homeOrg))
+              .map(exam => Json.toJson(exam.asJson))
+              .toSeq
+
+            Ok(JsArray(exams))
+      }
+    }
+
+  private def getExam(id: Long, postProcessor: Exam => Unit, user: User): Future[Result] =
+    val homeOrg = configReader.getHomeOrganisationRef
+    findCollaborativeExam(id) match
+      case Left(errorResult) => errorResult
+      case Right(ce) =>
+        examLoader.downloadExam(ce).map {
+          case None                                                   => NotFound("i18n_error_exam_not_found")
+          case Some(exam) if !isAuthorizedToView(exam, user, homeOrg) => NotFound("i18n_error_exam_not_found")
+          case Some(exam) =>
+            postProcessor(exam)
+            Ok(exam.asJson)
+        }
+
+  def listGradeScales(): Action[AnyContent] =
+    controllerComponents.actionBuilder.andThen(subjectNotPresent) { _ =>
+      val grades = DB
+        .find(classOf[GradeScale])
+        .fetch("grades")
+        .where()
+        .isNull("externalRef")
+        .distinct
+      Ok(grades.asJson)
+    }
+
+  def getExam(id: Long): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
+      getExam(id, _ => (), request.attrs(Auth.ATTR_USER))
+    }
+
+  def getExamPreview(id: Long): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
+      getExam(id, exam => examUpdater.preparePreview(exam), request.attrs(Auth.ATTR_USER))
+    }
+
+  def createExam(): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
+      parseUrl() match
+        case None => Future.successful(InternalServerError)
+        case Some(url) =>
+          val user      = request.attrs(Auth.ATTR_USER)
+          val body      = prepareDraft(user)
+          val wsRequest = wsClient.url(url.toString)
+
+          wsRequest.post(body.asJson).map { response =>
+            if response.status != CREATED then
+              InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+            else
+              val externalRef = (response.json \ "id").as[String]
+              val revision    = (response.json \ "rev").as[String]
+              val ce          = new CollaborativeExam()
+              ce.setExternalRef(externalRef)
+              ce.setRevision(revision)
+              ce.setCreated(DateTime.now())
+              ce.setAnonymous(true)
+              ce.save()
+              Created(Json.obj("id" -> JsNumber(BigDecimal(ce.getId))))
+          }
+    }
+
+  def deleteExam(id: Long): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { _ =>
+      findCollaborativeExam(id) match
+        case Left(errorResult) => errorResult
+        case Right(ce) if ce.getState != Exam.State.DRAFT && ce.getState != Exam.State.PRE_PUBLISHED =>
+          Future.successful(Forbidden("i18n_exam_removal_not_possible"))
+        case Right(ce) =>
+          examLoader.deleteExam(ce).map { result =>
+            if result.header.status == Ok.header.status then ce.delete()
+            result
+          }
+    }
+
+  def updateExam(id: Long): Action[JsValue] =
+    authenticated
+      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+      .async(controllerComponents.parsers.json) { request =>
+        // Validate the exam payload
+        ExamValidator.forUpdate(request.body) match
+          case Left(ex) => Future.successful(BadRequest(ex.getMessage))
+          case Right(payload) =>
+            val homeOrg = configReader.getHomeOrganisationRef
+            findCollaborativeExam(id) match
+              case Left(errorResult) => errorResult
+              case Right(ce) =>
+                val user = request.attrs(Auth.ATTR_USER)
+
+                examLoader.downloadExam(ce).flatMap {
+                  case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+                  case Some(exam) if !isAuthorizedToView(exam, user, homeOrg) =>
+                    Future.successful(Forbidden("i18n_error_access_forbidden"))
+                  case Some(exam) =>
+                    val previousState = exam.getState
+
+                    // Validate temporal fields and state
+                    val error = Seq(
+                      examUpdater.updateTemporalFieldsAndValidate(exam, user, payload),
+                      examUpdater.updateStateAndValidate(exam, user, payload)
+                    ).flatten.headOption
+
+                    error match
+                      case Some(err) => Future.successful(err)
+                      case None =>
+                        val nextState = exam.getState
+                        val isPrePublication =
+                          previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED
+
+                        examUpdater.update(exam, payload, user.getLoginRole)
+
+                        examLoader.uploadExam(ce, exam, user).map { result =>
+                          if result.header.status == Ok.header.status && isPrePublication then
+                            val receivers = exam.getExamOwners.asScala.map(_.getEmail).toSet
+                            actorSystem.scheduler.scheduleOnce(1.second) {
+                              emailComposer.composeCollaborativeExamAnnouncement(receivers, user, exam)
+                            }
+                          result
+                        }
+                }
+      }
+
+  def updateLanguage(id: Long, code: String): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
+      findCollaborativeExam(id) match
+        case Left(errorResult) => errorResult
+        case Right(ce) =>
+          val user = request.attrs(Auth.ATTR_USER)
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+            case Some(exam) =>
+              examUpdater.updateLanguage(exam, code, user) match
+                case Some(error) => Future.successful(error)
+                case None        => examLoader.uploadExam(ce, exam, user)
+          }
+    }
+
+  def addOwner(id: Long): Action[JsValue] =
+    authenticated
+      .andThen(authorized(Seq(Role.Name.ADMIN)))
+      .async(controllerComponents.parsers.json) { request =>
+        findCollaborativeExam(id) match
+          case Left(errorResult) => errorResult
+          case Right(ce) =>
+            val user = request.attrs(Auth.ATTR_USER)
+            (request.body \ "email").asOpt[String] match
+              case None        => Future.successful(BadRequest("i18n_error_email_missing"))
+              case Some(email) =>
+                // Validate email
+                val validator = Constraints.EmailValidator()
+                if !validator.isValid(email) then Future.successful(BadRequest("i18n_error_email_invalid"))
+                else
+                  examLoader.downloadExam(ce).flatMap {
+                    case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+                    case Some(exam) =>
+                      val owner = createOwner(email)
+                      exam.getExamOwners.add(owner)
+                      examLoader.uploadExam(ce, exam, user, owner, null)
+                  }
+      }
+
+  def removeOwner(id: Long, oid: Long): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
+      findCollaborativeExam(id) match
+        case Left(errorResult) => errorResult
+        case Right(ce) =>
+          val user = request.attrs(Auth.ATTR_USER)
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+            case Some(exam) =>
+              val owner = new User()
+              owner.setId(oid)
+              exam.getExamOwners.remove(owner)
+              examLoader.uploadExam(ce, exam, user)
+          }
+    }
+
+  private def createOwner(email: String): User =
+    val user = new User()
+    user.setId(newId())
+    user.setEmail(email)
+    user

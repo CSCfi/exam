@@ -11,8 +11,7 @@ import miscellaneous.csv.CsvBuilder
 import miscellaneous.excel.ExcelBuilder
 import miscellaneous.file.FileHandler
 import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
-import models.admin.ExamScore
-import models.assessment.ExamRecord
+import models.assessment.{ExamRecord, ExamScore}
 import models.enrolment.ExamParticipation
 import models.exam.{Exam, Grade}
 import models.user.*

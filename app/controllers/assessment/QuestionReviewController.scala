@@ -4,7 +4,7 @@
 
 package controllers.assessment
 
-import controllers.base.scala.AnonymousHandler
+import controllers.base.AnonymousHandler
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import miscellaneous.scala.{DbApiHelper, JavaApiHelper}

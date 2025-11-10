@@ -5,11 +5,10 @@
 package validation.scala.answer
 
 import cats.data.ValidatedNel
-import com.fasterxml.jackson.databind.JsonNode
 import play.api.libs.json.*
-import play.mvc.Http
+import play.api.libs.typedmap.TypedKey
+import play.api.mvc.{Request, Result, Results, AnyContent}
 import validation.scala.core.*
-import validation.java.core.{Attrs, ValidatorAction}
 
 case class ClozeTestAnswerDTO(answer: String, objectVersion: Option[Long]):
   def getObjectVersionAsJava: java.util.Optional[java.lang.Long] =
@@ -17,7 +16,9 @@ case class ClozeTestAnswerDTO(answer: String, objectVersion: Option[Long]):
       case Some(version) => java.util.Optional.of(java.lang.Long.valueOf(version))
       case None          => java.util.Optional.empty()
 
-class ClozeTestAnswerValidator extends ValidatorAction:
+object ClozeTestAnswerValidator extends PlayJsonValidator:
+
+  val CLOZE_TEST_ANSWER_KEY: TypedKey[ClozeTestAnswerDTO] = TypedKey[ClozeTestAnswerDTO]("clozeTestAnswer")
 
   private object AnswerValidator:
     def get(body: JsValue): Either[ValidationException, ClozeTestAnswerDTO] =
@@ -36,9 +37,7 @@ class ClozeTestAnswerValidator extends ValidatorAction:
       val objectVersion = PlayJsonHelper.parse[Long]("objectVersion", body)
       ClozeTestAnswerDTO(answer, objectVersion)
 
-  override def sanitize(req: Http.Request, body: JsonNode): Http.Request =
-    // Convert Jackson JsonNode to Play JsValue
-    val jsValue = Json.parse(body.toString)
-    AnswerValidator.get(jsValue) match
-      case Right(answer) => req.addAttr(Attrs.CLOZE_TEST_ANSWER, answer)
-      case Left(ex)      => throw ex
+  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+    AnswerValidator.get(json) match
+      case Right(answer) => Right(request.addAttr(CLOZE_TEST_ANSWER_KEY, answer))
+      case Left(ex)      => Left(Results.BadRequest(ex.getMessage))

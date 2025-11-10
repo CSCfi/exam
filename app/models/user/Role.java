@@ -9,7 +9,7 @@ import java.util.Objects;
 import models.base.GeneratedIdentityModel;
 
 @Entity
-public class Role extends GeneratedIdentityModel implements be.objectify.deadbolt.java.models.Role {
+public class Role extends GeneratedIdentityModel {
 
     public enum Name {
         STUDENT,
@@ -20,7 +20,6 @@ public class Role extends GeneratedIdentityModel implements be.objectify.deadbol
 
     private String name;
 
-    @Override
     public String getName() {
         return name;
     }

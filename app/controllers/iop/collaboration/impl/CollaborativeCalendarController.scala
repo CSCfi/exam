@@ -4,6 +4,7 @@
 
 package controllers.iop.collaboration.impl
 
+import controllers.iop.collaboration.api.CollaborativeExamLoader
 import impl.CalendarHandler
 import impl.mail.EmailComposer
 import io.ebean.DB
@@ -30,7 +31,6 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-import scala.jdk.FutureConverters.*
 import scala.util.Using
 
 class CollaborativeCalendarController @Inject() (
@@ -41,6 +41,7 @@ class CollaborativeCalendarController @Inject() (
     dateTimeHandler: DateTimeHandler,
     enrolmentHandler: EnrolmentHandler,
     collaborationController: CollaborationController,
+    examLoader: CollaborativeExamLoader,
     val controllerComponents: ControllerComponents,
     implicit val ec: AuthExecutionContext
 ) extends BaseController
@@ -55,7 +56,7 @@ class CollaborativeCalendarController @Inject() (
       ceOpt match
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))
         case Some(ce) =>
-          collaborationController.downloadExam(ce).asScala.map { examOpt =>
+          examLoader.downloadExam(ce).map { examOpt =>
             if examOpt.isEmpty then NotFound("i18n_error_exam_not_found")
             else Ok(examOpt.get.asJson)
           }
@@ -101,7 +102,7 @@ class CollaborativeCalendarController @Inject() (
             .find match
             case None => Future.successful(NotFound("i18n_error_exam_not_found"))
             case Some(enrolment) =>
-              collaborationController.downloadExam(ce).asScala.map { examOpt =>
+              examLoader.downloadExam(ce).map { examOpt =>
                 if examOpt.isEmpty then NotFound("i18n_error_exam_not_found")
                 else
                   val exam = examOpt.get
@@ -146,10 +147,10 @@ class CollaborativeCalendarController @Inject() (
     enrolment.setReservationCanceled(false)
 
     val sections =
-      if sectionIds.isEmpty then Set.empty[ExamSection].asJava
-      else DB.find(classOf[ExamSection]).where().idIn(sectionIds.asJava).findSet()
+      if sectionIds.isEmpty then Set.empty[ExamSection]
+      else DB.find(classOf[ExamSection]).where().idIn(sectionIds.asJava).distinct
 
-    enrolment.setOptionalSections(sections)
+    enrolment.setOptionalSections(sections.asJava)
     enrolment.save()
 
     // Send some emails asynchronously
@@ -173,12 +174,10 @@ class CollaborativeCalendarController @Inject() (
       ceOpt match
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))
         case Some(ce) =>
-          val enrolmentOpt = Option(getEnrolledExam(examId, user))
-
-          enrolmentOpt match
+          getEnrolledExam(examId, user) match
             case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
             case Some(_) =>
-              collaborationController.downloadExam(ce).asScala.map { examOpt =>
+              examLoader.downloadExam(ce).map { examOpt =>
                 if examOpt.isEmpty then NotFound("i18n_error_exam_not_found")
                 else
                   val exam = examOpt.get
@@ -189,7 +188,7 @@ class CollaborativeCalendarController @Inject() (
               }
     }
 
-  private def getEnrolledExam(examId: Long, user: User): ExamEnrolment =
+  private def getEnrolledExam(examId: Long, user: User): Option[ExamEnrolment] =
     val now = dateTimeHandler.adjustDST(DateTime.now())
     DB.find(classOf[ExamEnrolment])
       .where()
@@ -199,4 +198,4 @@ class CollaborativeCalendarController @Inject() (
       .isNull("reservation")
       .gt("reservation.startAt", now.toDate)
       .endJunction()
-      .findOne()
+      .find

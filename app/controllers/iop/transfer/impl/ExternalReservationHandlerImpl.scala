@@ -9,6 +9,7 @@ import impl.mail.EmailComposer
 import io.ebean.DB
 import miscellaneous.config.ConfigReader
 import miscellaneous.datetime.DateTimeHandler
+import miscellaneous.scala.DbApiHelper
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.user.User
 import org.apache.pekko.actor.ActorSystem
@@ -32,6 +33,7 @@ class ExternalReservationHandlerImpl @Inject() (
     configReader: ConfigReader
 )(implicit ec: ExecutionContext)
     extends ExternalReservationHandler
+    with DbApiHelper
     with JsonBodyWritables
     with Logging:
 
@@ -60,7 +62,7 @@ class ExternalReservationHandlerImpl @Inject() (
         Future.successful(Some(INTERNAL_SERVER_ERROR))
 
   private def requestRemoval(ref: String, user: User, msg: String): Future[Result] =
-    val enrolmentOpt = Option(
+    val enrolmentOpt =
       DB.find(classOf[ExamEnrolment])
         .fetch("reservation")
         .fetch("reservation.machine")
@@ -68,8 +70,7 @@ class ExternalReservationHandlerImpl @Inject() (
         .where()
         .eq("user.id", user.getId)
         .eq("reservation.externalRef", ref)
-        .findOne()
-    )
+        .find
 
     enrolmentOpt match
       case None =>

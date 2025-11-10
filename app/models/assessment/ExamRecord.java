@@ -11,7 +11,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import miscellaneous.datetime.DateTimeAdapter;
-import models.admin.ExamScore;
 import models.base.GeneratedIdentityModel;
 import models.exam.Exam;
 import models.user.User;

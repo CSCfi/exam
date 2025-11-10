@@ -4,11 +4,9 @@
 
 package validation.scala.section
 
-import com.fasterxml.jackson.databind.JsonNode
 import play.api.libs.json.*
-import play.mvc.Http
+import play.api.mvc.{Request, Result, Results, AnyContent}
 import validation.scala.core.*
-import validation.java.core.{Attrs, ValidatorAction}
 
 case class SectionQuestionDTO(
     answerInstructions: Option[String],
@@ -20,7 +18,7 @@ case class SectionQuestionDTO(
   def getEvaluationCriteriaOrNull: String = evaluationCriteria.orNull
   def getQuestionTextOrNull: String       = questionText.orNull
 
-class SectionQuestionValidator extends ValidatorAction:
+object SectionQuestionValidator extends PlayJsonValidator:
 
   private object QuestionParser:
     def parseFromJson(body: JsValue): SectionQuestionDTO =
@@ -35,8 +33,8 @@ class SectionQuestionValidator extends ValidatorAction:
 
       SectionQuestionDTO(answerInstructions, evaluationCriteria, questionText)
 
-  override def sanitize(req: Http.Request, body: JsonNode): Http.Request =
-    val jsValue = Json.parse(body.toString)
-    val dto = QuestionParser.parseFromJson(jsValue)
-    req.addAttr(Attrs.SECTION_QUESTION, dto)
+  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+    val dto = QuestionParser.parseFromJson(json)
+    Right(request.addAttr(ScalaAttrs.SECTION_QUESTION, dto))
+
 

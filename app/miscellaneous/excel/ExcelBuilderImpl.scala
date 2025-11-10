@@ -7,8 +7,8 @@ package miscellaneous.excel
 import io.ebean.DB
 import miscellaneous.config.ConfigReader
 import miscellaneous.excel.ExcelBuilder.CellType
-import models.admin.ExamScore
-import models.assessment.ExamRecord
+import models.assessment
+import models.assessment.{ExamRecord, ExamScore}
 import models.exam.Exam
 import models.questions.Question
 import models.sections.{ExamSection, ExamSectionQuestion}
@@ -61,8 +61,8 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
         data.asScala.zipWithIndex.foreach { case (entry, cellIndex) =>
           val cell = dataRow.createCell(cellIndex)
           val cellType = entry._2 match
-            case miscellaneous.excel.CellType.DECIMAL => CellType.DECIMAL
-            case miscellaneous.excel.CellType.STRING  => CellType.STRING
+            case assessment.ExamScore.CellType.DECIMAL => CellType.DECIMAL
+            case assessment.ExamScore.CellType.STRING  => CellType.STRING
           setValue(cell, entry._1, cellType)
         }
       }

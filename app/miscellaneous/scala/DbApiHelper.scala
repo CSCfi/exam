@@ -13,7 +13,9 @@ trait DbApiHelper:
   extension [T <: Model](el: ExpressionList[T])
     def find: Option[T]  = el.findOneOrEmpty().toScala
     def list: List[T]    = el.findList().asScala.toList
-    def distinct: Set[T] = el.findSet().asScala.toSet
+    def distinct: Set[T]  = el.findSet().asScala.toSet
+    def in[C](propertyName: String, values: Iterable[C]): ExpressionList[T] =
+      el.in(propertyName, values.toSeq.asJava)
 
   // This is for IOP with null values coming (especially) from Ebean.
   // Apparently, we can end up having Some(null) if not mapped like this.

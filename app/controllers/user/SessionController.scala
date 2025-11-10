@@ -27,7 +27,6 @@ import javax.inject.Inject
 import javax.mail.internet.{AddressException, InternetAddress}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
-import scala.jdk.FutureConverters.*
 import scala.util.{Failure, Success, Try}
 
 class SessionController @Inject() (
@@ -150,8 +149,7 @@ class SessionController @Inject() (
     DB.find(classOf[ExamEnrolment])
       .where()
       .isNotNull("preEnrolledUserEmail")
-      .findSet()
-      .asScala
+      .distinct
       .filter(ee => isUserPreEnrolled(ee.getPreEnrolledUserEmail, user))
       .foreach { ee =>
         ee.setPreEnrolledUserEmail(null)
@@ -249,13 +247,13 @@ class SessionController @Inject() (
       .orElse(parseDisplayName(request))
       .getOrElse(throw new IllegalArgumentException("Missing given name"))
 
-  private def findOrganisation(attribute: String): Organisation =
-    DB.find(classOf[Organisation]).where().eq("code", attribute).findOne()
+  private def findOrganisation(attribute: String): Option[Organisation] =
+    DB.find(classOf[Organisation]).where().eq("code", attribute).find
 
   private def updateUser(user: User, request: Request[AnyContent]): Unit =
     user.setOrganisation(
       parse(request.headers.get("homeOrganisation"))
-        .map(findOrganisation)
+        .flatMap(findOrganisation)
         .orNull
     )
     user.setUserIdentifier(
@@ -331,8 +329,7 @@ class SessionController @Inject() (
 
     val isLocal = isLocalUser(user.getEppn)
     val roles =
-      if isTemporaryVisitor || !isLocal then
-        DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).findList().asScala.toSeq
+      if isTemporaryVisitor || !isLocal then DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).list
       else user.getRoles.asScala.toSeq
 
     val (rolePayload, resultUpdate) =
@@ -402,7 +399,7 @@ class SessionController @Inject() (
             Option(DB.find(classOf[User], userId)) match
               case None => Future.successful(NotFound("User not found"))
               case Some(user) =>
-                Option(DB.find(classOf[Role]).where().eq("name", roleName).findOne()) match
+                DB.find(classOf[Role]).where().eq("name", roleName).find match
                   case None => Future.successful(NotFound("Role not found"))
                   case Some(role) =>
                     if !user.getRoles.contains(role) then Future.successful(Forbidden("User does not have this role"))
@@ -436,8 +433,8 @@ class SessionController @Inject() (
     session.get("id") match
       case Some(id) if isStudent(session) =>
         val userId = session.get("id").get.toLong
-        enrolmentRepository.getReservationHeaders(request.asJava, userId).asScala.map { headers =>
-          val newSession = updateSession(session, headers.asScala.toMap)
+        enrolmentRepository.getReservationHeaders(request, userId).map { headers =>
+          val newSession = updateSession(session, headers)
           result.withSession(newSession)
         }
       case _ => Future.successful(result.withSession(session))

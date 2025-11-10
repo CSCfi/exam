@@ -4,11 +4,11 @@
 
 package validation.scala.answer
 
-import com.fasterxml.jackson.databind.JsonNode
+import org.jsoup.Jsoup
 import play.api.libs.json.*
-import play.mvc.Http
+import play.api.libs.typedmap.TypedKey
+import play.api.mvc.{Request, Result, Results, AnyContent}
 import validation.scala.core.*
-import validation.java.core.{Attrs, ValidatorAction}
 
 case class EssayAnswerDTO(answer: String, objectVersion: Option[Long]):
   def getObjectVersionAsJava: java.util.Optional[java.lang.Long] =
@@ -16,7 +16,9 @@ case class EssayAnswerDTO(answer: String, objectVersion: Option[Long]):
       case Some(version) => java.util.Optional.of(java.lang.Long.valueOf(version))
       case None          => java.util.Optional.empty()
 
-class EssayAnswerValidator extends ValidatorAction:
+object EssayAnswerValidator extends PlayJsonValidator:
+
+  val ESSAY_ANSWER_KEY: TypedKey[EssayAnswerDTO] = TypedKey[EssayAnswerDTO]("essayAnswer")
 
   private object AnswerValidator:
     def get(body: JsValue): Either[ValidationException, EssayAnswerDTO] =
@@ -24,13 +26,14 @@ class EssayAnswerValidator extends ValidatorAction:
 
   private object EssayAnswerParser:
     def parseFromJson(body: JsValue): EssayAnswerDTO =
-      val answer        = PlayJsonHelper.parseHtml("answer", body).getOrElse("")
+      // Parse and sanitize HTML answer
+      val answer = (body \ "answer").asOpt[String] match
+        case Some(html) if html.nonEmpty => Jsoup.clean(html, HTML_SAFELIST)
+        case _                            => ""
       val objectVersion = PlayJsonHelper.parse[Long]("objectVersion", body)
       EssayAnswerDTO(answer, objectVersion)
 
-  override def sanitize(req: Http.Request, body: JsonNode): Http.Request =
-    // Convert Jackson JsonNode to Play JsValue
-    val jsValue = Json.parse(body.toString)
-    AnswerValidator.get(jsValue) match
-      case Right(answer) => req.addAttr(Attrs.ESSAY_ANSWER, answer)
-      case Left(ex)      => throw ex
+  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+    AnswerValidator.get(json) match
+      case Right(answer) => Right(request.addAttr(ESSAY_ANSWER_KEY, answer))
+      case Left(ex)      => Left(Results.BadRequest(ex.getMessage))

@@ -25,7 +25,7 @@ class CollaborativeAssessmentSenderActor @Inject (private val collaborativeExamL
       (_: String) =>
         logger.debug("Starting collaborative assessment sending check ->")
         val query = DB.find(classOf[ExamParticipation])
-        val pp    = collaborativeExamLoader.getAssessmentPath
+        val pp    = collaborativeExamLoader.getAssessmentPath()
         pp.apply(query)
         query.where
           .isNotNull("collaborativeExam")

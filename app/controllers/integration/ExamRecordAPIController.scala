@@ -6,8 +6,7 @@ package controllers.integration
 
 import io.ebean.DB
 import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
-import models.admin.ExamScore
-import models.assessment.ExamRecord
+import models.assessment.{ExamRecord, ExamScore}
 import org.joda.time.format.ISODateTimeFormat
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import security.scala.Auth.subjectNotPresent

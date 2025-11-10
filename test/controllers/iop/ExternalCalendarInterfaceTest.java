@@ -794,8 +794,9 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Reservation reservation = new Reservation();
         reservation.setExternalUserRef(eppn);
         reservation.setExternalRef(RESERVATION_REF);
-        reservation.setStartAt(DateTime.now().plusHours(2));
-        reservation.setEndAt(DateTime.now().plusHours(3));
+        // Use shorter offset to avoid crossing midnight boundary
+        reservation.setStartAt(DateTime.now().plusMinutes(2));
+        reservation.setEndAt(DateTime.now().plusMinutes(4));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
 

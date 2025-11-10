@@ -459,10 +459,9 @@ class EnrolmentController @Inject() (
       val user = request.attrs(Auth.ATTR_USER)
       enrolmentRepository
         .getRoomInfoForEnrolment(hash, user)
-        .asScala
         .map {
-          case null => NotFound("Room not found")
-          case room => Ok(room.asJson)
+          case None => NotFound("Room not found")
+          case Some(room) => Ok(room.asJson)
         }
     }
 

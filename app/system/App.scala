@@ -6,7 +6,7 @@ package system
 
 import com.google.inject.AbstractModule
 import play.libs.pekko.PekkoGuiceSupport
-import system.actors._
+import system.actors.*
 
 import javax.inject.Singleton
 

@@ -29,7 +29,6 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-import scala.jdk.FutureConverters.*
 import scala.util.Using
 
 class CalendarController @Inject() (
@@ -49,16 +48,15 @@ class CalendarController @Inject() (
   def removeReservation(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      val enrolmentOpt = Option(
-        DB.find(classOf[ExamEnrolment])
-          .fetch("reservation")
-          .fetch("reservation.machine")
-          .fetch("reservation.machine.room")
-          .where()
-          .eq("user.id", user.getId)
-          .eq("reservation.id", id)
-          .findOne()
-      )
+      val enrolmentOpt = DB
+        .find(classOf[ExamEnrolment])
+        .fetch("reservation")
+        .fetch("reservation.machine")
+        .fetch("reservation.machine.room")
+        .where()
+        .eq("user.id", user.getId)
+        .eq("reservation.id", id)
+        .find
 
       enrolmentOpt match
         case None            => throw new IllegalArgumentException(f"No reservation with id $id for current user.")
@@ -128,7 +126,7 @@ class CalendarController @Inject() (
           // Take pessimistic lock for user to prevent multiple reservations creating
           DB.find(classOf[User]).forUpdate().where().eq("id", user.getId).findOne()
 
-          val optionalEnrolment = Option(
+          val optionalEnrolment =
             DB.find(classOf[ExamEnrolment])
               .fetch("reservation")
               .fetch("exam.examSections")
@@ -141,8 +139,7 @@ class CalendarController @Inject() (
               .isNull("reservation")
               .gt("reservation.startAt", now.toDate)
               .endJunction()
-              .findOne()
-          )
+              .find
 
           optionalEnrolment match
             case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
@@ -175,13 +172,12 @@ class CalendarController @Inject() (
                               .removeReservation(old, user, "")
                               .flatMap { _ =>
                                 // Re-fetch enrolment
-                                val updatedEnrolmentOpt = Option(
+                                val updatedEnrolmentOpt =
                                   DB.find(classOf[ExamEnrolment])
                                     .fetch("exam.executionType")
                                     .where()
                                     .idEq(enrolment.getId)
-                                    .findOne()
-                                )
+                                    .find
 
                                 updatedEnrolmentOpt match
                                   case None => Future.successful(NotFound)
@@ -214,8 +210,8 @@ class CalendarController @Inject() (
     enrolment.update()
 
     if sectionIds.nonEmpty then
-      val sections = DB.find(classOf[ExamSection]).where().idIn(sectionIds.asJava).findSet()
-      enrolment.setOptionalSections(sections)
+      val sections = DB.find(classOf[ExamSection]).where().idIn(sectionIds.asJava).distinct
+      enrolment.setOptionalSections(sections.asJava)
 
     if enrolment.getExam.isPrivate then enrolment.setNoShow(false)
 

@@ -19,7 +19,7 @@ import models.sections.ExamSectionQuestion
 import models.user.{Role, User}
 import org.apache.pekko.actor.ActorSystem
 import org.joda.time.DateTime
-import play.api.libs.json.{JsString, JsValue, Json}
+import play.api.libs.json.JsValue
 import play.api.mvc.*
 import play.api.{Environment, Logging, Mode}
 import play.db.ebean.Transactional
@@ -27,14 +27,12 @@ import repository.ExaminationRepository
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import system.interceptors.scala.{ExamActionRouter, SecureController, SensitiveDataFilter}
+import validation.scala.answer.{ClozeTestAnswerValidator, EssayAnswerValidator}
 
 import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
-import scala.jdk.FutureConverters.*
-import scala.jdk.OptionConverters.*
-import scala.util.{Failure, Success, Try}
 
 class ExaminationController @Inject() (
     emailComposer: EmailComposer,
@@ -59,20 +57,35 @@ class ExaminationController @Inject() (
   override protected def sensitiveFields: Set[String] =
     Set("score", "defaultScore", "correctOption", "claimChoiceType", "configKey")
 
-  private def postProcessClone(enrolment: ExamEnrolment, oe: Option[Exam]): Result =
+  private def postProcessClone(enrolment: ExamEnrolment, oe: Option[Exam]): Future[Result] =
     oe match
-      case None => InternalServerError("Failed to create exam")
+      case None => Future.successful(InternalServerError("Failed to create exam"))
       case Some(newExam) =>
-        Option(enrolment.getCollaborativeExam).foreach { _ =>
-          Try(externalAttachmentLoader.fetchExternalAttachmentsAsLocal(newExam).toCompletableFuture.get()) match {
-            case Failure(e) => logger.error("Could not fetch external attachments!", e)
-            case Success(_) => // OK
-          }
-        }
-        newExam.setCloned(true)
-        newExam.setDerivedMaxScores()
-        examinationRepository.processClozeTestQuestions(newExam)
-        Ok(newExam.asJson(ExaminationController.getPath(false)))
+        Option(enrolment.getCollaborativeExam) match
+          case None =>
+            // No collaborative exam, proceed synchronously
+            newExam.setCloned(true)
+            newExam.setDerivedMaxScores()
+            examinationRepository.processClozeTestQuestions(newExam)
+            Future.successful(Ok(newExam.asJson(ExaminationController.getPath(false))))
+          case Some(_) =>
+            // Fetch external attachments asynchronously, then process
+            externalAttachmentLoader
+              .fetchExternalAttachmentsAsLocal(newExam)
+              .map { _ =>
+                newExam.setCloned(true)
+                newExam.setDerivedMaxScores()
+                examinationRepository.processClozeTestQuestions(newExam)
+                Ok(newExam.asJson(ExaminationController.getPath(false)))
+              }
+              .recover { case e =>
+                logger.error("Could not fetch external attachments!", e)
+                // Continue anyway - attachments are optional
+                newExam.setCloned(true)
+                newExam.setDerivedMaxScores()
+                examinationRepository.processClozeTestQuestions(newExam)
+                Ok(newExam.asJson(ExaminationController.getPath(false)))
+              }
 
   private def postProcessExisting(
       clone: Exam,
@@ -86,20 +99,16 @@ class ExaminationController @Inject() (
     else
       examinationRepository
         .findEnrolment(user, clone, ce.orNull, false)
-        .asScala
-        .flatMap { optEnrolment =>
-          optEnrolment.toScala match {
-            case None => Future.successful(Forbidden("Enrolment not found"))
-            case Some(enrolment) =>
-              getEnrolmentError(enrolment, request).flatMap {
-                case Some(error) => Future.successful(error)
-                case None =>
-                  examinationRepository
-                    .createFinalExam(clone, user, enrolment)
-                    .asScala
-                    .map(e => Ok(e.asJson(ExaminationController.getPath(false))))
-              }
-          }
+        .flatMap {
+          case None => Future.successful(Forbidden("Enrolment not found"))
+          case Some(enrolment) =>
+            getEnrolmentError(enrolment, request).flatMap {
+              case Some(error) => Future.successful(error)
+              case None =>
+                examinationRepository
+                  .createFinalExam(clone, user, enrolment)
+                  .map(e => Ok(e.asJson(ExaminationController.getPath(false))))
+            }
         }
 
   private def createClone(
@@ -108,38 +117,34 @@ class ExaminationController @Inject() (
       ce: Option[CollaborativeExam],
       request: Request[AnyContent],
       isInitialization: Boolean
-  ): Future[Result] = {
+  ): Future[Result] =
     examinationRepository
       .findEnrolment(user, prototype, ce.orNull, isInitialization)
-      .asScala
-      .flatMap { optEnrolment =>
-        optEnrolment.toScala match {
-          case None => Future.successful(Forbidden("Enrolment not found"))
-          case Some(enrolment) =>
-            getEnrolmentError(enrolment, request).flatMap {
-              case Some(error) => Future.successful(error)
-              case None =>
-                examinationRepository
-                  .createExam(prototype, user, enrolment)
-                  .asScala
-                  .map(oe => postProcessClone(enrolment, oe.toScala))
-            }
-        }
+      .flatMap {
+        case None => Future.successful(Forbidden("Enrolment not found"))
+        case Some(enrolment) =>
+          getEnrolmentError(enrolment, request).flatMap {
+            case Some(error) => Future.successful(error)
+            case None =>
+              examinationRepository
+                .createExam(prototype, user, enrolment)
+                .flatMap {
+                  case None       => Future.successful(InternalServerError("Failed to create exam"))
+                  case Some(exam) => postProcessClone(enrolment, Some(exam))
+                }
+          }
       }
-  }
 
-  private def prepareExam(ce: Option[CollaborativeExam], hash: String, request: Request[AnyContent]): Future[Result] = {
+  private def prepareExam(ce: Option[CollaborativeExam], hash: String, request: Request[AnyContent]): Future[Result] =
     val user = request.attrs(Auth.ATTR_USER)
     val pp   = ExaminationController.getPath(false)
     examinationRepository
       .getPrototype(hash, ce.orNull, pp)
-      .asScala
       .flatMap { optionalPrototype =>
         examinationRepository
           .getPossibleClone(hash, user, ce.orNull, pp)
-          .asScala
           .flatMap { possibleClone =>
-            (optionalPrototype.toScala, possibleClone.toScala) match {
+            (optionalPrototype, possibleClone) match
               case (None, None)            => Future.successful(NotFound("Exam not found"))
               case (Some(prototype), None) =>
                 // Exam is not started yet, create a new one for the student
@@ -147,17 +152,13 @@ class ExaminationController @Inject() (
               case (_, Some(clone)) =>
                 // Exam started already
                 postProcessExisting(clone, user, ce, request)
-            }
           }
       }
-  }
 
-  private def prepareExam(hash: String, request: Request[AnyContent]): Future[Result] = {
+  private def prepareExam(hash: String, request: Request[AnyContent]): Future[Result] =
     examinationRepository
       .getCollaborativeExam(hash)
-      .asScala
-      .flatMap(oce => prepareExam(oce.toScala, hash, request))
-  }
+      .flatMap(oce => prepareExam(oce, hash, request))
 
   def startExam(hash: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).andThen(examActionRouter).async { request =>
@@ -170,22 +171,17 @@ class ExaminationController @Inject() (
       val pp   = ExaminationController.getPath(false)
       examinationRepository
         .getCollaborativeExam(hash)
-        .asScala
         .flatMap { oce =>
-          val ce = oce.toScala
           examinationRepository
-            .getPrototype(hash, ce.orNull, pp)
-            .asScala
+            .getPrototype(hash, oce.orNull, pp)
             .flatMap {
-              case javaOpt if javaOpt.isEmpty => Future.successful(Ok)
-              case javaOpt =>
-                val exam = javaOpt.get()
+              case None => Future.successful(Ok)
+              case Some(exam) =>
                 examinationRepository
-                  .getPossibleClone(hash, user, ce.orNull, pp)
-                  .asScala
+                  .getPossibleClone(hash, user, oce.orNull, pp)
                   .flatMap {
-                    case javaClone if javaClone.isPresent => Future.successful(Ok)
-                    case _ => createClone(exam, user, ce, request, isInitialization = true)
+                    case Some(_) => Future.successful(Ok)
+                    case None    => createClone(exam, user, oce, request, isInitialization = true)
                   }
             }
         }
@@ -198,19 +194,17 @@ class ExaminationController @Inject() (
         case Some(error) => error
         case None =>
           val user = request.attrs(Auth.ATTR_USER)
-          Option(
-            DB.find(classOf[Exam])
-              .fetch("examSections.sectionQuestions.question")
-              .where()
-              .eq("creator", user)
-              .eq("hash", hash)
-              .findOne()
-          ) match {
+          DB.find(classOf[Exam])
+            .fetch("examSections.sectionQuestions.question")
+            .where()
+            .eq("creator", user)
+            .eq("hash", hash)
+            .find match
             case None => NotFound("i18n_error_exam_not_found")
             case Some(exam) =>
               val oep     = findParticipation(exam, user)
               val session = request.session - "ongoingExamHash"
-              oep match {
+              oep match
                 case Some(ep) =>
                   setDurations(ep)
 
@@ -225,15 +219,11 @@ class ExaminationController @Inject() (
                   ep.save()
                   exam.setState(Exam.State.REVIEW)
                   exam.update()
-                  if (exam.isPrivate) {
-                    notifyTeachers(exam)
-                  }
+                  if exam.isPrivate then notifyTeachers(exam)
                   autoEvaluationHandler.autoEvaluate(exam)
                   Ok.withSession(session)
                 case None =>
                   Ok.withSession(session)
-              }
-          }
       }
     }
 
@@ -244,59 +234,53 @@ class ExaminationController @Inject() (
         case Some(error) => error
         case None =>
           val user = request.attrs(Auth.ATTR_USER)
-          Option(
-            DB.find(classOf[Exam])
-              .where()
-              .eq("creator", user)
-              .eq("hash", hash)
-              .findOne()
-          ) match {
+          DB.find(classOf[Exam])
+            .where()
+            .eq("creator", user)
+            .eq("hash", hash)
+            .find match
             case None => NotFound("i18n_error_exam_not_found")
             case Some(exam) =>
               val oep     = findParticipation(exam, user)
               val session = request.session - "ongoingExamHash"
-              oep match {
+              oep match
                 case Some(ep) =>
                   setDurations(ep)
                   ep.save()
                   exam.setState(Exam.State.ABORTED)
                   exam.update()
-                  if (exam.isPrivate) {
-                    notifyTeachers(exam)
-                  }
+                  if exam.isPrivate then notifyTeachers(exam)
                   Ok.withSession(session)
                 case None =>
                   Forbidden("Participation not found").withSession(session)
-              }
-          }
       }
     }
 
   def answerEssay(hash: String, questionId: Long): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) { request =>
-      getEnrolmentError(hash, request).map {
-        case Some(error) => error
-        case None =>
-          val json          = request.body
-          val essayAnswer   = (json \ "answer").asOpt[String].getOrElse("")
-          val objectVersion = (json \ "objectVersion").asOpt[Long]
-          Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
-            case None => Forbidden("Question not found")
-            case Some(question) =>
-              val answer = Option(question.getEssayAnswer) match {
-                case None =>
-                  new EssayAnswer()
-                case Some(existingAnswer) =>
-                  objectVersion.foreach(ov => existingAnswer.setObjectVersion(ov))
-                  existingAnswer
-              }
-              answer.setAnswer(essayAnswer)
-              answer.save()
-              question.setEssayAnswer(answer)
-              question.save()
-              Ok(answer.asJson)
+    authenticated
+      .andThen(authorized(Seq(Role.Name.STUDENT)))
+      .andThen(EssayAnswerValidator.filter)
+      .async(parse.json) { request =>
+        getEnrolmentError(hash, request).flatMap {
+          case Some(error) => Future.successful(error)
+          case None =>
+            val answerDTO = request.attrs(EssayAnswerValidator.ESSAY_ANSWER_KEY)
+            Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
+              case None => Future.successful(Forbidden("Question not found"))
+              case Some(question) =>
+                val answer = Option(question.getEssayAnswer) match
+                  case None =>
+                    new EssayAnswer()
+                  case Some(existingAnswer) =>
+                    answerDTO.objectVersion.foreach(ov => existingAnswer.setObjectVersion(ov))
+                    existingAnswer
+                answer.setAnswer(answerDTO.answer)
+                answer.save()
+                question.setEssayAnswer(answer)
+                question.save()
+                Future.successful(Ok(answer.asJson))
+        }
       }
-    }
 
   def answerMultiChoice(hash: String, qid: Long): Action[JsValue] =
     authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) { request =>
@@ -317,37 +301,27 @@ class ExaminationController @Inject() (
     }
 
   def answerClozeTest(hash: String, questionId: Long): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) { request =>
-      getEnrolmentError(hash, request).map {
-        case Some(error) => error
-        case None =>
-          val json = request.body
-          // Validate that answer field exists
-          (json \ "answer").asOpt[JsValue] match
-            case None              => BadRequest("Missing required field: answer")
-            case Some(answerValue) =>
-              // Answer can be either a string or a JSON object - stringify it
-              val answerText: String = answerValue match
-                case JsString(str) => str
-                case jsValue       => Json.stringify(jsValue)
-
-              // Validate JSON if answer is non-empty
-              val isValidJson = answerText.trim.isEmpty || Try(Json.parse(answerText)).isSuccess
-              if !isValidJson then BadRequest("Invalid JSON in answer field")
-              else
-                val objectVersion = (json \ "objectVersion").asOpt[Long].getOrElse(0L)
-                Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
-                  case None => Forbidden("Question not found")
-                  case Some(esq) =>
-                    val answer = Option(esq.getClozeTestAnswer).getOrElse {
-                      new ClozeTestAnswer()
-                    }
-                    answer.setObjectVersion(objectVersion)
-                    answer.setAnswer(answerText)
-                    answer.save()
-                    Ok(answer.asJson(PathProperties.parse("(id, objectVersion, answer)")))
+    authenticated
+      .andThen(authorized(Seq(Role.Name.STUDENT)))
+      .andThen(ClozeTestAnswerValidator.filter)
+      .async(parse.json) { request =>
+        getEnrolmentError(hash, request).flatMap {
+          case Some(error) => Future.successful(error)
+          case None =>
+            val answerDTO     = request.attrs(ClozeTestAnswerValidator.CLOZE_TEST_ANSWER_KEY)
+            val objectVersion = answerDTO.objectVersion.getOrElse(0L)
+            Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
+              case None => Future.successful(Forbidden("Question not found"))
+              case Some(esq) =>
+                val answer = Option(esq.getClozeTestAnswer).getOrElse {
+                  new ClozeTestAnswer()
+                }
+                answer.setObjectVersion(objectVersion)
+                answer.setAnswer(answerDTO.answer)
+                answer.save()
+                Future.successful(Ok(answer.asJson(PathProperties.parse("(id, objectVersion, answer)"))))
+        }
       }
-    }
 
   private def findParticipation(exam: Exam, user: User) =
     DB.find(classOf[ExamParticipation])
@@ -384,19 +358,17 @@ class ExaminationController @Inject() (
       then
         examinationRepository
           .findRoom(enrolment)
-          .asScala
-          .map { optRoom =>
-            optRoom.toScala match
-              case None => Some(NotFound("Room not found"))
-              case Some(room) =>
-                val message =
-                  "i18n_wrong_exam_machine " +
-                    room.getName +
-                    ", " +
-                    room.getMailAddress.toString +
-                    ", i18n_exam_machine " +
-                    enrolment.getReservation.getMachine.getName
-                Some(Forbidden(message))
+          .map {
+            case None => Some(NotFound("Room not found"))
+            case Some(room) =>
+              val message =
+                "i18n_wrong_exam_machine " +
+                  room.getName +
+                  ", " +
+                  room.getMailAddress.toString +
+                  ", i18n_exam_machine " +
+                  enrolment.getReservation.getMachine.getName
+              Some(Forbidden(message))
           }
       else
         // For all other cases, use basic validation

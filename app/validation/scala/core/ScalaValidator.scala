@@ -4,6 +4,7 @@
 
 package validation.scala.core
 
+import org.jsoup.safety.Safelist
 import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json.JsValue
 import play.api.mvc.*
@@ -56,6 +57,32 @@ trait ScalaValidator[A]:
 trait PlayJsonValidator:
   protected def logger: Logger = LoggerFactory.getLogger(getClass)
 
+  /** Common HTML safelist for sanitizing user input
+    *
+    * Allows common HTML elements and attributes needed for rich text editing,
+    * including math-related attributes and math-field tags.
+    */
+  protected val HTML_SAFELIST: Safelist = Safelist.relaxed()
+    .addAttributes("a", "target")
+    .addAttributes(
+      "span",
+      "class",
+      "id",
+      "style",
+      "case-sensitive",
+      "cloze",
+      "numeric",
+      "precision",
+      "xmmath",
+      "xmmathjax",
+      "xmmathlive"
+    )
+    .addAttributes("div", "xmmath", "xmmathjax", "xmmathlive")
+    .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption")
+    .addAttributes("abbr", "title", "id")
+    .addTags("math-field")
+    .addAttributes("math-field", "data-expression", "read-only", "math-virtual-keyboard-policy")
+
   /** Sanitize the JSON body and enrich the request
     */
   def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]]
@@ -76,14 +103,40 @@ trait PlayJsonValidator:
       case None =>
         Left(Results.BadRequest("JSON body required"))
 
+  /** Validate a request with JsValue body (for use with parse.json)
+    */
+  def validateJsValue(request: Request[JsValue]): Either[Result, Request[JsValue]] =
+    try
+      // Create a temporary AnyContent request for sanitize
+      val tempRequest = request.asInstanceOf[Request[AnyContent]]
+      sanitize(tempRequest, request.body) match
+        case Left(error) => Left(error)
+        case Right(enriched) =>
+          // Cast back to Request[JsValue] - the body type is just a type parameter
+          // and the actual body (JsValue) is preserved, only attributes are added
+          Right(enriched.asInstanceOf[Request[JsValue]])
+    catch
+      case e: SanitizingException =>
+        logger.error("Sanitizing error: {}", e.getMessage, e)
+        Left(Results.BadRequest(e.getMessage))
+      case e: Exception =>
+        logger.error("Validation error: {}", e.getMessage, e)
+        Left(Results.BadRequest(s"Validation failed: ${e.getMessage}"))
+
   /** Create an ActionRefiner that applies this validator and enriches the request
     */
   def filter(implicit ec: ExecutionContext): ActionRefiner[Request, Request] = new ActionRefiner[Request, Request] {
     override def executionContext: ExecutionContext = ec
 
     override def refine[A](input: Request[A]): Future[Either[Result, Request[A]]] = Future.successful {
-      validate(input.asInstanceOf[Request[AnyContent]]) match
-        case Left(errorResult) => Left(errorResult)
-        case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[A]])
+      input match
+        case jsRequest: Request[JsValue @unchecked] if input.body.isInstanceOf[JsValue] =>
+          validateJsValue(jsRequest) match
+            case Left(errorResult) => Left(errorResult)
+            case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[A]])
+        case _ =>
+          validate(input.asInstanceOf[Request[AnyContent]]) match
+            case Left(errorResult) => Left(errorResult)
+            case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[A]])
     }
   }

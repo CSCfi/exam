@@ -58,7 +58,7 @@ object Auth:
           case Some(user) if roles.contains(user.getLoginRole) =>
             None
           case Some(_) =>
-            Some(Forbidden("Insufficient permissions"))
+            Some(Forbidden("authentication failure"))
           case None =>
             // Fallback: check session directly (when used standalone)
             input.session.get("role").flatMap(r => Try(Role.Name.valueOf(r)).toOption) match

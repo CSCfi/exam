@@ -4,6 +4,7 @@
 
 package controllers.iop.collaboration.impl
 
+import controllers.iop.collaboration.api.CollaborativeExamLoader
 import impl.CalendarHandler
 import io.ebean.DB
 import miscellaneous.config.ConfigReader
@@ -16,7 +17,7 @@ import models.user.{Role, User}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.Logging
-import play.api.libs.json.{JsArray, JsValue, Json, Writes}
+import play.api.libs.json.{JsArray, JsValue, Json}
 import play.api.libs.ws.{JsonBodyWritables, WSClient}
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
@@ -24,11 +25,10 @@ import security.scala.{Auth, AuthExecutionContext}
 import validation.scala.calendar.{ExternalReservationDTO, ReservationCreationFilter}
 import validation.scala.core.ScalaAttrs
 
-import java.net.{MalformedURLException, URI, URL}
+import java.net.{URI, URL}
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.*
-import scala.jdk.FutureConverters.*
+import scala.util.{Failure, Success, Try}
 
 class CollaborativeExternalCalendarController @Inject() (
     authenticated: AuthenticatedAction,
@@ -37,7 +37,8 @@ class CollaborativeExternalCalendarController @Inject() (
     configReader: ConfigReader,
     dateTimeHandler: DateTimeHandler,
     enrolmentHandler: miscellaneous.enrolment.EnrolmentHandler,
-    collaborationController: CollaborationController, // For downloadExam
+    collaborationController: CollaborationController,
+    examLoader: CollaborativeExamLoader,
     val controllerComponents: ControllerComponents,
     implicit val ec: AuthExecutionContext
 ) extends BaseController
@@ -65,7 +66,7 @@ class CollaborativeExternalCalendarController @Inject() (
           ceOpt match
             case None => Future.successful(NotFound("i18n_error_exam_not_found"))
             case Some(ce) =>
-              val enrolmentOpt = Option(
+              val enrolmentOpt =
                 DB.find(classOf[ExamEnrolment])
                   .fetch("reservation")
                   .where()
@@ -75,13 +76,12 @@ class CollaborativeExternalCalendarController @Inject() (
                   .isNull("reservation")
                   .gt("reservation.startAt", now.toDate)
                   .endJunction()
-                  .findOne()
-              )
+                  .find
 
               enrolmentOpt match
                 case None => Future.successful(NotFound("i18n_error_exam_not_found"))
                 case Some(enrolment) =>
-                  collaborationController.downloadExam(ce).asScala.flatMap { examOpt =>
+                  examLoader.downloadExam(ce).flatMap { examOpt =>
                     if examOpt.isEmpty then Future.successful(NotFound("i18n_error_exam_not_found"))
                     else
                       val exam = examOpt.get
@@ -99,46 +99,51 @@ class CollaborativeExternalCalendarController @Inject() (
                         case Some(errorResult) => Future.successful(errorResult)
                         case None              =>
                           // Make ext request here
-                          val url =
-                            try parseUrl(orgRef, roomRef)
-                            catch case e: MalformedURLException => throw new RuntimeException(e)
-
-                          val homeOrgRef = configReader.getHomeOrganisationRef
-                          val body = Json.obj(
-                            "requestingOrg"    -> homeOrgRef,
-                            "start"            -> ISODateTimeFormat.dateTime().print(start),
-                            "end"              -> ISODateTimeFormat.dateTime().print(end),
-                            "user"             -> user.getEppn,
-                            "optionalSections" -> JsArray(sectionIds.getOrElse(List.empty).map(id => Json.toJson(id)))
-                          )
-
-                          wsClient
-                            .url(url.toString)
-                            .post(body)
-                            .flatMap { response =>
-                              val root = response.json
-                              if response.status != CREATED then
-                                Future.successful(
-                                  InternalServerError((root \ "message").asOpt[String].getOrElse("Connection refused"))
+                          Try(parseUrl(orgRef, roomRef)) match
+                            case Failure(e) =>
+                              logger.error(s"Failed to parse URL for org=$orgRef, room=$roomRef", e)
+                              Future.successful(InternalServerError("Failed to parse URL"))
+                            case Success(url) =>
+                              val homeOrgRef = configReader.getHomeOrganisationRef
+                              val body = Json.obj(
+                                "requestingOrg" -> homeOrgRef,
+                                "start"         -> ISODateTimeFormat.dateTime().print(start),
+                                "end"           -> ISODateTimeFormat.dateTime().print(end),
+                                "user"          -> user.getEppn,
+                                "optionalSections" -> JsArray(
+                                  sectionIds.getOrElse(List.empty).map(id => Json.toJson(id))
                                 )
-                              else
-                                calendarHandler
-                                  .handleExternalReservation(
-                                    enrolment,
-                                    exam,
-                                    root,
-                                    start,
-                                    end,
-                                    user,
-                                    orgRef,
-                                    roomRef,
-                                    sectionIds.getOrElse(List.empty)
-                                  )
-                                  .map { err =>
-                                    if err.isEmpty then Created((root \ "id").as[JsValue])
-                                    else InternalServerError("Failed to handle external reservation")
-                                  }
-                            }
+                              )
+
+                              wsClient
+                                .url(url.toString)
+                                .post(body)
+                                .flatMap { response =>
+                                  val root = response.json
+                                  if response.status != CREATED then
+                                    Future.successful(
+                                      InternalServerError(
+                                        (root \ "message").asOpt[String].getOrElse("Connection refused")
+                                      )
+                                    )
+                                  else
+                                    calendarHandler
+                                      .handleExternalReservation(
+                                        enrolment,
+                                        exam,
+                                        root,
+                                        start,
+                                        end,
+                                        user,
+                                        orgRef,
+                                        roomRef,
+                                        sectionIds.getOrElse(List.empty)
+                                      )
+                                      .map { err =>
+                                        if err.isEmpty then Created((root \ "id").as[JsValue])
+                                        else InternalServerError("Failed to handle external reservation")
+                                      }
+                                }
                   }
       }
 
@@ -157,12 +162,10 @@ class CollaborativeExternalCalendarController @Inject() (
           ceOpt match
             case None => Future.successful(NotFound("i18n_error_exam_not_found"))
             case Some(ce) =>
-              val enrolmentOpt = Option(getEnrolledExam(examId, user))
-
-              enrolmentOpt match
+              getEnrolledExam(examId, user) match
                 case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
                 case Some(_) =>
-                  collaborationController.downloadExam(ce).asScala.flatMap { examOpt =>
+                  examLoader.downloadExam(ce).flatMap { examOpt =>
                     if examOpt.isEmpty then Future.successful(NotFound("i18n_error_exam_not_found"))
                     else
                       val exam = examOpt.get
@@ -170,40 +173,47 @@ class CollaborativeExternalCalendarController @Inject() (
                         Future.successful(NotFound("i18n_error_exam_not_found"))
                       else
                         // Also, sanity-check the provided search date
-                        try
-                          calendarHandler.parseSearchDate(dateValue, exam, null)
-
-                          // Ready to shoot
-                          val start    = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart))
-                          val end      = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd))
-                          val duration = exam.getDuration
-                          val url      = parseUrl(orgValue, roomRef, dateValue, start, end, duration)
-
-                          val wsRequest = wsClient
-                            .url(url.toString.split("\\?")(0))
-                            .withQueryStringParameters(
-                              url.getQuery.split("&").map { param =>
-                                val parts = param.split("=")
-                                parts(0) -> parts(1)
-                              }*
-                            )
-
-                          wsRequest.get().map { response =>
-                            val root = response.json
-                            if response.status != OK then
-                              InternalServerError((root \ "message").asOpt[String].getOrElse("Connection refused"))
-                            else
-                              val slots = calendarHandler.postProcessSlots(root, dateValue, exam, user)
-                              Ok(Json.toJson(slots.toSeq))
-                          }
-                        catch
-                          case _: IllegalArgumentException =>
+                        Try(calendarHandler.parseSearchDate(dateValue, exam, null)) match
+                          case Failure(_: IllegalArgumentException) =>
                             Future.successful(NotFound("Invalid date"))
+                          case Failure(e) =>
+                            logger.error(s"Failed to parse search date: $dateValue", e)
+                            Future.successful(InternalServerError("Failed to parse date"))
+                          case Success(_) =>
+                            // Ready to shoot
+                            val start    = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart))
+                            val end      = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd))
+                            val duration = exam.getDuration
+
+                            Try(parseUrl(orgValue, roomRef, dateValue, start, end, duration)) match
+                              case Failure(e) =>
+                                logger.error(s"Failed to parse URL for slots", e)
+                                Future.successful(InternalServerError("Failed to parse URL"))
+                              case Success(url) =>
+                                val wsRequest = wsClient
+                                  .url(url.toString.split("\\?")(0))
+                                  .withQueryStringParameters(
+                                    url.getQuery.split("&").map { param =>
+                                      val parts = param.split("=")
+                                      parts(0) -> parts(1)
+                                    }*
+                                  )
+
+                                wsRequest.get().map { response =>
+                                  val root = response.json
+                                  if response.status != OK then
+                                    InternalServerError(
+                                      (root \ "message").asOpt[String].getOrElse("Connection refused")
+                                    )
+                                  else
+                                    val slots = calendarHandler.postProcessSlots(root, dateValue, exam, user)
+                                    Ok(Json.toJson(slots.toSeq))
+                                }
                   }
         case _ => Future.successful(BadRequest("Missing required parameters"))
     }
 
-  private def getEnrolledExam(examId: Long, user: User): ExamEnrolment =
+  private def getEnrolledExam(examId: Long, user: User): Option[ExamEnrolment] =
     val now = dateTimeHandler.adjustDST(DateTime.now())
     DB.find(classOf[ExamEnrolment])
       .where()
@@ -213,9 +223,8 @@ class CollaborativeExternalCalendarController @Inject() (
       .isNull("reservation")
       .gt("reservation.startAt", now.toDate)
       .endJunction()
-      .findOne()
+      .find
 
-  @throws[MalformedURLException]
   private def parseUrl(orgRef: String, facilityRef: String): URL =
     URI
       .create(
@@ -236,5 +245,4 @@ class CollaborativeExternalCalendarController @Inject() (
       configReader.getIopHost +
         f"/api/organisations/$orgRef/facilities/$facilityRef/slots" +
         f"?date=$date&startAt=$start&endAt=$end&duration=$duration"
-    try URI.create(url).toURL
-    catch case e: MalformedURLException => throw new RuntimeException(e)
+    URI.create(url).toURL

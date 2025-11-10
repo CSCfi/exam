@@ -4,7 +4,10 @@
 
 package controllers.enrolment
 
+import controllers.iop.collaboration.api.CollaborativeExamLoader
 import controllers.iop.collaboration.impl.CollaborationController
+import impl.ExamUpdater
+import play.api.libs.ws.WSClient
 import impl.ExternalCourseHandler
 import io.ebean.text.PathProperties
 import io.ebean.{DB, FetchConfig, Model}
@@ -37,6 +40,9 @@ class StudentActionsController @Inject() (
     ec: ClassLoaderExecutionContext,
     externalCourseHandler: ExternalCourseHandler,
     enrolmentRepository: EnrolmentRepository,
+    wsClient: WSClient,
+    examUpdater: ExamUpdater,
+    examLoader: CollaborativeExamLoader,
     configReader: ConfigReader,
     byodConfigHandler: ByodConfigHandler,
     userHandler: UserHandler,
@@ -45,9 +51,9 @@ class StudentActionsController @Inject() (
     messagesApi: MessagesApi,
     authenticated: Auth.AuthenticatedAction,
     sensitiveDataFilter: SensitiveDataFilter,
-    val controllerComponents: ControllerComponents
+    override val controllerComponents: ControllerComponents
 )(implicit executionContext: ExecutionContext)
-    extends CollaborationController
+    extends CollaborationController(wsClient, examUpdater, examLoader, configReader, controllerComponents)
     with DbApiHelper
     with JavaApiHelper:
 
@@ -263,12 +269,13 @@ class StudentActionsController @Inject() (
         case None => Future.successful(NotFound("Enrolment not found"))
         case Some(enrolment) if Option(enrolment.getCollaborativeExam).isDefined =>
           // Collaborative exam, need to download
-          downloadExam(enrolment.getCollaborativeExam).asScala.map { optExam =>
-            if optExam.isPresent then
-              val exam = optExam.get
-              enrolment.setExam(exam)
-              ok(enrolment)
-            else NotFound("Collaborative exam not found")
+          downloadExam(enrolment.getCollaborativeExam).map { optExam =>
+            optExam match
+              case Some(exam) =>
+                enrolment.setExam(exam)
+                ok(enrolment)
+              case None =>
+                NotFound("Collaborative exam not found")
           }
         case Some(enrolment) if Option(enrolment.getExternalExam).isDefined =>
           // External exam
@@ -283,7 +290,7 @@ class StudentActionsController @Inject() (
   def getEnrolmentsForUser: Action[AnyContent] =
     authenticated.andThen(Auth.authorized(Seq(Role.Name.STUDENT))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      enrolmentRepository.getStudentEnrolments(user).asScala.map(enrolments => Ok(enrolments.asScala.asJson))
+      enrolmentRepository.getStudentEnrolments(user).map(enrolments => Ok(enrolments.asJson))
     }
 
   def getExamConfigFile(enrolmentId: Long): Action[AnyContent] =

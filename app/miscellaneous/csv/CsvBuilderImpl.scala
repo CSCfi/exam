@@ -7,8 +7,7 @@ package miscellaneous.csv
 import com.opencsv.{CSVParserBuilder, CSVReader, CSVReaderBuilder, CSVWriter}
 import io.ebean.DB
 import miscellaneous.scala.DbApiHelper
-import models.admin.ExamScore
-import models.assessment.{Comment, ExamRecord}
+import models.assessment.{Comment, ExamRecord, ExamScore}
 import models.exam.{Exam, Grade, GradeScale}
 import models.user.{Role, User}
 import org.joda.time.DateTime

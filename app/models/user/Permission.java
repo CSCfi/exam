@@ -8,11 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.annotation.EnumValue;
 import jakarta.persistence.Entity;
 import java.util.Objects;
-import java.util.Optional;
 import models.base.GeneratedIdentityModel;
 
 @Entity
-public class Permission extends GeneratedIdentityModel implements be.objectify.deadbolt.java.models.Permission {
+public class Permission extends GeneratedIdentityModel {
 
     public enum Type {
         @EnumValue("1")
@@ -23,7 +22,6 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
 
     private Type type;
 
-    @Override
     @JsonIgnore
     public String getValue() {
         return type.toString();
@@ -35,16 +33,6 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
 
     public void setType(Type type) {
         this.type = type;
-    }
-
-    public static Optional<Permission> withValue(String name) {
-        if (name.equals(Type.CAN_INSPECT_LANGUAGE.name())) {
-            // dumb but then again we have just one valid permission
-            Permission permission = new Permission();
-            permission.setType(Type.CAN_INSPECT_LANGUAGE);
-            return Optional.of(permission);
-        }
-        return Optional.empty();
     }
 
     @Override

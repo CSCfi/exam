@@ -4,7 +4,7 @@
 
 package controllers.assessment
 
-import controllers.base.scala.AnonymousHandler
+import controllers.base.AnonymousHandler
 import impl.mail.EmailComposer
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Query}
@@ -312,7 +312,7 @@ class ReviewController @Inject() (
                   exam.setGrade(null)
                   exam.setGradingType(Grade.Type.POINT_GRADED)
                   // Forced partial credit type
-                  exam.setCreditType(DB.find(classOf[ExamType]).where().eq("type", "PARTIAL").findOne())
+                  exam.setCreditType(DB.find(classOf[ExamType]).where().eq("type", "PARTIAL").find.orNull)
             exam.setAdditionalInfo(additionalInfo)
             exam.setAnswerLanguage((request.body \ "answerLanguage").asOpt[String].orNull)
             exam.setCustomCredit((request.body \ "customCredit").asOpt[Double].map(Double.box).orNull)

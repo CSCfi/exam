@@ -116,11 +116,14 @@ class ReservationController @Inject() (
 
   def removeReservation(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
-      val enrolment = Option(
-        DB.find(classOf[ExamEnrolment]).where().eq("reservation.id", id).findOne()
-      ).getOrElse(
-        throw new IllegalArgumentException(s"No reservation with id $id for current user.")
-      )
+      val enrolment =
+        DB.find(classOf[ExamEnrolment])
+          .where()
+          .eq("reservation.id", id)
+          .find
+          .getOrElse(
+            throw new IllegalArgumentException(s"No reservation with id $id for current user.")
+          )
 
       DB.find(classOf[ExamParticipation]).where().eq("exam", enrolment.getExam).find match
         case Some(participation) =>
@@ -211,8 +214,6 @@ class ReservationController @Inject() (
     else
       collaborativeExamLoader
         .downloadExam(reservation.getEnrolment.getCollaborativeExam)
-        .asScala
-        .map(opt => if opt.isPresent then Some(opt.get) else None)
 
   def listExaminationEvents(
       state: Option[String],

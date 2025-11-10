@@ -39,9 +39,9 @@ class UserController @Inject() (
 
   def grantUserPermission: Action[JsValue] =
     authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val body               = request.body
-      val permissionString   = (body \ "permission").as[String]
-      val userId             = (body \ "id").as[String]
+      val body             = request.body
+      val permissionString = (body \ "permission").as[String]
+      val userId           = (body \ "id").as[String]
 
       Option(DB.find(classOf[User], userId)) match
         case None => NotFound("user not found")
@@ -49,7 +49,7 @@ class UserController @Inject() (
           if !user.getPermissions.asScala.exists(_.getValue == permissionString) then
             Permission.Type.values().find(_.name() == permissionString) match
               case Some(permType) =>
-                Option(DB.find(classOf[Permission]).where().eq("type", permType).findOne()) match
+                DB.find(classOf[Permission]).where().eq("type", permType).find match
                   case Some(permission) =>
                     user.getPermissions.add(permission)
                     user.update()
@@ -62,9 +62,9 @@ class UserController @Inject() (
 
   def revokeUserPermission: Action[JsValue] =
     authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val body               = request.body
-      val permissionString   = (body \ "permission").as[String]
-      val userId             = (body \ "id").as[String]
+      val body             = request.body
+      val permissionString = (body \ "permission").as[String]
+      val userId           = (body \ "id").as[String]
 
       Option(DB.find(classOf[User], userId)) match
         case None => NotFound("user not found")
@@ -72,7 +72,7 @@ class UserController @Inject() (
           if user.getPermissions.asScala.exists(_.getValue == permissionString) then
             Permission.Type.values().find(_.name() == permissionString) match
               case Some(permType) =>
-                Option(DB.find(classOf[Permission]).where().eq("type", permType).findOne()) match
+                DB.find(classOf[Permission]).where().eq("type", permType).find match
                   case Some(permission) =>
                     user.getPermissions.remove(permission)
                     user.update()
@@ -112,7 +112,7 @@ class UserController @Inject() (
         case None => NotFound("i18n_user_not_found")
         case Some(user) =>
           if !user.getRoles.asScala.exists(_.getName == roleName) then
-            Option(DB.find(classOf[Role]).where().eq("name", roleName).findOne()) match
+            DB.find(classOf[Role]).where().eq("name", roleName).find match
               case None => NotFound("i18n_role_not_found")
               case Some(role) =>
                 user.getRoles.add(role)
@@ -127,7 +127,7 @@ class UserController @Inject() (
         case None => NotFound("i18n_user_not_found")
         case Some(user) =>
           if user.getRoles.asScala.exists(_.getName == roleName) then
-            Option(DB.find(classOf[Role]).where().eq("name", roleName).findOne()) match
+            DB.find(classOf[Role]).where().eq("name", roleName).find match
               case None => NotFound("i18n_role_not_found")
               case Some(role) =>
                 user.getRoles.remove(role)
@@ -145,7 +145,7 @@ class UserController @Inject() (
 
   def listQuestionOwners(role: String, criteria: String, qid: Option[Long]): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val users = listUsersByRoleAndName(role, criteria).asJava
+      val users  = listUsersByRoleAndName(role, criteria).asJava
       val owners = new java.util.HashSet[User]()
       owners.add(request.attrs(Auth.ATTR_USER))
 
@@ -175,14 +175,12 @@ class UserController @Inject() (
   def updateUserAgreementAccepted(): Action[AnyContent] =
     authenticated { request =>
       val userId = request.attrs(Auth.ATTR_USER).getId
-      Option(
-        DB.find(classOf[User])
-          .fetch("roles", "name")
-          .fetch("language")
-          .where()
-          .idEq(userId)
-          .findOne()
-      ) match
+      DB.find(classOf[User])
+        .fetch("roles", "name")
+        .fetch("language")
+        .where()
+        .idEq(userId)
+        .find match
         case None => NotFound("user not found")
         case Some(user) =>
           user.setUserAgreementAccepted(true)
@@ -194,19 +192,18 @@ class UserController @Inject() (
     authenticated(parse.json)
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER, Role.Name.STUDENT)))
       .andThen(validators.validated(UserLanguageValidator)) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      val lang = request.attrs(ScalaAttrs.LANG)
+        val user = request.attrs(Auth.ATTR_USER)
+        val lang = request.attrs(ScalaAttrs.LANG)
 
-      Option(DB.find(classOf[Language], lang)) match
-        case None => BadRequest("Unsupported language code")
-        case Some(language) =>
-          user.setLanguage(language)
-          user.update()
-          Ok
-    }
+        Option(DB.find(classOf[Language], lang)) match
+          case None => BadRequest("Unsupported language code")
+          case Some(language) =>
+            user.setLanguage(language)
+            user.update()
+            Ok
+      }
 
   private def listUsersByRoleAndName(role: String, nameFilter: String): Seq[User] =
     var el: ExpressionList[User] = DB.find(classOf[User]).where().eq("roles.name", role).disjunction()
     el = userHandler.applyNameSearch(null, el, nameFilter)
     el.endJunction().list
-

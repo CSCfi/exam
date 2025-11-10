@@ -11,7 +11,7 @@ import impl.{ExternalExamHandler, NoShowHandler}
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import miscellaneous.json.JsonDeserializer
-import miscellaneous.scala.JavaApiHelper
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.enrolment.ExamEnrolment
 import models.iop.ExternalExam
 import play.api.libs.json.{JsValue, Json}
@@ -23,7 +23,6 @@ import security.scala.Auth.subjectNotPresent
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
-import scala.jdk.FutureConverters.*
 
 class ExternalExamController @Inject() (
     externalExamHandler: ExternalExamHandler,
@@ -33,6 +32,7 @@ class ExternalExamController @Inject() (
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BaseController
+    with DbApiHelper
     with JavaApiHelper:
 
   private def getPath: PathProperties =
@@ -64,7 +64,7 @@ class ExternalExamController @Inject() (
           Option(JsonDeserializer.deserialize(classOf[ExternalExam], body)) match
             case None => Future.successful(BadRequest("Invalid external exam data"))
             case Some(ee) =>
-              val parent = Option(DB.find(classOf[models.exam.Exam]).where().eq("hash", ee.getExternalRef).findOne())
+              val parent = DB.find(classOf[models.exam.Exam]).where().eq("hash", ee.getExternalRef).find
               if parent.isEmpty && Option(enrolment.getCollaborativeExam).isEmpty then
                 Future.successful(NotFound("Parent exam not found"))
               else
@@ -76,7 +76,6 @@ class ExternalExamController @Inject() (
                   case Some(_) =>
                     collaborativeExamLoader
                       .createAssessment(clone.getExamParticipation)
-                      .asScala
                       .map(success => if success then Created else InternalServerError("Failed to create assessment"))
                   case None =>
                     // Fetch external attachments for the local exam
@@ -91,19 +90,17 @@ class ExternalExamController @Inject() (
         case Some(enrolment) =>
           Option(enrolment.getCollaborativeExam) match
             case Some(collaborativeExam) =>
-              import scala.jdk.OptionConverters.*
-              collaborativeExamLoader.downloadExam(collaborativeExam).asScala.map { optionalExam =>
-                optionalExam.toScala match
-                  case Some(exam) =>
-                    val pp = getPath
-                    Ok(exam.asJson(pp))
-                  case None => InternalServerError("Could not download collaborative exam")
+              collaborativeExamLoader.downloadExam(collaborativeExam).map {
+                case Some(exam) =>
+                  val pp = getPath
+                  Ok(exam.asJson(pp))
+                case None => InternalServerError("Could not download collaborative exam")
               }
             case None =>
               val exam = enrolment.getExam
 
               val examAttachmentFuture = Option(exam.getAttachment)
-                .map(att => externalAttachmentLoader.createExternalAttachment(att).asScala.map(_ => ()))
+                .map(att => externalAttachmentLoader.createExternalAttachment(att).map(_ => ()))
                 .toSeq
 
               val questionAttachmentFutures = exam.getExamSections.asScala
@@ -111,7 +108,7 @@ class ExternalExamController @Inject() (
                 .map(_.getQuestion)
                 .flatMap(q => Option(q.getAttachment))
                 .toSet
-                .map(att => externalAttachmentLoader.createExternalAttachment(att).asScala.map(_ => ()))
+                .map(att => externalAttachmentLoader.createExternalAttachment(att).map(_ => ()))
                 .toSeq
 
               val allFutures = examAttachmentFuture ++ questionAttachmentFutures
@@ -142,14 +139,12 @@ class ExternalExamController @Inject() (
     query
 
   private def getPrototype(ref: String): Option[ExamEnrolment] =
-    Option(
-      createQuery
-        .where()
-        .eq("reservation.externalRef", ref)
-        .or()
-        .isNull("exam.parent")
-        .isNotNull("collaborativeExam")
-        .endOr()
-        .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
-        .findOne()
-    )
+    createQuery
+      .where()
+      .eq("reservation.externalRef", ref)
+      .or()
+      .isNull("exam.parent")
+      .isNotNull("collaborativeExam")
+      .endOr()
+      .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
+      .find

@@ -26,26 +26,26 @@ POST          /app/permissions                                                co
 DELETE        /app/permissions                                                controllers.user.UserController.revokeUserPermission()
 
 ############### Exam interface ###############
-GET           /app/exams                                                      controllers.exam.ExamController.searchExams(filter: java.util.Optional[String], request: Request)
-POST          /app/exams                                                      controllers.exam.ExamController.createExamDraft(request: Request)
-GET           /app/exams/:id                                                  controllers.exam.ExamController.getExam(id: Long, request: Request)
-DELETE        /app/exams/:id                                                  controllers.exam.ExamController.deleteExam(id: Long, request: Request)
-PUT           /app/exams/:id                                                  controllers.exam.ExamController.updateExam(id: Long, request: Request)
-POST          /app/exams/:id                                                  controllers.exam.ExamController.copyExam(id: Long, request: Request)
-PUT           /app/exams/:eid/course/:cid                                     controllers.exam.ExamController.updateCourse(eid: Long, cid: Long, request: Request)
+GET           /app/exams                                                      controllers.exam.ExamController.searchExams(filter: Option[String])
+POST          /app/exams                                                      controllers.exam.ExamController.createExamDraft()
+GET           /app/exams/:id                                                  controllers.exam.ExamController.getExam(id: Long)
+DELETE        /app/exams/:id                                                  controllers.exam.ExamController.deleteExam(id: Long)
+PUT           /app/exams/:id                                                  controllers.exam.ExamController.updateExam(id: Long)
+POST          /app/exams/:id                                                  controllers.exam.ExamController.copyExam(id: Long)
+PUT           /app/exams/:eid/course/:cid                                     controllers.exam.ExamController.updateCourse(eid: Long, cid: Long)
 
-GET           /app/exams/:id/preview                                          controllers.exam.ExamController.getExamPreview(id: Long, request: Request)
-GET           /app/reviewerexams                                              controllers.exam.ExamController.getTeachersExams(request: Request)
+GET           /app/exams/:id/preview                                          controllers.exam.ExamController.getExamPreview(id: Long)
+GET           /app/reviewerexams                                              controllers.exam.ExamController.getTeachersExams()
 
-GET           /app/examsearch                                                 controllers.exam.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList], owner: java.util.Optional[LongList], request: Request)
+GET           /app/examsearch                                                 controllers.exam.ExamController.listExams(courseIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]], ownerIds: Option[List[Long]])
 
-PUT           /app/exam/:eid/software/:sid                                    controllers.exam.ExamController.updateExamSoftware(eid: Long, sid: Long, request: Request)
+PUT           /app/exam/:eid/software/:sid                                    controllers.exam.ExamController.updateExamSoftware(eid: Long, sid: Long)
 
-PUT           /app/exams/:eid/language/:code                                  controllers.exam.ExamController.updateExamLanguage(eid: Long, code: String, request: Request)
+PUT           /app/exams/:eid/language/:code                                  controllers.exam.ExamController.updateExamLanguage(eid: Long, code: String)
 
-GET           /app/examtypes                                                  controllers.exam.ExamController.getExamTypes
-GET           /app/executiontypes                                             controllers.exam.ExamController.getExamExecutionTypes
-GET           /app/gradescales                                                controllers.exam.ExamController.getExamGradeScales
+GET           /app/examtypes                                                  controllers.exam.ExamController.getExamTypes()
+GET           /app/executiontypes                                             controllers.exam.ExamController.getExamExecutionTypes()
+GET           /app/gradescales                                                controllers.exam.ExamController.getExamGradeScales()
 
 ############### Exam owner interface ###############
 GET           /app/exam/:id/owners                                            controllers.exam.ExamOwnerController.list(id: Long)
@@ -62,7 +62,7 @@ PUT           /app/exams/inspection/:id                                       co
 ############### Printout exam interface ###############
 POST          /app/exam/:id/examinationdate                                   controllers.enrolment.ExaminationEventController.insertExaminationDate(id: Long)
 DELETE        /app/exam/:id/examinationdate/:edid                             controllers.enrolment.ExaminationEventController.removeExaminationDate(id: Long, edid: Long)
-GET           /app/exam/printouts                                             controllers.exam.ExamController.listPrintouts
+GET           /app/exam/printouts                                             controllers.exam.ExamController.listPrintouts()
 
 ############### Examination events interface ############
 POST          /app/exam/:eid/examinationevents                                controllers.enrolment.ExaminationEventController.insertExaminationEvent(eid: Long)
@@ -116,30 +116,30 @@ PUT           /app/enrolments/:id/retrial                                     co
 
 ############### Section interface ###############
 
-POST          /app/exams/:eid/sections                                        controllers.exam.ExamSectionController.insertSection(eid: Long, request: Request)
-DELETE        /app/exams/:eid/sections/:sid                                   controllers.exam.ExamSectionController.removeSection(eid: Long, sid: Long, request: Request)
-PUT           /app/exams/:eid/sections/:sid                                   controllers.exam.ExamSectionController.updateSection(eid: Long, sid: Long, request: Request)
-DELETE        /app/exams/:eid/sections/:sid/questions                         controllers.exam.ExamSectionController.clearQuestions(eid: Long, sid: Long, request: Request)
-POST          /app/exams/:eid/sections/:sid/questions/:qid                    controllers.exam.ExamSectionController.insertQuestion(eid: Long, sid: Long, qid: Long, request: Request)
-POST          /app/exams/:eid/sections/:sid/questions                         controllers.exam.ExamSectionController.insertMultipleQuestions(eid: Long, sid: Long, request: Request)
-DELETE        /app/exams/:eid/sections/:sid/questions/:qid                    controllers.exam.ExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long, request: Request)
-PUT           /app/exams/:eid/sections/:sid/reorder                           controllers.exam.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long, request: Request)
-PUT           /app/exams/:eid/reorder                                         controllers.exam.ExamSectionController.reorderSections(eid: Long, request: Request)
+POST          /app/exams/:eid/sections                                        controllers.exam.ExamSectionController.insertSection(eid: Long)
+DELETE        /app/exams/:eid/sections/:sid                                   controllers.exam.ExamSectionController.removeSection(eid: Long, sid: Long)
+PUT           /app/exams/:eid/sections/:sid                                   controllers.exam.ExamSectionController.updateSection(eid: Long, sid: Long)
+DELETE        /app/exams/:eid/sections/:sid/questions                         controllers.exam.ExamSectionController.clearQuestions(eid: Long, sid: Long)
+POST          /app/exams/:eid/sections/:sid/questions/:qid                    controllers.exam.ExamSectionController.insertQuestion(eid: Long, sid: Long, qid: Long)
+POST          /app/exams/:eid/sections/:sid/questions                         controllers.exam.ExamSectionController.insertMultipleQuestions(eid: Long, sid: Long)
+DELETE        /app/exams/:eid/sections/:sid/questions/:qid                    controllers.exam.ExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
+PUT           /app/exams/:eid/sections/:sid/reorder                           controllers.exam.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long)
+PUT           /app/exams/:eid/reorder                                         controllers.exam.ExamSectionController.reorderSections(eid: Long)
 GET           /app/exams/question/:id/distribution                            controllers.exam.ExamSectionController.getQuestionDistribution(id: Long)
-GET           /app/sections                                                   controllers.exam.ExamSectionController.listSections(filter: java.util.Optional[String], courseIds: java.util.Optional[LongList], examIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList], ownerIds: java.util.Optional[LongList], request: Request)
+GET           /app/sections                                                   controllers.exam.ExamSectionController.listSections(filter: Option[String], courseIds: Option[List[Long]], examIds: Option[List[Long]], tagIds: Option[List[Long]], ownerIds: Option[List[Long]])
 
 ############### Section material interface ###############
-GET           /app/materials                                                  controllers.question.ExamMaterialController.listMaterials(request: Request)
-POST          /app/materials                                                  controllers.question.ExamMaterialController.createMaterial(request: Request)
-PUT           /app/materials/:id                                              controllers.question.ExamMaterialController.updateMaterial(id: Long, request: Request)
-DELETE        /app/materials/:id                                              controllers.question.ExamMaterialController.removeMaterial(id: Long, request: Request)
-POST          /app/materials/:id/:sid                                         controllers.question.ExamMaterialController.addMaterialForSection(sid: Long, id: Long, request: Request)
-DELETE        /app/materials/:id/:sid                                         controllers.question.ExamMaterialController.removeMaterialFromSection(sid: Long, id: Long, request: Request)
+GET           /app/materials                                                  controllers.question.ExamMaterialController.listMaterials()
+POST          /app/materials                                                  controllers.question.ExamMaterialController.createMaterial()
+PUT           /app/materials/:id                                              controllers.question.ExamMaterialController.updateMaterial(id: Long)
+DELETE        /app/materials/:id                                              controllers.question.ExamMaterialController.removeMaterial(id: Long)
+POST          /app/materials/:id/:sid                                          controllers.question.ExamMaterialController.addMaterialForSection(sid: Long, id: Long)
+DELETE        /app/materials/:id/:sid                                         controllers.question.ExamMaterialController.removeMaterialFromSection(sid: Long, id: Long)
 
 ############### Section question interface ##########
 
-PUT           /app/exams/:eid/sections/:sid/questions/:qid                    controllers.exam.ExamSectionController.updateUndistributedExamQuestion(eid: Long, sid: Long, qid: Long, request: Request)
-PUT           /app/exams/:eid/sections/:sid/questions/:qid/distributed        controllers.exam.ExamSectionController.updateDistributedExamQuestion(eid: Long, sid: Long, qid: Long, request: Request)
+PUT           /app/exams/:eid/sections/:sid/questions/:qid                    controllers.exam.ExamSectionController.updateUndistributedExamQuestion(eid: Long, sid: Long, qid: Long)
+PUT           /app/exams/:eid/sections/:sid/questions/:qid/distributed        controllers.exam.ExamSectionController.updateDistributedExamQuestion(eid: Long, sid: Long, qid: Long)
 
 ############### Review interface ###############
 GET           /app/reviews/:id                                                controllers.assessment.ReviewController.listReviews(id: Long)
@@ -191,18 +191,18 @@ GET           /app/courses/:id                                                 c
 
 ############### Question interface ###############
 
-GET           /app/questions                                                   controllers.question.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long], section: java.util.List[java.lang.Long], owner: java.util.List[java.lang.Long], request: Request)
-GET           /app/questions/:id                                               controllers.question.QuestionController.getQuestion(id: Long, request: Request)
-PUT           /app/questions/:id                                               controllers.question.QuestionController.updateQuestion(id: Long, request: Request)
+GET           /app/questions                                                   controllers.question.QuestionController.getQuestions(exam: List[Long], course: List[Long], tag: List[Long], section: List[Long], owner: List[Long])
+GET           /app/questions/:id                                               controllers.question.QuestionController.getQuestion(id: Long)
+PUT           /app/questions/:id                                               controllers.question.QuestionController.updateQuestion(id: Long)
 
-POST          /app/questions                                                   controllers.question.QuestionController.createQuestion(request: Request)
-POST          /app/question/:id                                                controllers.question.QuestionController.copyQuestion(id: Long, request: Request)
-DELETE        /app/questions/:id                                               controllers.question.QuestionController.deleteQuestion(id: Long, request: Request)
-POST          /app/questions/owner/:uid                                        controllers.question.QuestionController.addOwner(uid: Long, request: Request)
-POST          /app/questions/export                                            controllers.question.QuestionController.exportQuestions(request: Request)
-POST          /app/questions/import                                            controllers.question.QuestionController.importQuestions(request: Request)
-GET           /app/questions/:id/preview/exam                                  controllers.question.QuestionController.getExamSectionQuestionPreview(id: Long, request: Request)
-GET           /app/questions/:id/preview/library                               controllers.question.QuestionController.getQuestionPreview(id: Long, request: Request)
+POST          /app/questions                                                   controllers.question.QuestionController.createQuestion()
+POST          /app/question/:id                                                controllers.question.QuestionController.copyQuestion(id: Long)
+DELETE        /app/questions/:id                                               controllers.question.QuestionController.deleteQuestion(id: Long)
+POST          /app/questions/owner/:uid                                        controllers.question.QuestionController.addOwner(uid: Long)
+POST          /app/questions/export                                            controllers.question.QuestionController.exportQuestions()
+POST          /app/questions/import                                            controllers.question.QuestionController.importQuestions()
+GET           /app/questions/:id/preview/exam                                  controllers.question.QuestionController.getExamSectionQuestionPreview(id: Long)
+GET           /app/questions/:id/preview/library                               controllers.question.QuestionController.getQuestionPreview(id: Long)
 
 ############### Reservation interface ###############
 
@@ -278,11 +278,11 @@ DELETE        /app/attachment/exam/:id/statement                                
 GET           /app/attachment/exam/:id/statement                                controllers.attachment.AttachmentController.downloadStatementAttachment(id: Long)
 
 ############### External Attachment ##################
-GET           /app/iop/attachment/exam/:hash                                    controllers.iop.transfer.impl.ExternalAttachmentController.downloadExamAttachment(hash: String, request: Request)
-GET           /app/iop/attachment/exam/:hash/question/:qid                      controllers.iop.transfer.impl.ExternalAttachmentController.downloadQuestionAttachment(hash: String, qid: Long, request: Request)
-POST          /app/iop/attachment/question/answer                               controllers.iop.transfer.impl.ExternalAttachmentController.addAttachmentToQuestionAnswer(request: Request)
-DELETE        /app/iop/attachment/question/:qid/answer/:hash                    controllers.iop.transfer.impl.ExternalAttachmentController.deleteQuestionAnswerAttachment(qid: Long, hash: String, request: Request)
-GET           /app/iop/attachment/question/:qid/answer/:hash                    controllers.iop.transfer.impl.ExternalAttachmentController.downloadQuestionAnswerAttachment(qid: Long, hash: String, request: Request)
+GET           /app/iop/attachment/exam/:hash                                    controllers.iop.transfer.impl.ExternalAttachmentController.downloadExamAttachment(hash: String)
+GET           /app/iop/attachment/exam/:hash/question/:qid                      controllers.iop.transfer.impl.ExternalAttachmentController.downloadQuestionAttachment(hash: String, qid: Long)
+POST          /app/iop/attachment/question/answer                               controllers.iop.transfer.impl.ExternalAttachmentController.addAttachmentToQuestionAnswer()
+DELETE        /app/iop/attachment/question/:qid/answer/:hash                    controllers.iop.transfer.impl.ExternalAttachmentController.deleteQuestionAnswerAttachment(qid: Long, hash: String)
+GET           /app/iop/attachment/question/:qid/answer/:hash                    controllers.iop.transfer.impl.ExternalAttachmentController.downloadQuestionAnswerAttachment(qid: Long, hash: String)
 
 #### integration ####
 # records
@@ -310,33 +310,33 @@ DELETE        /app/iop/reservations/external/:ref/force                         
 
 ######## Collaborative Student Actions interface #######
 
-GET           /app/iop/student/finishedExams                                     controllers.iop.collaboration.impl.CollaborativeStudentActionController.getFinishedExams(request: Request)
+GET           /app/iop/student/finishedExams                                     controllers.iop.collaboration.impl.CollaborativeStudentActionController.getFinishedExams()
 
 ################# Collaborative Exam interface #########
-GET           /app/iop/exams                                                     controllers.iop.collaboration.impl.CollaborativeExamController.searchExams(request: Request, filter: java.util.Optional[String])
-POST          /app/iop/exams                                                     controllers.iop.collaboration.impl.CollaborativeExamController.createExam(request: Request)
-GET           /app/iop/exams/:id                                                 controllers.iop.collaboration.impl.CollaborativeExamController.getExam(id: Long, request: Request)
-GET           /app/iop/exams/:id/preview                                         controllers.iop.collaboration.impl.CollaborativeExamController.getExamPreview(id: Long, request: Request)
-PUT           /app/iop/exams/:id                                                 controllers.iop.collaboration.impl.CollaborativeExamController.updateExam(id: Long, request: Request)
+GET           /app/iop/exams                                                     controllers.iop.collaboration.impl.CollaborativeExamController.searchExams(filter: Option[String])
+POST          /app/iop/exams                                                     controllers.iop.collaboration.impl.CollaborativeExamController.createExam()
+GET           /app/iop/exams/:id                                                 controllers.iop.collaboration.impl.CollaborativeExamController.getExam(id: Long)
+GET           /app/iop/exams/:id/preview                                         controllers.iop.collaboration.impl.CollaborativeExamController.getExamPreview(id: Long)
+PUT           /app/iop/exams/:id                                                 controllers.iop.collaboration.impl.CollaborativeExamController.updateExam(id: Long)
 DELETE        /app/iop/exams/:id                                                 controllers.iop.collaboration.impl.CollaborativeExamController.deleteExam(id: Long)
-PUT           /app/iop/exams/:id/language/:code                                  controllers.iop.collaboration.impl.CollaborativeExamController.updateLanguage(id: Long, code: String, request: Request)
-POST          /app/iop/exams/:id/owners                                          controllers.iop.collaboration.impl.CollaborativeExamController.addOwner(id: Long, request: Request)
-DELETE        /app/iop/exams/:id/owners/:oid                                     controllers.iop.collaboration.impl.CollaborativeExamController.removeOwner(id: Long, oid: Long, request: Request)
-GET           /app/iop/gradescales                                               controllers.iop.collaboration.impl.CollaborativeExamController.listGradeScales
+PUT           /app/iop/exams/:id/language/:code                                  controllers.iop.collaboration.impl.CollaborativeExamController.updateLanguage(id: Long, code: String)
+POST          /app/iop/exams/:id/owners                                          controllers.iop.collaboration.impl.CollaborativeExamController.addOwner(id: Long)
+DELETE        /app/iop/exams/:id/owners/:oid                                     controllers.iop.collaboration.impl.CollaborativeExamController.removeOwner(id: Long, oid: Long)
+GET           /app/iop/gradescales                                               controllers.iop.collaboration.impl.CollaborativeExamController.listGradeScales()
 
-POST          /app/iop/exams/:eid/sections                                       controllers.iop.collaboration.impl.CollaborativeExamSectionController.addSection(eid: Long, request: Request)
-DELETE        /app/iop/exams/:eid/sections/:sid                                  controllers.iop.collaboration.impl.CollaborativeExamSectionController.removeSection(eid: Long, sid: Long, request: Request)
-PUT           /app/iop/exams/:eid/sections/:sid                                  controllers.iop.collaboration.impl.CollaborativeExamSectionController.updateSection(eid: Long, sid: Long, request: Request)
-DELETE        /app/iop/exams/:eid/sections/:sid/questions                        controllers.iop.collaboration.impl.CollaborativeExamSectionController.clearQuestions(eid: Long, sid: Long, request: Request)
-POST          /app/iop/exams/:eid/sections/:sid/questions                        controllers.iop.collaboration.impl.CollaborativeExamSectionController.addQuestion(eid: Long, sid: Long, request: Request)
-DELETE        /app/iop/exams/:eid/sections/:sid/questions/:qid                   controllers.iop.collaboration.impl.CollaborativeExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long, request: Request)
-PUT           /app/iop/exams/:eid/sections/:sid/reorder                          controllers.iop.collaboration.impl.CollaborativeExamSectionController.reorderSectionQuestions(eid: Long, sid: Long, request: Request)
-PUT           /app/iop/exams/:eid/reorder                                        controllers.iop.collaboration.impl.CollaborativeExamSectionController.reorderSections(eid: Long, request: Request)
-PUT           /app/iop/exams/:eid/sections/:sid/questions/:qid                   controllers.iop.collaboration.impl.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long, request: Request)
+POST          /app/iop/exams/:eid/sections                                       controllers.iop.collaboration.impl.CollaborativeExamSectionController.addSection(eid: Long)
+DELETE        /app/iop/exams/:eid/sections/:sid                                  controllers.iop.collaboration.impl.CollaborativeExamSectionController.removeSection(eid: Long, sid: Long)
+PUT           /app/iop/exams/:eid/sections/:sid                                  controllers.iop.collaboration.impl.CollaborativeExamSectionController.updateSection(eid: Long, sid: Long)
+DELETE        /app/iop/exams/:eid/sections/:sid/questions                        controllers.iop.collaboration.impl.CollaborativeExamSectionController.clearQuestions(eid: Long, sid: Long)
+POST          /app/iop/exams/:eid/sections/:sid/questions                        controllers.iop.collaboration.impl.CollaborativeExamSectionController.addQuestion(eid: Long, sid: Long)
+DELETE        /app/iop/exams/:eid/sections/:sid/questions/:qid                   controllers.iop.collaboration.impl.CollaborativeExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
+PUT           /app/iop/exams/:eid/sections/:sid/reorder                          controllers.iop.collaboration.impl.CollaborativeExamSectionController.reorderSectionQuestions(eid: Long, sid: Long)
+PUT           /app/iop/exams/:eid/reorder                                        controllers.iop.collaboration.impl.CollaborativeExamSectionController.reorderSections(eid: Long)
+PUT           /app/iop/exams/:eid/sections/:sid/questions/:qid                   controllers.iop.collaboration.impl.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long)
 ################# Collaborative Exam enrolment interface #########
-GET           /app/iop/enrolment                                                 controllers.iop.collaboration.impl.CollaborativeEnrolmentController.searchExams(filter: java.util.Optional[String])
-GET           /app/iop/enrolments/exam/:eid                                      controllers.iop.collaboration.impl.CollaborativeEnrolmentController.checkIfEnrolled(eid: Long, request: Request)
-POST          /app/iop/enrolments/:eid                                           controllers.iop.collaboration.impl.CollaborativeEnrolmentController.createEnrolment(eid: Long, request: Request)
+GET           /app/iop/enrolment                                                 controllers.iop.collaboration.impl.CollaborativeEnrolmentController.searchExams(filter: Option[String])
+GET           /app/iop/enrolments/exam/:eid                                      controllers.iop.collaboration.impl.CollaborativeEnrolmentController.checkIfEnrolled(eid: Long)
+POST          /app/iop/enrolments/:eid                                           controllers.iop.collaboration.impl.CollaborativeEnrolmentController.createEnrolment(eid: Long)
 ################# Collaborative Exam reservation interface #########
 GET           /app/iop/exams/:eid/info                                           controllers.iop.collaboration.impl.CollaborativeCalendarController.getExamInfo(eid: Long)
 GET           /app/iop/exams/:eid/calendar/:roomId                               controllers.iop.collaboration.impl.CollaborativeCalendarController.getSlots(eid: Long, roomId: Long, day: String ?= "", aids: Option[Seq[Long]])
@@ -347,37 +347,37 @@ POST          /app/iop/calendar/external/reservation                            
 
 
 ################# Collaborative Exam review interface #########
-GET           /app/iop/reviews/:id                                               controllers.iop.collaboration.impl.CollaborativeReviewController.listAssessments(id: Long, request: Request)
-GET           /app/iop/reviews/:id/:ref                                          controllers.iop.collaboration.impl.CollaborativeReviewController.getAssessment(id: Long, ref: String, request: Request)
-PUT           /app/iop/reviews/:id/:ref/question/:qid                            controllers.iop.collaboration.impl.CollaborativeReviewController.updateAnswerScore(id: Long, ref: String, qid: Long, request: Request)
-PUT           /app/iop/reviews/:id/:ref/question/:qid/force                      controllers.iop.collaboration.impl.CollaborativeReviewController.forceUpdateAnswerScore(id: Long, ref: String, qid: Long, request: Request)
-PUT           /app/iop/reviews/:id/:ref                                          controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessment(id: Long, ref: String, request: Request)
-PUT           /app/iop/reviews/:id/:ref/comment                                  controllers.iop.collaboration.impl.CollaborativeReviewController.addComment(id: Long, ref: String, request: Request)
-POST          /app/iop/reviews/:id/:ref/comment                                  controllers.iop.collaboration.impl.CollaborativeReviewController.setFeedbackRead(id: String, ref: String, request: Request)
-PUT           /app/iop/reviews/:id/:ref/info                                     controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessmentInfo(id: Long, ref: String, request: Request)
-PUT           /app/iop/reviews/:id/:ref/record                                   controllers.iop.collaboration.impl.CollaborativeReviewController.finalizeAssessment(id: Long, ref: String, request: Request)
-POST          /app/iop/reviews/:id                                               controllers.iop.collaboration.impl.CollaborativeReviewController.exportAssessments(id: Long, request: Request)
-GET           /app/iop/reviews/:eid/participations/:aid                          controllers.iop.collaboration.impl.CollaborativeReviewController.getParticipationsForExamAndUser(eid: Long, aid: String, request: Request)
-POST          /app/iop/reviews/:id/:ref/mail                                     controllers.iop.collaboration.impl.CollaborativeReviewController.sendInspectionMessage(id: Long, ref: String, request: Request)
+GET           /app/iop/reviews/:id                                               controllers.iop.collaboration.impl.CollaborativeReviewController.listAssessments(id: Long)
+GET           /app/iop/reviews/:id/:ref                                          controllers.iop.collaboration.impl.CollaborativeReviewController.getAssessment(id: Long, ref: String)
+PUT           /app/iop/reviews/:id/:ref/question/:qid                            controllers.iop.collaboration.impl.CollaborativeReviewController.updateAnswerScore(id: Long, ref: String, qid: Long)
+PUT           /app/iop/reviews/:id/:ref/question/:qid/force                      controllers.iop.collaboration.impl.CollaborativeReviewController.forceUpdateAnswerScore(id: Long, ref: String, qid: Long)
+PUT           /app/iop/reviews/:id/:ref                                          controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessment(id: Long, ref: String)
+PUT           /app/iop/reviews/:id/:ref/comment                                  controllers.iop.collaboration.impl.CollaborativeReviewController.addComment(id: Long, ref: String)
+POST          /app/iop/reviews/:id/:ref/comment                                  controllers.iop.collaboration.impl.CollaborativeReviewController.setFeedbackRead(id: String, ref: String)
+PUT           /app/iop/reviews/:id/:ref/info                                     controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessmentInfo(id: Long, ref: String)
+PUT           /app/iop/reviews/:id/:ref/record                                   controllers.iop.collaboration.impl.CollaborativeReviewController.finalizeAssessment(id: Long, ref: String)
+POST          /app/iop/reviews/:id                                               controllers.iop.collaboration.impl.CollaborativeReviewController.exportAssessments(id: Long)
+GET           /app/iop/reviews/:eid/participations/:aid                          controllers.iop.collaboration.impl.CollaborativeReviewController.getParticipationsForExamAndUser(eid: Long, aid: String)
+POST          /app/iop/reviews/:id/:ref/mail                                     controllers.iop.collaboration.impl.CollaborativeReviewController.sendInspectionMessage(id: Long, ref: String)
 
 ############# Integration attachments #################
 GET           /app/iop/collab/attachment/:id                                     controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadExternalAttachment(id: String)
-POST          /app/iop/collab/attachment/question                                controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToQuestion(request: Request)
-DELETE        /app/iop/collab/attachment/exam/:eid/question/:qid                 controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteQuestionAttachment(eid: Long, qid: Long, request: Request)
-GET           /app/iop/collab/attachment/exam/:eid/question/:qid                 controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadQuestionAttachment(eid: Long, qid: Long, request: Request)
-POST          /app/iop/collab/attachment/question/answer                         controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToQuestionAnswer(request: Request)
-DELETE        /app/iop/collab/attachment/question/:qid/answer/:eid               controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteQuestionAnswerAttachment(qid: Long, eid: Long, request: Request)
-GET           /app/iop/collab/attachment/question/:qid/answer/:eid               controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadQuestionAnswerAttachment(qid: Long, eid: Long, request: Request)
-POST          /app/iop/collab/attachment/exam                                    controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToExam(request: Request)
-DELETE        /app/iop/collab/attachment/exam/:id                                controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteExamAttachment(id: Long, request: Request)
-GET           /app/iop/collab/attachment/exam/:id                                controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadExamAttachment(id: Long, request: Request)
+POST          /app/iop/collab/attachment/question                                controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToQuestion()
+DELETE        /app/iop/collab/attachment/exam/:eid/question/:qid                 controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteQuestionAttachment(eid: Long, qid: Long)
+GET           /app/iop/collab/attachment/exam/:eid/question/:qid                 controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadQuestionAttachment(eid: Long, qid: Long)
+POST          /app/iop/collab/attachment/question/answer                         controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToQuestionAnswer()
+DELETE        /app/iop/collab/attachment/question/:qid/answer/:eid               controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteQuestionAnswerAttachment(qid: Long, eid: Long)
+GET           /app/iop/collab/attachment/question/:qid/answer/:eid               controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadQuestionAnswerAttachment(qid: Long, eid: Long)
+POST          /app/iop/collab/attachment/exam                                    controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToExam()
+DELETE        /app/iop/collab/attachment/exam/:id                                controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteExamAttachment(id: Long)
+GET           /app/iop/collab/attachment/exam/:id                                controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadExamAttachment(id: Long)
 
-POST          /app/iop/collab/attachment/exam/:id/:ref/feedback                  controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAssessmentAttachment(id: Long, ref: String, request: Request)
-DELETE        /app/iop/collab/attachment/exam/:id/:ref/feedback                  controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteAssessmentAttachment(id: Long, ref: String, request: Request)
+POST          /app/iop/collab/attachment/exam/:id/:ref/feedback                  controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAssessmentAttachment(id: Long, ref: String)
+DELETE        /app/iop/collab/attachment/exam/:id/:ref/feedback                  controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteAssessmentAttachment(id: Long, ref: String)
 
-POST          /app/iop/collab/attachment/exam/:id/statement                      controllers.iop.collaboration.impl.CollaborativeAttachmentController.addStatementAttachment(id: Long, request: Request)
-DELETE        /app/iop/collab/attachment/exam/:id/statement                      controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteStatementAttachment(id: Long, request: Request)
-GET           /app/iop/collab/attachment/exam/:id/statement                      controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadStatementAttachment(id: Long, request: Request)
+POST          /app/iop/collab/attachment/exam/:id/statement                      controllers.iop.collaboration.impl.CollaborativeAttachmentController.addStatementAttachment(id: Long)
+DELETE        /app/iop/collab/attachment/exam/:id/statement                      controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteStatementAttachment(id: Long)
+GET           /app/iop/collab/attachment/exam/:id/statement                      controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadStatementAttachment(id: Long)
 
 ############# Integration data transfer #################
 POST          /app/iop/export                                                    controllers.iop.transfer.impl.DataTransferController.exportData()

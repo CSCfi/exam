@@ -6,6 +6,8 @@ package validation.scala.core
 
 import play.api.libs.typedmap.TypedKey
 import validation.scala.calendar.{ReservationDTO, ExternalReservationDTO}
+import validation.scala.section.SectionQuestionDTO
+import models.exam.Exam
 
 /** Scala-friendly typed keys for request attributes
   */
@@ -32,6 +34,12 @@ object ScalaAttrs:
   val DATE: TypedKey[org.joda.time.LocalDate] = TypedKey[org.joda.time.LocalDate]("date")
   val EXAMINATION_EVENT: TypedKey[validation.scala.exam.ExaminationEventDTO] = 
     TypedKey[validation.scala.exam.ExaminationEventDTO]("examinationEvent")
+  
+  // Exam validation
+  val EXAM: TypedKey[Exam] = TypedKey[Exam]("exam")
+  
+  // Section question validation
+  val SECTION_QUESTION: TypedKey[SectionQuestionDTO] = TypedKey[SectionQuestionDTO]("sectionQuestion")
   
   // User validation
   val LANG: TypedKey[String] = TypedKey[String]("lang")

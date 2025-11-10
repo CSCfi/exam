@@ -37,9 +37,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
+import play.api.libs.json.JsValue;
+import play.api.libs.json.Json;
 import play.mvc.Result;
 import play.mvc.Results;
-import validation.java.SanitizingHelper;
+import scala.jdk.javaapi.OptionConverters;
+import validation.scala.core.SanitizingHelper;
 
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {
@@ -281,6 +284,10 @@ public class Question extends OwnedModel implements AttachmentContainer {
         return node.get(name) != null && !node.get(name).isNull();
     }
 
+    private JsValue toPlayJson(JsonNode node) {
+        return Json.parse(play.libs.Json.stringify(node));
+    }
+
     private String getClozeTestQuestionContentValidationResult(JsonNode node) {
         String reason = null;
         String questionText = node.get("question").asText();
@@ -320,10 +327,12 @@ public class Question extends OwnedModel implements AttachmentContainer {
         return (
             StreamSupport.stream(options.spliterator(), false)
                 .filter(n -> {
-                    MultipleChoiceOption.ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
-                        "claimChoiceType",
-                        n,
-                        MultipleChoiceOption.ClaimChoiceOptionType.class
+                    MultipleChoiceOption.ClaimChoiceOptionType type = OptionConverters.toJava(
+                        SanitizingHelper.parseEnum(
+                            "claimChoiceType",
+                            toPlayJson(n),
+                            MultipleChoiceOption.ClaimChoiceOptionType.class
+                        )
                     ).orElse(null);
                     double defaultScore = n.get("defaultScore").asDouble();
                     String option = n.get("option").asText();
@@ -347,7 +356,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
                 .map(n ->
                     SanitizingHelper.parseEnum(
                         "claimChoiceType",
-                        n,
+                        toPlayJson(n),
                         MultipleChoiceOption.ClaimChoiceOptionType.class
                     ).orElse(null)
                 )

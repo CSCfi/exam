@@ -4,7 +4,6 @@
 
 package controllers.iop.transfer.impl
 
-import controllers.base.scala.ExamBaseController
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import miscellaneous.config.ConfigReader
@@ -113,9 +112,7 @@ class DataTransferController @Inject() (
               .eq("questionOwners", user)
               .eq("creator", user)
               .endOr()
-              .findSet()
-              .asScala
-              .toSet
+              .distinct
 
             val data = Json.obj(
               "type"      -> "QUESTION",
@@ -216,7 +213,7 @@ class DataTransferController @Inject() (
           copy.setModifierWithDate(user)
           copy.save()
 
-          val userTags     = DB.find(classOf[Tag]).where().eq("creator", user).findList().asScala.toList
+          val userTags     = DB.find(classOf[Tag]).where().eq("creator", user).list
           val questionTags = question.getTags.asScala.toList
 
           val newTags = questionTags.filter(t => isNewTag(t, userTags))

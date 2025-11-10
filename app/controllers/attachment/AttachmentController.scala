@@ -4,7 +4,7 @@
 
 package controllers.attachment
 
-import controllers.base.scala.AnonymousHandler
+import controllers.base.AnonymousHandler
 import io.ebean.DB
 import miscellaneous.config.ConfigReader
 import miscellaneous.file.FileHandler

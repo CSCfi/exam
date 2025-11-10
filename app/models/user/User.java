@@ -4,7 +4,6 @@
 
 package models.user;
 
-import be.objectify.deadbolt.java.models.Subject;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
@@ -28,7 +27,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Entity
 @Table(name = "app_user")
-public class User extends GeneratedIdentityModel implements Subject {
+public class User extends GeneratedIdentityModel {
 
     private String email;
 
@@ -164,7 +163,6 @@ public class User extends GeneratedIdentityModel implements Subject {
         this.roles = roles;
     }
 
-    @Override
     public List<Role> getRoles() {
         return roles;
     }
@@ -177,7 +175,6 @@ public class User extends GeneratedIdentityModel implements Subject {
         this.language = language;
     }
 
-    @Override
     public List<Permission> getPermissions() {
         return permissions;
     }
@@ -210,7 +207,6 @@ public class User extends GeneratedIdentityModel implements Subject {
         this.inspections = inspections;
     }
 
-    @Override
     public String getIdentifier() {
         return email;
     }

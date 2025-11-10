@@ -4,10 +4,9 @@
 
 package controllers.assessment
 
-import controllers.base.scala.ExamBaseController
 import impl.mail.EmailComposer
 import io.ebean.{DB, ExpressionList, FetchConfig}
-import miscellaneous.scala.DbApiHelper
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.assessment.{Comment, LanguageInspection}
 import models.exam.Exam
 import models.user.Permission.Type
@@ -28,10 +27,8 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters.CollectionHasAsScala
-import miscellaneous.scala.JavaApiHelper
 
 class LanguageInspectionController @Inject() (
     val controllerComponents: ControllerComponents,

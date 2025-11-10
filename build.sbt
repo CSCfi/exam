@@ -16,7 +16,6 @@ lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice, caffeine)
 
-libraryDependencies += "be.objectify"            %% "deadbolt-java"      % "3.0.0"
 libraryDependencies += "com.google.code.gson"     % "gson"               % "2.13.2"
 libraryDependencies += "com.opencsv"              % "opencsv"            % "5.12.0"
 libraryDependencies += "io.vavr"                  % "vavr"               % "0.10.7"
