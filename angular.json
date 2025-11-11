@@ -103,42 +103,11 @@
           }
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "karmaConfig": "karma.conf.js",
-            "polyfills": ["@angular/localize/init", "ui/src/polyfills.ts"],
             "tsConfig": "ui/tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "ui/src/favicon.ico", 
-              "ui/src/assets",
-              {
-                "glob": "**/*",
-                "input": "node_modules/mathlive/fonts/",
-                "output": "/fonts/"
-              },
-              {
-                "glob": "**/*", 
-                "input": "node_modules/mathlive/sounds/",
-                "output": "/sounds/"
-              },
-              {
-                "glob": "mathlive-fonts.css",
-                "input": "node_modules/mathlive/",
-                "output": "/"
-              },
-              {
-                "glob": "mathlive-static.css",
-                "input": "node_modules/mathlive/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "ui/src/styles.scss",
-              "node_modules/mathlive/mathlive-fonts.css",
-              "node_modules/mathlive/mathlive-static.css"
-            ],
-            "scripts": []
+            "runner": "vitest",
+            "buildTarget": "exam:build:development"
           }
         },
         "lint": {
