@@ -6,6 +6,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { vi } from 'vitest';
 import { DropdownSelectComponent } from './dropdown-select.component';
 import { Option } from './select.model';
 
@@ -152,7 +153,7 @@ describe('DropdownSelectComponent', () => {
 
         it('should emit optionSelected event', () => {
             const option = mockOptions[0];
-            spyOn(component.optionSelected, 'emit');
+            vi.spyOn(component.optionSelected, 'emit');
 
             component.selectOption(option);
 
@@ -224,7 +225,7 @@ describe('DropdownSelectComponent', () => {
 
         it('should emit optionSelected event with undefined', () => {
             component.selected = mockOptions[0];
-            spyOn(component.optionSelected, 'emit');
+            vi.spyOn(component.optionSelected, 'emit');
 
             component.clearSelection();
 
@@ -233,7 +234,7 @@ describe('DropdownSelectComponent', () => {
 
         it('should work when no option was selected', () => {
             component.selected = undefined;
-            spyOn(component.optionSelected, 'emit');
+            vi.spyOn(component.optionSelected, 'emit');
 
             component.clearSelection();
 

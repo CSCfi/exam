@@ -87,15 +87,11 @@
           }
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "karmaConfig": "karma.conf.js",
-            "polyfills": ["@angular/localize/init", "ui/src/polyfills.ts"],
             "tsConfig": "ui/tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": ["ui/src/favicon.ico", "ui/src/assets"],
-            "styles": ["ui/src/styles.scss"],
-            "scripts": []
+            "runner": "vitest",
+            "buildTarget": "exam:build:development"
           }
         },
         "lint": {

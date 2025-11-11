@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
+import { vi } from 'vitest';
 import {
     countBy,
     debounce,
@@ -89,50 +90,50 @@ describe('helpers', () => {
 
     describe('debounce', () => {
         beforeEach(() => {
-            jasmine.clock().install();
+            vi.useFakeTimers();
         });
 
         afterEach(() => {
-            jasmine.clock().uninstall();
+            vi.useRealTimers();
         });
 
         it('should delay function execution', () => {
-            const mockFn = jasmine.createSpy('mockFn').and.returnValue('result');
+            const mockFn = vi.fn().mockReturnValue('result');
             const debouncedFn = debounce(mockFn, 100);
 
             debouncedFn('arg1', 'arg2');
             expect(mockFn).not.toHaveBeenCalled();
 
-            jasmine.clock().tick(99);
+            vi.advanceTimersByTime(99);
             expect(mockFn).not.toHaveBeenCalled();
 
-            jasmine.clock().tick(1);
+            vi.advanceTimersByTime(1);
             expect(mockFn).toHaveBeenCalledWith('arg1', 'arg2');
         });
 
         it('should cancel previous calls when called multiple times', () => {
-            const mockFn = jasmine.createSpy('mockFn').and.returnValue('result');
+            const mockFn = vi.fn().mockReturnValue('result');
             const debouncedFn = debounce(mockFn, 100);
 
             debouncedFn('call1');
-            jasmine.clock().tick(50);
+            vi.advanceTimersByTime(50);
             debouncedFn('call2');
-            jasmine.clock().tick(50);
+            vi.advanceTimersByTime(50);
             debouncedFn('call3');
 
             expect(mockFn).not.toHaveBeenCalled();
 
-            jasmine.clock().tick(100);
+            vi.advanceTimersByTime(100);
             expect(mockFn).toHaveBeenCalledTimes(1);
             expect(mockFn).toHaveBeenCalledWith('call3');
         });
 
         it('should return a promise that resolves with the function result', async () => {
-            const mockFn = jasmine.createSpy('mockFn').and.returnValue('result');
+            const mockFn = vi.fn().mockReturnValue('result');
             const debouncedFn = debounce(mockFn, 100);
 
             const promise = debouncedFn('arg');
-            jasmine.clock().tick(100);
+            vi.advanceTimersByTime(100);
 
             const result = await promise;
             expect(result).toBe('result');
