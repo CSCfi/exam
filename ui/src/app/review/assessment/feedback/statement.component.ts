@@ -26,7 +26,7 @@ import { FileService } from 'src/app/shared/file/file.service';
 export class StatementComponent {
     @Input() exam!: Exam;
 
-    hideEditor = true;
+    hideEditor = false;
 
     private Attachment = inject(AttachmentService);
     private Files = inject(FileService);

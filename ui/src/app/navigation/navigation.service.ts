@@ -44,13 +44,28 @@ export class NavigationService {
         const dashboardRoute = student ? 'dashboard' : admin || support ? 'staff/admin' : 'staff/teacher';
 
         const emptySubmenu = { hidden: true, items: [] };
+
+        const collaborativeExamsSubmenu = {
+            hidden: true,
+            items: [
+                {
+                    route: 'staff/collaborative',
+                    visible: true,
+                    name: 'i18n_collaborative_exams',
+                    iconPng: 'icon_admin_exams.png',
+                    submenu: emptySubmenu,
+                },
+            ],
+        };
+
+        const teacherCollaborativeExamsSubmenu = teacher && interoperable ? collaborativeExamsSubmenu : emptySubmenu;
         return [
             {
                 route: dashboardRoute,
                 visible: !hidden,
                 name: dashboardTitle,
                 iconPng: 'icon_enrols.svg',
-                submenu: emptySubmenu,
+                submenu: teacherCollaborativeExamsSubmenu,
             },
             {
                 route: 'staff/inspections',
