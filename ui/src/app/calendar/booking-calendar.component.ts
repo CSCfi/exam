@@ -30,15 +30,13 @@ import { CalendarService } from './calendar.service';
     selector: 'xm-booking-calendar',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        @if (visible()) {
-            <div class="row my-2">
-                @if (visible() && passwordVerified()) {
-                    <div class="col-md-12">
-                        <full-calendar #fc [options]="calendarOptions()"></full-calendar>
-                    </div>
-                }
-            </div>
-        }
+        <div class="row my-2">
+            @if (visible() && (passwordVerified() || isAdmin())) {
+                <div class="col-md-12">
+                    <full-calendar #fc [options]="calendarOptions()"></full-calendar>
+                </div>
+            }
+        </div>
     `,
     imports: [FullCalendarModule],
 })
@@ -55,6 +53,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
     room = input.required<ExamRoom>();
     visible = input(false);
     passwordVerified = input(false);
+    isAdmin = input(false);
     minDate = input<Date>();
     maxDate = input<Date>();
     accessibilities = input<Accessibility[]>([]);
