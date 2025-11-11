@@ -61,19 +61,10 @@ object PlayJsonHelper:
     */
   def parseHtml(fieldName: String, json: JsValue): Option[String] =
     import org.jsoup.Jsoup
-    import org.jsoup.safety.Safelist
-    
-    val safelist = Safelist
-      .relaxed()
-      .addAttributes("a", "target")
-      .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
-      .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption")
-      .addTags("math-field")
-      .addAttributes("math-field", "data-expression", "read-only", "math-virtual-keyboard-policy")
     
     parse[String](fieldName, json).map { html =>
       if html == null then null
-      else Jsoup.clean(html, safelist)
+      else Jsoup.clean(html, HtmlSafelist.SAFELIST)
     }
 
   /** Parse a DateTime field using Joda DateTime

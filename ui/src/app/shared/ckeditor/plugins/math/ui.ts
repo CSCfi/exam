@@ -121,6 +121,21 @@ export class MathUI extends Plugin {
             cancel();
         });
 
+        // Handle Enter key: submit form, but allow Shift+Enter for newlines
+        formView.keystrokes.set('Enter', (data, cancel) => {
+            // Check if Shift is pressed - if so, allow default behavior (newline in textarea)
+            if (data.shiftKey) {
+                return; // Don't cancel, let it insert newline
+            }
+
+            // Enter without Shift: submit the form
+            cancel();
+            const expression = (formView.expressionTextarea.fieldView.element as HTMLTextAreaElement)?.value || '';
+            if (expression.trim()) {
+                formView.fire('submit');
+            }
+        });
+
         return formView;
     };
 

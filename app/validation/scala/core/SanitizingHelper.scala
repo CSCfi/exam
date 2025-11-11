@@ -5,7 +5,6 @@
 package validation.scala.core
 
 import org.jsoup.Jsoup
-import org.jsoup.safety.Safelist
 import play.api.libs.json.*
 
 import scala.reflect.ClassTag
@@ -17,14 +16,6 @@ import scala.util.Try
   * compatibility with existing code. New code should prefer using PlayJsonHelper directly.
   */
 object SanitizingHelper:
-
-  private val safelist: Safelist = Safelist
-    .relaxed()
-    .addAttributes("a", "target")
-    .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
-    .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption")
-    .addTags("math-field")
-    .addAttributes("math-field", "data-expression", "read-only", "math-virtual-keyboard-policy")
 
   // Parse a field from JsValue with type safety.
   def parse[T: ClassTag](fieldName: String, json: JsValue): Option[T] =
@@ -55,7 +46,7 @@ object SanitizingHelper:
 
   // Sanitize HTML string.
   private def sanitizeHtml(html: String): Option[String] =
-    Option(html).map(text => Jsoup.clean(text, safelist))
+    Option(html).map(text => Jsoup.clean(text, HtmlSafelist.SAFELIST))
 
   // Parse a value from a JsValue field.
   private def parseValue[T: ClassTag](field: JsValue): Option[T] =

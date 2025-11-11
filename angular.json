@@ -74,7 +74,11 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "namedChunks": true
             }
           },
@@ -83,8 +87,12 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "buildTarget": "exam:build",
-            "proxyConfig": "ui/src/proxy.conf.js"
+            "buildTarget": "exam:build:development",
+            "proxyConfig": "ui/src/proxy.conf.js",
+            "hmr": true,
+            "liveReload": true,
+            "watch": true,
+            "poll": 1000
           },
           "configurations": {
             "production": {

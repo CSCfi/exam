@@ -62,26 +62,7 @@ trait PlayJsonValidator:
     * Allows common HTML elements and attributes needed for rich text editing,
     * including math-related attributes and math-field tags.
     */
-  protected val HTML_SAFELIST: Safelist = Safelist.relaxed()
-    .addAttributes("a", "target")
-    .addAttributes(
-      "span",
-      "class",
-      "id",
-      "style",
-      "case-sensitive",
-      "cloze",
-      "numeric",
-      "precision",
-      "xmmath",
-      "xmmathjax",
-      "xmmathlive"
-    )
-    .addAttributes("div", "xmmath", "xmmathjax", "xmmathlive")
-    .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption")
-    .addAttributes("abbr", "title", "id")
-    .addTags("math-field")
-    .addAttributes("math-field", "data-expression", "read-only", "math-virtual-keyboard-policy")
+  protected val HTML_SAFELIST: Safelist = HtmlSafelist.SAFELIST
 
   /** Sanitize the JSON body and enrich the request
     */

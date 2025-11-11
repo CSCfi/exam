@@ -7,7 +7,7 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@a
 import '@angular/compiler'; // needed for dynamic cloze test component compilation
 import { LOCALE_ID, enableProdMode, importProvidersFrom } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -42,6 +42,6 @@ bootstrapApplication(AppComponent, {
         //provideExperimentalZonelessChangeDetection(),
         provideRouter(APP_ROUTES),
         provideHttpClient(withInterceptorsFromDi()),
-        provideAnimations(),
+        provideAnimationsAsync(),
     ],
 }).catch((err) => console.error(err));

@@ -5,6 +5,7 @@
 import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
+    ChangeDetectorRef,
     Component,
     CUSTOM_ELEMENTS_SCHEMA,
     ElementRef,
@@ -56,6 +57,7 @@ export class MathEditorComponent implements AfterViewInit {
     private mathFieldElements: Map<HTMLElement, string> = new Map();
     private mathLiveService = inject(MathLiveService);
     private translateService = inject(TranslateService);
+    private changeDetector = inject(ChangeDetectorRef);
 
     constructor() {
         // Initialize htmlMarkup with the input signal value or default content
@@ -65,7 +67,10 @@ export class MathEditorComponent implements AfterViewInit {
 
     ngAfterViewInit() {
         // Initial render after view is initialized
-        setTimeout(() => this.onMarkupChange(), 100);
+        setTimeout(() => {
+            this.onMarkupChange();
+            this.changeDetector.markForCheck();
+        }, 100);
     }
 
     insertMathField() {
@@ -207,6 +212,7 @@ export class MathEditorComponent implements AfterViewInit {
                 if (this.enableEditing()) {
                     mathField.addEventListener('input', (event: Event) => {
                         this.onMathFieldChange(mathField, event);
+                        this.changeDetector.markForCheck();
                     });
                 }
             } else {
@@ -218,6 +224,7 @@ export class MathEditorComponent implements AfterViewInit {
                 if (this.enableEditing()) {
                     mathField.addEventListener('input', (event: Event) => {
                         this.onMathFieldChange(mathField, event);
+                        this.changeDetector.markForCheck();
                     });
                 }
             }
