@@ -5,7 +5,6 @@
 import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { Component, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
@@ -27,7 +26,6 @@ import { OptionalSectionsComponent } from './helpers/optional-sections.component
         CourseCodeComponent,
         TeacherListComponent,
         OptionalSectionsComponent,
-        NgbCollapse,
         MathJaxDirective,
         UpperCasePipe,
         SlicePipe,

@@ -3,8 +3,9 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "outDir": "./out-tsc/spec",
-        "types": ["vitest/globals"]
+        "types": ["vitest/globals"],
+        "skipLibCheck": true
     },
     "files": ["src/test.ts", "src/polyfills.ts"],
-    "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
+    "inxclude": ["src/**/*.spec.ts", "src/**/*.d.ts"]
 }
