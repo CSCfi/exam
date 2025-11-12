@@ -32,7 +32,7 @@ import { CalendarService } from './calendar.service';
     template: `
         @if (visible()) {
             <div class="row my-2">
-                @if (visible() && passwordVerified()) {
+                @if (visible() && (passwordVerified() || isAdmin())) {
                     <div class="col-md-12">
                         <full-calendar #fc [options]="calendarOptions()"></full-calendar>
                     </div>
@@ -55,6 +55,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
     room = input.required<ExamRoom>();
     visible = input(false);
     passwordVerified = input(false);
+    isAdmin = input(false);
     minDate = input<Date>();
     maxDate = input<Date>();
     accessibilities = input<Accessibility[]>([]);
