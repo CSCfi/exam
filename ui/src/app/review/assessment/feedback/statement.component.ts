@@ -26,9 +26,7 @@ import { FileService } from 'src/app/shared/file/file.service';
 })
 export class StatementComponent {
     exam = input.required<Exam>();
-
     hideEditor = signal(true);
-
     shouldHide = computed(() => !!this.exam().languageInspection?.finishedAt);
     attachment = computed(() => this.exam().languageInspection?.statement?.attachment);
 

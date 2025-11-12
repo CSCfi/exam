@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { take } from 'rxjs';
 import type { ExaminationEvent, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
@@ -60,7 +61,11 @@ export class ExaminationEventDialogComponent {
                 .get<ExaminationEvent[]>('/app/examinationevents/conflicting', {
                     params: { start: currentStart.toISOString(), duration: currentDuration.toString() },
                 })
-                .subscribe((events) => this.conflictingEvents.set(events));
+                .pipe(take(1))
+                .subscribe((events) => {
+                    const currentConfig = this.config();
+                    this.conflictingEvents.set(events.filter((e) => e.id !== currentConfig?.examinationEvent.id));
+                });
         });
 
         effect(() => {
@@ -73,9 +78,13 @@ export class ExaminationEventDialogComponent {
                 this.settingsPassword.set(currentConfig.settingsPassword);
                 this.hasEnrolments.set(currentConfig.examEnrolments.length > 0);
             } else {
-                const newDate = new Date(this.start());
-                newDate.setMinutes(60);
-                this.start.set(newDate);
+                // set start to next full hour
+                this.start.update((d) => {
+                    const nextHour = new Date(d.getTime());
+                    nextHour.setMinutes(0, 0, 0);
+                    nextHour.setHours(nextHour.getHours() + 1);
+                    return nextHour;
+                });
             }
         });
 
@@ -96,7 +105,9 @@ export class ExaminationEventDialogComponent {
         if (this.now > event.date) {
             this.toast.error(this.translate.instant('i18n_select_time_in_future'));
         }
-        this.start.set(event.date);
+        // date needs copying for signal to upate
+        const newDate = new Date(event.date.getTime());
+        this.start.set(newDate);
     }
 
     ok() {
