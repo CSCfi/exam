@@ -62,7 +62,7 @@ SPDX-License-Identifier: EUPL-1.2
             (moreEventsNeeded)="refresh($event)"
             [room]="room"
             [visible]="true"
-            [isAdmin]="session.getUser()?.isAdmin ?? false"
+            [isAdmin]="isAdmin"
         ></xm-booking-calendar>
     </div>
 </div>

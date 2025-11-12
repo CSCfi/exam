@@ -30,6 +30,7 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
 import { PasswordPromptComponent } from 'src/app/calendar/helpers/password-prompt.component';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
+import { SessionService } from 'src/app/session/session.service';
 import { updateList } from 'src/app/shared/miscellaneous/helpers';
 import { AccessibilityPickerComponent } from './accessibility-picker.component';
 import { SelectedRoomComponent } from './selected-room.component';
@@ -85,6 +86,11 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     private route = inject(ActivatedRoute);
     private toast = inject(ToastrService);
     private Calendar = inject(CalendarService);
+    private session = inject(SessionService);
+
+    get isAdmin(): boolean {
+        return this.session.getUser()?.isAdmin ?? false;
+    }
 
     ngOnInit() {
         this.examId.set(Number(this.route.snapshot.paramMap.get('id')));

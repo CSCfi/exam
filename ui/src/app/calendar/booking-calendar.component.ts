@@ -30,13 +30,15 @@ import { CalendarService } from './calendar.service';
     selector: 'xm-booking-calendar',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <div class="row my-2">
-            @if (visible() && (passwordVerified() || isAdmin())) {
-                <div class="col-md-12">
-                    <full-calendar #fc [options]="calendarOptions()"></full-calendar>
-                </div>
-            }
-        </div>
+        @if (visible()) {
+            <div class="row my-2">
+                @if (visible() && (passwordVerified() || isAdmin())) {
+                    <div class="col-md-12">
+                        <full-calendar #fc [options]="calendarOptions()"></full-calendar>
+                    </div>
+                }
+            </div>
+        }
     `,
     imports: [FullCalendarModule],
 })

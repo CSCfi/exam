@@ -27,6 +27,9 @@
             "polyfills": ["@angular/localize/init", "ui/src/polyfills.ts"],
             "tsConfig": "ui/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "stylePreprocessorOptions": {
+              "includePaths": ["node_modules"]
+            },
             "assets": ["ui/src/favicon.ico", "ui/src/assets"],
             "styles": ["ui/src/styles.scss"],
             "scripts": [],

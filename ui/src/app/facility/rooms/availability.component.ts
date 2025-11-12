@@ -42,6 +42,10 @@ export class AvailabilityComponent implements OnInit {
     private calendar = inject(CalendarService);
     private session = inject(SessionService);
 
+    get isAdmin(): boolean {
+        return this.session.getUser()?.isAdmin ?? false;
+    }
+
     ngOnInit() {
         if (!this.room) {
             console.error('No room given for availability.component');
