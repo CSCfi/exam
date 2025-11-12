@@ -4,7 +4,7 @@
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,14 +19,18 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-statement',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './feedback.template.html',
     imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, NgbCollapse, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
 export class StatementComponent {
-    @Input() exam!: Exam;
+    exam = input.required<Exam>();
 
-    hideEditor = true;
+    hideEditor = signal(true);
+
+    shouldHide = computed(() => !!this.exam().languageInspection?.finishedAt);
+    attachment = computed(() => this.exam().languageInspection?.statement?.attachment);
 
     private Attachment = inject(AttachmentService);
     private Files = inject(FileService);
@@ -37,54 +41,49 @@ export class StatementComponent {
         return this.Assessment.fixPosition;
     }
 
-    get shouldHide() {
-        return !!this.exam.languageInspection?.finishedAt;
-    }
-
     get title() {
         return 'i18n_give_statement';
     }
 
     get editorContent() {
-        return this.exam.languageInspection.statement.comment || '';
-    }
-
-    get attachment() {
-        return this.exam.languageInspection?.statement?.attachment;
+        return this.exam().languageInspection.statement.comment || '';
     }
 
     set editorContent(value: string) {
-        this.exam.languageInspection.statement.comment = value;
+        this.exam().languageInspection.statement.comment = value;
     }
 
-    commentChanged = (event: string) => (this.exam.languageInspection.statement.comment = event);
+    commentChanged = (event: string) => {
+        this.exam().languageInspection.statement.comment = event;
+    };
 
-    hasGoneThroughLanguageInspection = () => this.exam.languageInspection?.finishedAt;
+    hasGoneThroughLanguageInspection = () => this.exam().languageInspection?.finishedAt;
 
-    toggleVisibility = () => (this.hideEditor = !this.hideEditor);
+    toggleVisibility = () => this.hideEditor.update((value) => !value);
 
-    save = () => this.Maturity.saveInspectionStatement$(this.exam).subscribe();
+    save = () => this.Maturity.saveInspectionStatement$(this.exam()).subscribe();
 
-    downloadAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
+    downloadAttachment = () => this.Attachment.downloadStatementAttachment(this.exam());
 
-    removeAttachment = () => this.Attachment.removeStatementAttachment(this.exam);
+    removeAttachment = () => this.Attachment.removeStatementAttachment(this.exam());
 
     selectFile = () =>
         this.Attachment.selectFile$(false, {})
             .pipe(
-                switchMap((res: FileResult) =>
-                    this.Maturity.saveInspectionStatement$(this.exam).pipe(
+                switchMap((res: FileResult) => {
+                    const examValue = this.exam();
+                    return this.Maturity.saveInspectionStatement$(examValue).pipe(
                         switchMap(() =>
                             this.Files.upload$<Attachment>(
-                                `/app/attachment/exam/${this.exam.id}/statement`,
+                                `/app/attachment/exam/${examValue.id}/statement`,
                                 res.$value.attachmentFile,
-                                { examId: this.exam.id.toString() },
+                                { examId: examValue.id.toString() },
                             ),
                         ),
-                    ),
-                ),
+                    );
+                }),
             )
             .subscribe((resp) => {
-                this.exam.languageInspection.statement.attachment = resp;
+                this.exam().languageInspection.statement.attachment = resp;
             });
 }

@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { QuestionReview } from 'src/app/review/review.model';
@@ -17,18 +16,18 @@ import { QuestionFlowCategoryComponent } from './question-flow-category.componen
                 <div class="question-flow-title">{{ 'i18n_question_flow' | translate }}</div>
             </div>
         </div>
-        @if (unfinished) {
+        @if (unfinished().length > 0) {
             <xm-question-flow-category
                 categoryTitle="i18n_in_progress"
-                [reviews]="unfinished"
+                [reviews]="unfinished()"
                 (selected)="questionSelected($event)"
             >
             </xm-question-flow-category>
         }
-        @if (finished) {
+        @if (finished().length > 0) {
             <xm-question-flow-category
                 categoryTitle="i18n_all_finished"
-                [reviews]="finished"
+                [reviews]="finished()"
                 [allDone]="true"
                 (selected)="questionSelected($event)"
             >
@@ -36,37 +35,33 @@ import { QuestionFlowCategoryComponent } from './question-flow-category.componen
         }`,
     styleUrls: ['./question-flow.component.scss'],
     imports: [QuestionFlowCategoryComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionFlowComponent implements OnInit, OnChanges {
-    @Input() reviews: QuestionReview[] = [];
-    @Output() selected = new EventEmitter<number>();
+export class QuestionFlowComponent {
+    reviews = input<QuestionReview[]>([]);
+    selected = output<number>();
 
-    unfinished: QuestionReview[] = [];
-    finished: QuestionReview[] = [];
+    unfinished = computed(() => {
+        const currentReviews = this.reviews();
+        return currentReviews.filter((r) => this.getAssessedAnswerCount(r) < r.answers.length);
+    });
+
+    finished = computed(() => {
+        const currentReviews = this.reviews();
+        return currentReviews.filter((r) => this.getAssessedAnswerCount(r) === r.answers.length);
+    });
 
     private QuestionReview = inject(QuestionReviewService);
     private Session = inject(SessionService);
 
-    getAssessedAnswerCount = (review: QuestionReview) =>
-        this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
-
-    ngOnInit() {
-        this.init();
+    getAssessedAnswerCount(review: QuestionReview) {
+        return this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.reviews) {
-            this.init();
-        }
+    questionSelected(review: QuestionReview) {
+        const allReviews = [...this.unfinished(), ...this.finished()];
+        allReviews.forEach((r) => (r.selected = r.question.id === review.question.id));
+        const currentReviews = this.reviews();
+        this.selected.emit(currentReviews.indexOf(review));
     }
-
-    questionSelected = (review: QuestionReview) => {
-        this.unfinished.concat(this.finished).forEach((r) => (r.selected = r.question.id === review.question.id));
-        this.selected.emit(this.reviews.indexOf(review));
-    };
-
-    private init = () => {
-        this.unfinished = this.reviews.filter((r) => this.getAssessedAnswerCount(r) < r.answers.length);
-        this.finished = this.reviews.filter((r) => this.getAssessedAnswerCount(r) === r.answers.length);
-    };
 }

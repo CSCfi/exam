@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
@@ -24,18 +24,22 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
     templateUrl: './printout.component.html',
     imports: [CourseCodeComponent, TeacherListComponent, MathJaxDirective, DatePipe, TranslateModule, OrderByPipe],
     styleUrl: './printout.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PrintoutComponent implements OnInit {
-    exam!: Printout;
-    tab?: number;
+export class PrintoutComponent {
+    exam = signal<Printout | undefined>(undefined);
+    tab = signal<number | undefined>(undefined);
 
     private http = inject(HttpClient);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private Files = inject(FileService);
 
-    ngOnInit() {
-        this.tab = this.route.snapshot.queryParams.get('tab');
+    constructor() {
+        const tabParam = this.route.snapshot.queryParams.get('tab');
+        if (tabParam) {
+            this.tab.set(Number(tabParam));
+        }
         this.http
             .get<Exam>(`/app/exams/${this.route.snapshot.params.id}/preview`)
             .pipe(
@@ -60,10 +64,10 @@ export class PrintoutComponent implements OnInit {
                     };
                 }),
             )
-            .subscribe((exam) => (this.exam = exam));
+            .subscribe((exam) => this.exam.set(exam));
     }
 
-    getLanguageName = (lang: ExamLanguage) => {
+    getLanguageName(lang: ExamLanguage) {
         // TODO: fixed languages?
         let name;
         switch (lang.code) {
@@ -81,9 +85,9 @@ export class PrintoutComponent implements OnInit {
                 break;
         }
         return name;
-    };
+    }
 
-    getQuestionTypeName = (esq: ExamSectionQuestion) => {
+    getQuestionTypeName(esq: ExamSectionQuestion) {
         let name;
         switch (esq.question.type) {
             case 'WeightedMultipleChoiceQuestion':
@@ -104,18 +108,29 @@ export class PrintoutComponent implements OnInit {
                 name = 'Väittämä-kysymys / Claim choice question SV / Claim choice question';
         }
         return name;
-    };
+    }
 
-    exitPreview = () => {
-        if (this.tab) {
-            this.router.navigate(['/staff/exams', this.exam.id, this.tab]);
+    exitPreview() {
+        const currentExam = this.exam();
+        const currentTab = this.tab();
+        if (currentTab && currentExam) {
+            this.router.navigate(['/staff/exams', currentExam.id, currentTab]);
         } else {
             this.router.navigate(['/staff/printouts']);
         }
-    };
+    }
 
-    print = () => window.print();
+    print() {
+        window.print();
+    }
 
-    printAttachment = () =>
-        this.Files.download('/app/attachment/exam/' + this.exam.id, (this.exam.attachment as Attachment).fileName);
+    printAttachment() {
+        const currentExam = this.exam();
+        if (currentExam?.attachment) {
+            this.Files.download(
+                '/app/attachment/exam/' + currentExam.id,
+                (currentExam.attachment as Attachment).fileName,
+            );
+        }
+    }
 }

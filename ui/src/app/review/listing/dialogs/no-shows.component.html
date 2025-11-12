@@ -28,8 +28,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <tr>
                         <th>
                             <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="noShowPredicate"
+                                [reverse]="reverse()"
+                                [predicate]="noShowPredicate()"
                                 by="displayName"
                                 text="i18n_student"
                                 (click)="setPredicate('displayName')"
@@ -37,8 +37,8 @@ SPDX-License-Identifier: EUPL-1.2
                         </th>
                         <th>
                             <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="noShowPredicate"
+                                [reverse]="reverse()"
+                                [predicate]="noShowPredicate()"
                                 by="user.email"
                                 text="i18n_email"
                                 (click)="setPredicate('user.email')"
@@ -47,8 +47,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <th>
                             <!-- reservation vs eventconfig-->
                             <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="noShowPredicate"
+                                [reverse]="reverse()"
+                                [predicate]="noShowPredicate()"
                                 by="reservation.startAt"
                                 text="i18n_reservation"
                                 (click)="setPredicate('reservation.startAt')"
@@ -58,7 +58,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </tr>
                 </thead>
                 <tbody>
-                    @for (noShow of noShows | orderBy: noShowPredicate : reverse; track noShow) {
+                    @for (noShow of noShows | orderBy: noShowPredicate() : reverse(); track noShow) {
                         <tr>
                             <td>
                                 {{ noShow.displayName }}

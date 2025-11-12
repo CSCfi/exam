@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 
 SPDX-License-Identifier: EUPL-1.2
 -->
-@if (question.type === 'WeightedMultipleChoiceQuestion') {
+@if (question().type === 'WeightedMultipleChoiceQuestion') {
     <div class="row mt-2 mx-2">
         <ul>
             <li>{{ 'i18n_weighted_multiple_choice_description_1' | translate }}</li>
@@ -24,7 +24,8 @@ SPDX-License-Identifier: EUPL-1.2
                     class="form-check-input"
                     name="negativeScore"
                     type="checkbox"
-                    [(ngModel)]="question.defaultNegativeScoreAllowed"
+                    [ngModel]="question().defaultNegativeScoreAllowed"
+                    (ngModelChange)="setDefaultNegativeScoreAllowed($event)"
                     id="negativeScore"
                 />
                 <label class="form-check-label" for="negativeScore">{{
@@ -41,7 +42,8 @@ SPDX-License-Identifier: EUPL-1.2
                 class="form-check-input"
                 name="shuffleOptions"
                 type="checkbox"
-                [(ngModel)]="question.defaultOptionShufflingOn"
+                [ngModel]="question().defaultOptionShufflingOn"
+                (ngModelChange)="setDefaultOptionShufflingOn($event)"
                 id="shuffleOptions"
             />
             <label class="form-check-label" for="shuffleOptions">{{ 'i18n_shuffle_options' | translate }}</label>
@@ -52,7 +54,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-6">
         <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
         <span>
-            @if (showWarning) {
+            @if (showWarning()) {
                 <div class="edit-warning-container">
                     <i class="bi-exclamation-circle text-danger"></i>
                     <small class="ps-2">{{ 'i18n_shared_question_property_info_multi_choice' | translate }}</small>
@@ -60,7 +62,7 @@ SPDX-License-Identifier: EUPL-1.2
             }
         </span>
     </div>
-    @if (question.type === 'WeightedMultipleChoiceQuestion') {
+    @if (question().type === 'WeightedMultipleChoiceQuestion') {
         <div class="col-md-6 question-option-title">
             {{ 'i18n_word_points' | translate | uppercase }}
         </div>
@@ -71,30 +73,32 @@ SPDX-License-Identifier: EUPL-1.2
     }
 </div>
 
-@for (option of question.options; track option.id; let i = $index) {
+@for (option of question().options; track option.id; let i = $index) {
     <div class="row">
         <div class="col-md-12">
-            @if (question.type === 'MultipleChoiceQuestion') {
+            @if (question().type === 'MultipleChoiceQuestion') {
                 <xm-mc-option-editor
                     [option]="option"
-                    [question]="question"
+                    [question]="question()"
                     [index]="i"
-                    [allowRemoval]="!lotteryOn && allowOptionRemoval"
+                    [allowRemoval]="!lotteryOn() && allowOptionRemoval()"
+                    (questionChange)="questionChange.emit($event)"
                 >
                 </xm-mc-option-editor>
             }
-            @if (question.type === 'WeightedMultipleChoiceQuestion') {
+            @if (question().type === 'WeightedMultipleChoiceQuestion') {
                 <xm-wmc-option-editor
                     [option]="option"
                     [index]="i"
-                    [question]="question"
-                    [lotteryOn]="lotteryOn"
+                    [question]="question()"
+                    [lotteryOn]="lotteryOn()"
+                    (questionChange)="questionChange.emit($event)"
                 ></xm-wmc-option-editor>
             }
         </div>
     </div>
 }
-@if (question.type === 'WeightedMultipleChoiceQuestion') {
+@if (question().type === 'WeightedMultipleChoiceQuestion') {
     <div class="row mt-3">
         <div class="col-md-12 question-option-title">
             {{ 'i18n_max_score' | translate | uppercase }}:

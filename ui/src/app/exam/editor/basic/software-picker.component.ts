@@ -4,8 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import {
     NgbDropdown,
     NgbDropdownItem,
@@ -20,7 +19,7 @@ import { Software } from 'src/app/facility/facility.model';
 
 @Component({
     selector: 'xm-software-picker',
-    template: `<div [hidden]="exam.executionType.type === 'MATURITY'" class="row">
+    template: `<div [hidden]="exam().executionType.type === 'MATURITY'" class="row">
         <div class="col-md-12 mt-3">
             <div class="row">
                 <div class="col-md-3 ">
@@ -45,7 +44,7 @@ import { Software } from 'src/app/facility/facility.model';
                             {{ selectedSoftware() }}&nbsp;<span class="caret"></span>
                         </button>
                         <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
-                            @for (sw of software; track sw) {
+                            @for (sw of software(); track sw) {
                                 <button
                                     ngbDropdownItem
                                     role="presentation"
@@ -63,40 +62,49 @@ import { Software } from 'src/app/facility/facility.model';
         </div>
     </div>`,
     imports: [NgbPopover, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SoftwareSelectorComponent implements OnInit {
-    @Input() exam!: Exam;
+export class SoftwareSelectorComponent {
+    exam = input.required<Exam>();
+    updated = output<Software[]>();
 
-    software: Software[] = [];
+    software = signal<Software[]>([]);
 
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
 
-    ngOnInit() {
-        this.exam.softwares ||= [];
-        this.http.get<Software[]>('/app/softwares').subscribe((data) => (this.software = data));
+    constructor() {
+        this.http.get<Software[]>('/app/softwares').subscribe((data) => this.software.set(data));
     }
 
-    selectedSoftware = () =>
-        this.exam.softwares.length === 0
-            ? this.translate.instant('i18n_select')
-            : this.exam.softwares.map((s) => s.name).join(', ');
+    selectedSoftware() {
+        const currentExam = this.exam();
+        const softwares = currentExam.softwares || [];
+        return softwares.length === 0 ? this.translate.instant('i18n_select') : softwares.map((s) => s.name).join(', ');
+    }
 
-    isSelected = (sw: Software) => this.exam.softwares.some((es) => es.id === sw.id);
+    isSelected(sw: Software) {
+        const currentExam = this.exam();
+        const softwares = currentExam.softwares || [];
+        return softwares.some((es) => es.id === sw.id);
+    }
 
-    updateExamSoftware = (sw: Software) => {
-        this.http.put(`/app/exam/${this.exam.id}/software/${sw.id}`, {}).subscribe({
+    updateExamSoftware(sw: Software) {
+        const currentExam = this.exam();
+        this.http.put(`/app/exam/${currentExam.id}/software/${sw.id}`, {}).subscribe({
             next: () => {
+                const softwares = currentExam.softwares || [];
+                let updatedSoftwares: Software[];
                 if (this.isSelected(sw)) {
-                    const index = this.exam.softwares.map((es) => es.id).indexOf(sw.id);
-                    this.exam.softwares.splice(index, 1);
+                    updatedSoftwares = softwares.filter((es) => es.id !== sw.id);
                 } else {
-                    this.exam.softwares.push(sw);
+                    updatedSoftwares = [...softwares, sw];
                 }
+                this.updated.emit(updatedSoftwares);
                 this.toast.info(this.translate.instant('i18n_exam_software_updated'));
             },
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 }

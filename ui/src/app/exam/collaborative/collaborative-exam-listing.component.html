@@ -16,7 +16,14 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #content>
     <div class="row">
         <div class="col-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs" [keyboard]="false">
+            <ul
+                ngbNav
+                #nav="ngbNav"
+                [activeId]="view()"
+                (activeIdChange)="setView($event)"
+                class="nav-tabs"
+                [keyboard]="false"
+            >
                 <li [ngbNavItem]="'PUBLISHED'">
                     <a ngbNavLink>
                         {{ 'i18n_published_joint_exams' | translate }}
@@ -54,7 +61,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
-        <div class="col" [hidden]="!loader.loading">
+        <div class="col" [hidden]="!loading()">
             <button class="btn btn-success" type="button" disabled>
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 {{ 'i18n_searching' | translate }}...
@@ -71,8 +78,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="name"
                                 text="i18n_exam_name"
-                                [predicate]="examsPredicate"
-                                [reverse]="reverse"
+                                [predicate]="examsPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('name')"
                             ></xm-table-sort>
                         </th>
@@ -80,8 +87,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="stateTranslation"
                                 text="i18n_exam_state_translation"
-                                [predicate]="examsPredicate"
-                                [reverse]="reverse"
+                                [predicate]="examsPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('stateTranslation')"
                             ></xm-table-sort>
                         </th>
@@ -89,8 +96,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="ownerAggregate"
                                 text="i18n_teachers"
-                                [predicate]="examsPredicate"
-                                [reverse]="reverse"
+                                [predicate]="examsPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('ownerAggregate')"
                             ></xm-table-sort>
                         </th>
@@ -98,8 +105,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="periodStart"
                                 text="i18n_start_time"
-                                [predicate]="examsPredicate"
-                                [reverse]="reverse"
+                                [predicate]="examsPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('periodStart')"
                             ></xm-table-sort>
                         </th>
@@ -107,15 +114,15 @@ SPDX-License-Identifier: EUPL-1.2
                             <xm-table-sort
                                 by="periodEnd"
                                 text="i18n_end_time"
-                                [predicate]="examsPredicate"
-                                [reverse]="reverse"
+                                [predicate]="examsPredicate()"
+                                [reverse]="reverse()"
                                 (click)="setPredicate('periodEnd')"
                             ></xm-table-sort>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @for (exam of filterByView(view) | orderBy: examsPredicate : reverse; track exam) {
+                    @for (exam of filterByView(view()) | orderBy: examsPredicate() : reverse(); track exam) {
                         <tr>
                             <td>
                                 <a

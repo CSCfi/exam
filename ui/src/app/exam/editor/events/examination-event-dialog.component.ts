@@ -4,8 +4,7 @@
 
 import { DatePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -20,21 +19,22 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     selector: 'xm-examination-event-dialog',
     imports: [NgClass, FormsModule, DatePipe, TranslateModule, DateTimePickerComponent, OrderByPipe],
     templateUrl: './examination-event-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationEventDialogComponent implements OnInit {
-    @Input() examId = 0;
-    @Input() duration = 0;
-    @Input() config?: ExaminationEventConfiguration;
-    @Input() maintenancePeriods: MaintenancePeriod[] = [];
-    @Input() requiresPassword = false;
-    @Input() examMinDate = '';
-    @Input() examMaxDate = '';
+export class ExaminationEventDialogComponent {
+    examId = input.required<number>();
+    duration = input.required<number>();
+    config = input<ExaminationEventConfiguration | undefined>();
+    maintenancePeriods = input<MaintenancePeriod[]>([]);
+    requiresPassword = input(false);
+    examMinDate = input('');
+    examMaxDate = input('');
 
     start = signal(new Date(new Date().getTime() + 60 * 1000));
     description = signal('');
     capacity = signal(0);
     maxSimultaneousCapacity = signal(0);
-    conflictingEvents = signal<ExaminationEvent[]>([]); // based on effect
+    conflictingEvents = signal<ExaminationEvent[]>([]);
     availableCapacity = computed(
         () => this.maxSimultaneousCapacity() - (this.conflictingEvents() || []).reduce((sum, e) => sum + e.capacity, 0),
     );
@@ -53,55 +53,62 @@ export class ExaminationEventDialogComponent implements OnInit {
     private now = new Date();
 
     constructor() {
-        effect(() =>
+        effect(() => {
+            const currentStart = this.start();
+            const currentDuration = this.duration();
             this.http
                 .get<ExaminationEvent[]>('/app/examinationevents/conflicting', {
-                    params: { start: this.start().toISOString(), duration: this.duration },
+                    params: { start: currentStart.toISOString(), duration: currentDuration.toString() },
                 })
-                .subscribe((events) => this.conflictingEvents.set(events)),
-        );
-    }
+                .subscribe((events) => this.conflictingEvents.set(events));
+        });
 
-    ngOnInit() {
-        if (this.config) {
-            this.start.set(new Date(this.config.examinationEvent.start));
-            this.description.set(this.config.examinationEvent.description);
-            this.capacity.set(this.config.examinationEvent.capacity);
-            this.quitPassword.set(this.config.quitPassword);
-            this.settingsPassword.set(this.config.settingsPassword);
-            this.hasEnrolments.set(this.config.examEnrolments.length > 0);
-        } else {
-            this.start.update((d) => {
-                const d2 = d;
-                d2.setMinutes(60);
-                return d;
-            });
-        }
+        effect(() => {
+            const currentConfig = this.config();
+            if (currentConfig) {
+                this.start.set(new Date(currentConfig.examinationEvent.start));
+                this.description.set(currentConfig.examinationEvent.description);
+                this.capacity.set(currentConfig.examinationEvent.capacity);
+                this.quitPassword.set(currentConfig.quitPassword);
+                this.settingsPassword.set(currentConfig.settingsPassword);
+                this.hasEnrolments.set(currentConfig.examEnrolments.length > 0);
+            } else {
+                const newDate = new Date(this.start());
+                newDate.setMinutes(60);
+                this.start.set(newDate);
+            }
+        });
+
         this.http
             .get<{ max: number }>('/app/settings/byodmaxparticipants')
             .subscribe((value) => this.maxSimultaneousCapacity.set(value.max));
     }
 
-    toggleSettingsPasswordInputType = () =>
-        this.settingsPasswordInputType.set(this.settingsPasswordInputType() === 'text' ? 'password' : 'text');
-    toggleQuitPasswordInputType = () =>
-        this.quitPasswordInputType.set(this.quitPasswordInputType() === 'text' ? 'password' : 'text');
+    toggleSettingsPasswordInputType() {
+        this.settingsPasswordInputType.update((v) => (v === 'text' ? 'password' : 'text'));
+    }
 
-    onStartDateChange = (event: { date: Date }) => {
+    toggleQuitPasswordInputType() {
+        this.quitPasswordInputType.update((v) => (v === 'text' ? 'password' : 'text'));
+    }
+
+    onStartDateChange(event: { date: Date }) {
         if (this.now > event.date) {
             this.toast.error(this.translate.instant('i18n_select_time_in_future'));
         }
         this.start.set(event.date);
-    };
+    }
 
     ok() {
-        if (!this.start) {
+        const currentStart = this.start();
+        if (!currentStart) {
             this.toast.error(this.translate.instant('i18n_no_examination_start_date_picked'));
+            return;
         }
         const config = {
             config: {
                 examinationEvent: {
-                    start: this.start().toISOString(),
+                    start: currentStart.toISOString(),
                     description: this.description(),
                     capacity: this.capacity(),
                 },
@@ -109,16 +116,17 @@ export class ExaminationEventDialogComponent implements OnInit {
                 quitPassword: this.quitPassword(),
             },
         };
-        if (!this.config) {
+        const currentConfig = this.config();
+        if (!currentConfig) {
             // new config
-            this.Exam.addExaminationEvent$(this.examId, config).subscribe({
+            this.Exam.addExaminationEvent$(this.examId(), config).subscribe({
                 next: (response: ExaminationEventConfiguration) => {
                     this.activeModal.close(response);
                 },
                 error: (err) => this.toast.error(err),
             });
         } else {
-            this.Exam.updateExaminationEvent$(this.examId, { ...config, id: this.config.id }).subscribe({
+            this.Exam.updateExaminationEvent$(this.examId(), { ...config, id: currentConfig.id }).subscribe({
                 next: (response: ExaminationEventConfiguration) => {
                     this.activeModal.close(response);
                 },
@@ -127,5 +135,7 @@ export class ExaminationEventDialogComponent implements OnInit {
         }
     }
 
-    cancel = () => this.activeModal.dismiss();
+    cancel() {
+        this.activeModal.dismiss();
+    }
 }

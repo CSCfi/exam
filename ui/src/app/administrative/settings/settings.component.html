@@ -5,7 +5,7 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <xm-page-header text="i18n_settings" />
-@if (config) {
+@if (config()) {
     <xm-page-content [content]="content" />
 }
 <ng-template #content>
@@ -15,7 +15,7 @@ SPDX-License-Identifier: EUPL-1.2
             <xm-ckeditor
                 id="editor"
                 name="editor"
-                [data]="config.eula"
+                [data]="config()!.eula"
                 (dataChange)="eulaChanged($event)"
             ></xm-ckeditor>
         </div>
@@ -51,7 +51,7 @@ SPDX-License-Identifier: EUPL-1.2
                 type="number"
                 lang="en"
                 [min]="1"
-                [(ngModel)]="config.reviewDeadline"
+                [(ngModel)]="reviewDeadline"
                 ngbPopover="{{ 'i18n_info_deadline' | translate }}"
                 triggers="mouseenter:mouseleave"
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -76,7 +76,7 @@ SPDX-License-Identifier: EUPL-1.2
                 type="number"
                 lang="en"
                 [min]="1"
-                [(ngModel)]="config.reservationWindowSize"
+                [(ngModel)]="reservationWindowSize"
                 ngbPopover="{{ 'i18n_info_reservation_window' | translate }}"
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
@@ -92,47 +92,47 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row mt-4 ms-2">
         <div class="col-6">
             <strong>{{ 'i18n_exam_instance_settings' | translate }}</strong>
-            @if (config) {
+            @if (config()) {
                 <ul>
                     <li>
                         <strong>{{ 'i18n_interoperable' | translate }}:</strong>&nbsp;
-                        @if (config.isExamVisitSupported) {
+                        @if (config()!.isExamVisitSupported) {
                             <span>{{ 'DIALOGS_YES' | translate }}</span>
                         }
-                        @if (!config.isExamVisitSupported) {
+                        @if (!config()!.isExamVisitSupported) {
                             <span>{{ 'DIALOGS_NO' | translate }}</span>
                         }
                     </li>
                     <li>
                         <strong>{{ 'i18n_exam_collaboration_supported' | translate }}:</strong>&nbsp;
-                        @if (config.isExamCollaborationSupported) {
+                        @if (config()!.isExamCollaborationSupported) {
                             <span>{{ 'DIALOGS_YES' | translate }}</span>
                         }
-                        @if (!config.isExamCollaborationSupported) {
+                        @if (!config()!.isExamCollaborationSupported) {
                             <span>{{ 'DIALOGS_NO' | translate }}</span>
                         }
                     </li>
                     <li>
                         <strong>{{ 'i18n_anonymous_review' | translate }}:</strong>&nbsp;
-                        @if (config.anonymousReviewEnabled) {
+                        @if (config()!.anonymousReviewEnabled) {
                             <span>{{ 'DIALOGS_YES' | translate }}</span>
                         }
-                        @if (!config.anonymousReviewEnabled) {
+                        @if (!config()!.anonymousReviewEnabled) {
                             <span>{{ 'DIALOGS_NO' | translate }}</span>
                         }
                     </li>
                     <li>
                         <strong>{{ 'i18n_course_integration_support' | translate }}:</strong>&nbsp;
-                        @if (config.hasCourseSearchIntegration) {
+                        @if (config()!.hasCourseSearchIntegration) {
                             <span>{{ 'DIALOGS_YES' | translate }}</span>
                         }
-                        @if (!config.hasCourseSearchIntegration) {
+                        @if (!config()!.hasCourseSearchIntegration) {
                             <span>{{ 'DIALOGS_NO' | translate }}</span>
                         }
                     </li>
-                    @if (config.hasCourseSearchIntegration) {
+                    @if (config()!.hasCourseSearchIntegration) {
                         <ul>
-                            @for (item of config.courseSearchIntegrationUrls | keyvalue; track item) {
+                            @for (item of config()!.courseSearchIntegrationUrls | keyvalue; track item) {
                                 <li>
                                     <strong>{{ item.key }}:</strong>&nbsp;{{ item.value }}
                                 </li>
@@ -141,28 +141,28 @@ SPDX-License-Identifier: EUPL-1.2
                     }
                     <li>
                         <strong>{{ 'i18n_enrolment_check_integration_support' | translate }}:</strong>&nbsp;
-                        @if (config.hasEnrolmentCheckIntegration) {
+                        @if (config()!.hasEnrolmentCheckIntegration) {
                             <span>{{ 'DIALOGS_YES' | translate }}</span>
                         }
-                        @if (!config.hasEnrolmentCheckIntegration) {
+                        @if (!config()!.hasEnrolmentCheckIntegration) {
                             <span>{{ 'DIALOGS_NO' | translate }}</span>
                         }
                     </li>
                     <li>
                         <strong>{{ 'i18n_supports_maturity' | translate }}:</strong>&nbsp;
-                        @if (config.supportsMaturity) {
+                        @if (config()!.supportsMaturity) {
                             <span>{{ 'DIALOGS_YES' | translate }}</span>
                         }
-                        @if (!config.supportsMaturity) {
+                        @if (!config()!.supportsMaturity) {
                             <span>{{ 'DIALOGS_NO' | translate }}</span>
                         }
                     </li>
                     <li>
                         <strong>{{ 'i18n_supports_printouts' | translate }}:</strong>&nbsp;
-                        @if (config.supportsPrintouts) {
+                        @if (config()!.supportsPrintouts) {
                             <span>{{ 'DIALOGS_YES' | translate }}</span>
                         }
-                        @if (!config.supportsPrintouts) {
+                        @if (!config()!.supportsPrintouts) {
                             <span>{{ 'DIALOGS_NO' | translate }}</span>
                         }
                     </li>
@@ -172,42 +172,43 @@ SPDX-License-Identifier: EUPL-1.2
                     <ul>
                         <li>
                             <strong>{{ 'i18n_student' | translate }}:</strong>&nbsp;
-                            {{ config.roles.STUDENT.join(', ') }}
+                            {{ config()!.roles.STUDENT.join(', ') }}
                         </li>
                         <li>
                             <strong>{{ 'i18n_teacher' | translate }}:</strong>&nbsp;
-                            {{ config.roles.TEACHER.join(', ') }}
+                            {{ config()!.roles.TEACHER.join(', ') }}
                         </li>
                         <li>
-                            <strong>{{ 'i18n_admin' | translate }}:</strong>&nbsp; {{ config.roles.ADMIN.join(', ') }}
+                            <strong>{{ 'i18n_admin' | translate }}:</strong>&nbsp;
+                            {{ config()!.roles.ADMIN.join(', ') }}
                         </li>
                     </ul>
                     <li>
                         <strong>{{ 'i18n_exam_durations' | translate }}:</strong>&nbsp;
-                        {{ config.examDurations.join(', ') }}
+                        {{ config()!.examDurations.join(', ') }}
                     </li>
                     <li>
                         <strong>{{ 'i18n_grade_scale_overridable' | translate }}:</strong>&nbsp;
-                        @if (!config.isGradeScaleOverridable) {
+                        @if (!config()!.isGradeScaleOverridable) {
                             <span>{{ 'DIALOGS_YES' | translate }}</span>
                         }
-                        @if (config.isGradeScaleOverridable) {
+                        @if (config()!.isGradeScaleOverridable) {
                             <span>{{ 'DIALOGS_NO' | translate }}</span>
                         }
                     </li>
                     <li>
                         <strong>{{ 'i18n_attachment_max_size' | translate }}:</strong>&nbsp;{{
-                            config.maxFileSize / 1000000
+                            config()!.maxFileSize / 1000000
                         }}
                         MB
                     </li>
                     <li>
                         <strong>{{ 'i18n_exam_expiration_period' | translate }}:</strong>&nbsp;{{
-                            config.expirationPeriod
+                            config()!.expirationPeriod
                         }}
                     </li>
                     <li>
-                        <strong>{{ 'i18n_default_timezone' | translate }}:</strong>&nbsp;{{ config.defaultTimeZone }}
+                        <strong>{{ 'i18n_default_timezone' | translate }}:</strong>&nbsp;{{ config()!.defaultTimeZone }}
                     </li>
                 </ul>
             }
@@ -215,7 +216,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-6">
             <strong>{{ 'i18n_show_http_headers' | translate }}</strong>
             <ul>
-                @for (item of attributes | keyvalue; track item) {
+                @for (item of attributes() | keyvalue; track item) {
                     <li>
                         <strong>{{ item.key }}:</strong>&nbsp;{{ item.value }}
                     </li>

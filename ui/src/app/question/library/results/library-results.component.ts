@@ -4,8 +4,7 @@
 
 import { DatePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -44,19 +43,19 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
     ],
     styleUrls: ['../library.component.scss'],
 })
-export class LibraryResultsComponent implements OnInit, OnChanges {
-    @Input() questions: Question[] = [];
-    @Input() disableLinks = false;
-    @Output() selected = new EventEmitter<number[]>();
-    @Output() copied = new EventEmitter<LibraryQuestion>();
+export class LibraryResultsComponent {
+    questions = input<Question[]>([]);
+    disableLinks = input(false);
+    selected = output<number[]>();
+    copied = output<LibraryQuestion>();
 
     user: User;
     allSelected = false;
     pageSize = 25;
-    currentPage = 0;
-    questionsPredicate = '';
-    reverse = false;
-    fixedQuestions: SelectableQuestion[] = [];
+    currentPage = signal(0);
+    questionsPredicate = signal('');
+    reverse = signal(false);
+    fixedQuestions = signal<SelectableQuestion[]>([]);
 
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
@@ -68,32 +67,32 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     constructor() {
         this.user = this.Session.getUser();
-    }
 
-    ngOnInit() {
-        this.fixedQuestions = this.questions as SelectableQuestion[]; // FIXME: ugly cast, should resolve this better
+        // Load stored filters
         const storedData = this.Library.loadFilters('sorting');
         if (storedData.filters) {
-            this.questionsPredicate = storedData.filters.predicate;
-            this.reverse = storedData.filters.reverse;
+            this.questionsPredicate.set(storedData.filters.predicate);
+            this.reverse.set(storedData.filters.reverse);
         }
-    }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.questions) {
-            this.currentPage = 0;
+        // Watch for questions changes
+        effect(() => {
+            const questionsValue = this.questions();
+            this.currentPage.set(0);
             this.resetSelections();
-            this.fixedQuestions = this.questions as SelectableQuestion[];
-        }
+            this.fixedQuestions.set(questionsValue as SelectableQuestion[]); // FIXME: ugly cast, should resolve this better
+        });
     }
 
     selectAll = () => {
-        this.fixedQuestions.forEach((q) => (q.selected = this.allSelected));
+        this.fixedQuestions().forEach((q) => (q.selected = this.allSelected));
         this.questionSelected();
     };
 
     questionSelected = () => {
-        const selections = this.fixedQuestions.filter((q) => q.selected).map((q) => q.id);
+        const selections = this.fixedQuestions()
+            .filter((q) => q.selected)
+            .map((q) => q.id);
         this.selected.emit(selections);
     };
 
@@ -102,11 +101,20 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_remove_question_from_library_only'),
         ).subscribe({
-            next: () =>
+            next: () => {
+                const questionsValue = this.questions();
                 this.http.delete(`/app/questions/${question.id}`).subscribe({
-                    next: () => this.questions.splice(this.questions.indexOf(question), 1),
+                    next: () => {
+                        const index = questionsValue.indexOf(question);
+                        if (index > -1) {
+                            questionsValue.splice(index, 1);
+                            // Update fixedQuestions to reflect the change
+                            this.fixedQuestions.set(questionsValue as SelectableQuestion[]);
+                        }
+                    },
                     error: () => this.toast.info(this.translate.instant('i18n_question_removed')),
-                }),
+                });
+            },
         });
 
     copyQuestion = (question: SelectableQuestion) =>
@@ -114,14 +122,19 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_copy_question'),
         ).subscribe({
-            next: () =>
+            next: () => {
+                const questionsValue = this.questions();
                 this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe({
                     next: (copy) => {
-                        this.questions.splice(this.questions.indexOf(question), 0, copy);
+                        const index = questionsValue.indexOf(question);
+                        questionsValue.splice(index > -1 ? index : 0, 0, copy);
+                        // Update fixedQuestions to reflect the change
+                        this.fixedQuestions.set(questionsValue as SelectableQuestion[]);
                         this.copied.emit(copy);
                     },
                     error: (err) => this.toast.error(err),
-                }),
+                });
+            },
         });
 
     downloadQuestionAttachment = (question: LibraryQuestion) => this.Attachment.downloadQuestionAttachment(question);
@@ -148,13 +161,13 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         return ownTags.map((t) => t.name).join(', ');
     };
 
-    pageSelected = (event: { page: number }) => (this.currentPage = event.page);
+    pageSelected = (event: { page: number }) => this.currentPage.set(event.page);
 
     setPredicate = (predicate: string) => {
-        if (this.questionsPredicate === predicate) {
-            this.reverse = !this.reverse;
+        if (this.questionsPredicate() === predicate) {
+            this.reverse.set(!this.reverse());
         }
-        this.questionsPredicate = predicate;
+        this.questionsPredicate.set(predicate);
         this.saveFilters();
     };
 
@@ -202,14 +215,14 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     private saveFilters = () => {
         const filters = {
-            predicate: this.questionsPredicate,
-            reverse: this.reverse,
+            predicate: this.questionsPredicate(),
+            reverse: this.reverse(),
         };
         this.Library.storeFilters(filters, 'sorting');
     };
 
     private resetSelections = () => {
-        this.fixedQuestions.forEach((q) => (q.selected = false));
+        this.fixedQuestions().forEach((q) => (q.selected = false));
         this.questionSelected();
     };
 }

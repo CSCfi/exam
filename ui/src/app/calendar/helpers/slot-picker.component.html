@@ -6,15 +6,15 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div
     class="row m-2 details-view"
-    [ngClass]="selectedRoom ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+    [ngClass]="selectedRoom() ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
 >
     <div class="col-md-12">
         <div class="row">
             <span class="col-md-11 col-9">
-                <h2 class="calendar-phase-title">{{ sequenceNumber }}. {{ 'i18n_calendar_phase_2' | translate }}</h2>
+                <h2 class="calendar-phase-title">{{ sequenceNumber() }}. {{ 'i18n_calendar_phase_2' | translate }}</h2>
             </span>
             <span class="col-md-1 col-3">
-                @if (selectedRoom) {
+                @if (selectedRoom()) {
                     <span class="calendar-phase-icon float-end">
                         <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                     </span>
@@ -29,9 +29,9 @@ SPDX-License-Identifier: EUPL-1.2
                     type="button"
                     id="dropDownMenu1"
                     aria-expanded="true"
-                    [disabled]="(isExternal && !organisation) || disabled"
+                    [disabled]="(isExternal() && !organisation()) || disabled()"
                 >
-                    {{ isExternal ? ('i18n_external_room' | translate) : ('i18n_room' | translate) }}
+                    {{ isExternal() ? ('i18n_external_room' | translate) : ('i18n_room' | translate) }}
                     <span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1" class="xm-scrollable-menu">
@@ -50,7 +50,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
             </div>
             <div class="col ps-0">
-                @if (isInteroperable && !isExternal) {
+                @if (isInteroperable() && !isExternal()) {
                     <button class="btn btn-outline-secondary" (click)="makeExternalReservation()">
                         {{ 'i18n_external_reservation' | translate }}&nbsp;
                     </button>
@@ -58,24 +58,24 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
         <xm-calendar-accessibility-picker
-            [items]="accessibilities"
+            [items]="accessibilities()"
             (itemsChange)="accesibilitiesChanged($event)"
-            [disabled]="disabled"
-            [hidden]="isExternal"
+            [disabled]="disabled()"
+            [hidden]="isExternal()"
         />
 
-        @if (selectedRoom) {
+        @if (selectedRoom()) {
             <div class="row mt-2">
                 <div class="col-md-12">
                     <xm-calendar-selected-room
-                        [room]="selectedRoom"
+                        [room]="selectedRoom()!"
                         [viewStart]="currentWeek()"
                         [maintenancePeriods]="maintenancePeriods()"
                     ></xm-calendar-selected-room>
                 </div>
             </div>
         }
-        @if (selectedRoom) {
+        @if (selectedRoom()) {
             <div class="row mt-2">
                 <div class="col-md-12">
                     <xm-password-prompt
@@ -90,11 +90,11 @@ SPDX-License-Identifier: EUPL-1.2
                     <xm-booking-calendar
                         (eventSelected)="eventSelected($event)"
                         (moreEventsNeeded)="refresh($event)"
-                        [minDate]="minDate"
-                        [maxDate]="maxDate"
-                        [room]="selectedRoom"
-                        [accessibilities]="accessibilities"
-                        [visible]="selectedRoom !== undefined"
+                        [minDate]="minDate()"
+                        [maxDate]="maxDate()"
+                        [room]="selectedRoom()!"
+                        [accessibilities]="accessibilities()"
+                        [visible]="selectedRoom() !== undefined"
                         [passwordVerified]="passwordVerified()"
                     >
                     </xm-booking-calendar>

@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
     NgbNav,
@@ -26,6 +25,7 @@ import { TeacherDashboardService } from './teacher-dashboard.service';
 
 @Component({
     selector: 'xm-teacher-dashboard',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './teacher-dashboard.component.html',
     imports: [
         RouterLink,
@@ -42,20 +42,20 @@ import { TeacherDashboardService } from './teacher-dashboard.service';
     ],
 })
 export class TeacherDashboardComponent implements OnInit {
-    activeTab = 1;
+    activeTab = signal(1);
     userId = 0;
     activeExtraData: ExtraData[];
     finishedExtraData: ExtraData[];
     archivedExtraData: ExtraData[];
 
-    finishedExams: DashboardExam[] = [];
-    filteredFinished: DashboardExam[] = [];
-    activeExams: DashboardExam[] = [];
-    filteredActive: DashboardExam[] = [];
-    archivedExams: DashboardExam[] = [];
-    filteredArchived: DashboardExam[] = [];
-    draftExams: DashboardExam[] = [];
-    filteredDrafts: DashboardExam[] = [];
+    finishedExams = signal<DashboardExam[]>([]);
+    filteredFinished = signal<DashboardExam[]>([]);
+    activeExams = signal<DashboardExam[]>([]);
+    filteredActive = signal<DashboardExam[]>([]);
+    archivedExams = signal<DashboardExam[]>([]);
+    filteredArchived = signal<DashboardExam[]>([]);
+    draftExams = signal<DashboardExam[]>([]);
+    filteredDrafts = signal<DashboardExam[]>([]);
 
     private TeacherDashboard = inject(TeacherDashboardService);
     private Session = inject(SessionService);
@@ -113,35 +113,43 @@ export class TeacherDashboardComponent implements OnInit {
     ngOnInit() {
         this.userId = this.Session.getUser().id;
         this.TeacherDashboard.populate$().subscribe((dashboard) => {
-            this.filteredFinished = this.finishedExams = dashboard.finishedExams;
-            this.filteredActive = this.activeExams = dashboard.activeExams;
-            this.filteredArchived = this.archivedExams = dashboard.archivedExams;
-            this.filteredDrafts = this.draftExams = dashboard.draftExams;
+            this.finishedExams.set(dashboard.finishedExams);
+            this.filteredFinished.set(dashboard.finishedExams);
+            this.activeExams.set(dashboard.activeExams);
+            this.filteredActive.set(dashboard.activeExams);
+            this.archivedExams.set(dashboard.archivedExams);
+            this.filteredArchived.set(dashboard.archivedExams);
+            this.draftExams.set(dashboard.draftExams);
+            this.filteredDrafts.set(dashboard.draftExams);
         });
     }
 
-    changeTab = (event: NgbNavChangeEvent) => (this.activeTab = event.nextId);
+    changeTab = (event: NgbNavChangeEvent) => this.activeTab.set(event.nextId);
 
     search = (text: string) => {
         // Use same search parameter for all the 4 result tables
-        this.filteredFinished = this.find(this.finishedExams, text);
-        this.filteredActive = this.find(this.activeExams, text);
-        this.filteredArchived = this.find(this.archivedExams, text);
-        this.filteredDrafts = this.find(this.draftExams, text);
+        this.filteredFinished.set(this.find(this.finishedExams(), text));
+        this.filteredActive.set(this.find(this.activeExams(), text));
+        this.filteredArchived.set(this.find(this.archivedExams(), text));
+        this.filteredDrafts.set(this.find(this.draftExams(), text));
 
         // for drafts, display exams only for owners AM-1658
-        this.filteredDrafts = this.filteredDrafts.filter((exam) =>
-            exam.examOwners.some((eo: User) => eo.id === this.userId),
+        this.filteredDrafts.update((drafts) =>
+            drafts.filter((exam) => exam.examOwners.some((eo: User) => eo.id === this.userId)),
         );
 
         // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
-        this.filteredFinished = this.filteredFinished.filter(
-            (exam) => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
+        this.filteredFinished.update((finished) =>
+            finished.filter(
+                (exam) => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
+            ),
         );
 
         // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
-        this.filteredActive = this.filteredActive.filter(
-            (exam) => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
+        this.filteredActive.update((active) =>
+            active.filter(
+                (exam) => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
+            ),
         );
     };
 

@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, NgStyle } from '@angular/common';
-import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import {
     NgbCollapse,
@@ -48,17 +47,19 @@ type AutoEvaluationConfigurationTemplate = {
         TranslateModule,
         OrderByPipe,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AutoEvaluationComponent implements OnInit, OnChanges {
-    @Input() exam!: Exam;
-    @Output() enabled = new EventEmitter<void>();
-    @Output() disabled = new EventEmitter<void>();
-    @Output() updated = new EventEmitter<{ config: AutoEvaluationConfig }>();
+export class AutoEvaluationComponent {
     @ViewChild('gradesForm', { static: false }) gradesForm?: NgForm;
 
+    exam = input.required<Exam>();
+    enabled = output<void>();
+    disabled = output<void>();
+    updated = output<{ config: AutoEvaluationConfig }>();
+
     autoevaluation: AutoEvaluationConfigurationTemplate;
-    config?: AutoEvaluationConfig;
-    autoevaluationDisplay: { visible: boolean };
+    config = signal<AutoEvaluationConfig | undefined>(undefined);
+    autoevaluationDisplayVisible = signal(false);
 
     private Exam = inject(ExamService);
     private CommonExam = inject(CommonExamService);
@@ -78,75 +79,130 @@ export class AutoEvaluationComponent implements OnInit, OnChanges {
                 { name: 'NEVER', translation: 'i18n_release_type_never' },
             ],
         };
-        this.autoevaluationDisplay = { visible: false };
+
+        effect(() => {
+            const currentExam = this.exam();
+            if (currentExam) {
+                this.prepareAutoEvaluationConfig();
+            }
+        });
     }
 
-    ngOnInit() {
-        this.prepareAutoEvaluationConfig();
+    disable() {
+        this.disabled.emit();
     }
 
-    ngOnChanges(props: SimpleChanges) {
-        if (props.exam && this.autoevaluation) {
-            this.prepareAutoEvaluationConfig();
+    enable() {
+        this.enabled.emit();
+    }
+
+    toggleDisplay() {
+        this.autoevaluationDisplayVisible.update((v) => !v);
+    }
+
+    toggleEnabled() {
+        this.autoevaluation.enabled = !this.autoevaluation.enabled;
+        if (this.autoevaluation.enabled) {
+            this.enable();
+        } else {
+            this.disable();
         }
     }
 
-    disable = () => this.disabled.emit();
-    enable = () => this.enabled.emit();
-
-    applyFilter = (type?: ReleaseType) => {
-        if (!this.config) return;
+    applyFilter(type?: ReleaseType) {
+        const currentConfig = this.config();
+        if (!currentConfig) return;
         this.autoevaluation.releaseTypes.forEach((rt) => (rt.filtered = false));
         if (type) {
             type.filtered = !type.filtered;
         }
         const rt = this.selectedReleaseType();
-        this.config.releaseType = rt ? rt.name : undefined;
-        this.updated.emit({ config: this.config });
-    };
+        currentConfig.releaseType = rt ? rt.name : undefined;
+        this.config.set({ ...currentConfig });
+        this.updated.emit({ config: currentConfig });
+    }
 
-    selectedReleaseType = () => this.autoevaluation.releaseTypes.find((rt) => rt.filtered);
+    selectedReleaseType() {
+        return this.autoevaluation.releaseTypes.find((rt) => rt.filtered);
+    }
 
-    calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
+    calculateExamMaxScore() {
+        return this.Exam.getMaxScore(this.exam());
+    }
 
-    getGradeDisplayName = (grade: Grade) => this.CommonExam.getExamGradeDisplayName(grade.name);
+    getGradeDisplayName(grade: Grade) {
+        return this.CommonExam.getExamGradeDisplayName(grade.name);
+    }
 
-    calculatePointLimit = (evaluation: GradeEvaluation) => {
+    calculatePointLimit(evaluation: GradeEvaluation) {
         const max = this.calculateExamMaxScore();
         if (evaluation.percentage === 0 || isNaN(evaluation.percentage)) {
             return 0;
         }
         const ratio = max * evaluation.percentage;
         return (ratio / 100).toFixed(2);
-    };
+    }
 
-    releaseDateChanged = (event: { date: Date | null }) => {
-        if (!this.config) return;
-        this.config.releaseDate = event.date;
-        this.updated.emit({ config: this.config });
-    };
+    releaseDateChanged(event: { date: Date | null }) {
+        const currentConfig = this.config();
+        if (!currentConfig) return;
+        currentConfig.releaseDate = event.date;
+        this.config.set({ ...currentConfig });
+        this.updated.emit({ config: currentConfig });
+    }
 
-    propertyChanged = () => {
-        if (this.config && this.gradesForm?.valid) this.updated.emit({ config: this.config });
-    };
+    propertyChanged() {
+        const currentConfig = this.config();
+        if (currentConfig && this.gradesForm?.valid) {
+            // Create a new object reference to trigger change detection
+            this.config.set({ ...currentConfig });
+            this.updated.emit({ config: currentConfig });
+        }
+    }
 
-    private prepareAutoEvaluationConfig = () => {
-        this.autoevaluation.enabled = !!this.exam.autoEvaluationConfig;
-        if (!this.exam.autoEvaluationConfig && this.exam.gradeScale) {
+    updateAmountDays(value: number) {
+        const currentConfig = this.config();
+        if (currentConfig) {
+            this.config.set({ ...currentConfig, amountDays: value });
+            this.updated.emit({ config: { ...currentConfig, amountDays: value } });
+        }
+    }
+
+    updateGradePercentage(gradeEvaluation: GradeEvaluation, percentage: number) {
+        const currentConfig = this.config();
+        if (currentConfig) {
+            const updatedEvaluations = currentConfig.gradeEvaluations.map((ge) =>
+                ge === gradeEvaluation ? { ...ge, percentage } : ge,
+            );
+            const updatedConfig = { ...currentConfig, gradeEvaluations: updatedEvaluations };
+            this.config.set(updatedConfig);
+            this.updated.emit({ config: updatedConfig });
+        }
+    }
+
+    private prepareAutoEvaluationConfig() {
+        const currentExam = this.exam();
+        this.autoevaluation.enabled = !!currentExam.autoEvaluationConfig;
+        if (!currentExam.autoEvaluationConfig && currentExam.gradeScale) {
             const releaseType = this.selectedReleaseType();
-            this.config = {
+            this.config.set({
                 releaseType: releaseType ? releaseType.name : this.autoevaluation.releaseTypes[0].name,
-                gradeEvaluations: this.exam.gradeScale.grades.map((g) => ({ grade: { ...g }, percentage: 0 })),
+                gradeEvaluations: currentExam.gradeScale.grades.map((g) => ({ grade: { ...g }, percentage: 0 })),
                 amountDays: 0,
                 releaseDate: new Date(),
-            };
+            });
         }
-        if (this.exam.autoEvaluationConfig) {
-            this.config = this.exam.autoEvaluationConfig;
-            const rt = this.getReleaseTypeByName(this.config.releaseType);
-            this.applyFilter(rt);
+        if (currentExam.autoEvaluationConfig) {
+            this.config.set(currentExam.autoEvaluationConfig);
+            const currentConfig = this.config();
+            if (currentConfig) {
+                const rt = this.getReleaseTypeByName(currentConfig.releaseType);
+                this.applyFilter(rt);
+            }
         }
-    };
+    }
 
-    private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find((rt) => rt.name === name);
+    private getReleaseTypeByName(name?: string) {
+        return this.autoevaluation.releaseTypes.find((rt) => rt.name === name);
+    }
 }

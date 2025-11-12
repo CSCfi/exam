@@ -5,12 +5,12 @@
 
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    EventEmitter,
     inject,
-    Input,
-    Output,
+    input,
+    output,
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -85,27 +85,29 @@ import { Math } from './plugins/math/plugin';
         @if (isLayoutReady()) {
             <ckeditor
                 #cke
-                [required]="required"
+                [required]="required()"
                 [editor]="editor"
                 [config]="editorConfig"
                 tagName="textarea"
-                [(ngModel)]="data"
+                [ngModel]="data()"
+                (ngModelChange)="onDataChange($event)"
                 (ready)="onReady($event)"
                 (change)="onChange($event)"
                 (blur)="onBlur($event)"
             ></ckeditor>
         }
-        <div [id]="id"></div>
+        <div [id]="id()"></div>
     </div> `,
     standalone: true,
     imports: [FormsModule, CKEditorModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CKEditorComponent implements AfterViewInit {
-    @Input() data = '';
-    @Input() required = false;
-    @Input() enableClozeTest = false;
-    @Input() id = 'word-count-id';
-    @Output() dataChange = new EventEmitter<string>();
+    data = input('');
+    required = input(false);
+    enableClozeTest = input(false);
+    id = input('word-count-id');
+    dataChange = output<string>();
 
     editor = ClassicEditor;
     editorConfig!: EditorConfig;
@@ -156,7 +158,7 @@ export class CKEditorComponent implements AfterViewInit {
             '|',
             'sourceEditing',
         ];
-        if (this.enableClozeTest) {
+        if (this.enableClozeTest()) {
             toolbarItems.splice(5, 0, 'cloze');
         }
         this.editorConfig = {
@@ -311,7 +313,7 @@ export class CKEditorComponent implements AfterViewInit {
         this.editorInstance = e;
 
         const wordCountPlugin = e.plugins.get('WordCount');
-        const wordCountWrapper = document.getElementById(this.id) as HTMLElement;
+        const wordCountWrapper = document.getElementById(this.id()) as HTMLElement;
         wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
 
         // Process any existing math elements after editor is ready
@@ -460,6 +462,10 @@ export class CKEditorComponent implements AfterViewInit {
             },
             { priority: 'high' },
         );
+    }
+
+    onDataChange(value: string) {
+        this.dataChange.emit(value);
     }
 
     onChange({ editor }: ChangeEvent) {

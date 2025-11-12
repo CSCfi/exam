@@ -11,8 +11,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <xm-table-sort
                     by="userAggregate"
                     text="i18n_student"
-                    [predicate]="predicate"
-                    [reverse]="reverse"
+                    [predicate]="predicate()"
+                    [reverse]="reverse()"
                     (click)="setPredicate('userAggregate')"
                 >
                 </xm-table-sort>
@@ -21,8 +21,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <xm-table-sort
                     by="enrolment.exam.name"
                     text="i18n_exam"
-                    [predicate]="predicate"
-                    [reverse]="reverse"
+                    [predicate]="predicate()"
+                    [reverse]="reverse()"
                     (click)="setPredicate('enrolment.exam.name')"
                 >
                 </xm-table-sort>
@@ -31,8 +31,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <xm-table-sort
                     by="enrolment.exam.course.code"
                     text="i18n_examcode"
-                    [predicate]="predicate"
-                    [reverse]="reverse"
+                    [predicate]="predicate()"
+                    [reverse]="reverse()"
                     (click)="setPredicate('enrolment.exam.course.code')"
                 >
                 </xm-table-sort>
@@ -41,8 +41,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <xm-table-sort
                     by="enrolment.teacherAggregate"
                     text="i18n_teachers"
-                    [predicate]="predicate"
-                    [reverse]="reverse"
+                    [predicate]="predicate()"
+                    [reverse]="reverse()"
                     (click)="setPredicate('enrolment.teacherAggregate')"
                 >
                 </xm-table-sort>
@@ -51,8 +51,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <xm-table-sort
                     by="startAt"
                     text="i18n_date_time"
-                    [predicate]="predicate"
-                    [reverse]="reverse"
+                    [predicate]="predicate()"
+                    [reverse]="reverse()"
                     (click)="setPredicate('startAt')"
                 >
                 </xm-table-sort>
@@ -61,8 +61,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <xm-table-sort
                     by="machine.room.name"
                     text="i18n_examination_location_and_machine"
-                    [predicate]="predicate"
-                    [reverse]="reverse"
+                    [predicate]="predicate()"
+                    [reverse]="reverse()"
                     (click)="setPredicate('machine.room.name')"
                 >
                 </xm-table-sort>
@@ -71,19 +71,19 @@ SPDX-License-Identifier: EUPL-1.2
                 <xm-table-sort
                     by="stateOrd"
                     text="i18n_exam_state"
-                    [predicate]="predicate"
-                    [reverse]="reverse"
+                    [predicate]="predicate()"
+                    [reverse]="reverse()"
                     (click)="setPredicate('stateOrd')"
                 >
                 </xm-table-sort>
             </th>
-            @if (isAdminView || isSupportView) {
+            @if (isAdminView() || isSupportView()) {
                 <th class="reservation-search wrap">{{ 'i18n_actions' | translate }}</th>
             }
         </tr>
     </thead>
     <tbody>
-        @for (r of fixedReservations | orderBy: predicate : reverse; track r.id) {
+        @for (r of fixedReservations() | orderBy: predicate() : reverse(); track r.id) {
             <tr>
                 <td class="reservation-search">
                     <span>{{ r.userAggregate }}</span>
@@ -125,13 +125,13 @@ SPDX-License-Identifier: EUPL-1.2
                         @if (
                             !r.enrolment.collaborativeExam &&
                             r.enrolment.exam.id &&
-                            (isAdminView || isSupportView || r.enrolment.exam.state !== 'ABORTED')
+                            (isAdminView() || isSupportView() || r.enrolment.exam.state !== 'ABORTED')
                         ) {
                             <a [routerLink]="['/staff/assessments', r.enrolment.exam.id]">{{
                                 r.enrolment.exam.name
                             }}</a>
                         }
-                        @if (r.enrolment.collaborativeExam || (!isAdminView && !isSupportView)) {
+                        @if (r.enrolment.collaborativeExam || (!isAdminView() && !isSupportView())) {
                             <span>{{ r.enrolment.exam.name }}</span>
                         }
                     </td>
@@ -201,7 +201,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <td class="reservation-search" [ngClass]="getStateClass(r)">
                     {{ 'i18n_exam_status_' + printExamState(r) | lowercase | translate }}
                 </td>
-                @if (isAdminView || isSupportView) {
+                @if (isAdminView() || isSupportView()) {
                     <td class="reservation-search pt-2">
                         @if (hasAvailableActions(r)) {
                             <div ngbDropdown>
@@ -215,7 +215,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 </button>
                                 <div ngbDropdownMenu [attr.aria-labelledby]="'actionsDropdown' + r.id">
                                     @if (
-                                        isAdminView &&
+                                        isAdminView() &&
                                         r.enrolment.exam.state === 'PUBLISHED' &&
                                         !r.enrolment.noShow &&
                                         r.enrolment.exam.implementation === 'AQUARIUM' &&

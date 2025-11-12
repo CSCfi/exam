@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, Input, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, TemplateRef } from '@angular/core';
 
 @Component({
     selector: 'xm-page-content',
@@ -11,11 +11,12 @@ import { Component, Input, TemplateRef } from '@angular/core';
     template: `
         <div class="row mx-3">
             <div class="col-md-12 my-4">
-                <ng-container [ngTemplateOutlet]="content"></ng-container>
+                <ng-container [ngTemplateOutlet]="content()"></ng-container>
             </div>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageContentComponent {
-    @Input() content!: TemplateRef<unknown>;
+    content = input.required<TemplateRef<unknown>>();
 }

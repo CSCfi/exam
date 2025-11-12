@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -23,35 +23,63 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
         UpperCasePipe,
         TranslateModule,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultipleChoiceEditorComponent implements OnInit {
-    @Input() question!: Question | QuestionDraft;
-    @Input() showWarning = false;
-    @Input() lotteryOn = false;
-    @Input() allowOptionRemoval = false;
+export class MultipleChoiceEditorComponent {
+    question = input.required<Question | QuestionDraft>();
+    showWarning = input(false);
+    lotteryOn = input(false);
+    allowOptionRemoval = input(false);
+
+    questionChange = output<Question | QuestionDraft>();
 
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private QuestionScore = inject(QuestionScoringService);
 
-    ngOnInit() {
-        if (this.question.type === 'WeightedMultipleChoiceQuestion') {
-            delete this.question.defaultMaxScore;
-        }
+    constructor() {
+        // Delete defaultMaxScore for weighted multiple choice questions
+        effect(() => {
+            const questionValue = this.question();
+            if (questionValue.type === 'WeightedMultipleChoiceQuestion') {
+                delete questionValue.defaultMaxScore;
+            }
+        });
     }
-    addNewOption = () => {
-        if (this.lotteryOn) {
+
+    addNewOption() {
+        if (this.lotteryOn()) {
             this.toast.error(this.translate.instant('i18n_action_disabled_lottery_on'));
             return;
         }
+        const questionValue = this.question();
         const option: MultipleChoiceOption = {
             option: '',
             correctOption: false,
             defaultScore: 0,
         };
-        this.question.options.push(option);
-    };
+        const updatedQuestion = {
+            ...questionValue,
+            options: [...questionValue.options, option],
+        };
+        this.questionChange.emit(updatedQuestion);
+    }
 
-    calculateDefaultMaxPoints = () => this.QuestionScore.calculateDefaultMaxPoints(this.question as Question);
-    calculateDefaultMinPoints = () => this.QuestionScore.calculateDefaultMinPoints(this.question as Question);
+    setDefaultNegativeScoreAllowed(value: boolean) {
+        const questionValue = this.question();
+        questionValue.defaultNegativeScoreAllowed = value;
+    }
+
+    setDefaultOptionShufflingOn(value: boolean) {
+        const questionValue = this.question();
+        questionValue.defaultOptionShufflingOn = value;
+    }
+
+    calculateDefaultMaxPoints() {
+        return this.QuestionScore.calculateDefaultMaxPoints(this.question() as Question);
+    }
+
+    calculateDefaultMinPoints() {
+        return this.QuestionScore.calculateDefaultMinPoints(this.question() as Question);
+    }
 }

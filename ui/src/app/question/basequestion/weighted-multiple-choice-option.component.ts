@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -18,32 +18,34 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
             <div class="row my-2">
                 <div class="col-md-6 me-3 question-option-empty" [ngClass]="getOptionStyle()">
                     <textarea
-                        id="optionText-{{ index }}"
-                        name="optionText-{{ index }}"
+                        id="optionText-{{ index() }}"
+                        name="optionText-{{ index() }}"
                         type="text"
                         rows="1"
                         class="question-option-input form-control"
-                        [(ngModel)]="option.option"
+                        [ngModel]="option().option"
+                        (ngModelChange)="setOptionText($event)"
                         required
                     ></textarea>
                 </div>
                 <div class="col-md-2 question-option-empty-radio" [ngClass]="getOptionStyle()">
                     <input
-                        id="optionScore-{{ index }}"
-                        name="optionScore-{{ index }}"
+                        id="optionScore-{{ index() }}"
+                        name="optionScore-{{ index() }}"
                         class="question-option-input points"
                         type="number"
                         step="0.01"
                         lang="en"
-                        [(ngModel)]="option.defaultScore"
+                        [ngModel]="option().defaultScore"
+                        (ngModelChange)="setDefaultScore($event)"
                         xmFixedPrecision
                         required
-                        [disabled]="lotteryOn"
+                        [disabled]="lotteryOn()"
                     />
                 </div>
                 <button
                     class="col-md-1 question-option-trash pointer btn btn-link "
-                    [hidden]="lotteryOn"
+                    [hidden]="lotteryOn()"
                     (click)="removeOption()"
                 >
                     <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
@@ -53,28 +55,48 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     `,
     styleUrls: ['../question.shared.scss'],
     imports: [FormsModule, NgClass, FixedPrecisionValidatorDirective, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WeightedMultipleChoiceOptionEditorComponent {
-    @Input() option!: MultipleChoiceOption;
-    @Input() index = 0;
-    @Input() question!: Question | QuestionDraft;
-    @Input() lotteryOn = false;
+    option = input.required<MultipleChoiceOption>();
+    index = input(0);
+    question = input.required<Question | QuestionDraft>();
+    lotteryOn = input(false);
+
+    questionChange = output<Question | QuestionDraft>();
 
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
 
-    removeOption = () => {
-        const hasCorrectAnswer = this.question.options.some((o) => o !== this.option && o.defaultScore > 0);
+    setOptionText(value: string) {
+        const optionValue = this.option();
+        optionValue.option = value;
+    }
+
+    setDefaultScore(value: number) {
+        const optionValue = this.option();
+        optionValue.defaultScore = value;
+    }
+
+    removeOption() {
+        const optionValue = this.option();
+        const questionValue = this.question();
+        const hasCorrectAnswer = questionValue.options.some((o) => o !== optionValue && o.defaultScore > 0);
         if (hasCorrectAnswer) {
-            this.question.options.splice(this.question.options.indexOf(this.option), 1);
+            const updatedQuestion = {
+                ...questionValue,
+                options: questionValue.options.filter((o) => o !== optionValue),
+            };
+            this.questionChange.emit(updatedQuestion);
         } else {
             this.toast.error(this.translate.instant('i18n_action_disabled_minimum_options'));
         }
-    };
+    }
 
-    getOptionStyle = () => {
-        if (this.option.defaultScore > 0) return 'question-correct-option';
-        else if (this.option.defaultScore < 0) return 'question-incorrect-option';
+    getOptionStyle() {
+        const optionValue = this.option();
+        if (optionValue.defaultScore > 0) return 'question-correct-option';
+        else if (optionValue.defaultScore < 0) return 'question-incorrect-option';
         else return '';
-    };
+    }
 }

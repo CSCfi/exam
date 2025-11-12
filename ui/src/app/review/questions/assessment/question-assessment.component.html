@@ -12,8 +12,8 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="col-md-4">
         <!-- question flow column -->
-        @if (reviews) {
-            <xm-question-flow [reviews]="reviews" (selected)="questionSelected($event)"> </xm-question-flow>
+        @if (reviews()) {
+            <xm-question-flow [reviews]="reviews()" (selected)="questionSelected($event)"> </xm-question-flow>
         }
     </div>
 </div>
@@ -21,10 +21,10 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="essay-review-status">
         <!-- Assessment status in progress / done -->
         <span class="inspection-title">{{ 'i18n_inspection_status' | translate }}:</span>
-        @if (isFinalized(selectedReview)) {
+        @if (selectedReview() && isFinalized(selectedReview()!)) {
             <span class="text-success">{{ 'i18n_exam_status_graded' | translate | lowercase }} </span>
         }
-        @if (!isFinalized(selectedReview)) {
+        @if (selectedReview() && !isFinalized(selectedReview()!)) {
             <span class="text-danger">{{ 'i18n_in_progress' | translate | lowercase }} </span>
         }
     </div>
@@ -33,66 +33,64 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #leftContent>
     <div class="row">
         <div class="col-md-11 col-md-offset-1">
-            {{ getAssessedAnswerCount(true) }} / {{ selectedReview && selectedReview.answers.length }}
+            {{ getAssessedAnswerCount(true) }} / {{ selectedReview() && selectedReview()!.answers.length }}
             {{ 'i18n_graded' | translate | lowercase }}
         </div>
     </div>
     <div class="row">
         <div
-            [ngClass]="selectedReview && selectedReview.question.defaultAnswerInstructions ? 'col-md-10' : 'col-md-11'"
+            [ngClass]="
+                selectedReview() && selectedReview()!.question.defaultAnswerInstructions ? 'col-md-10' : 'col-md-11'
+            "
             class="col-md-offset-1"
         >
-            <div class="" [xmMathJax]="selectedReview.question.question"></div>
+            <div class="" [xmMathJax]="selectedReview()!.question.question"></div>
         </div>
-        @if (selectedReview && selectedReview.question.defaultAnswerInstructions) {
+        @if (selectedReview() && selectedReview()!.question.defaultAnswerInstructions) {
             <div class="col-md-1">
-                <button
-                    type="button"
-                    class="btn btn-link p-0"
-                    (click)="selectedReview.expanded = !selectedReview.expanded"
-                >
-                    @if (!selectedReview.expanded) {
+                <button type="button" class="btn btn-link p-0" (click)="toggleSelectedReviewExpanded()">
+                    @if (!selectedReview()!.expanded) {
                         <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
-                    @if (selectedReview.expanded) {
+                    @if (selectedReview()!.expanded) {
                         <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
                 </button>
             </div>
         }
     </div>
-    @if (selectedReview && selectedReview.expanded && selectedReview.question.defaultAnswerInstructions) {
+    @if (selectedReview() && selectedReview()!.expanded && selectedReview()!.question.defaultAnswerInstructions) {
         <div class="row mt-2">
             <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box" role="note">
                 <img src="/assets/images/icon_info.png" alt="" />
-                <span class="ps-2">{{ selectedReview.question.defaultAnswerInstructions }}</span>
+                <span class="ps-2">{{ selectedReview()!.question.defaultAnswerInstructions }}</span>
             </div>
         </div>
     }
-    @if (selectedReview && selectedReview.question.attachment) {
+    @if (selectedReview() && selectedReview()!.question.attachment) {
         <div class="row mt-2">
             <div class="col-md-10 col-md-offset-1">
                 <span>
                     <i class="bi-paperclip text-primary"></i>&nbsp;
                     <a class="pointer" (click)="downloadQuestionAttachment()">
-                        {{ selectedReview.question.attachment?.fileName }}</a
+                        {{ selectedReview()!.question.attachment?.fileName }}</a
                     >
                 </span>
             </div>
         </div>
     }
-    @if (selectedReview?.evaluationCriteria) {
+    @if (selectedReview()?.evaluationCriteria) {
         <div class="row mt-2 pb-0">
             <div class="col-md-11 col-md-offset-1">
                 {{ 'i18n_exam_evaluation_criteria' | translate }}
             </div>
         </div>
     }
-    @if (selectedReview?.evaluationCriteria) {
+    @if (selectedReview()?.evaluationCriteria) {
         <div class="row">
             <div class="col-md-11 col-md-offset-1">
                 <div class="">
-                    {{ selectedReview.evaluationCriteria }}
+                    {{ selectedReview()!.evaluationCriteria }}
                 </div>
             </div>
         </div>
@@ -110,7 +108,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </a>
                     <ng-template ngbNavContent>
                         <xm-essay-answers
-                            [answers]="unassessedAnswers"
+                            [answers]="unassessedAnswers()"
                             [editable]="true"
                             actionText="i18n_move_to_assessed"
                             (assessed)="saveAssessments($event)"
@@ -125,7 +123,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </a>
                     <ng-template ngbNavContent>
                         <xm-essay-answers
-                            [answers]="assessedAnswers"
+                            [answers]="assessedAnswers()"
                             [editable]="true"
                             actionText="i18n_grade_exams"
                             (assessed)="saveAssessments($event)"
@@ -139,7 +137,7 @@ SPDX-License-Identifier: EUPL-1.2
                         <span class="badge bg-danger">{{ getLockedAnswerCount() }}</span>
                     </a>
                     <ng-template ngbNavContent>
-                        <xm-essay-answers [answers]="lockedAnswers" [editable]="false" actionText="i18n_grade_exams">
+                        <xm-essay-answers [answers]="lockedAnswers()" [editable]="false" actionText="i18n_grade_exams">
                         </xm-essay-answers>
                     </ng-template>
                 </li>
@@ -147,7 +145,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="row mb-3 mt-3">
                 <div class="col-md-12">
                     <button class="btn btn-outline-secondary" (click)="toggleAllAnswers()">
-                        @if (allAnswersExpanded) {
+                        @if (allAnswersExpanded()) {
                             {{ 'i18n_collapse_all' | translate }}
                         } @else {
                             {{ 'i18n_expand_all' | translate }}

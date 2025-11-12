@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import type { OnChanges } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -32,21 +31,30 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         TranslateModule,
         OrderByPipe,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UnfinishedInspectionsComponent implements OnChanges {
-    @Input() inspections: LanguageInspectionData[] = [];
+export class UnfinishedInspectionsComponent {
+    inspections = input<LanguageInspectionData[]>([]);
 
-    filteredInspections: LanguageInspectionData[] = [];
     user: User;
-    sorting = {
+    sorting = signal<{ predicate: string; reverse: boolean }>({
         predicate: 'created',
         reverse: false,
-    };
+    });
     pageSize = 10;
-    currentPage = 0;
-    filterText = '';
-    hideItems = false;
+    currentPage = signal(0);
+    hideItems = signal(false);
 
+    filteredInspections = computed(() => {
+        const inspections = this.inspections();
+        const filterText = this._filterText().toLowerCase();
+        if (!filterText) {
+            return inspections;
+        }
+        return inspections.filter((i) => this.examToString(i).toLowerCase().match(filterText));
+    });
+
+    private _filterText = signal('');
     private translate = inject(TranslateService);
     private LanguageInspection = inject(LanguageInspectionService);
 
@@ -55,34 +63,46 @@ export class UnfinishedInspectionsComponent implements OnChanges {
         this.user = Session.getUser();
     }
 
-    ngOnChanges() {
-        this.filterTextChanged();
+    get filterText(): string {
+        return this._filterText();
     }
 
-    setPredicate = (predicate: string) => {
-        if (this.sorting.predicate === predicate) {
-            this.sorting.reverse = !this.sorting.reverse;
+    set filterText(value: string) {
+        this._filterText.set(value);
+    }
+
+    setPredicate(predicate: string) {
+        const currentSorting = this.sorting();
+        if (currentSorting.predicate === predicate) {
+            this.sorting.update((s) => ({ ...s, reverse: !s.reverse }));
+        } else {
+            this.sorting.update((s) => ({ ...s, predicate }));
         }
-        this.sorting.predicate = predicate;
-    };
+    }
 
-    filterTextChanged = () =>
-        (this.filteredInspections = this.inspections.filter((i) =>
-            this.examToString(i).toLowerCase().match(this.filterText.toLowerCase()),
-        ));
+    filterTextChanged() {
+        // No-op: filterText setter already updates the signal, and filteredInspections is computed
+    }
 
-    getInspectionAmounts = () =>
-        this.translate
+    getInspectionAmounts() {
+        return this.translate
             .instant('i18n_ongoing_language_inspections_detail')
-            .replace('{0}', this.inspections.length.toString());
+            .replace('{0}', this.inspections().length.toString());
+    }
 
-    assignInspection = (inspection: LanguageInspection) => this.LanguageInspection.assignInspection(inspection);
+    assignInspection(inspection: LanguageInspection) {
+        this.LanguageInspection.assignInspection(inspection);
+    }
 
-    private examToString = (li: LanguageInspectionData) => {
+    toggleHideItems() {
+        this.hideItems.update((v) => !v);
+    }
+
+    private examToString(li: LanguageInspectionData) {
         const code = li.exam.course ? li.exam.course.code : '';
         const name = li.exam.name;
         const student = li.studentNameAggregate;
         const teacher = li.ownerAggregate;
         return code + name + student + teacher;
-    };
+    }
 }

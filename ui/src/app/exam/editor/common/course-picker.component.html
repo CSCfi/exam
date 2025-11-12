@@ -27,7 +27,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <p>{{ r.name }}</p>
                 </ng-template>
                 <span class="input-group-text">
-                    @if (!loader.code.isOn) {
+                    @if (!loaderCode()) {
                         <i
                             class="bi-question-circle"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -35,7 +35,7 @@ SPDX-License-Identifier: EUPL-1.2
                             triggers="mouseenter:mouseleave"
                         ></i>
                     }
-                    <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loader.code.isOn">
+                    <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loaderCode()">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </span>
@@ -62,7 +62,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <p>{{ r.code }}</p>
                 </ng-template>
                 <span class="input-group-text">
-                    @if (!loader.name.isOn) {
+                    @if (!loaderName()) {
                         <i
                             class="bi-question-circle"
                             ngbPopover="{{ 'i18n_course_name' | translate }}"
@@ -70,7 +70,7 @@ SPDX-License-Identifier: EUPL-1.2
                             triggers="mouseenter:mouseleave"
                         ></i>
                     }
-                    <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loader.name.isOn">
+                    <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loaderName()">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </span>

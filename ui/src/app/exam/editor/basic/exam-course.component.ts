@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -25,7 +25,7 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
                 </sup>
             </div>
             <div class="col mt-2">
-                <xm-course-picker [course]="exam.course" (updated)="setCourse($event)"></xm-course-picker>
+                <xm-course-picker [course]="exam().course" (updated)="setCourse($event)"></xm-course-picker>
             </div>
         </div>
         <!-- Course scope and organization name elements -> 3 rows -->
@@ -34,7 +34,7 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
                 {{ 'i18n_course_scope' | translate }}
             </div>
             <div class="col-md-6">
-                {{ exam.course?.credits }}
+                {{ exam().course?.credits }}
             </div>
         </div>
         <div class="row mt-3">
@@ -42,10 +42,10 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
                 {{ 'i18n_faculty_name' | translate }}
             </div>
             <div class="col-md-6">
-                {{ exam.course?.organisation?.name }}
+                {{ exam().course?.organisation?.name }}
             </div>
         </div>
-        <div class="row mt-3" [hidden]="!exam.course?.gradeScale">
+        <div class="row mt-3" [hidden]="!exam().course?.gradeScale">
             <div class="col-md-3 col-md-offset-3">
                 {{ 'i18n_grade_scale' | translate }}
             </div>
@@ -54,25 +54,29 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
             </div>
         </div> `,
     imports: [NgbPopover, CoursePickerComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamCourseComponent {
-    @Input() exam!: Exam;
-    @Output() updated = new EventEmitter<Course>();
+    exam = input.required<Exam>();
+    updated = output<Course>();
 
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private Exam = inject(CommonExamService);
 
-    displayGradeScale = () =>
-        this.exam.course && this.exam.course.gradeScale
-            ? this.Exam.getScaleDisplayName(this.exam.course.gradeScale)
+    displayGradeScale() {
+        const currentExam = this.exam();
+        return currentExam.course && currentExam.course.gradeScale
+            ? this.Exam.getScaleDisplayName(currentExam.course.gradeScale)
             : null;
+    }
 
-    setCourse = (course: Course) =>
-        this.http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).subscribe(() => {
+    setCourse(course: Course) {
+        const currentExam = this.exam();
+        this.http.put(`/app/exams/${currentExam.id}/course/${course.id}`, {}).subscribe(() => {
             this.toast.success(this.translate.instant('i18n_exam_associated_with_course'));
-            this.exam.course = course;
             this.updated.emit(course);
         });
+    }
 }

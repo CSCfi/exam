@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
     NgbActiveModal,
     NgbDropdown,
@@ -27,8 +26,8 @@ type Organisation = {
     templateUrl: './library-transfer-dialog.component.html',
     imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
 })
-export class LibraryTransferDialogComponent implements OnInit {
-    @Input() selections: number[] = [];
+export class LibraryTransferDialogComponent {
+    selections: number[] = [];
     organisations: Organisation[] = [];
     organisation?: Organisation;
     showOrganisationSelection = false;
@@ -38,7 +37,7 @@ export class LibraryTransferDialogComponent implements OnInit {
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
 
-    ngOnInit() {
+    constructor() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {
             this.organisations = resp.filter((org) => !org.homeOrg);
         });

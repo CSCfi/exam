@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MultipleChoiceOption, Question, QuestionDraft } from 'src/app/question/question.model';
@@ -16,16 +16,29 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     templateUrl: './claim-choice.component.html',
     styleUrls: ['../question.shared.scss'],
     imports: [FormsModule, NgClass, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClaimChoiceEditorComponent implements OnInit {
-    @Input() question!: Question | QuestionDraft;
-    @Input() lotteryOn = false;
-    @Input() showWarning = false;
+export class ClaimChoiceEditorComponent {
+    question = input.required<Question | QuestionDraft>();
+    lotteryOn = input(false);
+    showWarning = input(false);
 
-    missingOption: string = '';
+    missingOption = signal('');
 
     private translate = inject(TranslateService);
     private Question = inject(QuestionService);
+
+    constructor() {
+        // Initialize options when question is new
+        effect(() => {
+            const questionValue = this.question();
+            const { state, question: questionText } = questionValue;
+            if (state === 'NEW' && questionText === '') {
+                const { correct, wrong, skip } = this.defaultOptions;
+                questionValue.options = [correct, wrong, skip];
+            }
+        });
+    }
 
     private get defaultOptions() {
         return {
@@ -50,40 +63,37 @@ export class ClaimChoiceEditorComponent implements OnInit {
         };
     }
 
-    ngOnInit() {
-        const { state, question } = this.question;
-        if (state === 'NEW' && question === '') {
-            const { correct, wrong, skip } = this.defaultOptions;
-            this.question.options = [correct, wrong, skip];
-        }
+    getOptionDescriptionTranslation(option: MultipleChoiceOption): string {
+        return this.Question.determineOptionDescriptionTranslation(option.claimChoiceType as string);
     }
 
-    getOptionDescriptionTranslation = (option: MultipleChoiceOption): string =>
-        this.Question.determineOptionDescriptionTranslation(option.claimChoiceType as string);
+    getOptionClass(option: MultipleChoiceOption) {
+        return this.Question.determineClaimChoiceOptionClass(option.claimChoiceType as string);
+    }
 
-    getOptionClass = (option: MultipleChoiceOption) =>
-        this.Question.determineClaimChoiceOptionClass(option.claimChoiceType as string);
-
-    updateOptionText = (opt: MultipleChoiceOption, event: Event, index: number) => {
+    updateOptionText(opt: MultipleChoiceOption, event: Event, index: number) {
         const textarea = event.target as HTMLTextAreaElement;
-        this.question.options[index].option = textarea.value;
-    };
+        const questionValue = this.question();
+        questionValue.options[index].option = textarea.value;
+    }
 
-    updateOptionScore = (opt: MultipleChoiceOption, event: Event, index: number) => {
-        const input = event.target as HTMLInputElement;
-        const score = parseFloat(input.value);
+    updateOptionScore(opt: MultipleChoiceOption, event: Event, index: number) {
+        const inputElement = event.target as HTMLInputElement;
+        const score = parseFloat(inputElement.value);
+        const questionValue = this.question();
 
-        this.question.options[index].defaultScore = score;
+        questionValue.options[index].defaultScore = score;
         if (score <= 0) {
-            this.question.options[index].correctOption = false;
-            this.question.options[index].claimChoiceType = 'IncorrectOption';
+            questionValue.options[index].correctOption = false;
+            questionValue.options[index].claimChoiceType = 'IncorrectOption';
         } else {
-            this.question.options[index].correctOption = true;
-            this.question.options[index].claimChoiceType = 'CorrectOption';
+            questionValue.options[index].correctOption = true;
+            questionValue.options[index].claimChoiceType = 'CorrectOption';
         }
 
-        this.missingOption = this.Question.getInvalidClaimOptionTypes(this.question.options)
+        const missingOptionValue = this.Question.getInvalidClaimOptionTypes(questionValue.options)
             .filter((type) => type !== 'SkipOption')
             .map((type) => this.Question.getOptionTypeTranslation(type))[0];
-    };
+        this.missingOption.set(missingOptionValue || '');
+    }
 }

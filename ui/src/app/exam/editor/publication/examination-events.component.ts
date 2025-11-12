@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -19,6 +19,7 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
 @Component({
     imports: [NgbPopoverModule, TranslateModule, DatePipe],
     selector: 'xm-examination-events',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <!-- Examination events -->
         @if (exam().implementation !== 'AQUARIUM') {
@@ -75,7 +76,7 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
         }
     `,
 })
-export class ExaminationEventsComponent implements OnInit {
+export class ExaminationEventsComponent {
     exam = input.required<Exam>();
     maintenancePeriods = signal<MaintenancePeriod[]>([]);
 
@@ -86,63 +87,68 @@ export class ExaminationEventsComponent implements OnInit {
     private ConfirmationDialogService = inject(ConfirmationDialogService);
     private ExamService = inject(ExamService);
 
-    ngOnInit() {
+    constructor() {
         this.HttpClient.get<MaintenancePeriod[]>('/app/maintenance').subscribe((periods) =>
             this.maintenancePeriods.set(periods),
         );
     }
 
-    isPeriodOver = () =>
-        DateTime.fromISO(this.exam().periodEnd as string).startOf('day') < DateTime.now().startOf('day');
+    isPeriodOver() {
+        return DateTime.fromISO(this.exam().periodEnd as string).startOf('day') < DateTime.now().startOf('day');
+    }
 
-    addExaminationEvent = () => {
+    addExaminationEvent() {
+        const currentExam = this.exam();
         const modalRef = this.ModalService.openRef(ExaminationEventDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.requiresPassword = this.exam().implementation === 'CLIENT_AUTH';
-        modalRef.componentInstance.examMinDate = this.exam().periodStart;
-        modalRef.componentInstance.examMaxDate = this.exam().periodEnd;
-        modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods();
-        modalRef.componentInstance.examId = this.exam().id;
-        modalRef.componentInstance.duration = this.exam().duration;
+        modalRef.componentInstance.requiresPassword.set(currentExam.implementation === 'CLIENT_AUTH');
+        modalRef.componentInstance.examMinDate.set(currentExam.periodStart);
+        modalRef.componentInstance.examMaxDate.set(currentExam.periodEnd);
+        modalRef.componentInstance.maintenancePeriods.set(this.maintenancePeriods());
+        modalRef.componentInstance.examId.set(currentExam.id);
+        modalRef.componentInstance.duration.set(currentExam.duration);
         this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((data) =>
-            this.exam().examinationEventConfigurations.push(data),
+            currentExam.examinationEventConfigurations.push(data),
         );
-    };
+    }
 
-    modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
+    modifyExaminationEvent(configuration: ExaminationEventConfiguration) {
+        const currentExam = this.exam();
         const modalRef = this.ModalService.openRef(ExaminationEventDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.config = configuration;
-        modalRef.componentInstance.requiresPassword = this.exam().implementation === 'CLIENT_AUTH';
-        modalRef.componentInstance.examMaxDate = this.exam().periodEnd;
-        modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods();
-        modalRef.componentInstance.examId = this.exam().id;
-        modalRef.componentInstance.duration = this.exam().duration;
+        modalRef.componentInstance.config.set(configuration);
+        modalRef.componentInstance.requiresPassword.set(currentExam.implementation === 'CLIENT_AUTH');
+        modalRef.componentInstance.examMaxDate.set(currentExam.periodEnd);
+        modalRef.componentInstance.maintenancePeriods.set(this.maintenancePeriods());
+        modalRef.componentInstance.examId.set(currentExam.id);
+        modalRef.componentInstance.duration.set(currentExam.duration);
         this.ModalService.result$<ExaminationEventConfiguration>(modalRef).subscribe((config) => {
-            const index = this.exam().examinationEventConfigurations.indexOf(configuration);
-            this.exam().examinationEventConfigurations.splice(index, 1, config);
+            const index = currentExam.examinationEventConfigurations.indexOf(configuration);
+            currentExam.examinationEventConfigurations.splice(index, 1, config);
         });
-    };
+    }
 
-    removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
+    removeExaminationEvent(configuration: ExaminationEventConfiguration) {
         if (configuration.examEnrolments.length > 0) {
             return;
         }
+        const currentExam = this.exam();
         this.ConfirmationDialogService.open$(
             this.TranslateService.instant('i18n_remove_examination_event'),
             this.TranslateService.instant('i18n_are_you_sure'),
         ).subscribe({
             next: () =>
-                this.ExamService.removeExaminationEvent$(this.exam().id, configuration).subscribe({
+                this.ExamService.removeExaminationEvent$(currentExam.id, configuration).subscribe({
                     next: () => {
-                        this.exam().examinationEventConfigurations.splice(
-                            this.exam().examinationEventConfigurations.indexOf(configuration),
+                        currentExam.examinationEventConfigurations.splice(
+                            currentExam.examinationEventConfigurations.indexOf(configuration),
                             1,
                         );
                     },
                     error: (err) => this.ToastrService.error(err),
                 }),
         });
-    };
+    }
 
-    sortByString = (prop: ExaminationEventConfiguration[]): ExaminationEventConfiguration[] =>
-        prop.sort((a, b) => Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start));
+    sortByString(prop: ExaminationEventConfiguration[]): ExaminationEventConfiguration[] {
+        return prop.sort((a, b) => Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start));
+    }
 }

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, NgStyle } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
@@ -12,44 +12,49 @@ import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
     selector: 'xm-printed-multi-choice',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './templates/multi-choice.component.html',
     styleUrls: ['./print.shared.scss'],
     imports: [MathJaxDirective, NgClass, NgStyle, TranslateModule],
 })
 export class PrintedMultiChoiceComponent {
-    @Input() sectionQuestion!: ExamSectionQuestion;
+    sectionQuestion = input.required<ExamSectionQuestion>();
 
     private QuestionScore = inject(QuestionScoringService);
 
     scoreWeightedMultipleChoiceAnswer = (ignoreForcedScore: boolean) => {
-        if (this.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
+        const sq = this.sectionQuestion();
+        if (sq.question.type !== 'WeightedMultipleChoiceQuestion') {
             return 0;
         }
-        return this.QuestionScore.scoreWeightedMultipleChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
+        return this.QuestionScore.scoreWeightedMultipleChoiceAnswer(sq, ignoreForcedScore);
     };
 
     scoreMultipleChoiceAnswer = (ignoreForcedScore: boolean) => {
-        if (this.sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
+        const sq = this.sectionQuestion();
+        if (sq.question.type !== 'MultipleChoiceQuestion') {
             return 0;
         }
-        return this.QuestionScore.scoreMultipleChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
+        return this.QuestionScore.scoreMultipleChoiceAnswer(sq, ignoreForcedScore);
     };
 
     scoreClaimChoiceAnswer = (ignoreForcedScore: boolean) => {
-        if (this.sectionQuestion.question.type !== 'ClaimChoiceQuestion') {
+        const sq = this.sectionQuestion();
+        if (sq.question.type !== 'ClaimChoiceQuestion') {
             return 0;
         }
-        return this.QuestionScore.scoreClaimChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
+        return this.QuestionScore.scoreClaimChoiceAnswer(sq, ignoreForcedScore);
     };
 
-    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion);
+    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion());
 
-    calculateMultiChoiceMaxPoints = () =>
-        Number.isInteger(this.sectionQuestion.maxScore)
-            ? this.sectionQuestion.maxScore
-            : this.sectionQuestion.maxScore.toFixed(2);
+    calculateMultiChoiceMaxPoints = () => {
+        const sq = this.sectionQuestion();
+        return Number.isInteger(sq.maxScore) ? sq.maxScore : sq.maxScore.toFixed(2);
+    };
 
-    getCorrectClaimChoiceOptionScore = () => this.QuestionScore.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
+    getCorrectClaimChoiceOptionScore = () =>
+        this.QuestionScore.getCorrectClaimChoiceOptionScore(this.sectionQuestion());
 
-    hasForcedScore = () => isNumber(this.sectionQuestion.forcedScore);
+    hasForcedScore = () => isNumber(this.sectionQuestion().forcedScore);
 }

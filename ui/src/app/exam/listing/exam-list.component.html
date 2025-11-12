@@ -15,7 +15,14 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- TAB NAVIGATION -->
     <div class="row">
         <div class="col-md-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs" [keyboard]="false">
+            <ul
+                ngbNav
+                #nav="ngbNav"
+                [activeId]="activeId()"
+                class="nav-tabs"
+                [keyboard]="false"
+                (activeIdChange)="activeId.set($event)"
+            >
                 <li role="presentation" [ngbNavItem]="0">
                     <a ngbNavLink>
                         {{ 'i18n_published_exams' | translate }}
@@ -65,7 +72,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
 
-    @if (loader.loading) {
+    @if (loader().loading) {
         <div class="row mt-2">
             <div class="col-md-12">
                 <button class="btn btn-success" type="button" disabled>
@@ -76,7 +83,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
 
-    <div [hidden]="exams.length === 0 || loader.loading" style="min-height: 700px">
+    <div [hidden]="exams().length === 0 || loader().loading" style="min-height: 700px">
         <div class="row">
             <div class="col-md-12">
                 <table class="table table-striped table-sm xm-data-table">
@@ -84,8 +91,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <tr>
                             <th>
                                 <xm-table-sort
-                                    [reverse]="reverse"
-                                    [predicate]="examsPredicate"
+                                    [reverse]="reverse()"
+                                    [predicate]="examsPredicate()"
                                     by="course.code"
                                     text="i18n_examcode"
                                     (click)="setPredicate('course.code')"
@@ -93,8 +100,8 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                             <th>
                                 <xm-table-sort
-                                    [reverse]="reverse"
-                                    [predicate]="examsPredicate"
+                                    [reverse]="reverse()"
+                                    [predicate]="examsPredicate()"
                                     by="name"
                                     text="i18n_exam_name"
                                     (click)="setPredicate('name')"
@@ -102,8 +109,8 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                             <th>
                                 <xm-table-sort
-                                    [reverse]="reverse"
-                                    [predicate]="examsPredicate"
+                                    [reverse]="reverse()"
+                                    [predicate]="examsPredicate()"
                                     by="executionType.id"
                                     text="i18n_exam_credit_type"
                                     (click)="setPredicate('executionType.id')"
@@ -111,8 +118,8 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                             <th>
                                 <xm-table-sort
-                                    [reverse]="reverse"
-                                    [predicate]="examsPredicate"
+                                    [reverse]="reverse()"
+                                    [predicate]="examsPredicate()"
                                     by="ownerAggregate"
                                     text="i18n_teachers"
                                     (click)="setPredicate('ownerAggregate')"
@@ -120,8 +127,8 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                             <th>
                                 <xm-table-sort
-                                    [reverse]="reverse"
-                                    [predicate]="examsPredicate"
+                                    [reverse]="reverse()"
+                                    [predicate]="examsPredicate()"
                                     by="periodStart"
                                     text="i18n_start_time"
                                     (click)="setPredicate('periodStart')"
@@ -129,8 +136,8 @@ SPDX-License-Identifier: EUPL-1.2
                             </th>
                             <th>
                                 <xm-table-sort
-                                    [reverse]="reverse"
-                                    [predicate]="examsPredicate"
+                                    [reverse]="reverse()"
+                                    [predicate]="examsPredicate()"
                                     by="periodEnd"
                                     text="i18n_end_time"
                                     (click)="setPredicate('periodEnd')"
@@ -142,8 +149,8 @@ SPDX-License-Identifier: EUPL-1.2
                     </thead>
                     <tbody>
                         @for (
-                            exam of filterByStateAndExpiration(views[activeId].view, views[activeId].showExpired)
-                                | orderBy: examsPredicate : reverse;
+                            exam of filterByStateAndExpiration(views[activeId()].view, views[activeId()].showExpired)
+                                | orderBy: examsPredicate() : reverse();
                             track exam
                         ) {
                             <tr>
@@ -200,7 +207,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </table>
             </div>
         </div>
-        @if (views[activeId].view === 'PUBLISHED' && !views[activeId].showExpired) {
+        @if (views[activeId()].view === 'PUBLISHED' && !views[activeId()].showExpired) {
             <div class="row">
                 <div class="col-md-12">
                     <strong>{{ 'i18n_published_exams' | translate }}: </strong>
@@ -211,7 +218,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
             </div>
         }
-        @if (views[activeId].view === 'SAVED') {
+        @if (views[activeId()].view === 'SAVED') {
             <div class="row">
                 <div class="col-md-12">
                     <strong>{{ 'i18n_saved_exams' | translate }}: </strong>

@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import type { OnChanges, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 import { range as _range } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
@@ -26,48 +25,76 @@ import { range as _range } from 'src/app/shared/miscellaneous/helpers';
     `,
     styleUrls: ['./paginator.component.scss'],
     imports: [NgClass],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PaginatorComponent implements OnChanges {
-    @Input() items: unknown[] = [];
-    @Input() pageSize = 1;
-    @Input() currentPage = 0;
-    @Output() pageSelected = new EventEmitter<{ page: number }>();
+export class PaginatorComponent {
+    items = input<unknown[]>([]);
+    pageSize = input(1);
+    currentPage = input(0);
+    pageSelected = output<{ page: number }>();
 
-    pageCount = 0;
+    pageCount = computed(() => {
+        const itemsValue = this.items();
+        const pageSizeValue = this.pageSize();
+        return Math.ceil(itemsValue.length / pageSizeValue) - 1;
+    });
 
-    ngOnChanges(props: SimpleChanges) {
-        if (props.items) {
-            this.pageCount = Math.ceil(this.items.length / this.pageSize) - 1;
-            // Go to first page always when the underlying collection gets modified
-            this.currentPage = 0;
-            this.pageSelected.emit({ page: 0 });
+    private _currentPage = signal(0);
+
+    constructor() {
+        // Sync input currentPage to internal signal
+        effect(() => {
+            this._currentPage.set(this.currentPage());
+        });
+
+        // Effect to react to items changes - reset to first page
+        effect(() => {
+            const itemsValue = this.items();
+            if (itemsValue.length > 0) {
+                // Go to first page always when the underlying collection gets modified
+                this._currentPage.set(0);
+                this.pageSelected.emit({ page: 0 });
+            }
+        });
+    }
+
+    previousPage() {
+        const current = this._currentPage();
+        if (current > 0) {
+            const newPage = current - 1;
+            this._currentPage.set(newPage);
+            this.pageSelected.emit({ page: newPage });
         }
     }
 
-    previousPage = () => {
-        if (this.currentPage > 0) {
-            this.currentPage--;
-            this.pageSelected.emit({ page: this.currentPage });
+    isCurrent(n: number) {
+        return n === this._currentPage();
+    }
+
+    previousPageDisabled() {
+        return this._currentPage() === 0 ? 'disabled' : '';
+    }
+
+    nextPage() {
+        const current = this._currentPage();
+        const pageCountValue = this.pageCount();
+        if (current < pageCountValue) {
+            const newPage = current + 1;
+            this._currentPage.set(newPage);
+            this.pageSelected.emit({ page: newPage });
         }
-    };
+    }
 
-    isCurrent = (n: number) => n === this.currentPage;
+    nextPageDisabled() {
+        return this._currentPage() === this.pageCount() ? 'disabled' : '';
+    }
 
-    previousPageDisabled = () => (this.currentPage === 0 ? 'disabled' : '');
+    range() {
+        return _range(0, this.pageCount() + 1);
+    }
 
-    nextPage = () => {
-        if (this.currentPage < this.pageCount) {
-            this.currentPage++;
-            this.pageSelected.emit({ page: this.currentPage });
-        }
-    };
-
-    nextPageDisabled = () => (this.currentPage === this.pageCount ? 'disabled' : '');
-
-    range = () => _range(0, this.pageCount + 1);
-
-    setPage = (n: number) => {
-        this.currentPage = n;
+    setPage(n: number) {
+        this._currentPage.set(n);
         this.pageSelected.emit({ page: n });
-    };
+    }
 }

@@ -3,11 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNav, NgbNavItem, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
@@ -27,22 +26,24 @@ const EXAM_TABS: ExamTab[] = [
 
 @Component({
     selector: 'xm-exam-search-tabs',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <xm-page-header text="i18n_exams" />
         <xm-page-content [content]="content" />
         <ng-template #content>
-            @if (collaborationSupported) {
+            @if (collaborationSupported()) {
                 <div class="row">
                     <div class="col-12">
                         <ul
                             ngbNav
                             #nav="ngbNav"
-                            [(activeId)]="activeTab"
+                            [activeId]="activeTab()"
+                            (activeIdChange)="activeTab.set($event)"
                             class="nav-tabs"
                             [keyboard]="false"
-                            (navChange)="onTabChange($event)"
+                            (navChange)="onTabChange()"
                         >
-                            @for (tab of availableTabs; track tab.id) {
+                            @for (tab of availableTabs(); track tab.id) {
                                 <li [ngbNavItem]="tab.id">
                                     <a ngbNavLink>{{ tab.labelKey | translate }}</a>
                                 </li>
@@ -50,10 +51,10 @@ const EXAM_TABS: ExamTab[] = [
                         </ul>
                     </div>
                 </div>
-                @if (activeTab === 1) {
+                @if (activeTab() === 1) {
                     <xm-exam-search></xm-exam-search>
                 }
-                @if (activeTab === 2) {
+                @if (activeTab() === 2) {
                     <xm-collaborative-exam-search></xm-collaborative-exam-search>
                 }
             } @else {
@@ -73,10 +74,10 @@ const EXAM_TABS: ExamTab[] = [
         CollaborativeExamSearchComponent,
     ],
 })
-export class ExamSearchTabsComponent implements OnInit {
-    availableTabs: ExamTab[] = EXAM_TABS;
-    activeTab = 1;
-    collaborationSupported = false;
+export class ExamSearchTabsComponent {
+    availableTabs = signal<ExamTab[]>(EXAM_TABS);
+    activeTab = signal(1);
+    collaborationSupported = signal(false);
 
     private route = inject(ActivatedRoute);
     private router = inject(Router);
@@ -84,13 +85,13 @@ export class ExamSearchTabsComponent implements OnInit {
     private title = inject(Title);
     private translate = inject(TranslateService);
 
-    ngOnInit() {
+    constructor() {
         this.loadCollaborationConfiguration();
     }
 
-    onTabChange(event: NgbNavChangeEvent) {
-        this.activeTab = event.nextId as number;
-        const tabParam = this.activeTab === 2 ? 'collaborative' : null;
+    onTabChange() {
+        // activeTab is already updated via (activeIdChange) binding
+        const tabParam = this.activeTab() === 2 ? 'collaborative' : null;
         this.router.navigate([], {
             queryParams: tabParam ? { tab: 'collaborative' } : {},
             queryParamsHandling: 'merge',
@@ -101,13 +102,13 @@ export class ExamSearchTabsComponent implements OnInit {
     private setupTabFromUrl() {
         const tabParam = this.route.snapshot.queryParamMap.get('tab');
 
-        if (tabParam === 'collaborative' && this.collaborationSupported) {
-            this.activeTab = 2;
+        if (tabParam === 'collaborative' && this.collaborationSupported()) {
+            this.activeTab.set(2);
         } else {
-            this.activeTab = 1;
+            this.activeTab.set(1);
 
             // If requested tab is not available, update URL to reflect actual tab
-            if (tabParam === 'collaborative' && !this.collaborationSupported) {
+            if (tabParam === 'collaborative' && !this.collaborationSupported()) {
                 this.router.navigate([], { queryParams: {}, queryParamsHandling: 'merge' });
             }
         }
@@ -118,18 +119,18 @@ export class ExamSearchTabsComponent implements OnInit {
         this.http
             .get<{ isExamCollaborationSupported: boolean }>('/app/settings/iop/examCollaboration')
             .subscribe((config) => {
-                this.collaborationSupported = config.isExamCollaborationSupported;
+                this.collaborationSupported.set(config.isExamCollaborationSupported);
                 this.updateAvailableTabs();
                 this.setupTabFromUrl();
             });
     }
 
     private updateAvailableTabs() {
-        this.availableTabs = this.collaborationSupported ? EXAM_TABS : [EXAM_TABS[0]];
+        this.availableTabs.set(this.collaborationSupported() ? EXAM_TABS : [EXAM_TABS[0]]);
     }
 
     private updateBrowserTitle() {
-        const titleKey = this.activeTab === 2 ? 'i18n_collaborative_exams_title' : 'i18n_exams_title';
+        const titleKey = this.activeTab() === 2 ? 'i18n_collaborative_exams_title' : 'i18n_exams_title';
         const titleText = `${this.translate.instant(titleKey)} - EXAM`;
         this.title.setTitle(titleText);
     }

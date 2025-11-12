@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { QuestionComponent } from 'src/app/question/basequestion/question.component';
@@ -15,16 +15,16 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
     template: `
         <div class="modal-body">
             <xm-question
-                [newQuestion]="newQuestion"
-                [questionId]="questionId"
+                [newQuestionInput]="newQuestion()"
+                [questionId]="questionId()"
                 (saved)="onSave($event)"
                 (cancelled)="cancel()"
-                [questionDraft]="questionDraft"
-                [collaborative]="collaborative"
-                [lotteryOn]="lotteryOn"
-                [examId]="examId"
-                [sectionQuestion]="sectionQuestion"
-                [isPopup]="isPopup"
+                [questionDraft]="questionDraft()"
+                [collaborative]="collaborative()"
+                [lotteryOn]="lotteryOn()"
+                [examId]="examId()"
+                [sectionQuestion]="sectionQuestion()"
+                [isPopup]="isPopup()"
                 autofocus
             ></xm-question>
         </div>
@@ -32,14 +32,14 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
     `,
 })
 export class BaseQuestionEditorComponent {
-    @Input() newQuestion = false;
-    @Input() questionDraft!: Question;
-    @Input() questionId = 0;
-    @Input() collaborative = false;
-    @Input() lotteryOn = false;
-    @Input() examId = 0;
-    @Input() sectionQuestion!: ExamSectionQuestion;
-    @Input() isPopup = false;
+    newQuestion = model(false);
+    questionDraft = model.required<Question>();
+    questionId = model(0);
+    collaborative = model(false);
+    lotteryOn = model(false);
+    examId = model(0);
+    sectionQuestion = model.required<ExamSectionQuestion>();
+    isPopup = model(false);
 
     private modal = inject(NgbActiveModal);
     private translate = inject(TranslateService);

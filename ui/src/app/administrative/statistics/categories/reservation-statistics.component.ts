@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row my-2">
             <div class="col-12">
@@ -21,30 +21,31 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
             <div class="col-3">
                 <strong>{{ 'i18n_total_reservations' | translate }}:</strong>
             </div>
-            <div class="col-9">{{ data.appearances }}</div>
+            <div class="col-9">{{ data().appearances }}</div>
         </div>
         <div class="row">
             <div class="col-3">
                 <strong>{{ 'i18n_total_no_shows' | translate }}:</strong>
             </div>
-            <div class="col-9">{{ data.noShows }}</div>
+            <div class="col-9">{{ data().noShows }}</div>
         </div>
     `,
     selector: 'xm-reservation-statistics',
     imports: [TranslateModule],
 })
-export class ReservationStatisticsComponent implements OnInit {
-    @Input() queryParams: QueryParams = {};
-    data = { noShows: 0, appearances: 0 };
+export class ReservationStatisticsComponent {
+    queryParams = input<QueryParams>({});
+    data = signal({ noShows: 0, appearances: 0 });
 
     private Statistics = inject(StatisticsService);
 
-    ngOnInit() {
+    constructor() {
         this.listReservations();
     }
 
-    listReservations = () =>
-        this.Statistics.listReservations$(this.queryParams).subscribe((resp) => {
-            this.data = resp;
+    listReservations() {
+        this.Statistics.listReservations$(this.queryParams()).subscribe((resp) => {
+            this.data.set(resp);
         });
+    }
 }

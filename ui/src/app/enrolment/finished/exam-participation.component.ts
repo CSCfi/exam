@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, Input, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, OnDestroy, signal } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -27,6 +26,7 @@ type Scores = {
 };
 @Component({
     selector: 'xm-exam-participation',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participation.component.html',
     imports: [
         NgClass,
@@ -40,38 +40,45 @@ type Scores = {
     ],
     styleUrl: './exam-participations.component.scss',
 })
-export class ExamParticipationComponent implements OnInit, OnDestroy {
-    @Input() participation!: ParticipationLike;
-    @Input() collaborative = false;
+export class ExamParticipationComponent implements OnDestroy {
+    participation = input.required<ParticipationLike>();
+    collaborative = input(false);
 
-    reviewedExam!: ReviewedExam;
-    scores!: Scores;
-    showEvaluation = false;
-    gradeDisplayName = '';
+    reviewedExam = signal<ReviewedExam | undefined>(undefined);
+    scores = signal<Scores | undefined>(undefined);
+    showEvaluation = signal(false);
+    gradeDisplayName = signal('');
     private ngUnsubscribe = new Subject();
 
     private translate = inject(TranslateService);
     private Exam = inject(CommonExamService);
     private Enrolment = inject(EnrolmentService);
 
-    ngOnInit() {
-        const state = this.participation.exam.state;
-        if (
-            state === 'GRADED_LOGGED' ||
-            state === 'REJECTED' ||
-            state === 'ARCHIVED' ||
-            (state === 'GRADED' && this.participation.exam.autoEvaluationNotified)
-        ) {
-            if (this.collaborative) {
-                // No need to load anything, because we have already everything.
-                this.prepareReview(this.participation.exam as ReviewedExam);
-                return;
+    constructor() {
+        // React to participation changes and initialize review
+        effect(() => {
+            const participation = this.participation();
+            const state = participation.exam.state;
+            if (
+                state === 'GRADED_LOGGED' ||
+                state === 'REJECTED' ||
+                state === 'ARCHIVED' ||
+                (state === 'GRADED' && participation.exam.autoEvaluationNotified)
+            ) {
+                if (this.collaborative()) {
+                    // No need to load anything, because we have already everything.
+                    this.prepareReview(participation.exam as ReviewedExam);
+                    return;
+                }
+                this.loadReview(participation.exam as Exam);
             }
-            this.loadReview(this.participation.exam as Exam);
-        }
+        });
+
+        // React to language changes
         this.translate.onLangChange.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            if (this.participation.exam.grade) {
-                this.gradeDisplayName = this.Exam.getExamGradeDisplayName(this.participation.exam.grade.name);
+            const participation = this.participation();
+            if (participation.exam.grade) {
+                this.gradeDisplayName.set(this.Exam.getExamGradeDisplayName(participation.exam.grade.name));
             }
         });
     }
@@ -81,24 +88,32 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    setCommentRead = (exam: Exam | ReviewedExam) => {
+    setCommentRead(exam: Exam | ReviewedExam) {
         if (
-            this.collaborative &&
-            this.participation.exam.examFeedback &&
-            !this.participation.exam.examFeedback.feedbackStatus
+            this.collaborative() &&
+            this.participation().exam.examFeedback &&
+            !this.participation().exam.examFeedback.feedbackStatus
         ) {
-            const participation = this.participation as CollaborativeParticipation;
+            const participation = this.participation() as CollaborativeParticipation;
             this.Enrolment.setCommentRead$(participation.examId, participation._id, participation._rev).subscribe(
                 () => {
-                    if (this.participation.exam.examFeedback) {
-                        this.participation.exam.examFeedback.feedbackStatus = true;
+                    if (this.participation().exam.examFeedback) {
+                        this.participation().exam.examFeedback.feedbackStatus = true;
                     }
                 },
             );
         } else if (exam.examFeedback) {
             this.Enrolment.setCommentRead(exam);
         }
-    };
+    }
+
+    toggleEvaluation() {
+        this.showEvaluation.update((v) => !v);
+        const reviewedExam = this.reviewedExam();
+        if (reviewedExam) {
+            this.setCommentRead(reviewedExam);
+        }
+    }
 
     private loadReview = (exam: Exam) => this.Enrolment.loadFeedback$(exam.id).subscribe(this.prepareReview);
 
@@ -130,22 +145,22 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
             exam.creditType.displayName = this.Exam.getExamTypeDisplayName(exam.creditType.type);
         }
 
-        this.reviewedExam = exam;
-        if (this.collaborative) {
+        this.reviewedExam.set(exam);
+        if (this.collaborative()) {
             // No need to load separate scores.
             this.prepareScores(exam);
             return;
         }
-        this.Enrolment.loadScore$(this.participation.exam.id).subscribe(this.prepareScores);
+        this.Enrolment.loadScore$(this.participation().exam.id).subscribe(this.prepareScores);
     };
 
     private prepareScores = (exam: ReviewedExam) => {
-        this.scores = {
+        this.scores.set({
             maxScore: exam.maxScore,
             totalScore: exam.totalScore,
             approvedAnswerCount: exam.approvedAnswerCount,
             rejectedAnswerCount: exam.rejectedAnswerCount,
             hasApprovedRejectedAnswers: exam.approvedAnswerCount + exam.rejectedAnswerCount > 0,
-        };
+        });
     };
 }

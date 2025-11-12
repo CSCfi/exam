@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-@if (assessment.grade?.name === 'NONE') {
+@if (assessment().grade?.name === 'NONE') {
     <div class="row mt-2">
         <div class="notice-wrap">
             <span class="form-group" role="note"
@@ -16,7 +16,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 }
 
-@if (assessment.state === 'GRADED') {
+@if (assessment().state === 'GRADED') {
     <div class="row mt-2">
         <div class="notice-wrap">
             <span class="form-group" role="note"
@@ -34,11 +34,11 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row">
             <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_credit' | translate }}:</div>
             <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                {{ assessment.credit }} {{ 'i18n_exam_credit_abbr' | translate }}
+                {{ assessment().credit }} {{ 'i18n_exam_credit_abbr' | translate }}
             </div>
             <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_grade' | translate }}:</div>
             <div class="col-6 col-sm-6 col-md-5 col-lg-5">
-                {{ assessment.grade?.displayName }}
+                {{ assessment().grade?.displayName }}
             </div>
         </div>
     </div>
@@ -50,28 +50,30 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row">
             <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_credit_type' | translate }}:</div>
             <div class="col-6 col-sm-6 col-md-5 col-lg-3">
-                {{ assessment.creditType.displayName }}
+                {{ assessment().creditType.displayName }}
             </div>
             <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_assessment_date' | translate }}:</div>
             <div class="col-6 col-sm-6 col-md-5 col-lg-3">
-                {{ assessment.gradedTime | date: 'dd.MM.yyyy' }}
+                {{ assessment().gradedTime | date: 'dd.MM.yyyy' }}
             </div>
         </div>
     </div>
 </div>
 
-@if (scores) {
+@if (scores()) {
     <!-- total score: only show if not maturity and actual grade given -->
-    <div class="row" [hidden]="assessment.executionType.type === 'MATURITY' || assessment.grade?.name === 'NONE'">
+    <div class="row" [hidden]="assessment().executionType.type === 'MATURITY' || assessment().grade?.name === 'NONE'">
         <div class="col-12">
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_total_score' | translate }}:</div>
-                <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ scores.totalScore }} / {{ scores.maxScore }}</div>
+                <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ scores()!.totalScore }} / {{ scores()!.maxScore }}
+                </div>
             </div>
             @if (
-                !collaborative &&
-                (assessment.state === 'GRADED_LOGGED' || assessment.state === 'ARCHIVED') &&
-                assessment.gradingType !== 'NOT_GRADED'
+                !collaborative() &&
+                (assessment().state === 'GRADED_LOGGED' || assessment().state === 'ARCHIVED') &&
+                assessment().gradingType !== 'NOT_GRADED'
             ) {
                 <div class="row mt-2">
                     <div class="col-12">
@@ -88,18 +90,18 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <!-- approved and rejected: only show if not maturity and actual grade given -->
-    <div class="row" [hidden]="assessment.executionType.type === 'MATURITY' || assessment.grade?.name === 'NONE'">
+    <div class="row" [hidden]="assessment().executionType.type === 'MATURITY' || assessment().grade?.name === 'NONE'">
         <div class="col-12">
             <!-- only show if approved or rejected answer count is given -->
-            @if (scores.hasApprovedRejectedAnswers) {
+            @if (scores()!.hasApprovedRejectedAnswers) {
                 <div class="row">
                     <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_approved' | translate }}:</div>
                     <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                        {{ scores.approvedAnswerCount }}
+                        {{ scores()!.approvedAnswerCount }}
                     </div>
                     <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_rejected' | translate }}:</div>
                     <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                        {{ scores.rejectedAnswerCount }}
+                        {{ scores()!.rejectedAnswerCount }}
                     </div>
                 </div>
             }
@@ -108,41 +110,41 @@ SPDX-License-Identifier: EUPL-1.2
 }
 
 <!-- comments: only show if comments given -->
-@if (assessment.languageInspection) {
+@if (assessment().languageInspection) {
     <div class="row mt-1">
         <div class="col-12">
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_content_grade' | translate }}:</div>
                 <div class="col-6 col-sm-6 col-md-5 col-lg-5">
-                    {{ assessment.contentGrade }}
+                    {{ assessment().contentGrade }}
                 </div>
             </div>
         </div>
     </div>
 }
 
-@if (assessment.examFeedback?.comment) {
-    <div class="row" [ngClass]="!assessment.languageInspection ? 'mt-1' : ''">
+@if (assessment().examFeedback?.comment) {
+    <div class="row" [ngClass]="!assessment().languageInspection ? 'mt-1' : ''">
         <div class="col-12">
             <div class="row">
                 <div class="col-12">{{ 'i18n_teachers_comment' | translate }}:</div>
             </div>
             <div class="row">
-                <div class="col-12" [innerHtml]="assessment.examFeedback?.comment"></div>
+                <div class="col-12" [innerHtml]="assessment().examFeedback?.comment"></div>
             </div>
         </div>
     </div>
 }
 
 <!-- comment attachment: only show if attachment uploaded -->
-@if (assessment.examFeedback?.attachment) {
+@if (assessment().examFeedback?.attachment) {
     <div class="row">
         <div class="col-12">
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_feedback_attachment' | translate }}:</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">
                     <button class="btn btn-outline-secondary" (click)="downloadFeedbackAttachment()">
-                        {{ assessment.examFeedback?.attachment?.fileName }}
+                        {{ assessment().examFeedback?.attachment?.fileName }}
                     </button>
                 </div>
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">&nbsp;</div>
@@ -153,13 +155,13 @@ SPDX-License-Identifier: EUPL-1.2
 }
 
 <!-- credits and grade-->
-@if (assessment.languageInspection) {
+@if (assessment().languageInspection) {
     <div class="row mt-2">
         <div class="col-12">
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_language_inspections' | translate }}:</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ assessment.grade?.displayName }}
+                    {{ assessment().grade?.displayName }}
                 </div>
             </div>
         </div>
@@ -167,28 +169,28 @@ SPDX-License-Identifier: EUPL-1.2
 }
 
 <!-- inspector statement: only show if language inspection done -->
-@if (assessment.languageInspection) {
+@if (assessment().languageInspection) {
     <div class="row">
         <div class="col-12">
             <div class="row">
                 <div class="col-12">{{ 'i18n_inspector_statement' | translate }}:</div>
             </div>
             <div class="row">
-                <div class="col-12" [innerHtml]="assessment.languageInspection?.statement?.comment"></div>
+                <div class="col-12" [innerHtml]="assessment().languageInspection?.statement?.comment"></div>
             </div>
         </div>
     </div>
 }
 
 <!-- statement attachment: only show if attachment uploaded -->
-@if (assessment.languageInspection?.statement?.attachment) {
+@if (assessment().languageInspection?.statement?.attachment) {
     <div class="row">
         <div class="col-12">
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_statement_attachment' | translate }}:</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">
                     <button class="btn btn-outline-secondary" (click)="downloadStatementAttachment()">
-                        {{ assessment.languageInspection.statement.attachment?.fileName }}
+                        {{ assessment().languageInspection.statement.attachment?.fileName }}
                     </button>
                 </div>
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">&nbsp;</div>
@@ -198,7 +200,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 }
 
-@if (assessment.assessmentInfo) {
+@if (assessment().assessmentInfo) {
     <div class="row pt-2 mt-1">
         <div class="col-12">
             <div class="row">
@@ -207,16 +209,16 @@ SPDX-License-Identifier: EUPL-1.2
                     {{ 'i18n_additional_info_for_student' | translate }}:
                 </div>
                 <div class="col-6 col-sm-6 col-md-5 col-lg-5">
-                    {{ assessment.assessmentInfo }}
+                    {{ assessment().assessmentInfo }}
                 </div>
             </div>
         </div>
     </div>
 }
 @if (
-    !collaborative &&
-    (assessment.state === 'GRADED_LOGGED' || assessment.state === 'ARCHIVED') &&
-    assessment.gradingType !== 'NOT_GRADED'
+    !collaborative() &&
+    (assessment().state === 'GRADED_LOGGED' || assessment().state === 'ARCHIVED') &&
+    assessment().gradingType !== 'NOT_GRADED'
 ) {
     <div class="row mt-2">
         <div class="col-12">
@@ -224,14 +226,14 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <div class="row">
-        @if (assessmentWithAnswers) {
+        @if (assessmentWithAnswers()) {
             <div class="col-12">
                 <button class="btn btn-outline-secondary" (keydown.enter)="showAnswers()" (click)="showAnswers()">
                     {{ 'i18n_show' | translate }}
                 </button>
             </div>
         }
-        @if (!assessmentWithAnswers) {
+        @if (!assessmentWithAnswers()) {
             <div class="col-12">
                 {{ 'i18n_not_available' | translate }}
             </div>

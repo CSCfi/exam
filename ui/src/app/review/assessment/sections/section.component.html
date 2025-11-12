@@ -6,9 +6,9 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="xm-bordered-area my-3 p-3">
     <div class="row p-3">
-        <h4 class="col-md-8 ps-0">{{ index }}. &nbsp; &nbsp;{{ section.name }}</h4>
+        <h4 class="col-md-8 ps-0">{{ index() }}. &nbsp; &nbsp;{{ section().name }}</h4>
         <div class="col-md-4">
-            @if (getSectionMaxScore() > 0 || essayQuestionAmounts.total > 0) {
+            @if (getSectionMaxScore() > 0 || essayQuestionAmounts().total > 0) {
                 <div class="row">
                     <div class="col-12">
                         <div class="float-end">
@@ -20,61 +20,61 @@ SPDX-License-Identifier: EUPL-1.2
             }
         </div>
     </div>
-    @if (section.description) {
+    @if (section().description) {
         <div class="row mb-2">
             <div class="col-12" role="note">
                 <img src="/assets/images/icon_info.svg" alt="" />
-                <span class="ps-2 notice-text">{{ section.description }}</span>
+                <span class="ps-2 notice-text">{{ section().description }}</span>
             </div>
         </div>
     }
 
-    @for (sq of section.sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
+    @for (sq of section().sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
         <div class="row">
             <div class="col-md-12 mt-2">
                 @if (sq.question.type === 'MultipleChoiceQuestion') {
                     <xm-r-multi-choice-question
                         [sectionQuestion]="sq"
-                        [participation]="participation"
-                        [isScorable]="isScorable"
-                        [collaborative]="collaborative"
+                        [participation]="participation()"
+                        [isScorable]="isScorable()"
+                        [collaborative]="collaborative()"
                         (scored)="scoreSet($event)"
                     />
                 }
                 @if (sq.question.type === 'EssayQuestion') {
                     <xm-r-essay-question
                         [sectionQuestion]="sq"
-                        [participation]="participation"
-                        [exam]="exam"
-                        [isScorable]="isScorable"
-                        [collaborative]="collaborative"
+                        [participation]="participation()"
+                        [exam]="exam()"
+                        [isScorable]="isScorable()"
+                        [collaborative]="collaborative()"
                         (scored)="scoreSet($event)"
                     />
                 }
                 @if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
                     <xm-r-multi-choice-question
                         [sectionQuestion]="sq"
-                        [participation]="participation"
-                        [isScorable]="isScorable"
-                        [collaborative]="collaborative"
+                        [participation]="participation()"
+                        [isScorable]="isScorable()"
+                        [collaborative]="collaborative()"
                         (scored)="scoreSet($event)"
                     />
                 }
                 @if (sq.question.type === 'ClozeTestQuestion') {
                     <xm-r-cloze-test
                         [sectionQuestion]="sq"
-                        [participation]="participation"
-                        [isScorable]="isScorable"
-                        [collaborative]="collaborative"
+                        [participation]="participation()"
+                        [isScorable]="isScorable()"
+                        [collaborative]="collaborative()"
                         (scored)="scoreSet($event)"
                     />
                 }
                 @if (sq.question.type === 'ClaimChoiceQuestion') {
                     <xm-r-multi-choice-question
                         [sectionQuestion]="sq"
-                        [participation]="participation"
-                        [isScorable]="isScorable"
-                        [collaborative]="collaborative"
+                        [participation]="participation()"
+                        [isScorable]="isScorable()"
+                        [collaborative]="collaborative()"
                         (scored)="scoreSet($event)"
                     />
                 }
@@ -88,10 +88,10 @@ SPDX-License-Identifier: EUPL-1.2
                 {{ 'i18n_word_points' | translate }}: {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}
             </div>
         }
-        @if (essayQuestionAmounts.total > 0) {
+        @if (essayQuestionAmounts().total > 0) {
             <div class="col-md-6">
-                {{ 'i18n_accepted_and_rejected' | translate }}: {{ essayQuestionAmounts.accepted }} /
-                {{ essayQuestionAmounts.rejected }}
+                {{ 'i18n_accepted_and_rejected' | translate }}: {{ essayQuestionAmounts().accepted }} /
+                {{ essayQuestionAmounts().rejected }}
             </div>
         }
     </div>

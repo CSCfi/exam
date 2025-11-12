@@ -27,13 +27,17 @@ SPDX-License-Identifier: EUPL-1.2
             <span class="exam-input-label-uppercase">{{ 'i18n_begin' | translate }}</span>
             <xm-date-picker
                 [optional]="true"
-                [initialDate]="date"
+                [initialDate]="date()"
                 (updated)="startDateChanged($event)"
             ></xm-date-picker>
         </div>
         <div class="col-2">
             <span class="exam-input-label-uppercase">{{ 'i18n_end' | translate }}</span>
-            <xm-date-picker [optional]="true" [initialDate]="date" (updated)="endDateChanged($event)"></xm-date-picker>
+            <xm-date-picker
+                [optional]="true"
+                [initialDate]="date()"
+                (updated)="endDateChanged($event)"
+            ></xm-date-picker>
         </div>
         <div class="col-2">
             <div class="input-group">
@@ -53,7 +57,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </form>
 
-    @if (events.length > 0) {
+    @if (events().length > 0) {
         <div class="row">
             <div class="col-md-12 mt-4">
                 <table class="table table-striped xm-data-table">
@@ -63,8 +67,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 <xm-table-sort
                                     by="exam.course.code"
                                     text="i18n_code"
-                                    [predicate]="sorting.predicate"
-                                    [reverse]="sorting.reverse"
+                                    [predicate]="sortingPredicate()"
+                                    [reverse]="sortingReverse()"
                                     (click)="setPredicate('exam.course.code')"
                                 >
                                 </xm-table-sort>
@@ -73,8 +77,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 <xm-table-sort
                                     by="exam.name"
                                     text="i18n_exam_name"
-                                    [predicate]="sorting.predicate"
-                                    [reverse]="sorting.reverse"
+                                    [predicate]="sortingPredicate()"
+                                    [reverse]="sortingReverse()"
                                     (click)="setPredicate('exam.name')"
                                 >
                                 </xm-table-sort>
@@ -83,8 +87,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 <xm-table-sort
                                     by="exam.creator.firstName"
                                     text="i18n_teachers"
-                                    [predicate]="sorting.predicate"
-                                    [reverse]="sorting.reverse"
+                                    [predicate]="sortingPredicate()"
+                                    [reverse]="sortingReverse()"
                                     (click)="setPredicate('exam.creator.firstName')"
                                 >
                                 </xm-table-sort>
@@ -93,8 +97,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 <xm-table-sort
                                     by="examinationEvent.start"
                                     text="i18n_date"
-                                    [predicate]="sorting.predicate"
-                                    [reverse]="sorting.reverse"
+                                    [predicate]="sortingPredicate()"
+                                    [reverse]="sortingReverse()"
                                     (click)="setPredicate('examinationEvent.start')"
                                 >
                                 </xm-table-sort>
@@ -103,8 +107,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 <xm-table-sort
                                     by="examEnrolments.length"
                                     text="i18n_participants"
-                                    [predicate]="sorting.predicate"
-                                    [reverse]="sorting.reverse"
+                                    [predicate]="sortingPredicate()"
+                                    [reverse]="sortingReverse()"
                                     (click)="setPredicate('examEnrolments.length')"
                                 >
                                 </xm-table-sort>
@@ -115,7 +119,7 @@ SPDX-License-Identifier: EUPL-1.2
                         </tr>
                     </thead>
                     <tbody>
-                        @for (event of events | orderBy: sorting.predicate : sorting.reverse; track event) {
+                        @for (event of events() | orderBy: sortingPredicate() : sortingReverse(); track event) {
                             <tr>
                                 <!-- 1 -->
                                 <td>

@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -15,7 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
             <h1 class="xm-modal-title">{{ 'i18n_accept_useragreement' | translate }}</h1>
         </div>
         <div class="modal-body">
-            <div [innerHtml]="settings.eula.value"></div>
+            <div [innerHtml]="settings().eula.value"></div>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-success" (click)="activeModal.close()" autofocus>
@@ -26,16 +25,17 @@ import { TranslateModule } from '@ngx-translate/core';
             </button>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EulaDialogComponent implements OnInit {
-    settings = { eula: { value: '' } };
+export class EulaDialogComponent {
+    settings = signal<{ eula: { value: string } }>({ eula: { value: '' } });
 
     activeModal = inject(NgbActiveModal);
     private http = inject(HttpClient);
 
-    ngOnInit() {
+    constructor() {
         this.http
             .get<{ value: string }>('/app/settings/agreement')
-            .subscribe((resp) => (this.settings = { eula: { value: resp.value } }));
+            .subscribe((resp) => this.settings.set({ eula: { value: resp.value } }));
     }
 }

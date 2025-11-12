@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import { ExamRoom } from 'src/app/reservation/reservation.model';
@@ -29,18 +28,19 @@ enum UserRole {
 }
 @Component({
     selector: 'xm-reports',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <xm-page-header text="i18n_reports" />
         <xm-page-content [content]="content" />
         <ng-template #content>
-            <div class="report-category"><xm-rooms-report [rooms]="rooms" /></div>
-            <div class="report-category"><xm-exams-report [examNames]="examNames" /></div>
-            <div class="report-category"><xm-students-report [students]="students" /></div>
-            <div class="report-category"><xm-enrolments-report [examNames]="examNames" /></div>
+            <div class="report-category"><xm-rooms-report [rooms]="rooms()" /></div>
+            <div class="report-category"><xm-exams-report [examNames]="examNames()" /></div>
+            <div class="report-category"><xm-students-report [students]="students()" /></div>
+            <div class="report-category"><xm-enrolments-report [examNames]="examNames()" /></div>
             <div class="report-category"><xm-answers-report /></div>
             <div class="report-category"><xm-reviews-report /></div>
             <div class="report-category"><xm-records-report /></div>
-            <div class="report-category"><xm-teachers-report [teachers]="teachers" /></div>
+            <div class="report-category"><xm-teachers-report [teachers]="teachers()" /></div>
         </ng-template>
     `,
     imports: [
@@ -58,47 +58,55 @@ enum UserRole {
     ],
     styleUrl: './reports.component.scss',
 })
-export class ReportsComponent implements OnInit {
-    rooms: Option<ExamRoom, number>[] = [];
-    examNames: Option<string, number>[] = [];
-    teachers: Option<User, number>[] = [];
-    students: Option<User, number>[] = [];
+export class ReportsComponent {
+    rooms = signal<Option<ExamRoom, number>[]>([]);
+    examNames = signal<Option<string, number>[]>([]);
+    teachers = signal<Option<User, number>[]>([]);
+    students = signal<Option<User, number>[]>([]);
 
     private Users = inject(UserService);
     private Reports = inject(ReportsService);
     private Room = inject(RoomService);
 
-    ngOnInit() {
+    constructor() {
         this.Room.getRooms$().subscribe((resp) => {
-            this.rooms = resp.map((r) => ({
-                id: r.id,
-                label: `${r.buildingName} - ${r.name}`,
-                value: { ...r },
-            }));
+            this.rooms.set(
+                resp.map((r) => ({
+                    id: r.id,
+                    label: `${r.buildingName} - ${r.name}`,
+                    value: { ...r },
+                })),
+            );
         });
 
         this.Reports.examNames().subscribe((resp) => {
-            this.examNames = resp.map((en) => ({
-                id: en.id,
-                label: `${en.course.code} - ${en.name}`,
-                value: en.name,
-            }));
+            this.examNames.set(
+                resp.map((en) => ({
+                    id: en.id,
+                    label: `${en.course.code} - ${en.name}`,
+                    value: en.name,
+                })),
+            );
         });
 
         this.Users.listUsersByRole$(UserRole.TEACHER).subscribe((resp) => {
-            this.teachers = resp.map((t) => ({
-                id: t.id,
-                label: t.firstName + ' ' + t.lastName,
-                value: t,
-            }));
+            this.teachers.set(
+                resp.map((t) => ({
+                    id: t.id,
+                    label: t.firstName + ' ' + t.lastName,
+                    value: t,
+                })),
+            );
         });
 
         this.Users.listUsersByRole$(UserRole.STUDENT).subscribe((resp) => {
-            this.students = resp.map((t) => ({
-                id: t.id,
-                label: t.firstName + ' ' + t.lastName,
-                value: t,
-            }));
+            this.students.set(
+                resp.map((s) => ({
+                    id: s.id,
+                    label: s.firstName + ' ' + s.lastName,
+                    value: s,
+                })),
+            );
         });
     }
 }

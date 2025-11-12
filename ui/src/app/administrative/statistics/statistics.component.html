@@ -66,7 +66,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
                     <div role="presentation" class="input-group">
                         <input
-                            [ngModel]="limitations.department"
+                            [(ngModel)]="departmentFilter"
                             (change)="handleDepartmentInputChange()"
                             type="text"
                             class="form-control"
@@ -74,7 +74,7 @@ SPDX-License-Identifier: EUPL-1.2
                         />
                         <div class="input-group-append bi-search search-append"></div>
                     </div>
-                    @for (department of filteredDepartments; track department) {
+                    @for (department of filteredDepartments(); track department) {
                         <button
                             ngbDropdownItem
                             role="presentation"
@@ -89,7 +89,7 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
         <div class="col">
-            @for (department of departments; track department) {
+            @for (department of departments(); track department) {
                 @if (department.filtered) {
                     <span (click)="setDepartmentFilter(department)" class="badge bg-secondary me-1 pointer">
                         {{ department.name }}
@@ -101,18 +101,18 @@ SPDX-License-Identifier: EUPL-1.2
 
     <!-- TAB CONTENT -->
     @if (view === 'ROOMS') {
-        <xm-room-statistics [queryParams]="queryParams"></xm-room-statistics>
+        <xm-room-statistics [queryParams]="queryParams()"></xm-room-statistics>
     }
     @if (view === 'RESERVATIONS') {
-        <xm-reservation-statistics [queryParams]="queryParams"> </xm-reservation-statistics>
+        <xm-reservation-statistics [queryParams]="queryParams()"> </xm-reservation-statistics>
     }
     @if (view === 'IOP_RESERVATIONS') {
-        <xm-iop-reservation-statistics [queryParams]="queryParams"> </xm-iop-reservation-statistics>
+        <xm-iop-reservation-statistics [queryParams]="queryParams()"> </xm-iop-reservation-statistics>
     }
     @if (view === 'RESPONSES') {
-        <xm-response-statistics [queryParams]="queryParams"></xm-response-statistics>
+        <xm-response-statistics [queryParams]="queryParams()"></xm-response-statistics>
     }
     @if (view === 'EXAMS') {
-        <xm-exam-statistics [queryParams]="queryParams"></xm-exam-statistics>
+        <xm-exam-statistics [queryParams]="queryParams()"></xm-exam-statistics>
     }
 </ng-template>

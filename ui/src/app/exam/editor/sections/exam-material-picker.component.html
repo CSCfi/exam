@@ -18,7 +18,8 @@ SPDX-License-Identifier: EUPL-1.2
         <input
             type="text"
             class="form-control w-50 make-inline"
-            [(ngModel)]="filter"
+            [ngModel]="filter()"
+            (ngModelChange)="filter.set($event)"
             [ngbTypeahead]="filterMaterials$"
             (selectItem)="selectMaterial($event)"
             [resultFormatter]="nameFormat"
@@ -39,7 +40,7 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="row col-md-12">
     <div class="col-md-3"></div>
     <div class="col-md-9">
-        @for (material of section.examMaterials; track material) {
+        @for (material of section().examMaterials; track material) {
             <button
                 class="btn btn-sm btn-light px-0"
                 (click)="removeMaterial(material)"

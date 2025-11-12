@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div [hidden]="room.state === 'INACTIVE'">
+<div [hidden]="room().state === 'INACTIVE'">
     <div class="row">
         <div class="col">
             <span class="pointer user-select-none"> {{ 'i18n_exam_room_machines' | translate }}&nbsp;&nbsp; </span>
@@ -24,7 +24,7 @@ SPDX-License-Identifier: EUPL-1.2
                 ngbPopover="{{ 'i18n_status_machine_available' | translate }}"
             >
                 <span class="badge bg-success">
-                    {{ room.examMachines.length - countMachineAlerts() - countMachineNotices() }}
+                    {{ room().examMachines.length - countMachineAlerts() - countMachineNotices() }}
                 </span>
             </span>
             <span
@@ -37,12 +37,12 @@ SPDX-License-Identifier: EUPL-1.2
                 </span>
             </span>
             <div (click)="toggleShow()">
-                <i [hidden]="!showMachines" class="bi-chevron-down fa-stack-1x"></i>
-                <i [hidden]="showMachines" class="bi-chevron-right fa-stack-1x"></i>
+                <i [hidden]="!showMachines()" class="bi-chevron-down fa-stack-1x"></i>
+                <i [hidden]="showMachines()" class="bi-chevron-right fa-stack-1x"></i>
             </div>
         </div>
     </div>
-    <div class="row" [hidden]="!showMachines">
+    <div class="row" [hidden]="!showMachines()">
         <div class="col-md-12">
             <table class="table table-striped">
                 <thead>
@@ -55,7 +55,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </tr>
                 </thead>
                 <tbody>
-                    @for (machine of machines; track machine.id) {
+                    @for (machine of machines(); track machine.id) {
                         <tr>
                             <td>
                                 <a

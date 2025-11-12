@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -14,6 +14,7 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 
 @Component({
     selector: 'xm-active-enrolment-menu',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './active-enrolment-menu.component.html',
     imports: [RouterLink, TranslateModule],
 })

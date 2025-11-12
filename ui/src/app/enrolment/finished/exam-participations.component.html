@@ -34,7 +34,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     [attr.aria-label]="'i18n_search' | translate"
                     [attr.aria-description]="'i18n_type_to_start_search' | translate"
-                    [(ngModel)]="filter.text"
+                    [(ngModel)]="filterText"
                     type="text"
                     (ngModelChange)="search($event)"
                     class="form-control"
@@ -43,10 +43,10 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
-        @if (searchDone) {
+        @if (searchDone()) {
             <div class="row my-2">
                 <div class="col-12" aria-live="polite">
-                    {{ 'i18n_student_exam_search_result' | translate }} {{ participations.length }}
+                    {{ 'i18n_student_exam_search_result' | translate }} {{ participations().length }}
                     {{ 'i18n_student_exam_search_result_continues' | translate }}
                 </div>
             </div>
@@ -54,13 +54,13 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-8" ngbDropdown>
             <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
                 {{ 'i18n_set_ordering' | translate }}:
-                @switch (filter.ordering) {
+                @switch (filter().ordering) {
                     @case ('exam.name') {
-                        {{ (filter.reverse ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending') | translate }}
+                        {{ (filter().reverse ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending') | translate }}
                     }
                     @case ('ended') {
                         {{
-                            (filter.reverse
+                            (filter().reverse
                                 ? 'i18n_exam_participation_ascending'
                                 : 'i18n_exam_participation_descending'
                             ) | translate
@@ -72,24 +72,16 @@ SPDX-License-Identifier: EUPL-1.2
                 }
             </button>
             <div ngbDropdownMenu role="menu">
-                <button
-                    ngbDropdownItem
-                    role="presentation"
-                    (click)="filter.ordering = 'exam.name'; filter.reverse = false"
-                >
+                <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('exam.name', false)">
                     {{ 'i18n_exam_name_ascending' | translate }}
                 </button>
-                <button
-                    ngbDropdownItem
-                    role="presentation"
-                    (click)="filter.ordering = 'exam.name'; filter.reverse = true"
-                >
+                <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('exam.name', true)">
                     {{ 'i18n_exam_name_descending' | translate }}
                 </button>
-                <button ngbDropdownItem role="presentation" (click)="filter.ordering = 'ended'; filter.reverse = false">
+                <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('ended', false)">
                     {{ 'i18n_exam_participation_descending' | translate }}
                 </button>
-                <button ngbDropdownItem role="presentation" (click)="filter.ordering = 'ended'; filter.reverse = true">
+                <button ngbDropdownItem role="presentation" (click)="updateFilterOrdering('ended', true)">
                     {{ 'i18n_exam_participation_ascending' | translate }}
                 </button>
             </div>
@@ -98,9 +90,9 @@ SPDX-License-Identifier: EUPL-1.2
 
     <!-- List of finished exams -->
     @for (
-        participation of participations
-            | orderBy: filter.ordering : filter.reverse
-            | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
+        participation of participations()
+            | orderBy: filter().ordering : filter().reverse
+            | slice: currentPage() * pageSize() : currentPage() * pageSize() + pageSize();
         track participation
     ) {
         <div class="row mb-3">
@@ -113,15 +105,15 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
 
-    @if (participations) {
+    @if (participations()) {
         <div class="row mt-2">
-            @if (participations.length > pageSize) {
+            @if (participations().length > pageSize()) {
                 <div class="col-md-12">
                     <xm-paginator
-                        [items]="participations"
+                        [items]="participations()"
                         (pageSelected)="pageSelected($event)"
-                        [pageSize]="pageSize"
-                        [currentPage]="currentPage"
+                        [pageSize]="pageSize()"
+                        [currentPage]="currentPage()"
                     >
                     </xm-paginator>
                 </div>

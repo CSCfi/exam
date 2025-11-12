@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -14,7 +14,7 @@ import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operat
 import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
 import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
 import type { QuestionDraft } from 'src/app/question/question.model';
-import { ExamSectionQuestion, ReverseQuestion, Tag } from 'src/app/question/question.model';
+import { ExamSectionQuestion, Question, ReverseQuestion, Tag } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { TagPickerComponent } from 'src/app/question/tags/tag-picker.component';
 import type { User } from 'src/app/session/session.model';
@@ -42,55 +42,111 @@ import { MultipleChoiceEditorComponent } from './multiple-choice.component';
         TranslateModule,
     ],
     styleUrls: ['../question.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionBodyComponent implements OnInit {
-    @Input() question!: ReverseQuestion | QuestionDraft;
-    @Input() currentOwners: User[] = [];
-    @Input() lotteryOn = false;
-    @Input() examId = 0;
-    @Input() sectionQuestion?: ExamSectionQuestion;
-    @Input() collaborative = false;
+export class QuestionBodyComponent {
+    question = input.required<ReverseQuestion | QuestionDraft>();
+    currentOwners = input<User[]>([]);
+    lotteryOn = input(false);
+    examId = input(0);
+    sectionQuestion = input<ExamSectionQuestion>();
+    collaborative = input(false);
 
-    isInPublishedExam = false;
-    examNames: string[] = [];
-    sectionNames: string[] = [];
-    newOwner: { name?: string } = {};
-    newOwnerTemplate?: User;
-    newType = '';
-    questionTypes: { type: string; name: string }[] = [];
-    hideRestExams = true;
+    currentOwnersChange = output<User[]>();
+    questionChange = output<ReverseQuestion | QuestionDraft>();
+
+    isInPublishedExam = signal(false);
+    examNames = signal<string[]>([]);
+    sectionNames = signal<string[]>([]);
+    newOwner = signal<{ name?: string }>({});
+    newOwnerTemplate = signal<User | undefined>(undefined);
+    newType = signal('');
+    questionTypes = signal<{ type: string; name: string }[]>([
+        { type: 'essay', name: 'i18n_toolbar_essay_question' },
+        { type: 'cloze', name: 'i18n_toolbar_cloze_test_question' },
+        { type: 'multichoice', name: 'i18n_toolbar_multiplechoice_question' },
+        { type: 'weighted', name: 'i18n_toolbar_weighted_multiplechoice_question' },
+        { type: 'claim', name: 'i18n_toolbar_claim_choice_question' },
+    ]);
+    hideRestExams = signal(true);
 
     private http = inject(HttpClient);
-    private cdr = inject(ChangeDetectorRef);
     private Session = inject(SessionService);
     private Attachment = inject(AttachmentService);
     private Question = inject(QuestionService);
 
-    ngOnInit() {
-        this.questionTypes = [
-            { type: 'essay', name: 'i18n_toolbar_essay_question' },
-            { type: 'cloze', name: 'i18n_toolbar_cloze_test_question' },
-            { type: 'multichoice', name: 'i18n_toolbar_multiplechoice_question' },
-            { type: 'weighted', name: 'i18n_toolbar_weighted_multiplechoice_question' },
-            { type: 'claim', name: 'i18n_toolbar_claim_choice_question' },
-        ];
-
-        this.init();
+    constructor() {
+        // Initialize exam names and section names when question changes
+        effect(() => {
+            const questionValue = this.question();
+            this.init(questionValue);
+        });
     }
 
-    setQuestionType = ($event: string) => {
-        this.question.type = this.Question.getQuestionType($event);
-        this.init();
-        this.cdr.detectChanges();
-    };
-    setText = ($event: string) => (this.question.question = $event);
+    onQuestionChange(updatedQuestion: Question | QuestionDraft) {
+        // Cast to ReverseQuestion | QuestionDraft since we're updating a question that already has examSectionQuestions
+        this.questionChange.emit(updatedQuestion as ReverseQuestion | QuestionDraft);
+    }
 
-    showWarning = () => this.examNames.length > 1;
+    onTagAdded(tag: Tag) {
+        const questionValue = this.question();
+        const updatedQuestion = {
+            ...questionValue,
+            tags: [...questionValue.tags, tag],
+        };
+        this.questionChange.emit(updatedQuestion as ReverseQuestion | QuestionDraft);
+    }
 
-    sortByString = (prop: string[]): string[] => prop.sort();
+    onTagRemoved(tag: Tag) {
+        const questionValue = this.question();
+        const updatedQuestion = {
+            ...questionValue,
+            tags: questionValue.tags.filter((t) => t !== tag),
+        };
+        this.questionChange.emit(updatedQuestion as ReverseQuestion | QuestionDraft);
+    }
 
-    listQuestionOwners$ = (filter$: Observable<string>): Observable<User[]> =>
-        filter$.pipe(
+    setQuestionType($event: string) {
+        const questionValue = this.question();
+        questionValue.type = this.Question.getQuestionType($event);
+        this.init(questionValue);
+    }
+
+    setText($event: string) {
+        const questionValue = this.question();
+        questionValue.question = $event;
+    }
+
+    setDefaultMaxScore(value: number) {
+        const questionValue = this.question();
+        questionValue.defaultMaxScore = value;
+    }
+
+    setDefaultAnswerInstructions(value: string) {
+        const questionValue = this.question();
+        questionValue.defaultAnswerInstructions = value;
+    }
+
+    setDefaultEvaluationCriteria(value: string) {
+        const questionValue = this.question();
+        questionValue.defaultEvaluationCriteria = value;
+    }
+
+    setNewOwnerName(value: string) {
+        this.newOwner.set({ name: value });
+    }
+
+    showWarning() {
+        return this.examNames().length > 1;
+    }
+
+    sortByString(prop: string[]): string[] {
+        return prop.sort();
+    }
+
+    listQuestionOwners$ = (filter$: Observable<string>): Observable<User[]> => {
+        const currentOwnersValue = this.currentOwners() ?? [];
+        return filter$.pipe(
             debounceTime(200),
             distinctUntilChanged(),
             exhaustMap((term) =>
@@ -98,39 +154,54 @@ export class QuestionBodyComponent implements OnInit {
                     ? from([])
                     : this.http.get<User[]>('/app/users/question/owners/TEACHER', { params: { q: term } }),
             ),
-            map((users) => users.filter((u) => this.currentOwners.map((o) => o.id).indexOf(u.id) === -1).slice(0, 15)),
+            map((users) => users.filter((u) => currentOwnersValue.map((o) => o.id).indexOf(u.id) === -1).slice(0, 15)),
         );
-
-    nameFormat = (u: User) => `${u.firstName} ${u.lastName} <${u.email}>`;
-
-    setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) =>
-        // Using template to store the selected user
-        (this.newOwnerTemplate = event.item);
-
-    addQuestionOwner = () => {
-        if (this.newOwnerTemplate && this.newOwnerTemplate.id) {
-            this.currentOwners.push(this.newOwnerTemplate);
-
-            // nullify input field and template
-            delete this.newOwner.name;
-            delete this.newOwnerTemplate;
-        }
     };
 
-    removeOwnerDisabled = (user: User) =>
-        this.currentOwners.length === 1 || (this.question.state === 'NEW' && this.Session.getUser().id === user.id);
+    nameFormat(u: User) {
+        return `${u.firstName} ${u.lastName} <${u.email}>`;
+    }
 
-    removeOwner = (user: User) => {
+    setQuestionOwner(event: NgbTypeaheadSelectItemEvent) {
+        // Using template to store the selected user
+        this.newOwnerTemplate.set(event.item);
+    }
+
+    addQuestionOwner() {
+        const template = this.newOwnerTemplate();
+        if (template && template.id) {
+            const currentOwnersValue = this.currentOwners() ?? [];
+            const updatedOwners = [...currentOwnersValue, template];
+            this.currentOwnersChange.emit(updatedOwners);
+
+            // nullify input field and template
+            this.newOwner.set({});
+            this.newOwnerTemplate.set(undefined);
+        }
+    }
+
+    removeOwnerDisabled(user: User) {
+        const currentOwnersValue = this.currentOwners() ?? [];
+        const questionValue = this.question();
+        return (
+            currentOwnersValue.length === 1 || (questionValue.state === 'NEW' && this.Session.getUser().id === user.id)
+        );
+    }
+
+    removeOwner(user: User) {
         if (this.removeOwnerDisabled(user)) {
             return;
         }
-        this.currentOwners.splice(this.currentOwners.indexOf(user), 1);
-    };
+        const currentOwnersValue = this.currentOwners() ?? [];
+        const updatedOwners = currentOwnersValue.filter((o) => o !== user);
+        this.currentOwnersChange.emit(updatedOwners);
+    }
 
-    selectFile = () =>
+    selectFile() {
         this.Attachment.selectFile$(true).subscribe((data) => {
-            this.question.attachment = {
-                ...this.question.attachment,
+            const questionValue = this.question();
+            questionValue.attachment = {
+                ...questionValue.attachment,
                 modified: true,
                 fileName: data.$value.attachmentFile.name,
                 size: data.$value.attachmentFile.size,
@@ -138,54 +209,68 @@ export class QuestionBodyComponent implements OnInit {
                 removed: false,
             };
         });
+    }
 
-    downloadQuestionAttachment = () => {
-        if (this.question.attachment && this.question.attachment.externalId && this.sectionQuestion) {
-            this.Attachment.downloadCollaborativeQuestionAttachment(this.examId, this.sectionQuestion);
+    downloadQuestionAttachment() {
+        const questionValue = this.question();
+        const sectionQuestionValue = this.sectionQuestion();
+        if (questionValue.attachment && questionValue.attachment.externalId && sectionQuestionValue) {
+            this.Attachment.downloadCollaborativeQuestionAttachment(this.examId(), sectionQuestionValue);
             return;
         }
-        this.Attachment.downloadQuestionAttachment(this.question);
-    };
+        this.Attachment.downloadQuestionAttachment(questionValue);
+    }
 
-    removeQuestionAttachment = () => {
-        if (this.question.attachment) {
-            this.Attachment.removeQuestionAttachment(this.question);
+    removeQuestionAttachment() {
+        const questionValue = this.question();
+        if (questionValue.attachment) {
+            this.Attachment.removeQuestionAttachment(questionValue);
         }
-    };
+    }
 
-    getFileSize = () => {
-        if (this.question.attachment) {
-            return `(${this.Attachment.getFileSize(this.question.attachment.size)})`;
+    getFileSize() {
+        const questionValue = this.question();
+        if (questionValue.attachment) {
+            return `(${this.Attachment.getFileSize(questionValue.attachment.size)})`;
         }
         return '';
-    };
+    }
 
-    hasUploadedAttachment = () => {
-        const a = this.question.attachment;
+    hasUploadedAttachment() {
+        const questionValue = this.question();
+        const a = questionValue.attachment;
         return a && (a.id || a.externalId);
-    };
+    }
 
-    removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);
+    removeTag(tag: Tag) {
+        const questionValue = this.question();
+        const updatedQuestion = {
+            ...questionValue,
+            tags: questionValue.tags.filter((t) => t !== tag),
+        };
+        this.questionChange.emit(updatedQuestion);
+    }
 
-    isUserAllowedToModifyOwners = () => {
+    isUserAllowedToModifyOwners() {
+        const questionValue = this.question();
         const user = this.Session.getUser();
         return (
-            this.question.questionOwners &&
-            (user.isAdmin || this.question.questionOwners.map((o) => o.id).indexOf(user.id) > -1)
+            questionValue.questionOwners &&
+            (user.isAdmin || questionValue.questionOwners.map((o) => o.id).indexOf(user.id) > -1)
         );
-    };
+    }
 
-    private init = () => {
-        const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
+    private init(questionValue: ReverseQuestion | QuestionDraft) {
+        const sections = questionValue.examSectionQuestions.map((esq) => esq.examSection);
         const examNames = sections.map((s) => {
             if (s.exam.state === 'PUBLISHED') {
-                this.isInPublishedExam = true;
+                this.isInPublishedExam.set(true);
             }
             return s.exam.name as string;
         });
         const sectionNames = sections.map((s) => s.name);
         // remove duplicates
-        this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort();
-        this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
-    };
+        this.examNames.set(examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort());
+        this.sectionNames.set(sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos));
+    }
 }

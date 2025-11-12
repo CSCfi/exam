@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,41 +17,46 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
     selector: 'xm-new-exam',
     templateUrl: './new-exam.component.html',
     imports: [FormsModule, NgbPopover, TranslateModule, PageHeaderComponent, PageContentComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NewExamComponent implements OnInit {
-    executionTypes: (ExamExecutionType & { name: string })[] = [];
-    type?: ExamExecutionType;
-    examinationType: Implementation = 'AQUARIUM';
-    homeExaminationSupported = false;
-    sebExaminationSupported = false;
-    canCreateByodExams = false;
+export class NewExamComponent {
+    executionTypes = signal<(ExamExecutionType & { name: string })[]>([]);
+    type = signal<ExamExecutionType | undefined>(undefined);
+    examinationType = signal<Implementation>('AQUARIUM');
+    homeExaminationSupported = signal(false);
+    sebExaminationSupported = signal(false);
+    canCreateByodExams = signal(false);
 
     private http = inject(HttpClient);
     private Exam = inject(ExamService);
     private Session = inject(SessionService);
 
-    ngOnInit() {
-        this.canCreateByodExams = this.Session.getUser().canCreateByodExam;
+    constructor() {
+        this.canCreateByodExams.set(this.Session.getUser().canCreateByodExam);
         this.Exam.listExecutionTypes$().subscribe((types) => {
-            this.executionTypes = types;
+            this.executionTypes.set(types);
             this.http
                 .get<{ homeExaminationSupported: boolean; sebExaminationSupported: boolean }>('/app/settings/byod')
                 .subscribe((resp) => {
-                    this.homeExaminationSupported = resp.homeExaminationSupported;
-                    this.sebExaminationSupported = resp.sebExaminationSupported;
+                    this.homeExaminationSupported.set(resp.homeExaminationSupported);
+                    this.sebExaminationSupported.set(resp.sebExaminationSupported);
                 });
         });
     }
 
-    selectType = () => {
-        if (!this.homeExaminationSupported && !this.sebExaminationSupported && this.type) {
-            this.Exam.createExam(this.type.type, this.examinationType);
+    selectType() {
+        if (!this.homeExaminationSupported() && !this.sebExaminationSupported()) {
+            const currentType = this.type();
+            if (currentType) {
+                this.Exam.createExam(currentType.type, this.examinationType());
+            }
         }
-    };
+    }
 
-    createExam = () => {
-        if (this.type) {
-            this.Exam.createExam(this.type.type, this.examinationType);
+    createExam() {
+        const currentType = this.type();
+        if (currentType) {
+            this.Exam.createExam(currentType.type, this.examinationType());
         }
-    };
+    }
 }

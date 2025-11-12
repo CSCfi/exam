@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -39,27 +39,37 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
             </button>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SpeedReviewFeedbackComponent implements OnInit {
-    @Input() exam!: Exam;
-
+export class SpeedReviewFeedbackComponent {
+    private _exam = signal<Exam | undefined>(undefined);
     private modal = inject(NgbActiveModal);
     private Assessment = inject(AssessmentService);
 
-    ngOnInit() {
-        if (!this.exam.examFeedback) {
-            this.exam.examFeedback = { comment: '' };
+    get exam() {
+        return this._exam()!;
+    }
+
+    @Input()
+    set exam(value: Exam) {
+        this._exam.set(value);
+        if (!value.examFeedback) {
+            value.examFeedback = { comment: '' };
         }
     }
 
-    commentChanged = (event: string) => (this.exam.examFeedback.comment = event);
+    commentChanged(event: string) {
+        this.exam.examFeedback.comment = event;
+    }
 
-    ok = () => {
+    ok() {
         if (!this.exam.examFeedback) {
             this.exam.examFeedback = { comment: '', feedbackStatus: false };
         }
         this.Assessment.saveFeedback$(this.exam).subscribe(this.modal.close);
-    };
+    }
 
-    cancel = () => this.modal.dismiss();
+    cancel() {
+        this.modal.dismiss();
+    }
 }

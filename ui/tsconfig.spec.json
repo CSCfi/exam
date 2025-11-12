@@ -6,6 +6,6 @@
         "types": ["vitest/globals"],
         "skipLibCheck": true
     },
-    "files": ["src/test.ts", "src/polyfills.ts"],
-    "inxclude": ["src/**/*.spec.ts", "src/**/*.d.ts"]
+    "files": ["src/test.ts"],
+    "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
 }

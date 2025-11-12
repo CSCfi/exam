@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
@@ -18,6 +18,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 
 @Component({
     selector: 'xm-enrolment-details',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-enrolment-details.component.html',
     imports: [
         CourseCodeComponent,
@@ -30,32 +31,29 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     ],
 })
 export class EnrolmentDetailsComponent {
-    @Input() exam!: EnrolmentInfo;
+    exam = input.required<EnrolmentInfo>();
 
     private router = inject(Router);
     private Exam = inject(CommonExamService);
     private Enrolment = inject(EnrolmentService);
     private DateTime = inject(DateTimeService);
     getExpiration = (): boolean => {
-        return new Date(this.exam.periodEnd || 0) < new Date();
+        return new Date(this.exam().periodEnd || 0) < new Date();
     };
 
-    enrollForExam = () => this.Enrolment.checkAndEnroll$(this.exam).subscribe();
+    enrollForExam = () => this.Enrolment.checkAndEnroll$(this.exam()).subscribe();
 
-    translateExamType = () => this.Exam.getExamTypeDisplayName(this.exam.examType.type);
+    translateExamType = () => this.Exam.getExamTypeDisplayName(this.exam().examType.type);
 
-    translateGradeScale = () =>
-        this.Exam.getScaleDisplayName(
-            this.exam.gradeScale || (this.exam.course ? this.exam.course.gradeScale : undefined),
-        );
+    translateGradeScale = () => this.Exam.getScaleDisplayName(this.exam().gradeScale || this.exam().course?.gradeScale);
 
-    printExamDuration = () => this.DateTime.formatDuration(this.exam.duration);
+    printExamDuration = () => this.DateTime.formatDuration(this.exam().duration);
 
     makeReservation = () => {
-        if (this.exam.implementation !== 'AQUARIUM') {
+        if (this.exam().implementation !== 'AQUARIUM') {
             this.router.navigate(['/dashboard']);
         } else {
-            this.router.navigate(['/calendar', this.exam.id]);
+            this.router.navigate(['/calendar', this.exam().id]);
         }
     };
 }

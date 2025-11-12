@@ -3,27 +3,27 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-r-no-show',
-    template: ` <div class="col-md-2 ">{{ started | date: 'dd.MM.yyyy' }}</div>
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: ` <div class="col-md-2 ">{{ started() | date: 'dd.MM.yyyy' }}</div>
         <div class="col-md-10 text-danger">
             {{ 'i18n_exam_status_no_show' | translate }}
         </div>`,
     imports: [DatePipe, TranslateModule],
 })
-export class NoShowComponent implements OnInit {
-    @Input() enrolment!: ExamEnrolment;
-    @Input() collaborative = false;
+export class NoShowComponent {
+    enrolment = input.required<ExamEnrolment>();
+    collaborative = input(false);
 
-    started = '';
-
-    ngOnInit() {
-        this.started = this.enrolment.examinationEventConfiguration
-            ? this.enrolment.examinationEventConfiguration.examinationEvent.start
-            : this.enrolment.reservation?.startAt || '';
-    }
+    started = computed(() => {
+        const enrolmentValue = this.enrolment();
+        return enrolmentValue.examinationEventConfiguration
+            ? enrolmentValue.examinationEventConfiguration.examinationEvent.start
+            : enrolmentValue.reservation?.startAt || '';
+    });
 }

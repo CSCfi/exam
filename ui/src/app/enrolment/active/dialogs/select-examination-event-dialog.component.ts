@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -12,6 +11,7 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
 
 @Component({
     selector: 'xm-select-examination-event-dialog',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [TranslateModule, DatePipe],
     template: `
         <div class="modal-header">
@@ -20,13 +20,15 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
             </h1>
         </div>
         <div class="modal-body">
-            <div class="row mb-2">
-                <div class="col-md-12">
-                    {{ 'i18n_exam_duration' | translate }}: {{ exam.duration }}
-                    {{ 'i18n_minutes' | translate }}
+            @if (exam()) {
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        {{ 'i18n_exam_duration' | translate }}: {{ exam()!.duration }}
+                        {{ 'i18n_minutes' | translate }}
+                    </div>
                 </div>
-            </div>
-            @for (config of configs; track config) {
+            }
+            @for (config of configs(); track config) {
                 <div class="row">
                     <div class="col-md-12">
                         {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}
@@ -55,23 +57,24 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
         </div>
     `,
 })
-export class SelectExaminationEventDialogComponent implements OnInit {
-    @Input() exam!: Exam;
-    @Input() existingEventId?: number;
-    configs: ExaminationEventConfiguration[] = [];
+export class SelectExaminationEventDialogComponent {
+    // Regular properties for programmatic access (set by modal service)
+    exam = signal<Exam | null>(null);
+    existingEventId = signal<number | undefined>(undefined);
+
+    // Computed signal for filtered and sorted configurations
+    configs = computed(() => {
+        const examValue = this.exam();
+        const existingId = this.existingEventId();
+        if (!examValue) {
+            return [];
+        }
+        return examValue.examinationEventConfigurations
+            .filter((ec) => DateTime.fromISO(ec.examinationEvent.start).toJSDate() > new Date() && ec.id !== existingId)
+            .sort((a, b) => (a.examinationEvent.start < b.examinationEvent.start ? -1 : 1));
+    });
 
     activeModal = inject(NgbActiveModal);
-
-    ngOnInit() {
-        // for all confs over
-        this.configs = this.exam.examinationEventConfigurations
-            .filter(
-                (ec) =>
-                    DateTime.fromISO(ec.examinationEvent.start).toJSDate() > new Date() &&
-                    ec.id !== this.existingEventId,
-            )
-            .sort((a, b) => (a.examinationEvent.start < b.examinationEvent.start ? -1 : 1));
-    }
 
     selectEvent(event: ExaminationEventConfiguration) {
         this.activeModal.close(event);

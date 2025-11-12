@@ -4,21 +4,22 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<xm-page-header [text]="examInfo.title || 'loading'" [prependTemplate]="linkBack" [appendTemplate]="status" />
+<xm-page-header [text]="examInfo().title || 'loading'" [prependTemplate]="linkBack" [appendTemplate]="status" />
 <xm-page-content [content]="content" />
 <ng-template #linkBack>
     <xm-history-back></xm-history-back>
 </ng-template>
 <ng-template #status>
-    @if (exam?.state) {
-        <span class="exam-status float-end pe-3">{{ 'i18n_' + exam.state | lowercase | translate }} </span>
+    @if (exam()?.state) {
+        <span class="exam-status float-end pe-3">{{ 'i18n_' + exam()!.state | lowercase | translate }} </span>
     }
 </ng-template>
 <ng-template #content>
     <ul
         ngbNav
         #nav="ngbNav"
-        [(activeId)]="activeTab"
+        [activeId]="activeTab()"
+        (activeIdChange)="activeTab.set($event)"
         [destroyOnHide]="false"
         class="nav-tabs ms-2 me-2"
         (navChange)="navChanged($event)"
@@ -35,17 +36,19 @@ SPDX-License-Identifier: EUPL-1.2
         <li [disabled]="!isOwner() && !user.isAdmin && !user.isSupport" [ngbNavItem]="4">
             <a ngbNavLink>{{ 'i18n_exam_publish_tab' | translate }}</a>
         </li>
-        <li [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="5">
+        <li [disabled]="exam()?.executionType?.type === 'PRINTOUT'" [ngbNavItem]="5">
             <a ngbNavLink>{{ 'i18n_exam_responses' | translate }}</a>
         </li>
-        @if (!collaborative && !user.isAdmin && !user.isSupport) {
-            <li [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="6">
+        @if (!collaborative() && !user.isAdmin && !user.isSupport) {
+            <li [disabled]="exam()?.executionType?.type === 'PRINTOUT'" [ngbNavItem]="6">
                 <a ngbNavLink>{{ 'i18n_question_review' | translate }}</a>
             </li>
         }
-        @if (exam && !collaborative) {
+        @if (exam() && !collaborative()) {
             <li
-                [disabled]="(!isOwner() && !user.isAdmin && !user.isSupport) || exam.executionType?.type === 'PRINTOUT'"
+                [disabled]="
+                    (!isOwner() && !user.isAdmin && !user.isSupport) || exam()!.executionType?.type === 'PRINTOUT'
+                "
                 [ngbNavItem]="7"
             >
                 <a ngbNavLink>{{ 'i18n_exam_summary_tab' | translate }}</a>

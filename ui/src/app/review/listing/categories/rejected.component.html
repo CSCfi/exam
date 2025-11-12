@@ -4,190 +4,198 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="xm-paragraph-title">
-    {{ 'i18n_exam_rejected' | translate }}
-    <a (click)="view.toggle = !view.toggle" class="pointer" [attr.aria-expanded]="view.toggle">
-        @if (!view.toggle) {
-            <img src="/assets/images/icon_list_show_right.svg" alt="" />
-        }
-        @if (view.toggle) {
-            <img src="/assets/images/icon_list_show_down.svg" alt="" />
-        }
-    </a>
-</div>
+@if (view()) {
+    <div class="xm-paragraph-title">
+        {{ 'i18n_exam_rejected' | translate }}
+        <a (click)="toggleView()" class="pointer" [attr.aria-expanded]="view()!.toggle">
+            @if (!view()!.toggle) {
+                <img src="/assets/images/icon_list_show_right.svg" alt="" />
+            }
+            @if (view()!.toggle) {
+                <img src="/assets/images/icon_list_show_down.svg" alt="" />
+            }
+        </a>
+    </div>
 
-<div [ngbCollapse]="!view.toggle" [hidden]="view.items.length === 0">
-    <div class="overflow-x-scroll">
-        <div class="col-lg-6 input-group my-2">
-            <input
-                (change)="applyFreeSearchFilter()"
-                [(ngModel)]="view.filter"
-                class="form-control"
-                placeholder="{{ 'i18n_search' | translate }}"
-            />
-            <i class="input-group-text bi-search"></i>
-        </div>
-        <table class="table table-striped xm-data-table">
-            <thead>
-                <tr>
-                    @if (showId()) {
-                        <th class="with-top">Id</th>
-                    }
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="displayName"
-                            text="i18n_student"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('displayName')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="examParticipation.user.email"
-                            text="i18n_email"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('examParticipation.user.email')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="duration"
-                            text="i18n_exam_duration"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('duration')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="examParticipation.started"
-                            text="i18n_exam_time"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('examParticipation.started')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="examParticipation.deadline"
-                            text="i18n_review_deadline"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('examParticipation.deadline')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="displayedGrade"
-                            text="i18n_grade"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('displayedGrade')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="displayedCredit"
-                            text="i18n_exam_credit"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('displayedCredit')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="displayedGradingTime"
-                            text="i18n_graded"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('displayedGradingTime')"
-                        ></xm-table-sort>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (
-                    review of view.filtered
-                        | orderBy: view.predicate : view.reverse
-                        | slice: view.page * view.pageSize : view.page * view.pageSize + view.pageSize;
-                    track review
-                ) {
-                    <tr>
-                        @if (showId()) {
-                            <td>{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
-                        }
-                        <td class=" ">
-                            <a class="pointer" [routerLink]="['/staff/assessments', review.examParticipation.exam.id]">
-                                {{ review.displayName }}
-                                @if (review.examParticipation.user.userIdentifier) {
-                                    <span> <br />({{ review.examParticipation.user.userIdentifier }})</span>
-                                }
-                            </a>
-                        </td>
-                        <td>
-                            <a class="pointer" href="mailto:{{ review.examParticipation.user.email }}">{{
-                                review.examParticipation.user.email
-                            }}</a>
-                        </td>
-                        <td>{{ review.duration + ' min' }}</td>
-                        <td>
-                            {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
-                            {{ 'i18n_clock_short' | translate }}
-                            {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                            {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
-                        </td>
-                        <td>
-                            {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (<span
-                                [innerHtml]="review.examParticipation.deadline | dayDiff"
-                            ></span
-                            >)
-                        </td>
-                        <td>
-                            {{ 'i18n_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
-                        </td>
-                        <td>
-                            {{ review.displayedCredit }}
-                        </td>
-                        <td>{{ review.displayedGradingTime | date: 'dd.MM.yyyy' }}</td>
-                    </tr>
-                }
-                @if (view.filtered.length === 0) {
-                    <tr>
-                        @if (showId()) {
-                            <td colspan="8">{{ 'i18n_review_no_result' | translate }}</td>
-                        }
-                        @if (!showId()) {
-                            <td colspan="7">{{ 'i18n_review_no_result' | translate }}</td>
-                        }
-                    </tr>
-                }
-                <!--Fill if page not full-->
-                @for (r of [] | pageFill: view.filtered.length : view.page : view.pageSize; track r) {
-                    <tr>
-                        <td>&nbsp;</td>
-                        @if (showId()) {
-                            <td colspan="7"></td>
-                        }
-                        @if (!showId()) {
-                            <td colspan="6"></td>
-                        }
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    <div class="row ms-2">
-        @if (view.filtered.length > view.pageSize) {
-            <div class="col-md-12">
-                <xm-paginator
-                    [items]="view.filtered"
-                    (pageSelected)="pageSelected($event)"
-                    [pageSize]="view.pageSize"
-                    [currentPage]="view.page"
-                ></xm-paginator>
+    <div [ngbCollapse]="!view()!.toggle" [hidden]="view()!.items.length === 0">
+        <div class="overflow-x-scroll">
+            <div class="col-lg-6 input-group my-2">
+                <input
+                    (change)="applyFreeSearchFilter()"
+                    [ngModel]="view()!.filter"
+                    (ngModelChange)="updateFilter($event)"
+                    class="form-control"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                />
+                <i class="input-group-text bi-search"></i>
             </div>
-        }
+            <table class="table table-striped xm-data-table">
+                <thead>
+                    <tr>
+                        @if (showId()) {
+                            <th class="with-top">Id</th>
+                        }
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="displayName"
+                                text="i18n_student"
+                                [predicate]="view()!.predicate"
+                                [reverse]="view()!.reverse"
+                                (click)="setPredicate('displayName')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="examParticipation.user.email"
+                                text="i18n_email"
+                                [predicate]="view()!.predicate"
+                                [reverse]="view()!.reverse"
+                                (click)="setPredicate('examParticipation.user.email')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="duration"
+                                text="i18n_exam_duration"
+                                [predicate]="view()!.predicate"
+                                [reverse]="view()!.reverse"
+                                (click)="setPredicate('duration')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="examParticipation.started"
+                                text="i18n_exam_time"
+                                [predicate]="view()!.predicate"
+                                [reverse]="view()!.reverse"
+                                (click)="setPredicate('examParticipation.started')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="examParticipation.deadline"
+                                text="i18n_review_deadline"
+                                [predicate]="view()!.predicate"
+                                [reverse]="view()!.reverse"
+                                (click)="setPredicate('examParticipation.deadline')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="displayedGrade"
+                                text="i18n_grade"
+                                [predicate]="view()!.predicate"
+                                [reverse]="view()!.reverse"
+                                (click)="setPredicate('displayedGrade')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="displayedCredit"
+                                text="i18n_exam_credit"
+                                [predicate]="view()!.predicate"
+                                [reverse]="view()!.reverse"
+                                (click)="setPredicate('displayedCredit')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="displayedGradingTime"
+                                text="i18n_graded"
+                                [predicate]="view()!.predicate"
+                                [reverse]="view()!.reverse"
+                                (click)="setPredicate('displayedGradingTime')"
+                            ></xm-table-sort>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (
+                        review of view()!.filtered
+                            | orderBy: view()!.predicate : view()!.reverse
+                            | slice
+                                : view()!.page * view()!.pageSize
+                                : view()!.page * view()!.pageSize + view()!.pageSize;
+                        track review
+                    ) {
+                        <tr>
+                            @if (showId()) {
+                                <td>{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
+                            }
+                            <td class=" ">
+                                <a
+                                    class="pointer"
+                                    [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
+                                >
+                                    {{ review.displayName }}
+                                    @if (review.examParticipation.user.userIdentifier) {
+                                        <span> <br />({{ review.examParticipation.user.userIdentifier }})</span>
+                                    }
+                                </a>
+                            </td>
+                            <td>
+                                <a class="pointer" href="mailto:{{ review.examParticipation.user.email }}">{{
+                                    review.examParticipation.user.email
+                                }}</a>
+                            </td>
+                            <td>{{ review.duration + ' min' }}</td>
+                            <td>
+                                {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                                {{ 'i18n_clock_short' | translate }}
+                                {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
+                                {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
+                            </td>
+                            <td>
+                                {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (<span
+                                    [innerHtml]="review.examParticipation.deadline | dayDiff"
+                                ></span
+                                >)
+                            </td>
+                            <td>
+                                {{ 'i18n_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
+                            </td>
+                            <td>
+                                {{ review.displayedCredit }}
+                            </td>
+                            <td>{{ review.displayedGradingTime | date: 'dd.MM.yyyy' }}</td>
+                        </tr>
+                    }
+                    @if (view()!.filtered.length === 0) {
+                        <tr>
+                            @if (showId()) {
+                                <td colspan="8">{{ 'i18n_review_no_result' | translate }}</td>
+                            }
+                            @if (!showId()) {
+                                <td colspan="7">{{ 'i18n_review_no_result' | translate }}</td>
+                            }
+                        </tr>
+                    }
+                    <!--Fill if page not full-->
+                    @for (r of [] | pageFill: view()!.filtered.length : view()!.page : view()!.pageSize; track r) {
+                        <tr>
+                            <td>&nbsp;</td>
+                            @if (showId()) {
+                                <td colspan="7"></td>
+                            }
+                            @if (!showId()) {
+                                <td colspan="6"></td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="row ms-2">
+            @if (view()!.filtered.length > view()!.pageSize) {
+                <div class="col-md-12">
+                    <xm-paginator
+                        [items]="view()!.filtered"
+                        (pageSelected)="pageSelected($event)"
+                        [pageSize]="view()!.pageSize"
+                        [currentPage]="view()!.page"
+                    ></xm-paginator>
+                </div>
+            }
+        </div>
     </div>
-</div>
+}

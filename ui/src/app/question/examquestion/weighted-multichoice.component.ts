@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, inject, model, output } from '@angular/core';
+import { Component, inject, input, model } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -158,11 +158,8 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
 })
 export class WeightedMultiChoiceComponent {
     question = model.required<ExamSectionQuestion>();
-    lotteryOn = model(false);
-    isInPublishedExam = model(false);
-    optionsChanged = output<ExamSectionQuestionOption[]>();
-    negativeScoreSettingChanged = output<boolean>();
-    shufflingSettingChanged = output<boolean>();
+    lotteryOn = input(false);
+    isInPublishedExam = input(false);
 
     private TranslateService = inject(TranslateService);
     private ToastrService = inject(ToastrService);
@@ -179,24 +176,20 @@ export class WeightedMultiChoiceComponent {
     updateScore = (score: number, index: number) => {
         const next = [...this.question().options];
         next[index] = { ...next[index], score };
-        this.optionsChanged.emit(next);
         this.question.update((q) => ({ ...q, options: next }));
     };
 
     updateText = (text: string, index: number) => {
         const next = [...this.question().options];
         next[index] = { ...next[index], option: { ...next[index].option, option: text } };
-        this.optionsChanged.emit(next);
         this.question.update((q) => ({ ...q, options: next }));
     };
 
     updateNegativeScoreSetting = (setting: boolean) => {
-        this.negativeScoreSettingChanged.emit(setting);
         this.question.update((q) => ({ ...q, negativeScoreAllowed: setting }));
     };
 
     updateShufflingSetting = (setting: boolean) => {
-        this.shufflingSettingChanged.emit(setting);
         this.question.update((q) => ({ ...q, optionShufflingOn: setting }));
     };
 
@@ -216,7 +209,6 @@ export class WeightedMultiChoiceComponent {
             answered: false,
         };
         const next = [...this.question().options, newOption];
-        this.optionsChanged.emit(next);
         this.question.update((q) => ({ ...q, options: next }));
     };
 
@@ -236,7 +228,6 @@ export class WeightedMultiChoiceComponent {
         // Either not published exam or correct answer exists
         if (!this.isInPublishedExam() || hasCorrectAnswer) {
             const next = this.question().options.filter((o) => o.id !== option.id);
-            this.optionsChanged.emit(next);
             this.question.update((q) => ({ ...q, options: next }));
         } else {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_minimum_options'));

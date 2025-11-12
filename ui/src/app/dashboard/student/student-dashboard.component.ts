@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardEnrolment } from 'src/app/dashboard/dashboard.model';
 import { ActiveEnrolmentComponent } from 'src/app/enrolment/active/active-enrolment.component';
@@ -14,6 +13,7 @@ import { StudentDashboardService } from './student-dashboard.service';
 
 @Component({
     selector: 'xm-student-dashboard',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [ActiveEnrolmentComponent, TranslateModule, OrderByPipe, PageHeaderComponent, PageContentComponent],
     template: `<xm-page-header text="i18n_user_enrolled_exams_title" />
         <xm-page-content [content]="content"></xm-page-content>

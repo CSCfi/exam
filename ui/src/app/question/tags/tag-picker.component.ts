@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -53,7 +53,7 @@ import { SessionService } from 'src/app/session/session.service';
                     </div>
                 </div>
                 <div class="col">
-                    @for (tag of ownTags; track tag) {
+                    @for (tag of ownTags(); track tag) {
                         {{ tag.name }}
                         <button
                             class="btn btn-sm btn-link"
@@ -72,22 +72,24 @@ import { SessionService } from 'src/app/session/session.service';
     `,
     imports: [FormsModule, NgbPopover, NgbTypeahead, TranslateModule],
 })
-export class TagPickerComponent implements OnInit {
-    @Input() question!: Question | QuestionDraft;
+export class TagPickerComponent {
+    question = input.required<Question | QuestionDraft>();
+    tagAdded = output<Tag>();
+    tagRemoved = output<Tag>();
+
     tagName = '';
     user: User;
     newTag: Tag = { name: '', questions: [] };
-    ownTags: Tag[] = [];
+    ownTags = computed(() => {
+        const questionValue = this.question();
+        return questionValue.tags.filter((t) => t.creator?.id === this.user.id);
+    });
 
     private http = inject(HttpClient);
     private Session = inject(SessionService);
 
     constructor() {
         this.user = this.Session.getUser();
-    }
-
-    ngOnInit() {
-        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.user.id);
     }
 
     getTags$ = (text$: Observable<string>): Observable<Tag[]> =>
@@ -104,6 +106,7 @@ export class TagPickerComponent implements OnInit {
             }),
             map((resp) => {
                 const { filter, tags } = resp;
+                const questionValue = this.question();
                 if (filter) {
                     tags.unshift({ name: filter, questions: [] });
                 }
@@ -111,8 +114,8 @@ export class TagPickerComponent implements OnInit {
                 return tags
                     .filter(
                         (tag) =>
-                            !this.question.tags ||
-                            this.question.tags.every((qt) => qt.name !== tag.name || qt.creator?.id !== this.user.id),
+                            !questionValue.tags ||
+                            questionValue.tags.every((qt) => qt.name !== tag.name || qt.creator?.id !== this.user.id),
                     )
                     .slice(0, 15);
             }),
@@ -123,15 +126,13 @@ export class TagPickerComponent implements OnInit {
 
     addTag = () => {
         if (this.newTag) {
-            this.question.tags.push(this.newTag);
-            this.ownTags.push(this.newTag);
+            this.tagAdded.emit(this.newTag);
         }
         this.newTag = { name: '', questions: [] };
         this.tagName = '';
     };
 
     removeTag = (tag: Tag) => {
-        this.question.tags.splice(this.question.tags.indexOf(tag), 1);
-        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.user.id);
+        this.tagRemoved.emit(tag);
     };
 }

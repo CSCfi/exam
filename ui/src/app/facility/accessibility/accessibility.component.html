@@ -37,7 +37,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </tr>
             </thead>
             <tbody>
-                @for (accessibility of accessibilities; track accessibility) {
+                @for (accessibility of accessibilities(); track accessibility) {
                     <tr scope="row">
                         <td>
                             <div [hidden]="accessibility.showName">
@@ -50,22 +50,19 @@ SPDX-License-Identifier: EUPL-1.2
                                             type="text"
                                             class="form-control input-sm"
                                             name="accessibility-name"
-                                            [(ngModel)]="accessibility.name"
+                                            [ngModel]="accessibility.name"
+                                            (ngModelChange)="updateAccessibilityName(accessibility, $event)"
                                             autofocus
                                         />
-                                        <span
-                                            class="input-group-text pointer"
-                                            (click)="
-                                                accessibility.showName = !accessibility.showName; update(accessibility)
-                                            "
-                                            >{{ 'i18n_add' | translate }}</span
-                                        >
+                                        <span class="input-group-text pointer" (click)="saveAndToggle(accessibility)">{{
+                                            'i18n_add' | translate
+                                        }}</span>
                                     </div>
                                 </form>
                             }
                         </td>
                         <td>
-                            <a (click)="accessibility.showName = !accessibility.showName">
+                            <a (click)="toggleShowName(accessibility)">
                                 <i class="bi-pencil"></i>
                             </a>
                         </td>

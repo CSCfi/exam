@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,7 +21,14 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
         </div>
         <div class="modal-body">
             <strong>{{ 'i18n_message' | translate }}</strong>
-            <textarea class="form-control" [(ngModel)]="message.text" rows="3" autofocus> </textarea>
+            <textarea
+                class="form-control"
+                [ngModel]="message().text"
+                (ngModelChange)="setMessageText($event)"
+                rows="3"
+                autofocus
+            >
+            </textarea>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-sm btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
@@ -30,25 +37,34 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
             </button>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RemoveReservationDialogComponent {
-    @Input() reservation!: Reservation;
-    message = { text: '' };
+    reservation = input.required<Reservation>();
+    message = signal<{ text: string }>({ text: '' });
 
     activeModal = inject(NgbActiveModal);
     private http = inject(HttpClient);
     private toast = inject(ToastrService);
 
-    ok = () =>
+    ok() {
+        const currentReservation = this.reservation();
         this.http
-            .delete(`/app/reservations/${this.reservation.id}`, {
+            .delete(`/app/reservations/${currentReservation.id}`, {
                 headers: { 'Content-Type': 'application/json' },
-                params: { msg: this.message.text },
+                params: { msg: this.message().text },
             })
             .subscribe({
-                next: this.activeModal.close,
+                next: () => this.activeModal.close(),
                 error: (err) => this.toast.error(err),
             });
+    }
 
-    cancel = () => this.activeModal.dismiss();
+    cancel() {
+        this.activeModal.dismiss();
+    }
+
+    setMessageText(text: string) {
+        this.message.update((m) => ({ ...m, text }));
+    }
 }

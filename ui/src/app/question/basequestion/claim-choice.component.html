@@ -15,7 +15,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <li>{{ 'i18n_claim_choice_skip_option_description' | translate }}</li>
             </ul>
             <br />
-            @if (showWarning) {
+            @if (showWarning()) {
                 <div class="edit-warning-container">
                     <i class="bi-exclamation-circle text-danger me-2"></i>
                     <small>{{ 'i18n_shared_question_property_info' | translate }}</small>
@@ -33,7 +33,7 @@ SPDX-License-Identifier: EUPL-1.2
             </span>
         </div>
     </div>
-    @for (opt of question.options; track opt.id; let index = $index) {
+    @for (opt of question().options; track opt.id; let index = $index) {
         <div class="row ms-2 w-50 question-editor-claim-choice-option" [ngClass]="getOptionClass(opt)">
             <div class="col-9">
                 <textarea
@@ -44,7 +44,7 @@ SPDX-License-Identifier: EUPL-1.2
                     rows="1"
                     class="question-option-input form-control"
                     required
-                    [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
+                    [disabled]="lotteryOn() || opt.claimChoiceType === 'SkipOption'"
                 ></textarea>
             </div>
             <div class="col">
@@ -58,7 +58,7 @@ SPDX-License-Identifier: EUPL-1.2
                     [value]="opt.defaultScore"
                     (input)="updateOptionScore(opt, $event, index)"
                     required
-                    [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
+                    [disabled]="lotteryOn() || opt.claimChoiceType === 'SkipOption'"
                 />
             </div>
             <div class="claim-choice-option-description m-2">
@@ -69,11 +69,11 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 <div class="row">
     <div class="col-md-9 claim-choice-warning-wrapper">
-        @if (missingOption) {
+        @if (missingOption()) {
             <div class="claim-choice-warning">
                 <i class="bi-exclamation-triangle"></i>
                 {{ 'i18n_claim_choice_missing_options_warning' | translate }}
-                {{ missingOption | translate }}
+                {{ missingOption() | translate }}
             </div>
         }
     </div>

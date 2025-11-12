@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -20,11 +19,12 @@ import type { User } from 'src/app/session/session.model';
     templateUrl: './exam-owner-picker.component.html',
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamOwnerSelectorComponent implements OnInit {
-    @Input() exam!: Exam;
+export class ExamOwnerSelectorComponent {
+    exam = input.required<Exam>();
 
-    examOwners: User[] = [];
+    examOwners = signal<User[]>([]);
 
     newOwner: {
         id?: number;
@@ -38,14 +38,17 @@ export class ExamOwnerSelectorComponent implements OnInit {
 
     constructor() {
         this.newOwner = {};
+
+        effect(() => {
+            const currentExam = this.exam();
+            if (currentExam) {
+                this.getExamOwners();
+            }
+        });
     }
 
-    ngOnInit() {
-        this.http.get<User[]>(`/app/exam/${this.exam.id}/owners`).subscribe((users) => (this.examOwners = users));
-    }
-
-    listOwners$ = (criteria$: Observable<string>): Observable<User[]> =>
-        criteria$.pipe(
+    listOwners$(criteria$: Observable<string>): Observable<User[]> {
+        return criteria$.pipe(
             tap((text) => (this.newOwner.name = text)),
             debounceTime(500),
             distinctUntilChanged(),
@@ -58,14 +61,20 @@ export class ExamOwnerSelectorComponent implements OnInit {
                 return throwError(() => new Error(err));
             }),
         );
+    }
 
-    nameFormatter = (data: User) => `${data.firstName} ${data.lastName} <${data.email}>`;
+    nameFormatter(data: User) {
+        return `${data.firstName} ${data.lastName} <${data.email}>`;
+    }
 
-    setExamOwner = (event: NgbTypeaheadSelectItemEvent) => (this.newOwner.id = event.item.id);
+    setExamOwner(event: NgbTypeaheadSelectItemEvent) {
+        this.newOwner.id = event.item.id;
+    }
 
-    addExamOwner = () => {
+    addExamOwner() {
         if (this.newOwner.id) {
-            this.http.post(`/app/exam/${this.exam.id}/owner/${this.newOwner.id}`, {}).subscribe({
+            const currentExam = this.exam();
+            this.http.post(`/app/exam/${currentExam.id}/owner/${this.newOwner.id}`, {}).subscribe({
                 next: () => {
                     this.getExamOwners();
                     // clear input field
@@ -78,15 +87,21 @@ export class ExamOwnerSelectorComponent implements OnInit {
         } else {
             this.toast.error(this.translate.instant('i18n_teacher_not_found'));
         }
-    };
+    }
 
-    removeOwner = (id: number) =>
-        this.http
-            .delete(`/app/exam/${this.exam.id}/owner/${id}`)
-            .subscribe({ next: this.getExamOwners, error: (err) => this.toast.error(err) });
+    removeOwner(id: number) {
+        const currentExam = this.exam();
+        this.http.delete(`/app/exam/${currentExam.id}/owner/${id}`).subscribe({
+            next: () => this.getExamOwners(),
+            error: (err) => this.toast.error(err),
+        });
+    }
 
-    private getExamOwners = () =>
-        this.http
-            .get<User[]>(`/app/exam/${this.exam.id}/owners`)
-            .subscribe({ next: (owners) => (this.examOwners = owners), error: (err) => this.toast.error(err) });
+    private getExamOwners() {
+        const currentExam = this.exam();
+        this.http.get<User[]>(`/app/exam/${currentExam.id}/owners`).subscribe({
+            next: (owners) => this.examOwners.set(owners),
+            error: (err) => this.toast.error(err),
+        });
+    }
 }

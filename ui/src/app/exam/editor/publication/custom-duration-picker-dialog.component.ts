@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -11,6 +11,7 @@ import { Duration } from 'luxon';
 
 @Component({
     imports: [FormsModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="modal-header">
             <div class="xm-modal-title">
@@ -53,7 +54,7 @@ import { Duration } from 'luxon';
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button
                 class="btn btn-success"
-                (click)="activeModal.close({ hours: this.hours(), minutes: this.minutes() })"
+                (click)="activeModal.close({ hours: hours(), minutes: minutes() })"
                 [disabled]="!allowSaving()"
                 autofocus
             >
@@ -65,17 +66,21 @@ import { Duration } from 'luxon';
         </div>
     `,
 })
-export class CustomDurationPickerDialogComponent implements OnInit {
+export class CustomDurationPickerDialogComponent {
     hours = signal(0);
     minutes = signal(0);
     minDuration = signal(1);
     maxDuration = signal(300);
     maxHour = computed(() => this.maxDuration() / 60);
+    allowSaving = computed(() => {
+        const duration = this.hours() * 60 + this.minutes();
+        return duration <= this.maxDuration() && duration >= this.minDuration();
+    });
 
     activeModal = inject(NgbActiveModal);
     private http = inject(HttpClient);
 
-    ngOnInit() {
+    constructor() {
         this.http
             .get<{ maxDuration: number }>('/app/settings/maxDuration')
             .subscribe((data) => this.maxDuration.set(data.maxDuration));
@@ -84,9 +89,7 @@ export class CustomDurationPickerDialogComponent implements OnInit {
             .subscribe((data) => this.minDuration.set(data.minDuration));
     }
 
-    format = (minutes: number): string => Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');
-    allowSaving = () => {
-        const duration = this.hours() * 60 + this.minutes();
-        return duration <= this.maxDuration() && duration >= this.minDuration();
-    };
+    format(minutes: number): string {
+        return Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');
+    }
 }

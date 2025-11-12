@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -34,16 +33,17 @@ import { RoomService } from './room.service';
         PageHeaderComponent,
         PageContentComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RoomComponent implements OnInit {
+export class RoomComponent {
     @ViewChild('roomForm', { static: false }) roomForm!: NgForm;
 
-    room!: ExamRoom;
-    showName = false;
-    isInteroperable = false;
-    editingMultipleRooms = false;
-    internalPasswordInputType = 'password';
-    externalPasswordInputType = 'password';
+    room = signal<ExamRoom | undefined>(undefined);
+    showName = signal(false);
+    isInteroperable = signal(false);
+    editingMultipleRooms = signal(false);
+    internalPasswordInputType = signal<'password' | 'text'>('password');
+    externalPasswordInputType = signal<'password' | 'text'>('password');
 
     private router = inject(Router);
     private route = inject(ActivatedRoute);
@@ -52,71 +52,115 @@ export class RoomComponent implements OnInit {
     private roomService = inject(RoomService);
     private interoperability = inject(InteroperabilityService);
 
-    ngOnInit() {
-        this.showName = true;
+    constructor() {
+        this.showName.set(true);
         this.roomService.examVisit().subscribe((data) => {
-            this.isInteroperable = data.isExamVisitSupported;
+            this.isInteroperable.set(data.isExamVisitSupported);
         });
 
         this.roomService.getRoom$(this.route.snapshot.params.id).subscribe({
             next: (room: ExamRoom) => {
                 room.availableForExternals = room.externalRef !== null;
-                this.room = room;
+                this.room.set(room);
             },
             error: (err) => this.toast.error(err),
         });
     }
 
-    disableRoom = () => {
-        this.roomService.disableRoom(this.room);
-    };
+    disableRoom() {
+        const currentRoom = this.room();
+        if (currentRoom) {
+            this.roomService.disableRoom(currentRoom);
+        }
+    }
 
-    validateAndUpdateRoom = () => {
+    validateAndUpdateRoom() {
         if (this.roomForm.valid) {
             this.updateRoom();
         }
-    };
+    }
 
-    updateRoom = () => {
-        this.roomService.updateRoom$(this.room).subscribe({
+    updateRoom() {
+        const currentRoom = this.room();
+        if (!currentRoom) {
+            return;
+        }
+        this.roomService.updateRoom$(currentRoom).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_room_updated'));
             },
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 
-    saveRoom = () => {
-        if (!this.roomService.isAnyExamMachines(this.room))
-            this.toast.error(this.translate.instant('i18n_dont_forget_to_add_machines') + ' ' + this.room.name);
+    saveRoom() {
+        const currentRoom = this.room();
+        if (!currentRoom) {
+            return;
+        }
+        if (!this.roomService.isAnyExamMachines(currentRoom))
+            this.toast.error(this.translate.instant('i18n_dont_forget_to_add_machines') + ' ' + currentRoom.name);
 
-        this.roomService.updateRoom$(this.room).subscribe({
+        this.roomService.updateRoom$(currentRoom).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_room_saved'));
                 this.router.navigate(['/staff/rooms']);
             },
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 
-    updateInteroperability = () => {
-        this.interoperability.updateFacility$(this.room).subscribe({
+    updateInteroperability() {
+        const currentRoom = this.room();
+        if (!currentRoom) {
+            return;
+        }
+        this.interoperability.updateFacility$(currentRoom).subscribe({
             next: (data) => {
-                this.room.externalRef = data.externalRef;
-                this.room.availableForExternals = data.externalRef !== null;
+                this.room.update((room) => {
+                    if (!room) return room;
+                    return {
+                        ...room,
+                        externalRef: data.externalRef,
+                        availableForExternals: data.externalRef !== null,
+                    };
+                });
             },
             error: (err) => {
-                this.room.availableForExternals = !this.room.availableForExternals;
+                this.room.update((room) => {
+                    if (!room) return room;
+                    return {
+                        ...room,
+                        availableForExternals: !room.availableForExternals,
+                    };
+                });
                 this.toast.error(err.data.message);
             },
         });
-    };
+    }
 
-    toggleInternalPasswordInputType = () => {
-        this.internalPasswordInputType = this.internalPasswordInputType === 'text' ? 'password' : 'text';
-    };
+    toggleInternalPasswordInputType() {
+        this.internalPasswordInputType.update((type) => (type === 'text' ? 'password' : 'text'));
+    }
 
-    toggleExternalPasswordInputType = () => {
-        this.externalPasswordInputType = this.externalPasswordInputType === 'text' ? 'password' : 'text';
-    };
+    toggleExternalPasswordInputType() {
+        this.externalPasswordInputType.update((type) => (type === 'text' ? 'password' : 'text'));
+    }
+
+    updateRoomProperty<K extends keyof ExamRoom>(key: K, value: ExamRoom[K]) {
+        this.room.update((r) => (r ? { ...r, [key]: value } : r));
+    }
+
+    updateOutOfService(value: boolean) {
+        this.updateRoomProperty('outOfService', value);
+        this.updateRoom();
+    }
+
+    updateRoomName(value: string) {
+        this.updateRoomProperty('name', value);
+    }
+
+    toggleShowName() {
+        this.showName.update((v) => !v);
+    }
 }

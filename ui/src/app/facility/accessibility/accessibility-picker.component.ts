@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -26,13 +25,8 @@ import { AccessibilityService } from './accessibility.service';
                 >
                     {{ selectedAccessibilities() }}&nbsp;<span class="caret"></span>
                 </button>
-                <div
-                    ngbDropdownMenu
-                    style="padding-left: 0; min-width: 17em"
-                    role="menu"
-                    aria-labelledby="dropDownMenu1"
-                >
-                    @for (ac of accessibilities; track ac) {
+                <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
+                    @for (ac of accessibilities(); track ac) {
                         <button
                             ngbDropdownItem
                             role="presentation"
@@ -49,49 +43,69 @@ import { AccessibilityService } from './accessibility.service';
         </div>
     </div>`,
     imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AccessibilitySelectorComponent implements OnInit {
-    @Input() room!: ExamRoom;
+export class AccessibilitySelectorComponent {
+    room = input.required<ExamRoom>();
 
-    accessibilities: Accessibility[] = [];
+    accessibilities = signal<Accessibility[]>([]);
+    roomAccessibilities = signal<Accessibility[]>([]);
+
+    selectedAccessibilities = computed(() => {
+        const accessibilities = this.roomAccessibilities();
+        return accessibilities.length === 0
+            ? this.translate.instant('i18n_select')
+            : accessibilities.map((ac) => ac.name).join(', ');
+    });
 
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private accessibilityService = inject(AccessibilityService);
 
-    ngOnInit() {
+    constructor() {
         this.accessibilityService.getAccessibilities().subscribe((resp) => {
-            this.accessibilities = resp;
+            this.accessibilities.set(resp);
+        });
+
+        // Sync roomAccessibilities signal with room input
+        effect(() => {
+            const currentRoom = this.room();
+            this.roomAccessibilities.set([...currentRoom.accessibilities]);
         });
     }
 
-    selectedAccessibilities = () => {
-        return this.room.accessibilities.length === 0
-            ? this.translate.instant('i18n_select')
-            : this.room.accessibilities
-                  .map((ac) => {
-                      return ac.name;
-                  })
-                  .join(', ');
-    };
-
-    isSelected = (ac: Accessibility) => {
+    isSelected(ac: Accessibility) {
         return this.getIndexOf(ac) > -1;
-    };
+    }
 
-    updateAccessibility = (ac: Accessibility) => {
+    updateAccessibility(ac: Accessibility) {
+        const currentAccessibilities = this.roomAccessibilities();
         const index = this.getIndexOf(ac);
-        if (index > -1) {
-            this.room.accessibilities.splice(index, 1);
-        } else {
-            this.room.accessibilities.push(ac);
-        }
-        const ids = this.room.accessibilities.map((item) => item.id).join(', ');
+        let updatedAccessibilities: Accessibility[];
 
-        this.accessibilityService.updateRoomAccessibilities(this.room.id, { ids: ids }).subscribe(() => {
+        if (index > -1) {
+            updatedAccessibilities = currentAccessibilities.filter((item) => item.id !== ac.id);
+        } else {
+            updatedAccessibilities = [...currentAccessibilities, ac];
+        }
+
+        // Update local signal
+        this.roomAccessibilities.set(updatedAccessibilities);
+
+        // Update the room object for backward compatibility (if parent is not using signals)
+        const currentRoom = this.room();
+        currentRoom.accessibilities = updatedAccessibilities;
+
+        const ids = updatedAccessibilities.map((item) => item.id).join(', ');
+
+        this.accessibilityService.updateRoomAccessibilities(currentRoom.id, { ids: ids }).subscribe(() => {
             this.toast.info(this.translate.instant('i18n_room_updated'));
         });
-    };
+    }
 
-    getIndexOf = (ac: Accessibility) => this.room.accessibilities.map((a) => a.id).indexOf(ac.id);
+    getIndexOf(ac: Accessibility) {
+        return this.roomAccessibilities()
+            .map((a) => a.id)
+            .indexOf(ac.id);
+    }
 }

@@ -24,8 +24,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="id"
                             text="i18n_question"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('id')"
                         >
                         </xm-table-sort>
@@ -34,8 +34,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="creator"
                             text="i18n_creator"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('creator')"
                         >
                         </xm-table-sort>
@@ -44,8 +44,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="modified"
                             text="i18n_modified"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('modified')"
                         >
                         </xm-table-sort>
@@ -54,8 +54,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="displayedMaxScore"
                             text="i18n_max_score"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('displayedMaxScore')"
                         >
                         </xm-table-sort>
@@ -64,8 +64,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="typeOrd"
                             text="i18n_question_type"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('typeOrd')"
                         >
                         </xm-table-sort>
@@ -74,8 +74,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="attachment.fileName"
                             text="i18n_attachment"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('attachment.fileName')"
                         >
                         </xm-table-sort>
@@ -85,8 +85,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="ownerAggregate"
                             text="i18n_owner"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
+                            [predicate]="questionsPredicate()"
+                            [reverse]="reverse()"
                             (click)="setPredicate('ownerAggregate')"
                         >
                         </xm-table-sort>
@@ -98,9 +98,9 @@ SPDX-License-Identifier: EUPL-1.2
             </thead>
             <tbody>
                 @for (
-                    question of fixedQuestions
-                        | orderBy: questionsPredicate : reverse
-                        | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
+                    question of fixedQuestions()
+                        | orderBy: questionsPredicate() : reverse()
+                        | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
                     track question
                 ) {
                     <tr>
@@ -123,7 +123,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 </span>
                             }
                             <span class="d-block">
-                                @if (!disableLinks) {
+                                @if (!disableLinks()) {
                                     <button
                                         class="pointer btn btn-link btn-sm"
                                         [routerLink]="[question.id, 'edit']"
@@ -132,7 +132,7 @@ SPDX-License-Identifier: EUPL-1.2
                                         {{ question.id }}
                                     </button>
                                 }
-                                @if (disableLinks) {
+                                @if (disableLinks()) {
                                     <span>#{{ question.id }}</span>
                                 }
                                 @if (question.questionOwners.length > 1) {
@@ -236,7 +236,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </tr>
                 }
                 <!--Fill if page not full-->
-                @for (r of [] | pageFill: questions.length : currentPage : pageSize; track r) {
+                @for (r of [] | pageFill: questions().length : currentPage() : pageSize; track r) {
                     <tr>
                         <td colspan="11">&nbsp;</td>
                         @if (user.isAdmin) {
@@ -244,7 +244,7 @@ SPDX-License-Identifier: EUPL-1.2
                         }
                     </tr>
                 }
-                @if (questions.length === 0) {
+                @if (questions().length === 0) {
                     <tr>
                         <td colspan="11">{{ 'i18n_exam_library_no_results' | translate }}</td>
                         @if (user.isAdmin) {
@@ -255,13 +255,13 @@ SPDX-License-Identifier: EUPL-1.2
             </tbody>
         </table>
     </div>
-    @if (questions.length > pageSize) {
+    @if (questions().length > pageSize) {
         <div class="col-md-12">
             <xm-paginator
-                [items]="questions"
+                [items]="questions()"
                 (pageSelected)="pageSelected($event)"
                 [pageSize]="pageSize"
-                [currentPage]="currentPage"
+                [currentPage]="currentPage()"
             >
             </xm-paginator>
         </div>

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, inject, model, output } from '@angular/core';
+import { Component, inject, input, model } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -94,10 +94,8 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
 })
 export class MultiChoiceComponent {
     question = model.required<ExamSectionQuestion>();
-    lotteryOn = model(false);
-    isInPublishedExam = model(false);
-    optionsChanged = output<ExamSectionQuestionOption[]>();
-    shufflingSettingChanged = output<boolean>();
+    lotteryOn = input(false);
+    isInPublishedExam = input(false);
 
     private TranslateService = inject(TranslateService);
     private ToastrService = inject(ToastrService);
@@ -109,19 +107,16 @@ export class MultiChoiceComponent {
                 ? { ...opt, option: { ...opt.option, correctOption: status } }
                 : { ...opt, option: { ...opt.option, correctOption: false } },
         );
-        this.optionsChanged.emit(next);
         this.question.update((q) => ({ ...q, options: next }));
     };
 
     updateText = (text: string, index: number) => {
         const next = [...this.question().options];
         next[index] = { ...next[index], option: { ...next[index].option, option: text } };
-        this.optionsChanged.emit(next);
         this.question.update((q) => ({ ...q, options: next }));
     };
 
     updateShufflingSetting = (setting: boolean) => {
-        this.shufflingSettingChanged.emit(setting);
         this.question.update((q) => ({ ...q, optionShufflingOn: setting }));
     };
 
@@ -141,7 +136,6 @@ export class MultiChoiceComponent {
             answered: false,
         };
         const next = [...this.question().options, newOption];
-        this.optionsChanged.emit(next);
         this.question.update((q) => ({ ...q, options: next }));
     };
 
@@ -161,7 +155,6 @@ export class MultiChoiceComponent {
         // Either not published exam or correct answer exists
         if (!this.isInPublishedExam() || hasCorrectAnswer) {
             const next = this.question().options.filter((o) => o.id !== option.id);
-            this.optionsChanged.emit(next);
             this.question.update((q) => ({ ...q, options: next }));
         } else {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_minimum_options'));

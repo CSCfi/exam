@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -53,14 +52,15 @@ interface ListedCollaborativeExam extends CollaborativeExam {
         PageHeaderComponent,
         PageContentComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
-    exams: ListedCollaborativeExam[] = [];
+export class CollaborativeExamListingComponent implements OnDestroy {
+    exams = signal<ListedCollaborativeExam[]>([]);
     user: User;
-    view: ListingView;
-    examsPredicate: string;
-    reverse: boolean;
-    loader: { loading: boolean };
+    view = signal<ListingView>(ListingView.PUBLISHED);
+    examsPredicate = signal('periodEnd');
+    reverse = signal(true);
+    loading = signal(false);
     filterChanged = new Subject<string>();
     examCreated = new Subject<void>();
     ngUnsubscribe = new Subject();
@@ -73,21 +73,16 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
 
     constructor() {
         const toast = this.toast;
-
-        this.view = ListingView.PUBLISHED;
         this.user = this.Session.getUser();
-        this.examsPredicate = 'periodEnd';
-        this.reverse = true;
-        this.loader = { loading: false };
         this.filterChanged
             .pipe(
                 debounceTime(500),
                 distinctUntilChanged(),
                 switchMap((text) => this.CollaborativeExam.searchExams$(text)),
-                tap(() => (this.loader.loading = true)),
+                tap(() => this.loading.set(true)),
                 map((exams) => this.searchExams(exams)),
-                tap((exams) => (this.exams = exams)),
-                tap(() => (this.loader.loading = false)),
+                tap((exams) => this.exams.set(exams)),
+                tap(() => this.loading.set(false)),
                 takeUntil(this.ngUnsubscribe),
             )
             .subscribe();
@@ -98,6 +93,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
             },
             error: (err) => this.toast.error(err),
         });
+        this.listAllExams();
     }
 
     ngOnDestroy() {
@@ -105,11 +101,9 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    ngOnInit() {
-        this.listAllExams();
+    listAllExams() {
+        this.filterChanged.next('');
     }
-
-    listAllExams = () => this.filterChanged.next('');
 
     determineListingView(exam: CollaborativeExam) {
         if (
@@ -127,20 +121,24 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
         return ListingView.OTHER;
     }
 
-    filterByView = (view: string) => this.exams.filter((e) => this.determineListingView(e) === view);
-
-    setView(view: ListingView) {
-        this.view = view;
+    filterByView(view: string) {
+        return this.exams().filter((e) => this.determineListingView(e) === view);
     }
 
-    setPredicate = (predicate: string) => {
-        if (this.examsPredicate === predicate) {
-            this.reverse = !this.reverse;
-        }
-        this.examsPredicate = predicate;
-    };
+    setView(view: ListingView | string) {
+        this.view.set(view as ListingView);
+    }
 
-    createExam = () => this.examCreated.next();
+    setPredicate(predicate: string) {
+        if (this.examsPredicate() === predicate) {
+            this.reverse.update((v) => !v);
+        }
+        this.examsPredicate.set(predicate);
+    }
+
+    createExam() {
+        this.examCreated.next();
+    }
 
     getStateTranslation(exam: CollaborativeExam): string {
         const translationStr = this.CollaborativeExam.getExamStateTranslation(exam);
@@ -154,13 +152,13 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
         return exam.anonymous ? 'i18n_anonymous_enabled' : 'i18n_anonymous_disabled';
     }
 
-    search = (event: KeyboardEvent) => {
+    search(event: KeyboardEvent) {
         const e = event.target as HTMLInputElement;
-        return this.filterChanged.next(e.value);
-    };
+        this.filterChanged.next(e.value);
+    }
 
-    private searchExams = (exams: CollaborativeExam[]): ListedCollaborativeExam[] =>
-        exams
+    private searchExams(exams: CollaborativeExam[]): ListedCollaborativeExam[] {
+        return exams
             .map((e) => {
                 const ownerAggregate = e.examOwners.map((o) => o.email).join();
                 const stateTranslation = this.getStateTranslation(e);
@@ -169,4 +167,5 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
                 return { ...e, ownerAggregate, stateTranslation, listingView };
             })
             .filter((e) => e.listingView !== ListingView.OTHER);
+    }
 }

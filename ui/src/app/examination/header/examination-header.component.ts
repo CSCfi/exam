@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { ExaminationClockComponent } from 'src/app/examination/clock/examination-clock.component';
 import type { Examination } from 'src/app/examination/examination.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -18,9 +18,9 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                 </div>
                 <div class="exam-header-title divider"></div>
                 <div class="exam-header-title w-100 ms-4 me-2">
-                    {{ exam.course?.name }}
-                    @if (exam.course) {
-                        <xm-course-code [course]="exam.course"></xm-course-code>
+                    {{ exam().course?.name }}
+                    @if (exam().course) {
+                        <xm-course-code [course]="exam().course!"></xm-course-code>
                     }
                 </div>
                 <div class="language-selector">
@@ -29,22 +29,28 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                     <button class="btn btn-success ms-1" (click)="switchLanguage('en')">EN</button>
                     <div class="divider-free"></div>
                 </div>
-                @if (!isPreview) {
-                    <xm-examination-clock [examHash]="exam.hash" (timedOut)="notifyTimeout()"> </xm-examination-clock>
+                @if (!isPreview()) {
+                    <xm-examination-clock [examHash]="exam().hash" (timedOut)="notifyTimeout()"> </xm-examination-clock>
                 }
             </div>
         </div>
     </div>`,
     imports: [CourseCodeComponent, ExaminationClockComponent],
     styleUrls: ['../examination.shared.scss', './examination-header.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationPageHeaderComponent {
-    @Input() exam!: Examination;
-    @Input() isPreview = false;
-    @Output() timedOut = new EventEmitter<void>();
+    exam = input.required<Examination>();
+    isPreview = input(false);
+    timedOut = output<void>();
 
     private Session = inject(SessionService);
 
-    notifyTimeout = () => this.timedOut.emit();
-    switchLanguage = (key: string) => this.Session.switchLanguage(key);
+    notifyTimeout() {
+        this.timedOut.emit();
+    }
+
+    switchLanguage(key: string) {
+        this.Session.switchLanguage(key);
+    }
 }

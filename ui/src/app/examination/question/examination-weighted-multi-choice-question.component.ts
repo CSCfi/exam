@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
@@ -12,9 +12,9 @@ import { ExaminationService } from 'src/app/examination/examination.service';
     selector: 'xm-examination-weighted-multi-choice-question',
     template: `
         <div class="pb-3">
-            <fieldset [attr.aria-label]="questionTitle">
+            <fieldset [attr.aria-label]="questionTitle()">
                 <legend [hidden]="true">answer options for multiple choice question</legend>
-                @for (sqo of sq.options; track sqo) {
+                @for (sqo of sq().options; track sqo) {
                     <div class="exam-answer-options">
                         <label>
                             <input
@@ -31,33 +31,43 @@ import { ExaminationService } from 'src/app/examination/examination.service';
         </div>
 
         <div class="ps-0 question-type-text">
-            {{ 'i18n_max_points' | translate }} {{ sq.derivedMaxScore }}, {{ 'i18n_min_points' | translate }}
-            {{ sq.derivedMinScore }}
+            {{ 'i18n_max_points' | translate }} {{ sq().derivedMaxScore }}, {{ 'i18n_min_points' | translate }}
+            {{ sq().derivedMinScore }}
         </div>
     `,
     imports: [FormsModule, TranslateModule],
     styleUrls: ['./question.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationWeightedMultiChoiceComponent implements OnInit {
-    @Input() sq!: ExaminationQuestion;
-    @Input() examHash = '';
-    @Input() isPreview = false;
-    @Input() orderOptions = false;
+export class ExaminationWeightedMultiChoiceComponent {
+    sq = input.required<ExaminationQuestion>();
+    examHash = input('');
+    isPreview = input(false);
+    orderOptions = input(false);
 
-    questionTitle!: string;
+    questionTitle = computed(() => {
+        // Extract plain text from HTML for aria-label (screen readers need plain text, not HTML)
+        const html = this.sq().question.question;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        return doc.documentElement.innerText;
+    });
 
     private Examination = inject(ExaminationService);
 
-    ngOnInit() {
-        if (this.orderOptions) {
-            this.sq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
-        }
-        const html = this.sq.question.question;
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const decodedString = doc.documentElement.innerText;
-        this.questionTitle = decodedString;
+    constructor() {
+        // Initialize options sorting when inputs change
+        effect(() => {
+            const currentSq = this.sq();
+            const currentOrderOptions = this.orderOptions();
+
+            if (currentOrderOptions) {
+                currentSq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
+            }
+        });
     }
 
-    saveOption = () => this.Examination.saveOption(this.examHash, this.sq, this.isPreview);
+    saveOption() {
+        this.Examination.saveOption(this.examHash(), this.sq(), this.isPreview());
+    }
 }

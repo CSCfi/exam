@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -38,41 +38,80 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         OrderByPipe,
         NgbCollapse,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RejectedReviewsComponent implements OnInit {
-    @Input() reviews: Review[] = [];
-    @Input() exam!: Exam;
+export class RejectedReviewsComponent {
+    reviews = input<Review[]>([]);
+    exam = input.required<Exam>();
 
-    view!: ReviewListView;
+    view = signal<ReviewListView | undefined>(undefined);
 
     private ReviewList = inject(ReviewListService);
     private CommonExam = inject(CommonExamService);
     private Session = inject(SessionService);
 
-    ngOnInit() {
-        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'displayedGradingTime');
+    constructor() {
+        effect(() => this.init(this.reviews()));
     }
 
-    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
+    showId() {
+        return this.Session.getUser().isAdmin && this.exam()?.anonymous;
+    }
 
-    applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
+    updateFilter(value: string) {
+        this.view.update((v) => {
+            if (!v) return v;
+            return {
+                ...v,
+                filter: value,
+                filtered: this.ReviewList.applyFilter(value, v.items),
+            };
+        });
+    }
 
-    pageSelected = (event: { page: number }) => (this.view.page = event.page);
+    applyFreeSearchFilter() {
+        const currentView = this.view();
+        if (!currentView) return;
+        this.view.update((v) => ({
+            ...v!,
+            filtered: this.ReviewList.applyFilter(v!.filter, v!.items),
+        }));
+    }
 
-    handleGradedReviews = (r: Review) => {
+    pageSelected(event: { page: number }) {
+        this.view.update((v) => ({ ...v!, page: event.page }));
+    }
+
+    handleGradedReviews(r: Review) {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
         r.displayedCredit = this.CommonExam.getExamDisplayCredit(r.examParticipation.exam);
-    };
+    }
 
-    setPredicate = (predicate: string) => {
-        if (this.view.predicate === predicate) {
-            this.view.reverse = !this.view.reverse;
-        }
-        this.view.predicate = predicate;
-    };
+    setPredicate(predicate: string) {
+        this.view.update((v) => {
+            if (!v) return v;
+            const reverse = v.predicate === predicate ? !v.reverse : v.reverse;
+            return { ...v, predicate, reverse };
+        });
+    }
 
-    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
+    toggleView() {
+        this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
+    }
+
+    private init(reviews: Review[]) {
+        const initialView = this.ReviewList.prepareView(
+            reviews,
+            (r) => this.handleGradedReviews(r),
+            'displayedGradingTime',
+        );
+        this.view.set(initialView);
+    }
+
+    private translateGrade(exam: Exam) {
+        return this.ReviewList.translateGrade(exam);
+    }
 }

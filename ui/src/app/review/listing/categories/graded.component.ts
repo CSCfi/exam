@@ -4,8 +4,7 @@
 
 import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -57,15 +56,17 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         OrderByPipe,
     ],
     styleUrl: '../review-list.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GradedReviewsComponent implements OnInit, OnChanges {
-    @Input() exam!: Exam;
-    @Input() reviews: Review[] = [];
-    @Input() collaborative = false;
-    @Output() registered = new EventEmitter<Review[]>();
-    view!: ReviewListView;
-    needsFeedbackWarning = false;
-    selections: { all: boolean; page: boolean } = { all: false, page: false };
+export class GradedReviewsComponent {
+    exam = input.required<Exam>();
+    reviews = input<Review[]>([]);
+    collaborative = input(false);
+    registered = output<Review[]>();
+
+    view = signal<ReviewListView | undefined>(undefined);
+    needsFeedbackWarning = signal(false);
+    selections = signal<{ all: boolean; page: boolean }>({ all: false, page: false });
 
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
@@ -76,35 +77,54 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
     private CommonExam = inject(CommonExamService);
     private Session = inject(SessionService);
 
-    ngOnInit() {
-        this.init();
-        if (!this.exam.examFeedbackConfig) {
-            this.needsFeedbackWarning = false;
-        } else {
-            this.http
-                .get<{ status: 'nothing' | 'everything' }>(`/app/review/${this.exam.id}/locked`)
-                .subscribe((setting) => (this.needsFeedbackWarning = setting.status === 'everything'));
-        }
+    constructor() {
+        effect(() => this.init(this.reviews()));
+
+        effect(() => {
+            const currentExam = this.exam();
+            if (!currentExam.examFeedbackConfig) {
+                this.needsFeedbackWarning.set(false);
+            } else {
+                this.http
+                    .get<{ status: 'nothing' | 'everything' }>(`/app/review/${currentExam.id}/locked`)
+                    .subscribe((setting) => this.needsFeedbackWarning.set(setting.status === 'everything'));
+            }
+        });
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.reviews) {
-            this.init();
-            this.applyFreeSearchFilter();
-        }
+    showId() {
+        return this.Session.getUser().isAdmin && this.exam()?.anonymous;
     }
 
-    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
+    updateFilter(value: string) {
+        this.view.update((v) => {
+            if (!v) return v;
+            return {
+                ...v,
+                filter: value,
+                filtered: this.ReviewList.applyFilter(value, v.items),
+            };
+        });
+    }
 
-    applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
+    applyFreeSearchFilter() {
+        const currentView = this.view();
+        if (!currentView) return;
+        this.view.update((v) => ({
+            ...v!,
+            filtered: this.ReviewList.applyFilter(v!.filter, v!.items),
+        }));
+    }
 
-    sendSelectedToRegistry = () => {
-        const selection = this.ReviewList.getSelectedReviews(this.view.filtered);
+    sendSelectedToRegistry() {
+        const currentView = this.view();
+        if (!currentView) return;
+        const selection = this.ReviewList.getSelectedReviews(currentView.filtered);
         if (selection.length == 0) {
             return;
         }
-        const content = this.Assessment.getRecordReviewConfirmationDialogContent('', this.needsFeedbackWarning);
-        const examId = this.collaborative ? this.exam.id : undefined;
+        const content = this.Assessment.getRecordReviewConfirmationDialogContent('', this.needsFeedbackWarning());
+        const examId = this.collaborative() ? this.exam().id : undefined;
         this.Confirmation.open$(this.translate.instant('i18n_confirm'), content).subscribe({
             next: () =>
                 forkJoin(selection.map((s) => this.ReviewList.sendToRegistry$(s.examParticipation, examId))).subscribe(
@@ -114,38 +134,65 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
                     },
                 ),
         });
-    };
-
-    getLinkToAssessment = (review: Review) =>
-        this.collaborative
-            ? `/assessments/collaborative/${this.exam.id}/${review.examParticipation._id}`
-            : `/assessments/${review.examParticipation.exam.id}`;
-
-    pageSelected = (event: { page: number }) => (this.view.page = event.page);
-
-    selectAll = () => this.ReviewList.selectAll(this.selections, this.view.filtered);
-
-    selectPage = (selector: string) => this.ReviewList.selectPage(this.selections, this.view.filtered, selector);
-
-    setPredicate = (predicate: string) => {
-        if (this.view.predicate === predicate) {
-            this.view.reverse = !this.view.reverse;
-        }
-        this.view.predicate = predicate;
-    };
-
-    private init() {
-        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');
-        this.selections = { all: false, page: false };
     }
 
-    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
+    getLinkToAssessment(review: Review) {
+        return this.collaborative()
+            ? `/assessments/collaborative/${this.exam().id}/${review.examParticipation._id}`
+            : `/assessments/${review.examParticipation.exam.id}`;
+    }
 
-    private handleGradedReviews = (r: Review) => {
+    pageSelected(event: { page: number }) {
+        this.view.update((v) => ({ ...v!, page: event.page }));
+    }
+
+    selectAll() {
+        const currentView = this.view();
+        if (!currentView) return;
+        const currentSelections = { ...this.selections() };
+        this.ReviewList.selectAll(currentSelections, currentView.filtered);
+        this.selections.set(currentSelections);
+    }
+
+    selectPage(selector: string) {
+        const currentView = this.view();
+        if (!currentView) return;
+        const currentSelections = { ...this.selections() };
+        this.ReviewList.selectPage(currentSelections, currentView.filtered, selector);
+        this.selections.set(currentSelections);
+    }
+
+    setPredicate(predicate: string) {
+        this.view.update((v) => {
+            if (!v) return v;
+            const reverse = v.predicate === predicate ? !v.reverse : v.reverse;
+            return { ...v, predicate, reverse };
+        });
+    }
+
+    toggleView() {
+        this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
+    }
+
+    private init(reviews: Review[]) {
+        const initialView = this.ReviewList.prepareView(
+            reviews,
+            (r) => this.handleGradedReviews(r),
+            'examParticipation.deadline',
+        );
+        this.view.set(initialView);
+        this.selections.set({ all: false, page: false });
+    }
+
+    private translateGrade(exam: Exam) {
+        return this.ReviewList.translateGrade(exam);
+    }
+
+    private handleGradedReviews(r: Review) {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
         r.displayedCredit = this.CommonExam.getExamDisplayCredit(r.examParticipation.exam);
-    };
+    }
 }

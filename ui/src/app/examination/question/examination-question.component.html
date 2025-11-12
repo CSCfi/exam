@@ -25,27 +25,27 @@ SPDX-License-Identifier: EUPL-1.2
                     <button
                         tabindex="0"
                         class="pointer section-box-title arrow border-none background-none"
-                        [attr.aria-label]="parseAriaLabel(expanded ? 'i18n_collapse' : 'i18n_expand')"
-                        [attr.aria-expanded]="expanded"
-                        (click)="expanded = !expanded"
-                        (keydown.enter)="expanded = !expanded"
+                        [attr.aria-label]="parseAriaLabel(expanded() ? 'i18n_collapse' : 'i18n_expand')"
+                        [attr.aria-expanded]="expanded()"
+                        (click)="toggleExpanded()"
+                        (keydown.enter)="toggleExpanded()"
                     >
-                        <i [ngClass]="expanded ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                        <i [ngClass]="expanded() ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
                     </button>
                 </div>
                 <!-- question text -->
                 <div class="col mt-3 order-1">
-                    @if (sq.question.type !== 'ClozeTestQuestion') {
-                        @if (expanded) {
-                            <div class="section-box-title" [xmMathJax]="sq.question.question"></div>
+                    @if (sq().question.type !== 'ClozeTestQuestion') {
+                        @if (expanded()) {
+                            <div class="section-box-title" [xmMathJax]="sq().question.question"></div>
                         } @else {
-                            <div class="section-box-title" [xmMathJax]="sq.question.question | slice: 0 : 240"></div>
+                            <div class="section-box-title" [xmMathJax]="sq().question.question | slice: 0 : 240"></div>
                         }
                     } @else {
                         <div class="section-box-title">
                             <xm-dynamic-cloze-test
-                                [content]="sq.clozeTestAnswer?.question || ''"
-                                [answer]="clozeAnswer"
+                                [content]="sq().clozeTestAnswer?.question || ''"
+                                [answer]="clozeAnswer()"
                                 (answerChanged)="answered($event)"
                             />
                         </div>
@@ -53,19 +53,19 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
             </div>
             <!-- instruction -->
-            @if (sq.answerInstructions && expanded) {
+            @if (sq().answerInstructions && expanded()) {
                 <div class="row">
                     <div class="col-md-12 ps-4">
                         <p class="question-text question-type-text info" role="note">
                             <img class="me-4" src="/assets/images/icon_info.svg" alt="" />
-                            {{ 'i18n_instructions' | translate }}:&nbsp;{{ sq.answerInstructions }}
+                            {{ 'i18n_instructions' | translate }}:&nbsp;{{ sq().answerInstructions }}
                         </p>
                     </div>
                 </div>
             }
 
             <!-- attachment -->
-            @if (sq.question.attachment && expanded) {
+            @if (sq().question.attachment && expanded()) {
                 <div class="row mt-3">
                     <div class="col-md-12">
                         <button
@@ -82,7 +82,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="row">
                     <div class="col-md-12">
                         <div class="attachment-name float-end">
-                            {{ sq.question.attachment?.fileName | uppercase }}
+                            {{ sq().question.attachment?.fileName | uppercase }}
                         </div>
                     </div>
                 </div>
@@ -91,43 +91,47 @@ SPDX-License-Identifier: EUPL-1.2
             <!-- answer -->
             <div class="row">
                 <div class="col-md-12">
-                    @if (expanded) {
+                    @if (expanded()) {
                         <div class="question">
-                            @switch (sq.question.type) {
+                            @switch (sq().question.type) {
                                 @case ('EssayQuestion') {
-                                    <xm-examination-essay-question [sq]="sq" [exam]="exam" [isPreview]="isPreview" />
+                                    <xm-examination-essay-question
+                                        [sq]="sq()"
+                                        [exam]="exam()"
+                                        [isPreview]="isPreview()"
+                                    />
                                 }
                                 @case ('ClozeTestQuestion') {
                                     <xm-examination-cloze-test
-                                        [sq]="sq"
-                                        [examHash]="exam?.hash || ''"
-                                        [isPreview]="isPreview"
+                                        [sq]="sq()"
+                                        [examHash]="exam()?.hash || ''"
+                                        [isPreview]="isPreview()"
                                     />
                                 }
                                 @case ('MultipleChoiceQuestion') {
                                     <xm-examination-multi-choice-question
-                                        [sq]="sq"
-                                        [examHash]="exam?.hash || ''"
-                                        [isPreview]="isPreview"
-                                        [orderOptions]="!exam?.external"
+                                        [sq]="sq()"
+                                        [examHash]="exam()?.hash || ''"
+                                        [isPreview]="isPreview()"
+                                        [orderOptions]="!exam()?.external"
                                     >
                                     </xm-examination-multi-choice-question>
                                 }
                                 @case ('ClaimChoiceQuestion') {
                                     <xm-examination-multi-choice-question
-                                        [sq]="sq"
-                                        [examHash]="exam?.hash || ''"
-                                        [isPreview]="isPreview"
+                                        [sq]="sq()"
+                                        [examHash]="exam()?.hash || ''"
+                                        [isPreview]="isPreview()"
                                         [orderOptions]="true"
                                     >
                                     </xm-examination-multi-choice-question>
                                 }
                                 @case ('WeightedMultipleChoiceQuestion') {
                                     <xm-examination-weighted-multi-choice-question
-                                        [sq]="sq"
-                                        [examHash]="exam?.hash || ''"
-                                        [isPreview]="isPreview"
-                                        [orderOptions]="!exam?.external"
+                                        [sq]="sq()"
+                                        [examHash]="exam()?.hash || ''"
+                                        [isPreview]="isPreview()"
+                                        [orderOptions]="!exam()?.external"
                                     >
                                     </xm-examination-weighted-multi-choice-question>
                                 }

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -10,6 +10,7 @@ import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.c
 import { Option } from 'src/app/shared/select/select.model';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <strong class="col-md-12">
@@ -21,7 +22,7 @@ import { Option } from 'src/app/shared/select/select.model';
                 <label for="enrolment">{{ 'i18n_select_exam' | translate }}</label>
                 <xm-dropdown-select
                     id="enrolment"
-                    [options]="examNames"
+                    [options]="examNames()"
                     (optionSelected)="enrolmentSelected($event)"
                     placeholder="{{ 'i18n_select' | translate }}"
                 ></xm-dropdown-select>
@@ -37,22 +38,23 @@ import { Option } from 'src/app/shared/select/select.model';
     imports: [DropdownSelectComponent, TranslateModule],
 })
 export class EnrolmentsReportComponent {
-    @Input() examNames: Option<string, number>[] = [];
-    enrolment?: number;
+    examNames = input<Option<string, number>[]>([]);
+    enrolment = signal<number | undefined>(undefined);
 
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private files = inject(FileService);
 
-    getExamEnrolments = () => {
-        if (this.enrolment) {
-            this.files.download(`/app/statistics/examenrollments/${this.enrolment}`, 'exam_enrolments.xlsx');
+    getExamEnrolments() {
+        const currentEnrolment = this.enrolment();
+        if (currentEnrolment) {
+            this.files.download(`/app/statistics/examenrollments/${currentEnrolment}`, 'exam_enrolments.xlsx');
         } else {
             this.toast.error(this.translate.instant('i18n_choose_exam'));
         }
-    };
+    }
 
-    enrolmentSelected = (event?: Option<string, number>) => {
-        this.enrolment = event?.id;
-    };
+    enrolmentSelected(event?: Option<string, number>) {
+        this.enrolment.set(event?.id);
+    }
 }

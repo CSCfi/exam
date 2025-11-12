@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-@for (room of rooms; track room) {
+@for (room of rooms(); track room.id) {
     <div class="row mt-4" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
         <div class="col-12">
             <h4>
@@ -42,9 +42,9 @@ SPDX-License-Identifier: EUPL-1.2
                     <br />
                     <span class="me-2">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
                     @if (room.addressVisible) {
-                        <i class="bi-chevron-down pointer" (click)="room.addressVisible = false"></i>
+                        <i class="bi-chevron-down pointer" (click)="toggleAddressVisibility(room)"></i>
                     } @else {
-                        <i class="bi-chevron-right pointer" (click)="room.addressVisible = true"></i>
+                        <i class="bi-chevron-right pointer" (click)="toggleAddressVisibility(room)"></i>
                     }
                 </div>
                 <div [hidden]="!room.addressVisible">
@@ -158,7 +158,7 @@ SPDX-License-Identifier: EUPL-1.2
                         }
                         @if (getFutureExceptionEvent(room.calendarExceptionEvents).length > 2) {
                             <div class="d-flex justify-content-end flex-nowrap">
-                                <i class="bi-three-dots pointer me-2" (click)="room.availabilityVisible = true"></i>
+                                <i class="bi-three-dots pointer me-2" (click)="setAvailabilityVisible(room, true)"></i>
                                 <div class="text-danger">
                                     ({{ getFutureExceptionEvent(room.calendarExceptionEvents).length }})
                                 </div>

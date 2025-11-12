@@ -4,14 +4,14 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-@if (newQuestion) {
-    @if (!isPopup) {
+@if (newQuestion()) {
+    @if (!isPopup()) {
         <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
     } @else {
         <xm-page-header text="i18n_toolbar_new_question" />
     }
 } @else {
-    @if (!isPopup) {
+    @if (!isPopup()) {
         <xm-page-header text="i18n_questions_edit" [prependTemplate]="linkBack" />
     } @else {
         <xm-page-header text="i18n_questions_edit" />
@@ -28,35 +28,39 @@ SPDX-License-Identifier: EUPL-1.2
         <!-- Question body -->
         <div class="col-md-12">
             <form role="form" #questionForm="ngForm" name="questionForm">
-                @if (question) {
+                @if (question()) {
                     <xm-question-body
-                        [question]="question"
-                        [currentOwners]="currentOwners"
-                        [lotteryOn]="lotteryOn"
-                        [examId]="examId"
-                        [sectionQuestion]="sectionQuestion"
-                        [collaborative]="collaborative"
+                        [question]="question()!"
+                        [currentOwners]="currentOwners()"
+                        [lotteryOn]="lotteryOn()"
+                        [examId]="examId()"
+                        [sectionQuestion]="sectionQuestion()"
+                        [collaborative]="collaborative()"
+                        (currentOwnersChange)="currentOwners.set($event)"
+                        (questionChange)="question.set($event)"
                     ></xm-question-body>
                 }
             </form>
             <!-- buttons -->
 
             <div class="d-flex flex-row-reverse mt-2">
-                <button
-                    [disabled]="
-                        !question ||
-                        !question.type ||
-                        hasNoCorrectOption() ||
-                        hasInvalidClaimChoiceOptions() ||
-                        !question.question ||
-                        questionForm.invalid
-                    "
-                    (click)="saveQuestion()"
-                    type="submit"
-                    class="btn btn-success"
-                >
-                    {{ 'i18n_save' | translate }}
-                </button>
+                @if (question()) {
+                    <button
+                        [disabled]="
+                            !question() ||
+                            !question()!.type ||
+                            hasNoCorrectOption() ||
+                            hasInvalidClaimChoiceOptions() ||
+                            !question()!.question ||
+                            questionForm.invalid
+                        "
+                        (click)="saveQuestion()"
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        {{ 'i18n_save' | translate }}
+                    </button>
+                }
 
                 <button (click)="cancel()" type="submit" class="btn btn-secondary me-2">
                     {{ 'i18n_button_cancel' | translate }}
@@ -66,8 +70,8 @@ SPDX-License-Identifier: EUPL-1.2
                     type="submit"
                     class="xm-neutral-button me-2"
                     [disabled]="
-                        !question ||
-                        !question.type ||
+                        !question() ||
+                        !question()!.type ||
                         hasNoCorrectOption() ||
                         hasInvalidClaimChoiceOptions() ||
                         questionForm.invalid

@@ -28,7 +28,7 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (course of filteredCourses; track course.id) {
+                @for (course of filteredCourses(); track course.id) {
                     <button
                         [hidden]="course.filtered"
                         role="presentation"
@@ -62,7 +62,7 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (exam of filteredExams; track exam.id) {
+                @for (exam of filteredExams(); track exam.id) {
                     <button
                         [hidden]="exam.filtered"
                         role="presentation"
@@ -102,7 +102,7 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (tag of filteredTags; track tag.id) {
+                @for (tag of filteredTags(); track tag.id) {
                     <button
                         [hidden]="tag.filtered"
                         role="presentation"
@@ -142,7 +142,7 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (section of filteredSections; track section.id) {
+                @for (section of filteredSections(); track section.id) {
                     <button
                         [hidden]="section.filtered"
                         role="presentation"
@@ -179,7 +179,7 @@ SPDX-License-Identifier: EUPL-1.2
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (owner of filteredOwners; track owner.id) {
+                @for (owner of filteredOwners(); track owner.id) {
                     <button
                         [hidden]="owner.filtered"
                         role="presentation"

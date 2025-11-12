@@ -13,23 +13,23 @@ SPDX-License-Identifier: EUPL-1.2
     }
 </style-->
 <div ngModelGroup="questionBody" id="questionBody">
-    <xm-question-usage [examNames]="examNames" />
+    <xm-question-usage [examNames]="examNames()" />
     <xm-question-basic-info
-        [question]="question"
-        [questionTypes]="questionTypes"
-        [questionId]="question.id"
+        [question]="question()"
+        [questionTypes]="questionTypes()"
+        [questionId]="question().id"
         (newText)="setText($event)"
         (newType)="setQuestionType($event)"
     />
     <div class="row mt-2">
         <div class="col-md-12">
-            @if (question.type === 'EssayQuestion') {
+            @if (question().type === 'EssayQuestion') {
                 <!-- Evaluation -->
                 <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
             } @else if (
-                question.type === 'MultipleChoiceQuestion' ||
-                question.type === 'WeightedMultipleChoiceQuestion' ||
-                question.type === 'ClaimChoiceQuestion'
+                question().type === 'MultipleChoiceQuestion' ||
+                question().type === 'WeightedMultipleChoiceQuestion' ||
+                question().type === 'ClaimChoiceQuestion'
             ) {
                 <!-- Multiple choices -->
                 <div class="xm-paragraph-title">{{ 'i18n_question_options' | translate }}</div>
@@ -38,35 +38,37 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 
     <!-- Type specific content -->
-    @switch (question.type) {
+    @switch (question().type) {
         @case ('EssayQuestion') {
-            <xm-essay-editor [question]="question" [lotteryOn]="lotteryOn" />
+            <xm-essay-editor [question]="question()" [lotteryOn]="lotteryOn()" />
         }
         @case ('MultipleChoiceQuestion') {
             <xm-multiple-choice-editor
-                [question]="question"
+                [question]="question()"
                 [showWarning]="showWarning()"
-                [lotteryOn]="lotteryOn"
-                [allowOptionRemoval]="!isInPublishedExam"
+                [lotteryOn]="lotteryOn()"
+                [allowOptionRemoval]="!isInPublishedExam()"
+                (questionChange)="onQuestionChange($event)"
             />
         }
         @case ('WeightedMultipleChoiceQuestion') {
             <xm-multiple-choice-editor
-                [question]="question"
+                [question]="question()"
                 [showWarning]="showWarning()"
-                [lotteryOn]="lotteryOn"
-                [allowOptionRemoval]="!isInPublishedExam"
+                [lotteryOn]="lotteryOn()"
+                [allowOptionRemoval]="!isInPublishedExam()"
+                (questionChange)="onQuestionChange($event)"
             />
         }
         @case ('ClaimChoiceQuestion') {
-            <xm-claim-choice-editor [question]="question" [lotteryOn]="lotteryOn" [showWarning]="showWarning()" />
+            <xm-claim-choice-editor [question]="question()" [lotteryOn]="lotteryOn()" [showWarning]="showWarning()" />
         }
     }
 
     @if (
-        question.type === 'MultipleChoiceQuestion' ||
-        question.type === 'ClozeTestQuestion' ||
-        question.defaultEvaluationType === 'Points'
+        question().type === 'MultipleChoiceQuestion' ||
+        question().type === 'ClozeTestQuestion' ||
+        question().defaultEvaluationType === 'Points'
     ) {
         <!-- Max score -->
         <div class="row mt-3">
@@ -80,11 +82,12 @@ SPDX-License-Identifier: EUPL-1.2
                     type="number"
                     lang="en"
                     class="form-control xm-numeric-input"
-                    [(ngModel)]="question.defaultMaxScore"
+                    [ngModel]="question().defaultMaxScore"
+                    (ngModelChange)="setDefaultMaxScore($event)"
                     [min]="0"
                     [max]="1000"
                     required
-                    [disabled]="lotteryOn"
+                    [disabled]="lotteryOn()"
                 />
             </div>
         </div>
@@ -118,7 +121,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 type="text"
                                 name="questionOnwers"
                                 class="form-control"
-                                [(ngModel)]="newOwner.name"
+                                [ngModel]="newOwner().name"
+                                (ngModelChange)="setNewOwnerName($event)"
                                 [ngbTypeahead]="listQuestionOwners$"
                                 [editable]="false"
                                 [inputFormatter]="nameFormat"
@@ -127,7 +131,7 @@ SPDX-License-Identifier: EUPL-1.2
                             />
                             <button
                                 (click)="addQuestionOwner()"
-                                [disabled]="!newOwner?.name"
+                                [disabled]="!newOwner()?.name"
                                 class="btn btn-success input-group-text"
                             >
                                 {{ 'i18n_add' | translate }}
@@ -136,18 +140,18 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 </div>
                 <div class="row">
-                    <div class="ms-1 row" [hidden]="currentOwners.length !== 1">
+                    <div class="ms-1 row" [hidden]="currentOwners().length !== 1">
                         {{ 'i18n_exam_last_owner_info' | translate }}
                     </div>
                     <div class="col-md-12 mt-3">
-                        @for (user of currentOwners; track user.id) {
-                            <div class="ms-1 row" [ngClass]="{ 'hover-grey': currentOwners.length !== 1 }">
+                        @for (user of currentOwners(); track user.id) {
+                            <div class="ms-1 row" [ngClass]="{ 'hover-grey': currentOwners().length !== 1 }">
                                 <div class="row col-8">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</div>
                                 <!-- Remove button -->
                                 <button
                                     class="btn btn-danger btn-sm ms-1 w-auto m-1"
                                     (click)="removeOwner(user)"
-                                    [hidden]="currentOwners.length === 1"
+                                    [hidden]="currentOwners().length === 1"
                                     [disabled]="removeOwnerDisabled(user)"
                                     [attr.aria-label]="user.firstName + ' ' + user.lastName"
                                 >
@@ -158,7 +162,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 </div>
             } @else {
-                @for (user of currentOwners; track user.id) {
+                @for (user of currentOwners(); track user.id) {
                     <div class="ms-1 row">
                         <div class="row col-8">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</div>
                     </div>
@@ -187,17 +191,17 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
             }
             <button class="btn btn-success" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</button>
-            @if (question.attachment && !question.attachment?.removed) {
+            @if (question().attachment && !question().attachment?.removed) {
                 <div class="make-inline ps-2">
                     @if (hasUploadedAttachment()) {
                         <!-- Uploaded -->
                         <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
-                            <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
+                            <i class="bi-paperclip"></i> {{ question().attachment?.fileName }}
                         </a>
                     } @else {
                         <!-- Not yet uploaded -->
                         <span class="attachment-link">
-                            <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
+                            <i class="bi-paperclip"></i> {{ question().attachment?.fileName }}
                             <small class="ps-2">{{ getFileSize() }}</small>
                         </span>
                     }
@@ -227,14 +231,15 @@ SPDX-License-Identifier: EUPL-1.2
                 name="defaultInstructions"
                 class="form-control"
                 rows="3"
-                [(ngModel)]="question.defaultAnswerInstructions"
+                [ngModel]="question().defaultAnswerInstructions"
+                (ngModelChange)="setDefaultAnswerInstructions($event)"
                 placeholder="{{ 'i18n_question_instruction' | translate }}"
             >
             </textarea>
         </div>
     </div>
 
-    @if (question.type === 'EssayQuestion') {
+    @if (question().type === 'EssayQuestion') {
         <!-- Evaluation criteria -->
         <div class="row mt-3">
             <div class="col-md-3">
@@ -253,7 +258,8 @@ SPDX-License-Identifier: EUPL-1.2
                     name="defaultEvaluationCriteria"
                     class="form-control"
                     rows="3"
-                    [(ngModel)]="question.defaultEvaluationCriteria"
+                    [ngModel]="question().defaultEvaluationCriteria"
+                    (ngModelChange)="setDefaultEvaluationCriteria($event)"
                     placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
                 >
                 </textarea>
@@ -261,19 +267,23 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
 
-    @if (!collaborative) {
+    @if (!collaborative()) {
         <!-- Tags -->
-        <xm-tag-picker [question]="question"></xm-tag-picker>
+        <xm-tag-picker
+            [question]="question()"
+            (tagAdded)="onTagAdded($event)"
+            (tagRemoved)="onTagRemoved($event)"
+        ></xm-tag-picker>
     }
 
-    @if (sectionNames.length > 0) {
+    @if (sectionNames().length > 0) {
         <!-- Categories -->
         <div class="row mt-3">
             <div class="col-md-3">
                 {{ 'i18n_added_to_sections' | translate }}
             </div>
             <div class="col-md-9">
-                {{ sectionNames.join(', ') }}
+                {{ sectionNames().join(', ') }}
             </div>
         </div>
     }

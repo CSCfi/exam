@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgbActiveModal, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -46,8 +45,8 @@ import { Tag } from 'src/app/question/question.model';
     `,
     imports: [NgbTypeaheadModule, TranslateModule],
 })
-export class LibraryTagsDialogComponent implements OnInit {
-    @Input() selections: number[] = [];
+export class LibraryTagsDialogComponent {
+    selections: number[] = [];
 
     tags: Tag[] = [];
     newTags: number[] = [];
@@ -58,7 +57,7 @@ export class LibraryTagsDialogComponent implements OnInit {
     private toast = inject(ToastrService);
     private Library = inject(LibraryService);
 
-    ngOnInit() {
+    constructor() {
         this.Library.listAllTags$().subscribe((tags: Tag[]) => {
             this.tags = tags;
         });

@@ -4,7 +4,7 @@
 
 import { DatePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ReviewedExam, Scores } from 'src/app/enrolment/enrolment.model';
@@ -16,6 +16,7 @@ import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
 
 @Component({
     selector: 'xm-exam-feedback',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-feedback.component.html',
     imports: [NgClass, DatePipe, TranslateModule],
     styles: [
@@ -29,51 +30,57 @@ import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
         `,
     ],
 })
-export class ExamFeedbackComponent implements OnInit {
-    @Input() assessment!: ReviewedExam;
-    @Input() participationTime = '';
-    @Input() participationDuration: number | string = 0;
-    @Input() scores!: Scores;
-    @Input() collaborative = false;
+export class ExamFeedbackComponent {
+    assessment = input.required<ReviewedExam>();
+    participationTime = input('');
+    participationDuration = input<number | string>(0);
+    scores = input.required<Scores>();
+    collaborative = input(false);
 
-    assessmentWithAnswers?: Exam;
+    assessmentWithAnswers = signal<Exam | undefined>(undefined);
 
     private http = inject(HttpClient);
     private modal = inject(ModalService);
     private Attachment = inject(AttachmentService);
     private Files = inject(FileService);
 
-    ngOnInit() {
-        if (!this.collaborative) {
-            this.http
-                .get<Exam | undefined>(`/app/feedback/exams/${this.assessment.id}/answers`)
-                .subscribe((exam) => (this.assessmentWithAnswers = exam));
-        }
+    constructor() {
+        // Load answers when assessment changes and not collaborative
+        effect(() => {
+            const assessment = this.assessment();
+            const collaborative = this.collaborative();
+            if (!collaborative) {
+                this.http
+                    .get<Exam | undefined>(`/app/feedback/exams/${assessment.id}/answers`)
+                    .subscribe((exam) => this.assessmentWithAnswers.set(exam));
+            }
+        });
     }
-    downloadFeedbackAttachment = () => {
-        const attachment = this.assessment.examFeedback?.attachment;
-        if (this.collaborative && attachment && attachment.externalId) {
+
+    downloadFeedbackAttachment() {
+        const assessment = this.assessment();
+        const attachment = assessment.examFeedback?.attachment;
+        if (this.collaborative() && attachment && attachment.externalId) {
             this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
         } else {
-            this.Attachment.downloadFeedbackAttachment(this.assessment);
+            this.Attachment.downloadFeedbackAttachment(assessment);
         }
-    };
-    downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.assessment);
+    }
 
-    showAnswers = () => {
+    downloadStatementAttachment() {
+        this.Attachment.downloadStatementAttachment(this.assessment());
+    }
+
+    showAnswers() {
         const modal = this.modal.openRef(ExamAnswersDialogComponent, { size: 'xl' });
-        modal.componentInstance.exam = this.assessmentWithAnswers;
-        modal.componentInstance.participationTime = this.participationTime;
-        modal.componentInstance.participationDuration = this.participationDuration;
-    };
+        modal.componentInstance.exam.set(this.assessmentWithAnswers());
+        modal.componentInstance.participationTime.set(this.participationTime());
+        modal.componentInstance.participationDuration.set(this.participationDuration());
+    }
 
-    downloadScoreReport = () => {
-        const url = `/app/feedback/exams/${this.assessment.id}/report`;
-        this.Files.download(
-            url,
-            `${this.assessment.name}_${DateTime.now().toFormat('dd-LL-yyyy')}.xlsx`,
-            undefined,
-            false,
-        );
-    };
+    downloadScoreReport() {
+        const assessment = this.assessment();
+        const url = `/app/feedback/exams/${assessment.id}/report`;
+        this.Files.download(url, `${assessment.name}_${DateTime.now().toFormat('dd-LL-yyyy')}.xlsx`, undefined, false);
+    }
 }

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -43,41 +43,83 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         OrderByPipe,
         NgbCollapse,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InProgressReviewsComponent implements OnInit {
-    @Input() exam!: Exam;
-    @Input() reviews: Review[] = [];
-    @Input() collaborative = false;
-    view!: ReviewListView;
+export class InProgressReviewsComponent {
+    exam = input.required<Exam>();
+    reviews = input<Review[]>([]);
+    collaborative = input(false);
+    view = signal<ReviewListView | undefined>(undefined);
 
     private modal = inject(ModalService);
     private ReviewList = inject(ReviewListService);
     private Session = inject(SessionService);
     private Files = inject(FileService);
 
-    ngOnInit() {
-        this.view = this.ReviewList.prepareView(this.reviews, (r) => r, 'examParticipation.deadline');
+    constructor() {
+        effect(() => this.init(this.reviews()));
     }
 
-    isOwner = (user: User) => this.exam && this.exam.examOwners.some((o) => o.id === user.id);
+    isOwner(user: User) {
+        const currentExam = this.exam();
+        return currentExam && currentExam.examOwners.some((o) => o.id === user.id);
+    }
 
-    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
+    showId() {
+        return this.Session.getUser().isAdmin && this.exam()?.anonymous;
+    }
 
-    pageSelected = (event: { page: number }) => (this.view.page = event.page);
+    pageSelected(event: { page: number }) {
+        this.view.update((v) => ({ ...v!, page: event.page }));
+    }
 
-    applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
+    updateFilter(value: string) {
+        this.view.update((v) => {
+            if (!v) return v;
+            return {
+                ...v,
+                filter: value,
+                filtered: this.ReviewList.applyFilter(value, v.items),
+            };
+        });
+    }
 
-    setPredicate = (predicate: string) => {
-        if (this.view.predicate === predicate) {
-            this.view.reverse = !this.view.reverse;
-        }
-        this.view.predicate = predicate;
-    };
+    applyFreeSearchFilter() {
+        const currentView = this.view();
+        if (!currentView) return;
+        this.view.update((v) => ({
+            ...v!,
+            filtered: this.ReviewList.applyFilter(v!.filter, v!.items),
+        }));
+    }
 
-    getAnswerAttachments = () =>
-        this.modal
+    setPredicate(predicate: string) {
+        this.view.update((v) => {
+            if (!v) return v;
+            const reverse = v.predicate === predicate ? !v.reverse : v.reverse;
+            return { ...v, predicate, reverse };
+        });
+    }
+
+    toggleView() {
+        this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
+    }
+
+    getAnswerAttachments() {
+        const currentExam = this.exam();
+        return this.modal
             .open$<{ $value: { start: string; end: string } }>(ArchiveDownloadComponent)
             .subscribe((params) =>
-                this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params.$value),
+                this.Files.download(
+                    `/app/exam/${currentExam.id}/attachments`,
+                    `${currentExam.id}.tar.gz`,
+                    params.$value,
+                ),
             );
+    }
+
+    private init(reviews: Review[]) {
+        const initialView = this.ReviewList.prepareView(reviews, (r) => r, 'examParticipation.deadline');
+        this.view.set(initialView);
+    }
 }

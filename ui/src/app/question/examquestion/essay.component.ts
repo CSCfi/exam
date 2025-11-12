@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -12,6 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     imports: [FormsModule, NgbPopoverModule, TranslateModule],
     styleUrls: ['../question.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div ngModelGroup="essay" id="essay">
             <div class="row">
@@ -97,17 +98,25 @@ import { TranslateModule } from '@ngx-translate/core';
     `,
 })
 export class EssayComponent {
-    evaluationType = input<string>();
-    expectedWordCount = input<number>();
-    evaluationCriteria = input<string>();
+    evaluationType = model<string>();
+    expectedWordCount = model<number>();
+    evaluationCriteria = model<string>();
     lotteryOn = input<boolean>(false);
 
-    evaluationTypeChanged = output<string>();
-    expectedWordCountChanged = output<number>();
-    evaluationCriteriaChanged = output<string>();
+    updateEvaluationType(type: string | null) {
+        const value = type ?? undefined;
+        this.evaluationType.set(value);
+    }
 
-    updateEvaluationType = (type: string) => this.evaluationTypeChanged.emit(type);
-    updateWordCount = (count: number) => this.expectedWordCountChanged.emit(count);
-    updateEvaluationCriteria = (criteria: string) => this.evaluationCriteriaChanged.emit(criteria);
-    estimateCharacters = () => (this.expectedWordCount() || 0) * 8;
+    updateWordCount(count: number) {
+        this.expectedWordCount.set(count);
+    }
+
+    updateEvaluationCriteria(criteria: string) {
+        this.evaluationCriteria.set(criteria);
+    }
+
+    estimateCharacters() {
+        return (this.expectedWordCount() || 0) * 8;
+    }
 }

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
@@ -11,6 +11,7 @@ import { Reservation } from 'src/app/reservation/reservation.model';
 import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row my-2">
             <div class="col-12">
@@ -19,7 +20,7 @@ import { groupBy } from 'src/app/shared/miscellaneous/helpers';
                 </button>
             </div>
         </div>
-        @if (grouped) {
+        @if (grouped()) {
             <div class="row">
                 <div class="col-12">
                     <table class="table table-striped table-sm">
@@ -39,7 +40,7 @@ import { groupBy } from 'src/app/shared/miscellaneous/helpers';
                             </tr>
                         </thead>
                         <tbody>
-                            @for (rg of grouped | keyvalue; track rg.key) {
+                            @for (rg of grouped() | keyvalue; track rg.key) {
                                 <tr>
                                     <td>{{ rg.key }}</td>
                                     <td>{{ outgoingTo(rg.key) }}</td>
@@ -77,33 +78,68 @@ import { groupBy } from 'src/app/shared/miscellaneous/helpers';
     imports: [KeyValuePipe, TranslateModule],
 })
 export class IopReservationStatisticsComponent {
-    @Input() queryParams: QueryParams = {};
-    reservations: Reservation[] = [];
-    grouped: Record<string, Reservation[]> = {};
+    queryParams = input<QueryParams>({});
+    reservations = signal<Reservation[]>([]);
+    grouped = signal<Record<string, Reservation[]>>({});
 
     private Statistics = inject(StatisticsService);
 
-    listReservations = () =>
-        this.Statistics.listIopReservations$(this.queryParams).subscribe((resp) => {
-            this.grouped = groupBy(resp, (r: Reservation) => r.externalOrgName || r.externalReservation?.orgName || '');
-            console.log(this.grouped);
+    listReservations() {
+        this.Statistics.listIopReservations$(this.queryParams()).subscribe((resp) => {
+            const groupedData = groupBy(
+                resp,
+                (r: Reservation) => r.externalOrgName || r.externalReservation?.orgName || '',
+            );
+            console.log(groupedData);
+            this.grouped.set(groupedData);
         });
+    }
 
-    incomingFrom = (org: keyof typeof this.grouped): number =>
-        this.grouped[org].filter((r) => r.externalOrgRef && r.enrolment?.externalExam?.finished).length;
-    incomingNoShowsFrom = (org: keyof typeof this.grouped): number =>
-        this.grouped[org].filter((r) => r.externalOrgRef && !r.enrolment?.externalExam?.finished).length;
-    outgoingTo = (org: keyof typeof this.grouped): number =>
-        this.grouped[org].filter((r) => r.externalReservation?.orgName && r.enrolment?.noShow === false).length;
-    outgoingNoShowsTo = (org: keyof typeof this.grouped): number =>
-        this.grouped[org].filter((r) => r.externalReservation?.orgName && r.enrolment?.noShow === true).length;
-    totalIncoming = () => this.reduce(this.incomingFrom);
-    totalOutgoing = () => this.reduce(this.outgoingTo);
-    totalIncomingNoShows = () => this.reduce(this.incomingNoShowsFrom);
-    totalOutgoingNoShows = () => this.reduce(this.outgoingNoShowsTo);
+    incomingFrom(org: string): number {
+        const currentGrouped = this.grouped();
+        return currentGrouped[org]?.filter((r) => r.externalOrgRef && r.enrolment?.externalExam?.finished).length || 0;
+    }
 
-    private reduce = (fn: (org: keyof typeof this.grouped) => number) =>
-        Object.keys(this.grouped)
+    incomingNoShowsFrom(org: string): number {
+        const currentGrouped = this.grouped();
+        return currentGrouped[org]?.filter((r) => r.externalOrgRef && !r.enrolment?.externalExam?.finished).length || 0;
+    }
+
+    outgoingTo(org: string): number {
+        const currentGrouped = this.grouped();
+        return (
+            currentGrouped[org]?.filter((r) => r.externalReservation?.orgName && r.enrolment?.noShow === false)
+                .length || 0
+        );
+    }
+
+    outgoingNoShowsTo(org: string): number {
+        const currentGrouped = this.grouped();
+        return (
+            currentGrouped[org]?.filter((r) => r.externalReservation?.orgName && r.enrolment?.noShow === true).length ||
+            0
+        );
+    }
+
+    totalIncoming(): number {
+        return this.reduce(this.incomingFrom.bind(this));
+    }
+
+    totalOutgoing(): number {
+        return this.reduce(this.outgoingTo.bind(this));
+    }
+
+    totalIncomingNoShows(): number {
+        return this.reduce(this.incomingNoShowsFrom.bind(this));
+    }
+
+    totalOutgoingNoShows(): number {
+        return this.reduce(this.outgoingNoShowsTo.bind(this));
+    }
+
+    private reduce(fn: (org: string) => number): number {
+        return Object.keys(this.grouped())
             .map(fn)
             .reduce((a, b) => a + b, 0);
+    }
 }

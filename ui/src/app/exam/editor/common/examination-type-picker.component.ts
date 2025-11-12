@@ -4,7 +4,17 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    inject,
+    QueryList,
+    signal,
+    ViewChild,
+    ViewChildren,
+} from '@angular/core';
 import { NgbAccordionDirective, NgbAccordionModule, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -27,14 +37,14 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                     <div ngbAccordionCollapse>
                         <div ngbAccordionBody>
                             <ng-template>
-                                @for (type of executionTypes; track type) {
+                                @for (type of executionTypes(); track type) {
                                     @if (type.examinationTypes.length > 0) {
                                         <a
                                             #link
                                             tabindex="0"
                                             class="pointer"
-                                            [ngClass]="{ 'selected-type': selectedType === type }"
-                                            [attr.aria-current]="selectedType === type ? 'true' : 'false'"
+                                            [ngClass]="{ 'selected-type': selectedType() === type }"
+                                            [attr.aria-current]="selectedType() === type ? 'true' : 'false'"
                                             (click)="selectType(type)"
                                             (keydown)="onKeyDown($event, 0)"
                                         >
@@ -61,7 +71,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                 <!-- Second Panel: Examination Types -->
                 <div
                     ngbAccordionItem="examinationType"
-                    [disabled]="!selectedType || selectedType.examinationTypes.length === 0"
+                    [disabled]="!selectedType() || selectedType()!.examinationTypes.length === 0"
                 >
                     <h2 ngbAccordionHeader>
                         <button ngbAccordionButton>{{ 'i18n_examination_type' | translate }}</button>
@@ -69,12 +79,12 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                     <div ngbAccordionCollapse>
                         <div ngbAccordionBody>
                             <ng-template>
-                                @for (et of selectedType?.examinationTypes; track et) {
+                                @for (et of selectedType()?.examinationTypes; track et) {
                                     <a
                                         #link
                                         tabindex="0"
                                         class="pointer"
-                                        (click)="selectConfig(selectedType.type, et.type)"
+                                        (click)="selectConfig(selectedType()!.type, et.type)"
                                         (keydown)="onKeyDown($event, 1)"
                                     >
                                         {{ et.name | translate }}
@@ -105,26 +115,28 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationTypeSelectorComponent implements OnInit {
+export class ExaminationTypeSelectorComponent {
     @ViewChild('acc', { static: false }) acc!: NgbAccordionDirective;
     @ViewChildren('link') links!: QueryList<ElementRef>;
 
-    executionTypes: ExamConfig[] = [];
-    selectedType!: ExamConfig;
-    focusedIndex = 0;
-    activePanel = 0; // 0 = first panel, 1 = second panel
+    executionTypes = signal<ExamConfig[]>([]);
+    selectedType = signal<ExamConfig | undefined>(undefined);
+    focusedIndex = signal(0);
+    activePanel = signal(0); // 0 = first panel, 1 = second panel
 
     private http = inject(HttpClient);
     private modal = inject(NgbActiveModal);
     private Exam = inject(ExamService);
+    private changeDetector = inject(ChangeDetectorRef);
 
-    ngOnInit() {
+    constructor() {
         this.http
             .get<{ homeExaminationSupported: boolean; sebExaminationSupported: boolean }>('/app/settings/byod')
             .subscribe((resp) => {
                 this.Exam.listExecutionTypes$().subscribe((types) => {
-                    this.executionTypes = types.map((t) => {
+                    const executionTypes = types.map((t) => {
                         const implementations = [];
                         if (t.type !== 'PRINTOUT' && (resp.sebExaminationSupported || resp.homeExaminationSupported)) {
                             implementations.push({ type: 'AQUARIUM', name: 'i18n_examination_type_aquarium' });
@@ -137,12 +149,14 @@ export class ExaminationTypeSelectorComponent implements OnInit {
                         }
                         return { ...t, examinationTypes: implementations };
                     });
+                    this.executionTypes.set(executionTypes);
 
                     // Expand first panel and focus first link
                     setTimeout(() => {
                         this.acc.expand('executionType');
                         const firstLinks = this.getCurrentPanelLinks(0);
                         if (firstLinks.length) firstLinks[0].nativeElement.focus();
+                        this.changeDetector.markForCheck();
                     }, 100);
                 });
             });
@@ -157,46 +171,52 @@ export class ExaminationTypeSelectorComponent implements OnInit {
         if (!currentLinks.length) return;
 
         if (event.key === 'ArrowDown') {
-            this.focusedIndex++;
+            const currentIndex = this.focusedIndex();
+            const newIndex = currentIndex + 1;
 
-            if (this.focusedIndex >= currentLinks.length) {
+            if (newIndex >= currentLinks.length) {
                 // Move to next panel if exists
                 if (panelIndex === 0 && secondPanelLinks.length) {
-                    this.focusedIndex = 0;
+                    this.focusedIndex.set(0);
                     currentLinks = secondPanelLinks;
-                    this.activePanel = 1;
+                    this.activePanel.set(1);
                 } else {
-                    this.focusedIndex = 0; // wrap around in current panel
+                    this.focusedIndex.set(0); // wrap around in current panel
                 }
+            } else {
+                this.focusedIndex.set(newIndex);
             }
 
-            currentLinks[this.focusedIndex].nativeElement.focus();
+            currentLinks[this.focusedIndex()].nativeElement.focus();
             event.preventDefault();
         } else if (event.key === 'ArrowUp') {
-            this.focusedIndex--;
+            const currentIndex = this.focusedIndex();
+            const newIndex = currentIndex - 1;
 
-            if (this.focusedIndex < 0) {
+            if (newIndex < 0) {
                 // Move to previous panel if exists
                 if (panelIndex === 1 && firstPanelLinks.length) {
                     currentLinks = firstPanelLinks;
-                    this.focusedIndex = currentLinks.length - 1;
-                    this.activePanel = 0;
+                    this.focusedIndex.set(currentLinks.length - 1);
+                    this.activePanel.set(0);
                 } else {
-                    this.focusedIndex = currentLinks.length - 1; // wrap around
+                    this.focusedIndex.set(currentLinks.length - 1); // wrap around
                 }
+            } else {
+                this.focusedIndex.set(newIndex);
             }
 
-            currentLinks[this.focusedIndex].nativeElement.focus();
+            currentLinks[this.focusedIndex()].nativeElement.focus();
             event.preventDefault();
         } else if (event.key === 'Enter') {
-            currentLinks[this.focusedIndex].nativeElement.click();
+            currentLinks[this.focusedIndex()].nativeElement.click();
             event.preventDefault();
         }
     }
 
     selectType(type: ExamConfig) {
-        this.selectedType = type;
-        this.activePanel = 1;
+        this.selectedType.set(type);
+        this.activePanel.set(1);
 
         // Expand second panel
         setTimeout(() => {
@@ -204,8 +224,9 @@ export class ExaminationTypeSelectorComponent implements OnInit {
 
             // Focus first link of second panel
             const nextPanelLinks = this.getCurrentPanelLinks(1);
-            this.focusedIndex = 0;
+            this.focusedIndex.set(0);
             if (nextPanelLinks.length) nextPanelLinks[0].nativeElement.focus();
+            this.changeDetector.markForCheck();
         }, 100);
     }
 
@@ -220,9 +241,9 @@ export class ExaminationTypeSelectorComponent implements OnInit {
     private getCurrentPanelLinks(panelIndex: number): ElementRef[] {
         const allLinks = this.links.toArray();
         if (panelIndex === 0) {
-            return allLinks.slice(0, this.executionTypes.length);
+            return allLinks.slice(0, this.executionTypes().length);
         } else {
-            const startIndex = this.executionTypes.length;
+            const startIndex = this.executionTypes().length;
             return allLinks.slice(startIndex, allLinks.length);
         }
     }

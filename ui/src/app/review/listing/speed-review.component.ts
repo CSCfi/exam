@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -61,16 +61,17 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
         PageContentComponent,
     ],
     styleUrl: './speed-review.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SpeedReviewComponent implements OnInit {
+export class SpeedReviewComponent {
     pageSize = 10;
-    currentPage = 0;
-    reviewPredicate = 'deadline';
-    reverse = false;
-    examId = 0;
-    examInfo?: { examOwners: User[]; title: string; anonymous: boolean };
-    toggleReviews = false;
-    examReviews: Review[] = [];
+    currentPage = signal(0);
+    reviewPredicate = signal('deadline');
+    reverse = signal(false);
+    examId = signal(0);
+    examInfo = signal<{ examOwners: User[]; title: string; anonymous: boolean } | undefined>(undefined);
+    toggleReviews = signal(false);
+    examReviews = signal<Review[]>([]);
 
     private http = inject(HttpClient);
     private route = inject(ActivatedRoute);
@@ -86,24 +87,24 @@ export class SpeedReviewComponent implements OnInit {
     private DateTime = inject(DateTimeService);
     private CourseCode = inject(CourseCodeService);
 
-    ngOnInit() {
-        this.examId = this.route.snapshot.params.id;
+    constructor() {
+        const examIdValue = this.route.snapshot.params.id;
+        this.examId.set(examIdValue);
         this.http
-            .get<Exam>(`/app/exams/${this.examId}`)
+            .get<Exam>(`/app/exams/${examIdValue}`)
             .pipe(
-                tap(
-                    (exam) =>
-                        (this.examInfo = {
-                            examOwners: exam.examOwners,
-                            title: `${this.CourseCode.formatCode((exam.course as Course).code)} ${exam.name}`,
-                            anonymous: exam.anonymous,
-                        }),
+                tap((exam) =>
+                    this.examInfo.set({
+                        examOwners: exam.examOwners,
+                        title: `${this.CourseCode.formatCode((exam.course as Course).code)} ${exam.name}`,
+                        anonymous: exam.anonymous,
+                    }),
                 ),
-                switchMap(() => this.http.get<ExamParticipation[]>(`/app/reviews/${this.examId}`)),
+                switchMap(() => this.http.get<ExamParticipation[]>(`/app/reviews/${examIdValue}`)),
             )
             .subscribe({
                 next: (reviews) => {
-                    this.examReviews = reviews
+                    const processedReviews = reviews
                         .filter((r) => r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED')
                         .map((r) => ({
                             examParticipation: r,
@@ -114,27 +115,35 @@ export class SpeedReviewComponent implements OnInit {
                                 !r.exam.languageInspection.finishedAt) as boolean,
                             selected: false,
                         }));
-                    this.toggleReviews = this.examReviews.length > 0;
+                    this.examReviews.set(processedReviews);
+                    this.toggleReviews.set(processedReviews.length > 0);
                 },
                 error: (err) => this.toast.error(err.data),
             });
     }
 
-    showFeedbackEditor = (review: Review) => {
+    showFeedbackEditor(review: Review) {
         const modalRef = this.modal.openRef(SpeedReviewFeedbackComponent);
         modalRef.componentInstance.exam = review.examParticipation.exam;
-    };
+    }
 
-    isAllowedToGrade = (review: Review) => this.Exam.isOwnerOrAdmin(review.examParticipation.exam);
+    isAllowedToGrade(review: Review) {
+        return this.Exam.isOwnerOrAdmin(review.examParticipation.exam);
+    }
 
-    setPredicate = (predicate: string) => (this.reviewPredicate = predicate);
+    setPredicate(predicate: string) {
+        this.reviewPredicate.set(predicate);
+    }
 
-    isGradeable = (review: Review) => this.getErrors(review).length === 0;
+    isGradeable(review: Review) {
+        return this.getErrors(review).length === 0;
+    }
 
-    hasModifications = () => {
-        if (this.examReviews) {
+    hasModifications() {
+        const currentReviews = this.examReviews();
+        if (currentReviews) {
             return (
-                this.examReviews.filter(
+                currentReviews.filter(
                     (r) =>
                         r.selectedGrade &&
                         (isRealGrade(r.selectedGrade) || r.selectedGrade.type === 'NOT_GRADED') &&
@@ -143,35 +152,39 @@ export class SpeedReviewComponent implements OnInit {
             );
         }
         return false;
-    };
+    }
 
-    pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
+    pageSelected($event: { page: number }) {
+        this.currentPage.set($event.page);
+    }
 
-    isOwner = (user: User, owners: User[]) => {
+    isOwner(user: User, owners: User[]) {
         if (owners) {
             return owners.some((o) => o.firstName + o.lastName === user.firstName + user.lastName);
         }
         return false;
-    };
+    }
 
-    gradeExams = () => {
-        const reviews = this.examReviews.filter((r) => r.selectedGrade && r.selectedGrade.type && this.isGradeable(r));
+    gradeExams() {
+        const currentReviews = this.examReviews();
+        const reviews = currentReviews.filter((r) => r.selectedGrade && r.selectedGrade.type && this.isGradeable(r));
         this.Confirmation.open$(
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_confirm_grade_review'),
         ).subscribe({
             next: () => {
-                forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
+                forkJoin(reviews.map((r) => this.gradeExam$(r))).subscribe(() => {
                     this.toast.info(this.translate.instant('i18n_saved'));
-                    if (this.examReviews.length === 0) {
-                        this.router.navigate(['/staff/exams', this.examId, '5']);
+                    const remainingReviews = this.examReviews();
+                    if (remainingReviews.length === 0) {
+                        this.router.navigate(['/staff/exams', this.examId(), '5']);
                     }
                 });
             },
         });
-    };
+    }
 
-    importGrades = () => {
+    importGrades() {
         this.Attachment.selectFile$(false, {}, 'i18n_import_grades_from_csv').subscribe((result) => {
             this.Files.upload$('/app/gradeimport', result.$value.attachmentFile, {}).subscribe({
                 next: () => {
@@ -181,10 +194,11 @@ export class SpeedReviewComponent implements OnInit {
                 error: (err) => this.toast.error(err),
             });
         });
-    };
+    }
 
-    createGradingTemplate = () => {
-        const rows = this.examReviews
+    createGradingTemplate() {
+        const currentReviews = this.examReviews();
+        const rows = currentReviews
             .map(
                 (r) =>
                     [
@@ -201,14 +215,15 @@ export class SpeedReviewComponent implements OnInit {
         const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
         const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
         saveAs(blob, 'grading.csv', { autoBom: false });
-    };
+    }
 
-    private reload = () =>
+    private reload() {
         this.router
             .navigateByUrl('/', { skipLocationChange: true })
-            .then(() => this.router.navigate(['/staff/assessments', this.examId, 'speedreview']));
+            .then(() => this.router.navigate(['/staff/assessments', this.examId(), 'speedreview']));
+    }
 
-    private resolveGradeScale = (exam: Exam): GradeScale => {
+    private resolveGradeScale(exam: Exam): GradeScale {
         if (exam.gradeScale) {
             return exam.gradeScale;
         } else if (exam.parent?.gradeScale) {
@@ -218,9 +233,9 @@ export class SpeedReviewComponent implements OnInit {
         } else {
             throw Error('No GradeScale for Assessment!');
         }
-    };
+    }
 
-    private initGrades = (exam: Exam): SelectableGrade[] => {
+    private initGrades(exam: Exam): SelectableGrade[] {
         const scale = this.resolveGradeScale(exam);
         const grades: SelectableGrade[] = scale.grades
             .map((grade) => {
@@ -244,9 +259,9 @@ export class SpeedReviewComponent implements OnInit {
             marksRejection: false,
         };
         return [...grades, notGraded, pointGraded];
-    };
+    }
 
-    private getErrors = (review: Review) => {
+    private getErrors(review: Review) {
         const messages = [];
         if (!this.isAllowedToGrade(review)) {
             messages.push('i18n_error_unauthorized');
@@ -259,12 +274,13 @@ export class SpeedReviewComponent implements OnInit {
             messages.push('i18n_exam_choose_response_language');
         }
         return messages;
-    };
+    }
 
-    private getAnswerLanguage = (review: Review) =>
-        review.examParticipation.exam.answerLanguage || review.examParticipation.exam.examLanguages[0].code;
+    private getAnswerLanguage(review: Review) {
+        return review.examParticipation.exam.answerLanguage || review.examParticipation.exam.examLanguages[0].code;
+    }
 
-    private gradeExam$ = (review: Review): Observable<void> => {
+    private gradeExam$(review: Review): Observable<void> {
         const messages = this.getErrors(review);
         const exam = review.examParticipation.exam;
         const gradeId = exam.grade && (exam.grade as Grade).id;
@@ -293,7 +309,15 @@ export class SpeedReviewComponent implements OnInit {
             };
             return this.http.put<void>(`/app/review/${exam.id}`, data).pipe(
                 tap(() => {
-                    this.examReviews.splice(this.examReviews.indexOf(review), 1);
+                    this.examReviews.update((reviews) => {
+                        const index = reviews.indexOf(review);
+                        if (index > -1) {
+                            const updated = [...reviews];
+                            updated.splice(index, 1);
+                            return updated;
+                        }
+                        return reviews;
+                    });
                     exam.gradedTime = new Date();
                     exam.grade = grade;
                 }),
@@ -301,5 +325,5 @@ export class SpeedReviewComponent implements OnInit {
         } else {
             return throwError(() => 'no can do');
         }
-    };
+    }
 }

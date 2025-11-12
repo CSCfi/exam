@@ -4,20 +4,20 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<xm-page-header [text]="exam.name || ''" [history]="true" />
+<xm-page-header [text]="exam().name || ''" [history]="true" />
 <xm-page-content [content]="content" />
 
 <ng-template #content>
     <div class="row m-2 xm-study-item-container">
         <div class="col-md-9 col-6">
-            <h2>{{ exam.name }}</h2>
+            <h2>{{ exam().name }}</h2>
             <div class="student-details-subtitle">
-                @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
+                @if (!exam().reservationMade && exam().alreadyEnrolled && !exam().noTrialsLeft) {
                     <span class="text-danger">
                         {{ 'i18n_state_needs_reservation_title' | translate }}
                     </span>
                 }
-                @if (exam.reservationMade) {
+                @if (exam().reservationMade) {
                     <span class="text-success">
                         {{ 'i18n_state_ready' | translate }}
                     </span>
@@ -25,7 +25,7 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
         <div class="row">
-            @if (!exam.alreadyEnrolled && !exam.noTrialsLeft) {
+            @if (!exam().alreadyEnrolled && !exam().noTrialsLeft) {
                 <div class="col-md-3 col-6">
                     <button class="btn btn-success" [disabled]="getExpiration()" (click)="enrollForExam()">
                         {{ 'i18n_enroll_to_exam' | translate }}
@@ -37,7 +37,7 @@ SPDX-License-Identifier: EUPL-1.2
                     }
                 </div>
             }
-            @if (exam.alreadyEnrolled && exam.reservationMade) {
+            @if (exam().alreadyEnrolled && exam().reservationMade) {
                 <div class="student-details-indicator col-md-3 col-6">
                     {{ 'i18n_enrolled_to_exam' | translate }}
                 </div>
@@ -47,45 +47,45 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="row mb-2">
                 <div class="col-md-3">{{ 'i18n_course_name' | translate }}:</div>
                 <div class="col-md-9">
-                    @if (exam.course) {
-                        <xm-course-code [course]="exam.course"></xm-course-code>
+                    @if (exam().course) {
+                        <xm-course-code [course]="exam().course!"></xm-course-code>
                     }
-                    {{ exam.course?.name }}
+                    {{ exam().course?.name }}
                 </div>
             </div>
 
             <div class="row mb-2">
                 <div class="col-md-3">{{ 'i18n_teachers' | translate }}:</div>
                 <div class="col-md-9">
-                    <xm-teacher-list [exam]="exam"></xm-teacher-list>
+                    <xm-teacher-list [exam]="exam()"></xm-teacher-list>
                 </div>
             </div>
 
             <div class="row mb-2">
                 <div class="col-md-3">{{ 'i18n_start_time' | translate }}:</div>
                 <div class="col-md-9">
-                    {{ exam.periodStart | date: 'dd.MM.yyyy' }} - {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
+                    {{ exam().periodStart | date: 'dd.MM.yyyy' }} - {{ exam().periodEnd | date: 'dd.MM.yyyy' }}
                 </div>
             </div>
 
             <div class="row mb-2">
                 <div class="col-md-3">{{ 'i18n_exam_language' | translate }}:</div>
                 <div class="col-md-9">
-                    {{ exam.languages.join(', ') }}
+                    {{ exam().languages.join(', ') }}
                 </div>
             </div>
 
             <div class="row mb-2">
                 <div class="col-md-3">{{ 'i18n_course_scope' | translate }}:</div>
                 <div class="col-md-9">
-                    {{ exam.course?.credits }}
+                    {{ exam().course?.credits }}
                 </div>
             </div>
 
             <div class="row mb-2">
                 <div class="col-md-3">{{ 'i18n_faculty_name' | translate }}:</div>
                 <div class="col-md-9">
-                    {{ exam.course?.organisation?.name }}
+                    {{ exam().course?.organisation?.name }}
                 </div>
             </div>
 
@@ -110,23 +110,23 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
             </div>
         </div>
-        @if (exam.executionType.type !== 'MATURITY' && exam.enrollInstruction) {
+        @if (exam().executionType.type !== 'MATURITY' && exam().enrollInstruction) {
             <div class="row mt-3 mb-2">
                 <div class="col-md-3">{{ 'i18n_view_instructions' | translate }}:</div>
                 <div class="col-md-9">
-                    <div [xmMathJax]="exam.enrollInstruction"></div>
+                    <div [xmMathJax]="exam().enrollInstruction"></div>
                 </div>
             </div>
         }
-        @if (exam.executionType.type !== 'MATURITY' && exam.enrollInstruction) {
+        @if (exam().executionType.type !== 'MATURITY' && exam().enrollInstruction) {
             <div class="row mt-3 mb-2">
                 <div class="col-md-3">{{ 'i18n_maturity_instructions' | translate }}:</div>
                 <div class="col-md-9">
-                    <div [xmMathJax]="exam.maturityInstructions || ''"></div>
+                    <div [xmMathJax]="exam().maturityInstructions || ''"></div>
                 </div>
             </div>
         }
-        @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
+        @if (!exam().reservationMade && exam().alreadyEnrolled && !exam().noTrialsLeft) {
             <div class="row mt-4 me-1">
                 <div class="col-md-12">
                     <button class="btn btn-success" (click)="makeReservation()">

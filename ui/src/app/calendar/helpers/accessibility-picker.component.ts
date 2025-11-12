@@ -2,18 +2,19 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
 
 @Component({
     selector: 'xm-calendar-accessibility-picker',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<div class="row mt-2 mb-2">
         <div class="col-md-12 mt-2 mb-2">
             <div class="row">
                 <div class="col-md-12">
-                    @if (!disabled) {
+                    @if (!disabled()) {
                         <button
                             class="btn btn-outline-secondary"
                             (click)="showMenu.set(!showMenu())"
@@ -42,7 +43,7 @@ import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
                         </div>
                         <div class="row">
                             <div class="col-md-12 calendar-accs-checkboxes">
-                                @for (item of items; track item.id) {
+                                @for (item of items(); track item.id) {
                                     <span class="me-2 accs-list">
                                         <label for="{{ item.name }}">
                                             <input
@@ -66,11 +67,13 @@ import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
     imports: [NgbCollapse, TranslateModule],
 })
 export class AccessibilityPickerComponent {
-    @Input() items: FilterableAccessibility[] = [];
-    @Input() disabled = false;
-    @Output() itemsChange = new EventEmitter<FilterableAccessibility[]>();
+    items = input<FilterableAccessibility[]>([]);
+    disabled = input(false);
+    itemsChange = output<FilterableAccessibility[]>();
 
     showMenu = signal(false);
 
-    select = () => this.itemsChange.emit(this.items);
+    select() {
+        this.itemsChange.emit(this.items());
+    }
 }

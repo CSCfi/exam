@@ -4,35 +4,36 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row" [hidden]="!sq.expectedWordCount">
+<div class="row" [hidden]="!sq().expectedWordCount">
     <div class="col-md-12">
         <small
-            >{{ 'i18n_essay_length_recommendation' | translate }}: {{ sq.expectedWordCount }} ({{
+            >{{ 'i18n_essay_length_recommendation' | translate }}: {{ sq().expectedWordCount }} ({{
                 'i18n_approximately' | translate
             }}
-            {{ (sq.expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
+            {{ (sq().expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
         </small>
     </div>
 </div>
-@if (sq.essayAnswer) {
+@if (sq().essayAnswer) {
     <div class="row">
         <div class="col-md-12">
             <xm-ckeditor
-                [attr.aria-label]="questionTitle"
+                [attr.aria-label]="questionTitle()"
                 rows="10"
                 cols="80"
                 #ck="ngModel"
-                [id]="sq.id.toString()"
-                [(ngModel)]="sq.essayAnswer.answer"
+                [id]="sq().id.toString()"
+                [ngModel]="sq().essayAnswer.answer"
+                (ngModelChange)="answerChanged($event)"
             />
         </div>
     </div>
 }
-@if (sq.autosaved) {
+@if (sq().autosaved) {
     <div class="row">
         <div class="col-md-12">
             <small class="autosave-text">
-                {{ 'i18n_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date: 'HH:mm' }}
+                {{ 'i18n_autosaved' | translate }}:&nbsp;{{ sq().autosaved | date: 'HH:mm' }}
             </small>
         </div>
     </div>
@@ -40,16 +41,16 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="row mt-3">
     <div class="col-md-3 question-type-text">
-        @if (sq.evaluationType === 'Selection') {
+        @if (sq().evaluationType === 'Selection') {
             {{ 'i18n_evaluation_select' | translate }}
         } @else {
-            {{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}
+            {{ sq().derivedMaxScore }} {{ 'i18n_unit_points' | translate }}
         }
     </div>
-    @if (exam?.implementation !== 'CLIENT_AUTH' && sq.essayAnswer?.attachment?.fileName) {
+    @if (exam()?.implementation !== 'CLIENT_AUTH' && sq().essayAnswer?.attachment?.fileName) {
         <div class="col-md-9 mt-2">
             <span class="float-end">
-                <span class="pe-2">{{ sq.essayAnswer?.attachment?.fileName | uppercase }}</span>
+                <span class="pe-2">{{ sq().essayAnswer?.attachment?.fileName | uppercase }}</span>
                 <button class="btn btn-success" (click)="removeQuestionAnswerAttachment()">
                     {{ 'i18n_remove_answer_attachment' | translate }}
                     <img src="/assets/images/icon_attachment.svg" alt="attachment" />
@@ -60,19 +61,19 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 <div class="row align-items-end">
     <div class="col-md-6">
-        <button (click)="saveAnswer()" class="pointer btn btn-success" [disabled]="isPreview">
+        <button (click)="saveAnswer()" class="pointer btn btn-success" [disabled]="isPreview()">
             {{ 'i18n_save' | translate }}
         </button>
     </div>
-    @if (exam?.implementation !== 'CLIENT_AUTH' && sq.essayAnswer) {
+    @if (exam()?.implementation !== 'CLIENT_AUTH' && sq().essayAnswer) {
         <div class="col-md-6">
             <div class="float-end mt-1">
-                @if (!sq.essayAnswer.attachment?.fileName) {
+                @if (!sq().essayAnswer.attachment?.fileName) {
                     {{ 'i18n_no_attachment' | translate }}
                 }
                 <button
                     class="pointer btn btn-success"
-                    [disabled]="isPreview"
+                    [disabled]="isPreview()"
                     (click)="selectFile()"
                     (keydown.enter)="selectFile()"
                     tabindex="0"

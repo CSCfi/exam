@@ -114,7 +114,7 @@ class ExamController @Inject() (
       val tags     = tagIds.getOrElse(Nil)
       val owners   = ownerIds.getOrElse(Nil)
       val pp = PathProperties.parse(
-        "(id, name, examActiveStartDate, examActiveEndDate, course(id, code), examSections(id, name))"
+        "(id, name, periodStart, periodEnd, course(id, code), examSections(id, name))"
       )
       val query = DB.find(classOf[Exam])
       pp.apply(query)

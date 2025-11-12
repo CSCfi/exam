@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -15,7 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
         </div>
         <div class="modal-body">
             <div class="mt-2">
-                <p mathjax [innerHtml]="statement"></p>
+                <p [innerHtml]="statement()"></p>
             </div>
         </div>
         <div class="modal-footer">
@@ -26,7 +26,7 @@ import { TranslateModule } from '@ngx-translate/core';
     `,
 })
 export class InspectionStatementDialogComponent {
-    @Input() statement: unknown;
+    statement = input('');
 
     activeModal = inject(NgbActiveModal);
 }

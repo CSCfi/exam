@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -50,7 +50,7 @@ import { SessionService } from 'src/app/session/session.service';
             <div class="col-md-3 "></div>
             <div class="col-md-9">
                 <!-- Owners for the exam -->
-                @for (owner of exam.examOwners; track owner) {
+                @for (owner of exam().examOwners; track owner) {
                     <div class="ms-1 row" [ngClass]="{ 'hover-grey': !user.isAdmin }">
                         <div class="row col-8">
                             {{ owner.email }}
@@ -70,9 +70,10 @@ import { SessionService } from 'src/app/session/session.service';
         </div>`,
     imports: [NgClass, NgbPopover, FormsModule, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CollaborativeExamOwnerSelectorComponent {
-    @Input() exam!: Exam;
+    exam = input.required<Exam>();
 
     user: User;
     newOwner: { email: string | undefined } = { email: undefined };
@@ -85,23 +86,27 @@ export class CollaborativeExamOwnerSelectorComponent {
         this.user = this.Session.getUser();
     }
 
-    addOwner = () => {
-        const exists = this.exam.examOwners.some((o) => o.email === this.newOwner.email);
+    addOwner() {
+        const currentExam = this.exam();
+        const exists = currentExam.examOwners.some((o) => o.email === this.newOwner.email);
         if (!exists) {
-            this.http.post<User>(`/app/iop/exams/${this.exam.id}/owners`, this.newOwner).subscribe({
+            this.http.post<User>(`/app/iop/exams/${currentExam.id}/owners`, this.newOwner).subscribe({
                 next: (user) => {
-                    this.exam.examOwners.push(user);
-                    delete this.newOwner.email;
+                    currentExam.examOwners.push(user);
+                    this.newOwner.email = undefined;
                 },
                 error: (err) => this.toast.error(err),
             });
         }
-    };
+    }
 
-    removeOwner = (id: number) => {
-        this.http.delete(`/app/iop/exams/${this.exam.id}/owners/${id}`).subscribe({
-            next: () => (this.exam.examOwners = this.exam.examOwners.filter((o) => o.id !== id)),
+    removeOwner(id: number) {
+        const currentExam = this.exam();
+        this.http.delete(`/app/iop/exams/${currentExam.id}/owners/${id}`).subscribe({
+            next: () => {
+                currentExam.examOwners = currentExam.examOwners.filter((o) => o.id !== id);
+            },
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 }

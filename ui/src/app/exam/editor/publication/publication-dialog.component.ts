@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -10,6 +10,7 @@ import type { Exam } from 'src/app/exam/exam.model';
 @Component({
     selector: 'xm-publication-dialog',
     imports: [TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="modal-header">
             <div class="xm-modal-title">{{ getTitle() | translate }}</div>
@@ -18,7 +19,7 @@ import type { Exam } from 'src/app/exam/exam.model';
             <p>
                 {{ getConfirmationText() }}
             </p>
-            @if (exam.examFeedbackConfig) {
+            @if (exam().examFeedbackConfig) {
                 <p>
                     {{ 'i18n_exam_feedback_config_confirmation' | translate }}
                 </p>
@@ -35,22 +36,27 @@ import type { Exam } from 'src/app/exam/exam.model';
     `,
 })
 export class PublicationDialogComponent {
-    @Input() exam!: Exam;
-    @Input() prePublication = false;
+    exam = input.required<Exam>();
+    prePublication = input(false);
 
     activeModal = inject(NgbActiveModal);
     private translate = inject(TranslateService);
 
-    getConfirmationText = () => {
-        let confirmation = this.prePublication
+    getConfirmationText() {
+        const currentPrePublication = this.prePublication();
+        const currentExam = this.exam();
+        let confirmation = currentPrePublication
             ? this.translate.instant('i18n_pre_publish_exam_confirm')
             : this.translate.instant('i18n_publish_exam_confirm');
-        if (this.exam.executionType.type !== 'PRINTOUT' && !this.prePublication) {
+        if (currentExam.executionType.type !== 'PRINTOUT' && !currentPrePublication) {
             confirmation += ' ' + this.translate.instant('i18n_publish_exam_confirm_enroll');
         }
         return confirmation;
-    };
+    }
 
-    getTitle = () =>
-        this.prePublication ? 'i18n_pre_publish_exam_confirm_dialog_title' : 'i18n_publish_exam_confirm_dialog_title';
+    getTitle() {
+        return this.prePublication()
+            ? 'i18n_pre_publish_exam_confirm_dialog_title'
+            : 'i18n_publish_exam_confirm_dialog_title';
+    }
 }

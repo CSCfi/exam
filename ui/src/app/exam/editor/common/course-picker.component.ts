@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbHighlight, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -19,44 +19,63 @@ import { CoursePickerService } from './course-picker.service';
     templateUrl: './course-picker.component.html',
     styleUrls: ['../../exam.shared.scss'],
     imports: [FormsModule, NgbTypeahead, NgbHighlight, NgbPopover, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CoursePickerComponent implements OnInit {
-    @Input() course?: Course;
-    @Output() updated = new EventEmitter<Course>();
+export class CoursePickerComponent {
+    course = input<Course | undefined>();
+    updated = output<Course>();
 
     nameFilter = '';
     codeFilter = '';
-    loader = {
-        name: { isOn: false },
-        code: { isOn: false },
-    };
+    loaderName = signal(false);
+    loaderCode = signal(false);
 
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private Course = inject(CoursePickerService);
     private CourseCode = inject(CourseCodeService);
 
-    ngOnInit() {
-        this.nameFilter = this.course ? this.course.name : '';
-        this.codeFilter = this.course ? this.CourseCode.formatCode(this.course.code) : '';
+    constructor() {
+        effect(() => {
+            const currentCourse = this.course();
+            if (currentCourse) {
+                this.nameFilter = currentCourse.name;
+                this.codeFilter = this.CourseCode.formatCode(currentCourse.code);
+            } else {
+                this.nameFilter = '';
+                this.codeFilter = '';
+            }
+        });
     }
 
-    getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
-    getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
-    codeFormat = (c: Course | string) => (this.isCourse(c) ? c.code : c);
-    nameFormat = (c: Course | string) => (this.isCourse(c) ? c.name : c);
+    getCoursesByCode$(text$: Observable<string>) {
+        return this.getCourses$('code', text$);
+    }
 
-    onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
+    getCoursesByName$(text$: Observable<string>) {
+        return this.getCourses$('name', text$);
+    }
+
+    codeFormat(c: Course | string) {
+        return this.isCourse(c) ? c.code : c;
+    }
+
+    nameFormat(c: Course | string) {
+        return this.isCourse(c) ? c.name : c;
+    }
+
+    onCourseSelect(event: NgbTypeaheadSelectItemEvent) {
         this.codeFilter = this.CourseCode.formatCode(event.item.code);
         this.nameFilter = event.item.name;
         this.updated.emit(event.item);
-    };
+    }
 
-    private showError = (term: string) =>
+    private showError(term: string) {
         this.toast.error(`${this.translate.instant('i18n_course_not_found')} ( ${term}  )`);
+    }
 
-    private getCourses$ = (category: 'name' | 'code', text$: Observable<string>): Observable<Course[]> =>
-        text$.pipe(
+    private getCourses$(category: 'name' | 'code', text$: Observable<string>): Observable<Course[]> {
+        return text$.pipe(
             tap((term) => {
                 this.setInputValue(category, term);
                 this.toggleLoadingIcon(category, term.length >= 2);
@@ -71,10 +90,21 @@ export class CoursePickerComponent implements OnInit {
                 }
             }),
         );
+    }
 
-    private isCourse = (input: string | Course): input is Course => (input as Course).code !== undefined;
-    private toggleLoadingIcon = (filter: 'name' | 'code', isOn: boolean) => (this.loader[filter].isOn = isOn);
-    private setInputValue = (filter: string, value: string) => {
+    private isCourse(input: string | Course): input is Course {
+        return (input as Course).code !== undefined;
+    }
+
+    private toggleLoadingIcon(filter: 'name' | 'code', isOn: boolean) {
+        if (filter === 'name') {
+            this.loaderName.set(isOn);
+        } else {
+            this.loaderCode.set(isOn);
+        }
+    }
+
+    private setInputValue(filter: string, value: string) {
         if (filter === 'code') {
             this.codeFilter = value;
             this.nameFilter = '';
@@ -82,5 +112,5 @@ export class CoursePickerComponent implements OnInit {
             this.nameFilter = value;
             this.codeFilter = '';
         }
-    };
+    }
 }

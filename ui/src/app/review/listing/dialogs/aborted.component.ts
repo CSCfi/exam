@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -30,13 +30,14 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     ],
     templateUrl: './aborted.component.html',
     styleUrls: ['../review-list.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbortedExamsComponent {
-    @Input() exam!: Exam;
-    @Input() abortedExams: Review[] = [];
+    abortedPredicate = signal('started');
+    reverse = signal(false);
 
-    abortedPredicate = 'started';
-    reverse = false;
+    private _exam = signal<Exam | undefined>(undefined);
+    private _abortedExams = signal<Review[]>([]);
 
     private modal = inject(NgbActiveModal);
     private translate = inject(TranslateService);
@@ -44,21 +45,43 @@ export class AbortedExamsComponent {
     private toast = inject(ToastrService);
     private Session = inject(SessionService);
 
-    showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
+    get exam() {
+        return this._exam()!;
+    }
 
-    permitRetrial = (enrolment: ExamEnrolment) => {
+    get abortedExams() {
+        return this._abortedExams();
+    }
+
+    @Input()
+    set exam(value: Exam) {
+        this._exam.set(value);
+    }
+
+    @Input()
+    set abortedExams(value: Review[]) {
+        this._abortedExams.set(value);
+    }
+
+    showId() {
+        return this.Session.getUser().isAdmin && this.exam.anonymous;
+    }
+
+    permitRetrial(enrolment: ExamEnrolment) {
         this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe(() => {
             enrolment.retrialPermitted = true;
             this.toast.info(this.translate.instant('i18n_retrial_permitted'));
         });
-    };
+    }
 
-    cancel = () => this.modal.dismiss();
+    cancel() {
+        this.modal.dismiss();
+    }
 
-    setPredicate = (predicate: string) => {
-        if (this.abortedPredicate === predicate) {
-            this.reverse = !this.reverse;
+    setPredicate(predicate: string) {
+        if (this.abortedPredicate() === predicate) {
+            this.reverse.update((v) => !v);
         }
-        this.abortedPredicate = predicate;
-    };
+        this.abortedPredicate.set(predicate);
+    }
 }

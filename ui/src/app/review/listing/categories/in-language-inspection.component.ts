@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -37,43 +37,80 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         OrderByPipe,
         NgbCollapse,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InLanguageInspectionReviewsComponent implements OnInit {
-    @Input() reviews: Review[] = [];
-    @Input() exam!: Exam;
+export class InLanguageInspectionReviewsComponent {
+    reviews = input<Review[]>([]);
+    exam = input.required<Exam>();
 
-    view!: ReviewListView;
+    view = signal<ReviewListView | undefined>(undefined);
 
     private ReviewList = inject(ReviewListService);
     private Session = inject(SessionService);
     private CommonExam = inject(CommonExamService);
 
-    ngOnInit() {
-        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');
+    constructor() {
+        effect(() => this.init(this.reviews()));
     }
 
-    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
+    showId() {
+        return this.Session.getUser().isAdmin && this.exam()?.anonymous;
+    }
 
-    applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
+    updateFilter(value: string) {
+        this.view.update((v) => {
+            if (!v) return v;
+            return {
+                ...v,
+                filter: value,
+                filtered: this.ReviewList.applyFilter(value, v.items),
+            };
+        });
+    }
 
-    pageSelected = (event: { page: number }) => {
-        this.view.page = event.page;
-    };
+    applyFreeSearchFilter() {
+        const currentView = this.view();
+        if (!currentView) return;
+        this.view.update((v) => ({
+            ...v!,
+            filtered: this.ReviewList.applyFilter(v!.filter, v!.items),
+        }));
+    }
 
-    setPredicate = (predicate: string) => {
-        if (this.view.predicate === predicate) {
-            this.view.reverse = !this.view.reverse;
-        }
-        this.view.predicate = predicate;
-    };
+    pageSelected(event: { page: number }) {
+        this.view.update((v) => ({ ...v!, page: event.page }));
+    }
 
-    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
+    setPredicate(predicate: string) {
+        this.view.update((v) => {
+            if (!v) return v;
+            const reverse = v.predicate === predicate ? !v.reverse : v.reverse;
+            return { ...v, predicate, reverse };
+        });
+    }
 
-    private handleGradedReviews = (r: Review) => {
+    toggleView() {
+        this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
+    }
+
+    private init(reviews: Review[]) {
+        const initialView = this.ReviewList.prepareView(
+            reviews,
+            (r) => this.handleGradedReviews(r),
+            'examParticipation.deadline',
+        );
+        this.view.set(initialView);
+    }
+
+    private translateGrade(exam: Exam) {
+        return this.ReviewList.translateGrade(exam);
+    }
+
+    private handleGradedReviews(r: Review) {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
         r.displayedCredit = this.CommonExam.getExamDisplayCredit(r.examParticipation.exam);
-    };
+    }
 }

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
@@ -15,14 +15,14 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
         <div class="modal-body">
             <div class="d-flex">
                 <div class="me-2">
-                    {{ message }}
+                    {{ message() }}
                 </div>
-                @if (exception?.outOfService) {
+                @if (exception()?.outOfService) {
                     <div class="text-danger">
                         {{ 'i18n_room_out_of_service' | translate }}
                     </div>
                 }
-                @if (!exception?.outOfService) {
+                @if (!exception()?.outOfService) {
                     <div class="text-info">
                         {{ 'i18n_room_in_service' | translate }}
                     </div>
@@ -40,10 +40,11 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
     `,
     styleUrls: ['../rooms/rooms.component.scss'],
     imports: [TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionDeleteDialogComponent {
-    @Input() message?: string;
-    @Input() exception?: ExceptionWorkingHours;
+    message = input<string | undefined>(undefined);
+    exception = input<ExceptionWorkingHours | undefined>(undefined);
 
     activeModal = inject(NgbActiveModal);
 }

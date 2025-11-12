@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -17,6 +16,7 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
 
 @Component({
     selector: 'xm-language-inspections',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <xm-page-header text="i18n_language_inspections" />
         <xm-page-content [content]="content" />
@@ -24,14 +24,14 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
             <div class="tab-wrapper-exams">
                 <xm-math-editor></xm-math-editor>
                 <!-- Under review language inspection -->
-                @if (ongoingInspections) {
-                    <xm-unfinished-inspections [inspections]="ongoingInspections" />
+                @if (ongoingInspections().length > 0) {
+                    <xm-unfinished-inspections [inspections]="ongoingInspections()" />
                 }
 
                 <!-- Reviewed language inspection -->
-                @if (processedInspections) {
+                @if (processedInspections().length > 0) {
                     <xm-reviewed-inspections
-                        [inspections]="processedInspections"
+                        [inspections]="processedInspections()"
                         (endDateChanged)="endDateChanged($event)"
                         (startDateChanged)="startDateChanged($event)"
                     >
@@ -49,9 +49,9 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
         MathEditorComponent,
     ],
 })
-export class LanguageInspectionsComponent implements OnInit {
-    ongoingInspections: LanguageInspectionData[] = [];
-    processedInspections: LanguageInspectionData[] = [];
+export class LanguageInspectionsComponent {
+    ongoingInspections = signal<LanguageInspectionData[]>([]);
+    processedInspections = signal<LanguageInspectionData[]>([]);
 
     private Language = inject(LanguageService);
     private LanguageInspection = inject(LanguageInspectionService);
@@ -59,21 +59,21 @@ export class LanguageInspectionsComponent implements OnInit {
     private startDate: Date | null = null;
     private endDate: Date | null = null;
 
-    ngOnInit() {
+    constructor() {
         this.query();
     }
 
-    startDateChanged = (event: { date: Date | null }) => {
+    startDateChanged(event: { date: Date | null }) {
         this.startDate = event.date;
         this.query();
-    };
+    }
 
-    endDateChanged = (event: { date: Date | null }) => {
+    endDateChanged(event: { date: Date | null }) {
         this.endDate = event.date;
         this.query();
-    };
+    }
 
-    private query = () => {
+    private query() {
         const params: QueryParams = {};
         const tzOffset = new Date().getTimezoneOffset() * 60000;
         if (this.startDate) {
@@ -101,9 +101,9 @@ export class LanguageInspectionsComponent implements OnInit {
                 }),
             );
             if (refreshAll) {
-                this.ongoingInspections = inspections.filter((i) => !i.finishedAt);
+                this.ongoingInspections.set(inspections.filter((i) => !i.finishedAt));
             }
-            this.processedInspections = inspections.filter((i) => i.finishedAt);
+            this.processedInspections.set(inspections.filter((i) => i.finishedAt));
         });
-    };
+    }
 }

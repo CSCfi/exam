@@ -5,12 +5,12 @@
 import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
+    effect,
     ElementRef,
     input,
-    OnChanges,
     output,
-    SimpleChanges,
     ViewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -19,6 +19,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'xm-password-prompt',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, ReactiveFormsModule, TranslateModule],
     template: `
         @if (visible()) {
@@ -88,7 +89,7 @@ import { TranslateModule } from '@ngx-translate/core';
         }
     `,
 })
-export class PasswordPromptComponent implements AfterViewInit, OnChanges {
+export class PasswordPromptComponent implements AfterViewInit {
     @ViewChild('passwordInput') passwordInput!: ElementRef<HTMLInputElement>;
 
     visible = input(false);
@@ -99,19 +100,21 @@ export class PasswordPromptComponent implements AfterViewInit, OnChanges {
         password: new FormControl('', [Validators.required]),
     });
 
-    ngAfterViewInit() {
-        // Focus the password input when the component becomes visible
-        if (this.visible() && this.passwordInput) {
-            this.passwordInput.nativeElement.focus();
-        }
+    constructor() {
+        effect(() => {
+            // Focus the password input when visibility changes to true
+            if (this.visible() && this.passwordInput) {
+                setTimeout(() => {
+                    this.passwordInput.nativeElement.focus();
+                }, 100);
+            }
+        });
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        // Focus the password input when visibility changes to true
-        if (changes.visible && this.visible() && this.passwordInput) {
-            setTimeout(() => {
-                this.passwordInput.nativeElement.focus();
-            }, 100);
+    ngAfterViewInit() {
+        // Focus the password input when the component becomes visible initially
+        if (this.visible() && this.passwordInput) {
+            this.passwordInput.nativeElement.focus();
         }
     }
 

@@ -2,8 +2,20 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { ComponentRef, OnDestroy, OnInit } from '@angular/core';
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewContainerRef, inject } from '@angular/core';
+import type { OnDestroy } from '@angular/core';
+import {
+    AfterViewInit,
+    ComponentRef as AngularComponentRef,
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    ElementRef,
+    inject,
+    input,
+    output,
+    ViewChild,
+    ViewContainerRef,
+} from '@angular/core';
 import { MathJaxService } from 'src/app/shared/math/mathjax.service';
 import { hashString } from 'src/app/shared/miscellaneous/helpers';
 
@@ -13,28 +25,65 @@ type ClozeTestAnswer = { [key: string]: string };
     selector: 'xm-dynamic-cloze-test',
     template: ` <div #clozeContainer></div> `,
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DynamicClozeTestComponent implements OnInit, OnDestroy {
-    @Input() answer: ClozeTestAnswer = {};
-    @Input() content = '';
-    @Input() editable = false;
-    @Output() answerChanged = new EventEmitter<ClozeTestAnswer>();
+export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
     @ViewChild('clozeContainer', { read: ViewContainerRef, static: true }) container?: ViewContainerRef;
 
-    componentRef?: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
+    answer = input<ClozeTestAnswer>({});
+    content = input('');
+    editable = input(false);
+    answerChanged = output<ClozeTestAnswer>();
+
+    componentRef?: AngularComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
 
     private el = inject(ElementRef);
     private mathJaxService = inject(MathJaxService);
 
-    ngOnInit() {
+    constructor() {
+        // React to input changes and recreate component
+        effect(() => {
+            const currentContent = this.content();
+            const currentAnswer = this.answer();
+            if (currentContent && this.container) {
+                this.createComponent(currentContent, currentAnswer);
+            }
+        });
+    }
+
+    ngAfterViewInit() {
+        // Initial creation will be handled by effect, but ensure it runs if container is ready
+        const currentContent = this.content();
+        const currentAnswer = this.answer();
+        if (currentContent && this.container) {
+            this.createComponent(currentContent, currentAnswer);
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.componentRef) this.componentRef.destroy();
+    }
+
+    handleInputChange(event: { target: HTMLInputElement }) {
+        const { id, value } = event.target;
+        this.answerChanged.emit({ id, value });
+    }
+
+    private createComponent(content: string, answer: ClozeTestAnswer) {
+        // Destroy existing component if any
+        if (this.componentRef) {
+            this.componentRef.destroy();
+            this.componentRef = undefined;
+        }
+
         const parser = new DOMParser();
-        const doc = parser.parseFromString(this.content, 'text/html');
+        const doc = parser.parseFromString(content, 'text/html');
 
         // Set input values and temporary attributes for input events
         const inputs = doc.getElementsByTagName('input');
         Array.from(inputs).forEach((input) => {
-            const answer = this.answer[input.id] || '';
-            input.setAttribute('value', answer);
+            const answerValue = answer[input.id] || '';
+            input.setAttribute('value', answerValue);
             input.setAttribute('data-input-handler', 'handleChange($event)');
         });
         // Replace all left curly braces with urlencoded symbols to please angular compiler
@@ -83,20 +132,11 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
         }
     }
 
-    ngOnDestroy() {
-        if (this.componentRef) this.componentRef.destroy();
-    }
-
-    handleInputChange = (event: { target: HTMLInputElement }) => {
-        const { id, value } = event.target;
-        this.answerChanged.emit({ id, value });
-    };
-
-    private getTextNodes = (el: Element) => {
-        const a = [],
-            walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    private getTextNodes(el: Element) {
+        const a = [];
+        const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
         let n;
         while ((n = walk.nextNode())) a.push(n);
         return a;
-    };
+    }
 }

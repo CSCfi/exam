@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-@for (dwh of orderByWeekday(extendedRoom.extendedDwh); track dwh) {
+@for (dwh of orderByWeekday(extendedRoom()!.extendedDwh); track dwh) {
     <div class="row mt-1 d-flex align-content-center">
         <div class="col-2 align-self-center">
             {{ translateWeekdayName(dwh.weekday, true) }}
@@ -37,13 +37,13 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         <div class="col-2 align-self-center">
             @if (!dwh.editing) {
-                <div class="bi-pencil-fill pointer align-self-center" (click)="dwh.editing = true"></div>
+                <div class="bi-pencil-fill pointer align-self-center" (click)="setEditing(dwh, true)"></div>
             }
             @if (dwh.editing) {
                 <div class="d-flex">
                     <div
                         class="ms-1 bi-x-square-fill text-muted pointer align-self-center"
-                        (click)="dwh.editing = false"
+                        (click)="setEditing(dwh, false)"
                     ></div>
                     <div
                         class="ms-1 bi-check-circle-fill text-success pointer align-self-center"
@@ -58,7 +58,7 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="row mt-1 d-flex align-content-center">
     <span class="col-2 align-self-center min-w-100" ngbDropdown>
         <button ngbDropdownToggle class="btn btn-outline-dark" type="button" id="dropDownMenu1" aria-expanded="true">
-            {{ translateWeekdayName(newTime.weekday, true) }}&nbsp;<span class="caret"></span>
+            {{ translateWeekdayName(newTime().weekday, true) }}&nbsp;<span class="caret"></span>
         </button>
         <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
             @for (weekday of WEEKDAYS; track weekday) {
@@ -80,20 +80,20 @@ SPDX-License-Identifier: EUPL-1.2
                 name="timepicker"
                 size="small"
                 [minuteStep]="15"
-                [(ngModel)]="newTime.pickStartingTime"
-                (ngModelChange)="onStartTimeChange()"
+                [ngModel]="newTime().pickStartingTime"
+                (ngModelChange)="updateNewTimePickStarting($event)"
             ></ngb-timepicker>
             <div class="align-self-center">-</div>
             <ngb-timepicker
                 name="timepicker"
                 size="small"
                 [minuteStep]="15"
-                [(ngModel)]="newTime.pickEndingTime"
-                (ngModelChange)="onEndTimeChange()"
+                [ngModel]="newTime().pickEndingTime"
+                (ngModelChange)="updateNewTimePickEnding($event)"
             ></ngb-timepicker>
         </div>
     </div>
     <div class="col-2 align-self-center">
-        <div class="bi-plus-circle-fill text-success pointer align-self-center" (click)="updateHours(newTime)"></div>
+        <div class="bi-plus-circle-fill text-success pointer align-self-center" (click)="updateHours(newTime())"></div>
     </div>
 </div>

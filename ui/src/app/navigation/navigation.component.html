@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-@if (user) {
+@if (user()) {
     <nav aria-label="side navigation" id="nav" class="hidden-print">
         <a class="skip skip-main" id="skip-button-main" [href]="getSkipLinkPath('#mainView')">{{
             'i18n_skip_to_content' | translate
@@ -20,21 +20,21 @@ SPDX-License-Identifier: EUPL-1.2
                         <button
                             class="mobile-menu"
                             (click)="openMenu()"
-                            [hidden]="!user"
-                            [attr.aria-expanded]="mobileMenuOpen"
+                            [hidden]="!user()"
+                            [attr.aria-expanded]="mobileMenuOpen()"
                             [attr.aria-label]="'i18n_open_main_menu' | translate"
                         >
                             <img src="/assets/images/icon_menu_mobile.svg" alt="" />
                         </button>
                     </div>
                 </div>
-                <div [hidden]="!appVersion">
-                    <div class="app-version">v. {{ appVersion }}</div>
+                <div [hidden]="!appVersion()">
+                    <div class="app-version">v. {{ appVersion() }}</div>
                 </div>
             </div>
             <div class="nav-body">
                 <ul class="links">
-                    @for (link of links; track link.route) {
+                    @for (link of links(); track link.route) {
                         <li [hidden]="!link.visible">
                             <button
                                 class="btn important-clear-focus"
@@ -86,9 +86,9 @@ SPDX-License-Identifier: EUPL-1.2
                     }
                 </ul>
             </div>
-            <div class="nav-body-mobile pt-2 pb-2" [ngbCollapse]="!mobileMenuOpen">
+            <div class="nav-body-mobile pt-2 pb-2" [ngbCollapse]="!mobileMenuOpen()">
                 <ul class="links">
-                    @for (link of links; track link.route) {
+                    @for (link of links(); track link.route) {
                         <li [hidden]="!link.visible">
                             <button
                                 class="btn important-clear-focus w-100"
@@ -140,11 +140,11 @@ SPDX-License-Identifier: EUPL-1.2
                                 <img src="/assets/images/icon_menu_user.png" alt="User logo" />
                             </div>
                             <div class="user-data">
-                                {{ user.firstName }}&nbsp;{{ user.lastName }}
+                                {{ user()!.firstName }}&nbsp;{{ user()!.lastName }}
                                 <br />
-                                <span [hidden]="!user.isStudent">{{ 'i18n_student' | translate }}</span>
-                                @if (user.externalUserOrg) {
-                                    <small>(&commat;{{ user.externalUserOrg }})</small>
+                                <span [hidden]="!user()!.isStudent">{{ 'i18n_student' | translate }}</span>
+                                @if (user()!.externalUserOrg) {
+                                    <small>(&commat;{{ user()!.externalUserOrg }})</small>
                                 }
                             </div>
                         </div>
@@ -163,17 +163,17 @@ SPDX-License-Identifier: EUPL-1.2
                 </ul>
             </div>
             <div class="nav-footer">
-                <div class="user" [hidden]="!user">
+                <div class="user" [hidden]="!user()">
                     <div class="user-name">
                         <div class="user-logo">
                             <img src="/assets/images/icon_menu_user.png" alt="User logo" />
                         </div>
                         <div class="user-data">
-                            {{ user.firstName }}&nbsp;{{ user.lastName }}
+                            {{ user()!.firstName }}&nbsp;{{ user()!.lastName }}
                             <br />
-                            <span [hidden]="!user.isStudent">{{ 'i18n_student' | translate }} </span>
-                            @if (user.externalUserOrg) {
-                                <small>(&commat;{{ user.externalUserOrg }})</small>
+                            <span [hidden]="!user()!.isStudent">{{ 'i18n_student' | translate }} </span>
+                            @if (user()!.externalUserOrg) {
+                                <small>(&commat;{{ user()!.externalUserOrg }})</small>
                             }
                         </div>
                     </div>

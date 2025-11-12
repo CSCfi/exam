@@ -31,7 +31,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </tr>
             </thead>
             <tbody>
-                @for (sw of software | orderBy: 'name'; track sw.id) {
+                @for (sw of software() | orderBy: 'name'; track sw.id) {
                     <tr scope="row">
                         <td>
                             <div [hidden]="sw.showName">
@@ -49,7 +49,7 @@ SPDX-License-Identifier: EUPL-1.2
                                         />
                                         <span
                                             class="input-group-text pointer"
-                                            (click)="sw.showName = !sw.showName; updateSoftware(sw)"
+                                            (click)="toggleShowName(sw); updateSoftware(sw)"
                                             >{{ 'i18n_add' | translate }}</span
                                         >
                                     </div>
@@ -57,7 +57,7 @@ SPDX-License-Identifier: EUPL-1.2
                             }
                         </td>
                         <td>
-                            <a (click)="sw.showName = !sw.showName">
+                            <a (click)="toggleShowName(sw)">
                                 <i class="bi-pencil"></i>
                             </a>
                         </td>

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, input } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -15,6 +15,7 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
 
 @Component({
     selector: 'xm-r-toolbar',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<!-- Buttons -->
         <div class="pt-4 ps-0 pe-0 mt-2">
             <div class="d-flex flex-row-reverse">
@@ -28,7 +29,7 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
                         @if (!isMaturityRejection()) {
                             <button
                                 class="btn btn-success"
-                                [disabled]="!isOwnerOrAdmin() || !valid"
+                                [disabled]="!isOwnerOrAdmin() || !valid()"
                                 (click)="createExamRecord()"
                             >
                                 {{ 'i18n_send_result_to_registry' | translate }}
@@ -52,7 +53,7 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
                     @if (isMaturityRejection()) {
                         <button
                             class="btn btn-outline-danger ms-2"
-                            [disabled]="!isOwnerOrAdmin() || !valid"
+                            [disabled]="!isOwnerOrAdmin() || !valid()"
                             (click)="rejectMaturity()"
                         >
                             {{ 'i18n_reject_maturity' | translate }}
@@ -72,10 +73,10 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
     imports: [RouterLink, NgbPopover, TranslateModule],
 })
 export class ToolbarComponent implements OnInit {
-    @Input() valid = false;
-    @Input() participation!: ExamParticipation;
-    @Input() collaborative = false;
-    @Input() exam!: Examination;
+    valid = input(false);
+    participation = input.required<ExamParticipation>();
+    collaborative = input(false);
+    exam = input.required<Examination>();
 
     id = 0;
     ref = '';
@@ -93,29 +94,34 @@ export class ToolbarComponent implements OnInit {
         this.ref = this.route.snapshot.params.ref;
     }
 
-    isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam, this.collaborative);
-    isReadOnly = () => this.Assessment.isReadOnly(this.exam);
-    isGraded = () => this.Assessment.isGraded(this.exam);
-    isMaturityRejection = () =>
-        this.exam?.executionType.type === 'MATURITY' &&
-        !this.exam.subjectToLanguageInspection &&
-        this.exam.grade &&
-        this.exam.grade.marksRejection;
+    isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam(), this.collaborative());
+    isReadOnly = () => this.Assessment.isReadOnly(this.exam());
+    isGraded = () => this.Assessment.isGraded(this.exam());
+    isMaturityRejection = () => {
+        const examValue = this.exam();
+        return (
+            examValue?.executionType.type === 'MATURITY' &&
+            !examValue.subjectToLanguageInspection &&
+            examValue.grade !== undefined &&
+            examValue.grade?.marksRejection
+        );
+    };
 
     saveAssessment = () => {
-        if (this.collaborative) {
-            this.CollaborativeAssessment.saveAssessment(this.participation, this.isOwnerOrAdmin(), this.id, this.ref);
+        if (this.collaborative()) {
+            this.CollaborativeAssessment.saveAssessment(this.participation(), this.isOwnerOrAdmin(), this.id, this.ref);
         } else {
-            this.Assessment.saveAssessment(this.exam, this.isOwnerOrAdmin());
+            this.Assessment.saveAssessment(this.exam(), this.isOwnerOrAdmin());
         }
     };
 
     createExamRecord = () => {
-        if (this.collaborative) {
-            this.CollaborativeAssessment.createExamRecord(this.participation, this.id, this.ref);
+        if (this.collaborative()) {
+            this.CollaborativeAssessment.createExamRecord(this.participation(), this.id, this.ref);
         } else {
-            this.Assessment.doesPreviouslyLockedAssessmentsExist$(this.exam).subscribe((setting) => {
-                this.Assessment.createExamRecord$(this.exam, true, setting.status === 'everything').subscribe(() => {
+            const examValue = this.exam();
+            this.Assessment.doesPreviouslyLockedAssessmentsExist$(examValue).subscribe((setting) => {
+                this.Assessment.createExamRecord$(examValue, true, setting.status === 'everything').subscribe(() => {
                     this.toast.info(this.translate.instant('i18n_review_recorded'));
                     const state = this.getExitState();
                     this.router.navigate(state.fragments, { queryParams: state.params });
@@ -124,12 +130,14 @@ export class ToolbarComponent implements OnInit {
         }
     };
 
-    rejectMaturity = () =>
-        this.Assessment.rejectMaturity$(this.exam).subscribe(() => {
+    rejectMaturity = () => {
+        const examValue = this.exam();
+        this.Assessment.rejectMaturity$(examValue).subscribe(() => {
             this.toast.info(this.translate.instant('i18n_maturity_rejected'));
             const state = this.getExitState();
             this.router.navigate(state.fragments, { queryParams: state.params });
         });
+    };
 
-    getExitState = () => this.Assessment.getExitState(this.exam, this.collaborative);
+    getExitState = () => this.Assessment.getExitState(this.exam(), this.collaborative());
 }

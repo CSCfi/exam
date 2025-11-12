@@ -3,19 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject, input, model, output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
 import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
 import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
-import type {
-    ExamSectionQuestion,
-    ExamSectionQuestionOption,
-    Question,
-    ReverseQuestion,
-} from 'src/app/question/question.model';
+import type { ExamSectionQuestion, Question, ReverseQuestion } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
@@ -44,11 +39,11 @@ import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
     ],
 })
 export class ExamQuestionComponent implements OnInit, OnDestroy {
-    @Input() examQuestion!: ExamSectionQuestion;
-    @Input() lotteryOn = false;
-    @Output() saved = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
-    @Output() cancelled = new EventEmitter<{ dirty: boolean }>();
     @ViewChild('questionForm', { static: false }) questionForm?: NgForm;
+    examQuestion = model.required<ExamSectionQuestion>();
+    lotteryOn = input(false);
+    saved = output<{ question: Question; examQuestion: ExamSectionQuestion }>();
+    cancelled = output<{ dirty: boolean }>();
 
     question?: ReverseQuestion;
     examNames: string[] = [];
@@ -72,9 +67,11 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
 
     save = () => {
         // Clean up temporary negative IDs before sending to server
+        const examQuestionValue = this.examQuestion();
+        if (!examQuestionValue) return;
         const cleanedExamQuestion = {
-            ...this.examQuestion,
-            options: this.examQuestion.options.map((opt) => ({
+            ...examQuestionValue,
+            options: examQuestionValue.options.map((opt) => ({
                 ...opt,
                 id: opt.id && opt.id < 0 ? undefined : opt.id,
             })),
@@ -86,8 +83,6 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         });
     };
 
-    optionsChanged = ($event: ExamSectionQuestionOption[]) => (this.examQuestion.options = [...$event]);
-
     setText = ($event: string) => {
         if (this.question) this.question.question = $event;
     };
@@ -96,25 +91,27 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
 
     openPreview$ = () => {
         const modal = this.modal.openRef(QuestionPreviewDialogComponent, { size: 'lg' });
-        modal.componentInstance.question = this.examQuestion;
-        modal.componentInstance.isExamQuestion = true;
+        const examQuestionValue = this.examQuestion();
+        if (!examQuestionValue) return this.modal.result$<void>(modal);
+        modal.componentInstance.question.set(examQuestionValue);
+        modal.componentInstance.isExamQuestion.set(true);
         return this.modal.result$<void>(modal);
     };
 
     showWarning = () => this.examNames && this.examNames.length > 1;
 
-    negativeScoreSettingChanged = ($event: boolean) => (this.examQuestion.negativeScoreAllowed = $event);
-
-    shufflingSettingChanged = ($event: boolean) => (this.examQuestion.optionShufflingOn = $event);
-
-    updateEvaluationType = ($event: string) => {
-        this.examQuestion.evaluationType = $event;
+    updateEvaluationType = ($event: string | undefined) => {
+        // evaluationType is already updated via two-way binding [(evaluationType)]
+        // Only handle side effect: set maxScore to 0 when switching to Selection
         if ($event === 'Selection') {
-            this.examQuestion.maxScore = 0;
+            const examQuestionValue = this.examQuestion();
+            if (examQuestionValue) {
+                this.examQuestion.set({ ...examQuestionValue, maxScore: 0 });
+            }
         }
     };
-    updateWordCount = ($event: number) => (this.examQuestion.expectedWordCount = $event);
-    updateEvaluationCriteria = ($event: string) => (this.examQuestion.evaluationCriteria = $event);
+    // expectedWordCount and evaluationCriteria are handled via two-way binding
+    // No separate handlers needed
 
     selectFile = () =>
         this.Attachment.selectFile$(true).subscribe((data) => {
@@ -138,12 +135,19 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     getFileSize = () =>
         !this.question?.attachment?.file ? 0 : this.Attachment.getFileSize(this.question.attachment.file.size);
 
-    hasInvalidClaimChoiceOptions = () =>
-        this.examQuestion.question.type === 'ClaimChoiceQuestion' &&
-        this.Question.getInvalidDistributedClaimOptionTypes(this.examQuestion.options).length > 0;
+    hasInvalidClaimChoiceOptions = () => {
+        const examQuestionValue = this.examQuestion();
+        if (!examQuestionValue) return false;
+        return (
+            examQuestionValue.question.type === 'ClaimChoiceQuestion' &&
+            this.Question.getInvalidDistributedClaimOptionTypes(examQuestionValue.options).length > 0
+        );
+    };
 
-    private init = () =>
-        this.http.get<ReverseQuestion>(`/app/questions/${this.examQuestion.question.id}`).subscribe((question) => {
+    private init = () => {
+        const examQuestionValue = this.examQuestion();
+        if (!examQuestionValue) return;
+        this.http.get<ReverseQuestion>(`/app/questions/${examQuestionValue.question.id}`).subscribe((question) => {
             this.question = question;
             const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
             const examNames = sections.map((s) => {
@@ -158,6 +162,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
             this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
             window.addEventListener('beforeunload', this.onUnload);
         });
+    };
 
     private onUnload = (event: BeforeUnloadEvent) => {
         if (this.questionForm?.dirty) event.preventDefault();

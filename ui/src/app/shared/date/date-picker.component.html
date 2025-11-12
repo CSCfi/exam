@@ -7,18 +7,19 @@ SPDX-License-Identifier: EUPL-1.2
 <form class="form">
     <div class="input-group">
         <input
-            class="form-control"
-            [disabled]="disabled"
-            [required]="!optional"
-            name="dp"
-            [(ngModel)]="date"
             ngbDatepicker
+            class="form-control"
+            [disabled]="disabled()"
+            [required]="!optional()"
+            name="dp"
+            [ngModel]="date()"
+            (ngModelChange)="setDate($event)"
             #d="ngbDatepicker"
             [footerTemplate]="footerTemplate"
-            [startDate]="startDate"
-            [minDate]="minDateStruct"
-            [maxDate]="maxDateStruct"
-            [readonly]="readonly"
+            [startDate]="startDate()"
+            [minDate]="minDateStruct()"
+            [maxDate]="maxDateStruct()"
+            [readonly]="readonly()"
             [showWeekNumbers]="true"
             (dateSelect)="dateChange()"
             (blur)="dateChange()"
@@ -26,7 +27,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="input-group-append">
             <button
                 class="btn btn-success rounded-0 rounded-end"
-                [disabled]="disabled"
+                [disabled]="disabled()"
                 (click)="d.toggle()"
                 type="button"
                 [attr.aria-label]="'i18n_datepicker' | translate"
@@ -39,10 +40,10 @@ SPDX-License-Identifier: EUPL-1.2
 </form>
 <ng-template #footerTemplate>
     <hr class="my-0" />
-    <button class="btn btn-primary btn-sm m-2 float-start" (click)="date = today; dateChange(); d.close()">
+    <button class="btn btn-primary btn-sm m-2 float-start" (click)="setDate(today()); d.close()">
         {{ 'i18n_today' | translate }}
     </button>
-    <button class="btn btn-secondary btn-sm m-2 float-end" (click)="date = null; dateCleared(); d.close()">
+    <button class="btn btn-secondary btn-sm m-2 float-end" (click)="dateCleared(); d.close()">
         {{ 'i18n_clear' | translate }}
     </button>
 </ng-template>

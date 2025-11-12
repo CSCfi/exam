@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-add-enrolment-information-dialog',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [FormsModule, TranslateModule],
     template: `
         <div class="modal-header">
@@ -41,7 +41,7 @@ import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
     `,
 })
 export class AddEnrolmentInformationDialogComponent {
-    @Input() information!: EnrolmentInfo;
+    information: string = '';
 
     activeModal = inject(NgbActiveModal);
 

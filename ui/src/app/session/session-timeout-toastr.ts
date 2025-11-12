@@ -8,7 +8,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { Toast, ToastPackage, ToastrService } from 'ngx-toastr';
 
 @Component({
-    selector: `xm-session-expire-warning`,
     template: `
         <b>{{ title }}.</b>
         {{ message }}
@@ -40,7 +39,7 @@ export class SessionExpireWarningComponent extends Toast {
         }
     }
 
-    continue = () => {
+    continue() {
         this.toastrService.clear();
         this.http.put<void>('/app/session', {}).subscribe({
             next: () => {
@@ -50,5 +49,5 @@ export class SessionExpireWarningComponent extends Toast {
             },
             error: (resp) => this.toastrService.error(resp),
         });
-    };
+    }
 }

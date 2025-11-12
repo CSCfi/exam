@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -43,10 +42,11 @@ interface ExtendedRoom extends ExamRoom {
         TranslateModule,
     ],
     styleUrl: './rooms.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RoomListComponent implements OnInit {
+export class RoomListComponent {
     user: User;
-    rooms: ExtendedRoom[] = [];
+    rooms = signal<ExtendedRoom[]>([]);
 
     private route = inject(ActivatedRoute);
     private router = inject(Router);
@@ -56,14 +56,12 @@ export class RoomListComponent implements OnInit {
 
     constructor() {
         this.user = this.session.getUser();
-    }
 
-    ngOnInit() {
         if (this.user.isAdmin) {
             if (!this.route.snapshot.params.id) {
                 this.roomService.getRooms$().subscribe((rooms) => {
                     const roomsWithVisibility = rooms as ExtendedRoom[];
-                    this.rooms = roomsWithVisibility.map((r) => {
+                    const processedRooms = roomsWithVisibility.map((r) => {
                         const extendedDWH = r.defaultWorkingHours as DefaultWorkingHoursWithEditing[];
                         return {
                             ...r,
@@ -89,16 +87,17 @@ export class RoomListComponent implements OnInit {
                             }),
                         };
                     });
-                    this.rooms.forEach((room) => {
+                    processedRooms.forEach((room) => {
                         room.examMachines = room.examMachines.filter((machine) => {
                             return !machine.archived;
                         });
                     });
-                    const roomsWithNoName = this.rooms.filter((r) => !r.name);
-                    this.rooms = this.rooms
+                    const roomsWithNoName = processedRooms.filter((r) => !r.name);
+                    const sortedRooms = processedRooms
                         .filter((r) => r.name)
                         .sort((a, b) => (a.name > b.name ? 1 : -1))
                         .concat(roomsWithNoName);
+                    this.rooms.set(sortedRooms);
                 });
             }
         } else {
@@ -107,17 +106,38 @@ export class RoomListComponent implements OnInit {
     }
 
     switchVisibility(room: ExtendedRoom) {
-        if (!room.activate) {
-            room.activate = !room.activate;
-        }
-        room.availabilityVisible = !room.availabilityVisible;
+        this.rooms.update((rooms) =>
+            rooms.map((r) =>
+                r.id === room.id
+                    ? {
+                          ...r,
+                          activate: true,
+                          availabilityVisible: !r.availabilityVisible,
+                      }
+                    : r,
+            ),
+        );
     }
 
-    disableRoom = (room: ExamRoom) => this.roomService.disableRoom(room);
+    toggleAddressVisibility(room: ExtendedRoom) {
+        this.rooms.update((rooms) =>
+            rooms.map((r) => (r.id === room.id ? { ...r, addressVisible: !r.addressVisible } : r)),
+        );
+    }
 
-    enableRoom = (room: ExamRoom) => this.roomService.enableRoom(room);
+    setAvailabilityVisible(room: ExtendedRoom, visible: boolean) {
+        this.rooms.update((rooms) => rooms.map((r) => (r.id === room.id ? { ...r, availabilityVisible: visible } : r)));
+    }
 
-    addExceptions = (exceptions: ExceptionWorkingHours[], examRoom: ExamRoom) => {
+    disableRoom(room: ExamRoom) {
+        this.roomService.disableRoom(room);
+    }
+
+    enableRoom(room: ExamRoom) {
+        this.roomService.enableRoom(room);
+    }
+
+    addExceptions(exceptions: ExceptionWorkingHours[], examRoom: ExamRoom) {
         this.roomService.addExceptions$([examRoom.id], exceptions).subscribe((data) => {
             const dataList: ExceptionWorkingHours[] = [];
             data.forEach((d) => {
@@ -125,13 +145,16 @@ export class RoomListComponent implements OnInit {
                     dataList.push(d);
                 }
             });
-            examRoom.calendarExceptionEvents = [...dataList];
+            // Update the room immutably in the signal
+            this.rooms.update((rooms) =>
+                rooms.map((r) => (r.id === examRoom.id ? { ...r, calendarExceptionEvents: [...dataList] } : r)),
+            );
         });
-    };
+    }
 
-    deleteException = (exception: ExceptionWorkingHours, examRoom: ExamRoom) => {
+    deleteException(exception: ExceptionWorkingHours, examRoom: ExamRoom) {
         this.roomService.deleteException$(examRoom.id, exception.id).subscribe();
-    };
+    }
     getNextExceptionEvent(ees: ExceptionWorkingHours[]): ExceptionWorkingHours[] {
         return ees
             .filter((ee) => new Date(ee.endDate) > new Date())
@@ -142,7 +165,7 @@ export class RoomListComponent implements OnInit {
         return ees.filter((ee) => new Date(ee.endDate) > new Date());
     }
 
-    getWorkingHoursDisplayFormat = (workingHours: DefaultWorkingHours[]): string[] => {
+    getWorkingHoursDisplayFormat(workingHours: DefaultWorkingHours[]): string[] {
         const sorter = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const capitalize = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
         const timePart = (s: string) => DateTime.fromISO(s).toFormat('HH:mm');
@@ -161,9 +184,9 @@ export class RoomListComponent implements OnInit {
                 .join(', ');
             return `${days}: ${k}`;
         });
-    };
+    }
 
-    formatDate = (exception: ExceptionWorkingHours) => {
+    formatDate(exception: ExceptionWorkingHours) {
         if (!exception?.startDate || !exception?.endDate) {
             return;
         }
@@ -175,5 +198,5 @@ export class RoomListComponent implements OnInit {
             ' - ' +
             (start.toFormat('dd.MM.yyyy') == end.toFormat('dd.MM.yyyy') ? end.toFormat('HH:mm') : end.toFormat(fmt))
         );
-    };
+    }
 }

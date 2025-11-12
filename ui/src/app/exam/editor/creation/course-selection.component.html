@@ -5,7 +5,7 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <xm-page-header text="i18n_toolbar_new_exam" [history]="true" />
-@if (exam) {
+@if (exam()) {
     <xm-page-content [content]="content" />
 }
 <ng-template #content>
@@ -31,7 +31,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="row mt-2">
         <div class="col">
-            <xm-exam-course [exam]="exam" (updated)="onCourseSelected($event)"></xm-exam-course>
+            <xm-exam-course [exam]="exam()!" (updated)="onCourseSelected($event)"></xm-exam-course>
         </div>
     </div>
     <div class="row mt-2">
@@ -57,7 +57,8 @@ SPDX-License-Identifier: EUPL-1.2
                     id="examName"
                     type="text"
                     class="form-control w-50"
-                    [(ngModel)]="exam.name"
+                    [ngModel]="exam()?.name"
+                    (ngModelChange)="updateExamNameValue($event)"
                     (blur)="updateExamName()"
                     (keydown.enter)="$event.preventDefault()"
                     required
@@ -72,8 +73,12 @@ SPDX-License-Identifier: EUPL-1.2
                         <img src="/assets/images/icon_tooltip.svg" alt="" />
                     </sup>
                 </label>
-                @if (exam) {
-                    <xm-language-picker [exam]="exam" id="examLanguage"></xm-language-picker>
+                @if (exam()) {
+                    <xm-language-picker
+                        [exam]="exam()!"
+                        id="examLanguage"
+                        (updated)="updateExamLanguages($event)"
+                    ></xm-language-picker>
                 }
             </form>
         </div>
@@ -83,12 +88,16 @@ SPDX-License-Identifier: EUPL-1.2
             <!-- buttons -->
             <button
                 class="btn btn-success"
-                [disabled]="!exam.course || !exam.name || exam.examLanguages.length < 1"
+                [disabled]="!exam()?.course || !exam()?.name || (exam()?.examLanguages?.length ?? 0) < 1"
                 (click)="continueToExam()"
             >
                 {{ 'i18n_save' | translate }}
             </button>
-            <button class="btn btn-outline-secondary me-3" (click)="cancelNewExam()" [hidden]="exam.state !== 'DRAFT'">
+            <button
+                class="btn btn-outline-secondary me-3"
+                (click)="cancelNewExam()"
+                [hidden]="exam()?.state !== 'DRAFT'"
+            >
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,6 +31,7 @@ import { ExamSectionComponent } from './sections/section.component';
 
 @Component({
     selector: 'xm-assessment',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './assessment.component.html',
     imports: [
         CourseCodeComponent,
@@ -48,13 +49,14 @@ import { ExamSectionComponent } from './sections/section.component';
     ],
 })
 export class AssessmentComponent implements OnInit {
-    collaborative = false;
-    questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
-    exam!: Examination;
-    participation!: ExamParticipation;
+    collaborative = signal(false);
+    questionSummary = signal<QuestionAmounts>({ accepted: 0, rejected: 0, hasEssays: false });
+    exam = signal<Examination | undefined>(undefined);
+    participation = signal<ExamParticipation | undefined>(undefined);
+    hideGeneralInfo = signal(false);
+    hideGradeInfo = signal(false);
     user: User;
-    hideGeneralInfo = false;
-    hideGradeInfo = false;
+
     private ref = '';
     private examId = 0;
 
@@ -73,10 +75,10 @@ export class AssessmentComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.collaborative = this.route.snapshot.data.collaborative;
+        this.collaborative.set(this.route.snapshot.data.collaborative);
         this.examId = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        const path = this.collaborative ? `${this.examId}/${this.ref}` : this.examId.toString();
+        const path = this.collaborative() ? `${this.examId}/${this.ref}` : this.examId.toString();
         const url = this.getResource(path);
         this.http.get<Omit<ExamParticipation, 'exam'> & { exam: Examination }>(url).subscribe({
             next: (participation) => {
@@ -97,9 +99,9 @@ export class AssessmentComponent implements OnInit {
                 if (exam.languageInspection && !exam.languageInspection.statement) {
                     exam.languageInspection.statement = { comment: '' };
                 }
-                this.questionSummary = this.QuestionScore.getQuestionAmounts(exam);
-                this.exam = exam;
-                this.participation = participation;
+                this.questionSummary.set(this.QuestionScore.getQuestionAmounts(exam));
+                this.exam.set(exam);
+                this.participation.set(participation);
             },
             error: (err) => this.toast.error(err),
         });
@@ -107,56 +109,81 @@ export class AssessmentComponent implements OnInit {
 
     isUnderLanguageInspection = () => {
         if (!this.user) return false;
+        const examValue = this.exam();
         return (
-            this.user.isLanguageInspector && this.exam.languageInspection && !this.exam.languageInspection.finishedAt
+            examValue &&
+            this.user.isLanguageInspector &&
+            examValue.languageInspection &&
+            !examValue.languageInspection.finishedAt
         );
     };
 
     print = () => {
-        const url = this.collaborative
+        const examValue = this.exam();
+        if (!examValue) return;
+        const url = this.collaborative()
             ? `/staff/assessments/${this.examId}/print/${this.ref}`
-            : `/staff/assessments/${this.exam.id}/print`;
+            : `/staff/assessments/${examValue.id}/print`;
         window.open(url, '_blank');
     };
 
     scoreSet = (revision: string) => {
-        this.participation._rev = revision;
-        this.questionSummary = this.QuestionScore.getQuestionAmounts(this.exam);
+        const participationValue = this.participation();
+        const examValue = this.exam();
+        if (!participationValue || !examValue) return;
+        participationValue._rev = revision;
+        this.questionSummary.set(this.QuestionScore.getQuestionAmounts(examValue));
         this.startReview();
     };
 
     gradingUpdated = () => this.startReview();
 
-    isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam, this.collaborative);
-    isReadOnly = () => this.Assessment.isReadOnly(this.exam);
-    isGraded = () => this.Assessment.isGraded(this.exam);
+    isOwnerOrAdmin = () => {
+        const examValue = this.exam();
+        return examValue ? this.Exam.isOwnerOrAdmin(examValue, this.collaborative()) : false;
+    };
+    isReadOnly = () => {
+        const examValue = this.exam();
+        return examValue ? this.Assessment.isReadOnly(examValue) : false;
+    };
+    isGraded = () => {
+        const examValue = this.exam();
+        return examValue ? this.Assessment.isGraded(examValue) : false;
+    };
 
-    goToAssessment = () =>
-        this.router.navigate(['/staff/exams/', this.collaborative ? this.examId : this.exam.parent?.id, '5'], {
-            queryParams: this.collaborative ? { collaborative: true } : {},
+    goToAssessment = () => {
+        const examValue = this.exam();
+        if (!examValue) return;
+        this.router.navigate(['/staff/exams/', this.collaborative() ? this.examId : examValue.parent?.id, '5'], {
+            queryParams: this.collaborative() ? { collaborative: true } : {},
         });
+    };
 
     // Set review status as started if not already done so
     private startReview = () => {
-        if (this.exam.state === 'REVIEW') {
-            const state = 'REVIEW_STARTED';
-            if (!this.collaborative) {
-                const review = this.Assessment.getPayload(this.exam, state);
-                this.http.put(`/app/review/${review.id}`, review).subscribe(() => (this.exam.state = state));
-            } else {
-                const review = this.CollaborativeAssessment.getPayload(
-                    this.exam,
-                    state,
-                    this.participation._rev as string,
-                );
-                const url = `/app/iop/reviews/${this.examId}/${this.ref}`;
-                this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
-                    this.participation._rev = resp.rev;
-                    this.exam.state = state;
-                });
-            }
+        const examValue = this.exam();
+        const participationValue = this.participation();
+        if (!examValue || examValue.state !== 'REVIEW') return;
+
+        const state = 'REVIEW_STARTED';
+        if (!this.collaborative()) {
+            const review = this.Assessment.getPayload(examValue, state);
+            this.http.put(`/app/review/${review.id}`, review).subscribe(() => {
+                examValue.state = state;
+                this.exam.set(examValue); // Update signal to trigger change detection
+            });
+        } else {
+            if (!participationValue) return;
+            const review = this.CollaborativeAssessment.getPayload(examValue, state, participationValue._rev as string);
+            const url = `/app/iop/reviews/${this.examId}/${this.ref}`;
+            this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
+                participationValue._rev = resp.rev;
+                examValue.state = state;
+                this.participation.set(participationValue); // Update signal
+                this.exam.set(examValue); // Update signal to trigger change detection
+            });
         }
     };
 
-    private getResource = (path: string) => (this.collaborative ? `/app/iop/reviews/${path}` : `/app/review/${path}`);
+    private getResource = (path: string) => (this.collaborative() ? `/app/iop/reviews/${path}` : `/app/review/${path}`);
 }

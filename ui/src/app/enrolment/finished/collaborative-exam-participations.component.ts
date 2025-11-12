@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { SlicePipe } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { AfterViewInit, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,6 +18,7 @@ import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({
     selector: 'xm-collaborative-exam-participations',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participations.component.html',
     imports: [
         FormsModule,
@@ -35,46 +35,56 @@ import { ExamParticipationComponent } from './exam-participation.component';
         PageContentComponent,
     ],
 })
-export class CollaborativeParticipationsComponent implements OnInit, AfterViewInit {
+export class CollaborativeParticipationsComponent {
     collaborative = true;
-    originals: CollaborativeParticipation[] = [];
-    participations: CollaborativeParticipation[] = [];
-    pageSize = 10;
-    currentPage = 0;
-    filter = { ordering: 'ended', reverse: true, text: '' };
-    searchDone = false;
+    originals = signal<CollaborativeParticipation[]>([]);
+    participations = signal<CollaborativeParticipation[]>([]);
+    pageSize = signal(10);
+    currentPage = signal(0);
+    filter = signal({ ordering: 'ended' as 'exam.name' | 'ended', reverse: true, text: '' });
+    searchDone = signal(false);
 
-    private changeDetector = inject(ChangeDetectorRef);
     private toast = inject(ToastrService);
     private Enrolment = inject(EnrolmentService);
 
-    ngOnInit() {
+    constructor() {
         this.Enrolment.listStudentParticipations$().subscribe({
             next: (participations: CollaborativeParticipation[]) => {
                 participations
                     .filter((p) => typeof p.ended == 'number')
                     .forEach((p) => (p.ended = new Date(p.ended).toISOString()));
-                this.originals = participations;
+                this.originals.set(participations);
                 this.search('');
             },
             error: (err) => this.toast.error(err),
         });
     }
 
-    ngAfterViewInit() {
-        this.changeDetector.detectChanges();
+    // Getter/setter for filter.text to work with ngModel
+    get filterText(): string {
+        return this.filter().text;
+    }
+    set filterText(value: string) {
+        this.filter.update((f) => ({ ...f, text: value }));
     }
 
-    pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
+    pageSelected = ($event: { page: number }) => this.currentPage.set($event.page);
 
     search(text: string) {
         if (!text || text.length < 1) {
-            this.participations = this.originals;
+            this.participations.set(this.originals());
         } else {
-            this.participations = this.originals.filter((participation) => {
-                const exam = participation.exam;
-                return exam.name && exam.name.indexOf(text) > -1;
-            });
+            this.participations.set(
+                this.originals().filter((participation) => {
+                    const exam = participation.exam;
+                    return exam.name && exam.name.indexOf(text) > -1;
+                }),
+            );
         }
+        this.searchDone.set(true);
+    }
+
+    updateFilterOrdering(ordering: 'exam.name' | 'ended', reverse: boolean) {
+        this.filter.update((f) => ({ ...f, ordering, reverse }));
     }
 }

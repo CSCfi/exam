@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -43,7 +42,7 @@ import { FileService } from 'src/app/shared/file/file.service';
                     />
                 </div>
                 <div class="col-9 attachment-file">
-                    {{ fileObject?.name }}
+                    {{ fileObject()?.name }}
                 </div>
             </div>
             <div class="row pt-2">
@@ -54,11 +53,13 @@ import { FileService } from 'src/app/shared/file/file.service';
                 }
             </div>
             <div class="row">
-                <div class="col-12">{{ 'i18n_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.</div>
+                <div class="col-12">
+                    {{ 'i18n_max_file_size' | translate }} {{ (maxFileSize() || 0) / 1000000 }} MB.
+                </div>
             </div>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-success " (click)="confirmed()" [disabled]="!fileObject">
+            <button class="btn btn-success " (click)="confirmed()" [disabled]="!fileObject()">
                 {{ 'i18n_button_save' | translate }}
             </button>
             <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
@@ -67,30 +68,51 @@ import { FileService } from 'src/app/shared/file/file.service';
         </div>
     `,
     styleUrls: ['./attachment-picker.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AttachmentSelectorComponent implements OnInit {
+export class AttachmentSelectorComponent {
     @ViewChild('file', { static: false }) file!: ElementRef;
-    @Input() title = '';
-    @Input() isTeacherModal = false;
-    fileObject!: File;
-    maxFileSize = 0;
-
+    fileObject = signal<File | undefined>(undefined);
+    maxFileSize = signal(0);
     activeModal = inject(NgbActiveModal);
+
+    private _title = signal('');
+    private _isTeacherModal = signal(false);
     private Files = inject(FileService);
 
-    ngOnInit() {
-        this.Files.getMaxFilesize$().subscribe((data) => (this.maxFileSize = data.filesize));
+    constructor() {
+        this.Files.getMaxFilesize$().subscribe((data) => this.maxFileSize.set(data.filesize));
+    }
+
+    // Getters/setters for compatibility with direct property assignment pattern
+    get title(): string {
+        return this._title();
+    }
+
+    get isTeacherModal(): boolean {
+        return this._isTeacherModal();
+    }
+
+    set title(value: string) {
+        this._title.set(value);
+    }
+
+    set isTeacherModal(value: boolean) {
+        this._isTeacherModal.set(value);
     }
 
     confirmed() {
-        this.activeModal.close({ $value: { attachmentFile: this.fileObject } });
+        const currentFile = this.fileObject();
+        if (currentFile) {
+            this.activeModal.close({ $value: { attachmentFile: currentFile } });
+        }
     }
 
     onFilesAdded() {
         const files: { [key: string]: File } = this.file.nativeElement.files;
         for (const key in files) {
             if (!isNaN(parseInt(key))) {
-                this.fileObject = files[key];
+                this.fileObject.set(files[key]);
                 break;
             }
         }

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { RoomService } from 'src/app/facility/rooms/room.service';
@@ -14,20 +14,20 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
 @Component({
     selector: 'xm-exceptions',
     template: `
-        @if (!hideTitle) {
+        @if (!hideTitle()) {
             <div class="row">
                 <div class="col-md-12 header-text">
                     <strong>{{ 'i18n_exception_datetimes' | translate }}:</strong>
                 </div>
             </div>
         }
-        @if (!hideInfo) {
+        @if (!hideInfo()) {
             <div class="row">
                 <div class="col-md-12 header-text">{{ 'i18n_exception_datetimes_info' | translate }}</div>
             </div>
         }
 
-        @for (exception of orderedExceptions | filterBy: filter; track exception; let i = $index) {
+        @for (exception of orderedExceptions() | filterBy: filter(); track exception; let i = $index) {
             <div class="row mb-2" [class]="i % 2 === 0 ? 'background-light-blue' : ''">
                 <div class="col">
                     {{ formatDate(exception) }}
@@ -43,7 +43,7 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
                 </div>
             </div>
         }
-        @if (!hideButton) {
+        @if (!hideButton()) {
             <div class="row mt-2">
                 <div class="col-12">
                     <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark me-2 mb-2">
@@ -57,34 +57,27 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
         }
     `,
     imports: [TranslateModule, FilterByPipe],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExceptionListComponent implements OnInit, OnChanges {
-    @Input() exceptions: ExceptionWorkingHours[] = [];
-    @Input() hideButton = false;
-    @Input() hideTitle = false;
-    @Input() hideInfo = true;
-    @Input() filter: (exception: ExceptionWorkingHours) => boolean;
-    @Output() created = new EventEmitter<ExceptionWorkingHours[]>();
-    @Output() removed = new EventEmitter<ExceptionWorkingHours>();
+export class ExceptionListComponent {
+    exceptions = input<ExceptionWorkingHours[]>([]);
+    hideButton = input(false);
+    hideTitle = input(false);
+    hideInfo = input(true);
+    filter = input<(exception: ExceptionWorkingHours) => boolean>(() => true);
+    created = output<ExceptionWorkingHours[]>();
+    removed = output<ExceptionWorkingHours>();
 
-    orderedExceptions: ExceptionWorkingHours[] = [];
+    orderedExceptions = computed(() =>
+        this.exceptions()
+            .filter((e) => new Date(e.endDate) > new Date())
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()),
+    );
 
     private roomService = inject(RoomService);
     private modal = inject(ModalService);
 
-    constructor() {
-        this.filter = () => true;
-    }
-
-    ngOnInit() {
-        this.init();
-    }
-
-    ngOnChanges() {
-        this.init();
-    }
-
-    formatDate = (exception: ExceptionWorkingHours) => {
+    formatDate(exception: ExceptionWorkingHours) {
         if (!exception.startDate || !exception.endDate) {
             return;
         }
@@ -96,27 +89,26 @@ export class ExceptionListComponent implements OnInit, OnChanges {
             ' - ' +
             (start.toFormat('dd.MM.yyyy') === end.toFormat('dd.MM.yyyy') ? end.toFormat('HH:mm') : end.toFormat(fmt))
         );
-    };
+    }
 
-    addExceptionClosed = () =>
-        this.roomService.openExceptionDialog(this.createExceptionCallback, true, this.exceptions);
-    addExceptionOpen = () => this.roomService.openExceptionDialog(this.createExceptionCallback, false, this.exceptions);
+    addExceptionClosed() {
+        this.roomService.openExceptionDialog(this.createExceptionCallback.bind(this), true, this.exceptions());
+    }
 
-    createExceptionCallback = (exceptions: ExceptionWorkingHours[]) => this.created.emit(exceptions);
+    addExceptionOpen() {
+        this.roomService.openExceptionDialog(this.createExceptionCallback.bind(this), false, this.exceptions());
+    }
 
-    deleteException = (exception: ExceptionWorkingHours) => {
+    createExceptionCallback(exceptions: ExceptionWorkingHours[]) {
+        this.created.emit(exceptions);
+    }
+
+    deleteException(exception: ExceptionWorkingHours) {
         const modal = this.modal.openRef(ExceptionDeleteDialogComponent, { size: 'lg' });
         modal.componentInstance.message = this.formatDate(exception);
         modal.componentInstance.exception = exception;
         this.modal.result$<void>(modal).subscribe(() => {
-            this.exceptions.splice(this.exceptions.indexOf(exception), 1);
-            this.init();
             this.removed.emit(exception);
         });
-    };
-
-    private init = () =>
-        (this.orderedExceptions = this.exceptions
-            .filter((e) => new Date(e.endDate) > new Date())
-            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()));
+    }
 }

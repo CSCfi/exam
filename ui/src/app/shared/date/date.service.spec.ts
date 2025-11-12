@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTimeService } from './date.service';
@@ -13,7 +14,7 @@ describe('DateTimeService', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [TranslateModule.forRoot()],
-            providers: [DateTimeService],
+            providers: [DateTimeService, provideZonelessChangeDetection()],
         });
         service = TestBed.inject(DateTimeService);
         translateService = TestBed.inject(TranslateService);

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,92 +21,113 @@ import { QuestionReviewComponent } from './question-review.component';
             {{ 'i18n_question_review_info_detailed' | translate }}
         </div>
 
-        @if (reviews.length === 0) {
+        @if (reviews().length === 0) {
             <div class="mt-2">
                 <h3>{{ 'i18n_no_questions_to_review' | translate }}</h3>
             </div>
         }
-        @if (reviews.length > 0) {
+        @if (reviews().length > 0) {
             <div class="mt-2 d-flex justify-content-between">
                 <strong class="d-block question-review-toolbar-text"
-                    >{{ selectedReviews.length }} {{ 'i18n_questions_selected' | translate }}</strong
+                    >{{ selectedReviews().length }} {{ 'i18n_questions_selected' | translate }}</strong
                 >
 
                 <button
-                    [disabled]="selectedReviews.length === 0"
+                    [disabled]="selectedReviews().length === 0"
                     class="btn btn-success float-end"
                     (click)="startReview()"
                 >
-                    {{ 'i18n_review_selected' | translate }} ({{ selectedReviews.length }})
+                    {{ 'i18n_review_selected' | translate }} ({{ selectedReviews().length }})
                 </button>
             </div>
             <span class="mt-2 mb-2 d-flex justify-content-between">
                 <span class="question-review-title">{{ 'i18n_select_question_reviews' | translate }}</span>
                 <span class="form-group">
                     <label class="me-2" for="select-all">{{ 'i18n_check_uncheck_all' | translate }}</label>
-                    <input id="select-all" type="checkbox" (change)="selectAll()" [(ngModel)]="selectionToggle" />
+                    <input
+                        id="select-all"
+                        type="checkbox"
+                        (change)="selectAll()"
+                        [ngModel]="selectionToggle()"
+                        (ngModelChange)="setSelectionToggle($event)"
+                    />
                 </span>
             </span>
-            @for (review of reviews; track review) {
+            @for (review of reviews(); track review) {
                 <xm-question-review [review]="review" (selected)="onReviewSelection($event)"> </xm-question-review>
             }
             <div class="mt-2 d-flex justify-content-between">
                 <!-- Might make sense to make this a separate component as it is used twice here-->
                 <strong class="question-review-toolbar-text"
-                    >{{ selectedReviews.length }} {{ 'i18n_questions_selected' | translate }}</strong
+                    >{{ selectedReviews().length }} {{ 'i18n_questions_selected' | translate }}</strong
                 >
-                <button [disabled]="selectedReviews.length === 0" class="btn btn-success" (click)="startReview()">
-                    {{ 'i18n_review_selected' | translate }} ({{ selectedReviews.length }})
+                <button [disabled]="selectedReviews().length === 0" class="btn btn-success" (click)="startReview()">
+                    {{ 'i18n_review_selected' | translate }} ({{ selectedReviews().length }})
                 </button>
             </div>
         }
     </div>`,
     styleUrls: ['../assessment/question-assessment.component.scss'],
     imports: [FormsModule, QuestionReviewComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionReviewsComponent implements OnInit {
-    examId = 0;
-    reviews: QuestionReview[] = [];
-    selectedReviews: number[] = [];
-    selectionToggle = false;
+export class QuestionReviewsComponent {
+    examId = signal(0);
+    reviews = signal<QuestionReview[]>([]);
+    selectedReviews = signal<number[]>([]);
+    selectionToggle = signal(false);
 
     private router = inject(Router);
     private toast = inject(ToastrService);
     private QuestionReview = inject(QuestionReviewService);
     private Tabs = inject(ExamTabService);
 
-    ngOnInit() {
-        this.examId = this.Tabs.getExam().id;
-        this.QuestionReview.getReviews$(this.examId).subscribe({
-            next: (resp) => (this.reviews = resp),
+    constructor() {
+        this.examId.set(this.Tabs.getExam().id);
+        this.QuestionReview.getReviews$(this.examId()).subscribe({
+            next: (resp) => this.reviews.set(resp),
             error: (err) => this.toast.error(err),
         });
         this.Tabs.notifyTabChange(6);
     }
 
-    onReviewSelection = (event: { id: number; selected: boolean }) => {
-        const index = this.selectedReviews.indexOf(event.id);
+    onReviewSelection(event: { id: number; selected: boolean }) {
+        const currentSelected = this.selectedReviews();
+        const index = currentSelected.indexOf(event.id);
         if (event.selected && index === -1) {
-            this.selectedReviews.push(event.id);
+            this.selectedReviews.set([...currentSelected, event.id]);
         } else if (index > -1) {
-            this.selectedReviews.splice(index, 1);
+            this.selectedReviews.set(currentSelected.filter((id) => id !== event.id));
         }
-    };
+    }
 
-    removeSelections = () => {
-        this.reviews.forEach((r) => (r.selected = false));
-        this.selectedReviews = [];
-    };
+    removeSelections() {
+        const currentReviews = this.reviews();
+        currentReviews.forEach((r) => (r.selected = false));
+        this.selectedReviews.set([]);
+    }
 
-    addSelections = () => {
-        this.reviews.forEach((r) => (r.selected = true));
-        this.selectedReviews = this.reviews.map((r) => r.question.id);
-    };
+    addSelections() {
+        const currentReviews = this.reviews();
+        currentReviews.forEach((r) => (r.selected = true));
+        this.selectedReviews.set(currentReviews.map((r) => r.question.id));
+    }
 
-    selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
+    selectAll() {
+        if (this.selectionToggle()) {
+            this.addSelections();
+        } else {
+            this.removeSelections();
+        }
+    }
 
-    startReview = () =>
-        this.router.navigate(['/staff/assessments', this.examId, 'questions'], {
-            queryParams: { q: this.selectedReviews },
+    setSelectionToggle(value: boolean) {
+        this.selectionToggle.set(value);
+    }
+
+    startReview() {
+        this.router.navigate(['/staff/assessments', this.examId(), 'questions'], {
+            queryParams: { q: this.selectedReviews() },
         });
+    }
 }

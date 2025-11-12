@@ -4,8 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -15,12 +14,12 @@ import { LanguageService } from 'src/app/shared/language/language.service';
 @Component({
     selector: 'xm-language-picker',
     template: `<div ngbDropdown>
-        <button [disabled]="disabled" ngbDropdownToggle class="btn btn-outline-dark" type="button" id="ddMenu">
+        <button [disabled]="disabled()" ngbDropdownToggle class="btn btn-outline-dark" type="button" id="ddMenu">
             {{ selectedLanguages() }}&nbsp;
             <span class="caret"></span>
         </button>
         <div ngbDropdownMenu aria-labelledby="ddMenu">
-            @for (language of examLanguages; track language) {
+            @for (language of examLanguages(); track language) {
                 <button
                     ngbDropdownItem
                     [ngClass]="isSelected(language) ? 'active' : ''"
@@ -33,45 +32,55 @@ import { LanguageService } from 'src/app/shared/language/language.service';
         </div>
     </div>`,
     imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LanguageSelectorComponent implements OnInit {
-    @Input() exam!: Exam;
-    @Input() collaborative = false;
-    @Input() disabled = false;
+export class LanguageSelectorComponent {
+    exam = input.required<Exam>();
+    collaborative = input(false);
+    disabled = input(false);
+    updated = output<ExamLanguage[]>();
 
-    examLanguages: ExamLanguage[] = [];
+    examLanguages = signal<ExamLanguage[]>([]);
 
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private Language = inject(LanguageService);
 
-    ngOnInit() {
+    constructor() {
         this.Language.getExamLanguages$().subscribe((languages: ExamLanguage[]) => {
-            this.examLanguages = languages;
+            this.examLanguages.set(languages);
         });
     }
 
-    selectedLanguages = () =>
-        this.exam.examLanguages.length === 0
+    selectedLanguages() {
+        const currentExam = this.exam();
+        const examLanguages = currentExam.examLanguages || [];
+        return examLanguages.length === 0
             ? this.translate.instant('i18n_select')
-            : this.exam.examLanguages.map((language) => language.name).join(', ');
+            : examLanguages.map((language) => language.name).join(', ');
+    }
 
-    isSelected = (lang: ExamLanguage) => this.exam.examLanguages.map((el) => el.code).indexOf(lang.code) > -1;
+    isSelected(lang: ExamLanguage) {
+        const currentExam = this.exam();
+        const examLanguages = currentExam.examLanguages || [];
+        return examLanguages.map((el) => el.code).indexOf(lang.code) > -1;
+    }
 
-    updateExamLanguage = (lang: ExamLanguage) => {
-        const resource = this.collaborative ? '/app/iop/exams' : '/app/exams';
-        this.http.put(`${resource}/${this.exam.id}/language/${lang.code}`, {}).subscribe({
+    updateExamLanguage(lang: ExamLanguage) {
+        const currentExam = this.exam();
+        const resource = this.collaborative() ? '/app/iop/exams' : '/app/exams';
+        this.http.put(`${resource}/${currentExam.id}/language/${lang.code}`, {}).subscribe({
             next: () => {
-                if (this.isSelected(lang)) {
-                    const index = this.exam.examLanguages.map((el) => el.code).indexOf(lang.code);
-                    this.exam.examLanguages.splice(index, 1);
-                } else {
-                    this.exam.examLanguages.push(lang);
-                }
+                const examLanguages = currentExam.examLanguages || [];
+                const isCurrentlySelected = examLanguages.some((el) => el.code === lang.code);
+                const updatedLanguages = isCurrentlySelected
+                    ? examLanguages.filter((el) => el.code !== lang.code)
+                    : [...examLanguages, lang];
+                this.updated.emit(updatedLanguages);
                 this.toast.info(this.translate.instant('i18n_exam_language_updated'));
             },
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 }

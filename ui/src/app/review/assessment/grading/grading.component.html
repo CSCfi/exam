@@ -9,10 +9,10 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-4">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
     <div class="col-md-2">{{ 'i18n_grading_inspector' | translate }}:</div>
     <div class="col-md-4">
-        @for (inspection of exam.examInspections; track inspection) {
+        @for (inspection of exam().examInspections; track inspection) {
             <xm-r-inspection
                 [inspection]="inspection"
-                [user]="user"
+                [user]="user()"
                 [disabled]="isGraded() || isReadOnly()"
                 (inspected)="inspectionDone()"
             >
@@ -22,20 +22,20 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 <div class="row">
     <div class="col-md-2">{{ 'i18n_approved' | translate }} / {{ 'i18n_rejected' | translate }}:</div>
-    <div class="col-md-4">{{ questionSummary.accepted }} / {{ questionSummary.rejected }}</div>
+    <div class="col-md-4">{{ questionSummary().accepted }} / {{ questionSummary().rejected }}</div>
     <div class="col-md-2">&nbsp;</div>
     <div class="col-md-4">&nbsp;</div>
 </div>
 <div class="row mt-3">
     <div class="col-md-2">{{ 'i18n_exam_owners' | translate }}:</div>
     <div class="col-md-4">
-        @if (!collaborative) {
-            @for (teacher of exam.parent?.examOwners; track teacher) {
+        @if (!collaborative()) {
+            @for (teacher of exam().parent?.examOwners; track teacher) {
                 <span> {{ teacher.firstName }} {{ teacher.lastName }} </span>
             }
         }
-        @if (collaborative) {
-            @for (teacher of exam.examOwners; track teacher) {
+        @if (collaborative()) {
+            @for (teacher of exam().examOwners; track teacher) {
                 <span>
                     {{ teacher.email }}
                 </span>
@@ -44,17 +44,17 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="col-md-2">{{ 'i18n_exam_instructor' | translate }}:</div>
     <div class="col-md-4">
-        @for (inspection of exam.examInspections; track inspection) {
+        @for (inspection of exam().examInspections; track inspection) {
             <span> {{ inspection.user.firstName }} {{ inspection.user.lastName }} </span>
         }
     </div>
 </div>
 
-@if (exam.state === 'GRADED_LOGGED') {
+@if (exam().state === 'GRADED_LOGGED') {
     <div class="row">
         <div class="col-md-2">{{ 'i18n_assessment_date' | translate }}:</div>
         <div class="col-md-10">
-            {{ exam.gradedTime | date: 'dd.MM.yyyy' }}
+            {{ exam().gradedTime | date: 'dd.MM.yyyy' }}
         </div>
     </div>
 }
@@ -72,7 +72,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-8">
         <textarea
             class="form-control"
-            [(ngModel)]="exam.additionalInfo"
+            [(ngModel)]="exam().additionalInfo"
             rows="3"
             [disabled]="isReadOnly() || !isOwnerOrAdmin()"
         >
@@ -90,10 +90,10 @@ SPDX-License-Identifier: EUPL-1.2
         /></sup>
     </div>
     <div class="col-md-8">
-        <textarea class="form-control" [(ngModel)]="exam.assessmentInfo" rows="3"> </textarea>
+        <textarea class="form-control" [(ngModel)]="exam().assessmentInfo" rows="3"> </textarea>
     </div>
     <div class="col-md-2">
-        <button class="btn btn-success" [disabled]="!exam.assessmentInfo" (click)="saveAssessmentInfo()">
+        <button class="btn btn-success" [disabled]="!exam().assessmentInfo" (click)="saveAssessmentInfo()">
             {{ 'i18n_save' | translate }}
         </button>
     </div>
@@ -128,17 +128,17 @@ SPDX-License-Identifier: EUPL-1.2
         }
         :
     </div>
-    @if (exam.examFeedback?.comment) {
+    @if (exam()?.examFeedback?.comment) {
         <div
             class="col-md-10"
             [ngClass]="isCommentRead() ? '' : 'text-danger'"
-            [xmMathJax]="exam.examFeedback?.comment"
+            [xmMathJax]="exam()?.examFeedback?.comment"
         ></div>
     }
-    @if (exam.examFeedback?.attachment) {
+    @if (exam()?.examFeedback?.attachment) {
         <div class="col-md-offset-2 col-md-10">
             <a class="pointer" (click)="downloadFeedbackAttachment()">
-                {{ exam.examFeedback.attachment?.fileName }}
+                {{ exam()?.examFeedback?.attachment?.fileName }}
             </a>
         </div>
     }
@@ -175,7 +175,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <label for="creditType" class="form-label grading-title">
                         {{ 'i18n_exam_choose_credit_type' | translate | uppercase }}
                     </label>
-                    @if (exam.gradingType !== 'POINT_GRADED') {
+                    @if (exam().gradingType !== 'POINT_GRADED') {
                         <select
                             id="creditType"
                             name="creditType"
@@ -230,7 +230,7 @@ SPDX-License-Identifier: EUPL-1.2
                         [min]="0"
                         class="form-control"
                         maxlength="3"
-                        [(ngModel)]="exam.customCredit"
+                        [(ngModel)]="exam().customCredit"
                     />
                 </div>
             </div>
@@ -241,7 +241,7 @@ SPDX-License-Identifier: EUPL-1.2
 <!-- Bottom toolbar -->
 <xm-r-toolbar
     [valid]="!!gradingForm.valid"
-    [exam]="exam"
-    [participation]="participation"
-    [collaborative]="collaborative"
+    [exam]="exam()"
+    [participation]="participation()"
+    [collaborative]="collaborative()"
 ></xm-r-toolbar>

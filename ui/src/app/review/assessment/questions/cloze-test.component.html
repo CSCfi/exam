@@ -9,14 +9,14 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-12">
             <!-- question text -->
             <div class="d-flex justify-content-between">
-                <div [xmMathJax]="sectionQuestion.question.question"></div>
+                <div [xmMathJax]="sectionQuestion().question.question"></div>
                 <!-- points -->
                 <div class="d-inline-block pe-3">
                     <strong>{{ 'i18n_multiplechoice_question_correct' | translate }}:</strong>
-                    {{ sectionQuestion.clozeTestAnswer?.score?.correctAnswers }} /
+                    {{ sectionQuestion().clozeTestAnswer?.score?.correctAnswers }} /
                     {{
-                        (sectionQuestion.clozeTestAnswer?.score?.correctAnswers || 0) +
-                            (sectionQuestion.clozeTestAnswer?.score?.incorrectAnswers || 0)
+                        (sectionQuestion().clozeTestAnswer?.score?.correctAnswers || 0) +
+                            (sectionQuestion().clozeTestAnswer?.score?.incorrectAnswers || 0)
                     }}
                     &nbsp;<strong>{{ 'i18n_word_points' | translate }}: </strong>
                     <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
@@ -24,60 +24,60 @@ SPDX-License-Identifier: EUPL-1.2
                     </span>
                     @if (hasForcedScore()) {
                         <span class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
+                            {{ sectionQuestion().forcedScore }}
                         </span>
                     }
-                    / {{ sectionQuestion.maxScore }}
+                    / {{ sectionQuestion().maxScore }}
                 </div>
                 <button
                     class="d-inline-block btn btn-link"
-                    (click)="reviewExpanded = !reviewExpanded"
-                    [attr.aria-expanded]="reviewExpanded"
+                    (click)="toggleReviewExpanded()"
+                    [attr.aria-expanded]="reviewExpanded()"
                 >
-                    @if (!reviewExpanded) {
+                    @if (!reviewExpanded()) {
                         <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
-                    @if (reviewExpanded) {
+                    @if (reviewExpanded()) {
                         <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
                 </button>
             </div>
 
             <!-- question attachment -->
-            @if (reviewExpanded && sectionQuestion.question.attachment) {
+            @if (reviewExpanded() && sectionQuestion().question.attachment) {
                 <div class="ps-0 mt-2 mb-3 notice-text">
                     {{ 'i18n_question_attachment' | translate }}:
                     <a class="pointer" (click)="downloadQuestionAttachment()">
-                        {{ sectionQuestion.question.attachment?.fileName }}</a
+                        {{ sectionQuestion().question.attachment?.fileName }}</a
                     >
                 </div>
             }
 
             <!-- question instructions -->
-            @if (reviewExpanded && sectionQuestion.answerInstructions) {
+            @if (reviewExpanded() && sectionQuestion().answerInstructions) {
                 <div class="ps-0 mt-2 mb-3 notice-text" role="note">
                     <img src="/assets/images/icon_info.svg" alt="" />
                     <span class="ps-2">{{ 'i18n_instructions' | translate }}:</span>
-                    <span [innerHtml]="sectionQuestion.answerInstructions"></span>
+                    <span [innerHtml]="sectionQuestion().answerInstructions"></span>
                 </div>
             }
 
             <!-- answer -->
-            @if (reviewExpanded) {
+            @if (reviewExpanded()) {
                 <div class="mt-2">
                     <hr />
                 </div>
             }
 
-            @if (reviewExpanded) {
+            @if (reviewExpanded()) {
                 <div class="mb-2">
                     {{ 'i18n_exam_answer' | translate | uppercase }}
-                    <div [innerHtml]="sectionQuestion.clozeTestAnswer?.question"></div>
-                    @if (participation.exam.executionType.type !== 'MATURITY') {
+                    <div [innerHtml]="sectionQuestion().clozeTestAnswer?.question"></div>
+                    @if (participation().exam.executionType.type !== 'MATURITY') {
                         <div class="make-inline pe-3 mt-2">
                             <span class="text text-danger"
                                 >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
-                                <small>[0 &hellip; {{ sectionQuestion.maxScore.toFixed(2) }}]</small></span
+                                <small>[0 &hellip; {{ sectionQuestion().maxScore.toFixed(2) }}]</small></span
                             >
                             <form #forcedPoints="ngForm" name="forcedPoints">
                                 <input
@@ -89,9 +89,9 @@ SPDX-License-Identifier: EUPL-1.2
                                     xmFixedPrecision
                                     (blur)="forcedPoints.valid && insertForcedScore()"
                                     onclick="this.focus()"
-                                    [disabled]="!isScorable"
+                                    [disabled]="!isScorable()"
                                     [min]="0"
-                                    [max]="sectionQuestion.maxScore"
+                                    [max]="sectionQuestion().maxScore"
                                 />
                                 @if (forcedPoints.invalid) {
                                     <small class="alert-danger">

@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -31,6 +31,7 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
 
 @Component({
     selector: 'xm-printed-assessment',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './printed-assessment.component.html',
     imports: [
         CourseCodeComponent,
@@ -46,14 +47,14 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
 })
 export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     collaborative = false;
-    questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
-    exam!: Exam;
+    questionSummary = signal<QuestionAmounts>({ accepted: 0, rejected: 0, hasEssays: false });
+    exam = signal<Exam | undefined>(undefined);
     user: User;
-    participation!: ExamParticipation;
-    previousParticipations: PreviousParticipation[] = [];
-    student?: User;
-    enrolment?: ExamEnrolment;
-    reservation!: Reservation;
+    participation = signal<ExamParticipation | undefined>(undefined);
+    previousParticipations = signal<PreviousParticipation[]>([]);
+    student = signal<User | undefined>(undefined);
+    enrolment = signal<ExamEnrolment | undefined>(undefined);
+    reservation = signal<Reservation | undefined>(undefined);
     id = 0;
     ref = '';
 
@@ -95,21 +96,22 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
                     ),
             );
 
-            this.questionSummary = this.QuestionScore.getQuestionAmounts(exam);
-            this.exam = exam;
+            this.questionSummary.set(this.QuestionScore.getQuestionAmounts(exam));
+            this.exam.set(exam);
             this.user = this.Session.getUser();
-            this.participation = participation;
-            const duration = DateTime.fromISO(this.participation.duration as string)
+            this.participation.set(participation);
+            const participationValue = participation;
+            const duration = DateTime.fromISO(participationValue.duration as string)
                 .set({ second: 0, millisecond: 0 })
                 .toJSDate();
-            this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
+            participationValue.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
 
-            this.student = this.participation.user;
-            this.enrolment = this.exam.examEnrolments[0];
-            this.reservation = this.enrolment.reservation as Reservation;
+            this.student.set(participationValue.user);
+            this.enrolment.set(exam.examEnrolments[0]);
+            this.reservation.set(exam.examEnrolments[0]?.reservation as Reservation);
             if (!this.collaborative) {
                 this.http
-                    .get<ExamParticipation[]>(`/app/examparticipations/${this.exam.id}`)
+                    .get<ExamParticipation[]>(`/app/examparticipations/${exam.id}`)
                     .subscribe(this.handleParticipations);
             } else {
                 this.http
@@ -122,47 +124,66 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     translateGrade = (participation: PreviousParticipation) =>
         !participation.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(participation.exam.grade.name);
 
-    getGrade = () => (!this.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(this.exam.grade.name));
+    getGrade = () => {
+        const examValue = this.exam();
+        return !examValue?.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(examValue.grade.name);
+    };
 
-    getCreditType = () => (!this.exam ? 'N/A' : this.CommonExam.getExamTypeDisplayName(this.exam.examType.type));
+    getCreditType = () => {
+        const examValue = this.exam();
+        return !examValue ? 'N/A' : this.CommonExam.getExamTypeDisplayName(examValue.examType.type);
+    };
 
     getLanguage = () => {
-        if (!this.exam) return 'N/A';
-        const lang = this.Assessment.pickExamLanguage(this.exam);
+        const examValue = this.exam();
+        if (!examValue) return 'N/A';
+        const lang = this.Assessment.pickExamLanguage(examValue);
         return !lang ? 'N/A' : lang.name;
     };
 
-    getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
+    getExamMaxPossibleScore = () => {
+        const examValue = this.exam();
+        return examValue ? this.Exam.getMaxScore(examValue) : 0;
+    };
 
-    getExamTotalScore = () => this.Exam.getTotalScore(this.exam);
+    getExamTotalScore = () => {
+        const examValue = this.exam();
+        return examValue ? this.Exam.getTotalScore(examValue) : 0;
+    };
 
     getTeacherCount = () => {
+        const examValue = this.exam();
+        if (!examValue) return 0;
         // Do not add up if user exists in both groups
-        const exam = this.collaborative ? this.exam : (this.exam.parent as Exam);
+        const exam = this.collaborative ? examValue : (examValue.parent as Exam);
         const owners = exam.examOwners.filter(
-            (owner) => this.exam.examInspections.map((i) => i.user.id).indexOf(owner.id) === -1,
+            (owner) => examValue.examInspections.map((i) => i.user.id).indexOf(owner.id) === -1,
         );
-        return this.exam.examInspections.length + owners.length;
+        return examValue.examInspections.length + owners.length;
     };
 
     translateState = (participation: PreviousParticipation) => 'i18n_exam_status_' + participation.exam.state;
 
     private handleParticipations = (data: ExamParticipation[]) => {
+        const examValue = this.exam();
+        const participationValue = this.participation();
+        if (!examValue || !participationValue) return;
+
         if (this.collaborative) {
             //TODO: Add collaborative support for noshows.
-            this.previousParticipations = data;
+            this.previousParticipations.set(data);
             this.printPage();
             return;
         }
         // Filter out the participation we are looking into
-        const previousParticipations: PreviousParticipation[] = data.filter((p) => p.id !== this.participation.id);
-        this.http.get<Reservation[]>(`/app/usernoshows/${this.exam.id}`).subscribe((resp) => {
+        const previousParticipations: PreviousParticipation[] = data.filter((p) => p.id !== participationValue.id);
+        this.http.get<Reservation[]>(`/app/usernoshows/${examValue.id}`).subscribe((resp) => {
             const noShows: PreviousParticipation[] = resp.map((r) => ({
                 noShow: true,
                 started: r.startAt,
                 exam: { state: 'no_show' },
             }));
-            this.previousParticipations = previousParticipations.concat(noShows);
+            this.previousParticipations.set(previousParticipations.concat(noShows));
             this.printPage();
         });
     };

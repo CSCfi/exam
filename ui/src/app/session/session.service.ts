@@ -40,7 +40,6 @@ export class SessionService implements OnDestroy {
     private sessionCheckSubscription?: Unsubscribable;
     private userChangeSubscription = new Subject<User | undefined>();
     private devLogoutSubscription = new Subject<void>();
-    private customSessionExpireWarning = SessionExpireWarningComponent;
 
     constructor() {
         this.userChange$ = this.userChangeSubscription.asObservable();
@@ -127,7 +126,7 @@ export class SessionService implements OnDestroy {
                             this.i18n.instant('i18n_session_will_expire_soon'),
                             {
                                 timeOut: 30000,
-                                toastComponent: this.customSessionExpireWarning,
+                                toastComponent: SessionExpireWarningComponent,
                                 progressBar: true,
                             },
                         )

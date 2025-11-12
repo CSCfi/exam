@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, inject, Input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row my-2">
             <div class="col-12">
@@ -39,15 +39,17 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
     selector: 'xm-response-statistics',
     imports: [TranslateModule],
 })
-export class ResponseStatisticsComponent implements OnInit {
-    @Input() queryParams: QueryParams = {};
+export class ResponseStatisticsComponent {
+    queryParams = input<QueryParams>({});
     data = signal({ assessed: 0, unAssessed: 0, aborted: 0 });
 
     private Statistics = inject(StatisticsService);
 
-    ngOnInit() {
+    constructor() {
         this.listResponses();
     }
 
-    listResponses = () => this.Statistics.listResponses$(this.queryParams).subscribe((resp) => this.data.set(resp));
+    listResponses() {
+        this.Statistics.listResponses$(this.queryParams()).subscribe((resp) => this.data.set(resp));
+    }
 }

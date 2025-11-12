@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
@@ -13,6 +13,7 @@ import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.c
 import { Option } from 'src/app/shared/select/select.model';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <strong class="col-md-12">
@@ -24,7 +25,7 @@ import { Option } from 'src/app/shared/select/select.model';
                 <label for="student">{{ 'i18n_student' | translate }}</label>
                 <xm-dropdown-select
                     id="student"
-                    [options]="students"
+                    [options]="students()"
                     (optionSelected)="studentSelected($event)"
                     placeholder="{{ 'i18n_select' | translate }}"
                 ></xm-dropdown-select>
@@ -52,34 +53,35 @@ import { Option } from 'src/app/shared/select/select.model';
     imports: [DropdownSelectComponent, DatePickerComponent, TranslateModule],
 })
 export class StudentsReportComponent {
-    @Input() students: Option<User, number>[] = [];
-    student?: number;
-    startDate: Date | null = null;
-    endDate: Date | null = null;
+    students = input<Option<User, number>[]>([]);
+    student = signal<number | undefined>(undefined);
+    startDate = signal<Date | null>(null);
+    endDate = signal<Date | null>(null);
 
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private files = inject(FileService);
 
-    getStudentReport = () => {
-        if (this.student) {
-            const f = DateTime.fromJSDate(this.startDate || new Date()).toFormat('dd.MM.yyyy');
-            const t = DateTime.fromJSDate(this.endDate || new Date()).toFormat('dd.MM.yyyy');
-            this.files.download(`/app/statistics/student/${this.student}/${f}/${t}`, 'student_activity.xlsx');
+    getStudentReport() {
+        const currentStudent = this.student();
+        if (currentStudent) {
+            const f = DateTime.fromJSDate(this.startDate() || new Date()).toFormat('dd.MM.yyyy');
+            const t = DateTime.fromJSDate(this.endDate() || new Date()).toFormat('dd.MM.yyyy');
+            this.files.download(`/app/statistics/student/${currentStudent}/${f}/${t}`, 'student_activity.xlsx');
         } else {
             this.toast.error(this.translate.instant('i18n_choose_student'));
         }
-    };
+    }
 
-    studentSelected = (event?: Option<User, number>) => {
-        this.student = event?.id;
-    };
+    studentSelected(event?: Option<User, number>) {
+        this.student.set(event?.id);
+    }
 
-    startDateChanged = (event: { date: Date | null }) => {
-        this.startDate = event.date;
-    };
+    startDateChanged(event: { date: Date | null }) {
+        this.startDate.set(event.date);
+    }
 
-    endDateChanged = (event: { date: Date | null }) => {
-        this.endDate = event.date;
-    };
+    endDateChanged(event: { date: Date | null }) {
+        this.endDate.set(event.date);
+    }
 }

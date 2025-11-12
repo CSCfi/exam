@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExaminationQuestion } from 'src/app/examination/examination.model';
@@ -15,10 +15,10 @@ import { Question } from 'src/app/question/question.model';
         <div class="modal-header">
             <h4 class="xm-modal-title">{{ 'i18n_preview_question' | translate }}</h4>
         </div>
-        @if (preview) {
+        @if (preview()) {
             <div class="modal-body">
                 <xm-examination-question
-                    [question]="preview"
+                    [question]="preview()!"
                     [isPreview]="true"
                     [isCollaborative]="false"
                 ></xm-examination-question>
@@ -34,20 +34,28 @@ import { Question } from 'src/app/question/question.model';
     `,
     imports: [ExaminationQuestionComponent, TranslateModule],
 })
-export class QuestionPreviewDialogComponent implements OnInit {
-    @Input() question!: ExaminationQuestion | Question;
-    @Input() isExamQuestion = false;
+export class QuestionPreviewDialogComponent {
+    question = signal<ExaminationQuestion | Question | undefined>(undefined);
+    isExamQuestion = signal(false);
 
-    preview?: ExaminationQuestion;
+    preview = signal<ExaminationQuestion | undefined>(undefined);
 
     activeModal = inject(NgbActiveModal);
     private http = inject(HttpClient);
 
-    ngOnInit() {
-        const urlSuffix = this.isExamQuestion ? 'exam' : 'library';
-        const id = this.question.id;
-        this.http.get<ExaminationQuestion>(`/app/questions/${id}/preview/${urlSuffix}`).subscribe({
-            next: (res) => (this.preview = res),
+    constructor() {
+        // Watch for when question is set and load preview
+        effect(() => {
+            const questionValue = this.question();
+            const isExamQuestionValue = this.isExamQuestion();
+
+            if (questionValue?.id) {
+                const urlSuffix = isExamQuestionValue ? 'exam' : 'library';
+                const id = questionValue.id;
+                this.http.get<ExaminationQuestion>(`/app/questions/${id}/preview/${urlSuffix}`).subscribe({
+                    next: (res) => this.preview.set(res),
+                });
+            }
         });
     }
 }

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, OnDestroy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -15,13 +15,13 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             <div class="col-md-12">
                 <h2
                     aria-live="polite"
-                    attr.aria-label="{{ 'i18n_exam_section' | translate }} {{ index ? index + '. ' : '' }}{{
-                        section.name
-                    }}"
+                    [attr.aria-label]="
+                        ('i18n_exam_section' | translate) + ' ' + (index() ? index() + '. ' : '') + section().name
+                    "
                     id="examination-section"
                 >
-                    <span class="exam-title">{{ index ? index + '. ' : '' }}{{ section.name }}</span>
-                    @if (isPreview && section.lotteryOn) {
+                    <span class="exam-title">{{ index() ? index() + '. ' : '' }}{{ section().name }}</span>
+                    @if (isPreview() && section().lotteryOn) {
                         <span class="text-black">
                             <small class="ms-3">({{ 'i18n_lottery_questions' | translate }})</small>
                         </span>
@@ -41,16 +41,16 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                     }
                 </div>
                 <!-- DESCRIPTION FOR SECTION -->
-                @if (section.description && section.description.length > 0) {
+                @if (section().description && section().description.length > 0) {
                     <img src="/assets/images/icon_info.svg" alt="" />
-                    <span class="ps-2">{{ section.description }}</span>
+                    <span class="ps-2">{{ section().description }}</span>
                 }
             </div>
         </div>
         <!-- Question Content -->
         <div class="row ms-1">
             <div class="col-md-12">
-                @for (material of section.examMaterials; track material) {
+                @for (material of section().examMaterials; track material) {
                     <div class="row">
                         <div class="col-md-12 mt-1">
                             <i class="text-muted bi-book" alt="exam materials"></i>
@@ -66,51 +66,66 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                         </div>
                     </div>
                 }
-                @for (sq of section.sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
+                @for (sq of section().sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
                     <xm-examination-question
                         [question]="sq"
-                        [exam]="exam"
-                        [isPreview]="isPreview"
-                        [isCollaborative]="isCollaborative"
+                        [exam]="exam()"
+                        [isPreview]="isPreview()"
+                        [isCollaborative]="isCollaborative()"
                     ></xm-examination-question>
                 }
             </div>
         </div>`,
     imports: [ExaminationQuestionComponent, TranslateModule, OrderByPipe],
     styleUrls: ['../examination.shared.scss', './examination-section.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationSectionComponent implements OnInit, OnDestroy {
-    @Input() exam!: Examination;
-    @Input() section!: ExaminationSection;
-    @Input() index?: number;
-    @Input() isPreview = false;
-    @Input() isCollaborative = false;
+export class ExaminationSectionComponent implements OnDestroy {
+    exam = input.required<Examination>();
+    section = input.required<ExaminationSection>();
+    index = input<number | undefined>(undefined);
+    isPreview = input(false);
+    isCollaborative = input(false);
 
     autosaver?: number;
 
     private Examination = inject(ExaminationService);
 
-    ngOnInit() {
-        this.resetAutosaver();
+    constructor() {
+        // Set up autosaver when section and isPreview inputs are available
+        effect(() => {
+            // Access signals to track them
+            this.section();
+            this.isPreview();
+            this.exam();
+            // Reset autosaver when these inputs change
+            this.resetAutosaver();
+        });
     }
 
     ngOnDestroy() {
         this.cancelAutosaver();
     }
 
-    getSectionMaxScore = () => this.Examination.getSectionMaxScore(this.section);
+    getSectionMaxScore() {
+        return this.Examination.getSectionMaxScore(this.section());
+    }
 
-    getAmountOfSelectionEvaluatedQuestions = () =>
-        this.section.sectionQuestions.filter((esq) => esq.evaluationType === 'Selection').length;
+    getAmountOfSelectionEvaluatedQuestions() {
+        return this.section().sectionQuestions.filter((esq) => esq.evaluationType === 'Selection').length;
+    }
 
-    private resetAutosaver = () => {
+    private resetAutosaver() {
         this.cancelAutosaver();
-        if (this.section && !this.isPreview) {
+        const currentSection = this.section();
+        const currentIsPreview = this.isPreview();
+        if (currentSection && !currentIsPreview) {
+            const currentExam = this.exam();
             this.autosaver = window.setInterval(
                 () =>
                     this.Examination.saveAllTextualAnswersOfSection$(
-                        this.section,
-                        this.exam.hash,
+                        currentSection,
+                        currentExam.hash,
                         true,
                         false,
                         false,
@@ -118,12 +133,12 @@ export class ExaminationSectionComponent implements OnInit, OnDestroy {
                 1000 * 60,
             );
         }
-    };
+    }
 
-    private cancelAutosaver = () => {
+    private cancelAutosaver() {
         if (this.autosaver) {
             window.clearInterval(this.autosaver);
             delete this.autosaver;
         }
-    };
+    }
 }

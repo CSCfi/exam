@@ -32,7 +32,7 @@ SPDX-License-Identifier: EUPL-1.2
                     [resultFormatter]="nameFormatter"
                     [inputFormatter]="nameFormatter"
                     (selectItem)="studentSelected($event)"
-                    [disabled]="student"
+                    [disabled]="student()"
                     placeholder="{{ 'i18n_search' | translate }}"
                 />
                 <button class="btn btn-outline-secondary" type="reset" (click)="clearStudent()">
@@ -52,7 +52,7 @@ SPDX-License-Identifier: EUPL-1.2
                     [resultFormatter]="nameFormatter"
                     [inputFormatter]="nameFormatter"
                     (selectItem)="examSelected($event)"
-                    [disabled]="examId || externalRef"
+                    [disabled]="examId() || externalRef()"
                     placeholder="{{ 'i18n_search' | translate }}"
                 />
                 <button class="btn btn-outline-secondary" type="reset" (click)="clearExam()">
@@ -64,7 +64,7 @@ SPDX-License-Identifier: EUPL-1.2
             <label for="state-search" class="reservation-search-form-label">{{ 'i18n_exam_state' | translate }}</label>
             <xm-dropdown-select
                 id="state-search"
-                [options]="stateOptions"
+                [options]="stateOptions()"
                 [fullWidth]="true"
                 [noSearch]="true"
                 (optionSelected)="stateChanged($event)"
@@ -90,7 +90,7 @@ SPDX-License-Identifier: EUPL-1.2
                         [resultFormatter]="nameFormatter"
                         [inputFormatter]="nameFormatter"
                         (selectItem)="ownerSelected($event)"
-                        [disabled]="owner"
+                        [disabled]="owner()"
                         placeholder="{{ 'i18n_search' | translate }}"
                     />
                     <button class="btn btn-outline-secondary" type="reset" (click)="clearOwner()">
@@ -100,10 +100,10 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
             <div class="col-md-3">
                 <label for="room-search" class="reservation-search-form-label">{{ 'i18n_room' | translate }}</label>
-                @if (roomOptions) {
+                @if (roomOptions().length > 0) {
                     <xm-dropdown-select
                         id="room-search"
-                        [options]="roomOptions"
+                        [options]="roomOptions()"
                         (optionSelected)="roomChanged($event)"
                         [limitTo]="0"
                         [fullWidth]="true"
@@ -116,10 +116,10 @@ SPDX-License-Identifier: EUPL-1.2
                 <label for="machine-search" class="reservation-search-form-label">{{
                     'i18n_exam_machine' | translate
                 }}</label>
-                @if (machineOptions) {
+                @if (machineOptions().length > 0) {
                     <xm-dropdown-select
                         id="machine-search"
-                        [options]="machineOptions"
+                        [options]="machineOptions()"
                         (optionSelected)="machineChanged($event)"
                         [limitTo]="0"
                         [fullWidth]="true"
@@ -131,7 +131,12 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-3">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" value="" [(ngModel)]="externalReservationsOnly" (change)="query()" />
+                        <input
+                            type="checkbox"
+                            value=""
+                            [ngModel]="externalReservationsOnly()"
+                            (ngModelChange)="externalReservationsOnly.set($event); query()"
+                        />
                         <strong class="reservation-search-form-label">
                             {{ 'i18n_external_reservations_only' | translate }}
                         </strong>
@@ -139,7 +144,12 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" value="" [(ngModel)]="byodExamsOnly" (change)="query()" />
+                        <input
+                            type="checkbox"
+                            value=""
+                            [ngModel]="byodExamsOnly()"
+                            (ngModelChange)="byodExamsOnly.set($event); query()"
+                        />
                         <strong class="reservation-search-form-label">
                             {{ 'i18n_byod_only' | translate }}
                         </strong>
@@ -149,9 +159,9 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     }
 
-    @if (reservations && reservations.length > 0) {
+    @if (reservations() && reservations().length > 0) {
         <xm-reservation-details
-            [reservations]="reservations"
+            [reservations]="reservations()"
             [isAdminView]="isAdminView()"
             [isSupportView]="isSupportView()"
         >

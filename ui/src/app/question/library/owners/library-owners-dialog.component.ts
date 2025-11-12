@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgbActiveModal, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -43,8 +42,8 @@ import { UserService } from 'src/app/shared/user/user.service';
     selector: 'xm-library-owners-dialog',
     imports: [NgbTypeahead, TranslateModule],
 })
-export class LibraryOwnersDialogComponent implements OnInit {
-    @Input() selections: number[] = [];
+export class LibraryOwnersDialogComponent {
+    selections: number[] = [];
 
     teachers: User[] = [];
     newTeachers: number[] = [];
@@ -56,7 +55,7 @@ export class LibraryOwnersDialogComponent implements OnInit {
     private Question = inject(QuestionService);
     private User = inject(UserService);
 
-    ngOnInit() {
+    constructor() {
         this.User.listUsersByRole$('TEACHER').subscribe((users: User[]) => {
             this.teachers = users;
         });

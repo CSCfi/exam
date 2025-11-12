@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -20,6 +19,7 @@ import { Option } from 'src/app/shared/select/select.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: 'xm-maturity-reporting',
     templateUrl: './maturity-reporting.component.html',
     styleUrls: ['./maturity-reporting.component.scss'],
@@ -35,46 +35,59 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         PageContentComponent,
     ],
 })
-export class MaturityReportingComponent implements OnInit {
-    month?: number;
-    year?: number;
-    processedInspections: LanguageInspection[] = [];
-    months: Option<number, number>[] = [];
-    years: Option<number, number>[] = [];
+export class MaturityReportingComponent {
+    month = signal<number | undefined>(undefined);
+    year = signal<number | undefined>(undefined);
+    processedInspections = signal<LanguageInspection[]>([]);
+    months = signal<Option<number, number>[]>([]);
+    years = signal<Option<number, number>[]>([]);
 
     private LanguageInspection = inject(LanguageInspectionService);
 
-    ngOnInit() {
-        this.months = range(1, 13).map((m) => ({ id: m, label: m.toString() }));
+    constructor() {
+        this.months.set(range(1, 13).map((m) => ({ id: m, label: m.toString() })));
         const year = new Date().getFullYear();
-        this.years = range(0, 20).map((n) => ({ id: year - n, label: (year - n).toString() }));
+        this.years.set(range(0, 20).map((n) => ({ id: year - n, label: (year - n).toString() })));
     }
 
-    printReport = () => window.setTimeout(() => window.print(), 500);
+    printReport() {
+        window.setTimeout(() => window.print(), 500);
+    }
 
-    monthChanged = (event?: Option<number, number>) => {
-        this.month = event?.id;
+    monthChanged(event?: Option<number, number>) {
+        this.month.set(event?.id);
         this.query();
-    };
+    }
 
-    yearChanged = (event?: Option<number, number>) => {
-        this.year = event?.id;
+    yearChanged(event?: Option<number, number>) {
+        this.year.set(event?.id);
         this.query();
-    };
+    }
 
-    query = () => {
+    query() {
+        const currentMonth = this.month();
+        const currentYear = this.year();
         const params: { month?: string } = {};
-        if (this.month && this.year) {
-            const date = new Date(this.year, this.month - 1, 1);
+        if (currentMonth && currentYear) {
+            const date = new Date(currentYear, currentMonth - 1, 1);
             const beginning = DateTime.fromJSDate(date).startOf('month');
             params.month = encodeURIComponent(beginning.toISO() || '');
-            this.LanguageInspection.query(params).subscribe(
-                (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),
-            );
+            this.LanguageInspection.query(params).subscribe((inspections) => {
+                this.processedInspections.set(inspections.filter((i) => i.finishedAt));
+            });
         }
-    };
+    }
 
-    showStatement = (statement: { attachment?: Attachment; comment?: string }) => {
+    showStatement(statement: { attachment?: Attachment; comment?: string }) {
         this.LanguageInspection.showStatement({ comment: statement.comment || '' });
-    };
+    }
+
+    getMonthDate(): Date | undefined {
+        const currentMonth = this.month();
+        const currentYear = this.year();
+        if (currentMonth && currentYear) {
+            return new Date(currentYear, currentMonth - 1, 1);
+        }
+        return undefined;
+    }
 }

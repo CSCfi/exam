@@ -7,7 +7,7 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="row ms-2 mt-4">
     <div class="col-md-12">
         <div class="xm-paragraph-title">
-            <span class="pointer" (click)="autoevaluationDisplay.visible = !autoevaluationDisplay.visible">
+            <span class="pointer" (click)="toggleDisplay()">
                 {{ 'i18n_exam_autoevaluation' | translate }}
                 @if (autoevaluation.enabled) {
                     <span>({{ 'i18n_in_use' | translate }})</span>
@@ -21,10 +21,10 @@ SPDX-License-Identifier: EUPL-1.2
                     class="ms-2"
                     triggers="mouseenter:mouseleave"
                 >
-                    @if (!autoevaluationDisplay.visible) {
+                    @if (!autoevaluationDisplayVisible()) {
                         <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
-                    @if (autoevaluationDisplay.visible) {
+                    @if (autoevaluationDisplayVisible()) {
                         <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
                 </span>
@@ -35,8 +35,8 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div
     class="row ms-2"
-    [ngbCollapse]="!autoevaluationDisplay.visible"
-    [attr.aria-expanded]="autoevaluationDisplay.visible"
+    [ngbCollapse]="!autoevaluationDisplayVisible()"
+    [attr.aria-expanded]="autoevaluationDisplayVisible()"
 >
     <div class="col-md-12 my-3">
         <span class="autoevaluation-info">
@@ -45,27 +45,19 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="col-md-12 mb-3">
         @if (!autoevaluation.enabled) {
-            <button
-                class="btn btn-success"
-                name="enableAutoEvaluation"
-                (click)="autoevaluation.enabled = true; enable()"
-            >
+            <button class="btn btn-success" name="enableAutoEvaluation" (click)="toggleEnabled()">
                 {{ 'i18n_use' | translate }}
             </button>
         }
         @if (autoevaluation.enabled) {
-            <button
-                class="btn btn-outline-danger"
-                name="disableAutoEvaluation"
-                (click)="autoevaluation.enabled = false; disable()"
-            >
+            <button class="btn btn-outline-danger" name="disableAutoEvaluation" (click)="toggleEnabled()">
                 {{ 'i18n_do_not_use' | translate }}
             </button>
         }
     </div>
 </div>
 
-<div class="row ms-2" [hidden]="!autoevaluationDisplay.visible">
+<div class="row ms-2" [hidden]="!autoevaluationDisplayVisible()">
     <div class="col-md-2 autoevaluation-titles">
         <strong>{{ 'i18n_exam_grade' | translate }}</strong>
     </div>
@@ -77,14 +69,14 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 </div>
 
-<div class="row ms-2" [hidden]="!autoevaluationDisplay.visible">
+<div class="row ms-2" [hidden]="!autoevaluationDisplayVisible()">
     <div
         class="col-md-12 pt-2"
         [ngStyle]="gradesForm?.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }"
     >
-        @if (config) {
+        @if (config()) {
             <form role="form" #gradesForm="ngForm" xmUniqueValues name="gradeEvaluations">
-                @for (ge of config.gradeEvaluations | orderBy: 'grade.name'; track ge) {
+                @for (ge of config()!.gradeEvaluations | orderBy: 'grade.name'; track ge) {
                     <div class="row ps-3 mb-2">
                         <div class="col-md-2">
                             {{ getGradeDisplayName(ge.grade) }}
@@ -96,8 +88,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 type="number"
                                 lang="en"
                                 class="form-control autoevaluation-inputs"
-                                [(ngModel)]="ge.percentage"
-                                (change)="propertyChanged()"
+                                [ngModel]="ge.percentage"
+                                (ngModelChange)="updateGradePercentage(ge, $event)"
                                 [min]="0"
                                 [max]="100"
                                 required
@@ -114,7 +106,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 </div>
 
-<div class="row ms-2" [hidden]="!autoevaluationDisplay.visible">
+<div class="row ms-2" [hidden]="!autoevaluationDisplayVisible()">
     <div class="col-md-12">
         {{ 'i18n_autoevaluation_release_type' | translate }}:
         <div class="dropdown" ngbDropdown>
@@ -139,7 +131,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
 </div>
-<div class="row ms-2" [hidden]="!autoevaluationDisplay.visible">
+<div class="row ms-2" [hidden]="!autoevaluationDisplayVisible()">
     <div class="col-md-12">
         <form role="form">
             @if (selectedReleaseType()?.name === 'GIVEN_DATE') {
@@ -148,7 +140,7 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-date-picker
                             [optional]="false"
                             (updated)="releaseDateChanged($event)"
-                            [initialDate]="config ? config.releaseDate : null"
+                            [initialDate]="config() ? config()!.releaseDate : null"
                         ></xm-date-picker>
                     </div>
                 </div>
@@ -157,14 +149,14 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="row">
                     <div class="col-md-6">
                         {{ 'i18n_autoevaluation_release_after_days' | translate }}:
-                        @if (config) {
+                        @if (config()) {
                             <input
                                 name="amountDays"
                                 type="number"
                                 lang="en"
                                 class="form-control"
-                                [(ngModel)]="config.amountDays"
-                                (change)="propertyChanged()"
+                                [ngModel]="config()!.amountDays"
+                                (ngModelChange)="updateAmountDays($event)"
                                 [min]="1"
                                 [max]="60"
                                 required

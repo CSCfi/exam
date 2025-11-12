@@ -3,7 +3,18 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, input, output, signal, TemplateRef, untracked, ViewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+    input,
+    output,
+    signal,
+    TemplateRef,
+    untracked,
+    ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -49,6 +60,7 @@ interface MonthOfYear {
     templateUrl: './exception-repetition-options.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],
     styles: '.blue-shadow-hover:hover { box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1); }',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionDialogRepetitionOptionsComponent {
     @ViewChild('yearView') yearView!: TemplateRef<unknown>;
@@ -106,7 +118,7 @@ export class ExceptionDialogRepetitionOptionsComponent {
         });
     }
 
-    getConfig = (): RepetitionConfig => {
+    getConfig(): RepetitionConfig {
         const conf: RepetitionConfig = {
             start: this.startDate(),
             end: this.endDate(),
@@ -126,60 +138,63 @@ export class ExceptionDialogRepetitionOptionsComponent {
             };
         }
         return conf;
-    };
+    }
 
-    startChanged = (e: { date: Date }) => {
+    startChanged(e: { date: Date }) {
         this.startDate.set(e.date);
         if (this.endDate() < e.date) {
             this.endDate.set(e.date);
         }
         this.optionChanged.emit(this.getConfig());
-    };
-    endChanged = (e: { date: Date }) => {
+    }
+
+    endChanged(e: { date: Date }) {
         this.endDate.set(e.date);
         if (this.startDate() > e.date) {
             this.startDate.set(e.date);
         }
         this.optionChanged.emit(this.getConfig());
-    };
+    }
 
-    weekdaySelected = (selected: boolean, index: number) => {
+    weekdaySelected(selected: boolean, index: number) {
         const weekday = this.weekdays()[index];
-        const next = this.weekdays();
-        next[index] = { ...weekday, selected: !selected };
-        this.weekdays.set(next);
+        this.weekdays.update((weekdays) => {
+            const updated = [...weekdays];
+            updated[index] = { ...weekday, selected: !selected };
+            return updated;
+        });
         this.optionChanged.emit(this.getConfig());
-    };
+    }
 
-    useOrdinalsChanged = () => {
-        this.useOrdinals.set(!this.useOrdinals());
+    setUseOrdinals(value: boolean) {
+        this.useOrdinals.set(value);
         this.optionChanged.emit(this.getConfig());
-    };
+    }
 
-    dayOfMonthChanged = (event: number) => {
+    dayOfMonthChanged(event: number) {
         this.dayOfMonth.set(event);
         this.optionChanged.emit(this.getConfig());
-    };
+    }
 
-    monthlyOrdinalChanged = (index: number) => {
+    monthlyOrdinalChanged(index: number) {
         this.monthlyOrdinal.set(ORDINAL_MAP[index]);
         this.optionChanged.emit(this.getConfig());
-    };
+    }
 
-    weekdayOfMonthChanged = (index: number) => {
+    weekdayOfMonthChanged(index: number) {
         this.weekdayOfMonth.set({ name: this.weekdays()[index].day, ord: this.weekdays()[index].ord });
         this.optionChanged.emit(this.getConfig());
-    };
+    }
 
-    monthOfYearChanged = (index: number) => {
+    monthOfYearChanged(index: number) {
         this.monthOfYear.set({ name: this.months()[index].month, ord: this.months()[index].ord });
         this.optionChanged.emit(this.getConfig());
-    };
+    }
 
-    selectWholeWeek = () => {
-        this.wholeWeek.set(!this.wholeWeek());
-        const week = this.weekdays().map((wd) => ({ ...wd, selected: this.wholeWeek() }));
-        this.weekdays.set(week);
+    selectWholeWeek() {
+        this.wholeWeek.update((v) => !v);
+        const wholeWeekValue = this.wholeWeek();
+        this.weekdays.update((weekdays) => weekdays.map((wd) => ({ ...wd, selected: wholeWeekValue })));
         this.optionChanged.emit(this.getConfig());
-    };
+    }
 }

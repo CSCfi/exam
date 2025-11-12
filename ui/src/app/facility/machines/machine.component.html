@@ -5,7 +5,7 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <xm-page-header text="i18n_exam_machine" />
-@if (machine) {
+@if (machine()) {
     <xm-page-content [content]="content" />
 }
 <ng-template #content>
@@ -21,7 +21,8 @@ SPDX-License-Identifier: EUPL-1.2
                     required
                     type="text"
                     class="form-control"
-                    [(ngModel)]="machine.name"
+                    [ngModel]="machine()?.name"
+                    (ngModelChange)="updateMachineProperty('name', $event)"
                     autofocus
                 />
             </div>
@@ -34,7 +35,8 @@ SPDX-License-Identifier: EUPL-1.2
                         name="accessible"
                         type="checkbox"
                         class="form-check-input"
-                        [(ngModel)]="machine.accessible"
+                        [ngModel]="machine()?.accessible"
+                        (ngModelChange)="updateMachineProperty('accessible', $event)"
                     />
                     <label class="form-check-label" for="accessible">
                         {{ 'i18n_machine_accessible' | translate }}
@@ -51,9 +53,10 @@ SPDX-License-Identifier: EUPL-1.2
                     id="machineAccessibility"
                     type="text"
                     name="accessibility"
-                    [disabled]="!machine.accessible"
+                    [disabled]="!machine()?.accessible"
                     class="form-control"
-                    [(ngModel)]="machine.accessibilityInfo"
+                    [ngModel]="machine()?.accessibilityInfo"
+                    (ngModelChange)="updateMachineProperty('accessibilityInfo', $event)"
                 />
             </div>
         </div>
@@ -68,7 +71,8 @@ SPDX-License-Identifier: EUPL-1.2
                     name="identifier"
                     type="text"
                     class="form-control"
-                    [(ngModel)]="machine.otherIdentifier"
+                    [ngModel]="machine()?.otherIdentifier"
+                    (ngModelChange)="updateMachineProperty('otherIdentifier', $event)"
                 />
             </div>
             <div class="col-md-6">
@@ -80,7 +84,8 @@ SPDX-License-Identifier: EUPL-1.2
                     name="surveillance"
                     type="text"
                     class="form-control"
-                    [(ngModel)]="machine.surveillanceCamera"
+                    [ngModel]="machine()?.surveillanceCamera"
+                    (ngModelChange)="updateMachineProperty('surveillanceCamera', $event)"
                 />
             </div>
         </div>
@@ -96,7 +101,8 @@ SPDX-License-Identifier: EUPL-1.2
                     name="video"
                     type="text"
                     class="form-control"
-                    [(ngModel)]="machine.videoRecordings"
+                    [ngModel]="machine()?.videoRecordings"
+                    (ngModelChange)="updateMachineProperty('videoRecordings', $event)"
                 />
             </div>
             <div class="col-md-6">
@@ -107,7 +113,8 @@ SPDX-License-Identifier: EUPL-1.2
                     type="text"
                     required
                     class="form-control"
-                    [(ngModel)]="machine.ipAddress"
+                    [ngModel]="machine()?.ipAddress"
+                    (ngModelChange)="updateMachineProperty('ipAddress', $event)"
                 />
             </div>
         </div>
@@ -115,7 +122,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row mt-3">
             <div class="col-md-12">
                 <span class="d-block">{{ 'i18n_machine_softwares' | translate }}:</span>
-                @for (software of software; track software) {
+                @for (software of software(); track software) {
                     <span class="badge me-1 mb-1 pointer" [ngClass]="software.class" (click)="toggleSoftware(software)">
                         {{ software.name }}
                     </span>
@@ -131,9 +138,10 @@ SPDX-License-Identifier: EUPL-1.2
                         name="outOfService"
                         type="checkbox"
                         class="form-check-input"
-                        [(ngModel)]="machine.outOfService"
+                        [ngModel]="machine()?.outOfService"
+                        (ngModelChange)="updateMachineProperty('outOfService', $event)"
                         (change)="setReason()"
-                        aria-checked="{{ machine.outOfService }}"
+                        aria-checked="{{ machine()?.outOfService }}"
                     />
                     <label class="form-check-label" for="outOfService">
                         {{ 'i18n_out_of_service' | translate }}
@@ -147,9 +155,10 @@ SPDX-License-Identifier: EUPL-1.2
                 <textarea
                     id="statusComment"
                     name="statusComment"
-                    [disabled]="!machine.outOfService"
+                    [disabled]="!machine()?.outOfService"
                     class="form-control"
-                    [(ngModel)]="machine.statusComment"
+                    [ngModel]="machine()?.statusComment"
+                    (ngModelChange)="updateMachineProperty('statusComment', $event)"
                 >
                 </textarea>
             </div>

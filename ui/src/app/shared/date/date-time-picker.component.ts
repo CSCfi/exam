@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbTimepicker } from '@ng-bootstrap/ng-bootstrap';
 import { DatePickerComponent } from './date-picker.component';
@@ -12,85 +12,104 @@ import { DatePickerComponent } from './date-picker.component';
     selector: 'xm-date-time-picker',
     template: `
         <div class="row align-items-center">
-            <div class="col-auto" [ngClass]="disableDate ? 'disable-gray-out' : ''">
+            <div class="col-auto" [ngClass]="disableDate() ? 'disable-gray-out' : ''">
                 <xm-date-picker
-                    [disabled]="disabled"
-                    [initialDate]="initialTime"
-                    [readonly]="readonly"
+                    [disabled]="disabled()"
+                    [initialDate]="initialTime()"
+                    [readonly]="readonly()"
                     (updated)="onDateUpdate($event)"
-                    [minDate]="minDate"
-                    [maxDate]="maxDate"
+                    [minDate]="minDate()"
+                    [maxDate]="maxDate()"
                 ></xm-date-picker>
             </div>
-            <div class="col" [ngClass]="disableTime ? 'disable-gray-out' : ''">
+            <div class="col" [ngClass]="disableTime() ? 'disable-gray-out' : ''">
                 <ngb-timepicker
                     name="timepicker"
-                    [disabled]="disabled"
-                    [(ngModel)]="time"
-                    (ngModelChange)="onTimeUpdate()"
-                    [minuteStep]="minuteStep"
-                    [hourStep]="hourStep"
+                    [disabled]="disabled()"
+                    [ngModel]="time()"
+                    (ngModelChange)="setTime($event)"
+                    [minuteStep]="minuteStep()"
+                    [hourStep]="hourStep()"
                 ></ngb-timepicker>
             </div>
         </div>
     `,
     styleUrls: ['./date-time-picker.component.scss'],
     imports: [NgClass, DatePickerComponent, NgbTimepicker, FormsModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DateTimePickerComponent implements OnInit, OnChanges {
-    @Input() initialTime: Date | null = null;
-    @Input() hourStep = 0;
-    @Input() minuteStep = 0;
-    @Input() disabled = false;
-    @Input() readonly = false;
-    @Input() minDate = new Date().toISOString();
-    @Input() maxDate?: string;
-    @Input() disableDate?: boolean = false;
-    @Input() disableTime?: boolean = false;
-    @Output() updated = new EventEmitter<{ date: Date }>();
+export class DateTimePickerComponent {
+    initialTime = input<Date | null>(null);
+    hourStep = input(0);
+    minuteStep = input(0);
+    disabled = input(false);
+    readonly = input(false);
+    minDate = input(new Date().toISOString());
+    maxDate = input<string | undefined>(undefined);
+    disableDate = input(false);
+    disableTime = input(false);
 
-    date: Date = new Date();
-    time!: { hour: number; minute: number; second: number; millisecond?: number };
+    updated = output<{ date: Date }>();
 
-    ngOnInit() {
+    date = signal<Date>(new Date());
+    time = signal<{ hour: number; minute: number; second: number; millisecond?: number }>({
+        hour: new Date().getHours(),
+        minute: new Date().getMinutes(),
+        second: new Date().getSeconds(),
+    });
+
+    constructor() {
         const now = new Date();
-        this.time = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() };
-        if (this.initialTime) {
-            this.setDateTime(this.initialTime);
-        }
+        this.time.set({ hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() });
+
+        // Effect to react to initialTime changes
+        effect(() => {
+            const initialTimeValue = this.initialTime();
+            if (initialTimeValue) {
+                this.setDateTime(initialTimeValue);
+            }
+        });
     }
 
-    ngOnChanges() {
-        const now = new Date();
-        this.time = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() };
-        if (this.initialTime) {
-            this.setDateTime(this.initialTime);
-        }
+    setTime(value: { hour: number; minute: number; second: number; millisecond?: number }) {
+        this.time.set(value);
+        this.onTimeUpdate();
     }
 
     onTimeUpdate() {
-        this.date.setHours(this.time.hour);
-        this.date.setMinutes(this.time.minute);
-        this.date.setSeconds(0);
-        this.date.setMilliseconds(0);
-        this.updated.emit({ date: this.date });
+        const currentDate = new Date(this.date());
+        const currentTime = this.time();
+        currentDate.setHours(currentTime.hour);
+        currentDate.setMinutes(currentTime.minute);
+        currentDate.setSeconds(0);
+        currentDate.setMilliseconds(0);
+        this.date.set(currentDate);
+        this.updated.emit({ date: currentDate });
     }
 
     onDateUpdate(event: { date: Date | null }) {
+        const currentDate = new Date(this.date());
+        const currentTime = this.time();
         if (event.date) {
-            this.date.setFullYear(event.date.getFullYear());
-            this.date.setMonth(event.date.getMonth(), event.date.getDate());
-            this.date.setHours(this.time.hour);
+            currentDate.setFullYear(event.date.getFullYear());
+            currentDate.setMonth(event.date.getMonth(), event.date.getDate());
+            currentDate.setHours(currentTime.hour);
         }
-        this.date.setMinutes(this.time.minute);
-        this.date.setSeconds(0);
-        this.date.setMilliseconds(0);
-        this.updated.emit({ date: this.date });
+        currentDate.setMinutes(currentTime.minute);
+        currentDate.setSeconds(0);
+        currentDate.setMilliseconds(0);
+        this.date.set(currentDate);
+        this.updated.emit({ date: currentDate });
     }
 
-    private setDateTime = (dt: Date) => {
-        this.date.setFullYear(dt.getFullYear());
-        this.date.setMonth(dt.getMonth(), dt.getDate());
-        this.time = { ...this.time, hour: dt.getHours(), minute: dt.getMinutes(), second: 0, millisecond: 0 };
-    };
+    private setDateTime(dt: Date) {
+        const newDate = new Date(dt);
+        this.date.set(newDate);
+        this.time.set({
+            hour: dt.getHours(),
+            minute: dt.getMinutes(),
+            second: 0,
+            millisecond: 0,
+        });
+    }
 }

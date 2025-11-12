@@ -8,86 +8,86 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-12">
         <!-- question text -->
         <div class="d-flex justify-content-between">
-            <div [xmMathJax]="sectionQuestion.question.question"></div>
+            <div [xmMathJax]="sectionQuestion().question.question"></div>
             <!-- grade -->
-            @if (sectionQuestion.question.type === 'MultipleChoiceQuestion') {
+            @if (sectionQuestion().question.type === 'MultipleChoiceQuestion') {
                 <div class="d-inline-block pe-3">
                     <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                         {{ scoreMultipleChoiceAnswer(true) }}
                     </span>
                     @if (hasForcedScore()) {
                         <span class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
+                            {{ sectionQuestion().forcedScore }}
                         </span>
                     }
                     / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
                 </div>
             }
-            @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
+            @if (sectionQuestion().question.type === 'WeightedMultipleChoiceQuestion') {
                 <div class="d-inline-block pe-3">
                     <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                         {{ scoreWeightedMultipleChoiceAnswer(true) }}
                     </span>
                     @if (hasForcedScore()) {
                         <span class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
+                            {{ sectionQuestion().forcedScore }}
                         </span>
                     }
                     / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
                 </div>
             }
-            @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
+            @if (sectionQuestion().question.type === 'ClaimChoiceQuestion') {
                 <div class="d-inline-block pe-3">
                     <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                         {{ scoreClaimChoiceAnswer(true) }}
                     </span>
                     @if (hasForcedScore()) {
                         <span class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
+                            {{ sectionQuestion().forcedScore }}
                         </span>
                     }
                     / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
                 </div>
             }
-            <button class="d-inline-block btn btn-link" (click)="reviewExpanded = !reviewExpanded">
-                @if (!reviewExpanded) {
+            <button class="d-inline-block btn btn-link" (click)="toggleReviewExpanded()">
+                @if (!reviewExpanded()) {
                     <img src="/assets/images/icon_list_show_right.svg" alt="" />
                 }
-                @if (reviewExpanded) {
+                @if (reviewExpanded()) {
                     <img src="/assets/images/icon_list_show_down.svg" alt="" />
                 }
             </button>
         </div>
 
         <!-- question attachment -->
-        @if (reviewExpanded && sectionQuestion.question.attachment) {
+        @if (reviewExpanded() && sectionQuestion().question.attachment) {
             <div class="ps-0 mt-2 mb-3 notice-text">
                 {{ 'i18n_question_attachment' | translate }}:
                 <a class="pointer" (click)="downloadQuestionAttachment()">
-                    {{ sectionQuestion.question.attachment.fileName }}</a
+                    {{ sectionQuestion().question.attachment?.fileName || '' }}</a
                 >
             </div>
         }
         <!-- answer -->
-        @if (reviewExpanded) {
+        @if (reviewExpanded()) {
             <div class="mt-2">
                 <hr />
-                @if (sectionQuestion.question.type === 'MultipleChoiceQuestion') {
-                    <xm-r-multi-choice-answer [sectionQuestion]="sectionQuestion" />
+                @if (sectionQuestion().question.type === 'MultipleChoiceQuestion') {
+                    <xm-r-multi-choice-answer [sectionQuestion]="sectionQuestion()" />
                 }
-                @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
-                    <xm-r-weighted-multi-choice-answer [sectionQuestion]="sectionQuestion" />
+                @if (sectionQuestion().question.type === 'WeightedMultipleChoiceQuestion') {
+                    <xm-r-weighted-multi-choice-answer [sectionQuestion]="sectionQuestion()" />
                 }
-                @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
-                    <xm-r-claim-choice-answer [sectionQuestion]="sectionQuestion" />
+                @if (sectionQuestion().question.type === 'ClaimChoiceQuestion') {
+                    <xm-r-claim-choice-answer [sectionQuestion]="sectionQuestion()" />
                 }
-                @if (participation.exam.executionType.type !== 'MATURITY') {
+                @if (participation().exam.executionType.type !== 'MATURITY') {
                     <div class="make-inline pe-3 mt-2">
                         <span class="text text-danger d-block"
                             >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
                             <small
                                 >[{{ getMinimumOptionScore() }} &hellip;
-                                {{ sectionQuestion.maxScore || calculateWeightedMaxPoints() }}]</small
+                                {{ sectionQuestion().maxScore || calculateWeightedMaxPoints() }}]</small
                             ></span
                         >
 
@@ -101,9 +101,9 @@ SPDX-License-Identifier: EUPL-1.2
                                 [(ngModel)]="scoreValue"
                                 (blur)="forcedPoints.valid && insertForcedScore()"
                                 onclick="this.focus()"
-                                [disabled]="!isScorable"
+                                [disabled]="!isScorable()"
                                 [min]="getMinimumOptionScore()"
-                                [max]="sectionQuestion.maxScore || calculateWeightedMaxPoints()"
+                                [max]="sectionQuestion().maxScore || calculateWeightedMaxPoints()"
                             />
                             @if (forcedPoints.invalid) {
                                 <small class="alert-danger">

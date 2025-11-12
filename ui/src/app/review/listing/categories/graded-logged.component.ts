@@ -4,8 +4,7 @@
 
 import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnChanges, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -54,14 +53,17 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         OrderByPipe,
     ],
     styleUrl: '../review-list.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
-    @Input() reviews: Review[] = [];
-    @Input() exam!: Exam;
-    @Input() collaborative = false;
-    @Output() archived = new EventEmitter<Review[]>();
-    view!: ReviewListView;
-    selections: { all: boolean; page: boolean } = { all: false, page: false };
+export class GradedLoggedReviewsComponent {
+    reviews = input<Review[]>([]);
+    exam = input.required<Exam>();
+    collaborative = input(false);
+    archived = output<Review[]>();
+
+    view = signal<ReviewListView | undefined>(undefined);
+    selections = signal<{ all: boolean; page: boolean }>({ all: false, page: false });
+    needsFeedbackWarning = signal(false);
 
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
@@ -71,37 +73,67 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
     private CommonExam = inject(CommonExamService);
     private Session = inject(SessionService);
 
-    ngOnInit() {
-        this.init();
+    constructor() {
+        effect(() => this.init(this.reviews()));
+
+        effect(() => {
+            const currentExam = this.exam();
+            if (!currentExam.examFeedbackConfig) {
+                this.needsFeedbackWarning.set(false);
+            } else {
+                this.http
+                    .get<{ status: 'nothing' | 'everything' }>(`/app/review/${currentExam.id}/locked`)
+                    .subscribe((setting) => this.needsFeedbackWarning.set(setting.status === 'everything'));
+            }
+        });
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.reviews) {
-            this.init();
-            this.applyFreeSearchFilter();
-        }
+    updateFilter(value: string) {
+        this.view.update((v) => {
+            if (!v) return v;
+            return {
+                ...v,
+                filter: value,
+                filtered: this.ReviewList.applyFilter(value, v.items),
+            };
+        });
     }
 
-    applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
+    applyFreeSearchFilter() {
+        const currentView = this.view();
+        if (!currentView) return;
+        this.view.update((v) => ({
+            ...v!,
+            filtered: this.ReviewList.applyFilter(v!.filter, v!.items),
+        }));
+    }
 
-    showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
+    showId() {
+        return this.Session.getUser().isAdmin && this.exam()?.anonymous;
+    }
 
-    pageSelected = (event: { page: number }) => (this.view.page = event.page);
+    pageSelected(event: { page: number }) {
+        this.view.update((v) => ({ ...v!, page: event.page }));
+    }
 
-    setPredicate = (predicate: string) => {
-        if (this.view.predicate === predicate) {
-            this.view.reverse = !this.view.reverse;
-        }
-        this.view.predicate = predicate;
-    };
+    setPredicate(predicate: string) {
+        this.view.update((v) => {
+            if (!v) return v;
+            const reverse = v.predicate === predicate ? !v.reverse : v.reverse;
+            return { ...v, predicate, reverse };
+        });
+    }
 
-    getLinkToAssessment = (review: Review) =>
-        this.collaborative
-            ? `/assessments/collaborative/${this.exam.id}/${review.examParticipation._id}`
+    getLinkToAssessment(review: Review) {
+        return this.collaborative()
+            ? `/assessments/collaborative/${this.exam().id}/${review.examParticipation._id}`
             : `/assessments/${review.examParticipation.exam.id}`;
+    }
 
-    archiveSelected = () => {
-        const selection = this.ReviewList.getSelectedReviews(this.view.filtered);
+    archiveSelected() {
+        const currentView = this.view();
+        if (!currentView) return;
+        const selection = this.ReviewList.getSelectedReviews(currentView.filtered);
         if (selection.length == 0) {
             return;
         }
@@ -111,49 +143,70 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
         };
         const ids = selection.map((r) => r.examParticipation.exam.id);
         this.http.put('/app/reviews/archive', { ids: ids.join() }).subscribe(ok);
-    };
+    }
 
-    printSelected = (asReport: boolean) => {
-        const selection = this.ReviewList.getSelectedReviews(this.view.filtered);
+    printSelected(asReport: boolean) {
+        const currentView = this.view();
+        if (!currentView) return;
+        const selection = this.ReviewList.getSelectedReviews(currentView.filtered);
         if (selection.length == 0) {
             return;
         }
-        let url = this.collaborative ? '/app/iop/reviews/' : '/app/exam/record/export/';
+        let url = this.collaborative() ? '/app/iop/reviews/' : '/app/exam/record/export/';
         if (asReport) {
             url += 'report/';
         }
         const fileType = asReport ? 'xlsx' : 'csv';
         const ids = selection.map((r) =>
-            this.collaborative ? (r.examParticipation._id as string) : r.examParticipation.exam.id,
+            this.collaborative() ? (r.examParticipation._id as string) : r.examParticipation.exam.id,
         );
 
         this.Files.download(
-            url + this.exam.id,
+            url + this.exam().id,
             `${this.translate.instant('i18n_grading_info')}_${DateTime.now().toFormat('dd-MM-yyyy')}.${fileType}`,
             { ids: ids },
             true,
         );
-    };
+    }
 
-    selectAll = () => this.ReviewList.selectAll(this.selections, this.view.filtered);
+    selectAll() {
+        const currentView = this.view();
+        if (!currentView) return;
+        const currentSelections = { ...this.selections() };
+        this.ReviewList.selectAll(currentSelections, currentView.filtered);
+        this.selections.set(currentSelections);
+    }
 
-    selectPage = (selector: string) => this.ReviewList.selectPage(this.selections, this.view.filtered, selector);
+    selectPage(selector: string) {
+        const currentView = this.view();
+        if (!currentView) return;
+        const currentSelections = { ...this.selections() };
+        this.ReviewList.selectPage(currentSelections, currentView.filtered, selector);
+        this.selections.set(currentSelections);
+    }
 
-    private init = () => {
-        this.view = {
-            ...this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.started'),
+    toggleView() {
+        this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
+    }
+
+    private init(reviews: Review[]) {
+        const initialView = {
+            ...this.ReviewList.prepareView(reviews, (r) => this.handleGradedReviews(r), 'examParticipation.started'),
             reverse: true,
         };
-        this.selections = { all: false, page: false };
-    };
+        this.view.set(initialView);
+        this.selections.set({ all: false, page: false });
+    }
 
-    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
+    private translateGrade(exam: Exam) {
+        return this.ReviewList.translateGrade(exam);
+    }
 
-    private handleGradedReviews = (r: Review) => {
+    private handleGradedReviews(r: Review) {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
         r.displayedCredit = this.CommonExam.getExamDisplayCredit(r.examParticipation.exam);
-    };
+    }
 }

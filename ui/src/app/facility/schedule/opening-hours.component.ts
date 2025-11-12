@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnChanges, OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
     NgbDropdown,
@@ -28,43 +27,23 @@ interface RoomWithAddressVisibility extends ExamRoom {
     selector: 'xm-opening-hours',
     templateUrl: './opening-hours.component.html',
     imports: [NgbTimepicker, FormsModule, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OpenHoursComponent implements OnInit, OnChanges {
-    @Input() room!: ExamRoom;
+export class OpenHoursComponent {
+    room = input.required<ExamRoom>();
 
-    weekdayNames: string[] = [];
-    extendedRoom!: RoomWithAddressVisibility;
-    newTime: DefaultWorkingHoursWithEditing;
-    readonly NEW_TIME = {
+    weekdayNames = signal<string[]>([]);
+    extendedRoom = signal<RoomWithAddressVisibility | undefined>(undefined);
+    newTime = signal<DefaultWorkingHoursWithEditing>({
         startTime: '',
         endTime: '',
         weekday: 'MONDAY',
         editing: false,
-        pickStartingTime: {
-            hour: 0,
-            minute: 0,
-            second: 0,
-            millisecond: 0,
-        },
-        pickEndingTime: {
-            hour: 0,
-            minute: 0,
-            second: 0,
-            millisecond: 0,
-        },
-        displayStartingTime: {
-            hour: 0,
-            minute: 0,
-            second: 0,
-            millisecond: 0,
-        },
-        displayEndingTime: {
-            hour: 0,
-            minute: 0,
-            second: 0,
-            millisecond: 0,
-        },
-    };
+        pickStartingTime: { hour: 0, minute: 0, second: 0, millisecond: 0 },
+        pickEndingTime: { hour: 0, minute: 0, second: 0, millisecond: 0 },
+        displayStartingTime: { hour: 0, minute: 0, second: 0, millisecond: 0 },
+        displayEndingTime: { hour: 0, minute: 0, second: 0, millisecond: 0 },
+    });
     readonly WEEKDAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
     private dateTime = inject(DateTimeService);
@@ -73,27 +52,30 @@ export class OpenHoursComponent implements OnInit, OnChanges {
     private toast = inject(ToastrService);
 
     constructor() {
-        this.newTime = { ...this.NEW_TIME };
+        this.weekdayNames.set(this.dateTime.getWeekdayNames());
+        this.translate.onLangChange.subscribe(() => {
+            this.weekdayNames.set(this.dateTime.getWeekdayNames());
+        });
+
+        effect(() => {
+            const currentRoom = this.room();
+            if (currentRoom) {
+                this.init(currentRoom);
+            }
+        });
     }
 
-    ngOnInit() {
-        this.translate.onLangChange.subscribe(() => (this.weekdayNames = this.dateTime.getWeekdayNames()));
-        this.weekdayNames = this.dateTime.getWeekdayNames();
-        this.init();
-    }
-
-    ngOnChanges() {
-        this.init();
-    }
-
-    orderByWeekday = (dwhs: DefaultWorkingHoursWithEditing[]) => {
+    orderByWeekday(dwhs: DefaultWorkingHoursWithEditing[]) {
         const ordinal = (dwh: DefaultWorkingHours) => this.WEEKDAYS.indexOf(dwh.weekday);
         return dwhs.sort((a, b) => ordinal(a) - ordinal(b));
-    };
+    }
 
     updateHours(wh: DefaultWorkingHoursWithEditing) {
-        if (this.overlaps(wh)) {
-            this.toast.error(this.translate.instant(this.translate.instant('i18n_time_overlaps_error')));
+        const currentRoom = this.extendedRoom();
+        if (!currentRoom) return;
+
+        if (this.overlaps(wh, currentRoom)) {
+            this.toast.error(this.translate.instant('i18n_time_overlaps_error'));
             return;
         }
         const start = DateTime.now()
@@ -117,33 +99,42 @@ export class OpenHoursComponent implements OnInit, OnChanges {
             })
             .toISO();
         if (DateTime.fromISO(start || '') > DateTime.fromISO(end || '')) {
-            this.toast.error(this.translate.instant(this.translate.instant('i18n_starting_cannot_be_after_ending')));
+            this.toast.error(this.translate.instant('i18n_starting_cannot_be_after_ending'));
             return;
         }
         const id = wh.id;
         this.roomService
-            .updateWorkingHours$({ startTime: start, endTime: end, weekday: wh.weekday }, [this.room.id])
+            .updateWorkingHours$({ startTime: start, endTime: end, weekday: wh.weekday }, [this.room().id])
             .subscribe((data) => {
-                wh.id = data.id;
-                wh.editing = false;
+                const updatedWh = { ...wh, id: data.id, editing: false };
+                updatedWh.displayStartingTime = updatedWh.pickStartingTime;
+                updatedWh.displayEndingTime = updatedWh.pickEndingTime;
+
                 if (!id) {
-                    this.extendedRoom = {
-                        ...this.extendedRoom,
-                        extendedDwh: this.extendedRoom.extendedDwh.concat(wh),
-                    };
-                    this.newTime = { ...this.NEW_TIME };
+                    this.extendedRoom.update((room) =>
+                        room ? { ...room, extendedDwh: [...room.extendedDwh, updatedWh] } : room,
+                    );
+                    this.newTime.set(this.createNewTime());
+                } else {
+                    this.extendedRoom.update((room) =>
+                        room
+                            ? {
+                                  ...room,
+                                  extendedDwh: room.extendedDwh.map((dwh) => (dwh === wh ? updatedWh : dwh)),
+                              }
+                            : room,
+                    );
                 }
                 this.toast.info(this.translate.instant('i18n_default_opening_hours_updated'));
             });
-        wh.displayStartingTime = wh.pickStartingTime;
-        wh.displayEndingTime = wh.pickEndingTime;
     }
 
     deleteHours(wh: DefaultWorkingHoursWithEditing) {
         if (!wh.id) return;
-        return this.roomService.removeWorkingHours$(wh.id, this.room.id).subscribe(() => {
-            const index = this.extendedRoom.extendedDwh.indexOf(wh);
-            this.extendedRoom.extendedDwh.splice(index, 1);
+        return this.roomService.removeWorkingHours$(wh.id, this.room().id).subscribe(() => {
+            this.extendedRoom.update((room) =>
+                room ? { ...room, extendedDwh: room.extendedDwh.filter((dwh) => dwh !== wh) } : room,
+            );
             this.toast.info(this.translate.instant('i18n_default_opening_hours_updated'));
         });
     }
@@ -153,83 +144,104 @@ export class OpenHoursComponent implements OnInit, OnChanges {
         return `${zeropad(time.hour)}:${zeropad(time.minute)}`;
     }
 
-    updateNewTime = (weekday: string) => (this.newTime.weekday = weekday);
+    updateNewTime(weekday: string) {
+        this.newTime.update((time) => ({ ...time, weekday }));
+    }
+
+    updateNewTimePickStarting(value: { hour: number; minute: number; second: number; millisecond: number }) {
+        this.newTime.update((time) => ({ ...time, pickStartingTime: value }));
+        this.onStartTimeChange();
+    }
+
+    updateNewTimePickEnding(value: { hour: number; minute: number; second: number; millisecond: number }) {
+        this.newTime.update((time) => ({ ...time, pickEndingTime: value }));
+        this.onEndTimeChange();
+    }
 
     onStartTimeChange() {
-        if (
-            this.newTime.pickStartingTime.hour * 100 + this.newTime.pickStartingTime.minute >
-            this.newTime.pickEndingTime.hour * 100 + this.newTime.pickEndingTime.minute
-        ) {
-            this.newTime.pickEndingTime = this.newTime.pickStartingTime;
+        const currentTime = this.newTime();
+        if (this.timeToMinutes(currentTime.pickStartingTime) > this.timeToMinutes(currentTime.pickEndingTime)) {
+            this.newTime.update((time) => ({ ...time, pickEndingTime: time.pickStartingTime }));
         }
     }
 
     onEndTimeChange() {
-        if (
-            this.newTime.pickStartingTime.hour * 100 + this.newTime.pickStartingTime.minute >
-            this.newTime.pickEndingTime.hour * 100 + this.newTime.pickEndingTime.minute
-        ) {
-            this.newTime.pickStartingTime = this.newTime.pickEndingTime;
+        const currentTime = this.newTime();
+        if (this.timeToMinutes(currentTime.pickStartingTime) > this.timeToMinutes(currentTime.pickEndingTime)) {
+            this.newTime.update((time) => ({ ...time, pickStartingTime: time.pickEndingTime }));
         }
     }
 
-    translateWeekdayName = (weekday: string, capitalize: boolean) =>
-        this.dateTime.translateWeekdayName(weekday, capitalize);
+    translateWeekdayName(weekday: string, capitalize: boolean) {
+        return this.dateTime.translateWeekdayName(weekday, capitalize);
+    }
 
-    init = () =>
-        (this.extendedRoom = {
-            ...this.room,
+    setEditing(wh: DefaultWorkingHoursWithEditing, editing: boolean) {
+        this.extendedRoom.update((room) =>
+            room
+                ? { ...room, extendedDwh: room.extendedDwh.map((dwh) => (dwh === wh ? { ...dwh, editing } : dwh)) }
+                : room,
+        );
+    }
+
+    init(room: ExamRoom) {
+        this.extendedRoom.set({
+            ...room,
             addressVisible: false,
             availabilityVisible: false,
-            extendedDwh: this.room.defaultWorkingHours.map((wh) => {
+            extendedDwh: room.defaultWorkingHours.map((wh) => {
+                const hour = new Date(wh.startTime).getHours();
+                const startMinute = new Date(wh.startTime).getMinutes();
+                const endHour = new Date(wh.endTime).getHours();
+                const endMinute = new Date(wh.endTime).getMinutes();
                 return {
                     ...wh,
                     editing: false,
-                    pickStartingTime: {
-                        hour: new Date(wh.startTime).getHours(),
-                        minute: new Date(wh.startTime).getMinutes(),
-                        second: 0,
-                        millisecond: 0,
-                    },
-                    pickEndingTime: {
-                        hour: new Date(wh.endTime).getHours(),
-                        minute: new Date(wh.endTime).getMinutes(),
-                        second: 0,
-                        millisecond: 0,
-                    },
-                    displayStartingTime: {
-                        hour: new Date(wh.startTime).getHours(),
-                        minute: new Date(wh.startTime).getMinutes(),
-                        second: 0,
-                        millisecond: 0,
-                    },
-                    displayEndingTime: {
-                        hour: new Date(wh.endTime).getHours(),
-                        minute: new Date(wh.endTime).getMinutes(),
-                        second: 0,
-                        millisecond: 0,
-                    },
+                    pickStartingTime: this.createTimeObject(hour, startMinute),
+                    pickEndingTime: this.createTimeObject(endHour, endMinute),
+                    displayStartingTime: this.createTimeObject(hour, startMinute),
+                    displayEndingTime: this.createTimeObject(endHour, endMinute),
                 };
             }),
         });
+    }
 
-    private toDate = (time: { hour: number; minute: number }) =>
-        DateTime.now()
+    private createTimeObject(hour: number, minute: number) {
+        return { hour, minute, second: 0, millisecond: 0 };
+    }
+
+    private createNewTime(): DefaultWorkingHoursWithEditing {
+        return {
+            startTime: '',
+            endTime: '',
+            weekday: 'MONDAY',
+            editing: false,
+            pickStartingTime: this.createTimeObject(0, 0),
+            pickEndingTime: this.createTimeObject(0, 0),
+            displayStartingTime: this.createTimeObject(0, 0),
+            displayEndingTime: this.createTimeObject(0, 0),
+        };
+    }
+
+    private timeToMinutes(time: { hour: number; minute: number }) {
+        return time.hour * 100 + time.minute;
+    }
+
+    private toDate(time: { hour: number; minute: number }) {
+        return DateTime.now()
             .set({ month: 1, day: 1, hour: time.hour, minute: time.minute, second: 0, millisecond: 0 })
             .toJSDate();
+    }
 
-    private overlaps = (wh: DefaultWorkingHoursWithEditing) => {
+    private overlaps(wh: DefaultWorkingHoursWithEditing, room: RoomWithAddressVisibility) {
         const newInterval = { start: this.toDate(wh.pickStartingTime), end: this.toDate(wh.pickEndingTime) };
-        const intervals = this.extendedRoom.extendedDwh
+        const intervals = room.extendedDwh
             .filter((dwh) => dwh.weekday === wh.weekday && dwh !== wh)
             .map((dwh) => ({ start: this.toDate(dwh.pickStartingTime), end: this.toDate(dwh.pickEndingTime) }));
         return intervals.some((i) => this.intervalsOverlap(i, newInterval));
-    };
+    }
 
-    private intervalsOverlap = (
-        interval1: { start: Date; end: Date },
-        interval2: { start: Date; end: Date },
-    ): boolean => {
+    private intervalsOverlap(interval1: { start: Date; end: Date }, interval2: { start: Date; end: Date }): boolean {
         return interval1.start <= interval2.end && interval2.start <= interval1.end;
-    };
+    }
 }

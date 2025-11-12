@@ -2,19 +2,20 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-publication-error-dialog',
     imports: [TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<div role="dialog" aria-modal="true">
         <div class="modal-header">
             <div class="xm-modal-title">{{ 'i18n_please_check_following_infos' | translate }}</div>
         </div>
         <div class="modal-body">
-            @for (error of errors; track error) {
+            @for (error of errors(); track error) {
                 <p>{{ error | translate }}</p>
             }
         </div>
@@ -26,7 +27,7 @@ import { TranslateModule } from '@ngx-translate/core';
     </div>`,
 })
 export class PublicationErrorDialogComponent {
-    @Input() errors: string[] = [];
+    errors = input<string[]>([]);
 
     activeModal = inject(NgbActiveModal);
 }

@@ -2,13 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <strong class="col-12">
@@ -39,22 +40,22 @@ import { FileService } from 'src/app/shared/file/file.service';
     imports: [DatePickerComponent, TranslateModule],
 })
 export class ReviewsReportComponent {
-    startDate: Date | null = null;
-    endDate: Date | null = null;
+    startDate = signal<Date | null>(null);
+    endDate = signal<Date | null>(null);
 
     private files = inject(FileService);
 
-    getReviewsByDate = () => {
-        const f = DateTime.fromJSDate(this.startDate || new Date()).toFormat('dd.MM.yyyy');
-        const t = DateTime.fromJSDate(this.endDate || new Date()).toFormat('dd.MM.yyyy');
+    getReviewsByDate() {
+        const f = DateTime.fromJSDate(this.startDate() || new Date()).toFormat('dd.MM.yyyy');
+        const t = DateTime.fromJSDate(this.endDate() || new Date()).toFormat('dd.MM.yyyy');
         this.files.download(`/app/statistics/reviewsbydate/${f}/${t}`, `reviews_${f}_${t}.xlsx`);
-    };
+    }
 
-    startDateChanged = (event: { date: Date | null }) => {
-        this.startDate = event.date;
-    };
+    startDateChanged(event: { date: Date | null }) {
+        this.startDate.set(event.date);
+    }
 
-    endDateChanged = (event: { date: Date | null }) => {
-        this.endDate = event.date;
-    };
+    endDateChanged(event: { date: Date | null }) {
+        this.endDate.set(event.date);
+    }
 }

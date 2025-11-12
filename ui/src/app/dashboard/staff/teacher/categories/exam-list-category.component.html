@@ -25,8 +25,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <tr>
                     <th class="with-top">
                         <xm-table-sort
-                            [reverse]="sorting.reverse"
-                            [predicate]="sorting.predicate"
+                            [reverse]="sorting().reverse"
+                            [predicate]="sorting().predicate"
                             by="name"
                             text="i18n_exam_name"
                             (click)="setPredicate('name')"
@@ -37,8 +37,8 @@ SPDX-License-Identifier: EUPL-1.2
                             by="course.code"
                             text="i18n_course_code"
                             [sliced]="true"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('course.code')"
                         ></xm-table-sort>
                     </th>
@@ -46,8 +46,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="executionType.type"
                             text="i18n_exam_type"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('executionType.type')"
                         ></xm-table-sort>
                     </th>
@@ -55,20 +55,20 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="periodEnd"
                             text="i18n_exam_validity"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('periodEnd')"
                         ></xm-table-sort>
                     </th>
 
-                    @for (column of extraData; track column) {
+                    @for (column of extraData(); track column) {
                         <th class="with-top with-space">
                             <xm-table-sort
                                 by="{{ column.property }}"
                                 text="{{ column.text }}"
                                 [sliced]="!!column.sliced"
-                                [predicate]="sorting.predicate"
-                                [reverse]="sorting.reverse"
+                                [predicate]="sorting().predicate"
+                                [reverse]="sorting().reverse"
                                 (click)="setPredicate(column.property)"
                             ></xm-table-sort>
                         </th>
@@ -77,8 +77,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="ownerAggregate"
                             text="i18n_teachers"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('ownerAggregate')"
                         ></xm-table-sort>
                     </th>
@@ -88,7 +88,7 @@ SPDX-License-Identifier: EUPL-1.2
             </thead>
 
             <tbody>
-                @for (exam of items | orderBy: sorting.predicate : sorting.reverse; track exam) {
+                @for (exam of items() | orderBy: sorting().predicate : sorting().reverse; track exam) {
                     <tr>
                         @if (exam.name) {
                             <td>
@@ -135,7 +135,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 </span>
                             }
                         </td>
-                        @for (column of extraData; track column) {
+                        @for (column of extraData(); track column) {
                             <td class="table-column-enroll-participation">
                                 @if (
                                     (!column.checkOwnership || isOwner(exam)) && exam.executionType.type !== 'PRINTOUT'
@@ -180,9 +180,9 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                     </tr>
                 }
-                @if (items?.length === 0) {
+                @if (items()?.length === 0) {
                     <tr>
-                        <td [attr.colspan]="7 + extraData.length">
+                        <td [attr.colspan]="7 + extraData().length">
                             {{ 'i18n_exam_no_result' | translate }}
                         </td>
                     </tr>

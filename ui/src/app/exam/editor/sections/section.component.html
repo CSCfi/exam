@@ -17,7 +17,7 @@ SPDX-License-Identifier: EUPL-1.2
                 ></i>
             </span>
             <span (mousedown)="$event.stopPropagation()">
-                {{ 'i18n_section_title' | translate }} {{ index }}
+                {{ 'i18n_section_title' | translate }} {{ index() }}
                 <sup
                     ngbPopover="{{ 'i18n_exam_section_order_description' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -48,7 +48,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row mt-4">
         <div class="col-md-12">
             <form>
-                <label for="sectionName_{{ section.id }}" class="form-label">
+                <label for="sectionName_{{ section().id }}" class="form-label">
                     {{ 'i18n_section_name' | translate }}
                     <sup
                         popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -59,17 +59,18 @@ SPDX-License-Identifier: EUPL-1.2
                     </sup>
                 </label>
                 <input
-                    id="sectionName_{{ section.id }}"
+                    id="sectionName_{{ section().id }}"
                     name="sectionName"
                     type="text"
                     required
                     class="form-control mb-3 w-50"
                     maxlength="255"
-                    [(ngModel)]="section.name"
+                    [ngModel]="section().name"
+                    (ngModelChange)="setSectionName($event)"
                     (change)="renameSection()"
                 />
 
-                <label for="sectionDescription_{{ section.id }}" class="form-label">
+                <label for="sectionDescription_{{ section().id }}" class="form-label">
                     {{ 'i18n_section_description' | translate }}
                     <sup
                         ngbPopover="{{ 'i18n_exam_section_description_description' | translate }}"
@@ -81,32 +82,34 @@ SPDX-License-Identifier: EUPL-1.2
                 </label>
                 <textarea
                     (focus)="$event.stopPropagation()"
-                    id="sectionDescription_{{ section.id }}"
+                    id="sectionDescription_{{ section().id }}"
                     class="form-control mb-3"
                     rows="4"
                     cols="150"
                     name="description"
-                    [(ngModel)]="section.description"
+                    [ngModel]="section().description"
+                    (ngModelChange)="setSectionDescription($event)"
                     (change)="renameSection()"
                 >
                 </textarea>
                 <!-- Section material resources-->
                 <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
-                <!-- exam-material-selector [section]="section" [allMaterials]="materials"
-        (changed)="materialsChanged($event)"></exam-material-selector -->
-                @if (!collaborative && canBeOptional) {
+                <!-- exam-material-selector [section]="section()" [allMaterials]="materials()"
+        (changed)="materialsChanged.emit()"></exam-material-selector -->
+                @if (!collaborative() && canBeOptional()) {
                     <div class="form-check mb-3">
                         <input
-                            id="sectionOptionality_{{ section.id }}"
+                            id="sectionOptionality_{{ section().id }}"
                             class="form-check-input"
                             name="optional"
                             type="checkbox"
                             name="optionalSection"
                             value="On"
-                            [(ngModel)]="section.optional"
+                            [ngModel]="section().optional"
+                            (ngModelChange)="setSectionOptional($event)"
                             (change)="renameSection()"
                         />
-                        <label for="sectionOptionality_{{ section.id }}" class="form-check-label">
+                        <label for="sectionOptionality_{{ section().id }}" class="form-check-label">
                             {{ 'i18n_optional_section' | translate }}
                             <sup
                                 ngbPopover="{{ 'i18n_optional_section_description' | translate }}"
@@ -120,15 +123,16 @@ SPDX-License-Identifier: EUPL-1.2
                 }
                 <div class="form-check">
                     <input
-                        id="sectionRandomized_{{ section.id }}"
+                        id="sectionRandomized_{{ section().id }}"
                         type="checkbox"
                         name="lottery"
                         class="form-check-input"
-                        [(ngModel)]="section.lotteryOn"
+                        [ngModel]="section().lotteryOn"
+                        (ngModelChange)="setSectionLotteryOn($event)"
                         [disabled]="lotteryDisabled()"
                         (change)="toggleLottery()"
                     />
-                    <label for="sectionRandomized_{{ section.id }}" class="form-check-label">
+                    <label for="sectionRandomized_{{ section().id }}" class="form-check-label">
                         {{ 'i18n_randomize_questions' | translate }}
                     </label>
                     <sup
@@ -145,25 +149,26 @@ SPDX-License-Identifier: EUPL-1.2
                         }}</span>
                     }
                 </div>
-                @if (section.lotteryOn) {
+                @if (section().lotteryOn) {
                     <div class="row">
                         <div class="col-auto">
-                            <label class="col-form-label" for="sectionLotteryCount_{{ section.id }}">
+                            <label class="col-form-label" for="sectionLotteryCount_{{ section().id }}">
                                 {{ 'i18n_lottery_questions' | translate }} [1...{{
-                                    section.sectionQuestions.length
+                                    section().sectionQuestions.length
                                 }}]</label
                             >
                         </div>
                         <div class="col-1">
                             <input
-                                id="sectionLotteryCount_{{ section.id }}"
+                                id="sectionLotteryCount_{{ section().id }}"
                                 class="form-control"
                                 type="number"
                                 lang="en"
                                 name="lotteryItemCount"
                                 [min]="1"
-                                [max]="section.sectionQuestions.length"
-                                [(ngModel)]="section.lotteryItemCount"
+                                [max]="section().sectionQuestions.length"
+                                [ngModel]="section().lotteryItemCount"
+                                (ngModelChange)="setSectionLotteryItemCount($event)"
                                 (change)="updateLotteryCount()"
                             />
                         </div>
@@ -207,12 +212,12 @@ SPDX-License-Identifier: EUPL-1.2
                     ngbPopover="{{ 'i18n_show' | translate }} / {{ 'i18n_hide' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
-                    (click)="section.expanded = !section.expanded; expandSection()"
+                    (click)="toggleExpanded()"
                 >
-                    @if (!section.expanded) {
+                    @if (!expanded()) {
                         <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
-                    @if (section.expanded) {
+                    @if (expanded()) {
                         <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
                 </a>
@@ -220,11 +225,11 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
 
-    <div class="row" [ngbCollapse]="!section.expanded">
+    <div class="row" [ngbCollapse]="!expanded()">
         <div class="col-md-12 mt-2">
             <div cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="p-0 mb-2">
                 @for (
-                    sectionQuestion of section.sectionQuestions | orderBy: 'sequenceNumber';
+                    sectionQuestion of section().sectionQuestions | orderBy: 'sequenceNumber';
                     track sectionQuestion.id
                 ) {
                     <div cdkDrag cdkDragLockAxis="y" class="mb-4">
@@ -232,11 +237,11 @@ SPDX-License-Identifier: EUPL-1.2
                         <div class="drag-preview" *cdkDragPreview [innerHtml]="sectionQuestion.question.question"></div>
                         <xm-section-question
                             class="section-question"
-                            [section]="section"
-                            [examId]="examId"
+                            [section]="section()"
+                            [examId]="examId()"
                             [sectionQuestion]="sectionQuestion"
-                            [collaborative]="collaborative"
-                            [lotteryOn]="section.lotteryOn"
+                            [collaborative]="collaborative()"
+                            [lotteryOn]="section().lotteryOn"
                             (removed)="removeQuestion($event)"
                             (updated)="updateQuestion($event)"
                             (copied)="copyQuestion($event)"
@@ -249,7 +254,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="row my-3">
         <div class="col-12">
-            @if (!collaborative) {
+            @if (!collaborative()) {
                 <button class="btn btn-success" (click)="openLibrary()">
                     <i class="bi-plus"></i>&nbsp;{{ 'i18n_add_from_library' | translate }}
                 </button>

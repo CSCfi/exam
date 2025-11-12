@@ -8,28 +8,28 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <span [xmMathJax]="sectionQuestion.question.question"></span>
+            <span [xmMathJax]="sectionQuestion().question.question"></span>
         </div>
     </div>
     <!-- question attachment -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question_attachment' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <span [hidden]="sectionQuestion.question.attachment">N/A</span>
-            @if (sectionQuestion.question.attachment) {
-                <span> {{ sectionQuestion.question.attachment.fileName }}&nbsp; </span>
+            <span [hidden]="sectionQuestion().question.attachment">N/A</span>
+            @if (sectionQuestion().question.attachment) {
+                <span> {{ sectionQuestion().question.attachment?.fileName || '' }}&nbsp; </span>
             }
         </div>
     </div>
 
     <!-- question instructions -->
     <div class="row">
-        @if (sectionQuestion.answerInstructions) {
+        @if (sectionQuestion().answerInstructions) {
             <div class="sub-header-row col-md-3 newRow">{{ 'i18n_instructions' | translate }}:</div>
         }
-        @if (sectionQuestion.answerInstructions) {
+        @if (sectionQuestion().answerInstructions) {
             <div class="sub-content-row col-md-9">
-                <div [innerHtml]="sectionQuestion.answerInstructions"></div>
+                <div [innerHtml]="sectionQuestion().answerInstructions"></div>
                 &nbsp;
             </div>
         }
@@ -38,7 +38,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_exam_answer' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <div [innerHtml]="sectionQuestion.clozeTestAnswer?.question"></div>
+            <div [innerHtml]="sectionQuestion().clozeTestAnswer?.question"></div>
         </div>
     </div>
 
@@ -46,10 +46,10 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_multiplechoice_question_correct' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            {{ sectionQuestion.clozeTestAnswer?.score?.correctAnswers }} /
+            {{ sectionQuestion().clozeTestAnswer?.score?.correctAnswers }} /
             {{
-                (sectionQuestion.clozeTestAnswer?.score?.correctAnswers || 0) +
-                    (sectionQuestion.clozeTestAnswer?.score?.incorrectAnswers || 0)
+                (sectionQuestion().clozeTestAnswer?.score?.correctAnswers || 0) +
+                    (sectionQuestion().clozeTestAnswer?.score?.incorrectAnswers || 0)
             }}
         </div>
     </div>
@@ -62,10 +62,10 @@ SPDX-License-Identifier: EUPL-1.2
                 </span>
                 @if (hasForcedScore()) {
                     <span class="text text-danger">
-                        {{ sectionQuestion.forcedScore }}
+                        {{ sectionQuestion().forcedScore }}
                     </span>
                 }
-                / {{ sectionQuestion.maxScore }}
+                / {{ sectionQuestion().maxScore }}
             </span>
         </div>
     </div>

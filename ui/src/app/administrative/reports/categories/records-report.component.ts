@@ -2,12 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <strong class="col-12">
@@ -39,27 +40,27 @@ import { FileService } from 'src/app/shared/file/file.service';
     imports: [DatePickerComponent, TranslateModule],
 })
 export class RecordsReportComponent {
-    startDate: Date | null = null;
-    endDate: Date | null = null;
+    startDate = signal<Date | null>(null);
+    endDate = signal<Date | null>(null);
 
     private files = inject(FileService);
 
-    getExamRecords = () => {
-        const start = this.startDate ? new Date(this.startDate).getTime() : new Date().getTime();
-        const end = this.endDate
-            ? new Date(this.endDate).setHours(23, 59, 59, 999)
+    getExamRecords() {
+        const start = this.startDate() ? new Date(this.startDate()!).getTime() : new Date().getTime();
+        const end = this.endDate()
+            ? new Date(this.endDate()!).setHours(23, 59, 59, 999)
             : new Date().setHours(23, 59, 59, 999);
         this.files.download('/app/exam/record', 'examrecords.csv', {
             startDate: start.toString(),
             endDate: end.toString(),
         });
-    };
+    }
 
-    startDateChanged = (event: { date: Date | null }) => {
-        this.startDate = event.date;
-    };
+    startDateChanged(event: { date: Date | null }) {
+        this.startDate.set(event.date);
+    }
 
-    endDateChanged = (event: { date: Date | null }) => {
-        this.endDate = event.date;
-    };
+    endDateChanged(event: { date: Date | null }) {
+        this.endDate.set(event.date);
+    }
 }

@@ -7,7 +7,7 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-header text="i18n_monthly_language_inspection_report" [appendTemplate]="print" />
 <xm-page-content [content]="content" />
 <ng-template #print>
-    <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
+    <span class="print-only compact-header-text">{{ getMonthDate() | date: 'MM/yyyy' }}</span>
     <div class="float-end me-2 no-print">
         <button (click)="printReport()" class="btn btn-success">
             {{ 'i18n_print' | translate }}<i class="bi bi-printer ps-2"></i>
@@ -23,7 +23,7 @@ SPDX-License-Identifier: EUPL-1.2
                         id="month"
                         class="input-group me-2"
                         placeholder="i18n_month"
-                        [options]="months"
+                        [options]="months()"
                         [noSearch]="true"
                         (optionSelected)="monthChanged($event)"
                     ></xm-dropdown-select>
@@ -34,7 +34,7 @@ SPDX-License-Identifier: EUPL-1.2
                         class="input-group"
                         placeholder="i18n_year"
                         [noSearch]="true"
-                        [options]="years"
+                        [options]="years()"
                         (optionSelected)="yearChanged($event)"
                     ></xm-dropdown-select>
                 </div>
@@ -67,7 +67,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </thead>
 
                 <tbody>
-                    @for (inspection of processedInspections | orderBy: 'finishedAt'; track inspection) {
+                    @for (inspection of processedInspections() | orderBy: 'finishedAt'; track inspection) {
                         <tr>
                             <td>
                                 @if (inspection.exam.course) {

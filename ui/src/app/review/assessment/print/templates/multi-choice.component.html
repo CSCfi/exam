@@ -8,16 +8,16 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <span [xmMathJax]="sectionQuestion.question.question"></span>
+            <span [xmMathJax]="sectionQuestion().question.question"></span>
         </div>
     </div>
     <!-- question attachment -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question_attachment' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <span [hidden]="sectionQuestion.question.attachment">N/A</span>
-            @if (sectionQuestion.question.attachment) {
-                <span>{{ sectionQuestion.question.attachment?.fileName }}</span>
+            <span [hidden]="sectionQuestion().question.attachment">N/A</span>
+            @if (sectionQuestion().question.attachment) {
+                <span>{{ sectionQuestion().question.attachment?.fileName }}</span>
             }
         </div>
     </div>
@@ -26,8 +26,8 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_exam_answer' | translate }}:</div>
 
         <div class="sub-content-row col-md-9">
-            @for (o of sectionQuestion.options; track o) {
-                <div class="row" [hidden]="sectionQuestion.question.type !== 'MultipleChoiceQuestion'">
+            @for (o of sectionQuestion().options; track o) {
+                <div class="row" [hidden]="sectionQuestion().question.type !== 'MultipleChoiceQuestion'">
                     <div class="col-md-12">
                         <span>
                             <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
@@ -38,8 +38,8 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 </div>
             }
-            @for (o of sectionQuestion.options; track o) {
-                <div class="row" [hidden]="sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion'">
+            @for (o of sectionQuestion().options; track o) {
+                <div class="row" [hidden]="sectionQuestion().question.type !== 'WeightedMultipleChoiceQuestion'">
                     <div class="col-md-3">
                         <span>
                             <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
@@ -53,8 +53,8 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                 </div>
             }
-            @for (o of sectionQuestion.options; track o) {
-                <div class="row" [hidden]="sectionQuestion.question.type !== 'ClaimChoiceQuestion'">
+            @for (o of sectionQuestion().options; track o) {
+                <div class="row" [hidden]="sectionQuestion().question.type !== 'ClaimChoiceQuestion'">
                     <div class="col-md-12">
                         <span>
                             <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
@@ -70,40 +70,40 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- grade -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_word_points' | translate }}:</div>
-        @if (sectionQuestion.question.type === 'MultipleChoiceQuestion') {
+        @if (sectionQuestion().question.type === 'MultipleChoiceQuestion') {
             <div class="sub-content-row col-md-9">
                 <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                     {{ scoreMultipleChoiceAnswer(true) }}
                 </span>
                 @if (hasForcedScore()) {
                     <span class="text text-danger">
-                        {{ sectionQuestion.forcedScore }}
+                        {{ sectionQuestion().forcedScore }}
                     </span>
                 }
                 / {{ calculateMultiChoiceMaxPoints() }} {{ 'i18n_unit_points' | translate }}
             </div>
         }
-        @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
+        @if (sectionQuestion().question.type === 'WeightedMultipleChoiceQuestion') {
             <div class="sub-content-row col-md-9">
                 <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                     {{ scoreWeightedMultipleChoiceAnswer(true) }}
                 </span>
                 @if (hasForcedScore()) {
                     <span class="text text-danger">
-                        {{ sectionQuestion.forcedScore }}
+                        {{ sectionQuestion().forcedScore }}
                     </span>
                 }
                 / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
             </div>
         }
-        @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
+        @if (sectionQuestion().question.type === 'ClaimChoiceQuestion') {
             <div class="sub-content-row col-md-9">
                 <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                     {{ scoreClaimChoiceAnswer(true) }}
                 </span>
                 @if (hasForcedScore()) {
                     <span class="text text-danger">
-                        {{ sectionQuestion.forcedScore }}
+                        {{ sectionQuestion().forcedScore }}
                     </span>
                 }
                 / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}

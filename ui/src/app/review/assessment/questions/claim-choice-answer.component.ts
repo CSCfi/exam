@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
@@ -11,8 +11,9 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-claim-choice-answer',
-    template: `@if (reviewExpanded) {
-        @for (option of sectionQuestion.options | orderBy: 'option.id'; track option) {
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `@if (reviewExpanded()) {
+        @for (option of sectionQuestion().options | orderBy: 'option.id'; track option) {
             <div class="ps-2 mb-2">
                 <div [ngClass]="getSelectedOptionClass(option)">
                     <div class="make-inline float-start">
@@ -42,9 +43,9 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     styleUrl: './multi-choice-answers.shared.scss',
 })
 export class ClaimChoiceAnswerComponent {
-    @Input() sectionQuestion!: ExamSectionQuestion;
+    sectionQuestion = input.required<ExamSectionQuestion>();
 
-    reviewExpanded = true;
+    reviewExpanded = signal(true);
 
     private Question = inject(QuestionService);
 

@@ -24,7 +24,7 @@
               "base": "dist/exam"
             },
             "index": "ui/src/index.html",
-            "polyfills": ["@angular/localize/init", "ui/src/polyfills.ts"],
+            "polyfills": ["@angular/localize/init"],
             "tsConfig": "ui/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [

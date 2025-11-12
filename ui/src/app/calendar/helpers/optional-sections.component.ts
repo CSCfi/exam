@@ -3,13 +3,14 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamInfo } from 'src/app/calendar/calendar.model';
 
 @Component({
     selector: 'xm-calendar-optional-sections',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div
             class="row m-2 xm details-view"
@@ -23,7 +24,7 @@ import type { ExamInfo } from 'src/app/calendar/calendar.model';
                     </span>
                 }
             </span>
-            @for (section of examInfo.examSections; track section.id) {
+            @for (section of examInfo().examSections; track section.id) {
                 <div class="row">
                     <div class="col-md-12">
                         <div class="row">
@@ -93,10 +94,14 @@ import type { ExamInfo } from 'src/app/calendar/calendar.model';
     imports: [NgClass, FormsModule, UpperCasePipe, TranslateModule],
 })
 export class OptionalSectionsComponent {
-    @Input() examInfo!: ExamInfo;
-    @Output() selected = new EventEmitter<{ valid: boolean }>();
+    examInfo = input.required<ExamInfo>();
+    selected = output<{ valid: boolean }>();
 
-    checkSectionSelections = () => this.selected.emit({ valid: this.sectionSelectionOk() });
+    checkSectionSelections() {
+        this.selected.emit({ valid: this.sectionSelectionOk() });
+    }
 
-    sectionSelectionOk = () => this.examInfo.examSections.some((es) => !es.optional || es.selected);
+    sectionSelectionOk(): boolean {
+        return this.examInfo().examSections.some((es) => !es.optional || es.selected);
+    }
 }

@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Participations, QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row my-2">
             <div class="col-12">
@@ -27,7 +28,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
                         <th>
                             <strong>{{ 'i18n_month' | translate }}</strong>
                         </th>
-                        @for (room of rooms; track room) {
+                        @for (room of rooms(); track room) {
                             <th>{{ room.split('___')[1] }}</th>
                         }
                         <th>
@@ -35,7 +36,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
                         </th>
                     </thead>
                     <tbody>
-                        @for (month of months; track month.toISOString()) {
+                        @for (month of months(); track month.toISOString()) {
                             <tr>
                                 <td>
                                     <strong>{{ month | date: 'yyyy' }}</strong>
@@ -43,7 +44,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
                                 <td>
                                     <strong>{{ month | date: 'M' }}</strong>
                                 </td>
-                                @for (room of rooms; track room) {
+                                @for (room of rooms(); track room) {
                                     <td>{{ totalParticipations(month, room) }}</td>
                                 }
                                 <td>
@@ -57,7 +58,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
                             <td colspan="2">
                                 <strong>{{ 'i18n_total' | translate }}</strong>
                             </td>
-                            @for (room of rooms; track room) {
+                            @for (room of rooms(); track room) {
                                 <td>{{ totalParticipations(undefined, room) }}</td>
                             }
                             <td>
@@ -73,27 +74,30 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
     imports: [DatePipe, TranslateModule],
 })
 export class RoomStatisticsComponent {
-    @Input() queryParams: QueryParams = {};
-    participations: Participations = {};
-    rooms: string[] = [];
-    months: Date[] = [];
+    queryParams = input<QueryParams>({});
+    participations = signal<Participations>({});
+    rooms = signal<string[]>([]);
+    months = signal<Date[]>([]);
 
     private Statistics = inject(StatisticsService);
 
-    listParticipations = () =>
-        this.Statistics.listParticipations$(this.queryParams).subscribe((resp) => {
-            this.participations = resp;
-            if (Object.values(this.participations).flat().length > 0) {
-                this.rooms = Object.keys(this.participations);
+    listParticipations() {
+        this.Statistics.listParticipations$(this.queryParams()).subscribe((resp) => {
+            this.participations.set(resp);
+            const currentParticipations = this.participations();
+            if (Object.values(currentParticipations).flat().length > 0) {
+                this.rooms.set(Object.keys(currentParticipations));
                 this.groupByMonths();
             } else {
-                this.rooms = [];
-                this.months = [];
+                this.rooms.set([]);
+                this.months.set([]);
             }
         });
+    }
 
-    totalParticipations = (month?: Date, room?: string) => {
-        if (!this.participations) return 0;
+    totalParticipations(month?: Date, room?: string): number {
+        const currentParticipations = this.participations();
+        if (!currentParticipations) return 0;
         const isWithinBounds = (data: { date: string }) => {
             const date = new Date(data.date);
             const current = month ? new Date(month) : new Date();
@@ -101,12 +105,13 @@ export class RoomStatisticsComponent {
             const max = new Date(current.getFullYear(), current.getMonth() + 1, 0, 23, 59, 59);
             return date > min && date < max;
         };
-        const rp = room ? this.participations[room] : Object.values(this.participations).flat();
+        const rp = room ? currentParticipations[room] : Object.values(currentParticipations).flat();
         return month ? rp.filter(isWithinBounds).length : rp.length;
-    };
+    }
 
-    private groupByMonths = () => {
-        if (Object.keys(this.participations).length === 0) {
+    private groupByMonths() {
+        const currentParticipations = this.participations();
+        if (Object.keys(currentParticipations).length === 0) {
             return;
         }
         const months: Date[] = [];
@@ -123,28 +128,33 @@ export class RoomStatisticsComponent {
         if (this.isBefore(new Date(limits.min), last)) {
             months.push(limits.max);
         }
-        this.months = months;
-    };
+        this.months.set(months);
+    }
 
-    private isBefore = (a: Date, b: Date) =>
-        a.getFullYear() < b.getFullYear() || (a.getFullYear() === b.getFullYear() && a.getMonth() < b.getMonth());
+    private isBefore(a: Date, b: Date): boolean {
+        return (
+            a.getFullYear() < b.getFullYear() || (a.getFullYear() === b.getFullYear() && a.getMonth() < b.getMonth())
+        );
+    }
 
-    private getMinAndMaxDates = (): { min: Date; max: Date } => {
-        const dates: Date[] = Object.values(this.participations)
+    private getMinAndMaxDates(): { min: Date; max: Date } {
+        const currentParticipations = this.participations();
+        const currentQueryParams = this.queryParams();
+        const dates: Date[] = Object.values(currentParticipations)
             .flatMap((ps) => ps.map((d) => new Date(d.date)))
             .sort((a, b) => a.getTime() - b.getTime());
         let minDate = dates[0];
         // Set min date to which one is earlier: participation or search date
-        if (this.queryParams.start && new Date(this.queryParams.start) < minDate) {
-            minDate = new Date(this.queryParams.start);
+        if (currentQueryParams.start && new Date(currentQueryParams.start) < minDate) {
+            minDate = new Date(currentQueryParams.start);
         }
         // Set max date to either now or requested end date (if any)
-        if (this.queryParams.end) {
-            dates.push(new Date(this.queryParams.end));
+        if (currentQueryParams.end) {
+            dates.push(new Date(currentQueryParams.end));
         } else {
             dates.push(new Date());
         }
         const maxDate = dates[dates.length - 1];
         return { min: minDate, max: maxDate };
-    };
+    }
 }

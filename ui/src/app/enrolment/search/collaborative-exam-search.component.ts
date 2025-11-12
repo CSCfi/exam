@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,6 +23,7 @@ interface LoadingState {
 
 @Component({
     selector: 'xm-collaborative-exam-search',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <span class="col-12 align-items-center mt-3">
@@ -35,13 +36,13 @@ interface LoadingState {
             <div class="col-5">
                 <div class="input-group">
                     <input
-                        [(ngModel)]="filter.text"
+                        [(ngModel)]="filterText"
                         (ngModelChange)="search($event)"
                         type="text"
                         class="form-control"
                         [attr.aria-label]="'i18n_search' | translate"
                         placeholder="{{ 'i18n_search' | translate }}"
-                        [disabled]="loader.loading"
+                        [disabled]="loader().loading"
                     />
                     <div class="input-group-append bi-search search-append"></div>
                 </div>
@@ -49,10 +50,10 @@ interface LoadingState {
             <div class="col-7" ngbDropdown>
                 <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
                     {{ 'i18n_set_ordering' | translate }}:
-                    @switch (filter.ordering) {
+                    @switch (filterOrdering()) {
                         @case ('name') {
                             {{
-                                (filter.reverse ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending') | translate
+                                (filterReverse() ? 'i18n_exam_name_descending' : 'i18n_exam_name_ascending') | translate
                             }}
                         }
                         @case ('periodStart') {
@@ -81,7 +82,7 @@ interface LoadingState {
         </div>
 
         <!-- Loading State -->
-        @if (loader.loading) {
+        @if (loader().loading) {
             <div class="row mt-3">
                 <div class="col-12">
                     <div class="d-flex align-items-center">
@@ -92,11 +93,11 @@ interface LoadingState {
             </div>
         }
 
-        @if (searchDone && !loader.loading) {
+        @if (searchDone() && !loader().loading) {
             <div class="row mt-2">
                 <div class="col-12" aria-live="polite">
                     {{ 'i18n_student_exam_search_result' | translate }}
-                    {{ exams.length }}
+                    {{ exams().length }}
                     {{ 'i18n_student_exam_search_result_continues' | translate }}
                 </div>
             </div>
@@ -104,7 +105,7 @@ interface LoadingState {
 
         <div class="row mt-3">
             <div class="col-12">
-                @for (exam of exams | orderBy: filter.ordering : filter.reverse; track exam.id) {
+                @for (exam of exams() | orderBy: filterOrdering() : filterReverse(); track exam.id) {
                     <div class="row mb-3">
                         <div class="col-12">
                             <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
@@ -125,21 +126,31 @@ interface LoadingState {
         OrderByPipe,
     ],
 })
-export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
-    exams: CollaborativeExamInfo[] = [];
+export class CollaborativeExamSearchComponent implements OnDestroy {
+    exams = signal<CollaborativeExamInfo[]>([]);
+    filterOrdering = signal<'name' | 'periodStart' | 'periodEnd'>('name');
+    filterReverse = signal(false);
+    searchDone = signal(false);
+    loader = signal<LoadingState>({ loading: false });
     filterChanged: Subject<string> = new Subject<string>();
-    filter = { text: '', ordering: 'name', reverse: false };
-    searchDone = false;
-    loader: LoadingState = { loading: false };
 
+    private _filterText = signal('');
     private readonly ngUnsubscribe = new Subject<void>();
     private toast = inject(ToastrService);
     private Search = inject(ExamSearchService);
     private Enrolment = inject(EnrolmentService);
 
-    ngOnInit() {
+    constructor() {
         this.setupSearchHandler();
         this.loadStoredFilters();
+    }
+
+    get filterText(): string {
+        return this._filterText();
+    }
+
+    set filterText(value: string) {
+        this._filterText.set(value);
     }
 
     ngOnDestroy() {
@@ -147,55 +158,60 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    search = (text: string) => {
-        this.filter.text = text;
+    search(text: string) {
+        this._filterText.set(text);
         this.storeFilters();
         this.filterChanged.next(text);
-    };
+    }
 
-    updateSorting = (ordering: string, reverse: boolean) => {
-        this.filter.ordering = ordering;
-        this.filter.reverse = reverse;
+    updateSorting(ordering: string, reverse: boolean) {
+        this.filterOrdering.set(ordering as 'name' | 'periodStart' | 'periodEnd');
+        this.filterReverse.set(reverse);
         this.storeFilters();
-    };
+    }
 
     private setupSearchHandler() {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
-            .subscribe(this.doSearch);
+            .subscribe((text) => this.doSearch(text));
     }
 
     private loadStoredFilters() {
         const storedData = this.Search.loadFilters('collaborative');
         if (storedData.filters) {
-            this.filter = {
-                text: storedData.filters.text || '',
-                ordering: storedData.filters.ordering || 'name',
-                reverse: storedData.filters.reverse || false,
-            };
+            this._filterText.set(storedData.filters.text || '');
+            this.filterOrdering.set((storedData.filters.ordering || 'name') as 'name' | 'periodStart' | 'periodEnd');
+            this.filterReverse.set(storedData.filters.reverse || false);
 
             // If there are stored filters, trigger search
-            if (this.filter.text) {
-                this.filterChanged.next(this.filter.text);
+            if (this._filterText()) {
+                this.filterChanged.next(this._filterText());
             }
         }
-        this.loader = { loading: false };
+        this.loader.set({ loading: false });
     }
 
     private storeFilters() {
-        this.Search.storeFilters(this.filter, 'collaborative');
+        this.Search.storeFilters(
+            {
+                text: this._filterText(),
+                ordering: this.filterOrdering(),
+                reverse: this.filterReverse(),
+            },
+            'collaborative',
+        );
     }
 
-    private doSearch = (text: string) => {
-        this.filter.text = text;
+    private doSearch(text: string) {
+        this._filterText.set(text);
 
         if (text.length <= 2) {
-            this.exams = [];
-            this.searchDone = false;
+            this.exams.set([]);
+            this.searchDone.set(false);
             return;
         }
 
-        this.loader = { loading: true };
+        this.loader.set({ loading: true });
 
         this.Enrolment.searchExams$(text)
             .pipe(
@@ -203,17 +219,17 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
                     const transformedExams = this.processExams(exams);
                     return this.batchCheckEnrolmentStatus(transformedExams);
                 }),
-                finalize(() => (this.loader = { loading: false })),
+                finalize(() => this.loader.set({ loading: false })),
                 takeUntil(this.ngUnsubscribe),
             )
             .subscribe({
                 next: (checkedExams) => {
-                    this.exams = checkedExams;
-                    this.searchDone = true;
+                    this.exams.set(checkedExams);
+                    this.searchDone.set(true);
                 },
                 error: (err) => this.toast.error(err),
             });
-    };
+    }
 
     private processExams(exams: CollaborativeExam[]): CollaborativeExamInfo[] {
         return exams.map((e) =>

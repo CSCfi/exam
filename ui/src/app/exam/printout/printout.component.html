@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-@if (exam.attachment) {
+@if (exam()?.attachment) {
     <div class="ptoolbar text text-danger">
         <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_print_attachment_reminder' | translate }}
     </div>
@@ -13,7 +13,7 @@ SPDX-License-Identifier: EUPL-1.2
 <span class="ptoolbar">
     <button class="btn btn-cancel" (click)="exitPreview()">{{ 'i18n_exit_preview' | translate }}</button>&nbsp;
     <button class="btn btn-primary" (click)="print()">{{ 'i18n_print' | translate }}</button>&nbsp;
-    @if (exam.attachment) {
+    @if (exam()?.attachment) {
         <button class="btn btn-primary" (click)="printAttachment()">
             {{ 'i18n_print_attachment' | translate }}
         </button>
@@ -35,61 +35,69 @@ SPDX-License-Identifier: EUPL-1.2
                         course:</strong
                     ><br />
                     <h4>
-                        @if (exam.course) {
-                            <xm-course-code [course]="exam.course"></xm-course-code>
+                        @if (exam()?.course) {
+                            <xm-course-code [course]="exam()!.course!"></xm-course-code>
                         }
                     </h4>
-                    <h4>{{ exam.course?.name }}</h4>
+                    <h4>{{ exam()?.course?.name }}</h4>
                 </td>
             </tr>
             <tr>
                 <td colspan="2">
                     <strong>Tentin nimi / Tentamens namn / Exam name:</strong><br />
-                    <h4>{{ exam.name }}</h4>
+                    <h4>{{ exam()?.name }}</h4>
                 </td>
             </tr>
             <tr>
                 <td>
                     <strong>Tentin p&auml;iv&auml;m&auml;&auml;r&auml;t / Tentamensdatum / Examination dates:</strong>
                     &nbsp;
-                    @for (ed of exam.examinationDates | orderBy: 'date'; track ed) {
-                        <span> {{ ed.date | date: 'dd.MM.yyyy' }}&nbsp; </span>
+                    @if (exam()?.examinationDates) {
+                        @for (ed of exam()!.examinationDates | orderBy: 'date'; track ed) {
+                            <span> {{ ed.date | date: 'dd.MM.yyyy' }}&nbsp; </span>
+                        }
                     }
                 </td>
                 <td>
-                    <strong>Tentin kesto / Tentamens längd / Exam duration:</strong>&nbsp;{{ exam.duration }}&nbsp;min.
+                    <strong>Tentin kesto / Tentamens längd / Exam duration:</strong>&nbsp;{{
+                        exam()?.duration
+                    }}&nbsp;min.
                 </td>
             </tr>
             <tr>
                 <td rowspan="2" class="pt-0">
                     <strong>Tentaattorit / Tentatoren / Examiners:</strong><br />
-                    <xm-teacher-list [exam]="exam"></xm-teacher-list>
+                    @if (exam()) {
+                        <xm-teacher-list [exam]="exam()!"></xm-teacher-list>
+                    }
                 </td>
                 <td>
                     <strong>Opintopistem&auml;&auml;r&auml; / Studiepo&auml;ng / Credit units:</strong>
-                    &nbsp;{{ exam.course?.credits }}
+                    &nbsp;{{ exam()?.course?.credits }}
                 </td>
             </tr>
             <tr>
                 <td>
                     <strong>Sis&auml;inen postiosoite / Intern postaddress / Internal address:</strong>
-                    &nbsp;{{ exam.internalRef }}
+                    &nbsp;{{ exam()?.internalRef }}
                 </td>
             </tr>
             <tr>
                 <td colspan="2">
                     <strong>Sallitut apuv&auml;lineet / Tillåtna verktyg / Tools allowed:</strong>
                     <br />
-                    <div [innerHtml]="exam.enrollInstruction"></div>
+                    <div [innerHtml]="exam()?.enrollInstruction"></div>
                 </td>
             </tr>
             <tr>
                 <td colspan="2">
                     <strong>Tenttiin vastaaminen / Svara på tentamen / Answer exam questions:</strong><br />
-                    @for (l of exam.examLanguages | orderBy: 'ord'; track l) {
-                        <label class="checkbox-inline">
-                            <input type="checkbox" [disabled]="true" value="true" />{{ getLanguageName(l) }}
-                        </label>
+                    @if (exam()?.examLanguages) {
+                        @for (l of exam()!.examLanguages | orderBy: 'ord'; track l) {
+                            <label class="checkbox-inline">
+                                <input type="checkbox" [disabled]="true" value="true" />{{ getLanguageName(l) }}
+                            </label>
+                        }
                     }
                     <p>
                         Suomenkielisessä tutkinto-ohjelmassa olevalla opiskelijalla on oikeus käyttää arvioitavassa
@@ -118,73 +126,79 @@ SPDX-License-Identifier: EUPL-1.2
         <h3>KYSYMYKSET &ndash; FRÅGOR &ndash; QUESTIONS</h3>
     </div>
 </div>
-@if (exam.instruction) {
+@if (exam()?.instruction) {
     <div class="prow mb-3">
         <div class="col-md-12">
             <strong>Ohjeet / Anvisning / Instructions:</strong>
             <br />
-            <div [innerHtml]="exam.instruction"></div>
+            <div [innerHtml]="exam()!.instruction"></div>
         </div>
     </div>
 }
-@for (es of exam.examSections | orderBy: 'sequenceNumber'; track es) {
-    <div class="prow">
-        <div class="col-md-12">
-            <h4>{{ es.name }}</h4>
-        </div>
-    </div>
-    @if (es.description) {
+@if (exam()?.examSections) {
+    @for (es of exam()!.examSections | orderBy: 'sequenceNumber'; track es) {
         <div class="prow">
             <div class="col-md-12">
-                {{ es.description }}
+                <h4>{{ es.name }}</h4>
             </div>
         </div>
-    }
-    @for (esq of es.sectionQuestions | orderBy: 'sequenceNumber'; track esq) {
-        <div class="prow pquestion">
-            <span class="col-md-8"
-                ><strong>{{ esq.sequenceNumber + 1 }}.&nbsp;{{ getQuestionTypeName(esq) }}</strong></span
-            >
-            <span class="col-md-4"
-                ><strong class="float-end">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span
-            >
-            @if (esq.answerInstructions.length > 0) {
-                <span class="col-md-12 pquestion"
-                    ><strong>Ohjeet / Anvisning / Instructions:</strong><br />
-                    {{ esq.answerInstructions }}
-                </span>
-            }
-            @if (esq.question.type !== 'ClozeTestQuestion') {
-                <span class="col-md-12 pquestion" [xmMathJax]="esq.question.question"></span>
-            }
-            @if (esq.question.type === 'ClozeTestQuestion') {
-                <span class="col-md-12 pquestion" [xmMathJax]="esq.clozeTestAnswer?.question"></span>
-            }
-            @if (
-                esq.question.type === 'MultipleChoiceQuestion' ||
-                esq.question.type === 'WeightedMultipleChoiceQuestion' ||
-                esq.question.type === 'ClaimChoiceQuestion'
-            ) {
-                <span class="col-md-12">
-                    @for (o of esq.options; track o) {
-                        @if (esq.question.type === 'WeightedMultipleChoiceQuestion') {
-                            <div class="checkbox">
-                                <label><input type="checkbox" [disabled]="true" value="" />{{ o.option.option }}</label>
-                            </div>
+        @if (es.description) {
+            <div class="prow">
+                <div class="col-md-12">
+                    {{ es.description }}
+                </div>
+            </div>
+        }
+        @for (esq of es.sectionQuestions | orderBy: 'sequenceNumber'; track esq) {
+            <div class="prow pquestion">
+                <span class="col-md-8"
+                    ><strong>{{ esq.sequenceNumber + 1 }}.&nbsp;{{ getQuestionTypeName(esq) }}</strong></span
+                >
+                <span class="col-md-4"
+                    ><strong class="float-end">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span
+                >
+                @if (esq.answerInstructions.length > 0) {
+                    <span class="col-md-12 pquestion"
+                        ><strong>Ohjeet / Anvisning / Instructions:</strong><br />
+                        {{ esq.answerInstructions }}
+                    </span>
+                }
+                @if (esq.question.type !== 'ClozeTestQuestion') {
+                    <span class="col-md-12 pquestion" [xmMathJax]="esq.question.question"></span>
+                }
+                @if (esq.question.type === 'ClozeTestQuestion') {
+                    <span class="col-md-12 pquestion" [xmMathJax]="esq.clozeTestAnswer?.question"></span>
+                }
+                @if (
+                    esq.question.type === 'MultipleChoiceQuestion' ||
+                    esq.question.type === 'WeightedMultipleChoiceQuestion' ||
+                    esq.question.type === 'ClaimChoiceQuestion'
+                ) {
+                    <span class="col-md-12">
+                        @for (o of esq.options; track o) {
+                            @if (esq.question.type === 'WeightedMultipleChoiceQuestion') {
+                                <div class="checkbox">
+                                    <label
+                                        ><input type="checkbox" [disabled]="true" value="" />{{
+                                            o.option.option
+                                        }}</label
+                                    >
+                                </div>
+                            }
+                            @if (esq.question.type === 'MultipleChoiceQuestion') {
+                                <div class="radio">
+                                    <label><input type="radio" [disabled]="true" name="" />{{ o.option.option }}</label>
+                                </div>
+                            }
+                            @if (esq.question.type === 'ClaimChoiceQuestion') {
+                                <div class="radio">
+                                    <label><input type="radio" [disabled]="true" name="" />{{ o.option.option }}</label>
+                                </div>
+                            }
                         }
-                        @if (esq.question.type === 'MultipleChoiceQuestion') {
-                            <div class="radio">
-                                <label><input type="radio" [disabled]="true" name="" />{{ o.option.option }}</label>
-                            </div>
-                        }
-                        @if (esq.question.type === 'ClaimChoiceQuestion') {
-                            <div class="radio">
-                                <label><input type="radio" [disabled]="true" name="" />{{ o.option.option }}</label>
-                            </div>
-                        }
-                    }
-                </span>
-            }
-        </div>
+                    </span>
+                }
+            </div>
+        }
     }
 }

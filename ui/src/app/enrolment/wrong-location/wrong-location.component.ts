@@ -4,8 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -20,6 +19,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
 @Component({
     selector: 'xm-wrong-location',
     templateUrl: './wrong-location.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
     styles: [
         `
@@ -32,14 +32,14 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
         `,
     ],
 })
-export class WrongLocationComponent implements OnInit {
-    cause = '';
-    enrolment!: ExamEnrolment;
-    reservation!: Reservation;
-    isUpcoming = false;
-    roomInstructions = '';
-    currentMachine!: ExamMachine;
-    occasion = { startAt: '', endAt: '' };
+export class WrongLocationComponent {
+    cause = signal('');
+    enrolment = signal<ExamEnrolment | undefined>(undefined);
+    reservation = signal<Reservation | undefined>(undefined);
+    isUpcoming = signal(false);
+    roomInstructions = signal('');
+    currentMachine = signal<ExamMachine | undefined>(undefined);
+    occasion = signal({ startAt: '', endAt: '' });
 
     private http = inject(HttpClient);
     private route = inject(ActivatedRoute);
@@ -48,34 +48,47 @@ export class WrongLocationComponent implements OnInit {
     private Enrolment = inject(EnrolmentService);
     private DateTimeService = inject(DateTimeService);
 
-    ngOnInit() {
-        this.cause = this.route.snapshot.data.cause;
+    constructor() {
+        this.cause.set(this.route.snapshot.data.cause);
         if (this.route.snapshot.params.eid) {
-            this.isUpcoming = true;
+            this.isUpcoming.set(true);
             this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.route.snapshot.params.eid}`).subscribe({
                 next: (enrolment) => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');
                     }
                     this.setOccasion(enrolment.reservation);
-                    this.enrolment = enrolment;
-                    this.reservation = enrolment.reservation;
-                    const room = this.reservation.machine.room;
+                    this.enrolment.set(enrolment);
+                    this.reservation.set(enrolment.reservation);
+                    const room = enrolment.reservation.machine.room;
                     const code = this.translate.currentLang.toUpperCase();
-                    this.roomInstructions = this.getRoomInstructions(code, room);
+                    this.roomInstructions.set(this.getRoomInstructions(code, room));
                     this.http
                         .get<ExamMachine>(`/app/machines/${this.route.snapshot.params.mid}`)
-                        .subscribe((machine) => (this.currentMachine = machine));
+                        .subscribe((machine) => this.currentMachine.set(machine));
                 },
                 error: (err) => this.toast.error(err),
             });
         }
     }
 
-    printExamDuration = () => this.DateTimeService.formatDuration(this.enrolment.exam.duration);
-    showInstructions = () => this.Enrolment.showInstructions(this.enrolment);
+    printExamDuration() {
+        const enrolment = this.enrolment();
+        if (!enrolment) {
+            return '';
+        }
+        return this.DateTimeService.formatDuration(enrolment.exam.duration);
+    }
 
-    private getRoomInstructions = (lang: string, room: ExamRoom) => {
+    showInstructions() {
+        const enrolment = this.enrolment();
+        if (!enrolment) {
+            return;
+        }
+        this.Enrolment.showInstructions(enrolment);
+    }
+
+    private getRoomInstructions(lang: string, room: ExamRoom) {
         switch (lang) {
             case 'FI':
                 return room.roomInstruction;
@@ -84,15 +97,15 @@ export class WrongLocationComponent implements OnInit {
             default:
                 return room.roomInstructionEN;
         }
-    };
+    }
 
-    private setOccasion = (reservation: Reservation) => {
+    private setOccasion(reservation: Reservation) {
         const tz = reservation.machine.room.localTimezone;
         const start = DateTime.fromISO(reservation.startAt, { zone: tz });
         const end = DateTime.fromISO(reservation.endAt, { zone: tz });
-        this.occasion = {
+        this.occasion.set({
             startAt: start.minus({ hour: start.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
             endAt: end.minus({ hour: end.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
-        };
-    };
+        });
+    }
 }

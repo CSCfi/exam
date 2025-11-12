@@ -4,8 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -17,38 +16,55 @@ import type { ExamMachine, ExamRoom } from 'src/app/reservation/reservation.mode
     selector: 'xm-machines',
     imports: [NgbPopover, NgClass, RouterLink, TranslateModule],
     styleUrls: ['./machines.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MachineListComponent implements OnInit {
-    @Input() room!: ExamRoom;
+export class MachineListComponent {
+    room = input.required<ExamRoom>();
 
-    showMachines = false;
-    machines: ExamMachine[] = [];
+    showMachines = signal(false);
+    machines = signal<ExamMachine[]>([]);
+
+    countMachineAlerts = computed(() => {
+        const currentRoom = this.room();
+        return currentRoom ? currentRoom.examMachines.filter((m) => m.outOfService).length : 0;
+    });
+
+    countMachineNotices = computed(() => {
+        const currentRoom = this.room();
+        return currentRoom ? currentRoom.examMachines.filter((m) => !m.outOfService && m.statusComment).length : 0;
+    });
 
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
 
-    ngOnInit() {
-        this.showMachines = false;
-        this.machines = this.sort(this.room.examMachines);
+    constructor() {
+        effect(() => {
+            const currentRoom = this.room();
+            this.showMachines.set(false);
+            this.machines.set(this.sort([...currentRoom.examMachines]));
+        });
     }
 
-    toggleShow = () => (this.showMachines = !this.showMachines);
+    toggleShow() {
+        this.showMachines.update((v) => !v);
+    }
 
-    countMachineAlerts = (): number => (this.room ? this.room.examMachines.filter((m) => m.outOfService).length : 0);
-
-    countMachineNotices = (): number =>
-        this.room ? this.room.examMachines.filter((m) => !m.outOfService && m.statusComment).length : 0;
-
-    addNewMachine = () =>
-        this.http.post<ExamMachine>(`/app/machines/${this.room.id}`, {}).subscribe({
+    addNewMachine() {
+        const currentRoom = this.room();
+        this.http.post<ExamMachine>(`/app/machines/${currentRoom.id}`, {}).subscribe({
             next: (resp) => {
                 this.toast.info(this.translate.instant('i18n_machine_added'));
-                this.room.examMachines.push(resp);
-                this.machines = this.sort(this.room.examMachines);
+                // Update room object for backward compatibility
+                currentRoom.examMachines.push(resp);
+                // Update local machines signal
+                this.machines.set(this.sort([...currentRoom.examMachines]));
             },
             error: (err) => this.toast.error(err.data),
         });
+    }
 
-    private sort = (machines: ExamMachine[]) => machines.sort((a, b) => ('' + a.name).localeCompare(b.name));
+    private sort(machines: ExamMachine[]): ExamMachine[] {
+        return [...machines].sort((a, b) => ('' + a.name).localeCompare(b.name));
+    }
 }

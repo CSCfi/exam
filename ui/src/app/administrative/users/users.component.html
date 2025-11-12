@@ -13,10 +13,10 @@ SPDX-License-Identifier: EUPL-1.2
             <div id="userSearch" class="flex-wrap-gap">
                 <div class="form-group input-group">
                     <input
-                        [ngModel]="filter.text"
+                        [(ngModel)]="filterText"
                         type="text"
                         class="form-control"
-                        (ngModelChange)="loader.loading = true; textChanged.next($event)"
+                        (ngModelChange)="loader.set({ loading: true })"
                         placeholder="{{ 'i18n_search' | translate }}"
                         [openDelay]="500"
                         [closeDelay]="500"
@@ -41,7 +41,7 @@ SPDX-License-Identifier: EUPL-1.2
                     {{ 'i18n_filter_by_role' | translate }}&nbsp;<span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
-                    @for (role of roles; track role) {
+                    @for (role of roles(); track role.type) {
                         <button
                             ngbDropdownItem
                             role="presentation"
@@ -71,7 +71,7 @@ SPDX-License-Identifier: EUPL-1.2
                     {{ 'i18n_filter_by_permission' | translate }}&nbsp;<span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
-                    @for (permission of permissions; track permission) {
+                    @for (permission of permissions(); track permission) {
                         <button
                             ngbDropdownItem
                             role="presentation"
@@ -90,7 +90,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <div class="row mt-2">
-        <div class="col-md-12" [hidden]="!loader.loading">
+        <div class="col-md-12" [hidden]="!loader().loading">
             <button class="btn btn-success" type="button" disabled>
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 {{ 'i18n_searching' | translate }}&hellip;
@@ -114,7 +114,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </thead>
                 <tbody>
                     @for (
-                        user of filteredUsers | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
+                        user of filteredUsers() | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
                         track user
                     ) {
                         <tr>
@@ -293,12 +293,12 @@ SPDX-License-Identifier: EUPL-1.2
                     }
                 </tbody>
             </table>
-            @if (filteredUsers.length > pageSize) {
+            @if (filteredUsers().length > pageSize) {
                 <xm-paginator
-                    [items]="filteredUsers"
+                    [items]="filteredUsers()"
                     (pageSelected)="pageSelected($event)"
                     [pageSize]="pageSize"
-                    [currentPage]="currentPage"
+                    [currentPage]="currentPage()"
                 ></xm-paginator>
             }
         </div>

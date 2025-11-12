@@ -4,7 +4,7 @@
 
 import { NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,6 +23,7 @@ import { MaturityToolbarComponent } from './toolbar.component';
 
 @Component({
     selector: 'xm-r-maturity-grading',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './grading.component.html',
     styleUrls: ['../assessment.shared.scss'],
     imports: [
@@ -37,10 +38,10 @@ import { MaturityToolbarComponent } from './toolbar.component';
     ],
 })
 export class MaturityGradingComponent extends GradingBaseComponent implements OnInit {
-    @Input() exam!: Exam;
-    @Input() user!: User;
-    @Input() questionSummary: unknown;
-    @Output() updated = new EventEmitter<void>();
+    exam = input.required<Exam>();
+    user = input.required<User>();
+    questionSummary = input<unknown>();
+    updated = output<void>();
 
     message: { text?: string } = {};
 
@@ -69,32 +70,42 @@ export class MaturityGradingComponent extends GradingBaseComponent implements On
         });
     }
 
-    getExam = () => this.exam;
+    getExam = () => this.exam();
 
     isUnderLanguageInspection = () =>
-        this.user.isLanguageInspector && this.exam.languageInspection && !this.exam.languageInspection.finishedAt;
-    hasGoneThroughLanguageInspection = () => this.exam.languageInspection && this.exam.languageInspection.finishedAt;
-    isAwaitingInspection = () => this.exam.languageInspection && !this.exam.languageInspection.finishedAt;
-    canFinalizeInspection = () => this.exam.languageInspection?.statement.comment;
-    isReadOnly = () => this.Assessment.isReadOnly(this.exam);
-    isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam);
-    downloadFeedbackAttachment = () => this.Attachment.downloadFeedbackAttachment(this.exam);
-    downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.exam);
-    getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
+        this.user().isLanguageInspector && this.exam().languageInspection && !this.exam().languageInspection.finishedAt;
+    hasGoneThroughLanguageInspection = () =>
+        this.exam().languageInspection && this.exam().languageInspection.finishedAt;
+    isAwaitingInspection = () => this.exam().languageInspection && !this.exam().languageInspection.finishedAt;
+    canFinalizeInspection = () => this.exam().languageInspection?.statement.comment;
+    isReadOnly = () => this.Assessment.isReadOnly(this.exam());
+    isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam());
+    downloadFeedbackAttachment = () => this.Attachment.downloadFeedbackAttachment(this.exam());
+    downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.exam());
+    getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam());
     inspectionDone = () => this.updated.emit();
-    isGraded = () => this.Assessment.isGraded(this.exam);
+    isGraded = () => this.Assessment.isGraded(this.exam());
     isMaturityRejection = () =>
-        this.exam.executionType.type === 'MATURITY' &&
-        !this.exam.subjectToLanguageInspection &&
-        this.exam.grade &&
-        this.exam.grade.marksRejection;
+        this.exam().executionType.type === 'MATURITY' &&
+        !this.exam().subjectToLanguageInspection &&
+        this.exam().grade !== undefined &&
+        this.exam().grade?.marksRejection;
+
+    onCommentAdded = (comment: { comment: string; creator: User; created: Date }) => {
+        // Update exam object to keep it in sync
+        const exam = this.exam();
+        if (!exam.inspectionComments) {
+            exam.inspectionComments = [];
+        }
+        exam.inspectionComments.unshift(comment);
+    };
 
     sendEmailMessage = () => {
         if (!this.message.text) {
             this.toast.error(this.translate.instant('i18n_email_empty'));
             return;
         }
-        this.http.post(`/app/email/inspection/${this.exam.id}`, { msg: this.message.text }).subscribe({
+        this.http.post(`/app/email/inspection/${this.exam().id}`, { msg: this.message.text }).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_email_sent'));
                 delete this.message.text;
@@ -102,5 +113,5 @@ export class MaturityGradingComponent extends GradingBaseComponent implements On
             error: (err) => this.toast.error(err),
         });
     };
-    saveAssessmentInfo = () => this.Assessment.saveAssessmentInfo$(this.exam).subscribe();
+    saveAssessmentInfo = () => this.Assessment.saveAssessmentInfo$(this.exam()).subscribe();
 }

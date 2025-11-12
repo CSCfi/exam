@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Question, QuestionDraft } from 'src/app/question/question.model';
@@ -25,7 +25,8 @@ import { Question, QuestionDraft } from 'src/app/question/question.model';
                             type="number"
                             lang="en"
                             class="form-control xm-numeric-input"
-                            [(ngModel)]="question.defaultExpectedWordCount"
+                            [ngModel]="question().defaultExpectedWordCount"
+                            (ngModelChange)="setDefaultExpectedWordCount($event)"
                             [min]="1"
                             [max]="1000000"
                         />
@@ -52,10 +53,10 @@ import { Question, QuestionDraft } from 'src/app/question/question.model';
                     id="evaluationType"
                     name="evaluationType"
                     class="form-select w-75"
-                    [ngModel]="question.defaultEvaluationType"
+                    [ngModel]="question().defaultEvaluationType"
                     (ngModelChange)="updateEvaluationType($event)"
-                    [disabled]="lotteryOn"
-                    required="question.type == 'EssayQuestion'"
+                    [disabled]="lotteryOn()"
+                    [required]="question().type === 'EssayQuestion'"
                 >
                     <option value="Points">{{ 'i18n_word_points' | translate }}</option>
                     <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
@@ -65,17 +66,27 @@ import { Question, QuestionDraft } from 'src/app/question/question.model';
     `,
     styleUrls: ['../question.shared.scss'],
     imports: [FormsModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EssayEditorComponent {
-    @Input() question!: Question | QuestionDraft;
-    @Input() lotteryOn = false;
+    question = input.required<Question | QuestionDraft>();
+    lotteryOn = input(false);
 
-    updateEvaluationType = ($event: string) => {
-        this.question.defaultEvaluationType = $event;
+    setDefaultExpectedWordCount(value: number) {
+        const questionValue = this.question();
+        questionValue.defaultExpectedWordCount = value;
+    }
+
+    updateEvaluationType($event: string) {
+        const questionValue = this.question();
+        questionValue.defaultEvaluationType = $event;
         if ($event === 'Selection') {
-            delete this.question.defaultMaxScore;
+            delete questionValue.defaultMaxScore;
         }
-    };
+    }
 
-    estimateCharacters = () => (this.question.defaultExpectedWordCount || 0) * 8;
+    estimateCharacters() {
+        const questionValue = this.question();
+        return (questionValue.defaultExpectedWordCount || 0) * 8;
+    }
 }

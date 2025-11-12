@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { User } from 'src/app/session/session.model';
@@ -38,9 +38,10 @@ import type { User } from 'src/app/session/session.model';
             </button>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectRoleDialogComponent {
-    @Input() user!: User;
+    user!: User; // Set by the component managing the modal
 
     activeModal = inject(NgbActiveModal);
 }

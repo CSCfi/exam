@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
-import type { AfterViewInit } from '@angular/core';
-import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -35,80 +34,81 @@ type ClozeTestAnswer = { [key: string]: string };
         TranslateModule,
     ],
     styleUrls: ['../examination.shared.scss', './question.shared.scss', './examination-question.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
-    @Input() exam?: Examination;
-    @Input() question!: ExaminationQuestion;
-    @Input() isPreview = false;
-    @Input() isCollaborative = false;
+export class ExaminationQuestionComponent {
+    exam = input<Examination | undefined>(undefined);
+    question = input.required<ExaminationQuestion>();
+    isPreview = input(false);
+    isCollaborative = input(false);
 
-    clozeAnswer: { [key: string]: string } = {};
-    expanded = true;
-    sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
-    questionTitle!: string;
+    clozeAnswer = signal<{ [key: string]: string }>({});
+    expanded = signal(true);
 
-    private cdr = inject(ChangeDetectorRef);
+    sq = computed(() => {
+        const q = this.question() as Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }; // FIXME
+        return { ...q, expanded: true };
+    });
+
+    questionTitle = computed(() => {
+        // Extract plain text from HTML for aria-label (screen readers need plain text, not HTML)
+        const html = this.sq().question.question;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        return doc.documentElement.innerText;
+    });
+
     private Examination = inject(ExaminationService);
     private Attachment = inject(AttachmentService);
     private translate = inject(TranslateService);
 
-    ngOnInit() {
-        this.sq = this.question as Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }; // FIXME
-        this.sq.expanded = true;
-        if (this.sq.question.type === 'ClozeTestQuestion' && this.sq.clozeTestAnswer?.answer) {
-            const { answer } = this.sq.clozeTestAnswer;
-            this.clozeAnswer = JSON.parse(answer);
-        }
-        this.questionTitle = this.removeParagraphTags(this.sq.question.question);
-    }
-
-    removeParagraphTags(input: string): string {
-        const openTag = '<p>';
-        const closeTag = '</p>';
-        let result = input;
-
-        while (result.includes(openTag)) {
-            result = result.replace(openTag, '');
-        }
-
-        while (result.includes(closeTag)) {
-            result = result.replace(closeTag, '');
-        }
-
-        return result;
+    constructor() {
+        // Initialize clozeAnswer when question changes
+        effect(() => {
+            const currentSq = this.sq();
+            if (currentSq.question.type === 'ClozeTestQuestion' && currentSq.clozeTestAnswer?.answer) {
+                const { answer } = currentSq.clozeTestAnswer;
+                this.clozeAnswer.set(JSON.parse(answer));
+            }
+        });
     }
 
     parseAriaLabel(expanded: string): string {
-        return `${this.translate.instant(expanded)} ${this.translate.instant('i18n_question')} ${this.questionTitle}`;
+        return `${this.translate.instant(expanded)} ${this.translate.instant('i18n_question')} ${this.questionTitle()}`;
     }
 
-    ngAfterViewInit() {
-        this.cdr.detectChanges();
+    toggleExpanded() {
+        this.expanded.update((v) => !v);
     }
 
-    answered = (answer: ClozeTestAnswer) => {
+    answered(answer: ClozeTestAnswer) {
         const { id, value } = answer;
-        if (this.sq.clozeTestAnswer) {
-            this.clozeAnswer = {
-                ...this.clozeAnswer,
+        const currentSq = this.sq();
+        if (currentSq.clozeTestAnswer) {
+            this.clozeAnswer.update((current) => ({
+                ...current,
                 [id]: value,
-            };
-            this.sq.clozeTestAnswer.answer = JSON.stringify(this.clozeAnswer);
+            }));
+            currentSq.clozeTestAnswer.answer = JSON.stringify(this.clozeAnswer());
         }
-    };
+    }
 
-    downloadQuestionAttachment = () => {
-        if (this.exam) {
-            if (this.exam.external) {
-                this.Attachment.downloadExternalQuestionAttachment(this.exam, this.sq);
-            } else if (this.isCollaborative) {
-                this.Attachment.downloadCollaborativeQuestionAttachment(this.exam.id, this.sq);
+    downloadQuestionAttachment() {
+        const currentExam = this.exam();
+        const currentSq = this.sq();
+        if (currentExam) {
+            if (currentExam.external) {
+                this.Attachment.downloadExternalQuestionAttachment(currentExam, currentSq);
+            } else if (this.isCollaborative()) {
+                this.Attachment.downloadCollaborativeQuestionAttachment(currentExam.id, currentSq);
             } else {
-                this.Attachment.downloadQuestionAttachment(this.sq.question);
+                this.Attachment.downloadQuestionAttachment(currentSq.question);
             }
             console.error('Cannot retrieve attachment without exam.');
         }
-    };
+    }
 
-    isAnswered = () => this.Examination.isAnswered(this.sq);
+    isAnswered() {
+        return this.Examination.isAnswered(this.sq());
+    }
 }

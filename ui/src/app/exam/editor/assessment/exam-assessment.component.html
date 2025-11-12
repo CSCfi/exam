@@ -24,10 +24,10 @@ SPDX-License-Identifier: EUPL-1.2
         </sup>
     </div>
     <div class="col-md-9">
-        @for (examType of examTypes; track examType) {
+        @for (examType of examTypes(); track examType) {
             <span>
                 <button
-                    [disabled]="examTypes.length < 2"
+                    [disabled]="examTypes().length < 2"
                     class="btn selection-button-narrow"
                     [ngClass]="checkExamType(examType.type)"
                     (click)="setExamType(examType.type)"
@@ -69,17 +69,17 @@ SPDX-License-Identifier: EUPL-1.2
 <!-- Autoevaluation -->
 @if (canBeAutoEvaluated()) {
     <xm-auto-evaluation
-        [exam]="exam"
+        [exam]="exam()"
         (updated)="autoEvaluationConfigChanged($event)"
         (disabled)="autoEvaluationDisabled()"
         (enabled)="autoEvaluationEnabled()"
     >
     </xm-auto-evaluation>
 }
-@if (!collaborative && exam.executionType?.type !== 'MATURITY') {
+@if (!collaborative() && exam().executionType?.type !== 'MATURITY') {
     <xm-exam-feedback-config
-        [exam]="exam"
-        [modifiable]="isAllowedToUpdateFeedbackConfig"
+        [exam]="exam()"
+        [modifiable]="isAllowedToUpdateFeedbackConfig()"
         (updated)="feedbackConfigChanged($event)"
         (disabled)="feedbackConfigDisabled()"
         (enabled)="feedbackConfigEnabled()"

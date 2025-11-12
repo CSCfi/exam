@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild, inject, input } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -25,7 +25,14 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                 <div class="col-md-6">
                     <div class="facility-info-text">{{ 'i18n_exam_room_address_street' | translate }}</div>
                     <div class="input-group">
-                        <input type="text" name="street" class="form-control" [(ngModel)]="address.street" required />
+                        <input
+                            type="text"
+                            name="street"
+                            class="form-control"
+                            [ngModel]="address().street"
+                            (ngModelChange)="updateStreet($event)"
+                            required
+                        />
                         <span class="input-group-append">
                             <span class="input-group-text">
                                 <i
@@ -42,7 +49,14 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                 <div class="col-md-6">
                     <div class="facility-info-text">{{ 'i18n_exam_room_address_zip' | translate }}</div>
                     <div class="input-group">
-                        <input type="text" name="zip" class="form-control" [(ngModel)]="address.zip" required />
+                        <input
+                            type="text"
+                            name="zip"
+                            class="form-control"
+                            [ngModel]="address().zip"
+                            (ngModelChange)="updateZip($event)"
+                            required
+                        />
                         <span class="input-group-append">
                             <span class="input-group-text">
                                 <i
@@ -60,7 +74,14 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                 <div class="col-md-6">
                     <div class="facility-info-text">{{ 'i18n_exam_room_address_city' | translate }}</div>
                     <div class="input-group">
-                        <input type="text" name="city" class="form-control" [(ngModel)]="address.city" required />
+                        <input
+                            type="text"
+                            name="city"
+                            class="form-control"
+                            [ngModel]="address().city"
+                            (ngModelChange)="updateCity($event)"
+                            required
+                        />
                         <span class="input-group-append">
                             <span class="input-group-text">
                                 <i
@@ -85,24 +106,43 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
     `,
     styleUrls: ['../rooms/rooms.component.scss'],
     imports: [FormsModule, NgbPopover, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddressComponent {
-    @Input() address!: Address;
     @ViewChild('addressForm', { static: false }) addressForm?: NgForm;
+    address = input.required<Address>();
 
     private room = inject(RoomService);
     private toast = inject(ToastrService);
     private translate = inject(TranslateService);
 
-    validateAndUpdateAddress = () => {
+    updateStreet(value: string) {
+        // Note: We're mutating the input object for backward compatibility
+        // In a fully signal-based parent, the parent should handle updates
+        const currentAddress = this.address();
+        currentAddress.street = value;
+    }
+
+    updateZip(value: string) {
+        const currentAddress = this.address();
+        currentAddress.zip = value;
+    }
+
+    updateCity(value: string) {
+        const currentAddress = this.address();
+        currentAddress.city = value;
+    }
+
+    validateAndUpdateAddress() {
         if (this.addressForm?.valid) {
             this.updateAddress();
         }
-    };
+    }
 
-    updateAddress = () =>
-        this.room.updateAddress$(this.address).subscribe({
+    updateAddress() {
+        this.room.updateAddress$(this.address()).subscribe({
             next: () => this.toast.info(this.translate.instant('i18n_room_address_updated')),
             error: (err) => this.toast.error(err),
         });
+    }
 }

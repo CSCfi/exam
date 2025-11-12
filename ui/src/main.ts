@@ -5,7 +5,7 @@
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import '@angular/compiler'; // needed for dynamic cloze test component compilation
-import { LOCALE_ID, enableProdMode, importProvidersFrom } from '@angular/core';
+import { LOCALE_ID, enableProdMode, importProvidersFrom, provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
@@ -39,7 +39,7 @@ bootstrapApplication(AppComponent, {
             deps: [SessionService],
             useFactory: (srv: SessionService) => srv.getLocale(),
         },
-        //provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideRouter(APP_ROUTES),
         provideHttpClient(withInterceptorsFromDi()),
         provideAnimationsAsync(),

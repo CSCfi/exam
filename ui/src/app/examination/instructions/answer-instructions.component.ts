@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination } from 'src/app/examination/examination.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
@@ -22,21 +22,21 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
         </div>
         <div class="row ms-3 guide-wrapper">
             <div class="col-md-12">
-                @if (exam.course) {
+                @if (exam().course) {
                     <div class="row">
                         <div class="header col-md-4">{{ 'i18n_course_name' | translate }}:</div>
-                        <div class="text col-md-8">{{ exam.course.name }}</div>
+                        <div class="text col-md-8">{{ exam().course!.name }}</div>
                     </div>
                 }
-                @if (exam.course) {
+                @if (exam().course) {
                     <div class="row">
                         <div class="header col-md-4">{{ 'i18n_course_code' | translate }}:</div>
-                        <div class="text col-md-8"><xm-course-code [course]="exam.course"></xm-course-code></div>
+                        <div class="text col-md-8"><xm-course-code [course]="exam().course!"></xm-course-code></div>
                     </div>
                 }
                 <div class="row">
                     <div class="header col-md-4">{{ 'i18n_exam_name' | translate }}:</div>
-                    <div class="text col-md-8">{{ exam.name }}</div>
+                    <div class="text col-md-8">{{ exam().name }}</div>
                 </div>
                 <div class="row">
                     <div class="header col-md-4">{{ 'i18n_exam_duration' | translate }}:</div>
@@ -44,18 +44,21 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                 </div>
                 <div class="row">
                     <div class="header col-md-4">{{ 'i18n_exam_guide' | translate }}:</div>
-                    <div class="text col-md-8" [xmMathJax]="exam.instruction"></div>
+                    <div class="text col-md-8" [xmMathJax]="exam().instruction"></div>
                 </div>
             </div>
         </div>
     `,
     imports: [CourseCodeComponent, MathJaxDirective, TranslateModule],
     styleUrls: ['../examination.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnswerInstructionsComponent {
-    @Input() exam!: Examination;
+    exam = input.required<Examination>();
 
     private DateTime = inject(DateTimeService);
 
-    printExamDuration = () => this.DateTime.formatDuration(this.exam.duration);
+    printExamDuration() {
+        return this.DateTime.formatDuration(this.exam().duration);
+    }
 }

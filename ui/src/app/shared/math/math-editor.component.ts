@@ -5,13 +5,16 @@
 import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     CUSTOM_ELEMENTS_SCHEMA,
+    effect,
     ElementRef,
     inject,
     input,
     output,
+    signal,
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -38,31 +41,34 @@ const DEFAULT_MATH_EXAMPLES: MathExample[] = [
     imports: [CommonModule, FormsModule, NgbDropdownModule, TranslateModule],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     styleUrl: './math-editor.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MathEditorComponent implements AfterViewInit {
     @ViewChild('renderedOutput', { static: false }) renderedOutput!: ElementRef;
     @ViewChild('markupTextarea', { static: false }) markupTextarea!: ElementRef;
 
-    // Input signal for initial HTML content
-    initialHtmlContent = input<string>('');
-
-    // Output signal for HTML content changes
+    initialHtmlContent = input('');
     htmlContentChange = output<string>();
+    enableEditing = input(true);
 
-    // Input signal for enabling editing of math expressions (default: true)
-    enableEditing = input<boolean>(true);
-
-    mathExpression = 'x^2 + y^2 = z^2';
-    htmlMarkup = '';
+    htmlMarkup = signal<string>('');
     private mathFieldElements: Map<HTMLElement, string> = new Map();
     private mathLiveService = inject(MathLiveService);
     private translateService = inject(TranslateService);
     private changeDetector = inject(ChangeDetectorRef);
 
     constructor() {
-        // Initialize htmlMarkup with the input signal value or default content
-        this.htmlMarkup = this.initialHtmlContent() || this.getDefaultContent();
-        // Don't call onMarkupChange in constructor - wait for ngAfterViewInit
+        // Initialize htmlMarkup when input signal is available
+        effect(() => {
+            const initialContent = this.initialHtmlContent();
+            const currentMarkup = this.htmlMarkup();
+            if (initialContent) {
+                this.htmlMarkup.set(initialContent);
+            } else if (!currentMarkup) {
+                // Only set default if htmlMarkup is not already set
+                this.htmlMarkup.set(this.getDefaultContent());
+            }
+        });
     }
 
     ngAfterViewInit() {
@@ -78,10 +84,11 @@ export class MathEditorComponent implements AfterViewInit {
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
         const mathFieldHtml = '<math-field></math-field>';
+        const currentMarkup = this.htmlMarkup();
 
         // Insert the math-field element at cursor position
-        const newValue = this.htmlMarkup.substring(0, start) + mathFieldHtml + this.htmlMarkup.substring(end);
-        this.htmlMarkup = newValue;
+        const newValue = currentMarkup.substring(0, start) + mathFieldHtml + currentMarkup.substring(end);
+        this.htmlMarkup.set(newValue);
 
         // Update the rendered output
         this.onMarkupChange();
@@ -99,11 +106,12 @@ export class MathEditorComponent implements AfterViewInit {
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
         const headingTags = `<h${level}></h${level}>`;
+        const currentMarkup = this.htmlMarkup();
 
         // Insert the heading tags at cursor position
-        const before = this.htmlMarkup.substring(0, start);
-        const after = this.htmlMarkup.substring(end);
-        this.htmlMarkup = before + headingTags + after;
+        const before = currentMarkup.substring(0, start);
+        const after = currentMarkup.substring(end);
+        this.htmlMarkup.set(before + headingTags + after);
 
         // Position cursor between the opening and closing tags
         setTimeout(() => {
@@ -115,7 +123,7 @@ export class MathEditorComponent implements AfterViewInit {
 
     getTextareaRows(): number {
         const minRows = 3; // Reduced from 5 to 3 for side-by-side layout
-        const content = this.htmlMarkup || '';
+        const content = this.htmlMarkup() || '';
 
         if (!content) {
             return minRows;
@@ -132,12 +140,14 @@ export class MathEditorComponent implements AfterViewInit {
     async onMarkupChange() {
         if (!this.renderedOutput) return;
 
+        const currentMarkup = this.htmlMarkup();
+
         // Clear previous content completely
         this.renderedOutput.nativeElement.innerHTML = '';
 
         // Create a temporary container to parse the HTML
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = this.htmlMarkup;
+        tempDiv.innerHTML = currentMarkup;
 
         // Process each element
         this.processElement(tempDiv);
@@ -151,7 +161,12 @@ export class MathEditorComponent implements AfterViewInit {
         await this.initializeMathLive();
 
         // Emit the changed HTML content
-        this.htmlContentChange.emit(this.htmlMarkup);
+        this.htmlContentChange.emit(currentMarkup);
+    }
+
+    setHtmlMarkup(value: string) {
+        this.htmlMarkup.set(value);
+        this.onMarkupChange();
     }
 
     private processElement(element: Element) {
@@ -245,7 +260,7 @@ export class MathEditorComponent implements AfterViewInit {
     }
 
     private updateHtmlMarkup(oldExpression: string, newExpression: string, mathField: HTMLElement) {
-        let updatedMarkup = this.htmlMarkup;
+        let updatedMarkup = this.htmlMarkup();
 
         if (oldExpression === '') {
             // Handle empty initial case - find empty math-field tags
@@ -272,13 +287,13 @@ export class MathEditorComponent implements AfterViewInit {
         }
 
         // Update the HTML markup
-        this.htmlMarkup = updatedMarkup;
+        this.htmlMarkup.set(updatedMarkup);
 
         // Update the stored expression
         this.mathFieldElements.set(mathField, newExpression);
 
         // Emit the changed HTML content
-        this.htmlContentChange.emit(this.htmlMarkup);
+        this.htmlContentChange.emit(updatedMarkup);
     }
 
     private async processUnifiedMath(element: Element) {

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -10,6 +10,7 @@ import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.c
 import { Option } from 'src/app/shared/select/select.model';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <strong class="col-12">
@@ -20,10 +21,10 @@ import { Option } from 'src/app/shared/select/select.model';
         <div class="row mb-2 align-items-end">
             <div class="col-2">
                 <label for="exam">{{ 'i18n_select_exam' | translate }}</label>
-                @if (examNames) {
+                @if (examNames()) {
                     <xm-dropdown-select
                         id="exam"
-                        [options]="examNames"
+                        [options]="examNames()"
                         (optionSelected)="examSelected($event)"
                         placeholder="{{ 'i18n_select' | translate }}"
                     ></xm-dropdown-select>
@@ -40,22 +41,25 @@ import { Option } from 'src/app/shared/select/select.model';
     imports: [DropdownSelectComponent, TranslateModule],
 })
 export class ExamsReportComponent {
-    @Input() examNames: Option<string, number>[] = [];
-    exam?: number;
+    examNames = input<Option<string, number>[]>([]);
+    exam = signal<number | undefined>(undefined);
 
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private files = inject(FileService);
 
-    examSelected = (event?: Option<string, number>) => (this.exam = event?.id);
+    examSelected(event?: Option<string, number>) {
+        this.exam.set(event?.id);
+    }
 
-    getExams = () => {
-        if (this.exam) {
-            const url = `/app/statistics/examnames/${this.exam}/xlsx`;
+    getExams() {
+        const currentExam = this.exam();
+        if (currentExam) {
+            const url = `/app/statistics/examnames/${currentExam}/xlsx`;
             const fileName = 'exams.xlsx';
             this.files.download(url, fileName);
         } else {
             this.toast.error(this.translate.instant('i18n_choose_exam'));
         }
-    };
+    }
 }

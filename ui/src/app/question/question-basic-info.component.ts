@@ -18,7 +18,7 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
                 <div class="col-md-3">
                     {{ 'i18n_question_id' | translate }}
                 </div>
-                <div clafss="col-md-9 pe-0">#{{ questionId() }}</div>
+                <div class="col-md-9 pe-0">#{{ questionId() }}</div>
             </div>
         }
         <div class="row mt-3">

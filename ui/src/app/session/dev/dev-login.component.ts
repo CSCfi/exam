@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import type { User } from 'src/app/session/session.model';
@@ -27,7 +27,8 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
                         name="uname"
                         type="text"
                         placeholder="{{ 'i18n_username' | translate }}"
-                        [(ngModel)]="username"
+                        [ngModel]="username()"
+                        (ngModelChange)="username.set($event)"
                         (keydown.enter)="login($event, true)"
                     />
                 </div>
@@ -39,7 +40,8 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
                         type="password"
                         name="pwd"
                         placeholder="{{ 'i18n_password' | translate }}"
-                        [(ngModel)]="password"
+                        [ngModel]="password()"
+                        (ngModelChange)="password.set($event)"
                         (keydown.enter)="login($event, true)"
                     />
                 </div>
@@ -51,20 +53,21 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
         </ng-template>
     `,
     imports: [FormsModule, TranslateModule, PageHeaderComponent, PageContentComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DevLoginComponent {
     loggedIn = output<User>();
 
-    username = '';
-    password = '';
+    username = signal('');
+    password = signal('');
 
     private Session = inject(SessionService);
 
-    login = (event: Event, blur: boolean) => {
+    login(event: Event, blur: boolean) {
         if (blur) (event.target as HTMLElement).blur();
-        this.Session.login$(this.username, this.password).subscribe({
+        this.Session.login$(this.username(), this.password()).subscribe({
             next: (user) => this.loggedIn.emit(user),
             error: (err) => console.log(JSON.stringify(err)),
         });
-    };
+    }
 }

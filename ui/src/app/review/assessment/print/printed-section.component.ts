@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import type { ExamSection } from 'src/app/exam/exam.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { PrintedClozeTestComponent } from './printed-cloze-test.component';
@@ -11,12 +11,13 @@ import { PrintedMultiChoiceComponent } from './printed-multi-choice.component';
 
 @Component({
     selector: 'xm-printed-section',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <blockquote>
-            <h4>{{ index + 1 }}.&nbsp; &nbsp;{{ section.name }}</h4>
+            <h4>{{ index() + 1 }}.&nbsp; &nbsp;{{ section().name }}</h4>
         </blockquote>
-        <p>{{ section.description }}</p>
-        @for (sectionQuestion of section.sectionQuestions | orderBy: 'sequenceNumber'; track sectionQuestion) {
+        <p>{{ section().description }}</p>
+        @for (sectionQuestion of section().sectionQuestions | orderBy: 'sequenceNumber'; track sectionQuestion) {
             <div class="sub-content-row col-md-12">
                 @if (
                     sectionQuestion.question.type === 'MultipleChoiceQuestion' ||
@@ -38,6 +39,6 @@ import { PrintedMultiChoiceComponent } from './printed-multi-choice.component';
     imports: [PrintedMultiChoiceComponent, PrintedEssayComponent, PrintedClozeTestComponent, OrderByPipe],
 })
 export class PrintedSectionComponent {
-    @Input() section!: ExamSection;
-    @Input() index = 0;
+    section = input.required<ExamSection>();
+    index = input(0);
 }

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
-import { Component, inject, Input, OnChanges, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -15,20 +15,21 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-calendar-selected-room',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <div class="col-md-2 col-12">
-                <strong>{{ room.name }}</strong>
+                <strong>{{ room().name }}</strong>
             </div>
             <div class="col-md-10 col-12">
-                {{ room.mailAddress.street }} {{ room.mailAddress.zip }}
-                {{ room.mailAddress.city }}
+                {{ room().mailAddress.street }} {{ room().mailAddress.zip }}
+                {{ room().mailAddress.city }}
             </div>
         </div>
         <div class="row mt-2">
             <div class="col-md-2 col-12">
                 <span class="d-block">{{ 'i18n_room_default_working_hours' | translate }}</span>
-                <small class="text-muted">({{ room.localTimezone }})</small>
+                <small class="text-muted">({{ room().localTimezone }})</small>
             </div>
             <div class="col-md-10 col-12">
                 @for (oh of openingHours(); track oh.ord) {
@@ -95,10 +96,10 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     styleUrls: ['../calendar.component.scss'],
     imports: [NgClass, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
 })
-export class SelectedRoomComponent implements OnInit, OnChanges {
-    @Input() room!: ExamRoom;
-    @Input() maintenancePeriods: (MaintenancePeriod & { remote: boolean })[] = [];
-    @Input() viewStart = DateTime.now();
+export class SelectedRoomComponent {
+    room = input.required<ExamRoom>();
+    maintenancePeriods = input<(MaintenancePeriod & { remote: boolean })[]>([]);
+    viewStart = input<DateTime>(DateTime.now());
 
     openingHours = signal<OpeningHours[]>([]);
     exceptionHours = signal<(ExceptionWorkingHours & { start: string; end: string; description: string })[]>([]);
@@ -107,42 +108,49 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
     private translate = inject(TranslateService);
     private Calendar = inject(CalendarService);
 
-    ngOnInit() {
-        this.translate.onLangChange.subscribe(() => {
-            this.openingHours.set(this.Calendar.processOpeningHours(this.room));
+    constructor() {
+        // React to changes in room, viewStart, or language
+        effect(() => {
+            const currentRoom = this.room();
+            const currentViewStart = this.viewStart();
+            this.init(currentRoom, currentViewStart);
         });
-    }
 
-    ngOnChanges() {
-        this.init();
+        // React to language changes
+        this.translate.onLangChange.subscribe(() => {
+            this.openingHours.set(this.Calendar.processOpeningHours(this.room()));
+        });
     }
 
     getRoomInstructions(): string | undefined {
+        const currentRoom = this.room();
         switch (this.translate.currentLang) {
             case 'fi':
-                return this.room.roomInstruction;
+                return currentRoom.roomInstruction;
             case 'sv':
-                return this.room.roomInstructionSV;
+                return currentRoom.roomInstructionSV;
             case 'en':
             default:
-                return this.room.roomInstructionEN;
+                return currentRoom.roomInstructionEN;
         }
     }
 
-    getRoomAccessibility = () =>
-        this.room.accessibilities ? this.room.accessibilities.map((a) => a.name).join(', ') : '';
+    getRoomAccessibility(): string {
+        const currentRoom = this.room();
+        return currentRoom.accessibilities ? currentRoom.accessibilities.map((a) => a.name).join(', ') : '';
+    }
 
     thisWeeksMaintenancePeriods() {
-        const mp = [...this.maintenancePeriods];
+        const mp = [...this.maintenancePeriods()];
+        const currentViewStart = this.viewStart();
         return mp.filter((p) => {
             const start = DateTime.fromISO(p.startsAt);
-            return start >= this.viewStart && start < this.viewStart.plus({ week: 1 });
+            return start >= currentViewStart && start < currentViewStart.plus({ week: 1 });
         });
     }
-    private init() {
-        this.openingHours.set(this.Calendar.processOpeningHours(this.room));
-        this.exceptionHours.set(
-            this.Calendar.getExceptionHours(this.room, this.viewStart, this.viewStart.plus({ week: 1 })),
-        );
+
+    private init(room: ExamRoom, viewStart: DateTime) {
+        this.openingHours.set(this.Calendar.processOpeningHours(room));
+        this.exceptionHours.set(this.Calendar.getExceptionHours(room, viewStart, viewStart.plus({ week: 1 })));
     }
 }

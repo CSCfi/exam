@@ -31,8 +31,8 @@ SPDX-License-Identifier: EUPL-1.2
                         }
                         <th>
                             <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="abortedPredicate"
+                                [reverse]="reverse()"
+                                [predicate]="abortedPredicate()"
                                 by="displayName"
                                 text="i18n_student"
                                 (click)="setPredicate('displayName')"
@@ -40,8 +40,8 @@ SPDX-License-Identifier: EUPL-1.2
                         </th>
                         <th>
                             <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="abortedPredicate"
+                                [reverse]="reverse()"
+                                [predicate]="abortedPredicate()"
                                 by="examParticipation.user.email"
                                 text="i18n_email"
                                 (click)="setPredicate('examParticipation.user.email')"
@@ -49,8 +49,8 @@ SPDX-License-Identifier: EUPL-1.2
                         </th>
                         <th>
                             <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="abortedPredicate"
+                                [reverse]="reverse()"
+                                [predicate]="abortedPredicate()"
                                 by="examParticipation.started"
                                 text="i18n_exam_duration"
                                 (click)="setPredicate('examParticipation.started')"
@@ -59,8 +59,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <th>{{ 'i18n_exam_state' | translate }}</th>
                         <th>
                             <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="abortedPredicate"
+                                [reverse]="reverse()"
+                                [predicate]="abortedPredicate()"
                                 by="examParticipation.reservation.trialCount"
                                 text="i18n_trial"
                                 (click)="setPredicate('examParticipation.exam.trialCount')"
@@ -69,7 +69,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </tr>
                 </thead>
                 <tbody>
-                    @for (review of abortedExams | orderBy: abortedPredicate : reverse; track review) {
+                    @for (review of abortedExams | orderBy: abortedPredicate() : reverse(); track review) {
                         <tr>
                             @if (showId()) {
                                 <td>{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>

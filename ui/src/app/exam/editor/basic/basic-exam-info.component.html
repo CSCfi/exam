@@ -7,7 +7,7 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="row mx-2">
     <div class="col-md-12">
         <div class="row">
-            @if (!collaborative) {
+            @if (!collaborative()) {
                 <div class="col-md-12 pt-2">
                     <div class="xm-paragraph-title">{{ 'i18n_course_info' | translate }}</div>
                 </div>
@@ -17,8 +17,8 @@ SPDX-License-Identifier: EUPL-1.2
             <!-- General info section container -->
             <div class="col-md-12">
                 <!-- Course data -->
-                @if (!collaborative) {
-                    <xm-exam-course [exam]="exam" (updated)="onCourseChange()"></xm-exam-course>
+                @if (!collaborative()) {
+                    <xm-exam-course [exam]="exam()" (updated)="onCourseChange()"></xm-exam-course>
                 }
                 <!-- Exam name and language -->
                 <div class="row mt-3">
@@ -40,7 +40,11 @@ SPDX-License-Identifier: EUPL-1.2
                                 </sup>
                             </div>
                             <div class="col-md-9">
-                                <input class="form-control w-50" [(ngModel)]="exam.name" (change)="updateExam(false)" />
+                                <input
+                                    class="form-control w-50"
+                                    [ngModel]="exam().name"
+                                    (ngModelChange)="updateExamName($event)"
+                                />
                             </div>
                         </div>
                     </div>
@@ -60,9 +64,10 @@ SPDX-License-Identifier: EUPL-1.2
                             </div>
                             <div class="col">
                                 <xm-language-picker
-                                    [exam]="exam"
-                                    [collaborative]="collaborative"
-                                    [disabled]="collaborative && !user.isAdmin"
+                                    [exam]="exam()"
+                                    [collaborative]="collaborative()"
+                                    [disabled]="collaborative() && !user.isAdmin"
+                                    (updated)="updateExamLanguages($event)"
                                 ></xm-language-picker>
                             </div>
                         </div>
@@ -80,7 +85,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
 
                 <!-- EXAMINATION TYPE -->
-                @if (byodExaminationSupported) {
+                @if (byodExaminationSupported()) {
                     <div class="row">
                         <div class="col-md-12 mt-3">
                             <div class="row">
@@ -102,7 +107,8 @@ SPDX-License-Identifier: EUPL-1.2
                                     title="anonymous"
                                     name="anonymous"
                                     (change)="toggleAnonymous()"
-                                    [(ngModel)]="exam.anonymous"
+                                    [ngModel]="exam().anonymous"
+                                    (ngModelChange)="updateExamAnonymous($event)"
                                     [disabled]="toggleAnonymousDisabled()"
                                 />
                             </div>
@@ -111,7 +117,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
 
                 <!-- INTERNAL REF -->
-                <div class="row" [hidden]="exam.executionType.type !== 'PRINTOUT'">
+                <div class="row" [hidden]="exam().executionType.type !== 'PRINTOUT'">
                     <div class="col-md-12 mt-3">
                         <div class="row">
                             <div class="col-md-3">
@@ -121,8 +127,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 <input
                                     type="text"
                                     maxlength="128"
-                                    [(ngModel)]="exam.internalRef"
-                                    (change)="updateExam(false)"
+                                    [ngModel]="exam().internalRef"
+                                    (ngModelChange)="updateInternalRef($event)"
                                 />
                             </div>
                         </div>
@@ -132,14 +138,14 @@ SPDX-License-Identifier: EUPL-1.2
                 <!-- Exam owners -->
                 <div class="row">
                     <div class="col-md-12">
-                        @if (!collaborative) {
-                            <xm-exam-owner-picker [exam]="exam"></xm-exam-owner-picker>
+                        @if (!collaborative()) {
+                            <xm-exam-owner-picker [exam]="exam()"></xm-exam-owner-picker>
                         }
                     </div>
                 </div>
 
                 <!-- Subject to language inspection-->
-                <div class="row" [hidden]="exam.executionType.type !== 'MATURITY'">
+                <div class="row" [hidden]="exam().executionType.type !== 'MATURITY'">
                     <div class="col-md-12 mt-3">
                         <div class="row">
                             <div class="col-md-3">
@@ -148,17 +154,17 @@ SPDX-License-Identifier: EUPL-1.2
                             <div class="col-md-9">
                                 <button
                                     class="btn selection-button-wide"
-                                    [ngClass]="exam.subjectToLanguageInspection === true ? 'btn-primary' : ''"
-                                    [disabled]="exam.state === 'PUBLISHED'"
-                                    (click)="exam.subjectToLanguageInspection = true; updateExam(false)"
+                                    [ngClass]="exam().subjectToLanguageInspection === true ? 'btn-primary' : ''"
+                                    [disabled]="exam().state === 'PUBLISHED'"
+                                    (click)="setSubjectToLanguageInspection(true)"
                                 >
                                     {{ 'DIALOGS_YES' | translate }}</button
                                 >&nbsp;
                                 <button
                                     class="btn selection-button-wide"
-                                    [ngClass]="exam.subjectToLanguageInspection === false ? 'btn-primary' : ''"
-                                    [disabled]="exam.state === 'PUBLISHED'"
-                                    (click)="exam.subjectToLanguageInspection = false; updateExam(false)"
+                                    [ngClass]="exam().subjectToLanguageInspection === false ? 'btn-primary' : ''"
+                                    [disabled]="exam().state === 'PUBLISHED'"
+                                    (click)="setSubjectToLanguageInspection(false)"
                                 >
                                     {{ 'DIALOGS_NO' | translate }}
                                 </button>
@@ -170,8 +176,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <!-- Exam inspectors -->
                 <div class="row">
                     <div class="col-md-12">
-                        @if (exam.executionType.type !== 'MATURITY' && !collaborative) {
-                            <xm-exam-inspector-picker [exam]="exam"> </xm-exam-inspector-picker>
+                        @if (exam().executionType.type !== 'MATURITY' && !collaborative()) {
+                            <xm-exam-inspector-picker [exam]="exam()"> </xm-exam-inspector-picker>
                         }
                     </div>
                 </div>
@@ -186,12 +192,12 @@ SPDX-License-Identifier: EUPL-1.2
                         </div>
                     </div>
                 </div>
-                @if (exam && !collaborative) {
-                    <xm-software-picker [exam]="exam"></xm-software-picker>
+                @if (exam() && !collaborative()) {
+                    <xm-software-picker [exam]="exam()" (updated)="updateExamSoftwares($event)"></xm-software-picker>
                 }
 
                 <!-- EXAM ATTACHMENT -->
-                @if (exam.implementation !== 'CLIENT_AUTH') {
+                @if (exam().implementation !== 'CLIENT_AUTH') {
                     <div class="row">
                         <div class="col-md-12 mt-3">
                             <div class="row">
@@ -209,10 +215,10 @@ SPDX-License-Identifier: EUPL-1.2
                                     <button type="button" class="btn btn-success" (click)="selectAttachmentFile()">
                                         {{ 'i18n_attach_file' | translate }}
                                     </button>
-                                    @if (exam.attachment) {
+                                    @if (exam().attachment) {
                                         <div class="make-inline">
                                             <a class="pointer" (click)="downloadExamAttachment()">
-                                                <i class="bi-paperclip ps-2"></i>{{ exam.attachment?.fileName }}</a
+                                                <i class="bi-paperclip ps-2"></i>{{ exam().attachment?.fileName }}</a
                                             >
                                             <span class="pointer ms-2" (click)="removeExamAttachment()">
                                                 <i
@@ -229,7 +235,7 @@ SPDX-License-Identifier: EUPL-1.2
                 }
 
                 <!-- INSTRUCTIONS -->
-                <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
+                <div class="row" [hidden]="exam().executionType.type === 'MATURITY'">
                     <div class="col-md-12 mt-3">
                         <div class="row me-3">
                             <div class="col-md-12">
@@ -238,7 +244,7 @@ SPDX-License-Identifier: EUPL-1.2
                         </div>
                     </div>
                 </div>
-                <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
+                <div class="row" [hidden]="exam().executionType.type === 'MATURITY'">
                     <div class="col-md-12 mt-3">
                         <div class="row me-3">
                             <div class="col-md-3">
@@ -253,7 +259,7 @@ SPDX-License-Identifier: EUPL-1.2
                             </div>
                             <div class="col-md-9">
                                 <xm-ckeditor
-                                    [data]="exam.instruction"
+                                    [data]="exam().instruction"
                                     id="exam-instructions"
                                     (dataChange)="updateExam(false)"
                                 />
@@ -261,10 +267,10 @@ SPDX-License-Identifier: EUPL-1.2
                         </div>
                     </div>
                 </div>
-                <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
+                <div class="row" [hidden]="exam().executionType.type === 'MATURITY'">
                     <div class="col-md-12 mt-3">
                         <div class="row me-3">
-                            @if (exam.executionType.type !== 'PRINTOUT') {
+                            @if (exam().executionType.type !== 'PRINTOUT') {
                                 <div class="col-md-3">
                                     {{ 'i18n_enroll_instruction' | translate }}
                                     <sup
@@ -277,14 +283,14 @@ SPDX-License-Identifier: EUPL-1.2
                                 </div>
                             }
                             <!-- Map these instructions to allowed tools in case of printout -->
-                            @if (exam.executionType.type === 'PRINTOUT') {
+                            @if (exam().executionType.type === 'PRINTOUT') {
                                 <div class="col-md-3">
                                     {{ 'i18n_allowed_tools' | translate }}
                                 </div>
                             }
                             <div class="col-md-9">
                                 <xm-ckeditor
-                                    [data]="exam.enrollInstruction"
+                                    [data]="exam().enrollInstruction"
                                     id="enrolment-instructions"
                                     (dataChange)="enrollInstructionsChanged($event)"
                                 ></xm-ckeditor>

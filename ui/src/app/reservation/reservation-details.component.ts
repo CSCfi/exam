@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -40,37 +40,45 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         NgbDropdownItem,
     ],
     styles: '.wrap { white-space: wrap !important }',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReservationDetailsComponent implements OnChanges {
-    @Input() reservations: AnyReservation[] = [];
-    @Input() isAdminView = false;
-    @Input() isSupportView = false;
-    predicate = 'reservation.startAt';
-    reverse = false;
-    fixedReservations: ReservationDetail[] = [];
+export class ReservationDetailsComponent {
+    reservations = input<AnyReservation[]>([]);
+    isAdminView = input(false);
+    isSupportView = input(false);
+    predicate = signal('reservation.startAt');
+    reverse = signal(false);
+    fixedReservations = signal<ReservationDetail[]>([]);
 
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private Reservation = inject(ReservationService);
 
-    ngOnChanges() {
+    constructor() {
         // This is terrible but modeling these is a handful. Maybe we can move some reservation types to different views.
-        this.fixedReservations = this.reservations as ReservationDetail[];
+        effect(() => {
+            const currentReservations = this.reservations();
+            this.fixedReservations.set(currentReservations as ReservationDetail[]);
+        });
     }
 
-    printExamState = (reservation: Reservation) => this.Reservation.printExamState(reservation);
+    printExamState(reservation: Reservation) {
+        return this.Reservation.printExamState(reservation);
+    }
 
-    getStateClass = (reservation: Reservation) => {
+    getStateClass(reservation: Reservation) {
         if (reservation.enrolment.noShow) {
             return 'text-danger';
         }
         return reservation.enrolment.exam.state === 'REVIEW' ? 'text-success' : '';
-    };
+    }
 
     removeReservation(reservation: ReservationDetail) {
         this.Reservation.cancelReservation$(reservation).subscribe(() => {
-            this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
+            const currentReservations = this.fixedReservations();
+            const updated = currentReservations.filter((r) => r.id !== reservation.id);
+            this.fixedReservations.set(updated);
             this.toast.info(this.translate.instant('i18n_reservation_removed'));
         });
     }
@@ -95,18 +103,21 @@ export class ReservationDetailsComponent implements OnChanges {
         return new Date(reservation.endAt) < DSTCorrectedDate;
     }
 
-    changeReservationMachine = (reservation: Reservation) => this.Reservation.changeMachine(reservation);
+    changeReservationMachine(reservation: Reservation) {
+        this.Reservation.changeMachine(reservation);
+    }
 
     hasAvailableActions(r: ReservationDetail): boolean {
+        const currentIsAdminView = this.isAdminView();
         const canRemoveReservation =
-            this.isAdminView &&
+            currentIsAdminView &&
             r.enrolment.exam.state === 'PUBLISHED' &&
             !r.enrolment.noShow &&
             r.enrolment.exam.implementation === 'AQUARIUM' &&
             !this.reservationIsInPast(r);
 
         const canPermitRetrial =
-            this.isAdminView &&
+            currentIsAdminView &&
             r.enrolment.exam.state === 'ABORTED' &&
             r.enrolment.exam.implementation === 'AQUARIUM' &&
             r.enrolment.exam.executionType.type === 'PUBLIC';
@@ -120,10 +131,10 @@ export class ReservationDetailsComponent implements OnChanges {
         return canRemoveReservation || canPermitRetrial || canChangeReservationMachine;
     }
 
-    setPredicate = (predicate: string) => {
-        if (this.predicate === predicate) {
-            this.reverse = !this.reverse;
+    setPredicate(predicate: string) {
+        if (this.predicate() === predicate) {
+            this.reverse.update((v) => !v);
         }
-        this.predicate = predicate;
-    };
+        this.predicate.set(predicate);
+    }
 }

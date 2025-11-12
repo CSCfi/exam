@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
@@ -38,40 +38,31 @@ import { ReservationService, Selection } from './reservation.service';
     ],
     templateUrl: './reservations.component.html',
     styleUrl: './reservations.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReservationsComponent implements OnInit {
+export class ReservationsComponent {
     @ViewChild('studentInput') studentInput!: ElementRef;
     @ViewChild('examInput') examInput!: ElementRef;
     @ViewChild('ownerInput') ownerInput!: ElementRef;
-    examId = '';
-    externalRef = '';
-    student?: User;
-    owner?: User;
-    startDate: Date | null = new Date();
-    endDate: Date | null = new Date();
+
+    examId = signal('');
+    externalRef = signal('');
+    student = signal<User | undefined>(undefined);
+    owner = signal<User | undefined>(undefined);
+    startDate = signal<Date | null>(new Date());
+    endDate = signal<Date | null>(new Date());
     user: User;
-    examStates = [
-        'REVIEW',
-        'REVIEW_STARTED',
-        'GRADED',
-        'GRADED_LOGGED',
-        'REJECTED',
-        'ARCHIVED',
-        'STUDENT_STARTED',
-        'PUBLISHED',
-        'ABORTED',
-        'NO_SHOW',
-    ];
-    selection: Selection = {};
-    stateOptions: Option<string, string>[] = [];
-    roomOptions: Option<ExamRoom, number>[] = [];
-    machineOptions: Option<ExamMachine, number>[] = [];
-    rooms: ExamRoom[] = [];
-    machines: ExamMachine[] = [];
-    reservations: AnyReservation[] = [];
-    isInteroperable = false;
-    externalReservationsOnly = false;
-    byodExamsOnly = false;
+    examStates: string[];
+    selection = signal<Selection>({});
+    stateOptions = signal<Option<string, string>[]>([]);
+    roomOptions = signal<Option<ExamRoom, number>[]>([]);
+    machineOptions = signal<Option<ExamMachine, number>[]>([]);
+    rooms = signal<ExamRoom[]>([]);
+    machines = signal<ExamMachine[]>([]);
+    reservations = signal<AnyReservation[]>([]);
+    isInteroperable = signal(false);
+    externalReservationsOnly = signal(false);
+    byodExamsOnly = signal(false);
 
     private http = inject(HttpClient);
     private route = inject(ActivatedRoute);
@@ -83,161 +74,209 @@ export class ReservationsComponent implements OnInit {
     constructor() {
         this.user = this.Session.getUser();
 
-        if (this.user.isAdmin || this.user.isSupport) {
-            this.examStates.push('EXTERNAL_UNFINISHED');
-            this.examStates.push('EXTERNAL_FINISHED');
-        }
-    }
+        const baseStates = [
+            'REVIEW',
+            'REVIEW_STARTED',
+            'GRADED',
+            'GRADED_LOGGED',
+            'REJECTED',
+            'ARCHIVED',
+            'STUDENT_STARTED',
+            'PUBLISHED',
+            'ABORTED',
+            'NO_SHOW',
+        ];
 
-    ngOnInit() {
-        this.examId = this.route.snapshot.params.eid;
+        if (this.user.isAdmin || this.user.isSupport) {
+            this.examStates = [...baseStates, 'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED'];
+        } else {
+            this.examStates = baseStates;
+        }
+
+        const examIdParam = this.route.snapshot.params.eid;
+        if (examIdParam) {
+            this.examId.set(examIdParam);
+        }
         this.initOptions();
         this.query();
-        this.stateOptions = this.examStates.map((s) => {
-            return { id: s, value: s, label: `i18n_exam_status_${s.toLowerCase()}` };
-        });
+        this.stateOptions.set(
+            this.examStates.map((s) => ({
+                id: s,
+                value: s,
+                label: `i18n_exam_status_${s.toLowerCase()}`,
+            })),
+        );
     }
 
     query() {
-        if (this.somethingSelected(this.selection)) {
-            const params = this.createParams(this.selection);
+        const currentSelection = this.selection();
+        if (this.somethingSelected(currentSelection)) {
+            const params = this.createParams(currentSelection);
             this.Reservation.listReservations$(params).subscribe({
                 next: (reservations) => {
-                    this.reservations = reservations
-                        .filter((r) => r.externalReservation || !this.externalReservationsOnly)
+                    const filtered = reservations
+                        .filter((r) => r.externalReservation || !this.externalReservationsOnly())
                         .filter(
                             (r) =>
                                 (!r.externalUserRef && (r.enrolment.exam as ExamImpl).implementation !== 'AQUARIUM') ||
-                                !this.byodExamsOnly,
+                                !this.byodExamsOnly(),
                         );
+                    this.reservations.set(filtered);
                 },
                 error: (err) => this.toast.error(err),
             });
         }
     }
 
-    isAdminView = () => this.user.isAdmin;
+    isAdminView() {
+        return this.user.isAdmin;
+    }
 
-    isSupportView = () => this.user.isSupport;
+    isSupportView() {
+        return this.user.isSupport;
+    }
 
     studentSelected(event: NgbTypeaheadSelectItemEvent<User & { name: string }>) {
-        this.student = event.item;
+        this.student.set(event.item);
         this.query();
     }
 
     clearStudent() {
-        delete this.student;
+        this.student.set(undefined);
         this.studentInput.nativeElement.value = '';
         this.query();
     }
 
     ownerSelected(event: NgbTypeaheadSelectItemEvent<User & { name: string }>) {
-        this.owner = event.item;
+        this.owner.set(event.item);
         this.query();
     }
 
     clearOwner() {
-        delete this.owner;
+        this.owner.set(undefined);
         this.ownerInput.nativeElement.value = '';
         this.query();
     }
 
     examSelected(event: NgbTypeaheadSelectItemEvent<Exam | CollaborativeExam>) {
         if (event.item.externalRef) {
-            this.externalRef = event.item.externalRef;
-            this.examId = '';
+            this.externalRef.set(event.item.externalRef);
+            this.examId.set('');
         } else {
-            this.examId = event.item.id.toString();
-            this.externalRef = '';
+            this.examId.set(event.item.id.toString());
+            this.externalRef.set('');
         }
         this.query();
     }
 
     clearExam() {
-        this.examId = '';
-        this.externalRef = '';
+        this.examId.set('');
+        this.externalRef.set('');
         this.examInput.nativeElement.value = '';
         this.query();
     }
 
     startDateChanged(event: { date: Date | null }) {
-        this.startDate = event.date;
+        this.startDate.set(event.date);
         this.query();
     }
 
     endDateChanged(event: { date: Date | null }) {
-        this.endDate = event.date;
+        this.endDate.set(event.date);
         this.query();
     }
 
     roomChanged(event: Option<ExamRoom, number> | undefined) {
+        const currentSelection = this.selection();
+        const currentRooms = this.rooms();
+        const currentMachines = this.machines();
         if (event?.value === undefined) {
-            delete this.selection.roomId;
-            this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
+            this.selection.set(this.omitProperty(currentSelection, 'roomId'));
+            this.machineOptions.set(this.machinesForRooms(currentRooms, currentMachines));
         } else {
-            this.selection.roomId = event.value.id.toString();
-            this.machineOptions = this.machinesForRoom(event.value, this.machines);
+            this.selection.set({ ...currentSelection, roomId: event.value.id.toString() });
+            this.machineOptions.set(this.machinesForRoom(event.value, currentMachines));
         }
         this.query();
     }
 
     stateChanged(event: Option<string, string> | undefined) {
+        const currentSelection = this.selection();
         if (event?.value) {
-            this.selection.state = event.value;
+            this.selection.set({ ...currentSelection, state: event.value });
         } else {
-            delete this.selection.state;
+            this.selection.set(this.omitProperty(currentSelection, 'state'));
         }
         this.query();
     }
 
     machineChanged(event: Option<ExamMachine, number> | undefined) {
+        const currentSelection = this.selection();
         if (event?.value) {
-            this.selection.machineId = event.value.id.toString();
+            this.selection.set({ ...currentSelection, machineId: event.value.id.toString() });
         } else {
-            delete this.selection.machineId;
+            this.selection.set(this.omitProperty(currentSelection, 'machineId'));
         }
         this.query();
     }
 
-    protected searchStudents$ = (text$: Observable<string>) => this.Reservation.searchStudents$(text$);
+    protected searchStudents$(text$: Observable<string>) {
+        return this.Reservation.searchStudents$(text$);
+    }
 
-    protected searchOwners$ = (text$: Observable<string>) => this.Reservation.searchOwners$(text$);
+    protected searchOwners$(text$: Observable<string>) {
+        return this.Reservation.searchOwners$(text$);
+    }
 
-    protected searchExams$ = (text$: Observable<string>) =>
-        this.Reservation.searchExams$(text$, this.isInteroperable && (this.isAdminView() || this.isSupportView()));
+    protected searchExams$(text$: Observable<string>) {
+        return this.Reservation.searchExams$(
+            text$,
+            this.isInteroperable() && (this.isAdminView() || this.isSupportView()),
+        );
+    }
 
-    protected nameFormatter = (item: { name: string }) => item.name;
+    protected nameFormatter(item: { name: string }) {
+        return item.name;
+    }
 
-    private createParams = (input: Selection) => {
+    private createParams(input: Selection) {
+        const currentStudent = this.student();
+        const currentOwner = this.owner();
+        const currentExamId = this.examId();
+        const currentExternalRef = this.externalRef();
+        const currentStartDate = this.startDate();
+        const currentEndDate = this.endDate();
         const extras = {
-            ...(this.student?.id && { studentId: this.student.id.toString() }),
-            ...(this.owner?.id && { ownerId: this.owner.id.toString() }),
-            ...(this.examId && { examId: this.examId }),
-            ...(this.externalRef && { externalRef: this.externalRef }),
+            ...(currentStudent?.id && { studentId: currentStudent.id.toString() }),
+            ...(currentOwner?.id && { ownerId: currentOwner.id.toString() }),
+            ...(currentExamId && { examId: currentExamId }),
+            ...(currentExternalRef && { externalRef: currentExternalRef }),
         };
         const params: Selection = { ...input, ...extras };
-        if (this.startDate) {
-            params.start = DateTime.fromJSDate(this.startDate).startOf('day').toISO() || '';
+        if (currentStartDate) {
+            params.start = DateTime.fromJSDate(currentStartDate).startOf('day').toISO() || '';
         }
-        if (this.endDate) {
-            params.end = DateTime.fromJSDate(this.endDate).endOf('day').toISO() || '';
+        if (currentEndDate) {
+            params.end = DateTime.fromJSDate(currentEndDate).endOf('day').toISO() || '';
         }
         return params;
-    };
+    }
 
     private initOptions() {
         this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit').subscribe((resp) => {
-            this.isInteroperable = resp.isExamVisitSupported;
+            this.isInteroperable.set(resp.isExamVisitSupported);
         });
 
         if (this.isAdminView()) {
             this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe({
                 next: (resp) => {
-                    this.rooms = this.orderPipe.transform(resp, 'name');
-                    this.roomOptions = this.rooms.map((r) => ({ id: r.id, value: r, label: r.name }));
+                    const orderedRooms = this.orderPipe.transform(resp, 'name');
+                    this.rooms.set(orderedRooms);
+                    this.roomOptions.set(orderedRooms.map((r) => ({ id: r.id, value: r, label: r.name })));
                     this.http.get<ExamMachine[]>('/app/machines').subscribe((resp) => {
-                        this.machines = this.orderPipe.transform(resp, 'name');
-                        this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
+                        const orderedMachines = this.orderPipe.transform(resp, 'name');
+                        this.machines.set(orderedMachines);
+                        this.machineOptions.set(this.machinesForRooms(orderedRooms, orderedMachines));
                     });
                 },
                 error: (err) => this.toast.error(err),
@@ -263,13 +302,24 @@ export class ReservationsComponent implements OnInit {
         return machineData;
     }
 
-    private machinesForRooms = (rooms: ExamRoom[], machines: ExamMachine[]): Option<ExamMachine, number>[] =>
-        rooms.map((r) => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
+    private machinesForRooms(rooms: ExamRoom[], machines: ExamMachine[]): Option<ExamMachine, number>[] {
+        return rooms.map((r) => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
+    }
 
     private somethingSelected(params: Selection) {
-        if (this.student || this.owner) return true;
-        if (this.examId || this.externalRef) return true;
+        const currentStudent = this.student();
+        const currentOwner = this.owner();
+        const currentExamId = this.examId();
+        const currentExternalRef = this.externalRef();
+        const currentStartDate = this.startDate();
+        const currentEndDate = this.endDate();
+        if (currentStudent || currentOwner) return true;
+        if (currentExamId || currentExternalRef) return true;
         if (Object.keys(params).length > 0) return true;
-        return this.startDate || this.endDate;
+        return !!currentStartDate || !!currentEndDate;
+    }
+
+    private omitProperty<T extends Record<string, unknown>>(obj: T, key: keyof T): Omit<T, typeof key> {
+        return Object.fromEntries(Object.entries(obj).filter(([k]) => k !== key)) as Omit<T, typeof key>;
     }
 }

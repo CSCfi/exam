@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -13,31 +13,32 @@ import type { User } from 'src/app/session/session.model';
 
 @Component({
     selector: 'xm-r-inspection',
-    template: `@if (inspection.user?.id !== user.id) {
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `@if (inspection().user?.id !== user().id) {
             <span>
-                @if (inspection.ready) {
+                @if (inspection().ready) {
                     <span class="text-success">
-                        {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                        {{ inspection().user.firstName }} {{ inspection().user.lastName }}
                         {{ 'i18n_ready' | translate }}</span
                     >
                 }
-                @if (!inspection.ready) {
+                @if (!inspection().ready) {
                     <span class="text-danger">
-                        {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                        {{ inspection().user.firstName }} {{ inspection().user.lastName }}
                         {{ 'i18n_in_progress' | translate }}</span
                     >
                 }
             </span>
         }
-        @if (inspection.user?.id === user.id) {
+        @if (inspection().user?.id === user().id) {
             <div class="input-group-sm make-inline">
-                <div class="make-inline">{{ inspection.user.firstName }} {{ inspection.user.lastName }}</div>
+                <div class="make-inline">{{ inspection().user.firstName }} {{ inspection().user.lastName }}</div>
                 <div class="make-inline ps-2">
                     <select
-                        [(ngModel)]="inspection.ready"
+                        [ngModel]="inspection().ready"
+                        (ngModelChange)="onReadyChange($event)"
                         class="form-select"
-                        [disabled]="disabled"
-                        (change)="setInspectionStatus()"
+                        [disabled]="disabled()"
                     >
                         @for (rs of reviewStatuses; track rs) {
                             <option [ngValue]="rs.key">{{ rs.value }}</option>
@@ -49,10 +50,10 @@ import type { User } from 'src/app/session/session.model';
     imports: [FormsModule, TranslateModule],
 })
 export class InspectionComponent implements OnInit {
-    @Input() inspection!: ExamInspection;
-    @Input() user!: User;
-    @Input() disabled = false;
-    @Output() inspected = new EventEmitter<void>();
+    inspection = input.required<ExamInspection>();
+    user = input.required<User>();
+    disabled = input(false);
+    inspected = output<void>();
 
     reviewStatuses: { key: boolean; value: string }[] = [];
 
@@ -74,8 +75,10 @@ export class InspectionComponent implements OnInit {
     }
 
     setInspectionStatus = () => {
-        if (this.inspection.user.id === this.user.id) {
-            this.http.put(`/app/exams/inspection/${this.inspection.id}`, { ready: this.inspection.ready }).subscribe({
+        const inspectionValue = this.inspection();
+        const userValue = this.user();
+        if (inspectionValue.user.id === userValue.id) {
+            this.http.put(`/app/exams/inspection/${inspectionValue.id}`, { ready: inspectionValue.ready }).subscribe({
                 next: () => {
                     this.toast.info(this.translate.instant('i18n_exam_updated'));
                     this.inspected.emit();
@@ -83,5 +86,11 @@ export class InspectionComponent implements OnInit {
                 error: (err) => this.toast.error(err),
             });
         }
+    };
+
+    onReadyChange = (ready: boolean) => {
+        const inspectionValue = this.inspection();
+        inspectionValue.ready = ready;
+        this.setInspectionStatus();
     };
 }

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
@@ -13,6 +13,7 @@ import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.c
 import { Option } from 'src/app/shared/select/select.model';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="row">
             <strong class="col-12">
@@ -22,10 +23,10 @@ import { Option } from 'src/app/shared/select/select.model';
         <div class="row mb-2 align-items-end">
             <div class="col-3">
                 <label for="roomPick">{{ 'i18n_select_room' | translate }}</label>
-                @if (rooms) {
+                @if (rooms()) {
                     <xm-dropdown-select
                         id="roomPick"
-                        [options]="rooms"
+                        [options]="rooms()"
                         (optionSelected)="roomSelected($event)"
                         placeholder="{{ 'i18n_select' | translate }}"
                     ></xm-dropdown-select>
@@ -54,34 +55,35 @@ import { Option } from 'src/app/shared/select/select.model';
     imports: [DropdownSelectComponent, DatePickerComponent, TranslateModule],
 })
 export class RoomsReportComponent {
-    @Input() rooms: Option<ExamRoom, number>[] = [];
-    room?: number;
-    startDate: Date | null = null;
-    endDate: Date | null = null;
+    rooms = input<Option<ExamRoom, number>[]>([]);
+    room = signal<number | undefined>(undefined);
+    startDate = signal<Date | null>(null);
+    endDate = signal<Date | null>(null);
 
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private files = inject(FileService);
 
-    roomSelected = (event?: Option<ExamRoom, number>) => {
-        this.room = event?.id;
-    };
+    roomSelected(event?: Option<ExamRoom, number>) {
+        this.room.set(event?.id);
+    }
 
-    getRoomReservationsByDate = () => {
-        const f = DateTime.fromJSDate(this.startDate || new Date()).toFormat('dd.MM.yyyy');
-        const t = DateTime.fromJSDate(this.endDate || new Date()).toFormat('dd.MM.yyyy');
-        if (this.room) {
-            this.files.download(`/app/statistics/resbydate/${this.room}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
+    getRoomReservationsByDate() {
+        const f = DateTime.fromJSDate(this.startDate() || new Date()).toFormat('dd.MM.yyyy');
+        const t = DateTime.fromJSDate(this.endDate() || new Date()).toFormat('dd.MM.yyyy');
+        const currentRoom = this.room();
+        if (currentRoom) {
+            this.files.download(`/app/statistics/resbydate/${currentRoom}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
         } else {
             this.toast.error(this.translate.instant('i18n_choose_room'));
         }
-    };
+    }
 
-    startDateChanged = (event: { date: Date | null }) => {
-        this.startDate = event.date;
-    };
+    startDateChanged(event: { date: Date | null }) {
+        this.startDate.set(event.date);
+    }
 
-    endDateChanged = (event: { date: Date | null }) => {
-        this.endDate = event.date;
-    };
+    endDateChanged(event: { date: Date | null }) {
+        this.endDate.set(event.date);
+    }
 }

@@ -49,7 +49,8 @@
                         <textarea
                             id="htmlEditor"
                             #markupTextarea
-                            [(ngModel)]="htmlMarkup"
+                            [ngModel]="htmlMarkup()"
+                            (ngModelChange)="setHtmlMarkup($event)"
                             (input)="onMarkupChange()"
                             class="markup-textarea"
                             [placeholder]="'i18n_math_textarea_placeholder' | translate"

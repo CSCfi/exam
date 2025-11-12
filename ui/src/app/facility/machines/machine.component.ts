@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -25,10 +24,11 @@ interface SoftwareWithClass extends Software {
     styleUrls: ['../rooms/rooms.component.scss'],
     selector: 'xm-machine',
     imports: [FormsModule, NgClass, TranslateModule, PageHeaderComponent, PageContentComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MachineComponent implements OnInit {
-    machine!: ExamMachine;
-    software: SoftwareWithClass[] = [];
+export class MachineComponent {
+    machine = signal<ExamMachine | undefined>(undefined);
+    software = signal<SoftwareWithClass[]>([]);
 
     private router = inject(Router);
     private route = inject(ActivatedRoute);
@@ -37,26 +37,34 @@ export class MachineComponent implements OnInit {
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
 
-    ngOnInit() {
+    constructor() {
         this.machines.getMachine(this.route.snapshot.params.id).subscribe({
             next: (machine) => {
-                this.machine = machine;
-                this.machines.getSoftware().subscribe(
-                    (data) =>
-                        (this.software = data.map((s) => ({
+                this.machine.set(machine);
+                this.machines.getSoftware().subscribe((data) => {
+                    this.software.set(
+                        data.map((s) => ({
                             ...s,
                             class:
-                                this.machine.softwareInfo.map((si) => si.id).indexOf(s.id) > -1
+                                machine.softwareInfo.map((si) => si.id).indexOf(s.id) > -1
                                     ? 'bg-success'
                                     : 'bg-light text-dark',
-                        }))),
-                );
+                        })),
+                    );
+                });
             },
             error: (err) => this.toast.error(err),
         });
     }
 
-    removeMachine = (machine: ExamMachine) =>
+    updateMachineProperty<K extends keyof ExamMachine>(key: K, value: ExamMachine[K]) {
+        const currentMachine = this.machine();
+        if (currentMachine) {
+            this.machine.set({ ...currentMachine, [key]: value });
+        }
+    }
+
+    removeMachine(machine: ExamMachine) {
         this.Confirmation.open$(
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_remove_machine'),
@@ -70,28 +78,46 @@ export class MachineComponent implements OnInit {
                     error: (err) => this.toast.error(err),
                 }),
         });
+    }
 
-    toggleSoftware = (software: SoftwareWithClass) => {
-        this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe({
-            next: (response) => (software.class = response.turnedOn === true ? 'bg-success' : 'bg-light text-dark'),
+    toggleSoftware(software: SoftwareWithClass) {
+        const currentMachine = this.machine();
+        if (!currentMachine) return;
+
+        this.machines.toggleMachineSoftware(currentMachine.id, software.id).subscribe({
+            next: (response) => {
+                const newClass = response.turnedOn === true ? 'bg-success' : 'bg-light text-dark';
+                this.software.update((items) =>
+                    items.map((item) => (item.id === software.id ? { ...item, class: newClass } : item)),
+                );
+            },
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 
-    updateMachine = (cb?: () => void) =>
-        this.machines.updateMachine(this.machine).subscribe({
+    updateMachine(cb?: () => void) {
+        const currentMachine = this.machine();
+        if (!currentMachine) return;
+
+        this.machines.updateMachine(currentMachine).subscribe({
             next: () => this.toast.info(this.translate.instant('i18n_machine_updated')),
             error: (err) => this.toast.error(this.translate.instant(err)),
             complete: () => {
                 if (cb) cb();
             },
         });
+    }
 
-    updateMachineAndExit = () => this.updateMachine(() => this.router.navigate(['staff/rooms']));
+    updateMachineAndExit() {
+        this.updateMachine(() => this.router.navigate(['staff/rooms']));
+    }
 
-    setReason = () => {
-        if (!this.machine.outOfService) {
-            delete this.machine.statusComment;
+    setReason() {
+        const currentMachine = this.machine();
+        if (!currentMachine) return;
+
+        if (!currentMachine.outOfService) {
+            this.machine.set({ ...currentMachine, statusComment: undefined });
         }
-    };
+    }
 }

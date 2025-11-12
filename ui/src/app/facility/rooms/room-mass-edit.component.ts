@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -40,7 +39,8 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                             type="checkbox"
                             class="form-check-input"
                             name="select_all"
-                            [(ngModel)]="allSelected"
+                            [ngModel]="allSelected()"
+                            (ngModelChange)="setAllSelected($event)"
                             (change)="selectAll()"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'i18n_check_uncheck_all' | translate }}"
@@ -52,7 +52,7 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                     </div>
                 </div>
             </div>
-            @for (room of rooms; track room.id) {
+            @for (room of rooms(); track room.id) {
                 <div class="row mt-2">
                     <div class="col-md-12">
                         <div class="form-check">
@@ -60,7 +60,8 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                                 type="checkbox"
                                 class="form-check-input"
                                 name="select_room"
-                                [(ngModel)]="room.selected"
+                                [ngModel]="room.selected"
+                                (ngModelChange)="updateRoomSelected(room, $event)"
                             />
                             <label class="form-check-label" for="room"
                                 ><strong>{{ room.name || 'i18n_no_name' | translate }}</strong></label
@@ -69,7 +70,7 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                                 <i
                                     class="user-select-none ms-1"
                                     [ngClass]="room.showBreaks ? 'bi-chevron-down' : 'bi-chevron-right'"
-                                    (click)="room.showBreaks = !room.showBreaks"
+                                    (click)="toggleRoomShowBreaks(room)"
                                 ></i>
                             }
                         </div>
@@ -111,33 +112,39 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
         PageContentComponent,
     ],
     styleUrl: './rooms.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultiRoomComponent implements OnInit {
-    rooms: SelectableRoom[] = [];
-    roomIds: number[] = [];
-    allSelected = false;
+export class MultiRoomComponent {
+    rooms = signal<SelectableRoom[]>([]);
+    roomIds = signal<number[]>([]);
+    allSelected = signal(false);
 
     private toast = inject(ToastrService);
     private roomService = inject(RoomService);
     private translate = inject(TranslateService);
 
-    ngOnInit() {
+    constructor() {
         this.loadRooms();
     }
 
-    addExceptions = (exceptions: ExceptionWorkingHours[]) =>
+    addExceptions(exceptions: ExceptionWorkingHours[]) {
         this.roomService
             .addExceptions$(
-                this.rooms.filter((r) => r.selected).map((r) => r.id),
+                this.rooms()
+                    .filter((r) => r.selected)
+                    .map((r) => r.id),
                 exceptions,
             )
             .subscribe(() => this.loadRooms());
+    }
 
-    deleteException = (exception: ExceptionWorkingHours, room: ExamRoom) =>
+    deleteException(exception: ExceptionWorkingHours, room: ExamRoom) {
         this.roomService.deleteException$(room.id, exception.id).subscribe(() => this.loadRooms());
+    }
 
-    addMultiRoomException = (outOfService: boolean) => {
-        const allExceptions = this.rooms
+    addMultiRoomException(outOfService: boolean) {
+        const currentRooms = this.rooms();
+        const allExceptions = currentRooms
             .filter((r) => r.selected)
             .flatMap((room) =>
                 room.calendarExceptionEvents.map((e) => {
@@ -145,22 +152,35 @@ export class MultiRoomComponent implements OnInit {
                     return e;
                 }),
             );
-        if (!this.rooms.some((r) => r.selected)) {
+        if (!currentRooms.some((r) => r.selected)) {
             this.toast.error(this.translate.instant('i18n_select_room_error'));
             return;
         }
-        if (outOfService) this.roomService.openExceptionDialog(this.addExceptions, true, allExceptions);
-        else this.roomService.openExceptionDialog(this.addExceptions, false, allExceptions);
-    };
+        if (outOfService) this.roomService.openExceptionDialog(this.addExceptions.bind(this), true, allExceptions);
+        else this.roomService.openExceptionDialog(this.addExceptions.bind(this), false, allExceptions);
+    }
 
-    selectAll = () => {
-        this.rooms.forEach((r) => (r.selected = this.allSelected));
-    };
+    selectAll() {
+        const selected = this.allSelected();
+        this.rooms.update((rooms) => rooms.map((r) => ({ ...r, selected })));
+    }
 
-    private loadRooms = () => {
+    setAllSelected(value: boolean) {
+        this.allSelected.set(value);
+    }
+
+    updateRoomSelected(room: SelectableRoom, selected: boolean) {
+        this.rooms.update((rooms) => rooms.map((r) => (r.id === room.id ? { ...r, selected } : r)));
+    }
+
+    toggleRoomShowBreaks(room: SelectableRoom) {
+        this.rooms.update((rooms) => rooms.map((r) => (r.id === room.id ? { ...r, showBreaks: !r.showBreaks } : r)));
+    }
+
+    private loadRooms() {
         this.roomService.getRooms$().subscribe({
-            next: (rooms) =>
-                (this.rooms = rooms
+            next: (rooms) => {
+                const processedRooms = rooms
                     .map((r) => ({
                         ...r,
                         selected: false,
@@ -169,8 +189,10 @@ export class MultiRoomComponent implements OnInit {
                             (e) => new Date(e.endDate) > new Date(),
                         ),
                     }))
-                    .sort((a, b) => (a.name < b.name ? -1 : 1))),
+                    .sort((a, b) => (a.name < b.name ? -1 : 1));
+                this.rooms.set(processedRooms);
+            },
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 }

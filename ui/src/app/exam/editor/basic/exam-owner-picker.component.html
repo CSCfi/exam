@@ -35,10 +35,10 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="row mt-3">
     <div class="col-md-5 offset-md-3">
-        <div [hidden]="examOwners.length !== 1">
+        <div [hidden]="examOwners().length !== 1">
             {{ 'i18n_exam_owner_info' | translate }}
         </div>
-        @for (user of examOwners; track user) {
+        @for (user of examOwners(); track user) {
             <div class="d-flex align-items-center mt-1">
                 <div class="w-50">
                     <small>{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</small>
@@ -47,7 +47,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <button
                     class="btn btn-danger btn-sm"
                     (click)="removeOwner(user.id)"
-                    [hidden]="examOwners.length === 1"
+                    [hidden]="examOwners().length === 1"
                     [attr.aria-label]="user.firstName + ' ' + user.lastName"
                 >
                     {{ 'i18n_remove' | translate }}

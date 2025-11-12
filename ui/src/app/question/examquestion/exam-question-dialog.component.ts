@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
@@ -13,20 +13,18 @@ import { ExamQuestionComponent } from './exam-question.component';
 @Component({
     imports: [ExamQuestionComponent],
     template: `
-        @if (examQuestion) {
-            <xm-exam-question
-                [examQuestion]="examQuestion"
-                (saved)="save($event)"
-                (cancelled)="cancel($event)"
-                [lotteryOn]="lotteryOn"
-                autofocus
-            ></xm-exam-question>
-        }
+        <xm-exam-question
+            [(examQuestion)]="examQuestion"
+            (saved)="save($event)"
+            (cancelled)="cancel($event)"
+            [lotteryOn]="lotteryOn()"
+            autofocus
+        ></xm-exam-question>
     `,
 })
 export class ExamQuestionDialogComponent {
-    @Input() examQuestion!: ExamSectionQuestion;
-    @Input() lotteryOn = false;
+    examQuestion = model.required<ExamSectionQuestion>();
+    lotteryOn = model(false);
 
     private modal = inject(NgbActiveModal);
     private translate = inject(TranslateService);

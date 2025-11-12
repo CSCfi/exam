@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,10 +20,11 @@ import type { User } from 'src/app/session/session.model';
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
     styles: '.vbottom { vertical-align: bottom !important }',
     styleUrls: ['../../exam.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamInspectorSelectorComponent implements OnInit {
-    @Input() exam!: Exam;
-    examInspections: ExamInspection[] = [];
+export class ExamInspectorSelectorComponent {
+    exam = input.required<Exam>();
+    examInspections = signal<ExamInspection[]>([]);
     newInspector: {
         id?: number;
         sendMessage?: boolean;
@@ -38,14 +38,17 @@ export class ExamInspectorSelectorComponent implements OnInit {
 
     constructor() {
         this.newInspector = {};
+
+        effect(() => {
+            const currentExam = this.exam();
+            if (currentExam) {
+                this.getInspectors();
+            }
+        });
     }
 
-    ngOnInit() {
-        this.getInspectors();
-    }
-
-    listInspectors$ = (criteria$: Observable<string>): Observable<User[]> =>
-        criteria$.pipe(
+    listInspectors$(criteria$: Observable<string>): Observable<User[]> {
+        return criteria$.pipe(
             tap((text) => (this.newInspector.name = text)),
             debounceTime(500),
             distinctUntilChanged(),
@@ -58,15 +61,21 @@ export class ExamInspectorSelectorComponent implements OnInit {
                 return throwError(() => new Error(err));
             }),
         );
+    }
 
-    nameFormatter = (data: User) => `${data.firstName} ${data.lastName} <${data.email}>`;
+    nameFormatter(data: User) {
+        return `${data.firstName} ${data.lastName} <${data.email}>`;
+    }
 
-    setInspector = (event: NgbTypeaheadSelectItemEvent) => (this.newInspector.id = event.item.id);
+    setInspector(event: NgbTypeaheadSelectItemEvent) {
+        this.newInspector.id = event.item.id;
+    }
 
-    addInspector = () => {
+    addInspector() {
         if (this.newInspector.id) {
+            const currentExam = this.exam();
             this.http
-                .post(`/app/exams/${this.exam.id}/inspector/${this.newInspector.id}`, {
+                .post(`/app/exams/${currentExam.id}/inspector/${this.newInspector.id}`, {
                     comment: this.newInspector.comment,
                 })
                 .subscribe(() => {
@@ -74,16 +83,20 @@ export class ExamInspectorSelectorComponent implements OnInit {
                     this.newInspector = {};
                 });
         }
-    };
+    }
 
-    removeInspector = (id: number) =>
-        this.http
-            .delete(`/app/exams/inspector/${id}`)
-            .subscribe({ next: this.getInspectors, error: (err) => this.toast.error(err) });
-
-    private getInspectors = () =>
-        this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe({
-            next: (inspections) => (this.examInspections = inspections),
+    removeInspector(id: number) {
+        this.http.delete(`/app/exams/inspector/${id}`).subscribe({
+            next: () => this.getInspectors(),
             error: (err) => this.toast.error(err),
         });
+    }
+
+    private getInspectors() {
+        const currentExam = this.exam();
+        this.http.get<ExamInspection[]>(`/app/exam/${currentExam.id}/inspections`).subscribe({
+            next: (inspections) => this.examInspections.set(inspections),
+            error: (err) => this.toast.error(err),
+        });
+    }
 }

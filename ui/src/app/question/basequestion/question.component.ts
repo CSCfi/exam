@@ -2,7 +2,17 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnDestroy,
+    ViewChild,
+    computed,
+    inject,
+    input,
+    output,
+    signal,
+} from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,26 +41,34 @@ import { QuestionBodyComponent } from './question-body.component';
         PageContentComponent,
         HistoryBackComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactivate {
-    @Input() newQuestion = false;
-    @Input() questionId = 0;
-    @Input() questionDraft!: Question;
-    @Input() lotteryOn = false;
-    @Input() collaborative = false;
-    @Input() examId = 0;
-    @Input() sectionQuestion?: ExamSectionQuestion;
-    @Input() isPopup = false;
-
-    @Output() saved = new EventEmitter<Question | QuestionDraft>();
-    @Output() cancelled = new EventEmitter<void>();
-
+export class QuestionComponent implements OnDestroy, CanComponentDeactivate {
     @ViewChild('questionForm', { static: false }) questionForm?: NgForm;
 
-    currentOwners: User[] = [];
-    question!: ReverseQuestion | QuestionDraft;
-    cancelClicked = false;
-    nextState = '';
+    newQuestionInput = input(false);
+    questionId = input(0);
+    questionDraft = input<Question>();
+    lotteryOn = input(false);
+    collaborative = input(false);
+    examId = input(0);
+    sectionQuestion = input<ExamSectionQuestion>();
+    isPopup = input(false);
+
+    saved = output<Question | QuestionDraft>();
+    cancelled = output<void>();
+
+    // Computed signal that reads from route data first, then falls back to input signal
+    // This handles the case where route data doesn't automatically bind to input signals
+    newQuestion = computed(() => {
+        const routeData = this.route.snapshot.data.newQuestion;
+        return routeData !== undefined ? routeData : this.newQuestionInput();
+    });
+
+    currentOwners = signal<User[]>([]);
+    question = signal<ReverseQuestion | QuestionDraft | undefined>(undefined);
+    cancelClicked = signal(false);
+    nextState = signal('');
 
     private router = inject(Router);
     private route = inject(ActivatedRoute);
@@ -58,23 +76,28 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
     private Question = inject(QuestionService);
     private modal = inject(ModalService);
 
-    ngOnInit() {
-        this.nextState =
-            this.nextState || this.route.snapshot.queryParamMap.get('nextState') || this.route.snapshot.data.nextState;
-        this.newQuestion = this.newQuestion || this.route.snapshot.data.newQuestion;
+    constructor() {
+        const nextStateValue = this.route.snapshot.queryParamMap.get('nextState') || this.route.snapshot.data.nextState;
+        if (nextStateValue) {
+            this.nextState.set(nextStateValue);
+        }
+
         const id = this.route.snapshot.paramMap.get('id');
-        this.currentOwners = [];
-        if (this.newQuestion) {
-            this.question = this.Question.getQuestionDraft();
-            this.currentOwners = [...this.question.questionOwners];
-        } else if (this.questionDraft && this.collaborative) {
-            this.question = { ...this.questionDraft, examSectionQuestions: [] };
-            this.currentOwners = [...this.question.questionOwners];
+        this.currentOwners.set([]);
+
+        if (this.newQuestion()) {
+            const questionDraft = this.Question.getQuestionDraft();
+            this.question.set(questionDraft);
+            this.currentOwners.set([...questionDraft.questionOwners]);
+        } else if (this.questionDraft() && this.collaborative()) {
+            const questionValue = { ...this.questionDraft()!, examSectionQuestions: [] };
+            this.question.set(questionValue);
+            this.currentOwners.set([...questionValue.questionOwners]);
         } else {
-            this.Question.getQuestion(this.questionId || Number(id)).subscribe({
+            this.Question.getQuestion(this.questionId() || Number(id)).subscribe({
                 next: (question: ReverseQuestion) => {
-                    this.question = question;
-                    this.currentOwners = [...this.question.questionOwners];
+                    this.question.set(question);
+                    this.currentOwners.set([...question.questionOwners]);
                     window.addEventListener('beforeunload', this.onUnload);
                 },
                 error: (err) => this.toast.error(err),
@@ -87,59 +110,75 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
     }
 
     canDeactivate(): boolean {
-        if (!this.cancelClicked || !this.questionForm?.dirty) {
+        if (!this.cancelClicked() || !this.questionForm?.dirty) {
             return true;
         }
         return false;
     }
 
-    hasNoCorrectOption = () =>
-        this.question.type === 'MultipleChoiceQuestion' && this.question.options.every((o) => !o.correctOption);
+    hasNoCorrectOption() {
+        const questionValue = this.question();
+        return questionValue?.type === 'MultipleChoiceQuestion' && questionValue.options.every((o) => !o.correctOption);
+    }
 
-    hasInvalidClaimChoiceOptions = () =>
-        this.question.type === 'ClaimChoiceQuestion' &&
-        this.Question.getInvalidClaimOptionTypes(this.question.options).length > 0;
+    hasInvalidClaimChoiceOptions() {
+        const questionValue = this.question();
+        return (
+            questionValue?.type === 'ClaimChoiceQuestion' &&
+            this.Question.getInvalidClaimOptionTypes(questionValue.options).length > 0
+        );
+    }
 
-    openPreview$ = () => {
+    openPreview$() {
+        const questionValue = this.question();
+        const sectionQuestionValue = this.sectionQuestion();
         const modal = this.modal.openRef(QuestionPreviewDialogComponent, { size: 'lg' });
-        modal.componentInstance.question = this.sectionQuestion || this.question;
-        modal.componentInstance.isExamQuestion = this.sectionQuestion;
+        modal.componentInstance.question.set(sectionQuestionValue || questionValue!);
+        modal.componentInstance.isExamQuestion.set(!!sectionQuestionValue);
         return this.modal.result$<void>(modal);
-    };
+    }
 
-    saveQuestion = () => {
-        this.question.questionOwners = this.currentOwners;
+    saveQuestion() {
+        const questionValue = this.question();
+        if (!questionValue) return;
+
+        const updatedQuestion = {
+            ...questionValue,
+            questionOwners: this.currentOwners(),
+        };
         const fn = (q: Question | QuestionDraft) => {
-            if (this.nextState) {
-                this.router.navigate(['/staff', this.nextState]);
-            } else if (this.saved) {
+            const nextStateValue = this.nextState();
+            if (nextStateValue) {
+                this.router.navigate(['/staff', nextStateValue]);
+            } else {
                 this.saved.emit(q);
             }
         };
 
-        if (this.collaborative) {
-            fn(this.question);
-        } else if (this.newQuestion) {
-            this.Question.createQuestion$(this.question as QuestionDraft).subscribe({
+        if (this.collaborative()) {
+            fn(updatedQuestion);
+        } else if (this.newQuestion()) {
+            this.Question.createQuestion$(updatedQuestion as QuestionDraft).subscribe({
                 next: fn,
                 error: (error) => this.toast.error(error),
             });
         } else {
-            this.Question.updateQuestion$(this.question as Question).subscribe({
-                next: () => fn(this.question),
+            this.Question.updateQuestion$(updatedQuestion as Question).subscribe({
+                next: () => fn(updatedQuestion),
                 error: (error) => this.toast.error(error),
             });
         }
-    };
+    }
 
-    cancel = () => {
-        this.cancelClicked = true;
-        if (this.nextState) {
-            this.router.navigate(['/staff', ...this.nextState.split('/')]);
-        } else if (this.cancelled) {
+    cancel() {
+        this.cancelClicked.set(true);
+        const nextStateValue = this.nextState();
+        if (nextStateValue) {
+            this.router.navigate(['/staff', ...nextStateValue.split('/')]);
+        } else {
             this.cancelled.emit();
         }
-    };
+    }
 
     private onUnload = (event: BeforeUnloadEvent) => {
         if (this.questionForm?.dirty) event.preventDefault();

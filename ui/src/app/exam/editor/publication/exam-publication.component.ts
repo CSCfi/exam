@@ -4,8 +4,7 @@
 
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -45,9 +44,10 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
         OrderByPipe,
     ],
     styleUrls: ['../../exam.shared.scss', './exam-publication.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamPublicationComponent implements OnInit {
-    exam!: Exam;
+export class ExamPublicationComponent {
+    exam = signal<Exam>({} as Exam);
 
     collaborative = signal(false);
     isAdmin = signal(false);
@@ -67,10 +67,7 @@ export class ExamPublicationComponent implements OnInit {
     constructor() {
         this.hostName.set(window.location.origin);
         this.isAdmin.set(this.Session.getUser().isAdmin);
-    }
-
-    ngOnInit() {
-        this.exam = this.Tabs.getExam();
+        this.exam.set(this.Tabs.getExam());
         this.collaborative.set(this.Tabs.isCollaborative());
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe({
             next: (data) => this.examDurations.set(data.examDurations),
@@ -79,78 +76,109 @@ export class ExamPublicationComponent implements OnInit {
         this.Tabs.notifyTabChange(4);
     }
 
-    addExaminationDate = (event: { date: Date | null }) => {
+    addExaminationDate(event: { date: Date | null }) {
         if (!event.date) return;
+        const currentExam = this.exam();
         const fmt = 'dd/MM/yyyy';
         const formattedDate = DateTime.fromJSDate(event.date).toFormat(fmt);
-        const alreadyExists: boolean = this.exam.examinationDates
+        const alreadyExists: boolean = currentExam.examinationDates
             .map((ed) => DateTime.fromISO(ed.date).toFormat(fmt))
             .some((d: string) => d === formattedDate);
         if (!alreadyExists) {
             this.http
-                .post<ExaminationDate>(`/app/exam/${this.exam.id}/examinationdate`, {
+                .post<ExaminationDate>(`/app/exam/${currentExam.id}/examinationdate`, {
                     date: formattedDate,
                 })
-                .subscribe((date) => this.exam.examinationDates.push(date));
+                .subscribe((date) => currentExam.examinationDates.push(date));
         }
-    };
+    }
 
-    removeExaminationDate = (date: ExaminationDate) => {
-        this.http.delete(`/app/exam/${this.exam.id}/examinationdate/${date.id}`).subscribe(() => {
-            const i = this.exam.examinationDates.indexOf(date);
-            this.exam.examinationDates.splice(i, 1);
+    removeExaminationDate(date: ExaminationDate) {
+        const currentExam = this.exam();
+        this.http.delete(`/app/exam/${currentExam.id}/examinationdate/${date.id}`).subscribe(() => {
+            const i = currentExam.examinationDates.indexOf(date);
+            currentExam.examinationDates.splice(i, 1);
         });
-    };
+    }
 
-    startDateChanged = (event: { date: Date | null }) =>
-        (this.exam.periodStart = event.date ? event.date.toISOString() : null);
-    endDateChanged = (event: { date: Date | null }) =>
-        (this.exam.periodEnd = event.date ? event.date.toISOString() : null);
+    startDateChanged(event: { date: Date | null }) {
+        const currentExam = this.exam();
+        currentExam.periodStart = event.date ? event.date.toISOString() : null;
+    }
 
-    autoEvaluationConfigChanged = (event: { config: AutoEvaluationConfig }) => {
-        this.exam.autoEvaluationConfig = event.config;
-    };
+    endDateChanged(event: { date: Date | null }) {
+        const currentExam = this.exam();
+        currentExam.periodEnd = event.date ? event.date.toISOString() : null;
+    }
 
-    canBeAutoEvaluated = () =>
-        this.Exam.hasQuestions(this.exam) &&
-        !this.Exam.hasEssayQuestions(this.exam) &&
-        this.exam.gradeScale &&
-        this.exam.executionType.type !== 'MATURITY';
+    autoEvaluationConfigChanged(event: { config: AutoEvaluationConfig }) {
+        const currentExam = this.exam();
+        currentExam.autoEvaluationConfig = event.config;
+    }
 
-    updateExam = () => this.updateExam$().subscribe();
+    canBeAutoEvaluated() {
+        const currentExam = this.exam();
+        return (
+            this.Exam.hasQuestions(currentExam) &&
+            !this.Exam.hasEssayQuestions(currentExam) &&
+            currentExam.gradeScale &&
+            currentExam.executionType.type !== 'MATURITY'
+        );
+    }
 
-    setExamDuration = (hours: number, minutes: number) => {
+    updateExam() {
+        this.updateExam$().subscribe();
+    }
+
+    setExamDuration(hours: number, minutes: number) {
+        const currentExam = this.exam();
         const duration = hours * 60 + minutes;
-        this.exam.duration = duration;
+        currentExam.duration = duration;
         this.updateExam$().subscribe();
-    };
+    }
 
-    format = (minutes: number): string => Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');
+    format(minutes: number): string {
+        return Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');
+    }
 
-    checkDuration = (duration: number) => (this.exam.duration === duration ? 'btn-primary' : '');
+    checkDuration(duration: number) {
+        const currentExam = this.exam();
+        return currentExam.duration === duration ? 'btn-primary' : '';
+    }
 
-    range = (min: number, max: number, step = 1) => [...Array(step + max - min).keys()].map((v) => min + v);
+    range(min: number, max: number, step = 1) {
+        return [...Array(step + max - min).keys()].map((v) => min + v);
+    }
 
-    checkTrialCount = (x: number | null) => (this.exam.trialCount === x ? 'btn-primary' : '');
+    checkTrialCount(x: number | null) {
+        const currentExam = this.exam();
+        return currentExam.trialCount === x ? 'btn-primary' : '';
+    }
 
-    setTrialCount = (x: number | null) => {
-        this.exam.trialCount = x;
+    setTrialCount(x: number | null) {
+        const currentExam = this.exam();
+        currentExam.trialCount = x;
         this.updateExam$().subscribe();
-    };
+    }
 
-    previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative());
+    previewExam(fromTab: number) {
+        const currentExam = this.exam();
+        this.Exam.previewExam(currentExam, fromTab, this.collaborative());
+    }
 
-    previousTab = () => {
+    previousTab() {
         this.Tabs.notifyTabChange(3);
         this.router.navigate(['..', '3'], { relativeTo: this.route });
-    };
+    }
 
-    openCustomTimeEditor = () =>
+    openCustomTimeEditor() {
         this.modal
             .open$<{ hours: number; minutes: number }>(CustomDurationPickerDialogComponent)
             .subscribe((duration) => this.setExamDuration(duration.hours, duration.minutes));
+    }
 
-    saveAndPublishExam = () => {
+    saveAndPublishExam() {
+        const currentExam = this.exam();
         const errors: string[] = this.isDraftCollaborativeExam()
             ? this.errorsPreventingPrePublication()
             : this.errorsPreventingPublication();
@@ -160,7 +188,7 @@ export class ExamPublicationComponent implements OnInit {
             modal.componentInstance.errors = errors;
         } else {
             const modal = this.modal.openRef(PublicationDialogComponent);
-            modal.componentInstance.exam = this.exam;
+            modal.componentInstance.exam = currentExam;
             modal.componentInstance.prePublication = this.isDraftCollaborativeExam();
             this.modal.result$(modal).subscribe(() => {
                 const state = {
@@ -179,18 +207,22 @@ export class ExamPublicationComponent implements OnInit {
                 });
             });
         }
-    };
+    }
 
-    isDraftCollaborativeExam = () => this.collaborative() && this.exam.state === 'DRAFT';
+    isDraftCollaborativeExam() {
+        const currentExam = this.exam();
+        return this.collaborative() && currentExam.state === 'DRAFT';
+    }
 
     // TODO: how should this work when it comes to private exams?
-    unpublishExam = () => {
+    unpublishExam() {
+        const currentExam = this.exam();
         if (this.isAllowedToUnpublishOrRemove()) {
             this.modal.open$(PublicationRevocationDialogComponent).subscribe(() =>
                 this.updateExam$(true, { state: this.collaborative() ? 'PRE_PUBLISHED' : 'DRAFT' }).subscribe({
                     next: () => {
                         this.toast.success(this.translate.instant('i18n_exam_unpublished'));
-                        this.exam.state = 'DRAFT';
+                        currentExam.state = 'DRAFT';
                     },
                     error: (err) => this.toast.error(err),
                 }),
@@ -198,10 +230,11 @@ export class ExamPublicationComponent implements OnInit {
         } else {
             this.toast.warning(this.translate.instant('i18n_unpublish_not_possible'));
         }
-    };
+    }
 
-    private updateExam$ = (silent?: boolean, overrides?: Record<string, string>): Observable<Exam> => {
-        return this.Exam.updateExam$(this.exam, overrides, this.collaborative()).pipe(
+    private updateExam$(silent?: boolean, overrides?: Record<string, string>): Observable<Exam> {
+        const currentExam = this.exam();
+        return this.Exam.updateExam$(currentExam, overrides, this.collaborative()).pipe(
             tap(() => {
                 if (!silent) {
                     this.toast.info(this.translate.instant('i18n_exam_saved'));
@@ -212,103 +245,114 @@ export class ExamPublicationComponent implements OnInit {
                 return throwError(() => new Error(err));
             }),
         );
-    };
+    }
 
-    private isAllowedToUnpublishOrRemove = () =>
+    private isAllowedToUnpublishOrRemove() {
+        const currentExam = this.exam();
         // allowed if no upcoming reservations and if no one has taken this yet
-        !this.exam.hasEnrolmentsInEffect && this.exam.children.length === 0;
+        return !currentExam.hasEnrolmentsInEffect && currentExam.children.length === 0;
+    }
 
-    private countQuestions = () => this.exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0);
+    private countQuestions() {
+        const currentExam = this.exam();
+        return currentExam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0);
+    }
 
-    private hasDuplicatePercentages = () => {
-        if (!this.exam.autoEvaluationConfig) return false;
-        const percentages = this.exam.autoEvaluationConfig.gradeEvaluations.map((e) => e.percentage);
+    private hasDuplicatePercentages() {
+        const currentExam = this.exam();
+        if (!currentExam.autoEvaluationConfig) return false;
+        const percentages = currentExam.autoEvaluationConfig.gradeEvaluations.map((e) => e.percentage);
         return new Set(percentages).size !== percentages.length;
-    };
+    }
 
     private errorsPreventingPrePublication(): string[] {
+        const currentExam = this.exam();
         const errors = [];
-        if (!this.exam.name || this.exam.name.length < 2) {
+        if (!currentExam.name || currentExam.name.length < 2) {
             errors.push('i18n_exam_name_missing_or_too_short');
         }
-        if (this.exam.examLanguages.length === 0) {
+        if (currentExam.examLanguages.length === 0) {
             errors.push('i18n_error_exam_empty_exam_language');
         }
-        const isPrintout = this.exam.executionType.type === 'PRINTOUT';
-        if (!isPrintout && !this.exam.periodStart) {
+        const isPrintout = currentExam.executionType.type === 'PRINTOUT';
+        if (!isPrintout && !currentExam.periodStart) {
             errors.push('i18n_exam_start_date_missing');
         }
-        if (!isPrintout && !this.exam.periodEnd) {
+        if (!isPrintout && !currentExam.periodEnd) {
             errors.push('i18n_exam_end_date_missing');
         }
-        if (isPrintout && this.exam.examinationDates.length === 0) {
+        if (isPrintout && currentExam.examinationDates.length === 0) {
             errors.push('i18n_examination_date_missing');
         }
-        if (!this.exam.duration) {
+        if (!currentExam.duration) {
             errors.push('i18n_exam_duration_missing');
         }
-        if (!this.exam.gradeScale) {
+        if (!currentExam.gradeScale) {
             errors.push('i18n_exam_grade_scale_missing');
         }
-        if (!this.exam.examType) {
+        if (!currentExam.examType) {
             errors.push('i18n_exam_credit_type_missing');
         }
-        if (this.exam.examOwners.length == 0) {
+        if (currentExam.examOwners.length == 0) {
             errors.push('i18n_exam_owner_missing');
         }
         return errors;
     }
 
     private errorsPreventingPublication(): string[] {
+        const currentExam = this.exam();
         const errors: string[] = this.errorsPreventingPrePublication();
-        if (!this.exam.course && !this.collaborative()) {
+        if (!currentExam.course && !this.collaborative()) {
             errors.push('i18n_course_missing');
         }
         if (this.countQuestions() === 0) {
             errors.push('i18n_exam_has_no_questions');
         }
-        const allSectionsNamed = this.exam.examSections.every((section) => section.name?.length > 0);
+        const allSectionsNamed = currentExam.examSections.every((section) => section.name?.length > 0);
         if (!allSectionsNamed) {
             errors.push('i18n_exam_contains_unnamed_sections');
         }
-        if (['PRIVATE', 'MATURITY'].indexOf(this.exam.executionType.type) > -1 && this.exam.examEnrolments.length < 1) {
+        if (
+            ['PRIVATE', 'MATURITY'].indexOf(currentExam.executionType.type) > -1 &&
+            currentExam.examEnrolments.length < 1
+        ) {
             errors.push('i18n_no_participants');
         }
-        if (this.exam.executionType.type === 'MATURITY' && !isBoolean(this.exam.subjectToLanguageInspection)) {
+        if (currentExam.executionType.type === 'MATURITY' && !isBoolean(currentExam.subjectToLanguageInspection)) {
             errors.push('i18n_language_inspection_setting_not_chosen');
         }
         if (this.hasDuplicatePercentages()) {
             errors.push('i18n_autoevaluation_percentages_not_unique');
         }
-        if (this.exam.autoEvaluationConfig) {
+        if (currentExam.autoEvaluationConfig) {
             if (
-                this.exam.autoEvaluationConfig.releaseType === 'GIVEN_AMOUNT_DAYS' &&
-                !this.exam.autoEvaluationConfig.amountDays
+                currentExam.autoEvaluationConfig.releaseType === 'GIVEN_AMOUNT_DAYS' &&
+                !currentExam.autoEvaluationConfig.amountDays
             ) {
                 errors.push('no auto-evaluation amount of days selected');
             }
             if (
-                this.exam.autoEvaluationConfig.releaseType === 'GIVEN_DATE' &&
-                !this.exam.autoEvaluationConfig.releaseDate
+                currentExam.autoEvaluationConfig.releaseType === 'GIVEN_DATE' &&
+                !currentExam.autoEvaluationConfig.releaseDate
             ) {
                 errors.push('no auto-evaluation date selected');
             }
         }
-        if (this.exam.examFeedbackConfig) {
+        if (currentExam.examFeedbackConfig) {
             if (
-                this.exam.examFeedbackConfig.releaseType === 'GIVEN_AMOUNT_DAYS' &&
-                !this.exam.examFeedbackConfig.amountDays
+                currentExam.examFeedbackConfig.releaseType === 'GIVEN_AMOUNT_DAYS' &&
+                !currentExam.examFeedbackConfig.amountDays
             ) {
                 errors.push('no feedback amount of days selected');
             }
             if (
-                this.exam.examFeedbackConfig.releaseType === 'GIVEN_DATE' &&
-                !this.exam.examFeedbackConfig.releaseDate
+                currentExam.examFeedbackConfig.releaseType === 'GIVEN_DATE' &&
+                !currentExam.examFeedbackConfig.releaseDate
             ) {
                 errors.push('no feedback date selected');
             }
         }
-        if (this.exam.implementation !== 'AQUARIUM' && this.exam.examinationEventConfigurations.length === 0) {
+        if (currentExam.implementation !== 'AQUARIUM' && currentExam.examinationEventConfigurations.length === 0) {
             errors.push('i18n_missing_examination_event_configurations');
         }
         return errors.map((e) => this.translate.instant(e));

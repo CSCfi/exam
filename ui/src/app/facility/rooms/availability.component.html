@@ -9,29 +9,29 @@ SPDX-License-Identifier: EUPL-1.2
         {{ 'i18n_room_default_working_hours' | translate }}
     </div>
     <div class="col-md-9">
-        @for (oh of openingHours; track oh) {
+        @for (oh of openingHours(); track oh) {
             <span class="pe-2 row">{{ oh.name }}: {{ oh.periodText }}</span>
         }
     </div>
 </div>
-@if (room.calendarExceptionEvents.length > 0) {
+@if (room().calendarExceptionEvents.length > 0) {
     <div class="row mt-3">
         <div class="col-md-3">
             {{ 'i18n_exception_datetimes' | translate }}
             <button
-                (click)="oldExceptionsHidden = !oldExceptionsHidden"
+                (click)="toggleOldExceptionsHidden()"
                 class="btn btn-light"
                 ngbPopover="{{ 'i18n_hide_over_year_old' | translate }} ({{
-                    oldExceptionsHidden ? ('i18n_on' | translate) : ('i18n_off' | translate)
+                    oldExceptionsHidden() ? ('i18n_on' | translate) : ('i18n_off' | translate)
                 }})"
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
-                <i [ngClass]="'bi ' + (oldExceptionsHidden ? 'bi-eye' : 'bi-eye-slash')"></i>
+                <i [ngClass]="'bi ' + (oldExceptionsHidden() ? 'bi-eye' : 'bi-eye-slash')"></i>
             </button>
         </div>
         <div class="col">
-            @for (eh of !oldExceptionsHidden ? exceptionHours : newExceptions; track eh) {
+            @for (eh of !oldExceptionsHidden() ? exceptionHours() : newExceptions(); track eh) {
                 <span [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'" class="row">
                     {{ eh.start }} - {{ eh.end }} ({{ eh.description | translate }})
                     @if (isInFuture(eh.startDate)) {
@@ -58,6 +58,10 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="row">
     <div class="col-md-12">
-        <xm-booking-calendar (moreEventsNeeded)="refresh($event)" [room]="room" [visible]="true"></xm-booking-calendar>
+        <xm-booking-calendar
+            (moreEventsNeeded)="refresh($event)"
+            [room]="room()"
+            [visible]="true"
+        ></xm-booking-calendar>
     </div>
 </div>

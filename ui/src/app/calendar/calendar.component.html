@@ -8,30 +8,30 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-content [content]="content" />
 <ng-template #content>
     <!-- Phase 1: Exam Info -->
-    @if (examInfo && reservationWindowSize) {
+    @if (examInfo() && reservationWindowSize()) {
         <div class="row">
             <div class="col-12 p-0">
                 <xm-calendar-exam-info
-                    [examInfo]="examInfo"
-                    [reservationWindowSize]="reservationWindowSize"
-                    [collaborative]="isCollaborative"
+                    [examInfo]="examInfo()"
+                    [reservationWindowSize]="reservationWindowSize()"
+                    [collaborative]="isCollaborative()"
                 ></xm-calendar-exam-info>
             </div>
         </div>
     }
     <!-- Phase 2: Optional exam section selection (optional) -->
-    @if (examInfo && hasOptionalSections()) {
+    @if (examInfo() && hasOptionalSections()) {
         <div class="row">
             <div class="col-12 p-0">
                 <xm-calendar-optional-sections
-                    [examInfo]="examInfo"
+                    [examInfo]="examInfo()"
                     (selected)="onSectionSelection($event)"
                 ></xm-calendar-optional-sections>
             </div>
         </div>
     }
     <!-- Phase 3: Organisation picker -->
-    @if (isInteroperable && isExternal) {
+    @if (isInteroperable() && isExternal()) {
         <div class="row">
             <div class="col-12 p-0">
                 <xm-calendar-organisation-picker
@@ -48,12 +48,12 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-12 p-0">
             <xm-calendar-slot-picker
                 [sequenceNumber]="getSequenceNumber('room')"
-                [isInteroperable]="isInteroperable"
-                [isExternal]="isExternal"
-                [isCollaborative]="isCollaborative"
-                [organisation]="selectedOrganisation"
-                [minDate]="minDate"
-                [maxDate]="maxDate"
+                [isInteroperable]="isInteroperable()"
+                [isExternal]="isExternal()"
+                [isCollaborative]="isCollaborative()"
+                [organisation]="selectedOrganisation()"
+                [minDate]="minDate()"
+                [maxDate]="maxDate()"
                 [disabled]="!sectionSelectionOk()"
                 (cancelled)="makeExternalReservation()"
                 (selected)="createReservation($event)"
@@ -68,7 +68,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-8 col-12 p-0">
             <div
                 class="row m-2"
-                [ngClass]="reservation ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+                [ngClass]="reservation() ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
             >
                 <div class="col-md-12">
                     <div class="row">
@@ -78,7 +78,7 @@ SPDX-License-Identifier: EUPL-1.2
                             </h2>
                         </span>
                         <span class="col-md-6">
-                            <span class="calendar-phase-icon float-end" [hidden]="!reservation">
+                            <span class="calendar-phase-icon float-end" [hidden]="!reservation()">
                                 <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                             </span>
                         </span>
@@ -86,7 +86,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <div class="row">
                         <div class="col-md-12">
                             <div class="calendar-titles">
-                                <span class="calendar-course-title">{{ examInfo.name }}</span>
+                                <span class="calendar-course-title">{{ examInfo().name }}</span>
                             </div>
                         </div>
                     </div>
@@ -97,17 +97,17 @@ SPDX-License-Identifier: EUPL-1.2
                                     {{ 'i18n_course_name' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    @if (examInfo.course) {
-                                        <xm-course-code [course]="examInfo.course"></xm-course-code>
-                                        {{ examInfo.course.name }}
+                                    @if (examInfo().course) {
+                                        <xm-course-code [course]="examInfo().course"></xm-course-code>
+                                        {{ examInfo().course.name }}
                                     }
                                 </div>
                                 <div class="mt-2 col-12 col-sm-6 col-md-6 col-lg-6">
                                     {{ 'i18n_exam_validity' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ examInfo.periodStart | date: 'dd.MM.yyyy' }} -
-                                    {{ examInfo.periodEnd | date: 'dd.MM.yyyy' }}
+                                    {{ examInfo().periodStart | date: 'dd.MM.yyyy' }} -
+                                    {{ examInfo().periodEnd | date: 'dd.MM.yyyy' }}
                                 </div>
                             </div>
                         </div>
@@ -119,13 +119,13 @@ SPDX-License-Identifier: EUPL-1.2
                                     {{ 'i18n_examination_location' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    {{ reservation?.room?.name }}
+                                    {{ reservation()?.room?.name }}
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-2">
                                     {{ 'i18n_reservation' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-4">
-                                    {{ reservation?.time }}
+                                    {{ reservation()?.time }}
                                 </div>
                             </div>
                         </div>
@@ -137,7 +137,7 @@ SPDX-License-Identifier: EUPL-1.2
                                     {{ 'i18n_exam_duration' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    {{ printExamDuration(examInfo) }}
+                                    {{ printExamDuration(examInfo()) }}
                                 </div>
                             </div>
                         </div>
@@ -149,7 +149,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="row m-2 align-items-center">
                 <div class="col-md-12">
                     <button
-                        [disabled]="!reservation || confirming"
+                        [disabled]="!reservation() || confirming()"
                         class="btn btn-lg btn-success float-end important-clear-focus"
                         style="width: 100%; line-height: 1.5; border-radius: 3px"
                         (click)="confirmReservation()"

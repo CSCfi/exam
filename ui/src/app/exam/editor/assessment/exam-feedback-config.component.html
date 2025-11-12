@@ -7,7 +7,7 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="row ms-2 mt-4">
     <div class="col-md-12">
         <div class="xm-paragraph-title">
-            <span class="pointer" (click)="examFeedbackConfigDisplay.visible = !examFeedbackConfigDisplay.visible">
+            <span class="pointer" (click)="toggleDisplay()">
                 {{ 'i18n_exam_feedback_config' | translate }}
                 @if (examFeedbackConfig.enabled) {
                     <span>({{ 'i18n_in_use' | translate }})</span>
@@ -21,10 +21,10 @@ SPDX-License-Identifier: EUPL-1.2
                     class="ms-2"
                     triggers="mouseenter:mouseleave"
                 >
-                    @if (!examFeedbackConfigDisplay.visible) {
+                    @if (!examFeedbackConfigDisplayVisible()) {
                         <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
-                    @if (examFeedbackConfigDisplay.visible) {
+                    @if (examFeedbackConfigDisplayVisible()) {
                         <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
                 </span>
@@ -33,7 +33,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 </div>
 
-<div class="row ms-2" [ngbCollapse]="!examFeedbackConfigDisplay.visible">
+<div class="row ms-2" [ngbCollapse]="!examFeedbackConfigDisplayVisible()">
     <div class="col-md-12 mt-3">
         <span class="config-info">
             {{ 'i18n_exam_feedback_config_instructions' | translate }}
@@ -44,7 +44,7 @@ SPDX-License-Identifier: EUPL-1.2
             @if (!examFeedbackConfig.enabled) {
                 <button
                     class="btn btn-success"
-                    [ngClass]="{ 'feature-not-in-use': modifiable !== 'everything' }"
+                    [ngClass]="{ 'feature-not-in-use': modifiable() !== 'everything' }"
                     name="enableExamFeedbackConfig"
                     (click)="enable()"
                 >
@@ -54,7 +54,7 @@ SPDX-License-Identifier: EUPL-1.2
             @if (examFeedbackConfig.enabled) {
                 <button
                     class="btn btn-outline-danger"
-                    [ngClass]="{ 'feature-not-in-use': modifiable !== 'everything' }"
+                    [ngClass]="{ 'feature-not-in-use': modifiable() !== 'everything' }"
                     name="disableExamFeedbackConfig"
                     (click)="disable()"
                 >
@@ -65,7 +65,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 </div>
 
-<div class="row ms-2 mt-2 align-items-end" [hidden]="!examFeedbackConfigDisplay.visible">
+<div class="row ms-2 mt-2 align-items-end" [hidden]="!examFeedbackConfigDisplayVisible()">
     <div class="col-6">
         {{ 'i18n_exam_feedback_release_type' | translate }}:
         <div class="dropdown" ngbDropdown>
@@ -84,12 +84,12 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
 
-    <div class="col-6" [hidden]="!examFeedbackConfigDisplay.visible">
+    <div class="col-6" [hidden]="!examFeedbackConfigDisplayVisible()">
         @if (selectedReleaseType()?.name === 'GIVEN_DATE') {
             <xm-date-picker
                 (updated)="releaseDateChanged($event)"
-                [disabled]="modifiable === 'nothing'"
-                [initialDate]="config ? config.releaseDate : null"
+                [disabled]="modifiable() === 'nothing'"
+                [initialDate]="config() ? config()!.releaseDate : null"
             ></xm-date-picker>
         }
     </div>

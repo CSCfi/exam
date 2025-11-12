@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { SlicePipe } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,6 +20,7 @@ import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({
     selector: 'xm-exam-participations',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participations.component.html',
     imports: [
         FormsModule,
@@ -37,15 +37,15 @@ import { ExamParticipationComponent } from './exam-participation.component';
         PageContentComponent,
     ],
 })
-export class ExamParticipationsComponent implements OnInit, OnDestroy {
-    filter = { ordering: 'ended', reverse: true, text: '' };
-    pageSize = 10;
-    currentPage = 0;
-    participations: ParticipationLike[] = [];
+export class ExamParticipationsComponent implements OnDestroy {
+    filter = signal({ ordering: 'ended' as 'exam.name' | 'ended', reverse: true, text: '' });
+    pageSize = signal(10);
+    currentPage = signal(0);
+    participations = signal<ParticipationLike[]>([]);
     collaborative = false;
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
-    searchDone = false;
+    searchDone = signal(false);
 
     private toast = inject(ToastrService);
     private Enrolment = inject(EnrolmentService);
@@ -54,10 +54,16 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this._search);
+
+        this.search('');
     }
 
-    ngOnInit() {
-        this.search('');
+    // Getter/setter for filter.text to work with ngModel
+    get filterText(): string {
+        return this.filter().text;
+    }
+    set filterText(value: string) {
+        this.filter.update((f) => ({ ...f, text: value }));
     }
 
     ngOnDestroy() {
@@ -65,19 +71,27 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    search = (text: string) => this.filterChanged.next(text);
+    search(text: string) {
+        this.filterChanged.next(text);
+    }
 
-    pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
+    pageSelected($event: { page: number }) {
+        this.currentPage.set($event.page);
+    }
+
+    updateFilterOrdering(ordering: 'exam.name' | 'ended', reverse: boolean) {
+        this.filter.update((f) => ({ ...f, ordering, reverse }));
+    }
 
     private _search = (text: string) => {
-        this.filter.text = text;
+        this.filter.update((f) => ({ ...f, text }));
         this.Enrolment.loadParticipations$(text).subscribe({
             next: (data) => {
                 data.filter((p) => !p.ended).forEach(
                     (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),
                 );
-                this.participations = data.filter((d) => d.ended);
-                this.searchDone = true;
+                this.participations.set(data.filter((d) => d.ended));
+                this.searchDone.set(true);
             },
             error: (err) => this.toast.error(err),
         });

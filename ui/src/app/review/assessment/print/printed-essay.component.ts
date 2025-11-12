@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
@@ -10,33 +10,37 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 
 @Component({
     selector: 'xm-printed-essay',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './templates/essay.component.html',
     styleUrls: ['./print.shared.scss'],
     imports: [MathJaxDirective, TranslateModule],
 })
 export class PrintedEssayComponent {
-    @Input() sectionQuestion!: ExamSectionQuestion;
+    sectionQuestion = input.required<ExamSectionQuestion>();
 
     private CommonExam = inject(CommonExamService);
 
     getScore = () => {
-        if (!this.sectionQuestion.essayAnswer) {
+        const sq = this.sectionQuestion();
+        if (!sq.essayAnswer) {
             return 0;
         }
-        return this.sectionQuestion.essayAnswer.evaluatedScore || 0;
+        return sq.essayAnswer.evaluatedScore || 0;
     };
 
     getWordCount = () => {
-        if (!this.sectionQuestion.essayAnswer?.answer) {
+        const sq = this.sectionQuestion();
+        if (!sq.essayAnswer?.answer) {
             return 0;
         }
-        return this.CommonExam.countWords(this.sectionQuestion.essayAnswer.answer);
+        return this.CommonExam.countWords(sq.essayAnswer.answer);
     };
 
     getCharacterCount = () => {
-        if (!this.sectionQuestion.essayAnswer?.answer) {
+        const sq = this.sectionQuestion();
+        if (!sq.essayAnswer?.answer) {
             return 0;
         }
-        return this.CommonExam.countCharacters(this.sectionQuestion.essayAnswer.answer);
+        return this.CommonExam.countCharacters(sq.essayAnswer.answer);
     };
 }

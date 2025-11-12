@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnDestroy, OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import type { OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,13 +21,14 @@ import { NavigationService } from './navigation.service';
     templateUrl: './navigation.component.html',
     imports: [RouterLinkActive, RouterLink, NgbCollapse, TranslateModule],
     styleUrl: './navigation.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NavigationComponent implements OnInit, OnDestroy {
-    appVersion = '';
-    links: Link[] = [];
-    mobileMenuOpen = false;
-    user?: User;
-    stateInitialized = false;
+export class NavigationComponent implements OnDestroy {
+    appVersion = signal('');
+    links = signal<Link[]>([]);
+    mobileMenuOpen = signal(false);
+    user = signal<User | undefined>(undefined);
+    stateInitialized = signal(false);
 
     private toast = inject(ToastrService);
     private Navigation = inject(NavigationService);
@@ -37,7 +38,9 @@ export class NavigationComponent implements OnInit, OnDestroy {
     private ngUnsubscribe = new Subject();
 
     constructor() {
-        this.user = this.Session.getUser();
+        const currentUser = this.Session.getUser();
+        this.user.set(currentUser);
+
         this.ExaminationStatus.examinationStarting$
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe(() => this.getLinks(false, false));
@@ -51,19 +54,18 @@ export class NavigationComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.ngUnsubscribe))
             .subscribe(() => this.getLinks(false, false));
         this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user) => {
-            this.user = user;
+            this.user.set(user);
             this.getLinks(true);
         });
-    }
 
-    ngOnInit() {
-        if (this.user?.isAdmin) {
+        // Initialize links based on user
+        if (currentUser?.isAdmin) {
             this.Navigation.getAppVersion$().subscribe({
-                next: (resp) => (this.appVersion = resp.appVersion),
+                next: (resp) => this.appVersion.set(resp.appVersion),
                 error: (err) => this.toast.error(err),
             });
             this.getLinks(true, true);
-        } else if (this.user) {
+        } else if (currentUser) {
             this.getLinks(true);
         } else {
             this.getLinks(false);
@@ -75,18 +77,25 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    isActive = (link: Link) => window.location.href.includes(link.route);
+    isActive(link: Link) {
+        return window.location.href.includes(link.route);
+    }
 
-    getSkipLinkPath = (skipTarget: string) =>
-        window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
+    getSkipLinkPath(skipTarget: string) {
+        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
+    }
 
-    openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
+    openMenu() {
+        this.mobileMenuOpen.update((v) => !v);
+    }
 
-    switchLanguage = (key: string) => this.Session.switchLanguage(key);
+    switchLanguage(key: string) {
+        this.Session.switchLanguage(key);
+    }
 
-    private getLinks = (checkInteroperability: boolean, checkByod = false) => {
+    private getLinks(checkInteroperability: boolean, checkByod = false) {
         if (!checkInteroperability && !checkByod) {
-            this.links = this.Navigation.getLinks(false, false);
+            this.links.set(this.Navigation.getLinks(false, false));
             return;
         }
         const interoperability$ = checkInteroperability
@@ -99,11 +108,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
         forkJoin([interoperability$, byod$]).subscribe({
             next: ([iop, byod]) =>
-                (this.links = this.Navigation.getLinks(
-                    iop.isExamCollaborationSupported,
-                    byod.sebExaminationSupported || byod.homeExaminationSupported,
-                )),
+                this.links.set(
+                    this.Navigation.getLinks(
+                        iop.isExamCollaborationSupported,
+                        byod.sebExaminationSupported || byod.homeExaminationSupported,
+                    ),
+                ),
             error: (err) => this.toast.error(err),
         });
-    };
+    }
 }

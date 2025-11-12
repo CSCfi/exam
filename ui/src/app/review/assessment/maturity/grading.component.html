@@ -9,13 +9,13 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row mb-3 mt-2">
         <div class="col-md-2">{{ 'i18n_language_inspections' | translate }}:</div>
         <div class="col-md-10">
-            <span [ngClass]="exam.languageInspection.approved ? 'text-success' : 'text-danger'">
-                @if (exam.languageInspection.approved) {
+            <span [ngClass]="exam().languageInspection.approved ? 'text-success' : 'text-danger'">
+                @if (exam().languageInspection.approved) {
                     <span>
                         {{ 'i18n_approved' | translate | uppercase }}
                     </span>
                 }
-                @if (!exam.languageInspection.approved) {
+                @if (!exam().languageInspection.approved) {
                     <span>
                         {{ 'i18n_rejected' | translate | uppercase }}
                     </span>
@@ -26,15 +26,20 @@ SPDX-License-Identifier: EUPL-1.2
 }
 
 <!-- inspector comments -->
-<xm-r-inspection-comments [exam]="exam" [addingVisible]="!isMaturityRejection()"> </xm-r-inspection-comments>
+<xm-r-inspection-comments
+    [exam]="exam()"
+    [addingVisible]="!isMaturityRejection()"
+    (commentAdded)="onCommentAdded($event)"
+>
+</xm-r-inspection-comments>
 
 <!-- language inspection - inspector -->
 @if (hasGoneThroughLanguageInspection()) {
     <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_language_inspector' | translate }}:</div>
-        @if (exam.languageInspection) {
+        @if (exam().languageInspection) {
             <div class="col-md-10">
-                {{ exam.languageInspection.modifier.firstName }} {{ exam.languageInspection.modifier.lastName }}
+                {{ exam().languageInspection.modifier.firstName }} {{ exam().languageInspection.modifier.lastName }}
             </div>
         }
     </div>
@@ -45,17 +50,17 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_inspector_statement' | translate }}:</div>
         <div class="col-md-10">
-            <div [xmMathJax]="exam.languageInspection.statement.comment"></div>
+            <div [xmMathJax]="exam().languageInspection.statement.comment"></div>
         </div>
     </div>
 }
 <!-- language inspection - statement attachment -->
-@if (hasGoneThroughLanguageInspection() && exam.languageInspection?.statement?.attachment) {
+@if (hasGoneThroughLanguageInspection() && exam().languageInspection?.statement?.attachment) {
     <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_statement_attachment' | translate }}:</div>
         <div class="col-md-10">
             <a class="pointer" (click)="downloadStatementAttachment()">
-                {{ exam.languageInspection?.statement?.attachment?.fileName }}
+                {{ exam().languageInspection?.statement?.attachment?.fileName }}
             </a>
         </div>
     </div>
@@ -65,9 +70,9 @@ SPDX-License-Identifier: EUPL-1.2
 @if (isReadOnly() || isUnderLanguageInspection()) {
     <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_inspector_name' | translate }}:</div>
-        @if (exam.languageInspection) {
+        @if (exam().languageInspection) {
             <div class="col-md-10">
-                {{ exam.languageInspection.creator.firstName }} {{ exam.languageInspection.creator.lastName }}
+                {{ exam().languageInspection.creator.firstName }} {{ exam().languageInspection.creator.lastName }}
             </div>
         }
     </div>
@@ -78,7 +83,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_teachers_comment' | translate }}:</div>
         <div class="col-md-10">
-            <div [xmMathJax]="exam.examFeedback.comment"></div>
+            <div [xmMathJax]="exam().examFeedback.comment"></div>
         </div>
     </div>
 }
@@ -100,7 +105,7 @@ SPDX-License-Identifier: EUPL-1.2
                 id="infoForRegistry"
                 name="infoForRegistry"
                 class="form-control"
-                [(ngModel)]="exam.additionalInfo"
+                [(ngModel)]="exam().additionalInfo"
                 rows="3"
                 [disabled]="isReadOnly() || !isOwnerOrAdmin()"
             >
@@ -118,10 +123,11 @@ SPDX-License-Identifier: EUPL-1.2
             /></sup>
         </div>
         <div class="col-md-6">
-            <textarea class="form-control" name="assessmentInfo" [(ngModel)]="exam.assessmentInfo" rows="3"> </textarea>
+            <textarea class="form-control" name="assessmentInfo" [(ngModel)]="exam().assessmentInfo" rows="3">
+            </textarea>
         </div>
         <div class="col-md-2">
-            <button class="btn btn-success" [disabled]="!exam.assessmentInfo" (click)="saveAssessmentInfo()">
+            <button class="btn btn-success" [disabled]="!exam().assessmentInfo" (click)="saveAssessmentInfo()">
                 {{ 'i18n_save' | translate }}
             </button>
         </div>
@@ -151,7 +157,7 @@ SPDX-License-Identifier: EUPL-1.2
                 @for (grade of grades; track grade) {
                     <option [ngValue]="grade">{{ grade.name }}</option>
                 }
-                <option value="" [selected]="!exam.grade">{{ 'i18n_choose' | translate }}</option>
+                <option value="" [selected]="!exam().grade">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
         <div class="col-md-3">
@@ -197,7 +203,7 @@ SPDX-License-Identifier: EUPL-1.2
                 [min]="0"
                 class="form-control"
                 maxlength="3"
-                [(ngModel)]="exam.customCredit"
+                [(ngModel)]="exam().customCredit"
             />
         </div>
     </div>
@@ -206,7 +212,7 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- Bottom toolbar for maturity -->
     <div class="row mt-4">
         <div class="col-md-12">
-            <xm-r-maturity-toolbar [exam]="exam" [valid]="!examForm.invalid"></xm-r-maturity-toolbar>
+            <xm-r-maturity-toolbar [exam]="exam()" [valid]="!examForm.invalid"></xm-r-maturity-toolbar>
         </div>
     </div>
 </form>

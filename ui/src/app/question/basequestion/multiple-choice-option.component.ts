@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -18,33 +18,35 @@ import { QuestionService } from 'src/app/question/question.service';
             <div class="row">
                 <div
                     class="col-md-6 question-option-empty"
-                    [ngClass]="{ 'question-correct-option': option.correctOption }"
+                    [ngClass]="{ 'question-correct-option': option().correctOption }"
                 >
                     <textarea
                         type="text"
                         rows="1"
-                        name="option-{{ index }}"
+                        name="option-{{ index() }}"
                         class="make-inline question-option-input radiobut form-control"
-                        [(ngModel)]="option.option"
+                        [ngModel]="option().option"
+                        (ngModelChange)="setOptionText($event)"
                         required
                     ></textarea>
                 </div>
                 <div
                     class="col-md-2 question-option-empty-radio"
-                    [ngClass]="{ 'question-correct-option-radio': option.correctOption }"
+                    [ngClass]="{ 'question-correct-option-radio': option().correctOption }"
                 >
                     <input
-                        name="correctOption-{{ index }}"
+                        name="correctOption-{{ index() }}"
                         type="radio"
-                        [(ngModel)]="option.correctOption"
+                        [ngModel]="option().correctOption"
+                        (ngModelChange)="setCorrectOption($event)"
                         [value]="true"
                         (change)="correctAnswerToggled()"
-                        [disabled]="option.correctOption"
+                        [disabled]="option().correctOption"
                         class="make-inline question-option-radio"
                     />
                 </div>
 
-                @if (allowRemoval) {
+                @if (allowRemoval()) {
                     <button (click)="removeOption()" class="col-md-1 question-option-trash btn btn-link">
                         <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
                     </button>
@@ -54,25 +56,48 @@ import { QuestionService } from 'src/app/question/question.service';
     `,
     styleUrls: ['../question.shared.scss'],
     imports: [FormsModule, NgClass, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultipleChoiceOptionEditorComponent {
-    @Input() option!: MultipleChoiceOption;
-    @Input() index = 0;
-    @Input() question!: Question | QuestionDraft;
-    @Input() allowRemoval = false;
+    option = input.required<MultipleChoiceOption>();
+    index = input(0);
+    question = input.required<Question | QuestionDraft>();
+    allowRemoval = input(false);
+
+    questionChange = output<Question | QuestionDraft>();
 
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
     private Question = inject(QuestionService);
 
-    correctAnswerToggled = () => this.Question.toggleCorrectOption(this.option, this.question.options);
+    setOptionText(value: string) {
+        const optionValue = this.option();
+        optionValue.option = value;
+    }
 
-    removeOption = () => {
-        const hasCorrectAnswer = this.question.options.some((o) => o !== this.option && o.correctOption);
+    setCorrectOption(value: boolean) {
+        const optionValue = this.option();
+        optionValue.correctOption = value;
+    }
+
+    correctAnswerToggled() {
+        const optionValue = this.option();
+        const questionValue = this.question();
+        this.Question.toggleCorrectOption(optionValue, questionValue.options);
+    }
+
+    removeOption() {
+        const optionValue = this.option();
+        const questionValue = this.question();
+        const hasCorrectAnswer = questionValue.options.some((o) => o !== optionValue && o.correctOption);
         if (hasCorrectAnswer) {
-            this.question.options.splice(this.question.options.indexOf(this.option), 1);
+            const updatedQuestion = {
+                ...questionValue,
+                options: questionValue.options.filter((o) => o !== optionValue),
+            };
+            this.questionChange.emit(updatedQuestion);
         } else {
             this.toast.error(this.translate.instant('i18n_action_disabled_minimum_options'));
         }
-    };
+    }
 }

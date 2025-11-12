@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { AfterViewInit, Component, inject, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -33,22 +32,22 @@ interface Filterable<T> {
     templateUrl: './library-search.component.html',
     imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, FormsModule, TranslateModule],
 })
-export class LibrarySearchComponent implements OnInit {
-    @Output() updated: EventEmitter<LibraryQuestion[]> = new EventEmitter<LibraryQuestion[]>();
+export class LibrarySearchComponent implements AfterViewInit {
+    updated = output<LibraryQuestion[]>();
 
     filter = { owner: '', text: '' };
     limitations = { course: '', exam: '', section: '', tag: '', owner: '' };
     user: User;
-    courses: Filterable<Course>[] = [];
-    filteredCourses = this.courses;
-    exams: Filterable<Exam>[] = [];
-    filteredExams = this.exams;
-    sections: Filterable<ExamSection>[] = [];
-    filteredSections = this.sections;
-    tags: Filterable<Tag>[] = [];
-    filteredTags = this.tags;
-    owners: Filterable<User>[] = [];
-    filteredOwners = this.owners;
+    courses = signal<Filterable<Course>[]>([]);
+    filteredCourses = signal<Filterable<Course>[]>([]);
+    exams = signal<Filterable<Exam>[]>([]);
+    filteredExams = signal<Filterable<Exam>[]>([]);
+    sections = signal<Filterable<ExamSection>[]>([]);
+    filteredSections = signal<Filterable<ExamSection>[]>([]);
+    tags = signal<Filterable<Tag>[]>([]);
+    filteredTags = signal<Filterable<Tag>[]>([]);
+    owners = signal<Filterable<User>[]>([]);
+    filteredOwners = signal<Filterable<User>[]>([]);
     questions: LibraryQuestion[] = [];
 
     private Library = inject(LibraryService);
@@ -60,14 +59,19 @@ export class LibrarySearchComponent implements OnInit {
         this.user = this.Session.getUser();
     }
 
-    ngOnInit() {
+    ngAfterViewInit() {
         const storedData = this.Library.loadFilters('search');
         if (storedData.filters) {
-            this.courses = this.filteredCourses = storedData.filters.courses || [];
-            this.exams = this.filteredExams = storedData.filters.exams || [];
-            this.sections = this.filteredSections = storedData.filters.sections || [];
-            this.tags = this.filteredTags = storedData.filters.tags || [];
-            this.owners = this.filteredOwners = storedData.filters.owners || [];
+            this.courses.set(storedData.filters.courses || []);
+            this.filteredCourses.set(storedData.filters.courses || []);
+            this.exams.set(storedData.filters.exams || []);
+            this.filteredExams.set(storedData.filters.exams || []);
+            this.sections.set(storedData.filters.sections || []);
+            this.filteredSections.set(storedData.filters.sections || []);
+            this.tags.set(storedData.filters.tags || []);
+            this.filteredTags.set(storedData.filters.tags || []);
+            this.owners.set(storedData.filters.owners || []);
+            this.filteredOwners.set(storedData.filters.owners || []);
             this.filter.text = storedData.filters.text;
             this.filter.owner = storedData.filters.owner;
             this.query$().subscribe((questions) => {
@@ -99,11 +103,11 @@ export class LibrarySearchComponent implements OnInit {
     };
 
     listCourses = () => {
-        const courses = this.courses.filter((c) => c.filtered);
+        const courses = this.courses().filter((c) => c.filtered);
         return this.Library.listCourses$(this.getExamIds(), this.getSectionIds(), this.getTagIds(), this.getOwnerIds())
             .pipe(
                 tap((resp) => {
-                    this.courses = this.filteredCourses = this.union(
+                    const newCourses = this.union(
                         courses,
                         resp.map((r) => ({
                             id: r.id,
@@ -113,13 +117,19 @@ export class LibrarySearchComponent implements OnInit {
                             filtered: false,
                         })),
                     ).sort((a, b) => a.name.localeCompare(b.name));
+                    this.courses.set(newCourses);
+                    if (this.limitations.course) {
+                        this.filterCourses();
+                    } else {
+                        this.filteredCourses.set(newCourses);
+                    }
                 }),
             )
             .subscribe();
     };
 
     listExams$ = (): Observable<Exam[]> => {
-        const exams = this.exams.filter((e) => e.filtered);
+        const exams = this.exams().filter((e) => e.filtered);
         return this.Library.listExams$(
             this.getCourseIds(),
             this.getSectionIds(),
@@ -127,7 +137,7 @@ export class LibrarySearchComponent implements OnInit {
             this.getOwnerIds(),
         ).pipe(
             tap((resp) => {
-                this.exams = this.filteredExams = this.union(
+                const newExams = this.union(
                     exams,
                     resp.map((r) => ({
                         id: r.id,
@@ -138,12 +148,18 @@ export class LibrarySearchComponent implements OnInit {
                         period: this.formatPeriod(r.periodStart, r.periodEnd),
                     })),
                 ).sort((a, b) => a.name.localeCompare(b.name));
+                this.exams.set(newExams);
+                if (this.limitations.exam) {
+                    this.filterExams();
+                } else {
+                    this.filteredExams.set(newExams);
+                }
             }),
         );
     };
 
     listSections$ = (): Observable<ExamSection[]> => {
-        const sections = this.sections.filter((s) => s.filtered);
+        const sections = this.sections().filter((s) => s.filtered);
         return this.Library.listSections$(
             this.getCourseIds(),
             this.getExamIds(),
@@ -151,7 +167,7 @@ export class LibrarySearchComponent implements OnInit {
             this.getOwnerIds(),
         ).pipe(
             tap((resp) => {
-                this.sections = this.filteredSections = this.union(
+                const newSections = this.union(
                     sections,
                     resp.map((r) => ({
                         id: r.id,
@@ -160,12 +176,18 @@ export class LibrarySearchComponent implements OnInit {
                         filtered: false,
                     })),
                 ).sort((a, b) => a.name.localeCompare(b.name));
+                this.sections.set(newSections);
+                if (this.limitations.section) {
+                    this.filterSections();
+                } else {
+                    this.filteredSections.set(newSections);
+                }
             }),
         );
     };
 
     listTags$ = () => {
-        const tags = this.tags.filter((t) => t.filtered);
+        const tags = this.tags().filter((t) => t.filtered);
         return this.Library.listTags$(
             this.getCourseIds(),
             this.getExamIds(),
@@ -173,7 +195,7 @@ export class LibrarySearchComponent implements OnInit {
             this.getOwnerIds(),
         ).pipe(
             tap((resp) => {
-                this.tags = this.filteredTags = this.union(
+                const newTags = this.union(
                     tags,
                     resp.map((r) => ({
                         id: r.id as number,
@@ -183,17 +205,23 @@ export class LibrarySearchComponent implements OnInit {
                         usage: r.questions.length,
                     })),
                 ).sort((a, b) => a.name.localeCompare(b.name));
+                this.tags.set(newTags);
+                if (this.limitations.tag) {
+                    this.filterTags();
+                } else {
+                    this.filteredTags.set(newTags);
+                }
             }),
         );
     };
 
     listAllOwners$ = () => {
         if (this.user.isAdmin) {
-            const owners = this.owners.filter((o) => o.filtered);
+            const owners = this.owners().filter((o) => o.filtered);
             return this.User.listUsersByRoles$(['TEACHER', 'ADMIN'])
                 .pipe(
                     tap((resp) => {
-                        this.owners = this.filteredOwners = this.union(
+                        const newOwners = this.union(
                             owners,
                             resp.map((r) => ({
                                 id: r.id,
@@ -202,6 +230,12 @@ export class LibrarySearchComponent implements OnInit {
                                 filtered: false,
                             })),
                         ).sort((a, b) => a.name.localeCompare(b.name));
+                        this.owners.set(newOwners);
+                        if (this.limitations.owner) {
+                            this.filterOwners();
+                        } else {
+                            this.filteredOwners.set(newOwners);
+                        }
                     }),
                 )
                 .subscribe();
@@ -224,17 +258,19 @@ export class LibrarySearchComponent implements OnInit {
                     filtered: false,
                 } as Filterable<User>;
             });
-            return (this.owners = this.filteredOwners =
-                this.filteredOwners.length == 0 ? commonOwners : this.filteredOwners);
+            const result = this.filteredOwners().length == 0 ? commonOwners : this.filteredOwners();
+            this.owners.set(result);
+            this.filteredOwners.set(result);
+            return result;
         }
     };
 
     getFilters = () => {
-        const courses = this.courses.filter((c) => c.filtered);
-        const exams = this.exams.filter((e) => e.filtered);
-        const sections = this.sections.filter((s) => s.filtered);
-        const tags = this.tags.filter((t) => t.filtered);
-        const owners = this.owners.filter((o) => o.filtered);
+        const courses = this.courses().filter((c) => c.filtered);
+        const exams = this.exams().filter((e) => e.filtered);
+        const sections = this.sections().filter((s) => s.filtered);
+        const tags = this.tags().filter((t) => t.filtered);
+        const owners = this.owners().filter((o) => o.filtered);
         const res: (
             | Filterable<Course>
             | Filterable<Exam>
@@ -251,29 +287,35 @@ export class LibrarySearchComponent implements OnInit {
     };
 
     filterCourses = () => {
-        this.filteredCourses = this.courses.filter(
-            (c) =>
-                c.name.toLowerCase().includes(this.limitations.course.toLowerCase()) ||
-                (c.code && c.code.toLowerCase().includes(this.limitations.course.toLowerCase())),
+        this.filteredCourses.set(
+            this.courses().filter(
+                (c) =>
+                    c.name.toLowerCase().includes(this.limitations.course.toLowerCase()) ||
+                    (c.code && c.code.toLowerCase().includes(this.limitations.course.toLowerCase())),
+            ),
         );
     };
 
     filterExams = () => {
-        this.filteredExams = this.exams.filter(
-            (e) =>
-                e.name.toLowerCase().includes(this.limitations.exam.toLowerCase()) ||
-                (e.code && e.code.toLowerCase().includes(this.limitations.exam.toLowerCase())),
+        this.filteredExams.set(
+            this.exams().filter(
+                (e) =>
+                    e.name.toLowerCase().includes(this.limitations.exam.toLowerCase()) ||
+                    (e.code && e.code.toLowerCase().includes(this.limitations.exam.toLowerCase())),
+            ),
         );
     };
 
     filterSections = () => {
-        this.filteredSections = this.sections.filter((s) =>
-            s.name.toLowerCase().includes(this.limitations.section.toLowerCase()),
+        this.filteredSections.set(
+            this.sections().filter((s) => s.name.toLowerCase().includes(this.limitations.section.toLowerCase())),
         );
     };
 
     filterTags = () => {
-        this.filteredTags = this.tags.filter((t) => t.name.toLowerCase().includes(this.limitations.tag.toLowerCase()));
+        this.filteredTags.set(
+            this.tags().filter((t) => t.name.toLowerCase().includes(this.limitations.tag.toLowerCase())),
+        );
     };
 
     formatCourse = (f: Filterable<Course | Exam>) => (f.code ? this.CourseCode.formatCode(f.code) : '');
@@ -282,28 +324,44 @@ export class LibrarySearchComponent implements OnInit {
         s && e ? `${DateTime.fromISO(s).toFormat('dd.LL.yyyy')}-${DateTime.fromISO(e).toFormat('dd.LL.yyyy')}` : '';
 
     filterOwners = () => {
-        this.filteredOwners = this.owners.filter(
-            (t) => t.name.toLowerCase().indexOf(this.limitations.owner.toLowerCase()) > -1,
+        this.filteredOwners.set(
+            this.owners().filter((t) => t.name.toLowerCase().indexOf(this.limitations.owner.toLowerCase()) > -1),
         );
     };
 
     private saveFilters = () => {
         const filters = {
-            courses: this.courses,
-            exams: this.exams,
-            sections: this.sections,
-            tags: this.tags,
+            courses: this.courses(),
+            exams: this.exams(),
+            sections: this.sections(),
+            tags: this.tags(),
+            owners: this.owners(),
             text: this.filter.text,
             owner: this.filter.owner,
         };
         this.Library.storeFilters(filters, 'search');
     };
 
-    private getCourseIds = () => this.courses.filter((course) => course.filtered).map((course) => course.id);
-    private getExamIds = () => this.exams.filter((exam) => exam.filtered).map((exam) => exam.id);
-    private getTagIds = () => this.tags.filter((tag) => tag.filtered).map((tag) => tag.id);
-    private getSectionIds = () => this.sections.filter((section) => section.filtered).map((section) => section.id);
-    private getOwnerIds = () => this.owners.filter((owner) => owner.filtered).map((owner) => owner.id);
+    private getCourseIds = () =>
+        this.courses()
+            .filter((course) => course.filtered)
+            .map((course) => course.id);
+    private getExamIds = () =>
+        this.exams()
+            .filter((exam) => exam.filtered)
+            .map((exam) => exam.id);
+    private getTagIds = () =>
+        this.tags()
+            .filter((tag) => tag.filtered)
+            .map((tag) => tag.id);
+    private getSectionIds = () =>
+        this.sections()
+            .filter((section) => section.filtered)
+            .map((section) => section.id);
+    private getOwnerIds = () =>
+        this.owners()
+            .filter((owner) => owner.filtered)
+            .map((owner) => owner.id);
 
     private union<T>(filtered: Filterable<T>[], tags: Filterable<T>[]): Filterable<T>[] {
         const filteredIds = filtered.map((f) => f.id);

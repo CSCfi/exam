@@ -20,15 +20,13 @@ SPDX-License-Identifier: EUPL-1.2
                     (newText)="setText($event)"
                 />
 
-                @if (question?.type === 'EssayQuestion') {
+                @if (question?.type === 'EssayQuestion' && examQuestion(); as eq) {
                     <xm-eq-essay
-                        [evaluationType]="examQuestion.evaluationType"
-                        [expectedWordCount]="examQuestion.expectedWordCount"
-                        [evaluationCriteria]="examQuestion.evaluationCriteria"
-                        [lotteryOn]="lotteryOn"
-                        (evaluationTypeChanged)="updateEvaluationType($event)"
-                        (expectedWordCountChanged)="updateWordCount($event)"
-                        (evaluationCriteriaChanged)="updateEvaluationCriteria($event)"
+                        [(evaluationType)]="eq.evaluationType"
+                        [(expectedWordCount)]="eq.expectedWordCount"
+                        [(evaluationCriteria)]="eq.evaluationCriteria"
+                        [lotteryOn]="lotteryOn()"
+                        (evaluationTypeChange)="updateEvaluationType($event)"
                     />
                 }
 
@@ -56,35 +54,32 @@ SPDX-License-Identifier: EUPL-1.2
                 <!-- Type specific content - weighted multiple choice -->
                 @if (question?.type === 'WeightedMultipleChoiceQuestion') {
                     <xm-eq-weighted-mc
-                        [question]="examQuestion"
-                        (optionsChanged)="optionsChanged($event)"
-                        (negativeScoreSettingChanged)="negativeScoreSettingChanged($event)"
-                        (shufflingSettingChanged)="shufflingSettingChanged($event)"
-                        [lotteryOn]="lotteryOn"
+                        [(question)]="examQuestion"
+                        [lotteryOn]="lotteryOn()"
                         [isInPublishedExam]="isInPublishedExam"
                     />
                 }
 
                 @if (question?.type === 'MultipleChoiceQuestion') {
                     <xm-eq-unweighted-mc
-                        [question]="examQuestion"
-                        (optionsChanged)="optionsChanged($event)"
-                        (shufflingSettingChanged)="shufflingSettingChanged($event)"
-                        [lotteryOn]="lotteryOn"
+                        [(question)]="examQuestion"
+                        [lotteryOn]="lotteryOn()"
                         [isInPublishedExam]="isInPublishedExam"
                     />
                 }
 
                 <!-- Type specific content - claim choice option -->
-                @if (question?.type === 'ClaimChoiceQuestion') {
-                    <xm-eq-claim-choice [(options)]="examQuestion.options" [lotteryOn]="lotteryOn" />
+                @if (question?.type === 'ClaimChoiceQuestion' && examQuestion(); as eq) {
+                    <xm-eq-claim-choice [(options)]="eq.options" [lotteryOn]="lotteryOn()" />
                 }
 
                 <!-- Max score -->
                 @if (
-                    question?.type === 'MultipleChoiceQuestion' ||
-                    question?.type === 'ClozeTestQuestion' ||
-                    examQuestion.evaluationType === 'Points'
+                    (question?.type === 'MultipleChoiceQuestion' ||
+                        question?.type === 'ClozeTestQuestion' ||
+                        examQuestion()?.evaluationType === 'Points') &&
+                        examQuestion();
+                    as eq
                 ) {
                     <div class="row mt-2">
                         <div class="col-md-3">
@@ -98,12 +93,12 @@ SPDX-License-Identifier: EUPL-1.2
                                 step="0.01"
                                 lang="en"
                                 class="form-control xm-numeric-input"
-                                [(ngModel)]="examQuestion.maxScore"
+                                [(ngModel)]="eq.maxScore"
                                 [min]="0"
                                 [max]="1000"
                                 required
                                 xmFixedPrecision
-                                [disabled]="lotteryOn"
+                                [disabled]="lotteryOn()"
                             />
                         </div>
                     </div>
@@ -204,15 +199,17 @@ SPDX-License-Identifier: EUPL-1.2
                         </sup>
                     </div>
                     <div class="col-md-9">
-                        <textarea
-                            id="instruction"
-                            name="instruction"
-                            class="form-control"
-                            rows="3"
-                            [(ngModel)]="examQuestion.answerInstructions"
-                            placeholder="{{ 'i18n_question_instruction' | translate }}"
-                        >
-                        </textarea>
+                        @if (examQuestion(); as eq) {
+                            <textarea
+                                id="instruction"
+                                name="instruction"
+                                class="form-control"
+                                rows="3"
+                                [(ngModel)]="eq.answerInstructions"
+                                placeholder="{{ 'i18n_question_instruction' | translate }}"
+                            >
+                            </textarea>
+                        }
                     </div>
                 </div>
 

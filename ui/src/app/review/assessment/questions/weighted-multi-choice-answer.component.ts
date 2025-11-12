@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 
@@ -12,8 +12,9 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-weighted-multi-choice-answer',
-    template: `@for (option of sectionQuestion.options | orderBy: 'id'; track option) {
-        <div class="ps-2 mb-2" [hidden]="!reviewExpanded">
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `@for (option of sectionQuestion().options | orderBy: 'id'; track option) {
+        <div class="ps-2 mb-2" [hidden]="!reviewExpanded()">
             @if (option.answered) {
                 @if (option.score >= 0) {
                     <div class="exam-answered-correct">
@@ -65,6 +66,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     styleUrl: './multi-choice-answers.shared.scss',
 })
 export class WeightedMultiChoiceAnswerComponent {
-    @Input() sectionQuestion!: ExamSectionQuestion;
-    reviewExpanded = true;
+    sectionQuestion = input.required<ExamSectionQuestion>();
+    reviewExpanded = signal(true);
 }

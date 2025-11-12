@@ -5,7 +5,7 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <div class="xm-study-item-container">
-    @if (answer.question.question !== answer.question.parent?.question) {
+    @if (answer().question.question !== answer().question.parent?.question) {
         <div class="row m-2">
             <span class="col-12 alert alert-warning" role="alert">
                 <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'i18n_question_differs' | translate }}
@@ -19,14 +19,14 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="row m-1 pb-1">
         <div class="col-12">
-            <a [routerLink]="['/staff/assessments', answer.examSection.exam.id]" target="_blank">
-                {{ name }}
-                @if (answer.examSection.exam.creator?.userIdentifier) {
-                    <span>({{ answer.examSection.exam.creator.userIdentifier }})</span>
+            <a [routerLink]="['/staff/assessments', answer().examSection.exam.id]" target="_blank">
+                {{ name() }}
+                @if (answer().examSection.exam.creator?.userIdentifier) {
+                    <span>({{ answer().examSection.exam.creator.userIdentifier }})</span>
                 }
             </a>
-            <button type="button" class="btn btn-link ms-1" (click)="answer.expanded = !answer.expanded">
-                @if (answer.expanded) {
+            <button type="button" class="btn btn-link ms-1" (click)="toggleExpanded()">
+                @if (answer().expanded) {
                     <img src="/assets/images/icon_list_show_down.svg" alt="" />
                 } @else {
                     <img src="/assets/images/icon_list_show_right.svg" alt="" />
@@ -34,14 +34,14 @@ SPDX-License-Identifier: EUPL-1.2
             </button>
         </div>
     </div>
-    <div [ngbCollapse]="!answer.expanded">
+    <div [ngbCollapse]="!answer().expanded">
         <div class="row m-1">
             <div class="col-12">
                 <strong>{{ 'i18n_exam_answer' | translate | uppercase }}</strong>
             </div>
         </div>
-        <div class="row ms-1"><div class="col-12" [xmMathJax]="answer.essayAnswer.answer || ''"></div></div>
-        @if (answer.essayAnswer.attachment) {
+        <div class="row ms-1"><div class="col-12" [xmMathJax]="answer().essayAnswer.answer || ''"></div></div>
+        @if (answer().essayAnswer.attachment) {
             <div class="row ms-1">
                 <div class="col-12">
                     <strong>{{ 'i18n_answer_attachment' | translate | uppercase }}</strong>
@@ -50,7 +50,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="row">
                 <div class="col-12">
                     <a class="pointer" (click)="downloadAttachment()">
-                        {{ answer.essayAnswer.attachment.fileName | uppercase }}
+                        {{ answer().essayAnswer.attachment.fileName | uppercase }}
                     </a>
                 </div>
             </div>
@@ -66,13 +66,13 @@ SPDX-License-Identifier: EUPL-1.2
                 {{ getCharacterCount() }} {{ 'i18n_characters' | translate }}
             </div>
         </div>
-        @if ((answer.expectedWordCount || 0) > 0) {
+        @if ((answer().expectedWordCount || 0) > 0) {
             <div class="row ms-1">
                 <div class="col-12">
-                    {{ 'i18n_essay_length_recommendation' | translate }}: {{ answer.expectedWordCount }} ({{
+                    {{ 'i18n_essay_length_recommendation' | translate }}: {{ answer().expectedWordCount }} ({{
                         'i18n_approximately' | translate
                     }}
-                    {{ (answer.expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
+                    {{ (answer().expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
                 </div>
             </div>
         }
@@ -87,19 +87,19 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         <div class="row ms-1">
             <div class="col-2">
-                @if (answer.evaluationType === 'Points') {
+                @if (answer().evaluationType === 'Points') {
                     <form #essayPoints="ngForm" name="essayPoints">
                         <input
                             name="score"
                             type="number"
                             lang="en"
                             class="form-control"
-                            [(ngModel)]="answer.essayAnswer.temporaryScore"
+                            [(ngModel)]="answer().essayAnswer.temporaryScore"
                             size="5"
                             onclick="this.focus();"
-                            [disabled]="!editable"
+                            [disabled]="!editable()"
                             [min]="0"
-                            [max]="answer.maxScore"
+                            [max]="answer().maxScore"
                         />
                         @if (essayPoints.invalid) {
                             <small class="alert-danger">
@@ -109,8 +109,8 @@ SPDX-License-Identifier: EUPL-1.2
                     </form>
                 }
             </div>
-            @if (answer.evaluationType === 'Selection') {
-                <select class="form-select" [(ngModel)]="answer.essayAnswer.temporaryScore" [disabled]="!editable">
+            @if (answer().evaluationType === 'Selection') {
+                <select class="form-select" [(ngModel)]="answer().essayAnswer.temporaryScore" [disabled]="!editable()">
                     <option [ngValue]="1">
                         {{ 'i18n_approved' | translate }}
                     </option>
@@ -125,10 +125,14 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-12">
                 <span class="checkbox">
                     <label>
-                        <input type="checkbox" [(ngModel)]="answer.selected" [disabled]="!editable || !isAssessed()" />
-                        {{ action | translate }}
+                        <input
+                            type="checkbox"
+                            [(ngModel)]="answer().selected"
+                            [disabled]="!editable() || !isAssessed()"
+                        />
+                        {{ action() | translate }}
                     </label>
-                    @if (editable && isAssessed() && answer.selected) {
+                    @if (editable() && isAssessed() && answer().selected) {
                         <button type="button" class="btn btn-success btn-sm ms-2" (click)="saveScore()">
                             {{ 'i18n_move_individual' | translate }}
                         </button>

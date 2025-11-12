@@ -4,7 +4,7 @@
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -45,19 +45,20 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
         PageHeaderComponent,
         PageContentComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamListingComponent implements OnInit, OnDestroy {
-    activeId = 0;
+export class ExamListingComponent implements OnDestroy {
+    activeId = signal(0);
     views = [
         { view: 'PUBLISHED', showExpired: false },
         { view: 'PUBLISHED', showExpired: true },
         { view: 'SAVED', showExpired: false },
         { view: 'DRAFT', showExpired: false },
     ];
-    examsPredicate = 'periodEnd';
-    reverse = true;
-    loader = { loading: false };
-    exams: ExamListExam[] = [];
+    examsPredicate = signal('periodEnd');
+    reverse = signal(true);
+    loader = signal({ loading: false });
+    exams = signal<ExamListExam[]>([]);
     subject = new Subject<string>();
     ngUnsubscribe = new Subject();
 
@@ -69,18 +70,13 @@ export class ExamListingComponent implements OnInit, OnDestroy {
     private Exam = inject(ExamService);
     private Modal = inject(ModalService);
 
-    ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
-        this.ngUnsubscribe.complete();
-    }
-
-    ngOnInit() {
+    constructor() {
         this.subject
             .pipe(
                 debounceTime(500),
                 distinctUntilChanged(),
                 switchMap((term) => this.http.get<ExamListExam[]>('/app/exams', { params: { filter: term } })),
-                tap(() => (this.loader.loading = true)),
+                tap(() => this.loader.set({ loading: true })),
                 map((exams: ExamListExam[]) => {
                     exams.forEach((e) => {
                         e.ownerAggregate = e.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join();
@@ -93,24 +89,33 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                     return exams;
                 }),
                 tap((exams) => {
-                    this.exams = exams;
-                    this.loader.loading = false;
+                    this.exams.set(exams);
+                    this.loader.set({ loading: false });
                 }),
                 takeUntil(this.ngUnsubscribe),
             )
             .subscribe();
     }
 
-    newExam = () => this.router.navigate(['/staff/exams']);
+    ngOnDestroy() {
+        this.ngUnsubscribe.next(undefined);
+        this.ngUnsubscribe.complete();
+    }
 
-    search = (event: KeyboardEvent) => {
+    newExam() {
+        this.router.navigate(['/staff/exams']);
+    }
+
+    search(event: KeyboardEvent) {
         const e = event.target as HTMLInputElement;
-        return this.subject.next(e.value);
-    };
+        this.subject.next(e.value);
+    }
 
-    createExam = (executionType: Implementation) => this.Exam.createExam(executionType);
+    createExam(executionType: Implementation) {
+        this.Exam.createExam(executionType);
+    }
 
-    copyExam = (exam: Exam) =>
+    copyExam(exam: Exam) {
         this.Modal.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent)
             .pipe(switchMap((data) => this.http.post<Exam>(`/app/exams/${exam.id}`, data)))
             .subscribe({
@@ -120,8 +125,9 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                 },
                 error: (err) => this.toast.error(err),
             });
+    }
 
-    deleteExam = (exam: ExamListExam) =>
+    deleteExam(exam: ExamListExam) {
         this.Confirmation.open$(
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_remove_exam'),
@@ -130,24 +136,32 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                 this.http.delete(`/app/exams/${exam.id}`).subscribe({
                     next: () => {
                         this.toast.success(this.translate.instant('i18n_exam_removed'));
-                        this.exams.splice(this.exams.indexOf(exam), 1);
+                        const currentExams = this.exams();
+                        const updated = currentExams.filter((e) => e.id !== exam.id);
+                        this.exams.set(updated);
                     },
                     error: (err) => this.toast.error(err),
                 });
             },
         });
+    }
 
-    filterByStateAndExpiration = (state: string, expired: boolean) =>
-        this.exams.filter((e) => e.state === state && e.expired == expired);
+    filterByStateAndExpiration(state: string, expired: boolean) {
+        return this.exams().filter((e) => e.state === state && e.expired == expired);
+    }
 
-    filterByState = (state: string) => this.exams.filter((e) => e.state === state);
+    filterByState(state: string) {
+        return this.exams().filter((e) => e.state === state);
+    }
 
-    getExecutionTypeTranslation = (exam: ExamListExam) => this.Exam.getExecutionTypeTranslation(exam.executionType);
+    getExecutionTypeTranslation(exam: ExamListExam) {
+        return this.Exam.getExecutionTypeTranslation(exam.executionType);
+    }
 
-    setPredicate = (predicate: string) => {
-        if (this.examsPredicate === predicate) {
-            this.reverse = !this.reverse;
+    setPredicate(predicate: string) {
+        if (this.examsPredicate() === predicate) {
+            this.reverse.update((v) => !v);
         }
-        this.examsPredicate = predicate;
-    };
+        this.examsPredicate.set(predicate);
+    }
 }

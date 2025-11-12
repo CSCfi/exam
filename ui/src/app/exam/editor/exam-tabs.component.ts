@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe } from '@angular/common';
-import type { OnDestroy, OnInit } from '@angular/core';
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import type { OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavItemRole, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -36,16 +36,16 @@ import { ExamTabService } from './exam-tabs.service';
         HistoryBackComponent,
     ],
     styleUrl: './exam-tabs.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamTabsComponent implements OnInit, OnDestroy {
-    exam!: Exam;
-    collaborative = false;
+export class ExamTabsComponent implements OnDestroy {
+    exam = signal<Exam | undefined>(undefined);
+    collaborative = signal(false);
+    examInfo = signal<{ title: string | null }>({ title: null });
+    activeTab = signal(1);
     user: User;
-    examInfo: { title: string | null };
-    activeTab = 1;
     private ngUnsubscribe = new Subject();
 
-    private cdr = inject(ChangeDetectorRef);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private translate = inject(TranslateService);
@@ -55,24 +55,20 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
 
     constructor() {
         this.user = this.Session.getUser();
-        this.examInfo = { title: null };
+        this.collaborative.set(this.route.snapshot.queryParamMap.get('collaborative') === 'true');
+        this.route.data.subscribe((data) => {
+            const examValue = data.exam as Exam;
+            this.exam.set(examValue);
+            this.updateTitle(!examValue.course ? null : examValue.course.code, examValue.name);
+            this.initGradeScale();
+            this.Tabs.setExam(examValue);
+            this.Tabs.setCollaborative(this.collaborative());
+        });
         this.Tabs.tabChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((tab: number) => {
-            this.activeTab = tab;
-            this.cdr.detectChanges();
+            this.activeTab.set(tab);
         });
         this.Tabs.examUpdate$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((props: UpdateProps) => {
             this.examUpdated(props);
-        });
-    }
-
-    ngOnInit() {
-        this.collaborative = this.route.snapshot.queryParamMap.get('collaborative') === 'true';
-        this.route.data.subscribe((data) => {
-            this.exam = data.exam;
-            this.updateTitle(!this.exam.course ? null : this.exam.course.code, this.exam.name);
-            this.initGradeScale();
-            this.Tabs.setExam(this.exam);
-            this.Tabs.setCollaborative(this.collaborative);
         });
     }
 
@@ -81,44 +77,69 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    updateTitle = (code: string | null, name: string | null) => {
+    updateTitle(code: string | null, name: string | null) {
+        let title: string;
         if (code && name) {
-            this.examInfo.title = `${this.CourseCode.formatCode(code)} ${name}`;
+            title = `${this.CourseCode.formatCode(code)} ${name}`;
         } else if (code) {
-            this.examInfo.title = `${this.CourseCode.formatCode(code)} ${this.translate.instant('i18n_no_name')}`;
+            title = `${this.CourseCode.formatCode(code)} ${this.translate.instant('i18n_no_name')}`;
         } else if (name) {
-            this.examInfo.title = name;
+            title = name;
         } else {
-            this.examInfo.title = this.translate.instant('i18n_no_name');
+            title = this.translate.instant('i18n_no_name');
         }
-    };
+        this.examInfo.set({ title });
+    }
 
-    isOwner = () =>
-        this.exam.examOwners &&
-        this.exam.examOwners.some(
-            (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
+    isOwner() {
+        const currentExam = this.exam();
+        return (
+            currentExam?.examOwners &&
+            currentExam.examOwners.some(
+                (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
+            )
         );
+    }
 
-    navChanged = (event: NgbNavChangeEvent) =>
+    navChanged(event: NgbNavChangeEvent) {
         this.router.navigate([event.nextId], {
             relativeTo: this.route,
-            queryParams: { collaborative: this.collaborative },
+            queryParams: { collaborative: this.collaborative() },
         });
+    }
 
-    examUpdated = (props: UpdateProps) => {
+    examUpdated(props: UpdateProps) {
         this.updateTitle(props.code, props.name);
+        const currentExam = this.exam();
+        if (!currentExam) return;
         if (props.scaleChange) {
-            delete this.exam.autoEvaluationConfig;
+            const { autoEvaluationConfig: _autoEvaluationConfig, ...examWithoutAutoEval } = currentExam;
+            void _autoEvaluationConfig;
+            this.exam.set(examWithoutAutoEval as Exam);
         }
         if (props.initScale) {
-            this.exam.gradeScale = this.exam?.course?.gradeScale;
+            this.exam.update((exam) => {
+                if (!exam) return exam;
+                return {
+                    ...exam,
+                    gradeScale: exam.course?.gradeScale,
+                } as Exam;
+            });
         }
-    };
+    }
 
-    private initGradeScale = () => {
+    private initGradeScale() {
         // Set exam grade scale from course default if not specifically set for exam
-        if (!this.exam.gradeScale && this.exam.course && this.exam.course.gradeScale) {
-            this.exam.gradeScale = this.exam.course.gradeScale;
+        const currentExam = this.exam();
+        if (!currentExam) return;
+        if (!currentExam.gradeScale && currentExam.course && currentExam.course.gradeScale) {
+            this.exam.update((exam) => {
+                if (!exam) return exam;
+                return {
+                    ...exam,
+                    gradeScale: exam.course?.gradeScale,
+                } as Exam;
+            });
         }
-    };
+    }
 }

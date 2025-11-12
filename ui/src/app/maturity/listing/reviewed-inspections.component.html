@@ -7,10 +7,10 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="row p-2 mb-2 maturity-paragraph-title">
     <div class="col-md-6">
         {{ 'i18n_processed_language_inspections' | translate }}
-        @if (inspections.length > 0) {
-            <a (click)="hideItems = !hideItems" class="pointer ms-1">
-                <img [hidden]="!hideItems" src="/assets/images/icon_list_show_right.svg" alt="" />
-                <img [hidden]="hideItems" src="/assets/images/icon_list_show_down.svg" alt="" />
+        @if (inspections().length > 0) {
+            <a (click)="toggleHideItems()" class="pointer ms-1">
+                <img [hidden]="!hideItems()" src="/assets/images/icon_list_show_right.svg" alt="" />
+                <img [hidden]="hideItems()" src="/assets/images/icon_list_show_down.svg" alt="" />
             </a>
         }
     </div>
@@ -23,7 +23,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 </div>
 
-<div [ngbCollapse]="hideItems" [hidden]="inspections.length === 0">
+<div [ngbCollapse]="hideItems()" [hidden]="inspections().length === 0">
     <div class="col-md-12">
         <!-- Start & End time datepickers -->
         <div class="row mb-3">
@@ -66,15 +66,15 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="row">
     <div class="col-md-12" style="overflow-x: auto">
-        <table class="table table-striped xm-data-table" [hidden]="hideItems">
+        <table class="table table-striped xm-data-table" [hidden]="hideItems()">
             <thead>
                 <tr>
                     <th class="with-top">
                         <xm-table-sort
                             by="exam.course.code"
                             text="i18n_code"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('exam.course.code')"
                         >
                         </xm-table-sort>
@@ -83,8 +83,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="answerLanguage"
                             text="i18n_language"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('answerLanguage')"
                         >
                         </xm-table-sort>
@@ -93,8 +93,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="exam.name"
                             text="i18n_exam_name"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('exam.name')"
                         >
                         </xm-table-sort>
@@ -103,8 +103,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="ownerAggregate"
                             text="i18n_teachers"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('ownerAggregate')"
                         >
                         </xm-table-sort>
@@ -113,8 +113,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="created"
                             text="i18n_arrived"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('created')"
                         >
                         </xm-table-sort>
@@ -123,8 +123,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="studentNameAggregate"
                             text="i18n_student"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('studentNameAggregate')"
                         >
                         </xm-table-sort>
@@ -133,8 +133,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="exam.created"
                             text="i18n_finished"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('exam.created')"
                         >
                         </xm-table-sort>
@@ -143,8 +143,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="inspectorNameAggregate"
                             text="i18n_language_inspector"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('inspectorNameAggregate')"
                         >
                         </xm-table-sort>
@@ -153,8 +153,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="finishedAt"
                             text="i18n_inspection_finished"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('finishedAt')"
                         >
                         </xm-table-sort>
@@ -163,8 +163,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <xm-table-sort
                             by="approved"
                             text="i18n_language_inspections"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
+                            [predicate]="sorting().predicate"
+                            [reverse]="sorting().reverse"
                             (click)="setPredicate('approved')"
                         >
                         </xm-table-sort>
@@ -175,10 +175,10 @@ SPDX-License-Identifier: EUPL-1.2
 
             <tbody>
                 @for (
-                    inspection of filteredInspections
-                        | orderBy: sorting.predicate : sorting.reverse
-                        | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
-                    track inspection
+                    inspection of filteredInspections()
+                        | orderBy: sorting().predicate : sorting().reverse
+                        | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
+                    track inspection.id
                 ) {
                     <tr>
                         <!-- 1 -->
@@ -253,12 +253,12 @@ SPDX-License-Identifier: EUPL-1.2
                     </tr>
                 }
                 <!--Fill if page not full-->
-                @for (r of [] | pageFill: filteredInspections.length : currentPage : pageSize; track r) {
+                @for (r of [] | pageFill: filteredInspections().length : currentPage() : pageSize; track r) {
                     <tr>
                         <td colspan="11">&nbsp;</td>
                     </tr>
                 }
-                @if (filteredInspections.length === 0) {
+                @if (filteredInspections().length === 0) {
                     <tr>
                         <td colspan="11">
                             {{ 'i18n_processed_language_inspections_no_results' | translate }}
@@ -269,11 +269,11 @@ SPDX-License-Identifier: EUPL-1.2
         </table>
     </div>
 </div>
-<div [hidden]="filteredInspections.length <= pageSize">
+<div [hidden]="filteredInspections().length <= pageSize">
     <xm-paginator
-        [items]="filteredInspections"
+        [items]="filteredInspections()"
         (pageSelected)="pageSelected($event)"
         [pageSize]="pageSize"
-        [currentPage]="currentPage"
+        [currentPage]="currentPage()"
     ></xm-paginator>
 </div>

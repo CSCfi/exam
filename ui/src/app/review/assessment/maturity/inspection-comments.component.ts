@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { switchMap } from 'rxjs/operators';
@@ -13,12 +13,15 @@ import type { User } from 'src/app/session/session.model';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-dialog.component';
 
+type InspectionComment = { comment: string; creator: User; created: Date };
+
 @Component({
     selector: 'xm-r-inspection-comments',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<div class="row mb-3 mt-2 align-items-center">
             <div class="col-md-2 ">{{ 'i18n_inspector_comments' | translate }}:</div>
             <div class="col-md-10">
-                @if (addingVisible) {
+                @if (addingVisible()) {
                     <button class="btn btn-success me-2" (click)="addInspectionComment()">
                         {{ 'i18n_inspection_comment_title' | translate }}
                     </button>
@@ -33,7 +36,7 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
             </div>
         </div>
 
-        @for (comment of exam.inspectionComments; track comment) {
+        @for (comment of allComments(); track comment) {
             <div class="col-md-12 ps-0 mb-3">
                 <div class="col-md-4">
                     {{ comment.creator.firstName }} {{ comment.creator.lastName }}
@@ -49,8 +52,22 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
     imports: [NgbPopover, DatePipe, TranslateModule],
 })
 export class InspectionCommentsComponent {
-    @Input() exam!: Exam;
-    @Input() addingVisible = false;
+    exam = input.required<Exam>();
+    addingVisible = input(false);
+
+    // Output signal to notify parent when a comment is added
+    commentAdded = output<InspectionComment>();
+
+    // Computed signal that combines exam comments with locally added ones
+    allComments = computed(() => {
+        const examComments = this.exam().inspectionComments || [];
+        const local = this.localComments();
+        // Combine: local comments first (newest), then exam comments
+        return [...local, ...examComments];
+    });
+
+    // Local signal to track newly added comments (before parent refreshes)
+    private localComments = signal<InspectionComment[]>([]);
 
     private modal = inject(ModalService);
     private http = inject(HttpClient);
@@ -60,11 +77,15 @@ export class InspectionCommentsComponent {
             .open$<{ comment: string }>(InspectionCommentDialogComponent)
             .pipe(
                 switchMap((event) =>
-                    this.http.post<{ comment: string; creator: User; created: Date }>(
-                        `/app/review/${this.exam.id}/inspection`,
-                        { comment: event.comment },
-                    ),
+                    this.http.post<InspectionComment>(`/app/review/${this.exam().id}/inspection`, {
+                        comment: event.comment,
+                    }),
                 ),
             )
-            .subscribe((comment) => this.exam.inspectionComments.unshift(comment));
+            .subscribe((comment) => {
+                // Update local signal (automatically triggers change detection)
+                this.localComments.update((comments) => [comment, ...comments]);
+                // Emit output signal to notify parent
+                this.commentAdded.emit(comment);
+            });
 }

@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -18,6 +17,7 @@ import { SettingsService } from './settings.service';
 @Component({
     templateUrl: './settings.component.html',
     selector: 'xm-settings',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CKEditorComponent,
         FormsModule,
@@ -28,33 +28,84 @@ import { SettingsService } from './settings.service';
         PageContentComponent,
     ],
 })
-export class SettingsComponent implements OnInit {
-    config!: AppConfig;
-    attributes: string[] = [];
-    minorAgreementUpdate = false;
+export class SettingsComponent {
+    config = signal<AppConfig | undefined>(undefined);
+    attributes = signal<string[]>([]);
+    private _minorAgreementUpdate = signal(false);
 
     private Settings = inject(SettingsService);
     private toast = inject(ToastrService);
     private translate = inject(TranslateService);
 
-    ngOnInit() {
-        this.Settings.getConfig$().subscribe((resp) => (this.config = resp));
-        this.Settings.listAttributes$().subscribe((resp) => (this.attributes = resp));
+    constructor() {
+        this.Settings.getConfig$().subscribe((resp) => this.config.set(resp));
+        this.Settings.listAttributes$().subscribe((resp) => this.attributes.set(resp));
     }
 
-    updateAgreement = () =>
-        this.Settings.updateAgreement$(this.config, this.minorAgreementUpdate).subscribe({
+    get minorAgreementUpdate(): boolean {
+        return this._minorAgreementUpdate();
+    }
+
+    get reviewDeadline(): number | undefined {
+        return this.config()?.reviewDeadline;
+    }
+
+    get reservationWindowSize(): number | undefined {
+        return this.config()?.reservationWindowSize;
+    }
+
+    set minorAgreementUpdate(value: boolean) {
+        this._minorAgreementUpdate.set(value);
+    }
+
+    set reviewDeadline(value: number | undefined) {
+        const currentConfig = this.config();
+        if (currentConfig && value !== undefined) {
+            this.config.set({ ...currentConfig, reviewDeadline: value });
+        }
+    }
+
+    set reservationWindowSize(value: number | undefined) {
+        const currentConfig = this.config();
+        if (currentConfig && value !== undefined) {
+            this.config.set({ ...currentConfig, reservationWindowSize: value });
+        }
+    }
+
+    updateAgreement() {
+        const currentConfig = this.config();
+        if (!currentConfig) {
+            return;
+        }
+        this.Settings.updateAgreement$(currentConfig, this._minorAgreementUpdate()).subscribe({
             next: this.onSuccess,
             error: this.onError,
         });
+    }
 
-    updateDeadline = () =>
-        this.Settings.updateDeadline$(this.config).subscribe({ next: this.onSuccess, error: this.onError });
+    updateDeadline() {
+        const currentConfig = this.config();
+        if (!currentConfig) {
+            return;
+        }
+        this.Settings.updateDeadline$(currentConfig).subscribe({ next: this.onSuccess, error: this.onError });
+    }
 
-    updateReservationWindow = () =>
-        this.Settings.updateReservationWindow$(this.config).subscribe({ next: this.onSuccess, error: this.onError });
+    updateReservationWindow() {
+        const currentConfig = this.config();
+        if (!currentConfig) {
+            return;
+        }
+        this.Settings.updateReservationWindow$(currentConfig).subscribe({ next: this.onSuccess, error: this.onError });
+    }
 
-    eulaChanged = (event: string) => (this.config.eula = event);
+    eulaChanged(event: string) {
+        const currentConfig = this.config();
+        if (!currentConfig) {
+            return;
+        }
+        this.config.set({ ...currentConfig, eula: event });
+    }
 
     private onSuccess = () =>
         this.toast.info(this.translate.instant('i18n_settings') + ' ' + this.translate.instant('i18n_updated'));

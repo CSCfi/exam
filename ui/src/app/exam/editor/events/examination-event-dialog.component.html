@@ -6,10 +6,10 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="modal-header">
     <h1 class="xm-modal-title">
-        @if (!config) {
+        @if (!config()) {
             <span>{{ 'i18n_add_examination_event' | translate }}</span>
         }
-        @if (config) {
+        @if (config()) {
             <span>{{ 'i18n_update_examination_event' | translate }}</span>
         }
     </h1>
@@ -21,10 +21,10 @@ SPDX-License-Identifier: EUPL-1.2
             {{ 'i18n_enrolments_exist_for_examination_event' | translate }}
         </div>
     }
-    @if (maintenancePeriods.length > 0) {
+    @if (maintenancePeriods().length > 0) {
         <div class="alert alert-warning form-text mb-2">
             {{ 'i18n_maintenance_periods' | translate }}
-            @for (period of maintenancePeriods | orderBy: 'startsAt'; track period) {
+            @for (period of maintenancePeriods() | orderBy: 'startsAt'; track period) {
                 <span class="d-block">
                     {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
                     {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
@@ -41,8 +41,8 @@ SPDX-License-Identifier: EUPL-1.2
         [minuteStep]="15"
         [readonly]="true"
         [initialTime]="start()"
-        [minDate]="examMinDate"
-        [maxDate]="examMaxDate"
+        [minDate]="examMinDate()"
+        [maxDate]="examMaxDate()"
         (updated)="onStartDateChange($event)"
         autofocus
     >
@@ -89,7 +89,7 @@ SPDX-License-Identifier: EUPL-1.2
             <li>{{ 'i18n_available_capacity' | translate }}: {{ availableCapacity() }}</li>
         </ul>
     </div>
-    @if (requiresPassword) {
+    @if (requiresPassword()) {
         <div class="form-group mt-2">
             <label for="settings-password">{{ 'i18n_settings_password' | translate }}:</label>
             <div id="settings-password" class="input-group">

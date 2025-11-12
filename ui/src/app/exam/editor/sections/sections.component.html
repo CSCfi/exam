@@ -6,7 +6,7 @@ SPDX-License-Identifier: EUPL-1.2
 
 <!-- Sections -->
 
-@if (exam.hasEnrolmentsInEffect) {
+@if (exam().hasEnrolmentsInEffect) {
     <div class="row mx-2">
         <div class="col-md-12">
             <div class="row xm-study-item-container--warning m-3">
@@ -23,8 +23,8 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="row mx-2">
     <div class="col-md-12">
-        <div cdkDropList [cdkDropListData]="exam.examSections" (cdkDropListDropped)="moveSection($event)">
-            @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
+        <div cdkDropList [cdkDropListData]="exam().examSections" (cdkDropListDropped)="moveSection($event)">
+            @for (section of exam().examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
                 <div class="section-box mb-4" cdkDrag cdkDragLockAxis="y">
                     <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
                     <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
@@ -33,12 +33,13 @@ SPDX-License-Identifier: EUPL-1.2
                             class="col-md-12 pt-2"
                             [section]="section"
                             [index]="i + 1"
-                            [examId]="exam.id"
-                            [collaborative]="collaborative"
+                            [examId]="exam().id"
+                            [collaborative]="collaborative()"
                             [canBeOptional]="
-                                exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'
+                                exam().executionType.type !== 'MATURITY' && exam().implementation === 'AQUARIUM'
                             "
                             (removed)="removeSection(section)"
+                            (updated)="updateSection($event)"
                             (materialsChanged)="loadMaterials()"
                         >
                         </xm-section>

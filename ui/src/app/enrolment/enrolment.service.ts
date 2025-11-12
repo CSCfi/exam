@@ -263,10 +263,10 @@ export class EnrolmentService {
 
     private selectExaminationEvent = (exam: Exam, enrolment: ExamEnrolment, nextState?: string) => {
         const modalRef = this.modal.openRef(SelectExaminationEventDialogComponent);
-        modalRef.componentInstance.exam = exam;
-        modalRef.componentInstance.existingEventId = enrolment.examinationEventConfiguration
-            ? enrolment.examinationEventConfiguration.id
-            : undefined;
+        modalRef.componentInstance.exam.set(exam);
+        modalRef.componentInstance.existingEventId.set(
+            enrolment.examinationEventConfiguration ? enrolment.examinationEventConfiguration.id : undefined,
+        );
         this.modal
             .result$<ExaminationEventConfiguration>(modalRef)
             .pipe(

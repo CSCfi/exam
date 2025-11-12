@@ -4,8 +4,7 @@
 
 import { AsyncPipe, DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnDestroy, OnInit } from '@angular/core';
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -31,6 +30,7 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     selector: 'xm-waiting-room',
     templateUrl: './waiting-room.component.html',
     styleUrls: ['../enrolment.shared.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CourseCodeComponent,
         TeacherListComponent,
@@ -45,8 +45,8 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
         PageContentComponent,
     ],
 })
-export class WaitingRoomComponent implements OnInit, OnDestroy {
-    enrolment!: WaitingEnrolment;
+export class WaitingRoomComponent implements OnDestroy {
+    enrolment = signal<WaitingEnrolment | undefined>(undefined);
     isUpcoming = signal(false);
     delayCounter$?: Observable<number>;
 
@@ -56,18 +56,19 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     private toast = inject(ToastrService);
     private Session = inject(SessionService);
     private DateTimeService = inject(DateTimeService);
+    private changeDetector = inject(ChangeDetectorRef);
     private startTimerId = 0;
     private delayTimerId = 0;
 
-    ngOnInit() {
+    constructor() {
         if (this.route.snapshot.params.id && this.route.snapshot.params.hash) {
             this.isUpcoming.set(true);
             this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.route.snapshot.params.id}`).subscribe({
                 next: (enrolment) => {
                     this.setOccasion(enrolment.reservation);
-                    this.enrolment = enrolment;
+                    this.enrolment.set(enrolment);
                     const offset = Math.max(0, this.calculateOffset());
-                    this.startTimerId = window.setTimeout(this.startScheduled, offset);
+                    this.startTimerId = window.setTimeout(() => this.startScheduled(), offset);
                     this.http
                         .post<void>(`/app/student/exam/${this.route.snapshot.params.hash}`, {})
                         .subscribe(() => console.log(`exam ${this.route.snapshot.params.hash} prepared ok`));
@@ -82,8 +83,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         window.clearTimeout(this.delayTimerId);
     }
 
-    getRoomInstructions = () => {
-        const room = this.enrolment.reservation.machine.room;
+    getRoomInstructions() {
+        const enrolment = this.enrolment();
+        if (!enrolment) {
+            return '';
+        }
+        const room = enrolment.reservation.machine.room;
         const lang = this.translate.currentLang.toUpperCase();
         switch (lang) {
             case 'FI':
@@ -93,12 +98,16 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             default:
                 return room.roomInstructionEN;
         }
-    };
+    }
 
-    private startScheduled = () => {
+    private startScheduled() {
         window.clearTimeout(this.startTimerId);
+        const enrolment = this.enrolment();
+        if (!enrolment) {
+            return;
+        }
         const offset = Math.ceil(
-            DateTime.fromJSDate(this.getStart()).plus({ milliseconds: this.enrolment.delay }).toSeconds() -
+            DateTime.fromJSDate(this.getStart()).plus({ milliseconds: enrolment.delay }).toSeconds() -
                 DateTime.now().toSeconds(),
         );
         this.delayTimerId = window.setTimeout(this.Session.checkSession, Math.max(0, offset * 1000));
@@ -106,9 +115,10 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             startWith(0),
             map((n) => offset - n),
         );
-    };
+        this.changeDetector.markForCheck();
+    }
 
-    private setOccasion = (reservation: WaitingReservation) => {
+    private setOccasion(reservation: WaitingReservation) {
         if (!reservation) {
             return;
         }
@@ -119,18 +129,24 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             startAt: start.minus({ hour: start.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
             endAt: end.minus({ hour: end.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
         };
-    };
+    }
 
-    private getStart = () => {
-        if (this.enrolment.examinationEventConfiguration) {
-            return DateTime.fromISO(this.enrolment.examinationEventConfiguration.examinationEvent.start).toJSDate();
+    private getStart() {
+        const enrolment = this.enrolment();
+        if (!enrolment) {
+            return new Date();
         }
-        const start = DateTime.fromISO(this.enrolment.reservation.startAt);
+        if (enrolment.examinationEventConfiguration) {
+            return DateTime.fromISO(enrolment.examinationEventConfiguration.examinationEvent.start).toJSDate();
+        }
+        const start = DateTime.fromISO(enrolment.reservation.startAt);
         if (this.DateTimeService.isDST(new Date())) {
             return start.minus({ hour: 1 }).toJSDate();
         }
         return start.toJSDate();
-    };
+    }
 
-    private calculateOffset = () => this.getStart().getTime() - new Date().getTime();
+    private calculateOffset() {
+        return this.getStart().getTime() - new Date().getTime();
+    }
 }

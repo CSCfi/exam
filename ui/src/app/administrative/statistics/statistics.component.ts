@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
     NgbDropdown,
@@ -44,6 +43,7 @@ enum Tab {
 @Component({
     templateUrl: './statistics.component.html',
     selector: 'xm-statistics',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         NgbNav,
         NgbNavItem,
@@ -66,61 +66,80 @@ enum Tab {
         PageContentComponent,
     ],
 })
-export class StatisticsComponent implements OnInit {
-    view: Tab = Tab.RESPONSES;
-    departments: Departments[] = [];
-    filteredDepartments: Departments[] = [];
-    limitations = { department: '' };
-    queryParams: QueryParams = {};
-    startDate: Date | null = null;
-    endDate: Date | null = null;
+export class StatisticsComponent {
+    departments = signal<Departments[]>([]);
+    startDate = signal<Date | null>(null);
+    endDate = signal<Date | null>(null);
 
+    filteredDepartments = computed(() => {
+        const filter = this._departmentFilter().toLowerCase();
+        if (filter === '') {
+            return this.departments();
+        }
+        return this.departments().filter((d) => d.name.toLowerCase().includes(filter));
+    });
+
+    queryParams = computed<QueryParams>(() => {
+        const params: { start?: string; end?: string; dept?: string } = {};
+        const currentStartDate = this.startDate();
+        const currentEndDate = this.endDate();
+        if (currentStartDate) {
+            params.start = currentStartDate.toISOString();
+        }
+        if (currentEndDate) {
+            params.end = currentEndDate.toISOString();
+        }
+        const filteredDepts = this.departments().filter((d) => d.filtered);
+        if (filteredDepts.length > 0) {
+            params.dept = filteredDepts.map((d) => d.name).join();
+        }
+        return params;
+    });
+
+    private _view = signal<Tab>(Tab.RESPONSES);
+    private _departmentFilter = signal('');
     private Statistics = inject(StatisticsService);
 
-    ngOnInit() {
+    constructor() {
         this.Statistics.listDepartments$().subscribe((resp) => {
-            this.departments = resp.departments.map((d) => ({ name: d, filtered: false }));
-            this.filteredDepartments = this.departments;
+            const depts = resp.departments.map((d) => ({ name: d, filtered: false }));
+            this.departments.set(depts);
         });
     }
 
-    setDepartmentFilter = (dept: { name: string; filtered: boolean }) => {
-        dept.filtered = !dept.filtered;
-        this.setQueryParams();
-    };
+    get view(): Tab {
+        return this._view();
+    }
 
-    startDateChanged = (event: { date: Date | null }) => {
-        this.startDate = event.date;
-        this.setQueryParams();
-    };
+    get departmentFilter(): string {
+        return this._departmentFilter();
+    }
 
-    endDateChanged = (event: { date: Date | null }) => {
-        this.endDate = event.date;
-        this.setQueryParams();
-    };
+    set view(value: Tab) {
+        this._view.set(value);
+    }
 
-    handleDepartmentInputChange = () => {
-        if (this.limitations.department === '') {
-            this.filteredDepartments = this.departments;
-        } else {
-            this.filteredDepartments = this.departments.filter((d) =>
-                d.name.toLowerCase().includes(this.limitations.department.toLowerCase()),
-            );
-        }
-    };
+    set departmentFilter(value: string) {
+        this._departmentFilter.set(value);
+    }
 
-    private setQueryParams = () => {
-        const params: { start?: string; end?: string; dept?: string } = {};
-        if (this.startDate) {
-            params.start = this.startDate.toISOString();
-        }
-        if (this.endDate) {
-            params.end = this.endDate.toISOString();
-        }
-        const departments = this.departments.filter((d) => d.filtered);
-        if (departments.length > 0) {
-            params.dept = departments.map((d) => d.name).join();
-        }
-        this.queryParams = params;
-    };
+    setDepartmentFilter(dept: Departments) {
+        const updatedDepts = this.departments().map((d) =>
+            d.name === dept.name ? { ...d, filtered: !d.filtered } : d,
+        );
+        this.departments.set(updatedDepts);
+    }
+
+    startDateChanged(event: { date: Date | null }) {
+        this.startDate.set(event.date);
+    }
+
+    endDateChanged(event: { date: Date | null }) {
+        this.endDate.set(event.date);
+    }
+
+    handleDepartmentInputChange() {
+        // The computed signal will automatically update when _departmentFilter changes
+        // This method is kept for the template event handler but doesn't need to do anything
+    }
 }

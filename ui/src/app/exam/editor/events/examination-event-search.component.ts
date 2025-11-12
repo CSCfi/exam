@@ -4,8 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -39,16 +38,15 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         PageHeaderComponent,
         PageContentComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationEventSearchComponent implements OnInit {
-    date = new Date();
-    startDate: Date | null = new Date();
-    endDate: Date | null = new Date();
-    events: ExaminationEventConfiguration[] = [];
-    sorting = {
-        predicate: 'examinationEvent.start',
-        reverse: true,
-    };
+export class ExaminationEventSearchComponent {
+    date = signal(new Date());
+    startDate = signal<Date | null>(new Date());
+    endDate = signal<Date | null>(new Date());
+    events = signal<ExaminationEventConfiguration[]>([]);
+    sortingPredicate = signal('examinationEvent.start');
+    sortingReverse = signal(true);
     filterText = '';
 
     private translate = inject(TranslateService);
@@ -57,42 +55,59 @@ export class ExaminationEventSearchComponent implements OnInit {
     private Enrolment = inject(EnrolmentService);
     private toast = inject(ToastrService);
 
-    ngOnInit() {
-        this.endDate?.setHours(24, 0, 0);
-        this.startDate?.setHours(0, 0, 0);
+    constructor() {
+        const endDate = new Date();
+        endDate.setHours(24, 0, 0);
+        this.endDate.set(endDate);
+        const startDate = new Date();
+        startDate.setHours(0, 0, 0);
+        this.startDate.set(startDate);
         this.query();
     }
 
-    startDateChanged = (event: { date: Date | null }) => {
-        this.startDate = event.date;
-        this.startDate?.setHours(0, 0, 0);
+    startDateChanged(event: { date: Date | null }) {
+        if (event.date) {
+            const newDate = new Date(event.date);
+            newDate.setHours(0, 0, 0);
+            this.startDate.set(newDate);
+        } else {
+            this.startDate.set(null);
+        }
         this.query();
-    };
+    }
 
-    endDateChanged = (event: { date: Date | null }) => {
-        this.endDate = event.date;
-        this.endDate?.setHours(24, 0, 0);
+    endDateChanged(event: { date: Date | null }) {
+        if (event.date) {
+            const newDate = new Date(event.date);
+            newDate.setHours(24, 0, 0);
+            this.endDate.set(newDate);
+        } else {
+            this.endDate.set(null);
+        }
         this.query();
-    };
+    }
 
-    getEventEndTime = (start?: string, duration?: number): string => {
+    getEventEndTime(start?: string, duration?: number): string {
         if (!start || !duration) return '';
         const startDate = new Date(start);
         const endDate = new Date(startDate.getTime() + duration * 60000);
         return endDate.toString();
-    };
+    }
 
-    setPredicate = (predicate: string) => {
-        if (this.sorting.predicate === predicate) {
-            this.sorting.reverse = !this.sorting.reverse;
+    setPredicate(predicate: string) {
+        if (this.sortingPredicate() === predicate) {
+            this.sortingReverse.update((v) => !v);
+        } else {
+            this.sortingPredicate.set(predicate);
+            this.sortingReverse.set(true);
         }
-        this.sorting.predicate = predicate;
-    };
+    }
 
-    isActive = (configuration: ExaminationEventConfiguration) =>
-        DateTime.fromISO(configuration.examinationEvent.start) > DateTime.now();
+    isActive(configuration: ExaminationEventConfiguration) {
+        return DateTime.fromISO(configuration.examinationEvent.start) > DateTime.now();
+    }
 
-    removeEvent = (configuration: ExaminationEventConfiguration) => {
+    removeEvent(configuration: ExaminationEventConfiguration) {
         this.ConfirmationDialog.open$(
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_remove_byod_exam'),
@@ -101,36 +116,40 @@ export class ExaminationEventSearchComponent implements OnInit {
                 this.Enrolment.removeAllEventEnrolmentConfigs$(configuration).subscribe({
                     next: () => {
                         this.toast.info(this.translate.instant('i18n_removed'));
-                        this.events.splice(this.events.indexOf(configuration), 1);
+                        const currentEvents = this.events();
+                        this.events.set(currentEvents.filter((e) => e !== configuration));
                     },
                     error: (err) => this.toast.error(err),
                 });
             },
         });
-    };
+    }
 
-    query = () => {
+    query() {
         const params: { start?: string; end?: string } = {};
         const tzOffset = new Date().getTimezoneOffset() * 60000;
-        if (this.startDate) {
-            params.start = new Date(this.startDate.getTime() + tzOffset).toISOString();
+        const currentStartDate = this.startDate();
+        const currentEndDate = this.endDate();
+        if (currentStartDate) {
+            params.start = new Date(currentStartDate.getTime() + tzOffset).toISOString();
         }
-        if (this.endDate) {
-            params.end = new Date(this.endDate.getTime() + tzOffset).toISOString();
+        if (currentEndDate) {
+            params.end = new Date(currentEndDate.getTime() + tzOffset).toISOString();
         }
         this.http
             .get<ExaminationEventConfiguration[]>('/app/examinationevents', { params: params })
             .subscribe((resp: ExaminationEventConfiguration[]) => {
-                this.events = resp.filter((e) =>
+                const filtered = resp.filter((e) =>
                     this.examToString(e).toLowerCase().match(this.filterText.toLowerCase()),
                 );
+                this.events.set(filtered);
             });
-    };
+    }
 
-    private examToString = (eec: ExaminationEventConfiguration) => {
+    private examToString(eec: ExaminationEventConfiguration) {
         const code = eec.id || '';
         const name = eec.exam?.name || '';
-        const teacher = (eec.exam?.creator.firstName || '') + eec.exam?.creator.lastName || '';
+        const teacher = (eec.exam?.creator.firstName || '') + (eec.exam?.creator.lastName || '');
         return code + name + teacher;
-    };
+    }
 }

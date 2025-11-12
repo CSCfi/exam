@@ -27,12 +27,12 @@ SPDX-License-Identifier: EUPL-1.2
                                 class="form-select"
                                 name="execType"
                                 id="execType"
-                                [(ngModel)]="type"
-                                (change)="selectType()"
+                                [ngModel]="type()"
+                                (ngModelChange)="type.set($event); selectType()"
                                 required
                             >
                                 <option [ngValue]="undefined">{{ 'i18n_choose' | translate }}</option>
-                                @for (type of executionTypes; track type) {
+                                @for (type of executionTypes(); track type) {
                                     <option [ngValue]="type">
                                         {{ type.name | translate }}
                                     </option>
@@ -40,7 +40,9 @@ SPDX-License-Identifier: EUPL-1.2
                             </select>
                         </div>
                         @if (
-                            (homeExaminationSupported || sebExaminationSupported) && type && type?.type !== 'PRINTOUT'
+                            (homeExaminationSupported() || sebExaminationSupported()) &&
+                            type() &&
+                            type()?.type !== 'PRINTOUT'
                         ) {
                             <div class="mb-3">
                                 <label class="form-label" for="examinationType"
@@ -57,17 +59,18 @@ SPDX-License-Identifier: EUPL-1.2
                                     class="form-select"
                                     name="examinationType"
                                     id="examinationType"
-                                    [(ngModel)]="examinationType"
+                                    [ngModel]="examinationType()"
+                                    (ngModelChange)="examinationType.set($event)"
                                     required
                                 >
                                     <option value="AQUARIUM">{{ 'i18n_examination_type_aquarium' | translate }}</option>
-                                    @if (sebExaminationSupported) {
-                                        <option [disabled]="!canCreateByodExams" value="CLIENT_AUTH">
+                                    @if (sebExaminationSupported()) {
+                                        <option [disabled]="!canCreateByodExams()" value="CLIENT_AUTH">
                                             {{ 'i18n_examination_type_seb' | translate }}
                                         </option>
                                     }
-                                    @if (homeExaminationSupported) {
-                                        <option [disabled]="!canCreateByodExams" value="WHATEVER">
+                                    @if (homeExaminationSupported()) {
+                                        <option [disabled]="!canCreateByodExams()" value="WHATEVER">
                                             {{ 'i18n_examination_type_home_exam' | translate }}
                                         </option>
                                     }
@@ -80,9 +83,9 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <div class="row mt-3">
-        @if (homeExaminationSupported || sebExaminationSupported) {
+        @if (homeExaminationSupported() || sebExaminationSupported()) {
             <div class="col-md-12">
-                <button class="btn btn-success" (click)="createExam()" [disabled]="!type">
+                <button class="btn btn-success" (click)="createExam()" [disabled]="!type()">
                     {{ 'i18n_create_new' | translate }}
                 </button>
             </div>

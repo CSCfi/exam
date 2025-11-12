@@ -6,7 +6,6 @@ import {
     AfterViewInit,
     ChangeDetectionStrategy,
     Component,
-    OnInit,
     ViewChild,
     inject,
     input,
@@ -42,7 +41,7 @@ import { CalendarService } from './calendar.service';
     `,
     imports: [FullCalendarModule],
 })
-export class BookingCalendarComponent implements OnInit, AfterViewInit {
+export class BookingCalendarComponent implements AfterViewInit {
     @ViewChild('fc') calendar!: FullCalendarComponent;
 
     eventSelected = output<EventApi>();
@@ -80,7 +79,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
             slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
             eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
             eventMinHeight: 45,
-            events: this.refetch,
+            events: this.refetch.bind(this),
             eventClick: this.eventClicked.bind(this),
         });
         this.translate.onLangChange.subscribe((event) => {
@@ -112,9 +111,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
             this.calendar?.getApi().refetchEvents();
         });
         toObservable(this.accessibilities).subscribe(() => this.calendar?.getApi().refetchEvents());
-    }
 
-    ngOnInit() {
         if (this.minDate() && this.maxDate()) {
             this.calendarOptions.update((options) => ({
                 ...options,
@@ -137,7 +134,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
         }
     }
 
-    refetch = (input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) => {
+    refetch(input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) {
         this.searchStart = input.startStr;
         this.searchEnd = DateTime.fromISO(input.startStr).endOf('week').toISO() as string;
         const hidden = this.Calendar.getClosedWeekdays(this.room(), this.searchStart, this.searchEnd);
@@ -151,7 +148,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
         }));
 
         this.moreEventsNeeded.emit({ date: input.startStr, timeZone: input.timeZone, success: success });
-    };
+    }
 
     eventClicked(arg: EventClickArg): void {
         if (arg.event.extendedProps?.availableMachines > 0) {
@@ -214,5 +211,7 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
         };
     }
     // Fix for FullCalendar locale
-    private resolveCalendarLocale = (lang: string) => (lang === 'en' ? 'en-gb' : lang);
+    private resolveCalendarLocale(lang: string): string {
+        return lang === 'en' ? 'en-gb' : lang;
+    }
 }

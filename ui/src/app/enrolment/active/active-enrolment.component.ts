@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
-import { Component, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
@@ -19,6 +19,7 @@ import { OptionalSectionsComponent } from './helpers/optional-sections.component
 
 @Component({
     selector: 'xm-active-enrolment',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './active-enrolment.component.html',
     imports: [
         RouterLink,

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -17,39 +17,78 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
     imports: [RouterLink, MathJaxDirective, FormsModule, UpperCasePipe, NgbCollapse, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EssayAnswerComponent implements OnInit {
-    @Input() answer!: ReviewQuestion;
-    @Input() editable = false;
-    @Input() action = '';
-    @Output() selected = new EventEmitter<ReviewQuestion>();
+export class EssayAnswerComponent {
+    answer = input.required<ReviewQuestion>();
+    editable = input(false);
+    action = input('');
+    selected = output<ReviewQuestion>();
 
-    name = '';
+    name = computed(() => {
+        const currentAnswer = this.answer();
+        return currentAnswer.examSection.exam.creator
+            ? `${currentAnswer.examSection.exam.creator.lastName} ${currentAnswer.examSection.exam.creator.firstName}`
+            : currentAnswer.examSection.exam.id.toString();
+    });
 
     private CommonExam = inject(CommonExamService);
     private Attachment = inject(AttachmentService);
+    private initialized = false;
 
-    ngOnInit() {
-        this.name = this.answer.examSection.exam.creator
-            ? `${this.answer.examSection.exam.creator.lastName} ${this.answer.examSection.exam.creator.firstName}`
-            : this.answer.examSection.exam.id.toString();
-        this.answer.expanded = true;
-        this.answer.essayAnswer = this.answer.essayAnswer || {};
-        this.answer.essayAnswer.temporaryScore = this.answer.essayAnswer.evaluatedScore;
+    constructor() {
+        effect(() => {
+            // Initialize answer properties once when answer input is first set
+            if (!this.initialized) {
+                this.initializeAnswer();
+                this.initialized = true;
+            }
+        });
     }
 
-    getWordCount = () => this.CommonExam.countWords(this.answer.essayAnswer.answer);
+    getWordCount() {
+        return this.CommonExam.countWords(this.answer().essayAnswer.answer);
+    }
 
-    getCharacterCount = () => this.CommonExam.countCharacters(this.answer.essayAnswer.answer);
+    getCharacterCount() {
+        return this.CommonExam.countCharacters(this.answer().essayAnswer.answer);
+    }
 
-    saveScore = () => {
-        this.selected.emit(this.answer);
-        this.answer.selected = false;
-    };
+    saveScore() {
+        this.selected.emit(this.answer());
+        this.answer().selected = false;
+    }
 
-    isAssessed = () => this.answer.essayAnswer.temporaryScore !== null && this.answer.essayAnswer.temporaryScore >= 0;
+    isAssessed() {
+        const currentAnswer = this.answer();
+        return currentAnswer.essayAnswer.temporaryScore !== null && currentAnswer.essayAnswer.temporaryScore >= 0;
+    }
 
-    displayMaxScore = () => (this.answer.evaluationType === 'Points' ? this.answer.maxScore : 1);
+    displayMaxScore() {
+        const currentAnswer = this.answer();
+        return currentAnswer.evaluationType === 'Points' ? currentAnswer.maxScore : 1;
+    }
 
-    downloadAttachment = () => this.Attachment.downloadQuestionAnswerAttachment(this.answer);
+    downloadAttachment() {
+        this.Attachment.downloadQuestionAnswerAttachment(this.answer());
+    }
+
+    toggleExpanded() {
+        const currentAnswer = this.answer();
+        currentAnswer.expanded = !currentAnswer.expanded;
+    }
+
+    private initializeAnswer() {
+        const answer = this.answer();
+        // Initialize expanded state if not set
+        if (answer.expanded === undefined) {
+            answer.expanded = true;
+        }
+        // Ensure essayAnswer object exists
+        answer.essayAnswer = answer.essayAnswer || {};
+        // Initialize temporaryScore from evaluatedScore if not already set
+        if (answer.essayAnswer.temporaryScore === undefined) {
+            answer.essayAnswer.temporaryScore = answer.essayAnswer.evaluatedScore;
+        }
+    }
 }

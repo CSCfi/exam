@@ -4,7 +4,7 @@
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { NgClass } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -22,17 +22,21 @@ import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-feedback',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './feedback.template.html',
     imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
 export class FeedbackComponent implements OnInit {
-    @Input() exam!: Examination;
-    @Input() collaborative = false;
-    @Input() participation?: ExamParticipation;
-    @Input() hidden = false;
+    exam = input.required<Examination>();
+    collaborative = input(false);
+    participation = input<ExamParticipation>();
+    hidden = input(false);
 
-    hideEditor = true;
+    hideEditor = signal(true);
+    shouldHide = computed(() => this.hidden());
+    attachment = computed(() => this.exam().examFeedback?.attachment);
+
     private id = 0;
     private ref = '';
 
@@ -46,24 +50,16 @@ export class FeedbackComponent implements OnInit {
         return this.Assessment.fixPosition;
     }
 
-    get shouldHide() {
-        return this.hidden;
-    }
-
     get title() {
         return 'i18n_give_feedback';
     }
 
     get editorContent() {
-        return this.exam.examFeedback.comment || '';
-    }
-
-    get attachment() {
-        return this.exam.examFeedback?.attachment;
+        return this.exam().examFeedback.comment || '';
     }
 
     set editorContent(value: string) {
-        this.exam.examFeedback.comment = value;
+        this.exam().examFeedback.comment = value;
     }
 
     ngOnInit() {
@@ -71,10 +67,10 @@ export class FeedbackComponent implements OnInit {
         this.ref = this.route.snapshot.params.ref;
     }
 
-    toggleVisibility = () => (this.hideEditor = !this.hideEditor);
+    toggleVisibility = () => this.hideEditor.update((value) => !value);
 
     save = () => {
-        if (this.collaborative) {
+        if (this.collaborative()) {
             this._saveCollaborativeFeedback$().subscribe();
         } else {
             this._saveFeedback$().subscribe();
@@ -82,53 +78,61 @@ export class FeedbackComponent implements OnInit {
     };
 
     downloadAttachment = () => {
-        const attachment = this.exam.examFeedback?.attachment;
-        if (!attachment) {
+        const attachmentValue = this.attachment();
+        if (!attachmentValue) {
             return;
         }
-        if (this.collaborative && attachment.externalId)
-            this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
-        else this.Attachment.downloadFeedbackAttachment(this.exam);
+        const examValue = this.exam();
+        if (this.collaborative() && attachmentValue.externalId)
+            this.Attachment.downloadCollaborativeAttachment(attachmentValue.externalId, attachmentValue.fileName);
+        else this.Attachment.downloadFeedbackAttachment(examValue);
     };
 
     removeAttachment = () => {
-        if (this.collaborative) {
-            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, this.participation!);
+        const examValue = this.exam();
+        const participationValue = this.participation();
+        if (this.collaborative()) {
+            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, participationValue!);
         } else {
-            this.Attachment.removeFeedbackAttachment(this.exam);
+            this.Attachment.removeFeedbackAttachment(examValue);
         }
     };
 
-    commentChanged = (event: string) => (this.exam.examFeedback.comment = event);
+    commentChanged = (event: string) => {
+        this.exam().examFeedback.comment = event;
+    };
+
     selectFile = () => {
         this.Attachment.selectFile$(false, {}).subscribe((res: FileResult) => {
-            const save$: Observable<unknown> = this.collaborative
+            const examValue = this.exam();
+            const participationValue = this.participation();
+            const save$: Observable<unknown> = this.collaborative()
                 ? this._saveCollaborativeFeedback$()
                 : this._saveFeedback$();
-            const url = this.collaborative
+            const url = this.collaborative()
                 ? `/app/iop/collab/attachment/exam/${this.id}/${this.ref}/feedback`
-                : `/app/attachment/exam/${this.exam.id}/feedback`;
+                : `/app/attachment/exam/${examValue.id}/feedback`;
 
             save$
                 .pipe(
                     switchMap(() =>
                         this.Files.upload$<Attachment>(url, res.$value.attachmentFile, {
-                            examId: this.exam.id.toString(),
+                            examId: examValue.id.toString(),
                         }),
                     ),
                 )
                 .subscribe((resp) => {
-                    this.exam.examFeedback.attachment = resp;
-                    if (this.participation) {
-                        this.participation._rev = this.exam.examFeedback?.attachment?.rev;
-                        delete this.exam.examFeedback?.attachment?.rev;
+                    examValue.examFeedback.attachment = resp;
+                    if (participationValue) {
+                        participationValue._rev = examValue.examFeedback?.attachment?.rev;
+                        delete examValue.examFeedback?.attachment?.rev;
                     }
                 });
         });
     };
 
-    private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
+    private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam());
 
     private _saveCollaborativeFeedback$ = () =>
-        this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation!);
+        this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation()!);
 }

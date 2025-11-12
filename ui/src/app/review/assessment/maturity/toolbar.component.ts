@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -15,17 +15,18 @@ import { MaturityService } from './maturity.service';
 
 @Component({
     selector: 'xm-r-maturity-toolbar',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<!-- language inspection controls  -->
         @if (isOwnerOrAdmin() || isUnderLanguageInspection()) {
             <div class="d-flex flex-row-reverse">
                 <span [hidden]="isUnderLanguageInspection()">
                     <div class="ms-1">
                         @if (!isReadOnly()) {
-                            <button (click)="saveAssessment()" [disabled]="!valid" class="btn btn-success">
+                            <button (click)="saveAssessment()" [disabled]="!valid()" class="btn btn-success">
                                 {{ 'i18n_save' | translate }}
                             </button>
                         } @else {
-                            <button class="btn btn-secondary" [routerLink]="['/staff/exams', exam.parent?.id, '5']">
+                            <button class="btn btn-secondary" [routerLink]="['/staff/exams', exam().parent?.id, '5']">
                                 {{ 'i18n_close' | translate }}
                             </button>
                         }
@@ -63,7 +64,7 @@ import { MaturityService } from './maturity.service';
                     @if (isMissingStatement()) {
                         <span class="text-danger"
                             >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                getNextState()?.hint(exam) || '' | translate
+                                getNextState()?.hint(exam()) || '' | translate
                             }}</span
                         >
                     }
@@ -72,7 +73,7 @@ import { MaturityService } from './maturity.service';
                     @if (getNextState()?.hint) {
                         <span class="text-danger"
                             >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                getNextState()?.hint(exam) || '' | translate
+                                getNextState()?.hint(exam()) || '' | translate
                             }}</span
                         >
                     }
@@ -82,30 +83,31 @@ import { MaturityService } from './maturity.service';
     imports: [RouterLink, NgClass, TranslateModule],
 })
 export class MaturityToolbarComponent {
-    @Input() exam!: Exam;
-    @Input() valid = false;
+    exam = input.required<Exam>();
+    valid = input(false);
 
     private Maturity = inject(MaturityService);
     private Assessment = inject(AssessmentService);
     private Session = inject(SessionService);
     private Exam = inject(ExamService);
 
-    isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam);
-    isReadOnly = () => this.Assessment.isReadOnly(this.exam);
+    isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam());
+    isReadOnly = () => this.Assessment.isReadOnly(this.exam());
 
     isUnderLanguageInspection = () =>
         this.Session.getUser().isLanguageInspector &&
-        this.exam.languageInspection &&
-        !this.exam.languageInspection.finishedAt;
+        this.exam().languageInspection &&
+        !this.exam().languageInspection.finishedAt;
 
-    saveAssessment = () => this.Assessment.saveAssessment(this.exam, this.isOwnerOrAdmin());
-    getNextState = () => this.Maturity.getNextState(this.exam);
+    saveAssessment = () => this.Assessment.saveAssessment(this.exam(), this.isOwnerOrAdmin());
+    getNextState = () => this.Maturity.getNextState(this.exam());
     getAlternateState = (state?: StateName) => this.Maturity.getState(state);
-    proceed = (alternate: boolean) => this.Maturity.proceed(this.exam, alternate);
-    isMissingStatement = () => this.Maturity.isMissingStatement(this.exam);
+    proceed = (alternate: boolean) => this.Maturity.proceed(this.exam(), alternate);
+    isMissingStatement = () => this.Maturity.isMissingStatement(this.exam());
     isDisabled = (name?: StateName) => {
         const state = name ? this.getAlternateState(name) : this.getNextState();
-        const disabled = (state && !state.canProceed) || !this.valid || (state?.validate && !state.validate(this.exam));
+        const disabled =
+            (state && !state.canProceed) || !this.valid() || (state?.validate && !state.validate(this.exam()));
         return disabled;
     };
 }
