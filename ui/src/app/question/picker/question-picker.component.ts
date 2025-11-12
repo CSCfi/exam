@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, model, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -56,9 +56,9 @@ import { Question } from 'src/app/question/question.model';
     `,
 })
 export class QuestionSelectorComponent {
-    questionCount = input(0);
-    sectionId = input(0);
-    examId = input(0);
+    questionCount = model(0);
+    sectionId = model(0);
+    examId = model(0);
     questions = signal<Question[]>([]);
     selections = signal<number[]>([]);
 

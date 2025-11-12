@@ -261,7 +261,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 <xm-ckeditor
                                     [data]="exam().instruction"
                                     id="exam-instructions"
-                                    (dataChange)="updateExam(false)"
+                                    (dataChange)="instructionChanged($event)"
                                 />
                             </div>
                         </div>

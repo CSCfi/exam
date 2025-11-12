@@ -23,7 +23,7 @@ import { ExamQuestionComponent } from './exam-question.component';
     `,
 })
 export class ExamQuestionDialogComponent {
-    examQuestion = model.required<ExamSectionQuestion>();
+    examQuestion = model<ExamSectionQuestion | undefined>(undefined);
     lotteryOn = model(false);
 
     private modal = inject(NgbActiveModal);

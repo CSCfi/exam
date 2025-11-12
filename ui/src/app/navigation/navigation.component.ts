@@ -2,14 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type { OnDestroy } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, forkJoin, of } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -23,7 +21,7 @@ import { NavigationService } from './navigation.service';
     styleUrl: './navigation.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NavigationComponent implements OnDestroy {
+export class NavigationComponent {
     appVersion = signal('');
     links = signal<Link[]>([]);
     mobileMenuOpen = signal(false);
@@ -35,25 +33,33 @@ export class NavigationComponent implements OnDestroy {
     private Session = inject(SessionService);
     private ExaminationStatus = inject(ExaminationStatusService);
 
-    private ngUnsubscribe = new Subject();
-
     constructor() {
         const currentUser = this.Session.getUser();
         this.user.set(currentUser);
 
-        this.ExaminationStatus.examinationStarting$
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe(() => this.getLinks(false, false));
-        this.ExaminationStatus.upcomingExam$
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe(() => this.getLinks(false, false));
-        this.ExaminationStatus.wrongLocation$
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe(() => this.getLinks(false, false));
-        this.ExaminationStatus.aquariumLoggedIn$
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe(() => this.getLinks(false, false));
-        this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user) => {
+        // React to examination status changes using signals
+        effect(() => {
+            this.ExaminationStatus.examinationStartingSignal();
+            this.getLinks(false, false);
+        });
+
+        effect(() => {
+            this.ExaminationStatus.upcomingExamSignal();
+            this.getLinks(false, false);
+        });
+
+        effect(() => {
+            this.ExaminationStatus.wrongLocationSignal();
+            this.getLinks(false, false);
+        });
+
+        effect(() => {
+            this.ExaminationStatus.aquariumLoggedInSignal();
+            this.getLinks(false, false);
+        });
+
+        // Note: Session.userChange$ is still an observable - would need SessionService migration
+        this.Session.userChange$.subscribe((user) => {
             this.user.set(user);
             this.getLinks(true);
         });
@@ -70,11 +76,6 @@ export class NavigationComponent implements OnDestroy {
         } else {
             this.getLinks(false);
         }
-    }
-
-    ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
-        this.ngUnsubscribe.complete();
     }
 
     isActive(link: Link) {

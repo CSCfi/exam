@@ -8,6 +8,7 @@ import {
     OnDestroy,
     ViewChild,
     computed,
+    effect,
     inject,
     input,
     output,
@@ -59,10 +60,17 @@ export class QuestionComponent implements OnDestroy, CanComponentDeactivate {
     cancelled = output<void>();
 
     // Computed signal that reads from route data first, then falls back to input signal
-    // This handles the case where route data doesn't automatically bind to input signals
+    // When opened as a modal, route data is not available, so check route data first
+    // If route data doesn't exist, it's likely a modal context, so use input signal
     newQuestion = computed(() => {
         const routeData = this.route.snapshot.data.newQuestion;
-        return routeData !== undefined ? routeData : this.newQuestionInput();
+        // If route data exists, use it (router context)
+        if (routeData !== undefined) {
+            return routeData;
+        }
+        // Otherwise, use input signal (modal context or no route data)
+        // This handles the case where isPopup is set after component initialization
+        return this.newQuestionInput();
     });
 
     currentOwners = signal<User[]>([]);
@@ -76,33 +84,63 @@ export class QuestionComponent implements OnDestroy, CanComponentDeactivate {
     private Question = inject(QuestionService);
     private modal = inject(ModalService);
 
+    private initialized = signal(false);
+
     constructor() {
+        // Initialize nextState from route (only available in router context)
         const nextStateValue = this.route.snapshot.queryParamMap.get('nextState') || this.route.snapshot.data.nextState;
         if (nextStateValue) {
             this.nextState.set(nextStateValue);
         }
 
-        const id = this.route.snapshot.paramMap.get('id');
-        this.currentOwners.set([]);
+        // Use effect to initialize question data after inputs are set
+        // This handles the case where component is opened as modal and inputs are set after construction
+        effect(() => {
+            // Only initialize once
+            if (this.initialized()) {
+                return;
+            }
 
-        if (this.newQuestion()) {
-            const questionDraft = this.Question.getQuestionDraft();
-            this.question.set(questionDraft);
-            this.currentOwners.set([...questionDraft.questionOwners]);
-        } else if (this.questionDraft() && this.collaborative()) {
-            const questionValue = { ...this.questionDraft()!, examSectionQuestions: [] };
-            this.question.set(questionValue);
-            this.currentOwners.set([...questionValue.questionOwners]);
-        } else {
-            this.Question.getQuestion(this.questionId() || Number(id)).subscribe({
-                next: (question: ReverseQuestion) => {
-                    this.question.set(question);
-                    this.currentOwners.set([...question.questionOwners]);
-                    window.addEventListener('beforeunload', this.onUnload);
-                },
-                error: (err) => this.toast.error(err),
-            });
-        }
+            const currentNewQuestion = this.newQuestion();
+            const currentQuestionDraft = this.questionDraft();
+            const currentCollaborative = this.collaborative();
+            const currentQuestionId = this.questionId();
+            const currentIsPopup = this.isPopup();
+
+            // For modal context, wait until isPopup is set (or if it's router context, proceed)
+            // If isPopup is false and we're in a modal, inputs haven't been set yet
+            const routeData = this.route.snapshot.data.newQuestion;
+            const isRouterContext = routeData !== undefined;
+
+            // If we're in a modal (no route data) and isPopup is still false, wait
+            if (!isRouterContext && !currentIsPopup) {
+                return;
+            }
+
+            // Mark as initialized to prevent re-running
+            this.initialized.set(true);
+            this.currentOwners.set([]);
+
+            if (currentNewQuestion) {
+                const questionDraft = this.Question.getQuestionDraft();
+                this.question.set(questionDraft);
+                this.currentOwners.set([...questionDraft.questionOwners]);
+            } else if (currentQuestionDraft && currentCollaborative) {
+                const questionValue = { ...currentQuestionDraft, examSectionQuestions: [] };
+                this.question.set(questionValue);
+                this.currentOwners.set([...questionValue.questionOwners]);
+            } else {
+                const id = this.route.snapshot.paramMap.get('id');
+                this.Question.getQuestion(currentQuestionId || Number(id)).subscribe({
+                    next: (question: ReverseQuestion) => {
+                        this.question.set(question);
+                        this.currentOwners.set([...question.questionOwners]);
+                        window.addEventListener('beforeunload', this.onUnload);
+                    },
+                    error: (err) => this.toast.error(err),
+                });
+            }
+        });
     }
 
     ngOnDestroy() {

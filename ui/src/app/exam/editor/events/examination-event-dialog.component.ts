@@ -4,7 +4,7 @@
 
 import { DatePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,13 +23,13 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationEventDialogComponent {
-    examId = input.required<number>();
-    duration = input.required<number>();
-    config = input<ExaminationEventConfiguration | undefined>();
-    maintenancePeriods = input<MaintenancePeriod[]>([]);
-    requiresPassword = input(false);
-    examMinDate = input('');
-    examMaxDate = input('');
+    examId = model.required<number>();
+    duration = model.required<number>();
+    config = model<ExaminationEventConfiguration | undefined>(undefined);
+    maintenancePeriods = model<MaintenancePeriod[]>([]);
+    requiresPassword = model(false);
+    examMinDate = model('');
+    examMaxDate = model('');
 
     start = signal(new Date(new Date().getTime() + 60 * 1000));
     description = signal('');

@@ -123,10 +123,10 @@ export class ExamParticipantSelectorComponent {
         return u.id;
     }
 
-    nameFormat(u: User) {
+    nameFormat = (u: User) => {
         const uid = u.userIdentifier ? ` (${u.userIdentifier})` : '';
         return `${u.firstName} ${u.lastName} <${u.email}>${uid}`;
-    }
+    };
 
     setExamParticipant(event: NgbTypeaheadSelectItemEvent) {
         this.newParticipant.id = event.item.id;

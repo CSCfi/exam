@@ -45,19 +45,16 @@ export class ExamMaterialSelectorComponent {
         this.selectedMaterial.set(event.item);
     }
 
-    filterMaterials$(text$: Observable<string>): Observable<ExamMaterial[]> {
-        return text$.pipe(
+    filterMaterials$ = (text$: Observable<string>): Observable<ExamMaterial[]> =>
+        text$.pipe(
             distinctUntilChanged(),
             map((t) => {
                 const re = new RegExp(t, 'i');
                 return this.materials().filter((m) => m.name.match(re));
             }),
         );
-    }
 
-    nameFormat(m: ExamMaterial) {
-        return m.name;
-    }
+    nameFormat = (m: ExamMaterial) => m.name;
 
     addMaterial() {
         const material = this.selectedMaterial();

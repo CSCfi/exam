@@ -7,7 +7,7 @@ import { ChangeDetectionStrategy, Component, ViewChild, effect, inject, input, s
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { map } from 'rxjs';
+import { map, take } from 'rxjs';
 import type { ExamMachine, ExamRoom, Reservation } from 'src/app/reservation/reservation.model';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
@@ -84,7 +84,10 @@ export class ChangeMachineDialogComponent {
             this.room.set({ id: room.id, label: room.name, value: room });
             this.http
                 .get<ExamRoom[]>('/app/rooms')
-                .pipe(map((rs) => rs.filter((r) => !r.outOfService)))
+                .pipe(
+                    take(1),
+                    map((rs) => rs.filter((r) => !r.outOfService)),
+                )
                 .subscribe((resp) =>
                     this.availableRoomOptions.set(
                         resp.map((o) => ({

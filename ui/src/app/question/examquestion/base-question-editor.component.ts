@@ -19,7 +19,7 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
                 [questionId]="questionId()"
                 (saved)="onSave($event)"
                 (cancelled)="cancel()"
-                [questionDraft]="questionDraft()"
+                [questionDraft]="getQuestionDraft()"
                 [collaborative]="collaborative()"
                 [lotteryOn]="lotteryOn()"
                 [examId]="examId()"
@@ -32,18 +32,23 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
     `,
 })
 export class BaseQuestionEditorComponent {
+    // Model signals with defaults - this component is always opened as a modal
     newQuestion = model(false);
-    questionDraft = model.required<Question>();
+    questionDraft = model<Question | QuestionDraft | undefined>(undefined);
     questionId = model(0);
     collaborative = model(false);
     lotteryOn = model(false);
     examId = model(0);
-    sectionQuestion = model.required<ExamSectionQuestion>();
+    sectionQuestion = model<ExamSectionQuestion | undefined>(undefined);
     isPopup = model(false);
 
     private modal = inject(NgbActiveModal);
     private translate = inject(TranslateService);
     private Dialogs = inject(ConfirmationDialogService);
+
+    getQuestionDraft(): Question | undefined {
+        return this.questionDraft() as Question | undefined;
+    }
 
     onSave = (event: Question | QuestionDraft) => this.modal.close(event);
     cancel = () => {

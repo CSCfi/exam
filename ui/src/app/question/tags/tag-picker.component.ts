@@ -82,6 +82,9 @@ export class TagPickerComponent {
     newTag: Tag = { name: '', questions: [] };
     ownTags = computed(() => {
         const questionValue = this.question();
+        if (!questionValue.tags) {
+            return [];
+        }
         return questionValue.tags.filter((t) => t.creator?.id === this.user.id);
     });
 

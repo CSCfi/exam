@@ -3,13 +3,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe } from '@angular/common';
-import type { OnDestroy } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavItemRole, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -38,13 +35,12 @@ import { ExamTabService } from './exam-tabs.service';
     styleUrl: './exam-tabs.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamTabsComponent implements OnDestroy {
+export class ExamTabsComponent {
     exam = signal<Exam | undefined>(undefined);
     collaborative = signal(false);
     examInfo = signal<{ title: string | null }>({ title: null });
     activeTab = signal(1);
     user: User;
-    private ngUnsubscribe = new Subject();
 
     private route = inject(ActivatedRoute);
     private router = inject(Router);
@@ -64,17 +60,22 @@ export class ExamTabsComponent implements OnDestroy {
             this.Tabs.setExam(examValue);
             this.Tabs.setCollaborative(this.collaborative());
         });
-        this.Tabs.tabChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((tab: number) => {
-            this.activeTab.set(tab);
-        });
-        this.Tabs.examUpdate$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((props: UpdateProps) => {
-            this.examUpdated(props);
-        });
-    }
 
-    ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
-        this.ngUnsubscribe.complete();
+        // React to tab changes using signals
+        effect(() => {
+            const change = this.Tabs.tabChangeSignal();
+            if (change) {
+                this.activeTab.set(change.tab);
+            }
+        });
+
+        // React to exam updates using signals
+        effect(() => {
+            const update = this.Tabs.examUpdateSignal();
+            if (update) {
+                this.examUpdated(update.props);
+            }
+        });
     }
 
     updateTitle(code: string | null, name: string | null) {

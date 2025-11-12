@@ -2,34 +2,38 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class ExaminationStatusService {
-    public examinationEnding$: Observable<void>;
-    public wrongLocation$: Observable<void>;
-    public upcomingExam$: Observable<void>;
-    public examinationStarting$: Observable<void>;
-    public aquariumLoggedIn$: Observable<boolean>;
-    private examinationEndingSubscription = new Subject<void>();
-    private wrongLocationSubscription = new Subject<void>();
-    private upcomingExamSubscription = new Subject<void>();
-    private examinationStartingSubscription = new Subject<void>();
-    private aquariumLoggedInSubscription = new BehaviorSubject<boolean>(true);
+    // Signal-based API
+    // Using timestamps for void events - each notification updates the timestamp, triggering effects
+    private examinationEnding = signal<number | undefined>(undefined);
+    private wrongLocation = signal<number | undefined>(undefined);
+    private upcomingExam = signal<number | undefined>(undefined);
+    private examinationStarting = signal<number | undefined>(undefined);
+    private aquariumLoggedIn = signal<boolean>(true);
 
-    constructor() {
-        this.examinationEnding$ = this.examinationEndingSubscription.asObservable();
-        this.wrongLocation$ = this.wrongLocationSubscription.asObservable();
-        this.upcomingExam$ = this.upcomingExamSubscription.asObservable();
-        this.examinationStarting$ = this.examinationStartingSubscription.asObservable();
-        this.aquariumLoggedIn$ = this.aquariumLoggedInSubscription.asObservable();
+    // Readonly signals for components (preferred API)
+    get examinationEndingSignal() {
+        return this.examinationEnding.asReadonly();
+    }
+    get wrongLocationSignal() {
+        return this.wrongLocation.asReadonly();
+    }
+    get upcomingExamSignal() {
+        return this.upcomingExam.asReadonly();
+    }
+    get examinationStartingSignal() {
+        return this.examinationStarting.asReadonly();
+    }
+    get aquariumLoggedInSignal() {
+        return this.aquariumLoggedIn.asReadonly();
     }
 
-    notifyEndOfExamination = () => this.examinationEndingSubscription.next();
-    notifyWrongLocation = () => this.wrongLocationSubscription.next();
-    notifyUpcomingExamination = () => this.upcomingExamSubscription.next();
-    notifyStartOfExamination = () => this.examinationStartingSubscription.next();
-    notifyAquariumLogin = () => this.aquariumLoggedInSubscription.next(true);
+    notifyEndOfExamination = () => this.examinationEnding.set(Date.now());
+    notifyWrongLocation = () => this.wrongLocation.set(Date.now());
+    notifyUpcomingExamination = () => this.upcomingExam.set(Date.now());
+    notifyStartOfExamination = () => this.examinationStarting.set(Date.now());
+    notifyAquariumLogin = () => this.aquariumLoggedIn.set(true);
 }

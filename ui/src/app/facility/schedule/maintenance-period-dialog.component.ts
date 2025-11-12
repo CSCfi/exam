@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -70,7 +70,7 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MaintenancePeriodDialogComponent {
-    period = input<MaintenancePeriod | undefined>(undefined);
+    period = model<MaintenancePeriod | undefined>(undefined);
     readonly DATE_OPTIONS = {
         'starting-day': 1,
     };

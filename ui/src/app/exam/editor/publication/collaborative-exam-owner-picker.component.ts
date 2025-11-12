@@ -86,7 +86,7 @@ export class CollaborativeExamOwnerSelectorComponent {
         this.user = this.Session.getUser();
     }
 
-    addOwner() {
+    addOwner = () => {
         const currentExam = this.exam();
         const exists = currentExam.examOwners.some((o) => o.email === this.newOwner.email);
         if (!exists) {
@@ -98,9 +98,9 @@ export class CollaborativeExamOwnerSelectorComponent {
                 error: (err) => this.toast.error(err),
             });
         }
-    }
+    };
 
-    removeOwner(id: number) {
+    removeOwner = (id: number) => {
         const currentExam = this.exam();
         this.http.delete(`/app/iop/exams/${currentExam.id}/owners/${id}`).subscribe({
             next: () => {
@@ -108,5 +108,5 @@ export class CollaborativeExamOwnerSelectorComponent {
             },
             error: (err) => this.toast.error(err),
         });
-    }
+    };
 }

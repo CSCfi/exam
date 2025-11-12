@@ -151,6 +151,11 @@ export class BasicExamInfoComponent implements OnDestroy {
         this.exam.set({ ...currentExam, enrollInstruction: event });
     }
 
+    instructionChanged(event: string) {
+        const currentExam = this.exam();
+        this.exam.set({ ...currentExam, instruction: event });
+    }
+
     getExecutionTypeTranslation() {
         const currentExam = this.exam();
         return currentExam ? this.Exam.getExecutionTypeTranslation(currentExam.executionType) : '';

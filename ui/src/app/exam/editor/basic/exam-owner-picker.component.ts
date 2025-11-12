@@ -47,8 +47,8 @@ export class ExamOwnerSelectorComponent {
         });
     }
 
-    listOwners$(criteria$: Observable<string>): Observable<User[]> {
-        return criteria$.pipe(
+    listOwners$ = (criteria$: Observable<string>): Observable<User[]> =>
+        criteria$.pipe(
             tap((text) => (this.newOwner.name = text)),
             debounceTime(500),
             distinctUntilChanged(),
@@ -61,7 +61,6 @@ export class ExamOwnerSelectorComponent {
                 return throwError(() => new Error(err));
             }),
         );
-    }
 
     nameFormatter(data: User) {
         return `${data.firstName} ${data.lastName} <${data.email}>`;

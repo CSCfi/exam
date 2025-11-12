@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
     NgbNav,
@@ -14,6 +14,7 @@ import {
     NgbNavOutlet,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { take } from 'rxjs';
 import { DashboardExam, ExtraData } from 'src/app/dashboard/dashboard.model';
 import { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
@@ -41,7 +42,7 @@ import { TeacherDashboardService } from './teacher-dashboard.service';
         PageContentComponent,
     ],
 })
-export class TeacherDashboardComponent implements OnInit {
+export class TeacherDashboardComponent {
     activeTab = signal(1);
     userId = 0;
     activeExtraData: ExtraData[];
@@ -108,19 +109,21 @@ export class TeacherDashboardComponent implements OnInit {
                 sliced: true,
             },
         ];
-    }
 
-    ngOnInit() {
-        this.userId = this.Session.getUser().id;
-        this.TeacherDashboard.populate$().subscribe((dashboard) => {
-            this.finishedExams.set(dashboard.finishedExams);
-            this.filteredFinished.set(dashboard.finishedExams);
-            this.activeExams.set(dashboard.activeExams);
-            this.filteredActive.set(dashboard.activeExams);
-            this.archivedExams.set(dashboard.archivedExams);
-            this.filteredArchived.set(dashboard.archivedExams);
-            this.draftExams.set(dashboard.draftExams);
-            this.filteredDrafts.set(dashboard.draftExams);
+        effect(() => {
+            this.userId = this.Session.getUser().id;
+            this.TeacherDashboard.populate$()
+                .pipe(take(1))
+                .subscribe((dashboard) => {
+                    this.finishedExams.set(dashboard.finishedExams);
+                    this.filteredFinished.set(dashboard.finishedExams);
+                    this.activeExams.set(dashboard.activeExams);
+                    this.filteredActive.set(dashboard.activeExams);
+                    this.archivedExams.set(dashboard.archivedExams);
+                    this.filteredArchived.set(dashboard.archivedExams);
+                    this.draftExams.set(dashboard.draftExams);
+                    this.filteredDrafts.set(dashboard.draftExams);
+                });
         });
     }
 

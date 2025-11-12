@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { take } from 'rxjs';
 import { DashboardEnrolment } from 'src/app/dashboard/dashboard.model';
 import { ActiveEnrolmentComponent } from 'src/app/enrolment/active/active-enrolment.component';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -37,13 +38,17 @@ import { StudentDashboardService } from './student-dashboard.service';
             }
         </ng-template>`,
 })
-export class StudentDashboardComponent implements OnInit {
+export class StudentDashboardComponent {
     enrolments = signal<DashboardEnrolment[]>([]);
 
     private StudentDashboard = inject(StudentDashboardService);
 
-    ngOnInit() {
-        this.StudentDashboard.listEnrolments$().subscribe((data) => this.enrolments.set(data));
+    constructor() {
+        effect(() => {
+            this.StudentDashboard.listEnrolments$()
+                .pipe(take(1))
+                .subscribe((data) => this.enrolments.set(data));
+        });
     }
 
     enrolmentRemoved = (id: number) => {

@@ -90,7 +90,7 @@ export class FacilityComponent {
 
     updatePeriod(period: MaintenancePeriod) {
         const modalRef = this.modal.openRef(MaintenancePeriodDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.period = period;
+        modalRef.componentInstance.period.set(period);
         this.modal.result$<MaintenancePeriod>(modalRef).subscribe((res) => {
             this.room.updateMaintenancePeriod$(res).subscribe({
                 next: () => {

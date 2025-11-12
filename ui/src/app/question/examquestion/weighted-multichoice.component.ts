@@ -157,7 +157,7 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
     `,
 })
 export class WeightedMultiChoiceComponent {
-    question = model.required<ExamSectionQuestion>();
+    question = model<ExamSectionQuestion | undefined>(undefined);
     lotteryOn = input(false);
     isInPublishedExam = input(false);
 
@@ -166,34 +166,46 @@ export class WeightedMultiChoiceComponent {
     private QuestionScore = inject(QuestionScoringService);
 
     get maxScore(): number {
-        return this.question() ? this.QuestionScore.calculateWeightedMaxPoints(this.question()) : 0;
+        const q = this.question();
+        return q ? this.QuestionScore.calculateWeightedMaxPoints(q) : 0;
     }
 
     get minScore(): number {
-        return this.question() ? this.QuestionScore.calculateWeightedMinPoints(this.question()) : 0;
+        const q = this.question();
+        return q ? this.QuestionScore.calculateWeightedMinPoints(q) : 0;
     }
 
     updateScore = (score: number, index: number) => {
-        const next = [...this.question().options];
+        const q = this.question();
+        if (!q) return;
+        const next = [...q.options];
         next[index] = { ...next[index], score };
-        this.question.update((q) => ({ ...q, options: next }));
+        this.question.update((current) => (current ? { ...current, options: next } : current));
     };
 
     updateText = (text: string, index: number) => {
-        const next = [...this.question().options];
+        const q = this.question();
+        if (!q) return;
+        const next = [...q.options];
         next[index] = { ...next[index], option: { ...next[index].option, option: text } };
-        this.question.update((q) => ({ ...q, options: next }));
+        this.question.update((current) => (current ? { ...current, options: next } : current));
     };
 
     updateNegativeScoreSetting = (setting: boolean) => {
-        this.question.update((q) => ({ ...q, negativeScoreAllowed: setting }));
+        const q = this.question();
+        if (!q) return;
+        this.question.update((current) => (current ? { ...current, negativeScoreAllowed: setting } : current));
     };
 
     updateShufflingSetting = (setting: boolean) => {
-        this.question.update((q) => ({ ...q, optionShufflingOn: setting }));
+        const q = this.question();
+        if (!q) return;
+        this.question.update((current) => (current ? { ...current, optionShufflingOn: setting } : current));
     };
 
     addNewOption = () => {
+        const q = this.question();
+        if (!q) return;
         if (this.lotteryOn()) {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_lottery_on'));
             return;
@@ -208,18 +220,20 @@ export class WeightedMultiChoiceComponent {
             score: 0,
             answered: false,
         };
-        const next = [...this.question().options, newOption];
-        this.question.update((q) => ({ ...q, options: next }));
+        const next = [...q.options, newOption];
+        this.question.update((current) => (current ? { ...current, options: next } : current));
     };
 
     removeOption = (option: ExamSectionQuestionOption) => {
+        const q = this.question();
+        if (!q) return;
         if (this.lotteryOn()) {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_lottery_on'));
             return;
         }
 
         const hasCorrectAnswer =
-            this.question().options.filter(
+            q.options.filter(
                 (o) =>
                     o.id !== option.id &&
                     (o.option?.correctOption || (o.option?.defaultScore && o.option.defaultScore > 0)),
@@ -227,8 +241,8 @@ export class WeightedMultiChoiceComponent {
 
         // Either not published exam or correct answer exists
         if (!this.isInPublishedExam() || hasCorrectAnswer) {
-            const next = this.question().options.filter((o) => o.id !== option.id);
-            this.question.update((q) => ({ ...q, options: next }));
+            const next = q.options.filter((o) => o.id !== option.id);
+            this.question.update((current) => (current ? { ...current, options: next } : current));
         } else {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_minimum_options'));
         }

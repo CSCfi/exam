@@ -2,9 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
-import { Subject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 import { Exam } from 'src/app/exam/exam.model';
 
 export type UpdateProps = {
@@ -16,22 +14,37 @@ export type UpdateProps = {
 
 @Injectable({ providedIn: 'root' })
 export class ExamTabService {
-    public tabChange$: Observable<number>;
-    public examUpdate$: Observable<UpdateProps>;
-    private tabChangeSubscription = new Subject<number>();
-    private examUpdateSubscription = new Subject<UpdateProps>();
-    private exam!: Exam;
-    private collaborative = false;
+    // Signal-based API
+    // Using wrapper objects to ensure effects fire even if same value is set twice
+    private tabChange = signal<{ tab: number; timestamp: number } | undefined>(undefined);
+    private examUpdate = signal<{ props: UpdateProps; timestamp: number } | undefined>(undefined);
+    private exam = signal<Exam | undefined>(undefined);
+    private collaborative = signal(false);
 
-    constructor() {
-        this.tabChange$ = this.tabChangeSubscription.asObservable();
-        this.examUpdate$ = this.examUpdateSubscription.asObservable();
+    // Readonly signals for components
+    get tabChangeSignal() {
+        return this.tabChange.asReadonly();
+    }
+    get examUpdateSignal() {
+        return this.examUpdate.asReadonly();
+    }
+    get examSignal() {
+        return this.exam.asReadonly();
+    }
+    get collaborativeSignal() {
+        return this.collaborative.asReadonly();
     }
 
-    notifyTabChange = (tab: number) => this.tabChangeSubscription.next(tab);
-    notifyExamUpdate = (props: UpdateProps) => this.examUpdateSubscription.next(props);
-    setExam = (exam: Exam) => (this.exam = exam);
-    getExam = () => this.exam;
-    setCollaborative = (collaborative: boolean) => (this.collaborative = collaborative);
-    isCollaborative = () => this.collaborative;
+    notifyTabChange = (tab: number) => this.tabChange.set({ tab, timestamp: Date.now() });
+    notifyExamUpdate = (props: UpdateProps) => this.examUpdate.set({ props, timestamp: Date.now() });
+    setExam = (exam: Exam) => this.exam.set(exam);
+    getExam = (): Exam => {
+        const exam = this.exam();
+        if (!exam) {
+            throw new Error('Exam is required but not available');
+        }
+        return exam;
+    };
+    setCollaborative = (collaborative: boolean) => this.collaborative.set(collaborative);
+    isCollaborative = () => this.collaborative();
 }

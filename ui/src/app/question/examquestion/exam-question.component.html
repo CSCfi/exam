@@ -12,15 +12,15 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="col-md-12">
             <form role="form" class="form-horizontal" #questionForm="ngForm" name="form">
-                <xm-question-usage [examNames]="examNames" />
+                <xm-question-usage [examNames]="examNames()" />
                 <xm-question-basic-info
-                    [question]="question"
+                    [question]="question()"
                     [questionTypes]="[]"
-                    [questionId]="question?.id"
+                    [questionId]="question()?.id"
                     (newText)="setText($event)"
                 />
 
-                @if (question?.type === 'EssayQuestion' && examQuestion(); as eq) {
+                @if (question()?.type === 'EssayQuestion' && examQuestion(); as eq) {
                     <xm-eq-essay
                         [(evaluationType)]="eq.evaluationType"
                         [(expectedWordCount)]="eq.expectedWordCount"
@@ -32,15 +32,15 @@ SPDX-License-Identifier: EUPL-1.2
 
                 <!-- Multiple choices - title -->
                 @if (
-                    question?.type === 'MultipleChoiceQuestion' ||
-                    question?.type === 'WeightedMultipleChoiceQuestion' ||
-                    question?.type === 'ClaimChoiceQuestion'
+                    question()?.type === 'MultipleChoiceQuestion' ||
+                    question()?.type === 'WeightedMultipleChoiceQuestion' ||
+                    question()?.type === 'ClaimChoiceQuestion'
                 ) {
                     <div class="row mt-3 mb-2">
                         <div class="col-md-12 pe-0">
                             <div class="xm-paragraph-title edit-warning-container">
                                 {{ 'i18n_question_options' | translate }}
-                                @if (showWarning() && question?.type !== 'MultipleChoiceQuestion') {
+                                @if (showWarning() && question()?.type !== 'MultipleChoiceQuestion') {
                                     <i class="bi-exclamation-circle ps-4 text-danger"></i>
                                     <span class="warning-text-small ps-2">
                                         {{ 'i18n_shared_question_property_info' | translate }}
@@ -52,31 +52,31 @@ SPDX-License-Identifier: EUPL-1.2
                 }
 
                 <!-- Type specific content - weighted multiple choice -->
-                @if (question?.type === 'WeightedMultipleChoiceQuestion') {
+                @if (question()?.type === 'WeightedMultipleChoiceQuestion') {
                     <xm-eq-weighted-mc
                         [(question)]="examQuestion"
                         [lotteryOn]="lotteryOn()"
-                        [isInPublishedExam]="isInPublishedExam"
+                        [isInPublishedExam]="isInPublishedExam()"
                     />
                 }
 
-                @if (question?.type === 'MultipleChoiceQuestion') {
+                @if (question()?.type === 'MultipleChoiceQuestion') {
                     <xm-eq-unweighted-mc
                         [(question)]="examQuestion"
                         [lotteryOn]="lotteryOn()"
-                        [isInPublishedExam]="isInPublishedExam"
+                        [isInPublishedExam]="isInPublishedExam()"
                     />
                 }
 
                 <!-- Type specific content - claim choice option -->
-                @if (question?.type === 'ClaimChoiceQuestion' && examQuestion(); as eq) {
+                @if (question()?.type === 'ClaimChoiceQuestion' && examQuestion(); as eq) {
                     <xm-eq-claim-choice [(options)]="eq.options" [lotteryOn]="lotteryOn()" />
                 }
 
                 <!-- Max score -->
                 @if (
-                    (question?.type === 'MultipleChoiceQuestion' ||
-                        question?.type === 'ClozeTestQuestion' ||
+                    (question()?.type === 'MultipleChoiceQuestion' ||
+                        question()?.type === 'ClozeTestQuestion' ||
                         examQuestion()?.evaluationType === 'Points') &&
                         examQuestion();
                     as eq
@@ -124,9 +124,9 @@ SPDX-License-Identifier: EUPL-1.2
                         </sup>
                     </div>
                     <div class="col-md-9">
-                        @if (question?.questionOwners) {
+                        @if (question()?.questionOwners) {
                             <ul class="list-inline ps-2">
-                                @for (user of question!.questionOwners; track user.id) {
+                                @for (user of question()!.questionOwners; track user.id) {
                                     <li class="list-inline-item">{{ user.firstName }} {{ user.lastName }}</li>
                                 }
                             </ul>
@@ -160,18 +160,18 @@ SPDX-License-Identifier: EUPL-1.2
                             {{ 'i18n_attach_file' | translate }}
                         </button>
 
-                        @if (question?.attachment && !question!.attachment?.removed) {
+                        @if (question()?.attachment && !question()!.attachment?.removed) {
                             <div class="make-inline ps-2">
                                 <!-- Uploaded -->
-                                @if (question!.attachment?.id) {
+                                @if (question()!.attachment?.id) {
                                     <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
-                                        <i class="bi-paperclip"></i> {{ question!.attachment?.fileName }}
+                                        <i class="bi-paperclip"></i> {{ question()!.attachment?.fileName }}
                                     </a>
                                 }
                                 <!-- Not yet uploaded -->
-                                @if (!question?.attachment?.id) {
+                                @if (!question()?.attachment?.id) {
                                     <span class="attachment-link">
-                                        <i class="bi-paperclip"></i> {{ question?.attachment?.fileName }}
+                                        <i class="bi-paperclip"></i> {{ question()?.attachment?.fileName }}
                                         <small> ({{ getFileSize() }})</small>
                                     </span>
                                 }
@@ -226,9 +226,9 @@ SPDX-License-Identifier: EUPL-1.2
                         </sup>
                     </div>
                     <div class="col-md-9">
-                        @if (question?.tags) {
+                        @if (question()?.tags) {
                             <ul class="list-inline">
-                                @for (tag of question!.tags; track tag.id) {
+                                @for (tag of question()!.tags; track tag.id) {
                                     <li class="list-inline-item">{{ tag.name }}</li>
                                 }
                             </ul>
@@ -243,7 +243,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </div>
                     <div class="col-md-9">
                         <ul class="list-inline">
-                            @for (name of sectionNames; track $index) {
+                            @for (name of sectionNames(); track $index) {
                                 <li class="list-inline-item">{{ name }}</li>
                             }
                         </ul>
@@ -255,7 +255,7 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 <div class="d-flex flex-row-reverse flex-align-r m-3">
     <button
-        [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions() || !question?.question"
+        [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions() || !question()?.question"
         (click)="save()"
         type="submit"
         class="btn btn-success"

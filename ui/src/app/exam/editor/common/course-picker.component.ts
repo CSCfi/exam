@@ -48,21 +48,11 @@ export class CoursePickerComponent {
         });
     }
 
-    getCoursesByCode$(text$: Observable<string>) {
-        return this.getCourses$('code', text$);
-    }
+    getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
+    getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
 
-    getCoursesByName$(text$: Observable<string>) {
-        return this.getCourses$('name', text$);
-    }
-
-    codeFormat(c: Course | string) {
-        return this.isCourse(c) ? c.code : c;
-    }
-
-    nameFormat(c: Course | string) {
-        return this.isCourse(c) ? c.name : c;
-    }
+    codeFormat = (c: Course | string) => (this.isCourse(c) ? c.code : c);
+    nameFormat = (c: Course | string) => (this.isCourse(c) ? c.name : c);
 
     onCourseSelect(event: NgbTypeaheadSelectItemEvent) {
         this.codeFilter = this.CourseCode.formatCode(event.item.code);

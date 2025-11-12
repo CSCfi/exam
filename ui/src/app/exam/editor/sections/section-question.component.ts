@@ -4,7 +4,16 @@
 
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
+import {
+    ApplicationRef,
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+    input,
+    output,
+    signal,
+} from '@angular/core';
 import {
     NgbCollapse,
     NgbDropdown,
@@ -15,7 +24,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import type { ExamSection } from 'src/app/exam/exam.model';
 import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
@@ -70,6 +79,7 @@ export class SectionQuestionComponent {
     private QuestionScore = inject(QuestionScoringService);
     private Attachment = inject(AttachmentService);
     private Files = inject(FileService);
+    private appRef = inject(ApplicationRef);
 
     constructor() {
         effect(() => {
@@ -132,16 +142,16 @@ export class SectionQuestionComponent {
         return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
     }
 
-    private getQuestionDistribution$(): Observable<boolean> {
+    private getQuestionDistribution$ = () => {
         if (this.collaborative()) {
-            return of(false);
+            return of({ distributed: false });
         }
         return this.Question.getQuestionDistribution$(this.sectionQuestion().id);
-    }
+    };
 
     private openExamQuestionEditor() {
-        this.getQuestionDistribution$().subscribe((distributed) => {
-            if (!distributed) {
+        this.getQuestionDistribution$().subscribe((data) => {
+            if (!data.distributed) {
                 // If this is not distributed, treat it as a plain question (or at least trick the user to
                 // believe so)
                 this.openBaseQuestionEditor();
@@ -161,6 +171,7 @@ export class SectionQuestionComponent {
             windowClass: 'xm-xxl-modal',
             size: 'xl',
         });
+
         modal.componentInstance.isPopup.set(true);
         modal.componentInstance.lotteryOn.set(this.lotteryOn());
         modal.componentInstance.questionDraft.set({ ...currentSectionQuestion.question, examSectionQuestions: [] });

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, ViewChild, inject, input, model, output } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject, input, model, output, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -40,17 +40,15 @@ import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
 })
 export class ExamQuestionComponent implements OnInit, OnDestroy {
     @ViewChild('questionForm', { static: false }) questionForm?: NgForm;
-    examQuestion = model.required<ExamSectionQuestion>();
+    examQuestion = model<ExamSectionQuestion | undefined>(undefined);
     lotteryOn = input(false);
     saved = output<{ question: Question; examQuestion: ExamSectionQuestion }>();
     cancelled = output<{ dirty: boolean }>();
 
-    question?: ReverseQuestion;
-    examNames: string[] = [];
-    sectionNames: string[] = [];
-    missingOptions: string[] = [];
-    isInPublishedExam = false;
-    hideRestExams = true;
+    question = signal<ReverseQuestion | undefined>(undefined);
+    examNames = signal<string[]>([]);
+    sectionNames = signal<string[]>([]);
+    isInPublishedExam = signal(false);
 
     private http = inject(HttpClient);
     private Question = inject(QuestionService);
@@ -77,14 +75,17 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
             })),
         };
 
+        const q = this.question();
+        if (!q) return;
         this.saved.emit({
-            question: this.question as ReverseQuestion,
+            question: q,
             examQuestion: cleanedExamQuestion as ExamSectionQuestion,
         });
     };
 
     setText = ($event: string) => {
-        if (this.question) this.question.question = $event;
+        const q = this.question();
+        if (q) this.question.set({ ...q, question: $event });
     };
 
     cancel = () => this.cancelled.emit({ dirty: this.questionForm?.dirty || false });
@@ -98,7 +99,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         return this.modal.result$<void>(modal);
     };
 
-    showWarning = () => this.examNames && this.examNames.length > 1;
+    showWarning = () => this.examNames().length > 1;
 
     updateEvaluationType = ($event: string | undefined) => {
         // evaluationType is already updated via two-way binding [(evaluationType)]
@@ -115,25 +116,37 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
 
     selectFile = () =>
         this.Attachment.selectFile$(true).subscribe((data) => {
-            if (!this.question) {
+            const q = this.question();
+            if (!q) {
                 return;
             }
-            this.question.attachment = {
-                ...this.question.attachment,
-                modified: true,
-                fileName: data.$value.attachmentFile.name,
-                size: data.$value.attachmentFile.size,
-                file: data.$value.attachmentFile,
-                removed: false,
-            };
+            this.question.set({
+                ...q,
+                attachment: {
+                    ...q.attachment,
+                    modified: true,
+                    fileName: data.$value.attachmentFile.name,
+                    size: data.$value.attachmentFile.size,
+                    file: data.$value.attachmentFile,
+                    removed: false,
+                },
+            });
         });
 
-    downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.question as ReverseQuestion);
+    downloadQuestionAttachment = () => {
+        const q = this.question();
+        if (q) this.Attachment.downloadQuestionAttachment(q);
+    };
 
-    removeQuestionAttachment = () => this.Attachment.removeQuestionAttachment(this.question as ReverseQuestion);
+    removeQuestionAttachment = () => {
+        const q = this.question();
+        if (q) this.Attachment.removeQuestionAttachment(q);
+    };
 
-    getFileSize = () =>
-        !this.question?.attachment?.file ? 0 : this.Attachment.getFileSize(this.question.attachment.file.size);
+    getFileSize = () => {
+        const q = this.question();
+        return !q?.attachment?.file ? 0 : this.Attachment.getFileSize(q.attachment.file.size);
+    };
 
     hasInvalidClaimChoiceOptions = () => {
         const examQuestionValue = this.examQuestion();
@@ -148,18 +161,18 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         const examQuestionValue = this.examQuestion();
         if (!examQuestionValue) return;
         this.http.get<ReverseQuestion>(`/app/questions/${examQuestionValue.question.id}`).subscribe((question) => {
-            this.question = question;
-            const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
+            this.question.set(question);
+            const sections = question.examSectionQuestions.map((esq) => esq.examSection);
             const examNames = sections.map((s) => {
                 if (s.exam.state === 'PUBLISHED') {
-                    this.isInPublishedExam = true;
+                    this.isInPublishedExam.set(true);
                 }
                 return s.exam.name as string;
             });
             const sectionNames = sections.map((s) => s.name);
             // remove duplicates
-            this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort();
-            this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
+            this.examNames.set(examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort());
+            this.sectionNames.set(sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos));
             window.addEventListener('beforeunload', this.onUnload);
         });
     };

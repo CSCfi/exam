@@ -106,7 +106,7 @@ export class ExamPreParticipantSelectorComponent {
     private toast = inject(ToastrService);
     private Enrolment = inject(EnrolmentService);
 
-    addPreParticipant() {
+    addPreParticipant = () => {
         const currentExam = this.exam();
         const exists =
             currentExam.examEnrolments.map((e) => e.preEnrolledUserEmail).indexOf(this.newPreParticipant.email) > -1;
@@ -119,9 +119,9 @@ export class ExamPreParticipantSelectorComponent {
                 error: (err) => this.toast.error(err),
             });
         }
-    }
+    };
 
-    removeParticipant(id: number) {
+    removeParticipant = (id: number) => {
         const currentExam = this.exam();
         this.http.delete(`/app/enrolments/student/${id}`).subscribe({
             next: () => {
@@ -130,11 +130,10 @@ export class ExamPreParticipantSelectorComponent {
             },
             error: (err) => this.toast.error(err),
         });
-    }
+    };
 
-    renderParticipantLabel(enrolment: ExamEnrolment) {
-        return enrolment.preEnrolledUserEmail
+    renderParticipantLabel = (enrolment: ExamEnrolment) =>
+        enrolment.preEnrolledUserEmail
             ? enrolment.preEnrolledUserEmail
             : enrolment.user?.firstName + ' ' + enrolment?.user.lastName;
-    }
 }

@@ -220,24 +220,14 @@ export class ReservationsComponent {
         this.query();
     }
 
-    protected searchStudents$(text$: Observable<string>) {
-        return this.Reservation.searchStudents$(text$);
-    }
+    protected searchStudents$ = (text$: Observable<string>) => this.Reservation.searchStudents$(text$);
 
-    protected searchOwners$(text$: Observable<string>) {
-        return this.Reservation.searchOwners$(text$);
-    }
+    protected searchOwners$ = (text$: Observable<string>) => this.Reservation.searchOwners$(text$);
 
-    protected searchExams$(text$: Observable<string>) {
-        return this.Reservation.searchExams$(
-            text$,
-            this.isInteroperable() && (this.isAdminView() || this.isSupportView()),
-        );
-    }
+    protected searchExams$ = (text$: Observable<string>) =>
+        this.Reservation.searchExams$(text$, this.isInteroperable() && (this.isAdminView() || this.isSupportView()));
 
-    protected nameFormatter(item: { name: string }) {
-        return item.name;
-    }
+    protected nameFormatter = (item: { name: string }) => item.name;
 
     private createParams(input: Selection) {
         const currentStudent = this.student();

@@ -93,7 +93,7 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
     `,
 })
 export class MultiChoiceComponent {
-    question = model.required<ExamSectionQuestion>();
+    question = model<ExamSectionQuestion | undefined>(undefined);
     lotteryOn = input(false);
     isInPublishedExam = input(false);
 
@@ -101,26 +101,34 @@ export class MultiChoiceComponent {
     private ToastrService = inject(ToastrService);
 
     updateCorrectAnswer = (index: number) => {
-        const status = !this.question().options[index].option.correctOption;
-        const next = this.question().options.map((opt, i) =>
+        const q = this.question();
+        if (!q) return;
+        const status = !q.options[index].option.correctOption;
+        const next = q.options.map((opt, i) =>
             i === index
                 ? { ...opt, option: { ...opt.option, correctOption: status } }
                 : { ...opt, option: { ...opt.option, correctOption: false } },
         );
-        this.question.update((q) => ({ ...q, options: next }));
+        this.question.update((current) => (current ? { ...current, options: next } : current));
     };
 
     updateText = (text: string, index: number) => {
-        const next = [...this.question().options];
+        const q = this.question();
+        if (!q) return;
+        const next = [...q.options];
         next[index] = { ...next[index], option: { ...next[index].option, option: text } };
-        this.question.update((q) => ({ ...q, options: next }));
+        this.question.update((current) => (current ? { ...current, options: next } : current));
     };
 
     updateShufflingSetting = (setting: boolean) => {
-        this.question.update((q) => ({ ...q, optionShufflingOn: setting }));
+        const q = this.question();
+        if (!q) return;
+        this.question.update((current) => (current ? { ...current, optionShufflingOn: setting } : current));
     };
 
     addNewOption = () => {
+        const q = this.question();
+        if (!q) return;
         if (this.lotteryOn()) {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_lottery_on'));
             return;
@@ -135,18 +143,20 @@ export class MultiChoiceComponent {
             score: 0,
             answered: false,
         };
-        const next = [...this.question().options, newOption];
-        this.question.update((q) => ({ ...q, options: next }));
+        const next = [...q.options, newOption];
+        this.question.update((current) => (current ? { ...current, options: next } : current));
     };
 
     removeOption = (option: ExamSectionQuestionOption) => {
+        const q = this.question();
+        if (!q) return;
         if (this.lotteryOn()) {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_lottery_on'));
             return;
         }
 
         const hasCorrectAnswer =
-            this.question().options.filter(
+            q.options.filter(
                 (o) =>
                     o.id !== option.id &&
                     (o.option?.correctOption || (o.option?.defaultScore && o.option.defaultScore > 0)),
@@ -154,8 +164,8 @@ export class MultiChoiceComponent {
 
         // Either not published exam or correct answer exists
         if (!this.isInPublishedExam() || hasCorrectAnswer) {
-            const next = this.question().options.filter((o) => o.id !== option.id);
-            this.question.update((q) => ({ ...q, options: next }));
+            const next = q.options.filter((o) => o.id !== option.id);
+            this.question.update((current) => (current ? { ...current, options: next } : current));
         } else {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_minimum_options'));
         }

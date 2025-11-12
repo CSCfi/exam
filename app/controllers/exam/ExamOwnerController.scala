@@ -16,6 +16,7 @@ import system.AuditedAction
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
+import scala.jdk.CollectionConverters.*
 
 class ExamOwnerController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -32,7 +33,7 @@ class ExamOwnerController @Inject() (
         .where
         .idEq(id)
         .find
-        .map(e => Ok(e.asJson(PathProperties.parse("examOwners(*)"))))
+        .map(e => Ok(e.getExamOwners.asScala.asJson(PathProperties.parse("(*)"))))
         .getOrElse(NotFound)
     }
 

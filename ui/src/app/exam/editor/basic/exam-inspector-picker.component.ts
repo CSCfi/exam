@@ -47,8 +47,8 @@ export class ExamInspectorSelectorComponent {
         });
     }
 
-    listInspectors$(criteria$: Observable<string>): Observable<User[]> {
-        return criteria$.pipe(
+    listInspectors$ = (criteria$: Observable<string>): Observable<User[]> =>
+        criteria$.pipe(
             tap((text) => (this.newInspector.name = text)),
             debounceTime(500),
             distinctUntilChanged(),
@@ -61,11 +61,8 @@ export class ExamInspectorSelectorComponent {
                 return throwError(() => new Error(err));
             }),
         );
-    }
 
-    nameFormatter(data: User) {
-        return `${data.firstName} ${data.lastName} <${data.email}>`;
-    }
+    nameFormatter = (data: User) => `${data.firstName} ${data.lastName} <${data.email}>`;
 
     setInspector(event: NgbTypeaheadSelectItemEvent) {
         this.newInspector.id = event.item.id;

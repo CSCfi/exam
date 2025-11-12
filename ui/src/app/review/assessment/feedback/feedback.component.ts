@@ -65,8 +65,8 @@ export class FeedbackComponent implements OnInit {
     ngOnInit() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        if (this.exam.executionType.type === 'MATURITY') {
-            this.hideEditor = false;
+        if (this.exam().executionType.type === 'MATURITY') {
+            this.hideEditor.set(false);
         }
     }
 

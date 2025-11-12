@@ -158,9 +158,7 @@ export class QuestionBodyComponent {
         );
     };
 
-    nameFormat(u: User) {
-        return `${u.firstName} ${u.lastName} <${u.email}>`;
-    }
+    nameFormat = (u: User) => `${u.firstName} ${u.lastName} <${u.email}>`;
 
     setQuestionOwner(event: NgbTypeaheadSelectItemEvent) {
         // Using template to store the selected user
@@ -261,7 +259,13 @@ export class QuestionBodyComponent {
     }
 
     private init(questionValue: ReverseQuestion | QuestionDraft) {
-        const sections = questionValue.examSectionQuestions.map((esq) => esq.examSection);
+        const examSectionQuestions = questionValue.examSectionQuestions;
+        if (!examSectionQuestions) {
+            this.examNames.set([]);
+            this.sectionNames.set([]);
+            return;
+        }
+        const sections = examSectionQuestions.map((esq) => esq.examSection);
         const examNames = sections.map((s) => {
             if (s.exam.state === 'PUBLISHED') {
                 this.isInPublishedExam.set(true);

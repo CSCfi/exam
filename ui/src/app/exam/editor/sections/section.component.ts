@@ -474,6 +474,9 @@ export class SectionComponent {
         modal.componentInstance.newQuestion.set(true);
         modal.componentInstance.collaborative.set(this.collaborative());
         modal.componentInstance.isPopup.set(true);
+
+        // Trigger change detection after setting all model values
+        modal.componentInstance.cdr.markForCheck();
         this.modal.result$<Question>(modal).subscribe((resp) => {
             const currentSection = this.section();
             this.insertExamQuestion(resp, currentSection.sectionQuestions.length);

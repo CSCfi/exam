@@ -64,6 +64,7 @@ export class QuestionService {
             questionOwners: [this.Session.getUser()],
             state: 'NEW',
             tags: [],
+            defaultEvaluationType: 'Points',
             defaultNegativeScoreAllowed: false,
             defaultOptionShufflingOn: true,
         };
@@ -289,9 +290,8 @@ export class QuestionService {
         return this.http.post<void>(this.questionOwnerApi(uid), data);
     };
 
-    getQuestionDistribution$ = (qid: number): Observable<boolean> => {
-        return this.http.get<boolean>(`/app/exams/question/${qid}/distribution`);
-    };
+    getQuestionDistribution$ = (qid: number) =>
+        this.http.get<{ distributed: boolean }>(`/app/exams/question/${qid}/distribution`);
 
     updateQuestion = (resource: string, question: Question) =>
         this.http.put<ExamSectionQuestion>(resource, {

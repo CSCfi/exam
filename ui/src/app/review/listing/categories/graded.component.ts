@@ -17,7 +17,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin } from 'rxjs';
+import { forkJoin, take } from 'rxjs';
 import type { Exam } from 'src/app/exam/exam.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
@@ -87,6 +87,7 @@ export class GradedReviewsComponent {
             } else {
                 this.http
                     .get<{ status: 'nothing' | 'everything' }>(`/app/review/${currentExam.id}/locked`)
+                    .pipe(take(1))
                     .subscribe((setting) => this.needsFeedbackWarning.set(setting.status === 'everything'));
             }
         });
