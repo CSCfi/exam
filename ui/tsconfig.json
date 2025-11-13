@@ -4,6 +4,7 @@
     "compilerOptions": {
         "baseUrl": ".",
         "outDir": "./dist/out-tsc",
+        "types": [],
         "forceConsistentCasingInFileNames": true,
         "esModuleInterop": true,
         "strict": true,
