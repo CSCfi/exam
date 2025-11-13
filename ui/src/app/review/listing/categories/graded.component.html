@@ -56,11 +56,11 @@ SPDX-License-Identifier: EUPL-1.2
             <table class="table table-striped xm-data-table">
                 <thead>
                     <tr>
-                        <th class="dropdown" ngbDropdown>
+                        <th class="dropdown" ngbDropdown placement="bottom-start">
                             <button class="btn btn-sm btn-outline-secondary align-items-center" ngbDropdownToggle>
                                 <i class="bi-square"></i>
                             </button>
-                            <ul ngbDropdownMenu role="menu">
+                            <ul ngbDropdownMenu role="menu" class="dropdown-menu-show">
                                 <li ngbDropdownItem role="presentation" [ngClass]="selections().page ? 'active' : ''">
                                     <a
                                         role="menuitem"

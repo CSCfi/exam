@@ -65,7 +65,7 @@ export class ExaminationClockComponent implements OnDestroy {
     private syncInterval = 60;
     private alarmThreshold = 300;
     private clock = new Subject<number>();
-    private ngUnsubscribe = new Subject();
+    private ngUnsubscribe = new Subject<void>();
 
     constructor() {
         // Initialize clock when examHash input is available
@@ -75,14 +75,15 @@ export class ExaminationClockComponent implements OnDestroy {
                 return;
             }
 
-            // Clean up previous subscription before creating new one
-            this.ngUnsubscribe.next(undefined);
-            const newUnsubscribe = new Subject();
+            // Clean up previous subscriptions before creating new ones
+            this.ngUnsubscribe.next();
+            this.ngUnsubscribe.complete();
+            this.ngUnsubscribe = new Subject<void>();
 
             const sync$ = this.http.get<number>(`/app/time/${currentExamHash}`);
             interval(this.syncInterval * 1000)
                 .pipe(
-                    takeUntil(newUnsubscribe),
+                    takeUntil(this.ngUnsubscribe),
                     startWith(0),
                     switchMap(() =>
                         sync$.pipe(
@@ -97,21 +98,25 @@ export class ExaminationClockComponent implements OnDestroy {
                 )
                 .subscribe(this.clock);
 
-            this.remainingTime$ = this.clock.pipe(map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss')));
+            this.remainingTime$ = this.clock.pipe(
+                takeUntil(this.ngUnsubscribe),
+                map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss')),
+            );
             this.clock
                 .pipe(
+                    takeUntil(this.ngUnsubscribe),
                     filter((t) => t % (60 * 30) === 0 || [1, 5, 10].some((n) => t === 60 * n)),
                     map((t) => Duration.fromObject({ seconds: t }).toFormat('hh:mm:ss')),
                 )
                 .subscribe((time) => this.ariaLiveTime.set(time));
-            this.isTimeScarce$ = this.clock.pipe(map((n) => n <= this.alarmThreshold));
-            this.clock.subscribe((n) => {
+            this.isTimeScarce$ = this.clock.pipe(
+                takeUntil(this.ngUnsubscribe),
+                map((n) => n <= this.alarmThreshold),
+            );
+            this.clock.pipe(takeUntil(this.ngUnsubscribe)).subscribe((n) => {
                 if (n === 0) this.timedOut.emit();
             });
             this.showRemainingTime.set(true);
-
-            // Update ngUnsubscribe for ngOnDestroy
-            this.ngUnsubscribe = newUnsubscribe;
         });
     }
 
@@ -120,7 +125,7 @@ export class ExaminationClockComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
+        this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
 }

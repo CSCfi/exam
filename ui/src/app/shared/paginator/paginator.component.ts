@@ -90,7 +90,7 @@ export class PaginatorComponent {
     }
 
     range() {
-        return _range(0, this.pageCount() + 1);
+        return _range(0, this.pageCount());
     }
 
     setPage(n: number) {

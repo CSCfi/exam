@@ -330,7 +330,7 @@ class CollaborativeReviewController @Inject() (
                             .foreach(u => emailComposer.composeInspectionMessage(u, user, ce, exam, message))
                         }
 
-                        Future.successful(Ok(""))
+                        Future.successful(Ok)
                   }
       }
 

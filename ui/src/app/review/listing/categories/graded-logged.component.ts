@@ -144,7 +144,7 @@ export class GradedLoggedReviewsComponent {
             this.toast.info(this.translate.instant('i18n_exams_archived'));
         };
         const ids = selection.map((r) => r.examParticipation.exam.id);
-        this.http.put('/app/reviews/archive', { ids: ids.join() }).subscribe(ok);
+        this.http.put<void>('/app/reviews/archive', { ids: ids.join() }).subscribe(ok);
     }
 
     printSelected(asReport: boolean) {

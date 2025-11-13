@@ -226,15 +226,17 @@ export class ExamSearchComponent implements OnDestroy {
     }
 
     private loadPermissionCheck() {
-        this.Search.getEnrolmentPermissionCheckStatus$().subscribe({
-            next: (setting) => {
-                this.permissionCheck.set(setting);
-                if (setting.active === true) {
-                    this.doSearch();
-                }
-            },
-            error: (err) => this.toast.error(err),
-        });
+        this.Search.getEnrolmentPermissionCheckStatus$()
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe({
+                next: (setting) => {
+                    this.permissionCheck.set(setting);
+                    if (setting.active === true) {
+                        this.doSearch();
+                    }
+                },
+                error: (err) => this.toast.error(err),
+            });
     }
 
     private resetSearch() {

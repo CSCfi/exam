@@ -83,7 +83,7 @@ class ExamRecordController @Inject() (
                         emailComposer.composeInspectionReady(exam.getCreator, user, exam)
                         this.logger.info(s"Inspection ready notification email sent to ${user.getEmail}")
                       }
-                      Ok("ok")
+                      Ok
                     case None => NotFound
                 }
               case None => NotFound
@@ -175,7 +175,7 @@ class ExamRecordController @Inject() (
       else
         val invalidState =
           exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
-            Option(exam.getExamRecord).isEmpty
+            Option(exam.getExamRecord).nonEmpty
 
         if invalidState then Some(Forbidden("i18n_error_exam_already_graded_logged"))
         else None

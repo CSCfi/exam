@@ -53,7 +53,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
     sorting = signal<{ predicate: string; reverse: boolean }>({ predicate: '', reverse: false });
     filterText = '';
     filterChanged = new Subject<string>();
-    ngUnsubscribe = new Subject();
+    ngUnsubscribe = new Subject<void>();
 
     private router = inject(Router);
     private translate = inject(TranslateService);
@@ -77,7 +77,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
+        this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
 
@@ -116,7 +116,10 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
         this.ModalService.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent, {
             backdrop: 'static',
         })
-            .pipe(switchMap((data) => this.Dashboard.copyExam$(exam.id, data.type, data.examinationType)))
+            .pipe(
+                switchMap((data) => this.Dashboard.copyExam$(exam.id, data.type, data.examinationType)),
+                takeUntil(this.ngUnsubscribe),
+            )
             .subscribe({
                 next: (resp) => {
                     this.toast.success(this.translate.instant('i18n_exam_copied'));
@@ -127,21 +130,22 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
 
     deleteExam = (exam: DashboardExam) => {
         if (this.isAllowedToUnpublishOrRemove(exam)) {
-            this.Dialog.open$(
-                this.translate.instant('i18n_confirm'),
-                this.translate.instant('i18n_remove_exam'),
-            ).subscribe({
-                next: () =>
-                    this.Dashboard.deleteExam$(exam.id).subscribe({
-                        next: () => {
-                            this.toast.success(this.translate.instant('i18n_exam_removed'));
-                            // Note: items is an input signal, so we can't mutate it directly
-                            // The parent component should handle the removal
-                            // For now, we'll emit an event or the parent will refresh
-                        },
-                        error: (err) => this.toast.error(err),
-                    }),
-            });
+            this.Dialog.open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_remove_exam'))
+                .pipe(takeUntil(this.ngUnsubscribe))
+                .subscribe({
+                    next: () =>
+                        this.Dashboard.deleteExam$(exam.id)
+                            .pipe(takeUntil(this.ngUnsubscribe))
+                            .subscribe({
+                                next: () => {
+                                    this.toast.success(this.translate.instant('i18n_exam_removed'));
+                                    // Note: items is an input signal, so we can't mutate it directly
+                                    // The parent component should handle the removal
+                                    // For now, we'll emit an event or the parent will refresh
+                                },
+                                error: (err) => this.toast.error(err),
+                            }),
+                });
         } else {
             this.toast.warning(this.translate.instant('i18n_exam_removal_not_possible'));
         }

@@ -38,6 +38,7 @@ export class SessionService implements OnDestroy {
 
     private PING_INTERVAL: number = 30 * 1000;
     private sessionCheckSubscription?: Unsubscribable;
+    private toastTapSubscription?: Unsubscribable;
     private userChangeSubscription = new Subject<User | undefined>();
     private devLogoutSubscription = new Subject<void>();
 
@@ -48,6 +49,8 @@ export class SessionService implements OnDestroy {
 
     ngOnDestroy() {
         this.disableSessionCheck();
+        this.userChangeSubscription.complete();
+        this.devLogoutSubscription.complete();
     }
 
     getUser = (): User => {
@@ -114,13 +117,21 @@ export class SessionService implements OnDestroy {
         if (this.sessionCheckSubscription) {
             this.sessionCheckSubscription.unsubscribe();
         }
+        if (this.toastTapSubscription) {
+            this.toastTapSubscription.unsubscribe();
+            this.toastTapSubscription = undefined;
+        }
     }
 
     checkSession = () => {
         this.http.get('/app/session', { responseType: 'text' }).subscribe({
             next: (resp) => {
                 if (resp === 'alarm') {
-                    this.toast
+                    // Unsubscribe previous toast tap subscription if it exists
+                    if (this.toastTapSubscription) {
+                        this.toastTapSubscription.unsubscribe();
+                    }
+                    this.toastTapSubscription = this.toast
                         .warning(
                             this.i18n.instant('i18n_continue_session'),
                             this.i18n.instant('i18n_session_will_expire_soon'),

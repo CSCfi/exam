@@ -48,7 +48,7 @@ export class ExamParticipationComponent implements OnDestroy {
     scores = signal<Scores | undefined>(undefined);
     showEvaluation = signal(false);
     gradeDisplayName = signal('');
-    private ngUnsubscribe = new Subject();
+    private ngUnsubscribe = new Subject<void>();
 
     private translate = inject(TranslateService);
     private Exam = inject(CommonExamService);
@@ -84,7 +84,7 @@ export class ExamParticipationComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
+        this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
 
@@ -95,13 +95,13 @@ export class ExamParticipationComponent implements OnDestroy {
             !this.participation().exam.examFeedback.feedbackStatus
         ) {
             const participation = this.participation() as CollaborativeParticipation;
-            this.Enrolment.setCommentRead$(participation.examId, participation._id, participation._rev).subscribe(
-                () => {
+            this.Enrolment.setCommentRead$(participation.examId, participation._id, participation._rev)
+                .pipe(takeUntil(this.ngUnsubscribe))
+                .subscribe(() => {
                     if (this.participation().exam.examFeedback) {
                         this.participation().exam.examFeedback.feedbackStatus = true;
                     }
-                },
-            );
+                });
         } else if (exam.examFeedback) {
             this.Enrolment.setCommentRead(exam);
         }
@@ -115,7 +115,8 @@ export class ExamParticipationComponent implements OnDestroy {
         }
     }
 
-    private loadReview = (exam: Exam) => this.Enrolment.loadFeedback$(exam.id).subscribe(this.prepareReview);
+    private loadReview = (exam: Exam) =>
+        this.Enrolment.loadFeedback$(exam.id).pipe(takeUntil(this.ngUnsubscribe)).subscribe(this.prepareReview);
 
     private prepareReview = (exam: ReviewedExam) => {
         if (exam.gradingType === 'NOT_GRADED') {
@@ -151,7 +152,9 @@ export class ExamParticipationComponent implements OnDestroy {
             this.prepareScores(exam);
             return;
         }
-        this.Enrolment.loadScore$(this.participation().exam.id).subscribe(this.prepareScores);
+        this.Enrolment.loadScore$(this.participation().exam.id)
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(this.prepareScores);
     };
 
     private prepareScores = (exam: ReviewedExam) => {

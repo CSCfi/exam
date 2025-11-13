@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -72,6 +72,9 @@ export class ReviewListComponent {
     archivedReviews = signal<Review[]>([]);
     gradedReviews = signal<Review[]>([]);
 
+    // Track manually moved review IDs to prevent effect() from overwriting them
+    private manuallyMovedIds = new Set<number | string>();
+
     private modal = inject(ModalService);
     private http = inject(HttpClient);
     private route = inject(ActivatedRoute);
@@ -80,19 +83,32 @@ export class ReviewListComponent {
 
     constructor() {
         // Sync mutable arrays when reviews or collaborative changes
+        // Preserve manually moved reviews when syncing
         effect(() => {
-            // Sync arrays from computed values
+            const allReviews = this.reviews();
+            const collaborative = this.collaborative();
+
+            // Get auto-synced reviews and merge with preserved manually moved reviews
             this.gradedLoggedReviews.set(
-                this.ReviewList.filterByStateAndEnhance(['GRADED_LOGGED'], this.reviews(), this.collaborative()),
+                this.mergeAutoAndPreserved(
+                    this.ReviewList.filterByStateAndEnhance(['GRADED_LOGGED'], allReviews, collaborative),
+                    untracked(() => this.gradedLoggedReviews()),
+                ),
             );
             this.archivedReviews.set(
-                this.ReviewList.filterByStateAndEnhance(['ARCHIVED'], this.reviews(), this.collaborative()),
+                this.mergeAutoAndPreserved(
+                    this.ReviewList.filterByStateAndEnhance(['ARCHIVED'], allReviews, collaborative),
+                    untracked(() => this.archivedReviews()),
+                ),
             );
+
             this.gradedReviews.set(
-                this.ReviewList.filterByStateAndEnhance(
-                    ['GRADED'],
-                    this.reviews().filter((r) => !r.exam.languageInspection || r.exam.languageInspection.finishedAt),
-                    this.collaborative(),
+                this.filterOutManuallyMoved(
+                    this.ReviewList.filterByStateAndEnhance(
+                        ['GRADED'],
+                        allReviews.filter((r) => !r.exam.languageInspection || r.exam.languageInspection.finishedAt),
+                        collaborative,
+                    ),
                 ),
             );
         });
@@ -115,35 +131,36 @@ export class ReviewListComponent {
     }
 
     onArchive(reviews: Review[]) {
-        const ids = reviews.map((r) => r.examParticipation.id);
+        const ids = reviews.map(this.getReviewId).filter((id): id is number | string => id !== undefined);
         const currentGradedLogged = this.gradedLoggedReviews();
-        const archived = currentGradedLogged.filter((glr) => ids.indexOf(glr.examParticipation.id) > -1);
+        const archived = currentGradedLogged.filter((glr) => {
+            const glrId = this.getReviewId(glr);
+            return glrId !== undefined && ids.includes(glrId);
+        });
+
+        archived.forEach((r) => (r.selected = false));
+        ids.forEach((id) => this.manuallyMovedIds.add(id));
         this.archivedReviews.update((current) => [...current, ...archived]);
         this.gradedLoggedReviews.update((current) =>
-            current.filter((glr) => ids.indexOf(glr.examParticipation.id) === -1),
+            current.filter((glr) => {
+                const glrId = this.getReviewId(glr);
+                return glrId === undefined || !ids.includes(glrId);
+            }),
         );
     }
 
     onRegistration(reviews: Review[]) {
-        const currentGraded = this.gradedReviews();
-        const currentGradedLogged = this.gradedLoggedReviews();
-        const updatedGraded = [...currentGraded];
-        const updatedGradedLogged = [...currentGradedLogged];
-
+        const ids = reviews.map((r) => r.examParticipation.id).filter((id) => id !== undefined);
         reviews.forEach((r) => {
-            const index = updatedGraded.findIndex((gr) => gr.examParticipation.id === r.examParticipation.id);
-            if (index > -1) {
-                updatedGraded.splice(index, 1);
-            }
             r.selected = false;
             r.displayedGradingTime = r.examParticipation.exam.languageInspection
                 ? r.examParticipation.exam.languageInspection.finishedAt
                 : r.examParticipation.exam.gradedTime;
-            updatedGradedLogged.push(r);
         });
 
-        this.gradedReviews.set(updatedGraded);
-        this.gradedLoggedReviews.set(updatedGradedLogged);
+        ids.forEach((id) => this.manuallyMovedIds.add(id));
+        this.gradedReviews.update((current) => current.filter((gr) => !ids.includes(gr.examParticipation.id)));
+        this.gradedLoggedReviews.update((current) => [...current, ...reviews]);
     }
 
     openAborted() {
@@ -173,5 +190,33 @@ export class ReviewListComponent {
                 ae.examParticipation.exam.examEnrolments.length > 0 &&
                 ae.examParticipation.exam.examEnrolments[0].retrialPermitted === false,
         ).length;
+    }
+
+    // Helper to get review ID (handles both regular and collaborative exams)
+    private getReviewId = (r: Review): number | string | undefined => r.examParticipation.id ?? r.examParticipation._id;
+
+    // Helper to filter out manually moved reviews
+    private filterOutManuallyMoved(reviews: Review[]): Review[] {
+        return reviews.filter((r) => {
+            const id = this.getReviewId(r);
+            return id === undefined || !this.manuallyMovedIds.has(id);
+        });
+    }
+
+    // Helper to merge auto-synced reviews with preserved manually moved reviews
+    private mergeAutoAndPreserved(autoSynced: Review[], current: Review[]): Review[] {
+        const preserved = current.filter(
+            (r) => this.getReviewId(r) !== undefined && this.manuallyMovedIds.has(this.getReviewId(r)!),
+        );
+        const autoSyncedIds = new Set(
+            autoSynced.map(this.getReviewId).filter((id): id is number | string => id !== undefined),
+        );
+        return [
+            ...autoSynced,
+            ...preserved.filter((r) => {
+                const id = this.getReviewId(r);
+                return id !== undefined && !autoSyncedIds.has(id);
+            }),
+        ];
     }
 }

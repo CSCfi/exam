@@ -44,7 +44,7 @@ export class ExamParticipationsComponent implements OnDestroy {
     participations = signal<ParticipationLike[]>([]);
     collaborative = false;
     filterChanged: Subject<string> = new Subject<string>();
-    ngUnsubscribe = new Subject();
+    ngUnsubscribe = new Subject<void>();
     searchDone = signal(false);
 
     private toast = inject(ToastrService);
@@ -67,7 +67,7 @@ export class ExamParticipationsComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
+        this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
 
@@ -85,15 +85,17 @@ export class ExamParticipationsComponent implements OnDestroy {
 
     private _search = (text: string) => {
         this.filter.update((f) => ({ ...f, text }));
-        this.Enrolment.loadParticipations$(text).subscribe({
-            next: (data) => {
-                data.filter((p) => !p.ended).forEach(
-                    (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),
-                );
-                this.participations.set(data.filter((d) => d.ended));
-                this.searchDone.set(true);
-            },
-            error: (err) => this.toast.error(err),
-        });
+        this.Enrolment.loadParticipations$(text)
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe({
+                next: (data) => {
+                    data.filter((p) => !p.ended).forEach(
+                        (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),
+                    );
+                    this.participations.set(data.filter((d) => d.ended));
+                    this.searchDone.set(true);
+                },
+                error: (err) => this.toast.error(err),
+            });
     };
 }

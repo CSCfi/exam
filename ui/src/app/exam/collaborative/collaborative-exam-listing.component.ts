@@ -63,7 +63,7 @@ export class CollaborativeExamListingComponent implements OnDestroy {
     loading = signal(false);
     filterChanged = new Subject<string>();
     examCreated = new Subject<void>();
-    ngUnsubscribe = new Subject();
+    ngUnsubscribe = new Subject<void>();
 
     private router = inject(Router);
     private translate = inject(TranslateService);
@@ -86,18 +86,23 @@ export class CollaborativeExamListingComponent implements OnDestroy {
                 takeUntil(this.ngUnsubscribe),
             )
             .subscribe();
-        this.examCreated.pipe(exhaustMap(() => this.CollaborativeExam.createExam$())).subscribe({
-            next: (exam: CollaborativeExam) => {
-                toast.info(this.translate.instant('i18n_exam_added'));
-                this.router.navigate(['/staff/exams', exam.id, '1'], { queryParams: { collaborative: true } });
-            },
-            error: (err) => this.toast.error(err),
-        });
+        this.examCreated
+            .pipe(
+                exhaustMap(() => this.CollaborativeExam.createExam$()),
+                takeUntil(this.ngUnsubscribe),
+            )
+            .subscribe({
+                next: (exam: CollaborativeExam) => {
+                    toast.info(this.translate.instant('i18n_exam_added'));
+                    this.router.navigate(['/staff/exams', exam.id, '1'], { queryParams: { collaborative: true } });
+                },
+                error: (err) => this.toast.error(err),
+            });
         this.listAllExams();
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
+        this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
 

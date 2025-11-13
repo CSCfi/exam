@@ -110,27 +110,30 @@ export class UsersComponent implements OnDestroy {
                 this.search();
             });
 
-        this.userManagement.getPermissions().subscribe((permissions) => {
-            const mappedPermissions = permissions.map((p) => {
-                if (p.type === PermissionType.CAN_INSPECT_LANGUAGE) {
-                    return {
-                        ...p,
-                        name: 'i18n_can_inspect_language',
-                        icon: 'bi-alphabet',
-                    };
-                }
-                if (p.type === PermissionType.CAN_CREATE_BYOD_EXAM) {
-                    return {
-                        ...p,
-                        name: 'i18n_can_create_byod_exam',
-                        icon: 'bi-house-gear',
-                    };
-                }
+        this.userManagement
+            .getPermissions()
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe((permissions) => {
+                const mappedPermissions = permissions.map((p) => {
+                    if (p.type === PermissionType.CAN_INSPECT_LANGUAGE) {
+                        return {
+                            ...p,
+                            name: 'i18n_can_inspect_language',
+                            icon: 'bi-alphabet',
+                        };
+                    }
+                    if (p.type === PermissionType.CAN_CREATE_BYOD_EXAM) {
+                        return {
+                            ...p,
+                            name: 'i18n_can_create_byod_exam',
+                            icon: 'bi-house-gear',
+                        };
+                    }
 
-                return p;
+                    return p;
+                });
+                this.permissions.set(mappedPermissions);
             });
-            this.permissions.set(mappedPermissions);
-        });
 
         this.loader.set({ loading: false });
     }
@@ -222,31 +225,37 @@ export class UsersComponent implements OnDestroy {
     }
 
     addRole(user: UserWithOptions, role: RoleOption) {
-        this.userManagement.addRole(user.id, role.type).subscribe(() => {
-            const updatedUsers = this.users().map((u) => {
-                if (u.id === user.id) {
-                    const updatedUser = { ...u, roles: [...u.roles, { name: role.type }] };
-                    this.updateEditOptions(updatedUser);
-                    return updatedUser;
-                }
-                return u;
+        this.userManagement
+            .addRole(user.id, role.type)
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => {
+                const updatedUsers = this.users().map((u) => {
+                    if (u.id === user.id) {
+                        const updatedUser = { ...u, roles: [...u.roles, { name: role.type }] };
+                        this.updateEditOptions(updatedUser);
+                        return updatedUser;
+                    }
+                    return u;
+                });
+                this.users.set(updatedUsers);
             });
-            this.users.set(updatedUsers);
-        });
     }
 
     addPermission(user: UserWithOptions, permission: Permission) {
-        this.userManagement.addPermission(user.id, permission.type).subscribe(() => {
-            const updatedUsers = this.users().map((u) => {
-                if (u.id === user.id) {
-                    const updatedUser = { ...u, permissions: [...u.permissions, { type: permission.type }] };
-                    this.updateEditOptions(updatedUser);
-                    return updatedUser;
-                }
-                return u;
+        this.userManagement
+            .addPermission(user.id, permission.type)
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => {
+                const updatedUsers = this.users().map((u) => {
+                    if (u.id === user.id) {
+                        const updatedUser = { ...u, permissions: [...u.permissions, { type: permission.type }] };
+                        this.updateEditOptions(updatedUser);
+                        return updatedUser;
+                    }
+                    return u;
+                });
+                this.users.set(updatedUsers);
             });
-            this.users.set(updatedUsers);
-        });
     }
 
     removeRole(user: UserWithOptions, role: RoleOption) {
@@ -267,20 +276,23 @@ export class UsersComponent implements OnDestroy {
     }
 
     removePermission(user: UserWithOptions, permission: PermissionOption) {
-        this.userManagement.removePermission(user.id, permission.type).subscribe(() => {
-            const updatedUsers = this.users().map((u) => {
-                if (u.id === user.id) {
-                    const updatedUser = {
-                        ...u,
-                        permissions: u.permissions.filter((p) => p.type !== permission.type),
-                    };
-                    this.updateEditOptions(updatedUser);
-                    return updatedUser;
-                }
-                return u;
+        this.userManagement
+            .removePermission(user.id, permission.type)
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => {
+                const updatedUsers = this.users().map((u) => {
+                    if (u.id === user.id) {
+                        const updatedUser = {
+                            ...u,
+                            permissions: u.permissions.filter((p) => p.type !== permission.type),
+                        };
+                        this.updateEditOptions(updatedUser);
+                        return updatedUser;
+                    }
+                    return u;
+                });
+                this.users.set(updatedUsers);
             });
-            this.users.set(updatedUsers);
-        });
     }
 
     updateEditOptions(user: UserWithOptions) {
@@ -311,19 +323,22 @@ export class UsersComponent implements OnDestroy {
     }
 
     initSearch() {
-        this.userManagement.getUsers(this._filterText()).subscribe({
-            next: (users) => {
-                const usersWithOptions = users as UserWithOptions[];
-                usersWithOptions.forEach((user: UserWithOptions) => {
-                    this.updateEditOptions(user);
-                });
-                this.users.set(usersWithOptions);
-                this.loader.set({ loading: false });
-            },
-            error: (err) => {
-                this.loader.set({ loading: false });
-                this.toast.error(this.translate.instant(err));
-            },
-        });
+        this.userManagement
+            .getUsers(this._filterText())
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe({
+                next: (users) => {
+                    const usersWithOptions = users as UserWithOptions[];
+                    usersWithOptions.forEach((user: UserWithOptions) => {
+                        this.updateEditOptions(user);
+                    });
+                    this.users.set(usersWithOptions);
+                    this.loader.set({ loading: false });
+                },
+                error: (err) => {
+                    this.loader.set({ loading: false });
+                    this.toast.error(this.translate.instant(err));
+                },
+            });
     }
 }

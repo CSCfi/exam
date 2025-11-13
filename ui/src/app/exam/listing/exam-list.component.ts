@@ -60,7 +60,7 @@ export class ExamListingComponent implements OnDestroy {
     loader = signal({ loading: false });
     exams = signal<ExamListExam[]>([]);
     subject = new Subject<string>();
-    ngUnsubscribe = new Subject();
+    ngUnsubscribe = new Subject<void>();
 
     private translate = inject(TranslateService);
     private router = inject(Router);
@@ -98,7 +98,7 @@ export class ExamListingComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next(undefined);
+        this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
 
@@ -117,7 +117,10 @@ export class ExamListingComponent implements OnDestroy {
 
     copyExam(exam: Exam) {
         this.Modal.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent)
-            .pipe(switchMap((data) => this.http.post<Exam>(`/app/exams/${exam.id}`, data)))
+            .pipe(
+                switchMap((data) => this.http.post<Exam>(`/app/exams/${exam.id}`, data)),
+                takeUntil(this.ngUnsubscribe),
+            )
             .subscribe({
                 next: (resp) => {
                     this.toast.success(this.translate.instant('i18n_exam_copied'));
@@ -128,22 +131,24 @@ export class ExamListingComponent implements OnDestroy {
     }
 
     deleteExam(exam: ExamListExam) {
-        this.Confirmation.open$(
-            this.translate.instant('i18n_confirm'),
-            this.translate.instant('i18n_remove_exam'),
-        ).subscribe({
-            next: () => {
-                this.http.delete(`/app/exams/${exam.id}`).subscribe({
-                    next: () => {
-                        this.toast.success(this.translate.instant('i18n_exam_removed'));
-                        const currentExams = this.exams();
-                        const updated = currentExams.filter((e) => e.id !== exam.id);
-                        this.exams.set(updated);
-                    },
-                    error: (err) => this.toast.error(err),
-                });
-            },
-        });
+        this.Confirmation.open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_remove_exam'))
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe({
+                next: () => {
+                    this.http
+                        .delete(`/app/exams/${exam.id}`)
+                        .pipe(takeUntil(this.ngUnsubscribe))
+                        .subscribe({
+                            next: () => {
+                                this.toast.success(this.translate.instant('i18n_exam_removed'));
+                                const currentExams = this.exams();
+                                const updated = currentExams.filter((e) => e.id !== exam.id);
+                                this.exams.set(updated);
+                            },
+                            error: (err) => this.toast.error(err),
+                        });
+                },
+            });
     }
 
     filterByStateAndExpiration(state: string, expired: boolean) {
