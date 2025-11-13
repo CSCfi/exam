@@ -22,6 +22,7 @@ import play.api.libs.ws.{JsonBodyWritables, WSClient}
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 import validation.scala.calendar.{ExternalReservationDTO, ReservationCreationFilter}
 import validation.scala.core.ScalaAttrs
 
@@ -32,6 +33,7 @@ import scala.util.{Failure, Success, Try}
 
 class CollaborativeExternalCalendarController @Inject() (
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     calendarHandler: CalendarHandler,
     wsClient: WSClient,
     configReader: ConfigReader,
@@ -47,105 +49,105 @@ class CollaborativeExternalCalendarController @Inject() (
     with JsonBodyWritables
     with Logging:
 
-  def requestReservation(): Action[JsValue] =
-    authenticated(parse.json)
-      .andThen(authorized(Seq(Role.Name.STUDENT)))
-      .andThen(ReservationCreationFilter.forExternal())
-      .async { request =>
-        if !configReader.isVisitingExaminationSupported then
-          Future.successful(Forbidden("Feature not enabled in the installation"))
-        else
-          val user = request.attrs(Auth.ATTR_USER)
+  def requestReservation(): Action[JsValue] = audited
+    .andThen(authenticated)(parse.json)
+    .andThen(authorized(Seq(Role.Name.STUDENT)))
+    .andThen(ReservationCreationFilter.forExternal())
+    .async { request =>
+      if !configReader.isVisitingExaminationSupported then
+        Future.successful(Forbidden("Feature not enabled in the installation"))
+      else
+        val user = request.attrs(Auth.ATTR_USER)
 
-          // Parse request body
-          val ExternalReservationDTO(orgRef, roomRef, examId, start, end, sectionIds) =
-            request.attrs(ScalaAttrs.ATTR_EXT_RESERVATION)
-          val now = dateTimeHandler.adjustDST(DateTime.now())
+        // Parse request body
+        val ExternalReservationDTO(orgRef, roomRef, examId, start, end, sectionIds) =
+          request.attrs(ScalaAttrs.ATTR_EXT_RESERVATION)
+        val now = dateTimeHandler.adjustDST(DateTime.now())
 
-          val ceOpt = Option(DB.find(classOf[CollaborativeExam], examId))
-          ceOpt match
-            case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-            case Some(ce) =>
-              val enrolmentOpt =
-                DB.find(classOf[ExamEnrolment])
-                  .fetch("reservation")
-                  .where()
-                  .eq("user.id", user.getId)
-                  .eq("collaborativeExam.id", examId)
-                  .disjunction()
-                  .isNull("reservation")
-                  .gt("reservation.startAt", now.toDate)
-                  .endJunction()
-                  .find
+        val ceOpt = Option(DB.find(classOf[CollaborativeExam], examId))
+        ceOpt match
+          case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+          case Some(ce) =>
+            val enrolmentOpt =
+              DB.find(classOf[ExamEnrolment])
+                .fetch("reservation")
+                .where()
+                .eq("user.id", user.getId)
+                .eq("collaborativeExam.id", examId)
+                .disjunction()
+                .isNull("reservation")
+                .gt("reservation.startAt", now.toDate)
+                .endJunction()
+                .find
 
-              enrolmentOpt match
-                case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-                case Some(enrolment) =>
-                  examLoader.downloadExam(ce).flatMap { examOpt =>
-                    if examOpt.isEmpty then Future.successful(NotFound("i18n_error_exam_not_found"))
-                    else
-                      val exam = examOpt.get
-                      // Check enrolment validity
-                      val oldReservation = enrolment.getReservation
-                      val checkResult =
-                        if exam.getState == Exam.State.STUDENT_STARTED ||
-                          (oldReservation != null && oldReservation.toInterval.isBefore(DateTime.now()))
-                        then Some(Forbidden("i18n_reservation_in_effect"))
-                        else if oldReservation == null && !enrolmentHandler.isAllowedToParticipate(exam, user) then
-                          Some(Forbidden("i18n_no_trials_left"))
-                        else None
+            enrolmentOpt match
+              case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+              case Some(enrolment) =>
+                examLoader.downloadExam(ce).flatMap { examOpt =>
+                  if examOpt.isEmpty then Future.successful(NotFound("i18n_error_exam_not_found"))
+                  else
+                    val exam = examOpt.get
+                    // Check enrolment validity
+                    val oldReservation = enrolment.getReservation
+                    val checkResult =
+                      if exam.getState == Exam.State.STUDENT_STARTED ||
+                        (oldReservation != null && oldReservation.toInterval.isBefore(DateTime.now()))
+                      then Some(Forbidden("i18n_reservation_in_effect"))
+                      else if oldReservation == null && !enrolmentHandler.isAllowedToParticipate(exam, user) then
+                        Some(Forbidden("i18n_no_trials_left"))
+                      else None
 
-                      checkResult match
-                        case Some(errorResult) => Future.successful(errorResult)
-                        case None              =>
-                          // Make ext request here
-                          Try(parseUrl(orgRef, roomRef)) match
-                            case Failure(e) =>
-                              logger.error(s"Failed to parse URL for org=$orgRef, room=$roomRef", e)
-                              Future.successful(InternalServerError("Failed to parse URL"))
-                            case Success(url) =>
-                              val homeOrgRef = configReader.getHomeOrganisationRef
-                              val body = Json.obj(
-                                "requestingOrg" -> homeOrgRef,
-                                "start"         -> ISODateTimeFormat.dateTime().print(start),
-                                "end"           -> ISODateTimeFormat.dateTime().print(end),
-                                "user"          -> user.getEppn,
-                                "optionalSections" -> JsArray(
-                                  sectionIds.getOrElse(List.empty).map(id => Json.toJson(id))
-                                )
+                    checkResult match
+                      case Some(errorResult) => Future.successful(errorResult)
+                      case None              =>
+                        // Make ext request here
+                        Try(parseUrl(orgRef, roomRef)) match
+                          case Failure(e) =>
+                            logger.error(s"Failed to parse URL for org=$orgRef, room=$roomRef", e)
+                            Future.successful(InternalServerError("Failed to parse URL"))
+                          case Success(url) =>
+                            val homeOrgRef = configReader.getHomeOrganisationRef
+                            val body = Json.obj(
+                              "requestingOrg" -> homeOrgRef,
+                              "start"         -> ISODateTimeFormat.dateTime().print(start),
+                              "end"           -> ISODateTimeFormat.dateTime().print(end),
+                              "user"          -> user.getEppn,
+                              "optionalSections" -> JsArray(
+                                sectionIds.getOrElse(List.empty).map(id => Json.toJson(id))
                               )
+                            )
 
-                              wsClient
-                                .url(url.toString)
-                                .post(body)
-                                .flatMap { response =>
-                                  val root = response.json
-                                  if response.status != CREATED then
-                                    Future.successful(
-                                      InternalServerError(
-                                        (root \ "message").asOpt[String].getOrElse("Connection refused")
-                                      )
+                            wsClient
+                              .url(url.toString)
+                              .post(body)
+                              .flatMap { response =>
+                                val root = response.json
+                                if response.status != CREATED then
+                                  Future.successful(
+                                    InternalServerError(
+                                      (root \ "message").asOpt[String].getOrElse("Connection refused")
                                     )
-                                  else
-                                    calendarHandler
-                                      .handleExternalReservation(
-                                        enrolment,
-                                        exam,
-                                        root,
-                                        start,
-                                        end,
-                                        user,
-                                        orgRef,
-                                        roomRef,
-                                        sectionIds.getOrElse(List.empty)
-                                      )
-                                      .map { err =>
-                                        if err.isEmpty then Created((root \ "id").as[JsValue])
-                                        else InternalServerError("Failed to handle external reservation")
-                                      }
-                                }
-                  }
-      }
+                                  )
+                                else
+                                  calendarHandler
+                                    .handleExternalReservation(
+                                      enrolment,
+                                      exam,
+                                      root,
+                                      start,
+                                      end,
+                                      user,
+                                      orgRef,
+                                      roomRef,
+                                      sectionIds.getOrElse(List.empty)
+                                    )
+                                    .map { err =>
+                                      if err.isEmpty then Created((root \ "id").as[JsValue])
+                                      else InternalServerError("Failed to handle external reservation")
+                                    }
+                              }
+                }
+    }
 
   def requestSlots(
       examId: Long,

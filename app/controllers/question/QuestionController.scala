@@ -16,11 +16,13 @@ import models.questions.{ClozeTestAnswer, MultipleChoiceOption, Question, Tag}
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Role, User}
 import play.api.Logging
+import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsArray, JsValue, Json}
 import play.api.mvc.*
 import play.libs.Json as PlayJson
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 import validation.scala.core.SanitizingHelper
 import validation.scala.core.Validators
 import validation.scala.question.QuestionTextValidator
@@ -38,6 +40,7 @@ class QuestionController @Inject() (
     xmlImporter: MoodleXmlImporter,
     validators: Validators,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     val controllerComponents: ControllerComponents
 )(implicit ec: scala.concurrent.ExecutionContext)
     extends play.api.mvc.BaseController
@@ -116,29 +119,30 @@ class QuestionController @Inject() (
     }
 
   def copyQuestion(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user  = request.attrs(Auth.ATTR_USER)
-      var query = DB.find(classOf[Question]).fetch("questionOwners").where().idEq(id)
-      if user.hasRole(Role.Name.TEACHER) then
-        query = query.disjunction().eq("shared", true).eq("questionOwners", user).endJunction()
-      query.find match
-        case None => Forbidden("i18n_error_access_forbidden")
-        case Some(question) =>
-          val sortedOptions = question.getOptions.asScala.toSeq.sorted
-          question.getOptions.clear()
-          question.getOptions.addAll(sortedOptions.asJava)
-          val copy = question.copy()
-          copy.setParent(null)
-          copy.setQuestion(s"<p>**COPY**</p>${question.getQuestion}")
-          copy.setCreatorWithDate(user)
-          copy.setModifierWithDate(user)
-          copy.save()
-          copy.getTags.addAll(question.getTags)
-          copy.getQuestionOwners.clear()
-          copy.getQuestionOwners.add(user)
-          copy.update()
-          DB.saveAll(copy.getOptions)
-          Ok(copy.asJson)
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val user  = request.attrs(Auth.ATTR_USER)
+        var query = DB.find(classOf[Question]).fetch("questionOwners").where().idEq(id)
+        if user.hasRole(Role.Name.TEACHER) then
+          query = query.disjunction().eq("shared", true).eq("questionOwners", user).endJunction()
+        query.find match
+          case None => Forbidden("i18n_error_access_forbidden")
+          case Some(question) =>
+            val sortedOptions = question.getOptions.asScala.toSeq.sorted
+            question.getOptions.clear()
+            question.getOptions.addAll(sortedOptions.asJava)
+            val copy = question.copy()
+            copy.setParent(null)
+            copy.setQuestion(s"<p>**COPY**</p>${question.getQuestion}")
+            copy.setCreatorWithDate(user)
+            copy.setModifierWithDate(user)
+            copy.save()
+            copy.getTags.addAll(question.getTags)
+            copy.getQuestionOwners.clear()
+            copy.getQuestionOwners.add(user)
+            copy.update()
+            DB.saveAll(copy.getOptions)
+            Ok(copy.asJson)
     }
 
   // TODO: Move to sanitizer
@@ -205,60 +209,60 @@ class QuestionController @Inject() (
                 .eq("creator", user)
                 .list
                 .headOption match
-              case Some(t) => question.getTags.add(t)
-              case None =>
-                val newTag = new Tag()
-                newTag.setName((tagNode \ "name").asOpt[String].getOrElse("").toLowerCase)
-                newTag.setCreatorWithDate(user)
-                newTag.setModifier(user)
-                question.getTags.add(newTag)
+                case Some(t) => question.getTags.add(t)
+                case None =>
+                  val newTag = new Tag()
+                  newTag.setName((tagNode \ "name").asOpt[String].getOrElse("").toLowerCase)
+                  newTag.setCreatorWithDate(user)
+                  newTag.setModifier(user)
+                  question.getTags.add(newTag)
         }
       case None => // No tags specified
     question
 
-  def createQuestion(): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .andThen(questionTextSanitizer)(parse.json) { request =>
-        val user         = request.attrs(Auth.ATTR_USER)
-        val questionText = request.attrs.get(QuestionTextValidator.QUESTION_TEXT_KEY)
-        val question     = parseFromBody(request.body, user, None, questionText)
-        question.getQuestionOwners.add(user)
-        question.getValidationResult(toJacksonJson(request.body)).toScala.map(_.asScala) match
-          case Some(error) => error
-          case None =>
-            if question.getType != Question.Type.EssayQuestion then
-              processOptions(question, user, (request.body \ "options").asOpt[JsArray].getOrElse(Json.arr()))
-            question.save()
-            Ok(question.asJson)
-      }
+  def createQuestion(): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .andThen(questionTextSanitizer)(parse.json) { request =>
+      val user         = request.attrs(Auth.ATTR_USER)
+      val questionText = request.attrs.get(QuestionTextValidator.QUESTION_TEXT_KEY)
+      val question     = parseFromBody(request.body, user, None, questionText)
+      question.getQuestionOwners.add(user)
+      question.getValidationResult(toJacksonJson(request.body)).toScala.map(_.asScala) match
+        case Some(error) => error
+        case None =>
+          if question.getType != Question.Type.EssayQuestion then
+            processOptions(question, user, (request.body \ "options").asOpt[JsArray].getOrElse(Json.arr()))
+          question.save()
+          Ok(question.asJson)
+    }
 
-  def updateQuestion(id: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .andThen(questionTextSanitizer)(parse.json) { request =>
-        val user  = request.attrs(Auth.ATTR_USER)
-        var query = DB.find(classOf[Question]).where().idEq(id)
-        if user.hasRole(Role.Name.TEACHER) then
-          query = query
-            .disjunction()
-            .eq("shared", true)
-            .eq("questionOwners", user)
-            .eq("examSectionQuestions.examSection.exam.examOwners", user)
-            .endJunction()
-        query.find match
-          case None => Forbidden("i18n_error_access_forbidden")
-          case Some(question) =>
-            val questionText    = request.attrs.get(QuestionTextValidator.QUESTION_TEXT_KEY)
-            val updatedQuestion = parseFromBody(request.body, user, Some(question), questionText)
-            question.getValidationResult(toJacksonJson(request.body)).toScala.map(_.asScala) match
-              case Some(error) => error
-              case None =>
-                if updatedQuestion.getType != Question.Type.EssayQuestion then
-                  processOptions(updatedQuestion, user, (request.body \ "options").asOpt[JsArray].getOrElse(Json.arr()))
-                updatedQuestion.update()
-                Ok(updatedQuestion.asJson)
-      }
+  def updateQuestion(id: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .andThen(questionTextSanitizer)(parse.json) { request =>
+      val user  = request.attrs(Auth.ATTR_USER)
+      var query = DB.find(classOf[Question]).where().idEq(id)
+      if user.hasRole(Role.Name.TEACHER) then
+        query = query
+          .disjunction()
+          .eq("shared", true)
+          .eq("questionOwners", user)
+          .eq("examSectionQuestions.examSection.exam.examOwners", user)
+          .endJunction()
+      query.find match
+        case None => Forbidden("i18n_error_access_forbidden")
+        case Some(question) =>
+          val questionText    = request.attrs.get(QuestionTextValidator.QUESTION_TEXT_KEY)
+          val updatedQuestion = parseFromBody(request.body, user, Some(question), questionText)
+          question.getValidationResult(toJacksonJson(request.body)).toScala.map(_.asScala) match
+            case Some(error) => error
+            case None =>
+              if updatedQuestion.getType != Question.Type.EssayQuestion then
+                processOptions(updatedQuestion, user, (request.body \ "options").asOpt[JsArray].getOrElse(Json.arr()))
+              updatedQuestion.update()
+              Ok(updatedQuestion.asJson)
+    }
 
   def deleteQuestion(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
@@ -338,30 +342,30 @@ class QuestionController @Inject() (
   private def toJacksonJson(jsValue: JsValue): JsonNode =
     PlayJson.parse(Json.stringify(jsValue))
 
-  def addOwner(uid: Long): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))(parse.json) {
-      request =>
-          DB.find(classOf[User])
-            .select("id, firstName, lastName, userIdentifier")
-            .where()
-            .idEq(uid)
-            .find match
-          case None => NotFound
-          case Some(newOwner) =>
-            val questionIds = (request.body \ "questionIds").asOpt[String]
-            questionIds match
-              case None | Some("") => BadRequest
-              case Some(idsStr) =>
-                val ids      = idsStr.split(",").map(_.toLong).toSeq
-                val modifier = request.attrs(Auth.ATTR_USER)
-                var expr     = DB.find(classOf[Question]).where().idIn(ids.asJava)
-                if modifier.hasRole(Role.Name.TEACHER) then
-                  expr = expr.disjunction().eq("shared", true).eq("questionOwners", modifier).endJunction()
-                val questions = expr.list
-                if questions.isEmpty then NotFound
-                else
-                  questions.foreach(q => addOwner(q, newOwner, modifier))
-                  Ok(newOwner.asJson)
+  def addOwner(uid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))(parse.json) { request =>
+      DB.find(classOf[User])
+        .select("id, firstName, lastName, userIdentifier")
+        .where()
+        .idEq(uid)
+        .find match
+        case None => NotFound
+        case Some(newOwner) =>
+          val questionIds = (request.body \ "questionIds").asOpt[String]
+          questionIds match
+            case None | Some("") => BadRequest
+            case Some(idsStr) =>
+              val ids      = idsStr.split(",").map(_.toLong).toSeq
+              val modifier = request.attrs(Auth.ATTR_USER)
+              var expr     = DB.find(classOf[Question]).where().idIn(ids.asJava)
+              if modifier.hasRole(Role.Name.TEACHER) then
+                expr = expr.disjunction().eq("shared", true).eq("questionOwners", modifier).endJunction()
+              val questions = expr.list
+              if questions.isEmpty then NotFound
+              else
+                questions.foreach(q => addOwner(q, newOwner, modifier))
+                Ok(newOwner.asJson)
     }
 
   private def addOwner(question: Question, user: User, modifier: User): Unit =
@@ -369,44 +373,42 @@ class QuestionController @Inject() (
     question.getQuestionOwners.add(user)
     question.update()
 
-  def exportQuestions(): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))(parse.json) {
-      request =>
-        val body = request.body
-        val ids = (body \ "params" \ "ids")
-          .asOpt[JsArray]
-          .getOrElse(Json.arr())
-          .value
-          .map(_.as[Long])
-          .toSet
-        val questions = DB
-          .find(classOf[Question])
-          .where()
-          .idIn(ids.asJava)
-          .list
-          .filter(q => q.getType != Question.Type.ClaimChoiceQuestion && q.getType != Question.Type.ClozeTestQuestion)
-        val document = xmlExporter.convert(questions)
-        Ok(document)
-          .withHeaders("Content-Disposition" -> "attachment; filename=\"moodle-quiz.xml\"")
-          .as("application/xml")
+  def exportQuestions(): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))(parse.json) { request =>
+      val body = request.body
+      val ids = (body \ "params" \ "ids")
+        .asOpt[JsArray]
+        .getOrElse(Json.arr())
+        .value
+        .map(_.as[Long])
+        .toSet
+      val questions = DB
+        .find(classOf[Question])
+        .where()
+        .idIn(ids.asJava)
+        .list
+        .filter(q => q.getType != Question.Type.ClaimChoiceQuestion && q.getType != Question.Type.ClozeTestQuestion)
+      val document = xmlExporter.convert(questions)
+      Ok(document)
+        .withHeaders("Content-Disposition" -> "attachment; filename=\"moodle-quiz.xml\"")
+        .as("application/xml")
     }
 
-  def importQuestions(): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      request.body.asMultipartFormData match
-        case None => BadRequest("file not found")
-        case Some(multipart) =>
-          multipart.file("file") match
+  def importQuestions(): Action[MultipartFormData[TemporaryFile]] =
+    audited
+      .andThen(authenticated)
+      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))(parse.multipartFormData) {
+        request =>
+          request.body.file("file") match
             case None => BadRequest("file not found")
             case Some(filePart) =>
               val content = Using(scala.io.Source.fromFile(filePart.ref.path.toFile))(_.mkString)
                 .getOrElse(throw new RuntimeException("Failed to read file"))
-              val user      = request.attrs(Auth.ATTR_USER)
-              val result    = xmlImporter.convert(content, user)
-              val successes = result._1
-              val errors    = result._2
+              val user                = request.attrs(Auth.ATTR_USER)
+              val (successes, errors) = xmlImporter.convert(content, user)
               Ok(Json.obj("errorCount" -> errors.size, "successCount" -> successes.size))
-    }
+      }
 
   private def processPreview(esq: ExamSectionQuestion): Result =
     if esq.getQuestion.getType == Question.Type.ClozeTestQuestion then

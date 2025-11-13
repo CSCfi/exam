@@ -22,6 +22,7 @@ import play.api.libs.json.{JsNumber, JsValue, Json}
 import play.api.mvc.*
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 import system.interceptors.scala.AnonymousJsonFilter
 import validation.scala.exam.ExamValidator
 
@@ -35,6 +36,7 @@ class ExamController @Inject() (
     byodConfigHandler: ByodConfigHandler,
     userHandler: UserHandler,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     anonymousJsonFilter: AnonymousJsonFilter,
     override val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext, mat: org.apache.pekko.stream.Materializer)
@@ -237,26 +239,25 @@ class ExamController @Inject() (
 
   def getExamPreview(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
-        DB.find(classOf[Exam])
-          .fetch("course")
-          .fetch("executionType")
-          .fetch("examinationDates")
-          .fetch("examLanguages")
-          .fetch("examSections")
-          .fetch("examSections.examMaterials")
-          .fetch("examSections.sectionQuestions", FetchConfig.ofQuery())
-          .fetch("examSections.sectionQuestions.question")
-          .fetch("examSections.sectionQuestions.question.attachment")
-          .fetch("examSections.sectionQuestions.options")
-          .fetch("examSections.sectionQuestions.options.option")
-          .fetch("examSections.sectionQuestions.clozeTestAnswer")
-          .fetch("attachment")
-          .fetch("creator")
-          .fetch("examOwners")
-          .where()
-          .idEq(id)
-          .find
-      match
+      DB.find(classOf[Exam])
+        .fetch("course")
+        .fetch("executionType")
+        .fetch("examinationDates")
+        .fetch("examLanguages")
+        .fetch("examSections")
+        .fetch("examSections.examMaterials")
+        .fetch("examSections.sectionQuestions", FetchConfig.ofQuery())
+        .fetch("examSections.sectionQuestions.question")
+        .fetch("examSections.sectionQuestions.question.attachment")
+        .fetch("examSections.sectionQuestions.options")
+        .fetch("examSections.sectionQuestions.options.option")
+        .fetch("examSections.sectionQuestions.clozeTestAnswer")
+        .fetch("attachment")
+        .fetch("creator")
+        .fetch("examOwners")
+        .where()
+        .idEq(id)
+        .find match
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))
         case Some(exam) =>
           val user = request.attrs(Auth.ATTR_USER)
@@ -288,6 +289,7 @@ class ExamController @Inject() (
   def updateExam(id: Long): Action[JsValue] =
     authenticated
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+      .andThen(audited)
       .async(parse.json) { request =>
         prototypeQuery().where().idEq(id).find match
           case None => Future.successful(NotFound)
@@ -317,8 +319,10 @@ class ExamController @Inject() (
           exam.getGradeScale == null || !exam.getGradeScale.equals(scale)
     else false
 
-  def updateExamSoftware(eid: Long, sid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
+  def updateExamSoftware(eid: Long, sid: Long): Action[AnyContent] = authenticated
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .andThen(audited)
+    .async { request =>
       Option(DB.find(classOf[Exam], eid)) match
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))
         case Some(exam) =>
@@ -349,8 +353,10 @@ class ExamController @Inject() (
       examSoftware.subsetOf(machineSoftware)
     }
 
-  def updateExamLanguage(eid: Long, code: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
+  def updateExamLanguage(eid: Long, code: String): Action[AnyContent] = authenticated
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .andThen(audited)
+    .async { request =>
       Option(DB.find(classOf[Exam], eid)) match
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))
         case Some(exam) =>
@@ -362,8 +368,10 @@ class ExamController @Inject() (
               Future.successful(Ok)
     }
 
-  def copyExam(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
+  def copyExam(id: Long): Action[AnyContent] = authenticated
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .andThen(audited)
+    .async { request =>
       val user             = request.attrs(Auth.ATTR_USER)
       val formData         = request.body.asFormUrlEncoded.getOrElse(Map.empty)
       val examinationType  = formData.get("examinationType").flatMap(_.headOption)
@@ -427,17 +435,17 @@ class ExamController @Inject() (
   def createExamDraft(): Action[JsValue] =
     authenticated
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+      .andThen(audited)
       .async(parse.json) { request =>
         ExamValidator.forCreation(request.body) match
           case Left(ex) => Future.successful(BadRequest(ex.getMessage))
           case Right(payload) =>
             val executionType  = payload.getExecutionType.getType
             val implementation = payload.getImplementation.toString
-              DB.find(classOf[ExamExecutionType])
-                .where()
-                .eq("type", executionType)
-                .find
-            match
+            DB.find(classOf[ExamExecutionType])
+              .where()
+              .eq("type", executionType)
+              .find match
               case None => Future.successful(BadRequest("Unsupported execution type"))
               case Some(examExecutionType) =>
                 val user = request.attrs(Auth.ATTR_USER)
@@ -485,8 +493,10 @@ class ExamController @Inject() (
                   Future.successful(Ok(Json.obj("id" -> JsNumber(BigDecimal(exam.getId)))))
       }
 
-  def updateCourse(eid: Long, cid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
+  def updateCourse(eid: Long, cid: Long): Action[AnyContent] = authenticated
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .andThen(audited)
+    .async { request =>
       Option(DB.find(classOf[Exam], eid)) match
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))
         case Some(exam) =>

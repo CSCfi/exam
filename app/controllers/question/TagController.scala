@@ -13,6 +13,7 @@ import play.api.libs.json.*
 import play.api.mvc.*
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -21,6 +22,7 @@ import scala.jdk.CollectionConverters.*
 class TagController @Inject() (
     val controllerComponents: ControllerComponents,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     implicit val ec: ExecutionContext
 ) extends BaseController
     with JavaApiHelper
@@ -71,20 +73,20 @@ class TagController @Inject() (
       Ok(tags.asJson(pp))
     }
 
-  def addTagToQuestions(): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))(parse.json) {
-      request =>
-        val questionIds = (request.body \ "questionIds").as[List[Long]]
-        val tagId       = (request.body \ "tagId").as[Long]
+  def addTagToQuestions(): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))(parse.json) { request =>
+      val questionIds = (request.body \ "questionIds").as[List[Long]]
+      val tagId       = (request.body \ "tagId").as[Long]
 
-        val questions = DB.find(classOf[Question]).where().idIn(questionIds.asJava).list
-        Option(DB.find(classOf[Tag], tagId)) match
-          case Some(tag) =>
-            questions.foreach { question =>
-              if !question.getTags.contains(tag) then
-                question.getTags.add(tag)
-                question.update()
-            }
-            Ok
-          case None => NotFound("Tag not found")
+      val questions = DB.find(classOf[Question]).where().idIn(questionIds.asJava).list
+      Option(DB.find(classOf[Tag], tagId)) match
+        case Some(tag) =>
+          questions.foreach { question =>
+            if !question.getTags.contains(tag) then
+              question.getTags.add(tag)
+              question.update()
+          }
+          Ok
+        case None => NotFound("Tag not found")
     }

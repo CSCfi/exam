@@ -18,10 +18,12 @@ import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{FileIO, Source}
 import org.apache.pekko.util.ByteString
 import play.api.Logging
+import play.api.libs.Files.TemporaryFile
 import play.api.libs.ws.{WSBodyWritables, WSClient}
 import play.api.mvc.*
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 
 import java.net.{URI, URL, URLEncoder}
 import java.nio.charset.StandardCharsets
@@ -35,6 +37,7 @@ class ExternalAttachmentController @Inject() (
     wsClient: WSClient,
     configReader: ConfigReader,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext, mat: Materializer)
     extends BaseController
@@ -207,41 +210,42 @@ class ExternalAttachmentController @Inject() (
                       downloadExternalAttachment(attachment)
     }
 
-  def addAttachmentToQuestionAnswer(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.multipartFormData) { request =>
-      val formData      = request.body.asFormUrlEncoded
-      val examHashOpt   = formData.get("examId").flatMap(_.headOption)
-      val questionIdOpt = formData.get("questionId").flatMap(_.headOption)
+  def addAttachmentToQuestionAnswer(): Action[MultipartFormData[TemporaryFile]] =
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.multipartFormData) {
+      request =>
+        val formData      = request.body.asFormUrlEncoded
+        val examHashOpt   = formData.get("examId").flatMap(_.headOption)
+        val questionIdOpt = formData.get("questionId").flatMap(_.headOption)
 
-      (examHashOpt, questionIdOpt) match
-        case (Some(examHash), Some(questionIdStr)) =>
-          val questionId = questionIdStr.toLong
-          getExternalExam(examHash, request) match
-            case None => Future.successful(NotFound)
-            case Some(externalExam) =>
-              getExam(externalExam) match
-                case None => Future.successful(InternalServerError("Could not deserialize exam"))
-                case Some(exam) =>
-                  findSectionQuestion(questionId, exam) match
-                    case None => Future.successful(NotFound)
-                    case Some(sq) =>
-                      if sq.getEssayAnswer == null then sq.setEssayAnswer(new EssayAnswer())
-                      request.body.file("file") match
-                        case None => Future.successful(BadRequest("Missing file"))
-                        case Some(filePart) =>
-                          val existingExternalId = Option(sq.getEssayAnswer.getAttachment).map(_.getExternalId)
-                          uploadAttachmentToExternalService(filePart, existingExternalId).flatMap {
-                            case None => Future.successful(InternalServerError)
-                            case Some(attachment) =>
-                              sq.getEssayAnswer.setAttachment(attachment)
-                              Try(externalExam.serialize(exam)) match
-                                case scala.util.Failure(e) =>
-                                  logger.error("Failed to serialize exam", e)
-                                  Future.successful(InternalServerError)
-                                case scala.util.Success(_) =>
-                                  Future.successful(Created(attachment.asJson))
-                          }
-        case _ => Future.successful(BadRequest("Missing examId or questionId"))
+        (examHashOpt, questionIdOpt) match
+          case (Some(examHash), Some(questionIdStr)) =>
+            val questionId = questionIdStr.toLong
+            getExternalExam(examHash, request) match
+              case None => Future.successful(NotFound)
+              case Some(externalExam) =>
+                getExam(externalExam) match
+                  case None => Future.successful(InternalServerError("Could not deserialize exam"))
+                  case Some(exam) =>
+                    findSectionQuestion(questionId, exam) match
+                      case None => Future.successful(NotFound)
+                      case Some(sq) =>
+                        if sq.getEssayAnswer == null then sq.setEssayAnswer(new EssayAnswer())
+                        request.body.file("file") match
+                          case None => Future.successful(BadRequest("Missing file"))
+                          case Some(filePart) =>
+                            val existingExternalId = Option(sq.getEssayAnswer.getAttachment).map(_.getExternalId)
+                            uploadAttachmentToExternalService(filePart, existingExternalId).flatMap {
+                              case None => Future.successful(InternalServerError)
+                              case Some(attachment) =>
+                                sq.getEssayAnswer.setAttachment(attachment)
+                                Try(externalExam.serialize(exam)) match
+                                  case scala.util.Failure(e) =>
+                                    logger.error("Failed to serialize exam", e)
+                                    Future.successful(InternalServerError)
+                                  case scala.util.Success(_) =>
+                                    Future.successful(Created(attachment.asJson))
+                            }
+          case _ => Future.successful(BadRequest("Missing examId or questionId"))
     }
 
   def deleteQuestionAnswerAttachment(qid: Long, hash: String): Action[AnyContent] =

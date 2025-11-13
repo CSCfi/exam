@@ -4,14 +4,6 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<!--style>
-    #questionBody.ng-invalid {
-        border-color: transparent;
-    }
-    #editor.ng-invalid {
-        border-color: transparent;
-    }
-</style-->
 <div ngModelGroup="questionBody" id="questionBody">
     <xm-question-usage [examNames]="examNames()" />
     <xm-question-basic-info
@@ -94,25 +86,9 @@ SPDX-License-Identifier: EUPL-1.2
     }
 
     <!-- Additional info -->
-    <div class="row mt-3">
-        <div class="col-md-12">
-            <div class="xm-paragraph-title">{{ 'i18n_additional_info' | translate }}</div>
-        </div>
-    </div>
-
-    <!-- Exam owners -->
-    <div class="row mt-3 align-items-center">
-        <div class="col-md-3">
-            {{ 'i18n_question_owners' | translate }}
-            <sup
-                ngbPopover="{{ 'i18n_question_owners_description' | translate }}"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-            >
-                <img src="/assets/images/icon_tooltip.svg" alt="" />
-            </sup>
-        </div>
-        <div class="col-md-9">
+    <xm-question-additional-info [config]="additionalInfoConfig()">
+        <!-- Owners content projection (handles both editable and read-only) -->
+        <div owners-content>
             @if (isUserAllowedToModifyOwners()) {
                 <div class="row">
                     <div class="col-md-3">
@@ -169,122 +145,16 @@ SPDX-License-Identifier: EUPL-1.2
                 }
             }
         </div>
-    </div>
 
-    <!-- Attachment -->
-    <div class="row mt-3 align-items-center">
-        <div class="col-md-3">
-            {{ 'i18n_question_attachment' | translate }}
-            <sup
-                ngbPopover="{{ 'i18n_attachment_description' | translate }}"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-            >
-                <img src="/assets/images/icon_tooltip.svg" alt="" />
-            </sup>
-        </div>
-        <div class="col-md-9" id="attachment">
-            @if (showWarning()) {
-                <div class="mt-1 edit-warning-container">
-                    <i class="bi-exclamation-circle text-danger me-2"></i>
-                    <span class="warning-text-small">{{ 'i18n_shared_question_property_info' | translate }}</span>
-                </div>
-            }
-            <button class="btn btn-success" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</button>
-            @if (question().attachment && !question().attachment?.removed) {
-                <div class="make-inline ps-2">
-                    @if (hasUploadedAttachment()) {
-                        <!-- Uploaded -->
-                        <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
-                            <i class="bi-paperclip"></i> {{ question().attachment?.fileName }}
-                        </a>
-                    } @else {
-                        <!-- Not yet uploaded -->
-                        <span class="attachment-link">
-                            <i class="bi-paperclip"></i> {{ question().attachment?.fileName }}
-                            <small class="ps-2">{{ getFileSize() }}</small>
-                        </span>
-                    }
-                    <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
-                        <img src="/assets/images/icon_remove.svg" alt="{{ 'i18n_remove_attachment' | translate }}" />
-                    </span>
-                </div>
+        <!-- Editable tags content projection -->
+        <div tags-content>
+            @if (!collaborative()) {
+                <xm-tag-picker
+                    [question]="question()"
+                    (tagAdded)="onTagAdded($event)"
+                    (tagRemoved)="onTagRemoved($event)"
+                ></xm-tag-picker>
             }
         </div>
-    </div>
-
-    <!-- Instructions -->
-    <div class="row mt-3">
-        <div class="col-md-3">
-            {{ 'i18n_question_instruction' | translate }}
-            <sup
-                ngbPopover="{{ 'i18n_question_instruction_description' | translate }}"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-            >
-                <img src="/assets/images/icon_tooltip.svg" alt="" />
-            </sup>
-        </div>
-        <div class="col-md-9 pe-0">
-            <textarea
-                id="defaultInstructions"
-                name="defaultInstructions"
-                class="form-control"
-                rows="3"
-                [ngModel]="question().defaultAnswerInstructions"
-                (ngModelChange)="setDefaultAnswerInstructions($event)"
-                placeholder="{{ 'i18n_question_instruction' | translate }}"
-            >
-            </textarea>
-        </div>
-    </div>
-
-    @if (question().type === 'EssayQuestion') {
-        <!-- Evaluation criteria -->
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_exam_evaluation_criteria' | translate }}
-                <sup
-                    ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            <div class="col-md-9 pe-0">
-                <textarea
-                    id="defaultEvaluationCriteria"
-                    name="defaultEvaluationCriteria"
-                    class="form-control"
-                    rows="3"
-                    [ngModel]="question().defaultEvaluationCriteria"
-                    (ngModelChange)="setDefaultEvaluationCriteria($event)"
-                    placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
-                >
-                </textarea>
-            </div>
-        </div>
-    }
-
-    @if (!collaborative()) {
-        <!-- Tags -->
-        <xm-tag-picker
-            [question]="question()"
-            (tagAdded)="onTagAdded($event)"
-            (tagRemoved)="onTagRemoved($event)"
-        ></xm-tag-picker>
-    }
-
-    @if (sectionNames().length > 0) {
-        <!-- Categories -->
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_added_to_sections' | translate }}
-            </div>
-            <div class="col-md-9">
-                {{ sectionNames().join(', ') }}
-            </div>
-        </div>
-    }
+    </xm-question-additional-info>
 </div>

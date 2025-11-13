@@ -14,12 +14,14 @@ import org.joda.time.DateTime
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class ExamMachineController @Inject() (
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BaseController
@@ -55,7 +57,7 @@ class ExamMachineController @Inject() (
     }
 
   def updateExamMachine(id: Long): Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
+    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
       Option(DB.find(classOf[ExamMachine], id)) match
         case None => NotFound("machine not found")
         case Some(dest) =>
@@ -124,7 +126,7 @@ class ExamMachineController @Inject() (
     }
 
   def insertExamMachine(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       Option(DB.find(classOf[ExamRoom], id)) match
         case None => NotFound("room not found")
         case Some(room) =>
@@ -168,7 +170,7 @@ class ExamMachineController @Inject() (
     else Some("Software with that name already exists")
 
   def addSoftware(name: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       checkSoftwareName(name) match
         case Some(error) => BadRequest(error)
         case None =>
@@ -179,7 +181,7 @@ class ExamMachineController @Inject() (
     }
 
   def updateSoftware(id: Long, name: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       Option(DB.find(classOf[Software], id)) match
         case None => NotFound("software not found")
         case Some(software) =>

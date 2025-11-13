@@ -26,6 +26,7 @@ import play.db.ebean.Transactional
 import repository.ExaminationRepository
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 import system.interceptors.scala.{ExamActionRouter, SecureController, SensitiveDataFilter}
 import validation.scala.answer.{ClozeTestAnswerValidator, EssayAnswerValidator}
 
@@ -45,6 +46,7 @@ class ExaminationController @Inject() (
     configReader: ConfigReader,
     examActionRouter: ExamActionRouter,
     val authenticated: AuthenticatedAction,
+    val audited: AuditedAction,
     val sensitiveDataFilter: SensitiveDataFilter,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
@@ -166,30 +168,31 @@ class ExaminationController @Inject() (
     }
 
   def initializeExam(hash: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).andThen(examActionRouter).async { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      val pp   = ExaminationController.getPath(false)
-      examinationRepository
-        .getCollaborativeExam(hash)
-        .flatMap { oce =>
-          examinationRepository
-            .getPrototype(hash, oce.orNull, pp)
-            .flatMap {
-              case None => Future.successful(Ok)
-              case Some(exam) =>
-                examinationRepository
-                  .getPossibleClone(hash, user, oce.orNull, pp)
-                  .flatMap {
-                    case Some(_) => Future.successful(Ok)
-                    case None    => createClone(exam, user, oce, request, isInitialization = true)
-                  }
-            }
-        }
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).andThen(examActionRouter).async {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        val pp   = ExaminationController.getPath(false)
+        examinationRepository
+          .getCollaborativeExam(hash)
+          .flatMap { oce =>
+            examinationRepository
+              .getPrototype(hash, oce.orNull, pp)
+              .flatMap {
+                case None => Future.successful(Ok)
+                case Some(exam) =>
+                  examinationRepository
+                    .getPossibleClone(hash, user, oce.orNull, pp)
+                    .flatMap {
+                      case Some(_) => Future.successful(Ok)
+                      case None    => createClone(exam, user, oce, request, isInitialization = true)
+                    }
+              }
+          }
     }
 
   @Transactional
   def turnExam(hash: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
       getEnrolmentError(hash, request).map {
         case Some(error) => error
         case None =>
@@ -229,7 +232,7 @@ class ExaminationController @Inject() (
 
   @Transactional
   def abortExam(hash: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
       getEnrolmentError(hash, request).map {
         case Some(error) => error
         case None =>
@@ -256,34 +259,34 @@ class ExaminationController @Inject() (
       }
     }
 
-  def answerEssay(hash: String, questionId: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.STUDENT)))
-      .andThen(EssayAnswerValidator.filter)
-      .async(parse.json) { request =>
-        getEnrolmentError(hash, request).flatMap {
-          case Some(error) => Future.successful(error)
-          case None =>
-            val answerDTO = request.attrs(EssayAnswerValidator.ESSAY_ANSWER_KEY)
-            Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
-              case None => Future.successful(Forbidden("Question not found"))
-              case Some(question) =>
-                val answer = Option(question.getEssayAnswer) match
-                  case None =>
-                    new EssayAnswer()
-                  case Some(existingAnswer) =>
-                    answerDTO.objectVersion.foreach(ov => existingAnswer.setObjectVersion(ov))
-                    existingAnswer
-                answer.setAnswer(answerDTO.answer)
-                answer.save()
-                question.setEssayAnswer(answer)
-                question.save()
-                Future.successful(Ok(answer.asJson))
-        }
+  def answerEssay(hash: String, questionId: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.STUDENT)))
+    .andThen(EssayAnswerValidator.filter)
+    .async(parse.json) { request =>
+      getEnrolmentError(hash, request).flatMap {
+        case Some(error) => Future.successful(error)
+        case None =>
+          val answerDTO = request.attrs(EssayAnswerValidator.ESSAY_ANSWER_KEY)
+          Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
+            case None => Future.successful(Forbidden("Question not found"))
+            case Some(question) =>
+              val answer = Option(question.getEssayAnswer) match
+                case None =>
+                  new EssayAnswer()
+                case Some(existingAnswer) =>
+                  answerDTO.objectVersion.foreach(ov => existingAnswer.setObjectVersion(ov))
+                  existingAnswer
+              answer.setAnswer(answerDTO.answer)
+              answer.save()
+              question.setEssayAnswer(answer)
+              question.save()
+              Future.successful(Ok(answer.asJson))
       }
+    }
 
   def answerMultiChoice(hash: String, qid: Long): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) { request =>
       getEnrolmentError(hash, request).map {
         case Some(error) => error
         case None =>
@@ -300,28 +303,28 @@ class ExaminationController @Inject() (
       }
     }
 
-  def answerClozeTest(hash: String, questionId: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.STUDENT)))
-      .andThen(ClozeTestAnswerValidator.filter)
-      .async(parse.json) { request =>
-        getEnrolmentError(hash, request).flatMap {
-          case Some(error) => Future.successful(error)
-          case None =>
-            val answerDTO     = request.attrs(ClozeTestAnswerValidator.CLOZE_TEST_ANSWER_KEY)
-            val objectVersion = answerDTO.objectVersion.getOrElse(0L)
-            Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
-              case None => Future.successful(Forbidden("Question not found"))
-              case Some(esq) =>
-                val answer = Option(esq.getClozeTestAnswer).getOrElse {
-                  new ClozeTestAnswer()
-                }
-                answer.setObjectVersion(objectVersion)
-                answer.setAnswer(answerDTO.answer)
-                answer.save()
-                Future.successful(Ok(answer.asJson(PathProperties.parse("(id, objectVersion, answer)"))))
-        }
+  def answerClozeTest(hash: String, questionId: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.STUDENT)))
+    .andThen(ClozeTestAnswerValidator.filter)
+    .async(parse.json) { request =>
+      getEnrolmentError(hash, request).flatMap {
+        case Some(error) => Future.successful(error)
+        case None =>
+          val answerDTO     = request.attrs(ClozeTestAnswerValidator.CLOZE_TEST_ANSWER_KEY)
+          val objectVersion = answerDTO.objectVersion.getOrElse(0L)
+          Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
+            case None => Future.successful(Forbidden("Question not found"))
+            case Some(esq) =>
+              val answer = Option(esq.getClozeTestAnswer).getOrElse {
+                new ClozeTestAnswer()
+              }
+              answer.setObjectVersion(objectVersion)
+              answer.setAnswer(answerDTO.answer)
+              answer.save()
+              Future.successful(Ok(answer.asJson(PathProperties.parse("(id, objectVersion, answer)"))))
       }
+    }
 
   private def findParticipation(exam: Exam, user: User) =
     DB.find(classOf[ExamParticipation])

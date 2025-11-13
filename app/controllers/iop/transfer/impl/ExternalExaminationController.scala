@@ -22,6 +22,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 import system.interceptors.scala.{SecureController, SensitiveDataFilter}
 import validation.scala.answer.{ClozeTestAnswerValidator, EssayAnswerValidator}
 
@@ -33,8 +34,9 @@ import scala.util.Try
 class ExternalExaminationController @Inject() (
     dateTimeHandler: DateTimeHandler,
     byodConfigHandler: ByodConfigHandler,
-    protected val environment: Environment,
+    val environment: Environment,
     val authenticated: AuthenticatedAction,
+    val audited: AuditedAction,
     val sensitiveDataFilter: SensitiveDataFilter,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
@@ -101,19 +103,19 @@ class ExternalExaminationController @Inject() (
     questionsToHide.foreach(_.setQuestion(null))
 
   def turnExam(hash: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       terminateExam(hash, Exam.State.REVIEW, user)
     }
 
   def abortExam(hash: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       terminateExam(hash, Exam.State.ABORTED, user)
     }
 
   def answerMultiChoice(hash: String, qid: Long): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       getEnrolmentError(hash, user, request).map {
         case Some(error) => error
@@ -128,80 +130,80 @@ class ExternalExaminationController @Inject() (
       }
     }
 
-  def answerEssay(hash: String, qid: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.STUDENT)))
-      .andThen(EssayAnswerValidator.filter)
-      .async(parse.json) { request =>
-        val user = request.attrs(Auth.ATTR_USER)
-        getEnrolmentError(hash, user, request).flatMap {
-          case Some(error) => Future.successful(error)
-          case None =>
-            val answerDTO = request.attrs(EssayAnswerValidator.ESSAY_ANSWER_KEY)
-            getExternalExam(hash, user) match
-              case None => Future.successful(Forbidden)
-              case Some(ee) =>
-                Try(ee.deserialize()) match
-                  case scala.util.Failure(_) => Future.successful(InternalServerError)
-                  case scala.util.Success(content) =>
-                    findQuestion(qid, content) match
-                      case None => Future.successful(Forbidden)
-                      case Some(question) =>
-                        val answer = Option(question.getEssayAnswer).getOrElse(new EssayAnswer())
-                        // Handle optimistic locking
-                        val hasVersionConflict = answerDTO.objectVersion match
-                          case Some(ov) if answer.getObjectVersion > ov => true
-                          case Some(ov) =>
-                            answer.setObjectVersion(ov + 1)
-                            false
-                          case None => false
-                        if hasVersionConflict then Future.successful(Forbidden("i18n_error_data_has_changed"))
-                        else
-                          answer.setAnswer(answerDTO.answer)
-                          question.setEssayAnswer(answer)
+  def answerEssay(hash: String, qid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.STUDENT)))
+    .andThen(EssayAnswerValidator.filter)
+    .async(parse.json) { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      getEnrolmentError(hash, user, request).flatMap {
+        case Some(error) => Future.successful(error)
+        case None =>
+          val answerDTO = request.attrs(EssayAnswerValidator.ESSAY_ANSWER_KEY)
+          getExternalExam(hash, user) match
+            case None => Future.successful(Forbidden)
+            case Some(ee) =>
+              Try(ee.deserialize()) match
+                case scala.util.Failure(_) => Future.successful(InternalServerError)
+                case scala.util.Success(content) =>
+                  findQuestion(qid, content) match
+                    case None => Future.successful(Forbidden)
+                    case Some(question) =>
+                      val answer = Option(question.getEssayAnswer).getOrElse(new EssayAnswer())
+                      // Handle optimistic locking
+                      val hasVersionConflict = answerDTO.objectVersion match
+                        case Some(ov) if answer.getObjectVersion > ov => true
+                        case Some(ov) =>
+                          answer.setObjectVersion(ov + 1)
+                          false
+                        case None => false
+                      if hasVersionConflict then Future.successful(Forbidden("i18n_error_data_has_changed"))
+                      else
+                        answer.setAnswer(answerDTO.answer)
+                        question.setEssayAnswer(answer)
 
-                          Try(ee.serialize(content)) match
-                            case scala.util.Failure(_) => Future.successful(InternalServerError)
-                            case scala.util.Success(_) => Future.successful(Ok(answer.asJson))
-        }
+                        Try(ee.serialize(content)) match
+                          case scala.util.Failure(_) => Future.successful(InternalServerError)
+                          case scala.util.Success(_) => Future.successful(Ok(answer.asJson))
       }
+    }
 
-  def answerClozeTest(hash: String, qid: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.STUDENT)))
-      .andThen(ClozeTestAnswerValidator.filter)
-      .async(parse.json) { request =>
-        val user = request.attrs(Auth.ATTR_USER)
-        getEnrolmentError(hash, user, request).flatMap {
-          case Some(error) => Future.successful(error)
-          case None =>
-            val answerDTO     = request.attrs(ClozeTestAnswerValidator.CLOZE_TEST_ANSWER_KEY)
-            val objectVersion = answerDTO.objectVersion.getOrElse(0L)
-            getExternalExam(hash, user) match
-              case None => Future.successful(Forbidden)
-              case Some(ee) =>
-                findSectionQuestion(ee, qid) match
-                  case Left(error) => Future.successful(error)
-                  case Right((content, esq)) =>
-                    val answer = Option(esq.getClozeTestAnswer).getOrElse {
-                      val newAnswer = new ClozeTestAnswer()
-                      esq.setClozeTestAnswer(newAnswer)
-                      newAnswer
-                    }
+  def answerClozeTest(hash: String, qid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.STUDENT)))
+    .andThen(ClozeTestAnswerValidator.filter)
+    .async(parse.json) { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      getEnrolmentError(hash, user, request).flatMap {
+        case Some(error) => Future.successful(error)
+        case None =>
+          val answerDTO     = request.attrs(ClozeTestAnswerValidator.CLOZE_TEST_ANSWER_KEY)
+          val objectVersion = answerDTO.objectVersion.getOrElse(0L)
+          getExternalExam(hash, user) match
+            case None => Future.successful(Forbidden)
+            case Some(ee) =>
+              findSectionQuestion(ee, qid) match
+                case Left(error) => Future.successful(error)
+                case Right((content, esq)) =>
+                  val answer = Option(esq.getClozeTestAnswer).getOrElse {
+                    val newAnswer = new ClozeTestAnswer()
+                    esq.setClozeTestAnswer(newAnswer)
+                    newAnswer
+                  }
 
-                    // Handle optimistic locking
-                    if answer.getObjectVersion > objectVersion then
-                      Future.successful(Forbidden("i18n_error_data_has_changed"))
-                    else
-                      answer.setObjectVersion(objectVersion + 1)
-                      answer.setAnswer(answerDTO.answer)
+                  // Handle optimistic locking
+                  if answer.getObjectVersion > objectVersion then
+                    Future.successful(Forbidden("i18n_error_data_has_changed"))
+                  else
+                    answer.setObjectVersion(objectVersion + 1)
+                    answer.setAnswer(answerDTO.answer)
 
-                      Try(ee.serialize(content)) match
-                        case scala.util.Failure(_) => Future.successful(InternalServerError)
-                        case scala.util.Success(_) =>
-                          Future.successful(Ok(answer.asJson(PathProperties.parse("(id, objectVersion, answer)"))))
-        }
+                    Try(ee.serialize(content)) match
+                      case scala.util.Failure(_) => Future.successful(InternalServerError)
+                      case scala.util.Success(_) =>
+                        Future.successful(Ok(answer.asJson(PathProperties.parse("(id, objectVersion, answer)"))))
       }
+    }
 
   private def findSectionQuestion(ee: ExternalExam, qid: Long): Either[Result, (Exam, ExamSectionQuestion)] =
     Try(ee.deserialize()) match

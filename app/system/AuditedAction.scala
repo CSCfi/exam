@@ -5,7 +5,8 @@
 package system
 
 import play.api.Logging
-import play.api.mvc._
+import play.api.libs.json.JsValue
+import play.api.mvc.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,7 +31,7 @@ class AuditedAction @Inject() (parser: BodyParsers.Default)(implicit ec: Executi
       if method == "POST" || method == "PUT" && request.path != "/integration/iop/import" then
         val json = request.body match
           case ac: AnyContent => ac.asJson
-          case jv: play.api.libs.json.JsValue => Some(jv)
+          case jv: JsValue => Some(jv)
           case _ => None
         logger.debug(s"$logEntry data: ${json.getOrElse("")}")
       else logger.debug(logEntry)

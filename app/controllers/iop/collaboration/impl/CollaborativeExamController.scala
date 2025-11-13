@@ -24,6 +24,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import play.data.validation.Constraints
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
+import system.AuditedAction
 import validation.scala.exam.ExamValidator
 
 import javax.inject.Inject
@@ -39,6 +40,7 @@ class CollaborativeExamController @Inject() (
     actorSystem: ActorSystem,
     emailComposer: EmailComposer,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     override val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends CollaborationController(wsClient, examUpdater, examLoader, configReader, controllerComponents)
@@ -144,7 +146,7 @@ class CollaborativeExamController @Inject() (
     }
 
   def createExam(): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
       parseUrl() match
         case None => Future.successful(InternalServerError)
         case Some(url) =>
@@ -181,55 +183,55 @@ class CollaborativeExamController @Inject() (
           }
     }
 
-  def updateExam(id: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-      .async(controllerComponents.parsers.json) { request =>
-        // Validate the exam payload
-        ExamValidator.forUpdate(request.body) match
-          case Left(ex) => Future.successful(BadRequest(ex.getMessage))
-          case Right(payload) =>
-            val homeOrg = configReader.getHomeOrganisationRef
-            findCollaborativeExam(id) match
-              case Left(errorResult) => errorResult
-              case Right(ce) =>
-                val user = request.attrs(Auth.ATTR_USER)
+  def updateExam(id: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async(controllerComponents.parsers.json) { request =>
+      // Validate the exam payload
+      ExamValidator.forUpdate(request.body) match
+        case Left(ex) => Future.successful(BadRequest(ex.getMessage))
+        case Right(payload) =>
+          val homeOrg = configReader.getHomeOrganisationRef
+          findCollaborativeExam(id) match
+            case Left(errorResult) => errorResult
+            case Right(ce) =>
+              val user = request.attrs(Auth.ATTR_USER)
 
-                examLoader.downloadExam(ce).flatMap {
-                  case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-                  case Some(exam) if !isAuthorizedToView(exam, user, homeOrg) =>
-                    Future.successful(Forbidden("i18n_error_access_forbidden"))
-                  case Some(exam) =>
-                    val previousState = exam.getState
+              examLoader.downloadExam(ce).flatMap {
+                case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+                case Some(exam) if !isAuthorizedToView(exam, user, homeOrg) =>
+                  Future.successful(Forbidden("i18n_error_access_forbidden"))
+                case Some(exam) =>
+                  val previousState = exam.getState
 
-                    // Validate temporal fields and state
-                    val error = Seq(
-                      examUpdater.updateTemporalFieldsAndValidate(exam, user, payload),
-                      examUpdater.updateStateAndValidate(exam, user, payload)
-                    ).flatten.headOption
+                  // Validate temporal fields and state
+                  val error = Seq(
+                    examUpdater.updateTemporalFieldsAndValidate(exam, user, payload),
+                    examUpdater.updateStateAndValidate(exam, user, payload)
+                  ).flatten.headOption
 
-                    error match
-                      case Some(err) => Future.successful(err)
-                      case None =>
-                        val nextState = exam.getState
-                        val isPrePublication =
-                          previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED
+                  error match
+                    case Some(err) => Future.successful(err)
+                    case None =>
+                      val nextState = exam.getState
+                      val isPrePublication =
+                        previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED
 
-                        examUpdater.update(exam, payload, user.getLoginRole)
+                      examUpdater.update(exam, payload, user.getLoginRole)
 
-                        examLoader.uploadExam(ce, exam, user).map { result =>
-                          if result.header.status == Ok.header.status && isPrePublication then
-                            val receivers = exam.getExamOwners.asScala.map(_.getEmail).toSet
-                            actorSystem.scheduler.scheduleOnce(1.second) {
-                              emailComposer.composeCollaborativeExamAnnouncement(receivers, user, exam)
-                            }
-                          result
-                        }
-                }
-      }
+                      examLoader.uploadExam(ce, exam, user).map { result =>
+                        if result.header.status == Ok.header.status && isPrePublication then
+                          val receivers = exam.getExamOwners.asScala.map(_.getEmail).toSet
+                          actorSystem.scheduler.scheduleOnce(1.second) {
+                            emailComposer.composeCollaborativeExamAnnouncement(receivers, user, exam)
+                          }
+                        result
+                      }
+              }
+    }
 
   def updateLanguage(id: Long, code: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
       findCollaborativeExam(id) match
         case Left(errorResult) => errorResult
         case Right(ce) =>
@@ -243,29 +245,29 @@ class CollaborativeExamController @Inject() (
           }
     }
 
-  def addOwner(id: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.ADMIN)))
-      .async(controllerComponents.parsers.json) { request =>
-        findCollaborativeExam(id) match
-          case Left(errorResult) => errorResult
-          case Right(ce) =>
-            val user = request.attrs(Auth.ATTR_USER)
-            (request.body \ "email").asOpt[String] match
-              case None        => Future.successful(BadRequest("i18n_error_email_missing"))
-              case Some(email) =>
-                // Validate email
-                val validator = Constraints.EmailValidator()
-                if !validator.isValid(email) then Future.successful(BadRequest("i18n_error_email_invalid"))
-                else
-                  examLoader.downloadExam(ce).flatMap {
-                    case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-                    case Some(exam) =>
-                      val owner = createOwner(email)
-                      exam.getExamOwners.add(owner)
-                      examLoader.uploadExam(ce, exam, user, owner, null)
-                  }
-      }
+  def addOwner(id: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.ADMIN)))
+    .async(controllerComponents.parsers.json) { request =>
+      findCollaborativeExam(id) match
+        case Left(errorResult) => errorResult
+        case Right(ce) =>
+          val user = request.attrs(Auth.ATTR_USER)
+          (request.body \ "email").asOpt[String] match
+            case None        => Future.successful(BadRequest("i18n_error_email_missing"))
+            case Some(email) =>
+              // Validate email
+              val validator = Constraints.EmailValidator()
+              if !validator.isValid(email) then Future.successful(BadRequest("i18n_error_email_invalid"))
+              else
+                examLoader.downloadExam(ce).flatMap {
+                  case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+                  case Some(exam) =>
+                    val owner = createOwner(email)
+                    exam.getExamOwners.add(owner)
+                    examLoader.uploadExam(ce, exam, user, owner, null)
+                }
+    }
 
   def removeOwner(id: Long, oid: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>

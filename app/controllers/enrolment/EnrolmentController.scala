@@ -23,8 +23,13 @@ import play.libs.concurrent.ClassLoaderExecutionContext
 import repository.EnrolmentRepository
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 import validation.scala.core.{ScalaAttrs, Validators}
-import validation.scala.enrolment.{EnrolmentCourseInformationValidator, EnrolmentInformationValidator, StudentEnrolmentValidator}
+import validation.scala.enrolment.{
+  EnrolmentCourseInformationValidator,
+  EnrolmentInformationValidator,
+  StudentEnrolmentValidator
+}
 
 import java.util.Date
 import javax.inject.Inject
@@ -45,6 +50,7 @@ class EnrolmentController @Inject() (
     dateTimeHandler: DateTimeHandler,
     enrolmentHandler: EnrolmentHandler,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     validators: Validators,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
@@ -184,19 +190,19 @@ class EnrolmentController @Inject() (
             Ok
     }
 
-  def updateEnrolment(id: Long): Action[AnyContent] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.STUDENT)))
-      .andThen(validators.validated(EnrolmentInformationValidator)) { request =>
-        val info = request.attrs.get(ScalaAttrs.ENROLMENT_INFORMATION)
-        val user = request.attrs(Auth.ATTR_USER)
-        DB.find(classOf[ExamEnrolment]).where().idEq(id).eq("user", user).find match
-          case None => NotFound("enrolment not found")
-          case Some(enrolment) =>
-            enrolment.setInformation(info.orNull)
-            enrolment.update()
-            Ok
-      }
+  def updateEnrolment(id: Long): Action[AnyContent] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.STUDENT)))
+    .andThen(validators.validated(EnrolmentInformationValidator)) { request =>
+      val info = request.attrs.get(ScalaAttrs.ENROLMENT_INFORMATION)
+      val user = request.attrs(Auth.ATTR_USER)
+      DB.find(classOf[ExamEnrolment]).where().idEq(id).eq("user", user).find match
+        case None => NotFound("enrolment not found")
+        case Some(enrolment) =>
+          enrolment.setInformation(info.orNull)
+          enrolment.update()
+          Ok
+    }
 
   private def getExam(eid: Long, execType: ExamExecutionType.Type): Option[Exam] =
     DB.find(classOf[Exam])
@@ -357,80 +363,80 @@ class EnrolmentController @Inject() (
       logger.warn(s"Attempt to enroll for a course without permission from $user")
       Future.successful(Forbidden("i18n_error_access_forbidden"))
 
-  def createEnrolment(id: Long): Action[AnyContent] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT)))
-      .andThen(validators.validated(EnrolmentCourseInformationValidator))
-      .async { request =>
-        val code = request.attrs(ScalaAttrs.COURSE_CODE)
-        val user = request.attrs(Auth.ATTR_USER)
-        if !permCheckActive then doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user)
-        else
-          externalCourseHandler
-            .getPermittedCourses(user)
-            .flatMap(codes => checkPermission(id, codes.toSeq, code, user))
-            .recover { case ex: Throwable =>
-              InternalServerError(ex.getMessage)
-            }
-      }
+  def createEnrolment(id: Long): Action[AnyContent] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT)))
+    .andThen(validators.validated(EnrolmentCourseInformationValidator))
+    .async { request =>
+      val code = request.attrs(ScalaAttrs.COURSE_CODE)
+      val user = request.attrs(Auth.ATTR_USER)
+      if !permCheckActive then doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user)
+      else
+        externalCourseHandler
+          .getPermittedCourses(user)
+          .flatMap(codes => checkPermission(id, codes.toSeq, code, user))
+          .recover { case ex: Throwable =>
+            InternalServerError(ex.getMessage)
+          }
+    }
 
-  def createStudentEnrolment(eid: Long): Action[AnyContent] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
-      .andThen(validators.validated(StudentEnrolmentValidator))
-      .async { request =>
-        val uid   = request.attrs.get(ScalaAttrs.USER_ID)
-        val email = request.attrs.get(ScalaAttrs.EMAIL)
+  def createStudentEnrolment(eid: Long): Action[AnyContent] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
+    .andThen(validators.validated(StudentEnrolmentValidator))
+    .async { request =>
+      val uid   = request.attrs.get(ScalaAttrs.USER_ID)
+      val email = request.attrs.get(ScalaAttrs.EMAIL)
 
-        Option(DB.find(classOf[Exam], eid)) match
-          case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-          case Some(exam) =>
-            val executionType = ExamExecutionType.Type.valueOf(exam.getExecutionType.getType)
-            val userOpt = uid
-              .flatMap(id => Option(DB.find(classOf[User], id)))
-              .orElse {
-                email.flatMap { e =>
-                  val users = DB
-                    .find(classOf[User])
+      Option(DB.find(classOf[Exam], eid)) match
+        case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+        case Some(exam) =>
+          val executionType = ExamExecutionType.Type.valueOf(exam.getExecutionType.getType)
+          val userOpt = uid
+            .flatMap(id => Option(DB.find(classOf[User], id)))
+            .orElse {
+              email.flatMap { e =>
+                val users = DB
+                  .find(classOf[User])
+                  .where()
+                  .or()
+                  .ieq("email", e)
+                  .ieq("eppn", e) // CSCEXAM-34
+                  .endOr()
+                  .list
+
+                if users.isEmpty then
+                  // Pre-enrolment - check for duplicates
+                  val enrolments = DB
+                    .find(classOf[ExamEnrolment])
                     .where()
-                    .or()
-                    .ieq("email", e)
-                    .ieq("eppn", e) // CSCEXAM-34
-                    .endOr()
+                    .eq("exam.id", eid)
+                    .ieq("preEnrolledUserEmail", e)
                     .list
 
-                  if users.isEmpty then
-                    // Pre-enrolment - check for duplicates
-                    val enrolments = DB
-                      .find(classOf[ExamEnrolment])
-                      .where()
-                      .eq("exam.id", eid)
-                      .ieq("preEnrolledUserEmail", e)
-                      .list
-
-                    if enrolments.isEmpty then
-                      val user = new User()
-                      user.setEmail(e)
-                      Some(user)
-                    else None // Already pre-enrolled
-                  else if users.size == 1 then Some(users.head)
-                  else None // Multiple users with same email
-                }
+                  if enrolments.isEmpty then
+                    val user = new User()
+                    user.setEmail(e)
+                    Some(user)
+                  else None // Already pre-enrolled
+                else if users.size == 1 then Some(users.head)
+                else None // Multiple users with same email
               }
+            }
 
-            userOpt match
-              case None => Future.successful(BadRequest("user not found or already enrolled"))
-              case Some(user) =>
-                val sender = request.attrs(Auth.ATTR_USER)
-                doCreateEnrolment(eid, executionType, user).map { result =>
-                  if exam.getState == Exam.State.PUBLISHED && result.header.status == 200 then
-                    actor.scheduler.scheduleOnce(1.second) {
-                      emailComposer.composePrivateExamParticipantNotification(user, sender, exam)
-                      logger.info(s"Exam participation notification email sent to ${user.getEmail}")
-                    }
-                  result
-                }
-      }
+          userOpt match
+            case None => Future.successful(BadRequest("user not found or already enrolled"))
+            case Some(user) =>
+              val sender = request.attrs(Auth.ATTR_USER)
+              doCreateEnrolment(eid, executionType, user).map { result =>
+                if exam.getState == Exam.State.PUBLISHED && result.header.status == 200 then
+                  actor.scheduler.scheduleOnce(1.second) {
+                    emailComposer.composePrivateExamParticipantNotification(user, sender, exam)
+                    logger.info(s"Exam participation notification email sent to ${user.getEmail}")
+                  }
+                result
+              }
+    }
 
   def removeStudentEnrolment(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))) { request =>
@@ -460,13 +466,13 @@ class EnrolmentController @Inject() (
       enrolmentRepository
         .getRoomInfoForEnrolment(hash, user)
         .map {
-          case None => NotFound("Room not found")
+          case None       => NotFound("Room not found")
           case Some(room) => Ok(room.asJson)
         }
     }
 
   def addExaminationEventConfig(enrolmentId: Long, configId: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       val enrolmentOpt = DB
         .find(classOf[ExamEnrolment])
@@ -559,11 +565,12 @@ class EnrolmentController @Inject() (
     }
 
   def permitRetrial(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      Option(DB.find(classOf[ExamEnrolment], id)) match
-        case None => NotFound("i18n_not_found")
-        case Some(enrolment) =>
-          enrolment.setRetrialPermitted(true)
-          enrolment.update()
-          Ok
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        Option(DB.find(classOf[ExamEnrolment], id)) match
+          case None => NotFound("i18n_not_found")
+          case Some(enrolment) =>
+            enrolment.setRetrialPermitted(true)
+            enrolment.update()
+            Ok
     }

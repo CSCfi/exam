@@ -24,6 +24,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 import validation.scala.calendar.{ReservationCreationFilter, ReservationDTO}
 import validation.scala.core.ScalaAttrs
 
@@ -35,6 +36,7 @@ import scala.util.Using
 
 class CollaborativeCalendarController @Inject() (
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     calendarHandler: CalendarHandler,
     emailComposer: EmailComposer,
     system: ActorSystem,
@@ -76,7 +78,8 @@ class CollaborativeCalendarController @Inject() (
       Some(Forbidden("i18n_no_trials_left"))
     else None
 
-  def createReservation(): Action[JsValue] = authenticated
+  def createReservation(): Action[JsValue] = audited
+    .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.STUDENT)))
     .andThen(ReservationCreationFilter())
     .async(parse.json) { request =>

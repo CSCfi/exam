@@ -11,12 +11,14 @@ import models.user.Role
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class AccessibilityController @Inject() (
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BaseController
@@ -24,15 +26,16 @@ class AccessibilityController @Inject() (
     with JavaApiHelper:
 
   def addAccessibility(): Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
+    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
       val accessibility = new Accessibility()
       accessibility.setName((request.body \ "name").as[String])
       accessibility.save()
       Ok(accessibility.asJson)
     }
 
-  def updateAccessibility(): Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
+  def updateAccessibility(): Action[JsValue] = audited
+    .andThen(authenticated)(parse.json)
+    .andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
       val accessibility = new Accessibility()
       accessibility.setName((request.body \ "name").as[String])
       accessibility.update()

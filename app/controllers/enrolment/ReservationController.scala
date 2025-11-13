@@ -24,6 +24,7 @@ import play.api.libs.json.{JsArray, JsValue, Json}
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 
 import java.util.Date
 import javax.inject.Inject
@@ -33,6 +34,7 @@ import scala.jdk.FutureConverters.*
 
 class ReservationController @Inject() (
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     emailComposer: EmailComposer,
     collaborativeExamLoader: CollaborativeExamLoader,
     externalReservationHandler: ExternalReservationHandler,
@@ -182,31 +184,32 @@ class ReservationController @Inject() (
     }
 
   def updateMachine(reservationId: Long): Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
-      Option(DB.find(classOf[Reservation], reservationId)) match
-        case None => Future.successful(NotFound("Reservation not found"))
-        case Some(reservation) =>
-          val machineId = (request.body \ "machineId").as[Long]
-          val previous  = reservation.getMachine
+    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))).async {
+      request =>
+        Option(DB.find(classOf[Reservation], reservationId)) match
+          case None => Future.successful(NotFound("Reservation not found"))
+          case Some(reservation) =>
+            val machineId = (request.body \ "machineId").as[Long]
+            val previous  = reservation.getMachine
 
-          Option(DB.find(classOf[ExamMachine], machineId)) match
-            case None => Future.successful(NotFound("Machine not found"))
-            case Some(machine) =>
-              getReservationExam(reservation).flatMap {
-                case None => Future.successful(NotFound("Exam not found"))
-                case Some(_) if !isBookable(machine, reservation) =>
-                  Future.successful(Forbidden("Machine not eligible for choosing"))
-                case Some(_) =>
-                  reservation.setMachine(machine)
-                  reservation.update()
-                  emailComposer.composeReservationChangeNotification(
-                    reservation.getUser,
-                    previous,
-                    machine,
-                    reservation.getEnrolment
-                  )
-                  Future.successful(Ok(Seq(machine).asJson))
-              }
+            Option(DB.find(classOf[ExamMachine], machineId)) match
+              case None => Future.successful(NotFound("Machine not found"))
+              case Some(machine) =>
+                getReservationExam(reservation).flatMap {
+                  case None => Future.successful(NotFound("Exam not found"))
+                  case Some(_) if !isBookable(machine, reservation) =>
+                    Future.successful(Forbidden("Machine not eligible for choosing"))
+                  case Some(_) =>
+                    reservation.setMachine(machine)
+                    reservation.update()
+                    emailComposer.composeReservationChangeNotification(
+                      reservation.getUser,
+                      previous,
+                      machine,
+                      reservation.getEnrolment
+                    )
+                    Future.successful(Ok(Seq(machine).asJson))
+                }
     }
 
   private def getReservationExam(reservation: Reservation): Future[Option[Exam]] =

@@ -22,6 +22,7 @@ import play.api.mvc.Results.*
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
+import system.AuditedAction
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,6 +36,7 @@ class CollaborativeEnrolmentController @Inject() (
     dateTimeHandler: DateTimeHandler,
     enrolmentHandler: EnrolmentHandler,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     override val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends CollaborationController(wsClient, examUpdater, examLoader, configReader, controllerComponents)
@@ -182,7 +184,7 @@ class CollaborativeEnrolmentController @Inject() (
     end try
 
   def createEnrolment(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))).async { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
 
       Option(DB.find(classOf[CollaborativeExam], id)) match

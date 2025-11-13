@@ -22,8 +22,9 @@ import play.api.Logging
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.libs.ws.{JsonBodyWritables, WSClient}
 import play.api.mvc.*
-import security.scala.Auth.{AuthenticatedAction, authorized}
+import security.scala.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 import validation.scala.calendar.ExternalCalendarReservationValidator
 
 import java.net.{MalformedURLException, URI, URL}
@@ -34,6 +35,7 @@ import scala.jdk.FutureConverters.*
 
 class ExternalCalendarController @Inject() (
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     wsClient: WSClient,
     calendarHandler: CalendarHandler,
     emailComposer: EmailComposer,
@@ -79,7 +81,7 @@ class ExternalCalendarController @Inject() (
 
   // Actions invoked by central IOP server
 
-  def provideReservation(): Action[JsValue] = Action(parse.json) { request =>
+  def provideReservation(): Action[JsValue] = audited.andThen(subjectNotPresent)(parse.json) { request =>
     // Parse request body
     val body           = request.body
     val reservationRef = (body \ "id").as[String]
@@ -219,89 +221,89 @@ class ExternalCalendarController @Inject() (
   }
 
   // Actions invoked directly by logged-in users
-  def requestReservation(): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.STUDENT)))
-      .andThen(ExternalCalendarReservationValidator.filter)
-      .async(parse.json) { request =>
-        if !configReader.isVisitingExaminationSupported then
-          Future.successful(Forbidden("Feature not enabled in the installation"))
-        else
-          val user       = request.attrs(Auth.ATTR_USER)
-          val dto        = request.attrs(validation.scala.core.ScalaAttrs.ATTR_EXT_RESERVATION)
-          val orgRef     = dto.orgRef
-          val roomRef    = dto.roomRef
-          val start      = dto.start
-          val end        = dto.end
-          val examId     = dto.examId
-          val sectionIds = dto.sectionIds
+  def requestReservation(): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.STUDENT)))
+    .andThen(ExternalCalendarReservationValidator.filter)
+    .async(parse.json) { request =>
+      if !configReader.isVisitingExaminationSupported then
+        Future.successful(Forbidden("Feature not enabled in the installation"))
+      else
+        val user       = request.attrs(Auth.ATTR_USER)
+        val dto        = request.attrs(validation.scala.core.ScalaAttrs.ATTR_EXT_RESERVATION)
+        val orgRef     = dto.orgRef
+        val roomRef    = dto.roomRef
+        val start      = dto.start
+        val end        = dto.end
+        val examId     = dto.examId
+        val sectionIds = dto.sectionIds
 
-          val now = dateTimeHandler.adjustDST(DateTime.now())
-          val enrolmentOpt =
-            DB.find(classOf[ExamEnrolment])
-              .fetch("reservation")
-              .fetch("exam.examSections")
-              .fetch("exam.examSections.examMaterials")
-              .where()
-              .eq("user.id", user.getId)
-              .eq("exam.id", examId)
-              .eq("exam.state", Exam.State.PUBLISHED)
-              .disjunction()
-              .isNull("reservation")
-              .gt("reservation.startAt", now.toDate)
-              .endJunction()
-              .find
+        val now = dateTimeHandler.adjustDST(DateTime.now())
+        val enrolmentOpt =
+          DB.find(classOf[ExamEnrolment])
+            .fetch("reservation")
+            .fetch("exam.examSections")
+            .fetch("exam.examSections.examMaterials")
+            .where()
+            .eq("user.id", user.getId)
+            .eq("exam.id", examId)
+            .eq("exam.state", Exam.State.PUBLISHED)
+            .disjunction()
+            .isNull("reservation")
+            .gt("reservation.startAt", now.toDate)
+            .endJunction()
+            .find
 
-          enrolmentOpt match
-            case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
-            case Some(enrolment) =>
-              val sectionIdsSeq = sectionIds.getOrElse(List.empty)
-              calendarHandler.checkEnrolment(enrolment, user, sectionIdsSeq) match
-                case Some(errorResult) => Future.successful(errorResult)
-                case None              =>
-                  // Let's do this
-                  try
-                    val url        = parseUrl(orgRef, roomRef)
-                    val homeOrgRef = configReader.getHomeOrganisationRef
-                    val body = Json.obj(
-                      "requestingOrg"    -> homeOrgRef,
-                      "start"            -> ISODateTimeFormat.dateTime().print(start),
-                      "end"              -> ISODateTimeFormat.dateTime().print(end),
-                      "user"             -> user.getEppn,
-                      "optionalSections" -> Json.toJson(sectionIdsSeq)
-                    )
+        enrolmentOpt match
+          case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
+          case Some(enrolment) =>
+            val sectionIdsSeq = sectionIds.getOrElse(List.empty)
+            calendarHandler.checkEnrolment(enrolment, user, sectionIdsSeq) match
+              case Some(errorResult) => Future.successful(errorResult)
+              case None              =>
+                // Let's do this
+                try
+                  val url        = parseUrl(orgRef, roomRef)
+                  val homeOrgRef = configReader.getHomeOrganisationRef
+                  val body = Json.obj(
+                    "requestingOrg"    -> homeOrgRef,
+                    "start"            -> ISODateTimeFormat.dateTime().print(start),
+                    "end"              -> ISODateTimeFormat.dateTime().print(end),
+                    "user"             -> user.getEppn,
+                    "optionalSections" -> Json.toJson(sectionIdsSeq)
+                  )
 
-                    for
-                      response <- wsClient.url(url.toString).post(body)
-                      result <-
-                        if response.status != CREATED then
-                          val root = response.json.as[play.api.libs.json.JsObject]
-                          val msg  = (root \ "message").asOpt[String].getOrElse("Connection refused")
-                          Future.successful(InternalServerError(msg))
-                        else
-                          val root = response.json
-                          calendarHandler
-                            .handleExternalReservation(
-                              enrolment,
-                              enrolment.getExam,
-                              root,
-                              start,
-                              end,
-                              user,
-                              orgRef,
-                              roomRef,
-                              sectionIdsSeq
-                            )
-                            .map {
-                              case Some(_) => InternalServerError("Internal server error")
-                              case None    => Created((root \ "id").get)
-                            }
-                    yield result
-                  catch
-                    case e: MalformedURLException =>
-                      logger.error("Invalid URL", e)
-                      Future.successful(BadRequest("Invalid URL"))
-      }
+                  for
+                    response <- wsClient.url(url.toString).post(body)
+                    result <-
+                      if response.status != CREATED then
+                        val root = response.json.as[play.api.libs.json.JsObject]
+                        val msg  = (root \ "message").asOpt[String].getOrElse("Connection refused")
+                        Future.successful(InternalServerError(msg))
+                      else
+                        val root = response.json
+                        calendarHandler
+                          .handleExternalReservation(
+                            enrolment,
+                            enrolment.getExam,
+                            root,
+                            start,
+                            end,
+                            user,
+                            orgRef,
+                            roomRef,
+                            sectionIdsSeq
+                          )
+                          .map {
+                            case Some(_) => InternalServerError("Internal server error")
+                            case None    => Created((root \ "id").get)
+                          }
+                  yield result
+                catch
+                  case e: MalformedURLException =>
+                    logger.error("Invalid URL", e)
+                    Future.successful(BadRequest("Invalid URL"))
+    }
 
   def requestReservationRemoval(ref: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>

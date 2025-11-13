@@ -133,7 +133,7 @@ GET           /app/materials                                                  co
 POST          /app/materials                                                  controllers.question.ExamMaterialController.createMaterial()
 PUT           /app/materials/:id                                              controllers.question.ExamMaterialController.updateMaterial(id: Long)
 DELETE        /app/materials/:id                                              controllers.question.ExamMaterialController.removeMaterial(id: Long)
-POST          /app/materials/:id/:sid                                          controllers.question.ExamMaterialController.addMaterialForSection(sid: Long, id: Long)
+POST          /app/materials/:id/:sid                                         controllers.question.ExamMaterialController.addMaterialForSection(sid: Long, id: Long)
 DELETE        /app/materials/:id/:sid                                         controllers.question.ExamMaterialController.removeMaterialFromSection(sid: Long, id: Long)
 
 ############### Section question interface ##########

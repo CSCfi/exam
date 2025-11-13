@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, ViewChild, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -24,6 +24,8 @@ import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamAssessmentComponent implements OnDestroy {
+    @ViewChild('autoEvaluationComponent') autoEvaluationComponent?: AutoEvaluationComponent;
+
     exam = signal<Exam>({} as Exam);
     collaborative = signal(false);
 
@@ -84,12 +86,26 @@ export class ExamAssessmentComponent implements OnDestroy {
     // when grade changes, delete autoeval config (locally) and call prepare
 
     updateExam(resetAutoEvaluationConfig: boolean) {
+        // Sync form data from auto-evaluation component before saving
+        // This will emit updated event which triggers autoEvaluationConfigChanged
+        // and updates the exam signal synchronously
+        if (this.autoEvaluationComponent) {
+            this.autoEvaluationComponent.save();
+        }
+
+        // Re-read exam after save() updates it via autoEvaluationConfigChanged
+        // Since signals are synchronous, the exam should be updated immediately
         const currentExam = this.exam();
         const currentAutoEvaluation = this.autoEvaluation();
         const currentExamFeedbackConfig = this.examFeedbackConfig();
+
+        // Check if config exists (not just if enabled signal is true)
+        // The config should be set by autoEvaluationConfigChanged after save() emits
+        const hasAutoEvaluationConfig = !!currentExam.autoEvaluationConfig;
+
         const config = {
             evaluationConfig:
-                currentAutoEvaluation.enabled && this.canBeAutoEvaluated() && !resetAutoEvaluationConfig
+                hasAutoEvaluationConfig && this.canBeAutoEvaluated() && !resetAutoEvaluationConfig
                     ? {
                           releaseType: currentExam.autoEvaluationConfig?.releaseType,
                           releaseDate: currentExam.autoEvaluationConfig?.releaseDate

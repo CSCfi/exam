@@ -19,6 +19,7 @@ import play.api.libs.json.{JsArray, JsValue, Json}
 import play.api.mvc.*
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 import validation.scala.core.PlayJsonHelper
 import validation.scala.section.SectionQuestionDTO
 
@@ -29,6 +30,7 @@ import scala.jdk.CollectionConverters.*
 class ExamSectionController @Inject() (
     examUpdater: ExamUpdater,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BaseController
@@ -38,32 +40,33 @@ class ExamSectionController @Inject() (
     with Logging:
 
   def insertSection(eid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      DB.find(classOf[Exam])
-        .fetch("examOwners")
-        .fetch("examSections")
-        .where()
-        .idEq(eid)
-        .find match
-        case None       => NotFound("i18n_error_not_found")
-        case Some(exam) =>
-          // Not allowed to add a section if optional sections exist and there are upcoming reservations
-          val optionalSectionsExist = exam.getExamSections.asScala.exists(_.isOptional)
-          if optionalSectionsExist && !examUpdater.isAllowedToUpdate(exam, user) then
-            Forbidden("i18n_error_future_reservations_exist")
-          else if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-            val section = new ExamSection()
-            section.setLotteryItemCount(1)
-            section.setExam(exam)
-            section.setSectionQuestions(java.util.Collections.emptySet())
-            section.setSequenceNumber(exam.getExamSections.size())
-            section.setExpanded(true)
-            section.setOptional(false)
-            section.setCreatorWithDate(user)
-            section.save()
-            Ok(section.asJson(PathProperties.parse("(*, examMaterials(*), sectionQuestions(*))")))
-          else Forbidden("i18n_error_access_forbidden")
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        DB.find(classOf[Exam])
+          .fetch("examOwners")
+          .fetch("examSections")
+          .where()
+          .idEq(eid)
+          .find match
+          case None       => NotFound("i18n_error_not_found")
+          case Some(exam) =>
+            // Not allowed to add a section if optional sections exist and there are upcoming reservations
+            val optionalSectionsExist = exam.getExamSections.asScala.exists(_.isOptional)
+            if optionalSectionsExist && !examUpdater.isAllowedToUpdate(exam, user) then
+              Forbidden("i18n_error_future_reservations_exist")
+            else if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+              val section = new ExamSection()
+              section.setLotteryItemCount(1)
+              section.setExam(exam)
+              section.setSectionQuestions(java.util.Collections.emptySet())
+              section.setSequenceNumber(exam.getExamSections.size())
+              section.setExpanded(true)
+              section.setOptional(false)
+              section.setCreatorWithDate(user)
+              section.save()
+              Ok(section.asJson(PathProperties.parse("(*, examMaterials(*), sectionQuestions(*))")))
+            else Forbidden("i18n_error_access_forbidden")
     }
 
   def removeSection(eid: Long, sid: Long): Action[AnyContent] =
@@ -90,104 +93,104 @@ class ExamSectionController @Inject() (
             Ok
     }
 
-  def updateSection(eid: Long, sid: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .async(parse.json) { request =>
-        val user = request.attrs(Auth.ATTR_USER)
-        val body = request.body
-        findOrFail(eid, sid, user) match
-          case Left(error) => Future.successful(error)
-          case Right((_, section)) =>
-            val name             = PlayJsonHelper.parse[String]("name", body)
-            val expanded         = PlayJsonHelper.parseOrElse("expanded", body, false)
-            val lotteryOn        = PlayJsonHelper.parseOrElse("lotteryOn", body, false)
-            val lotteryItemCount = PlayJsonHelper.parseOrElse("lotteryItemCount", body, 1)
-            val description      = PlayJsonHelper.parse[String]("description", body)
-            val optional         = PlayJsonHelper.parseOrElse("optional", body, false)
+  def updateSection(eid: Long, sid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .async(parse.json) { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      val body = request.body
+      findOrFail(eid, sid, user) match
+        case Left(error) => Future.successful(error)
+        case Right((_, section)) =>
+          val name             = PlayJsonHelper.parse[String]("name", body)
+          val expanded         = PlayJsonHelper.parseOrElse("expanded", body, false)
+          val lotteryOn        = PlayJsonHelper.parseOrElse("lotteryOn", body, false)
+          val lotteryItemCount = PlayJsonHelper.parseOrElse("lotteryItemCount", body, 1)
+          val description      = PlayJsonHelper.parse[String]("description", body)
+          val optional         = PlayJsonHelper.parseOrElse("optional", body, false)
 
-            name.foreach(section.setName)
-            section.setExpanded(expanded)
-            section.setLotteryOn(lotteryOn)
-            section.setLotteryItemCount(Math.max(1, lotteryItemCount))
-            description.foreach(section.setDescription)
-            // Disallow changing optionality if future reservations exist
-            if section.isOptional != optional && !examUpdater.isAllowedToUpdate(section.getExam, user) then
-              Future.successful(BadRequest("i18n_error_future_reservations_exist"))
-            else
-              section.setOptional(optional)
-              section.update()
-              Future.successful(Ok(section.asJson))
-      }
+          name.foreach(section.setName)
+          section.setExpanded(expanded)
+          section.setLotteryOn(lotteryOn)
+          section.setLotteryItemCount(Math.max(1, lotteryItemCount))
+          description.foreach(section.setDescription)
+          // Disallow changing optionality if future reservations exist
+          if section.isOptional != optional && !examUpdater.isAllowedToUpdate(section.getExam, user) then
+            Future.successful(BadRequest("i18n_error_future_reservations_exist"))
+          else
+            section.setOptional(optional)
+            section.update()
+            Future.successful(Ok(section.asJson))
+    }
 
-  def reorderSections(eid: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .async(parse.json) { request =>
-        val body    = request.body
-        val fromOpt = PlayJsonHelper.parse[Int]("from", body)
-        val toOpt   = PlayJsonHelper.parse[Int]("to", body)
+  def reorderSections(eid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .async(parse.json) { request =>
+      val body    = request.body
+      val fromOpt = PlayJsonHelper.parse[Int]("from", body)
+      val toOpt   = PlayJsonHelper.parse[Int]("to", body)
 
-        (fromOpt, toOpt) match
-          case (Some(from), Some(to)) =>
-            checkBounds(from, to) match
-              case Some(error) =>
-                Future.successful(error)
-              case None =>
-                DB.find(classOf[Exam]).fetch("examSections").where().idEq(eid).find match
-                  case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-                  case Some(exam) =>
-                    val user = request.attrs(Auth.ATTR_USER)
-                    if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-                      // Reorder by sequenceNumber (TreeSet orders the collection based on it)
-                      val sections = exam.getExamSections.asScala.toSeq.sorted
-                      if from < sections.length then
-                        val prev    = sections(from)
-                        val updated = sections.patch(from, Nil, 1).patch(to, Seq(prev), 0)
-                        updated.zipWithIndex.foreach { (section, i) =>
-                          section.setSequenceNumber(i)
-                          section.update()
-                        }
-                      Future.successful(Ok)
-                    else Future.successful(Forbidden("i18n_error_access_forbidden"))
-          case _ => Future.successful(BadRequest("Missing 'from' or 'to' parameter"))
-      }
+      (fromOpt, toOpt) match
+        case (Some(from), Some(to)) =>
+          checkBounds(from, to) match
+            case Some(error) =>
+              Future.successful(error)
+            case None =>
+              DB.find(classOf[Exam]).fetch("examSections").where().idEq(eid).find match
+                case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+                case Some(exam) =>
+                  val user = request.attrs(Auth.ATTR_USER)
+                  if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+                    // Reorder by sequenceNumber (TreeSet orders the collection based on it)
+                    val sections = exam.getExamSections.asScala.toSeq.sorted
+                    if from < sections.length then
+                      val prev    = sections(from)
+                      val updated = sections.patch(from, Nil, 1).patch(to, Seq(prev), 0)
+                      updated.zipWithIndex.foreach { (section, i) =>
+                        section.setSequenceNumber(i)
+                        section.update()
+                      }
+                    Future.successful(Ok)
+                  else Future.successful(Forbidden("i18n_error_access_forbidden"))
+        case _ => Future.successful(BadRequest("Missing 'from' or 'to' parameter"))
+    }
 
-  def reorderSectionQuestions(eid: Long, sid: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .async(parse.json) { request =>
-        val body    = request.body
-        val fromOpt = PlayJsonHelper.parse[Int]("from", body)
-        val toOpt   = PlayJsonHelper.parse[Int]("to", body)
+  def reorderSectionQuestions(eid: Long, sid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .async(parse.json) { request =>
+      val body    = request.body
+      val fromOpt = PlayJsonHelper.parse[Int]("from", body)
+      val toOpt   = PlayJsonHelper.parse[Int]("to", body)
 
-        (fromOpt, toOpt) match
-          case (Some(from), Some(to)) =>
-            checkBounds(from, to) match
-              case Some(error) =>
-                Future.successful(error)
-              case None =>
-                Option(DB.find(classOf[Exam], eid)) match
-                  case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-                  case Some(exam) =>
-                    val user = request.attrs(Auth.ATTR_USER)
-                    if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-                      Option(DB.find(classOf[ExamSection], sid)) match
-                        case None          => Future.successful(NotFound("section not found"))
-                        case Some(section) =>
-                          // Reorder by sequenceNumber (TreeSet orders the collection based on it)
-                          val questions = section.getSectionQuestions.asScala.toSeq.sorted
-                          if from < questions.length then
-                            val prev    = questions(from)
-                            val updated = questions.patch(from, Nil, 1).patch(to, Seq(prev), 0)
-                            updated.zipWithIndex.foreach { (question, i) =>
-                              question.setSequenceNumber(i)
-                              question.update()
-                            }
-                          Future.successful(Ok)
-                    else Future.successful(Forbidden("i18n_error_access_forbidden"))
-          case _ => Future.successful(BadRequest("Missing 'from' or 'to' parameter"))
-      }
+      (fromOpt, toOpt) match
+        case (Some(from), Some(to)) =>
+          checkBounds(from, to) match
+            case Some(error) =>
+              Future.successful(error)
+            case None =>
+              Option(DB.find(classOf[Exam], eid)) match
+                case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+                case Some(exam) =>
+                  val user = request.attrs(Auth.ATTR_USER)
+                  if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+                    Option(DB.find(classOf[ExamSection], sid)) match
+                      case None          => Future.successful(NotFound("section not found"))
+                      case Some(section) =>
+                        // Reorder by sequenceNumber (TreeSet orders the collection based on it)
+                        val questions = section.getSectionQuestions.asScala.toSeq.sorted
+                        if from < questions.length then
+                          val prev    = questions(from)
+                          val updated = questions.patch(from, Nil, 1).patch(to, Seq(prev), 0)
+                          updated.zipWithIndex.foreach { (question, i) =>
+                            question.setSequenceNumber(i)
+                            question.update()
+                          }
+                        Future.successful(Ok)
+                  else Future.successful(Forbidden("i18n_error_access_forbidden"))
+        case _ => Future.successful(BadRequest("Missing 'from' or 'to' parameter"))
+    }
 
   private def findOrFail(eid: Long, sid: Long, user: User): Either[Result, (Exam, ExamSection)] =
     val examOpt =
@@ -265,67 +268,67 @@ class ExamSectionController @Inject() (
       section.setSectionQuestions(new java.util.TreeSet(section.getSectionQuestions))
       None
 
-  def insertQuestion(eid: Long, sid: Long, qid: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .async(parse.json) { request =>
-        val user   = request.attrs(Auth.ATTR_USER)
-        val body   = request.body
-        val seqOpt = PlayJsonHelper.parse[Int]("sequenceNumber", body)
+  def insertQuestion(eid: Long, sid: Long, qid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .async(parse.json) { request =>
+      val user   = request.attrs(Auth.ATTR_USER)
+      val body   = request.body
+      val seqOpt = PlayJsonHelper.parse[Int]("sequenceNumber", body)
 
-        (
-          Option(DB.find(classOf[Exam], eid)),
-          Option(DB.find(classOf[ExamSection], sid)),
-          Option(DB.find(classOf[Question], qid)),
-          seqOpt
-        ) match
-          case (None, _, _, _) | (_, None, _, _) | (_, _, None, _) => Future.successful(NotFound)
-          case (Some(exam), Some(section), Some(question), Some(seq)) =>
-            if exam.getAutoEvaluationConfig != null && question.getType == Question.Type.EssayQuestion then
-              Future.successful(Forbidden("i18n_error_autoevaluation_essay_question"))
-            else if !exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-              Future.successful(Forbidden("i18n_error_access_forbidden"))
-            else
-              insertQuestion(exam, section, question, user, seq) match
-                case Some(error) => Future.successful(error)
-                case None        => Future.successful(Ok(section.asJson))
-          case _ => Future.successful(BadRequest("Missing sequenceNumber"))
-      }
+      (
+        Option(DB.find(classOf[Exam], eid)),
+        Option(DB.find(classOf[ExamSection], sid)),
+        Option(DB.find(classOf[Question], qid)),
+        seqOpt
+      ) match
+        case (None, _, _, _) | (_, None, _, _) | (_, _, None, _) => Future.successful(NotFound)
+        case (Some(exam), Some(section), Some(question), Some(seq)) =>
+          if exam.getAutoEvaluationConfig != null && question.getType == Question.Type.EssayQuestion then
+            Future.successful(Forbidden("i18n_error_autoevaluation_essay_question"))
+          else if !exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+            Future.successful(Forbidden("i18n_error_access_forbidden"))
+          else
+            insertQuestion(exam, section, question, user, seq) match
+              case Some(error) => Future.successful(error)
+              case None        => Future.successful(Ok(section.asJson))
+        case _ => Future.successful(BadRequest("Missing sequenceNumber"))
+    }
 
-  def insertMultipleQuestions(eid: Long, sid: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .async(parse.json) { request =>
-        val user         = request.attrs(Auth.ATTR_USER)
-        val body         = request.body
-        val sequenceOpt  = PlayJsonHelper.parse[Int]("sequenceNumber", body)
-        val questionsOpt = PlayJsonHelper.parseCommaSeparatedLongs("questions", body)
+  def insertMultipleQuestions(eid: Long, sid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .async(parse.json) { request =>
+      val user         = request.attrs(Auth.ATTR_USER)
+      val body         = request.body
+      val sequenceOpt  = PlayJsonHelper.parse[Int]("sequenceNumber", body)
+      val questionsOpt = PlayJsonHelper.parseCommaSeparatedLongs("questions", body)
 
-        (
-          Option(DB.find(classOf[Exam], eid)),
-          Option(DB.find(classOf[ExamSection], sid)),
-          sequenceOpt,
-          questionsOpt
-        ) match
-          case (None, _, _, _) | (_, None, _, _) => Future.successful(NotFound)
-          case (Some(exam), Some(section), Some(sequence), Some(questions)) =>
-            if !exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-              Future.successful(Forbidden("i18n_error_access_forbidden"))
-            else
-              questions.foldLeft[Option[Result]](None) { (acc, qid) =>
-                acc.orElse {
-                  Option(DB.find(classOf[Question], qid)) match
-                    case None => None
-                    case Some(question) =>
-                      if exam.getAutoEvaluationConfig != null && question.getType == Question.Type.EssayQuestion then
-                        Some(Forbidden("i18n_error_autoevaluation_essay_question"))
-                      else insertQuestion(exam, section, question, user, sequence)
-                }
-              } match
-                case Some(error) => Future.successful(error)
-                case None        => Future.successful(Ok(section.asJson))
-          case _ => Future.successful(BadRequest("Missing sequenceNumber or questions"))
-      }
+      (
+        Option(DB.find(classOf[Exam], eid)),
+        Option(DB.find(classOf[ExamSection], sid)),
+        sequenceOpt,
+        questionsOpt
+      ) match
+        case (None, _, _, _) | (_, None, _, _) => Future.successful(NotFound)
+        case (Some(exam), Some(section), Some(sequence), Some(questions)) =>
+          if !exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+            Future.successful(Forbidden("i18n_error_access_forbidden"))
+          else
+            questions.foldLeft[Option[Result]](None) { (acc, qid) =>
+              acc.orElse {
+                Option(DB.find(classOf[Question], qid)) match
+                  case None => None
+                  case Some(question) =>
+                    if exam.getAutoEvaluationConfig != null && question.getType == Question.Type.EssayQuestion then
+                      Some(Forbidden("i18n_error_autoevaluation_essay_question"))
+                    else insertQuestion(exam, section, question, user, sequence)
+              }
+            } match
+              case Some(error) => Future.successful(error)
+              case None        => Future.successful(Ok(section.asJson))
+        case _ => Future.successful(BadRequest("Missing sequenceNumber or questions"))
+    }
 
   def removeQuestion(eid: Long, sid: Long, qid: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
@@ -480,78 +483,79 @@ class ExamSectionController @Inject() (
 
     hasCorrectOption && hasIncorrectOption && hasSkipOption
 
-  def updateDistributedExamQuestion(eid: Long, sid: Long, qid: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .async(parse.json) { request =>
-        val user = request.attrs(Auth.ATTR_USER)
-        val body = request.body
+  def updateDistributedExamQuestion(eid: Long, sid: Long, qid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .async(parse.json) { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      val body = request.body
 
-        // Parse and validate section question DTO manually
-        val answerInstructions = PlayJsonHelper.parseHtml("answerInstructions", body)
-        val evaluationCriteria = PlayJsonHelper.parseHtml("evaluationCriteria", body)
-        val questionText = (body \ "question").asOpt[JsValue].flatMap { questionNode =>
-          PlayJsonHelper.parseHtml("question", questionNode)
-        }
-        val dto = SectionQuestionDTO(answerInstructions, evaluationCriteria, questionText)
-
-        var query = DB.find(classOf[ExamSectionQuestion]).where().idEq(qid)
-        if user.hasRole(Role.Name.TEACHER) then query = query.eq("examSection.exam.examOwners", user)
-        val pp = PathProperties.parse("(*, question(*, options(*)), options(*, option(*)))")
-        query.apply(pp)
-        query.find match
-          case None => Future.successful(Forbidden("i18n_error_access_forbidden"))
-          case Some(examSectionQuestion) =>
-            DB.find(classOf[Question])
-              .fetch("examSectionQuestions")
-              .fetch("examSectionQuestions.options")
-              .where()
-              .idEq(examSectionQuestion.getQuestion.getId)
-              .find match
-              case None => Future.successful(NotFound)
-              case Some(question) =>
-                (body \ "options").asOpt[JsArray] match
-                  case Some(optionsArray) =>
-                    if question.getType == Question.Type.WeightedMultipleChoiceQuestion && !hasPositiveOptionScore(
-                        optionsArray
-                      )
-                    then Future.successful(BadRequest("i18n_correct_option_required"))
-                    else if question.getType == Question.Type.ClaimChoiceQuestion && !hasValidClaimChoiceOptions(
-                        optionsArray
-                      )
-                    then Future.successful(BadRequest("i18n_incorrect_claim_question_options"))
-                    else
-                      // Update question: text
-                      question.setQuestion(dto.getQuestionTextOrNull)
-                      question.update()
-                      updateExamQuestion(examSectionQuestion, body, dto)
-                      examSectionQuestion.update()
-                      if question.getType != Question.Type.EssayQuestion && question.getType != Question.Type.ClozeTestQuestion
-                      then
-                        // Process the options, this has an impact on the base question options as well as all the section questions
-                        // using those.
-                        processExamQuestionOptions(question, examSectionQuestion, optionsArray, user)
-                      // A bit dumb, re-fetch from the database to get the updated options right in response. Could be made more elegantly
-                      Future.successful(Ok(query.findOne().asJson(pp)))
-                  case None => Future.successful(BadRequest("Missing options array"))
+      // Parse and validate section question DTO manually
+      val answerInstructions = PlayJsonHelper.parseHtml("answerInstructions", body)
+      val evaluationCriteria = PlayJsonHelper.parseHtml("evaluationCriteria", body)
+      val questionText = (body \ "question").asOpt[JsValue].flatMap { questionNode =>
+        PlayJsonHelper.parseHtml("question", questionNode)
       }
+      val dto = SectionQuestionDTO(answerInstructions, evaluationCriteria, questionText)
 
-  def updateUndistributedExamQuestion(eid: Long, sid: Long, qid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user  = request.attrs(Auth.ATTR_USER)
       var query = DB.find(classOf[ExamSectionQuestion]).where().idEq(qid)
       if user.hasRole(Role.Name.TEACHER) then query = query.eq("examSection.exam.examOwners", user)
-      val pp = PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))")
+      val pp = PathProperties.parse("(*, question(*, options(*)), options(*, option(*)))")
       query.apply(pp)
       query.find match
-        case None => Forbidden("i18n_error_access_forbidden")
+        case None => Future.successful(Forbidden("i18n_error_access_forbidden"))
         case Some(examSectionQuestion) =>
-          Option(DB.find(classOf[Question], examSectionQuestion.getQuestion.getId)) match
-            case None => NotFound
+          DB.find(classOf[Question])
+            .fetch("examSectionQuestions")
+            .fetch("examSectionQuestions.options")
+            .where()
+            .idEq(examSectionQuestion.getQuestion.getId)
+            .find match
+            case None => Future.successful(NotFound)
             case Some(question) =>
-              updateExamQuestion(examSectionQuestion, question)
-              examSectionQuestion.update()
-              Ok(examSectionQuestion.asJson(pp))
+              (body \ "options").asOpt[JsArray] match
+                case Some(optionsArray) =>
+                  if question.getType == Question.Type.WeightedMultipleChoiceQuestion && !hasPositiveOptionScore(
+                      optionsArray
+                    )
+                  then Future.successful(BadRequest("i18n_correct_option_required"))
+                  else if question.getType == Question.Type.ClaimChoiceQuestion && !hasValidClaimChoiceOptions(
+                      optionsArray
+                    )
+                  then Future.successful(BadRequest("i18n_incorrect_claim_question_options"))
+                  else
+                    // Update question: text
+                    question.setQuestion(dto.getQuestionTextOrNull)
+                    question.update()
+                    updateExamQuestion(examSectionQuestion, body, dto)
+                    examSectionQuestion.update()
+                    if question.getType != Question.Type.EssayQuestion && question.getType != Question.Type.ClozeTestQuestion
+                    then
+                      // Process the options, this has an impact on the base question options as well as all the section questions
+                      // using those.
+                      processExamQuestionOptions(question, examSectionQuestion, optionsArray, user)
+                    // A bit dumb, re-fetch from the database to get the updated options right in response. Could be made more elegantly
+                    Future.successful(Ok(query.findOne().asJson(pp)))
+                case None => Future.successful(BadRequest("Missing options array"))
+    }
+
+  def updateUndistributedExamQuestion(eid: Long, sid: Long, qid: Long): Action[AnyContent] =
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val user  = request.attrs(Auth.ATTR_USER)
+        var query = DB.find(classOf[ExamSectionQuestion]).where().idEq(qid)
+        if user.hasRole(Role.Name.TEACHER) then query = query.eq("examSection.exam.examOwners", user)
+        val pp = PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))")
+        query.apply(pp)
+        query.find match
+          case None => Forbidden("i18n_error_access_forbidden")
+          case Some(examSectionQuestion) =>
+            Option(DB.find(classOf[Question], examSectionQuestion.getQuestion.getId)) match
+              case None => NotFound
+              case Some(question) =>
+                updateExamQuestion(examSectionQuestion, question)
+                examSectionQuestion.update()
+                Ok(examSectionQuestion.asJson(pp))
     }
 
   def getQuestionDistribution(id: Long): Action[AnyContent] =

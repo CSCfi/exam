@@ -22,6 +22,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 import validation.scala.calendar.ReservationCreationFilter
 import validation.scala.core.ScalaAttrs
 
@@ -33,6 +34,7 @@ import scala.util.Using
 
 class CalendarController @Inject() (
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     calendarHandler: CalendarHandler,
     emailComposer: EmailComposer,
     system: ActorSystem,
@@ -104,98 +106,98 @@ class CalendarController @Inject() (
       enrolment.map(e => Ok(e.asJson)).getOrElse(Ok)
   }
 
-  def createReservation(): Action[JsValue] =
-    authenticated(parse.json)
-      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT)))
-      .andThen(ReservationCreationFilter())
-      .async { request =>
-        val dto        = request.attrs(ScalaAttrs.ATTR_STUDENT_RESERVATION)
-        val roomId     = dto.roomId
-        val examId     = dto.examId
-        val start      = dto.start
-        val end        = dto.end
-        val aids       = dto.aids.getOrElse(List.empty)
-        val sectionIds = dto.sectionIds.getOrElse(List.empty)
+  def createReservation(): Action[JsValue] = audited
+    .andThen(authenticated)(parse.json)
+    .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT)))
+    .andThen(ReservationCreationFilter())
+    .async { request =>
+      val dto        = request.attrs(ScalaAttrs.ATTR_STUDENT_RESERVATION)
+      val roomId     = dto.roomId
+      val examId     = dto.examId
+      val start      = dto.start
+      val end        = dto.end
+      val aids       = dto.aids.getOrElse(List.empty)
+      val sectionIds = dto.sectionIds.getOrElse(List.empty)
 
-        val room = DB.find(classOf[ExamRoom], roomId)
-        val now  = dateTimeHandler.adjustDST(DateTime.now(), room)
-        val user = request.attrs(Auth.ATTR_USER)
+      val room = DB.find(classOf[ExamRoom], roomId)
+      val now  = dateTimeHandler.adjustDST(DateTime.now(), room)
+      val user = request.attrs(Auth.ATTR_USER)
 
-        // Start manual transaction
-        Using(DB.beginTransaction()) { tx =>
-          // Take pessimistic lock for user to prevent multiple reservations creating
-          DB.find(classOf[User]).forUpdate().where().eq("id", user.getId).findOne()
+      // Start manual transaction
+      Using(DB.beginTransaction()) { tx =>
+        // Take pessimistic lock for user to prevent multiple reservations creating
+        DB.find(classOf[User]).forUpdate().where().eq("id", user.getId).findOne()
 
-          val optionalEnrolment =
-            DB.find(classOf[ExamEnrolment])
-              .fetch("reservation")
-              .fetch("exam.examSections")
-              .fetch("exam.examSections.examMaterials")
-              .where()
-              .eq("user.id", user.getId)
-              .eq("exam.id", examId)
-              .eq("exam.state", Exam.State.PUBLISHED)
-              .disjunction()
-              .isNull("reservation")
-              .gt("reservation.startAt", now.toDate)
-              .endJunction()
-              .find
+        val optionalEnrolment =
+          DB.find(classOf[ExamEnrolment])
+            .fetch("reservation")
+            .fetch("exam.examSections")
+            .fetch("exam.examSections.examMaterials")
+            .where()
+            .eq("user.id", user.getId)
+            .eq("exam.id", examId)
+            .eq("exam.state", Exam.State.PUBLISHED)
+            .disjunction()
+            .isNull("reservation")
+            .gt("reservation.startAt", now.toDate)
+            .endJunction()
+            .find
 
-          optionalEnrolment match
-            case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
-            case Some(enrolment) =>
-              calendarHandler.checkEnrolment(enrolment, user, sectionIds) match
-                case Some(errorResult) => Future.successful(errorResult)
-                case None =>
-                  calendarHandler.getRandomMachine(room, enrolment.getExam, start, end, aids) match
-                    case None          => Future.successful(Forbidden("i18n_no_machines_available"))
-                    case Some(machine) =>
-                      // Check that the proposed reservation is (still) doable
-                      val proposedReservation = new Reservation()
-                      proposedReservation.setStartAt(start)
-                      proposedReservation.setEndAt(end)
-                      proposedReservation.setMachine(machine)
-                      proposedReservation.setUser(user)
-                      proposedReservation.setEnrolment(enrolment)
+        optionalEnrolment match
+          case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
+          case Some(enrolment) =>
+            calendarHandler.checkEnrolment(enrolment, user, sectionIds) match
+              case Some(errorResult) => Future.successful(errorResult)
+              case None =>
+                calendarHandler.getRandomMachine(room, enrolment.getExam, start, end, aids) match
+                  case None          => Future.successful(Forbidden("i18n_no_machines_available"))
+                  case Some(machine) =>
+                    // Check that the proposed reservation is (still) doable
+                    val proposedReservation = new Reservation()
+                    proposedReservation.setStartAt(start)
+                    proposedReservation.setEndAt(end)
+                    proposedReservation.setMachine(machine)
+                    proposedReservation.setUser(user)
+                    proposedReservation.setEnrolment(enrolment)
 
-                      if !calendarHandler.isDoable(proposedReservation, aids) then
-                        Future.successful(Forbidden("i18n_no_machines_available"))
-                      else
-                        // We are good to go :)
-                        val oldReservation = enrolment.getReservation
-                        val reservation    = calendarHandler.createReservation(start, end, machine, user)
+                    if !calendarHandler.isDoable(proposedReservation, aids) then
+                      Future.successful(Forbidden("i18n_no_machines_available"))
+                    else
+                      // We are good to go :)
+                      val oldReservation = enrolment.getReservation
+                      val reservation    = calendarHandler.createReservation(start, end, machine, user)
 
-                        // Nuke the old reservation if any
-                        val result = Option(oldReservation) match
-                          case Some(old) if old.getExternalRef != null =>
-                            externalReservationHandler
-                              .removeReservation(old, user, "")
-                              .flatMap { _ =>
-                                // Re-fetch enrolment
-                                val updatedEnrolmentOpt =
-                                  DB.find(classOf[ExamEnrolment])
-                                    .fetch("exam.executionType")
-                                    .where()
-                                    .idEq(enrolment.getId)
-                                    .find
+                      // Nuke the old reservation if any
+                      val result = Option(oldReservation) match
+                        case Some(old) if old.getExternalRef != null =>
+                          externalReservationHandler
+                            .removeReservation(old, user, "")
+                            .flatMap { _ =>
+                              // Re-fetch enrolment
+                              val updatedEnrolmentOpt =
+                                DB.find(classOf[ExamEnrolment])
+                                  .fetch("exam.executionType")
+                                  .where()
+                                  .idEq(enrolment.getId)
+                                  .find
 
-                                updatedEnrolmentOpt match
-                                  case None => Future.successful(NotFound)
-                                  case Some(updatedEnrolment) =>
-                                    makeNewReservation(updatedEnrolment, reservation, user, sectionIds)
-                              }
-                          case Some(old) =>
-                            enrolment.setReservation(null)
-                            enrolment.update()
-                            old.delete()
-                            makeNewReservation(enrolment, reservation, user, sectionIds)
-                          case None =>
-                            makeNewReservation(enrolment, reservation, user, sectionIds)
+                              updatedEnrolmentOpt match
+                                case None => Future.successful(NotFound)
+                                case Some(updatedEnrolment) =>
+                                  makeNewReservation(updatedEnrolment, reservation, user, sectionIds)
+                            }
+                        case Some(old) =>
+                          enrolment.setReservation(null)
+                          enrolment.update()
+                          old.delete()
+                          makeNewReservation(enrolment, reservation, user, sectionIds)
+                        case None =>
+                          makeNewReservation(enrolment, reservation, user, sectionIds)
 
-                        tx.commit()
-                        result
-        }.get // Extract from Try
-      }
+                      tx.commit()
+                      result
+      }.get // Extract from Try
+    }
 
   private def makeNewReservation(
       enrolment: ExamEnrolment,

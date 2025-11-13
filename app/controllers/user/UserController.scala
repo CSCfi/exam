@@ -15,6 +15,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 import validation.scala.UserLanguageValidator
 import validation.scala.core.{ScalaAttrs, Validators}
 
@@ -25,6 +26,7 @@ import scala.jdk.CollectionConverters.*
 class UserController @Inject() (
     userHandler: UserHandler,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     validators: Validators,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
@@ -38,27 +40,29 @@ class UserController @Inject() (
     }
 
   def grantUserPermission: Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val body             = request.body
-      val permissionString = (body \ "permission").as[String]
-      val userId           = (body \ "id").as[String]
+    authenticated(parse.json)
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT)))
+      .andThen(audited) { request =>
+        val body             = request.body
+        val permissionString = (body \ "permission").as[String]
+        val userId           = (body \ "id").as[String]
 
-      Option(DB.find(classOf[User], userId)) match
-        case None => NotFound("user not found")
-        case Some(user) =>
-          if !user.getPermissions.asScala.exists(_.getValue == permissionString) then
-            Permission.Type.values().find(_.name() == permissionString) match
-              case Some(permType) =>
-                DB.find(classOf[Permission]).where().eq("type", permType).find match
-                  case Some(permission) =>
-                    user.getPermissions.add(permission)
-                    user.update()
-                    Ok
-                  case None => NotFound("permission not found")
-              case None =>
-                BadRequest("invalid permission type")
-          else Ok
-    }
+        Option(DB.find(classOf[User], userId)) match
+          case None => NotFound("user not found")
+          case Some(user) =>
+            if !user.getPermissions.asScala.exists(_.getValue == permissionString) then
+              Permission.Type.values().find(_.name() == permissionString) match
+                case Some(permType) =>
+                  DB.find(classOf[Permission]).where().eq("type", permType).find match
+                    case Some(permission) =>
+                      user.getPermissions.add(permission)
+                      user.update()
+                      Ok
+                    case None => NotFound("permission not found")
+                case None =>
+                  BadRequest("invalid permission type")
+            else Ok
+      }
 
   def revokeUserPermission: Action[JsValue] =
     authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
@@ -107,7 +111,7 @@ class UserController @Inject() (
     }
 
   def addRole(uid: Long, roleName: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))).andThen(audited) { _ =>
       Option(DB.find(classOf[User], uid)) match
         case None => NotFound("i18n_user_not_found")
         case Some(user) =>
@@ -172,24 +176,24 @@ class UserController @Inject() (
       Ok(users.asScala.asJson)
     }
 
-  def updateUserAgreementAccepted(): Action[AnyContent] =
-    authenticated { request =>
-      val userId = request.attrs(Auth.ATTR_USER).getId
-      DB.find(classOf[User])
-        .fetch("roles", "name")
-        .fetch("language")
-        .where()
-        .idEq(userId)
-        .find match
-        case None => NotFound("user not found")
-        case Some(user) =>
-          user.setUserAgreementAccepted(true)
-          user.update()
-          Ok
-    }
+  def updateUserAgreementAccepted(): Action[AnyContent] = authenticated.andThen(audited) { request =>
+    val userId = request.attrs(Auth.ATTR_USER).getId
+    DB.find(classOf[User])
+      .fetch("roles", "name")
+      .fetch("language")
+      .where()
+      .idEq(userId)
+      .find match
+      case None => NotFound("user not found")
+      case Some(user) =>
+        user.setUserAgreementAccepted(true)
+        user.update()
+        Ok
+  }
 
   def updateLanguage(): Action[JsValue] =
-    authenticated(parse.json)
+    authenticated
+      .andThen(audited)(parse.json)
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER, Role.Name.STUDENT)))
       .andThen(validators.validated(UserLanguageValidator)) { request =>
         val user = request.attrs(Auth.ATTR_USER)

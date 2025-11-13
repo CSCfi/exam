@@ -18,17 +18,18 @@ import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import play.api.Logging
 import play.api.libs.Files
-import play.api.mvc._
+import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 
-import java.io._
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.Base64
 import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Using
 
 class ReviewDocumentsController @Inject() (
@@ -36,27 +37,28 @@ class ReviewDocumentsController @Inject() (
     csvBuilder: CsvBuilder,
     fileHandler: FileHandler,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     implicit val ec: AuthExecutionContext
 ) extends BaseController
     with JavaApiHelper
     with DbApiHelper
     with Logging:
 
-  def importGrades: Action[MultipartFormData[Files.TemporaryFile]] =
-    authenticated(parse.multipartFormData)
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-        request.body.file("file") match
-          case Some(file) =>
-            val user = request.attrs(Auth.ATTR_USER)
-            val role = if user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then Role.Name.ADMIN else Role.Name.TEACHER
-            try csvBuilder.parseGrades(file.ref.toFile, user, role)
-            catch
-              case e: Exception =>
-                logger.error("Failed to parse CSV file. Stack trace follows", e)
-                InternalServerError("i18n_internal_error")
-            Ok
-          case None => NotFound
-      }
+  def importGrades: Action[MultipartFormData[Files.TemporaryFile]] = audited
+    .andThen(authenticated)(parse.multipartFormData)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
+      request.body.file("file") match
+        case Some(file) =>
+          val user = request.attrs(Auth.ATTR_USER)
+          val role = if user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then Role.Name.ADMIN else Role.Name.TEACHER
+          try csvBuilder.parseGrades(file.ref.toFile, user, role)
+          catch
+            case e: Exception =>
+              logger.error("Failed to parse CSV file. Stack trace follows", e)
+              InternalServerError("i18n_internal_error")
+          Ok
+        case None => NotFound
+    }
 
   def getArchivedAttachments(
       eid: Long,

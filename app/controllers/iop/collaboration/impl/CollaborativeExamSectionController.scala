@@ -21,6 +21,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,6 +34,7 @@ class CollaborativeExamSectionController @Inject() (
     examLoader: CollaborativeExamLoader,
     configReader: ConfigReader,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     override val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends CollaborationController(wsClient, examUpdater, examLoader, configReader, controllerComponents)
@@ -42,7 +44,7 @@ class CollaborativeExamSectionController @Inject() (
     with Logging:
 
   def addSection(examId: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
       val homeOrg = configReader.getHomeOrganisationRef
       findCollaborativeExam(examId) match
         case Left(errorResult) => errorResult
@@ -102,8 +104,10 @@ class CollaborativeExamSectionController @Inject() (
       update(request, examId, updater, _ => None)
     }
 
-  def updateSection(examId: Long, sectionId: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
+  def updateSection(examId: Long, sectionId: Long): Action[AnyContent] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async { request =>
       val updater = (exam: Exam, _: User) =>
         exam.getExamSections.asScala.find(_.getId == sectionId) match
           case None     => Some(NotFound("i18n_error_not_found"))
@@ -128,8 +132,10 @@ class CollaborativeExamSectionController @Inject() (
       )
     }
 
-  def reorderSections(examId: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
+  def reorderSections(examId: Long): Action[AnyContent] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async { request =>
       val updater = (exam: Exam, _: User) =>
         val formData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
         (formData.get("from").flatMap(_.headOption), formData.get("to").flatMap(_.headOption)) match
@@ -153,8 +159,10 @@ class CollaborativeExamSectionController @Inject() (
       update(request, examId, updater, _ => None)
     }
 
-  def reorderSectionQuestions(examId: Long, sectionId: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
+  def reorderSectionQuestions(examId: Long, sectionId: Long): Action[AnyContent] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async { request =>
       val updater = (exam: Exam, _: User) =>
         val formData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
         (formData.get("from").flatMap(_.headOption), formData.get("to").flatMap(_.headOption)) match
@@ -181,70 +189,70 @@ class CollaborativeExamSectionController @Inject() (
       update(request, examId, updater, _ => None)
     }
 
-  def addQuestion(examId: Long, sectionId: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-      .async(controllerComponents.parsers.json) { request =>
-        val seq               = (request.body \ "sequenceNumber").as[Int]
-        val sectionQuestionId = newId()
+  def addQuestion(examId: Long, sectionId: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async(controllerComponents.parsers.json) { request =>
+      val seq               = (request.body \ "sequenceNumber").as[Int]
+      val sectionQuestionId = newId()
 
-        val updater = (exam: Exam, user: User) =>
-          exam.getExamSections.asScala.find(_.getId == sectionId) match
-            case None => Some(NotFound("i18n_error_not_found"))
-            case Some(es) =>
-              val questionBody = (request.body \ "question").get
-              val question     = JsonDeserializer.deserialize(classOf[Question], toJacksonJson(questionBody))
-              question.getQuestionOwners.asScala.foreach(cleanUser)
+      val updater = (exam: Exam, user: User) =>
+        exam.getExamSections.asScala.find(_.getId == sectionId) match
+          case None => Some(NotFound("i18n_error_not_found"))
+          case Some(es) =>
+            val questionBody = (request.body \ "question").get
+            val question     = JsonDeserializer.deserialize(classOf[Question], toJacksonJson(questionBody))
+            question.getQuestionOwners.asScala.foreach(cleanUser)
 
-              // Validate question
-              question.getValidationResult(toJacksonJson(questionBody)).toScala.map(_.asScala) match
-                case Some(error) => Some(error)
-                case None =>
-                  val esq = new ExamSectionQuestion()
-                  question.setId(newId())
+            // Validate question
+            question.getValidationResult(toJacksonJson(questionBody)).toScala.map(_.asScala) match
+              case Some(error) => Some(error)
+              case None =>
+                val esq = new ExamSectionQuestion()
+                question.setId(newId())
 
-                  if question.getType == Question.Type.ClaimChoiceQuestion then
-                    // Naturally order generated ids before saving them to question options
-                    val options      = question.getOptions.asScala.toSeq
-                    val generatedIds = options.indices.map(_ => newId()).sorted
-                    options.zip(generatedIds).foreach { case (opt, id) => opt.setId(id) }
-                  else question.getOptions.asScala.foreach(o => o.setId(newId()))
+                if question.getType == Question.Type.ClaimChoiceQuestion then
+                  // Naturally order generated ids before saving them to question options
+                  val options      = question.getOptions.asScala.toSeq
+                  val generatedIds = options.indices.map(_ => newId()).sorted
+                  options.zip(generatedIds).foreach { case (opt, id) => opt.setId(id) }
+                else question.getOptions.asScala.foreach(o => o.setId(newId()))
 
-                  esq.setId(sectionQuestionId)
-                  esq.setQuestion(question)
+                esq.setId(sectionQuestionId)
+                esq.setQuestion(question)
 
-                  // Assert that the sequence number provided is within limits
-                  val sequence = Math.min(Math.max(0, seq), es.getSectionQuestions.size())
-                  updateSequences(es.getSectionQuestions.asScala.toList, sequence)
-                  esq.setSequenceNumber(sequence)
+                // Assert that the sequence number provided is within limits
+                val sequence = Math.min(Math.max(0, seq), es.getSectionQuestions.size())
+                updateSequences(es.getSectionQuestions.asScala.toList, sequence)
+                esq.setSequenceNumber(sequence)
 
-                  if es.getSectionQuestions.contains(esq) || es.hasQuestion(question) then
-                    Some(BadRequest("i18n_question_already_in_section"))
-                  else
-                    if question.getType == Question.Type.EssayQuestion then
-                      // disable auto evaluation for this exam
-                      Option(exam.getAutoEvaluationConfig).foreach(_.delete())
+                if es.getSectionQuestions.contains(esq) || es.hasQuestion(question) then
+                  Some(BadRequest("i18n_question_already_in_section"))
+                else
+                  if question.getType == Question.Type.EssayQuestion then
+                    // disable auto evaluation for this exam
+                    Option(exam.getAutoEvaluationConfig).foreach(_.delete())
 
-                    // Insert a new section question
-                    esq.setCreator(user)
-                    esq.setCreated(DateTime.now())
-                    updateExamQuestion(esq, question)
-                    esq.getOptions.asScala.foreach(o => o.setId(newId()))
-                    cleanUser(user)
-                    es.setModifierWithDate(user)
-                    es.getSectionQuestions.add(esq)
-                    None
+                  // Insert a new section question
+                  esq.setCreator(user)
+                  esq.setCreated(DateTime.now())
+                  updateExamQuestion(esq, question)
+                  esq.getOptions.asScala.foreach(o => o.setId(newId()))
+                  cleanUser(user)
+                  es.setModifierWithDate(user)
+                  es.getSectionQuestions.add(esq)
+                  None
 
-        update(
-          request,
-          examId,
-          updater,
-          exam =>
-            exam.getExamSections.asScala
-              .flatMap(_.getSectionQuestions.asScala)
-              .find(_.getId == sectionQuestionId)
-        )
-      }
+      update(
+        request,
+        examId,
+        updater,
+        exam =>
+          exam.getExamSections.asScala
+            .flatMap(_.getSectionQuestions.asScala)
+            .find(_.getId == sectionQuestionId)
+      )
+    }
 
   def removeQuestion(examId: Long, sectionId: Long, questionId: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
@@ -295,45 +303,45 @@ class CollaborativeExamSectionController @Inject() (
       )
     }
 
-  def updateQuestion(examId: Long, sectionId: Long, questionId: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-      .async(controllerComponents.parsers.json) { request =>
-        findCollaborativeExam(examId) match
-          case Left(errorResult) => errorResult
-          case Right(ce) =>
-            val user    = request.attrs(Auth.ATTR_USER)
-            val homeOrg = configReader.getHomeOrganisationRef
-            examLoader.downloadExam(ce).flatMap {
-              case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-              case Some(exam) if !isAuthorizedToView(exam, user, homeOrg) =>
-                Future.successful(Forbidden("i18n_error_access_forbidden"))
-              case Some(exam) =>
-                exam.getExamSections.asScala.find(_.getId == sectionId) match
-                  case None => Future.successful(NotFound("i18n_error_not_found"))
-                  case Some(es) =>
-                    es.getSectionQuestions.asScala.find(_.getId == questionId) match
-                      case None => Future.successful(NotFound("i18n_error_not_found"))
-                      case Some(esq) =>
-                        val payload      = (request.body \ "question").get
-                        val questionBody = JsonDeserializer.deserialize(classOf[Question], toJacksonJson(payload))
+  def updateQuestion(examId: Long, sectionId: Long, questionId: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async(controllerComponents.parsers.json) { request =>
+      findCollaborativeExam(examId) match
+        case Left(errorResult) => errorResult
+        case Right(ce) =>
+          val user    = request.attrs(Auth.ATTR_USER)
+          val homeOrg = configReader.getHomeOrganisationRef
+          examLoader.downloadExam(ce).flatMap {
+            case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+            case Some(exam) if !isAuthorizedToView(exam, user, homeOrg) =>
+              Future.successful(Forbidden("i18n_error_access_forbidden"))
+            case Some(exam) =>
+              exam.getExamSections.asScala.find(_.getId == sectionId) match
+                case None => Future.successful(NotFound("i18n_error_not_found"))
+                case Some(es) =>
+                  es.getSectionQuestions.asScala.find(_.getId == questionId) match
+                    case None => Future.successful(NotFound("i18n_error_not_found"))
+                    case Some(esq) =>
+                      val payload      = (request.body \ "question").get
+                      val questionBody = JsonDeserializer.deserialize(classOf[Question], toJacksonJson(payload))
 
-                        questionBody.getValidationResult(toJacksonJson(payload)).toScala.map(_.asScala) match
-                          case Some(error) => Future.successful(error)
-                          case None =>
-                            questionBody.getOptions.asScala
-                              .filter(_.getId == null)
-                              .foreach(o => o.setId(newId()))
+                      questionBody.getValidationResult(toJacksonJson(payload)).toScala.map(_.asScala) match
+                        case Some(error) => Future.successful(error)
+                        case None =>
+                          questionBody.getOptions.asScala
+                            .filter(_.getId == null)
+                            .foreach(o => o.setId(newId()))
 
-                            updateExamQuestion(esq, questionBody)
-                            esq.getOptions.asScala.foreach(o => o.setId(newId()))
+                          updateExamQuestion(esq, questionBody)
+                          esq.getOptions.asScala.foreach(o => o.setId(newId()))
 
-                            val pp = PathProperties.parse(
-                              "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
-                            )
-                            examLoader.uploadExam(ce, exam, user, esq, pp)
-            }
-      }
+                          val pp = PathProperties.parse(
+                            "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
+                          )
+                          examLoader.uploadExam(ce, exam, user, esq, pp)
+          }
+    }
 
   private def createDraft(exam: Exam, user: User): ExamSection =
     val section = new ExamSection()

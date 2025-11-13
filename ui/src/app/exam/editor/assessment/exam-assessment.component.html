@@ -69,6 +69,7 @@ SPDX-License-Identifier: EUPL-1.2
 <!-- Autoevaluation -->
 @if (canBeAutoEvaluated()) {
     <xm-auto-evaluation
+        #autoEvaluationComponent
         [exam]="exam()"
         (updated)="autoEvaluationConfigChanged($event)"
         (disabled)="autoEvaluationDisabled()"

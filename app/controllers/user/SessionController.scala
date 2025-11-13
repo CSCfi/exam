@@ -19,6 +19,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import play.api.{Environment, Logger}
 import repository.EnrolmentRepository
+import system.AuditedAction
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -30,6 +31,7 @@ import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
 class SessionController @Inject() (
+    audited: AuditedAction,
     environment: Environment,
     externalExamHandler: ExternalExamHandler,
     configReader: ConfigReader,
@@ -55,7 +57,7 @@ class SessionController @Inject() (
     "x-exam-aquarium-login"     -> "aquariumLogin"
   )
 
-  def login(): Action[AnyContent] = Action.async { request =>
+  def login(): Action[AnyContent] = Action.andThen(audited).async { request =>
     configReader.getLoginType match
       case "HAKA"  => hakaLogin(request)
       case "DEBUG" => devLogin(request)
@@ -389,7 +391,7 @@ class SessionController @Inject() (
     else result.discardingCookies(DiscardingCookie(configReader.getCsrfCookie))
   }
 
-  def setLoginRole(roleName: String): Action[AnyContent] = Action.async { request =>
+  def setLoginRole(roleName: String): Action[AnyContent] = Action.andThen(audited).async { request =>
     request.session.get("id") match
       case None => Future.successful(Unauthorized("No session"))
       case Some(id) =>

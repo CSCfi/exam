@@ -15,6 +15,7 @@ import play.api.libs.json.*
 import play.api.mvc.*
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -22,6 +23,7 @@ import scala.jdk.CollectionConverters.*
 
 class ExamMaterialController @Inject() (
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BaseController
@@ -38,7 +40,7 @@ class ExamMaterialController @Inject() (
     em
 
   def createMaterial(): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))(parse.json) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))(parse.json) { request =>
       val em   = parseFromBody(request.body)
       val user = request.attrs(Auth.ATTR_USER)
       em.setCreatorWithDate(user)
@@ -69,8 +71,9 @@ class ExamMaterialController @Inject() (
           Ok
     }
 
-  def updateMaterial(materialId: Long): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))(parse.json) { request =>
+  def updateMaterial(materialId: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))(parse.json) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       Option(DB.find(classOf[ExamMaterial], materialId)) match
         case None                                      => NotFound
@@ -97,7 +100,7 @@ class ExamMaterialController @Inject() (
     else None
 
   def addMaterialForSection(sectionId: Long, materialId: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       Option(DB.find(classOf[ExamMaterial], materialId)) match
         case None => NotFound

@@ -72,99 +72,124 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="row ms-2" [hidden]="!autoevaluationDisplayVisible()">
     <div
         class="col-md-12 pt-2"
-        [ngStyle]="gradesForm?.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }"
+        [ngStyle]="gradesForm.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }"
     >
         @if (config()) {
-            <form role="form" #gradesForm="ngForm" xmUniqueValues name="gradeEvaluations">
-                @for (ge of config()!.gradeEvaluations | orderBy: 'grade.name'; track ge) {
-                    <div class="row ps-3 mb-2">
-                        <div class="col-md-2">
-                            {{ getGradeDisplayName(ge.grade) }}
+            <form role="form" [formGroup]="gradesForm" (ngSubmit)="save()">
+                @if (gradesForm.get('gradeEvaluations')?.hasError('nonUniqueValue')) {
+                    <div class="alert alert-danger mb-2">
+                        {{ 'i18n_autoevaluation_percentages_not_unique' | translate }}
+                    </div>
+                }
+                <div formArrayName="gradeEvaluations">
+                    @for (
+                        ge of config()!.gradeEvaluations | orderBy: 'grade.name';
+                        track ge.grade.id;
+                        let index = $index
+                    ) {
+                        <div class="row ps-3 mb-2" [formGroupName]="index">
+                            <div class="col-md-2">
+                                {{ getGradeDisplayName(ge.grade) }}
+                            </div>
+                            <div class="col-md-4">
+                                <input
+                                    type="number"
+                                    lang="en"
+                                    class="form-control autoevaluation-inputs"
+                                    [class.is-invalid]="
+                                        getGradeEvaluationFormGroup(index)?.get('percentage')?.invalid &&
+                                        getGradeEvaluationFormGroup(index)?.get('percentage')?.touched
+                                    "
+                                    formControlName="percentage"
+                                    [min]="0"
+                                    [max]="100"
+                                />
+                                <span class="ms-2">%</span>
+                                @if (
+                                    getGradeEvaluationFormGroup(index)?.get('percentage')?.invalid &&
+                                    getGradeEvaluationFormGroup(index)?.get('percentage')?.touched
+                                ) {
+                                    <div class="invalid-feedback d-block">
+                                        @if (
+                                            getGradeEvaluationFormGroup(index)?.get('percentage')?.hasError('required')
+                                        ) {
+                                            {{ 'i18n_required' | translate }}
+                                        }
+                                        @if (
+                                            getGradeEvaluationFormGroup(index)?.get('percentage')?.hasError('min') ||
+                                            getGradeEvaluationFormGroup(index)?.get('percentage')?.hasError('max')
+                                        ) {
+                                            {{ 'i18n_value_must_be_between_0_and_100' | translate }}
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-4 autoevaluation-numbers">
+                                {{ calculatePointLimitFromForm(index) }}
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <input
+                    }
+                </div>
+
+                <div class="row ms-2 mt-3">
+                    <div class="col-md-12">
+                        {{ 'i18n_autoevaluation_release_type' | translate }}:
+                        <div class="dropdown" ngbDropdown>
+                            <button
+                                class="btn btn-outline-dark"
                                 [disabled]="!autoevaluation.enabled"
-                                name="ge-{{ ge.grade.id }}"
+                                type="button"
+                                ngbDropdownToggle
+                                aria-expanded="true"
+                            >
+                                {{ selectedReleaseType()?.translation || '' | translate }}&nbsp;<span
+                                    class="caret"
+                                ></span>
+                            </button>
+                            <ul ngbDropdownMenu role="menu">
+                                @for (type of autoevaluation.releaseTypes; track type) {
+                                    <li
+                                        role="presentation"
+                                        [ngClass]="type.filtered ? 'active' : ''"
+                                        (click)="applyFilter(type)"
+                                    >
+                                        <a ngbDropdownItem class="pointer">
+                                            {{ type.translation | translate }}
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                @if (selectedReleaseType()?.name === 'GIVEN_DATE') {
+                    <div class="row ms-2 mt-2">
+                        <div class="col-md-6">
+                            <xm-date-picker
+                                [optional]="false"
+                                (updated)="releaseDateChanged($event)"
+                                [initialDate]="config() ? config()!.releaseDate : null"
+                            ></xm-date-picker>
+                        </div>
+                    </div>
+                }
+                @if (selectedReleaseType()?.name === 'GIVEN_AMOUNT_DAYS') {
+                    <div class="row ms-2 mt-2">
+                        <div class="col-md-6">
+                            {{ 'i18n_autoevaluation_release_after_days' | translate }}:
+                            <input
                                 type="number"
                                 lang="en"
-                                class="form-control autoevaluation-inputs"
-                                [ngModel]="ge.percentage"
-                                (ngModelChange)="updateGradePercentage(ge, $event)"
-                                [min]="0"
-                                [max]="100"
-                                required
+                                class="form-control"
+                                formControlName="amountDays"
+                                [min]="1"
+                                [max]="60"
                             />
-                            <span class="ms-2">%</span>
-                        </div>
-                        <div class="col-md-4 autoevaluation-numbers">
-                            {{ calculatePointLimit(ge) }}
                         </div>
                     </div>
                 }
             </form>
         }
-    </div>
-</div>
-
-<div class="row ms-2" [hidden]="!autoevaluationDisplayVisible()">
-    <div class="col-md-12">
-        {{ 'i18n_autoevaluation_release_type' | translate }}:
-        <div class="dropdown" ngbDropdown>
-            <button
-                class="btn btn-outline-dark"
-                [disabled]="!autoevaluation.enabled"
-                type="button"
-                ngbDropdownToggle
-                aria-expanded="true"
-            >
-                {{ selectedReleaseType()?.translation || '' | translate }}&nbsp;<span class="caret"></span>
-            </button>
-            <ul ngbDropdownMenu role="menu">
-                @for (type of autoevaluation.releaseTypes; track type) {
-                    <li role="presentation" [ngClass]="type.filtered ? 'active' : ''" (click)="applyFilter(type)">
-                        <a ngbDropdownItem class="pointer">
-                            {{ type.translation | translate }}
-                        </a>
-                    </li>
-                }
-            </ul>
-        </div>
-    </div>
-</div>
-<div class="row ms-2" [hidden]="!autoevaluationDisplayVisible()">
-    <div class="col-md-12">
-        <form role="form">
-            @if (selectedReleaseType()?.name === 'GIVEN_DATE') {
-                <div class="row">
-                    <div class="col-md-6 mt-2">
-                        <xm-date-picker
-                            [optional]="false"
-                            (updated)="releaseDateChanged($event)"
-                            [initialDate]="config() ? config()!.releaseDate : null"
-                        ></xm-date-picker>
-                    </div>
-                </div>
-            }
-            @if (selectedReleaseType()?.name === 'GIVEN_AMOUNT_DAYS') {
-                <div class="row">
-                    <div class="col-md-6">
-                        {{ 'i18n_autoevaluation_release_after_days' | translate }}:
-                        @if (config()) {
-                            <input
-                                name="amountDays"
-                                type="number"
-                                lang="en"
-                                class="form-control"
-                                [ngModel]="config()!.amountDays"
-                                (ngModelChange)="updateAmountDays($event)"
-                                [min]="1"
-                                [max]="60"
-                                required
-                            />
-                        }
-                    </div>
-                </div>
-            }
-        </form>
     </div>
 </div>

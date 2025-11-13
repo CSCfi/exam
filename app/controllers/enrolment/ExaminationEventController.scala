@@ -17,6 +17,7 @@ import org.joda.time.{DateTime, Interval}
 import play.api.Logging
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 import validation.scala.core.{ScalaAttrs, Validators}
 import validation.scala.exam.{ExaminationDateValidator, ExaminationEventValidator}
 
@@ -28,6 +29,7 @@ class ExaminationEventController @Inject() (
     byodConfigHandler: ByodConfigHandler,
     configReader: ConfigReader,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     validators: Validators,
     val controllerComponents: ControllerComponents,
     implicit val ec: ExecutionContext
@@ -40,7 +42,8 @@ class ExaminationEventController @Inject() (
   def insertExaminationDate(eid: Long): Action[AnyContent] =
     authenticated
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .andThen(validators.validated(ExaminationDateValidator)) { request =>
+      .andThen(validators.validated(ExaminationDateValidator))
+      .andThen(audited) { request =>
         Option(DB.find(classOf[Exam], eid)) match
           case None => NotFound("exam not found")
           case Some(exam) =>
@@ -86,6 +89,7 @@ class ExaminationEventController @Inject() (
 
   def insertExaminationEvent(eid: Long): Action[AnyContent] =
     authenticated
+      .andThen(audited)
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
       .andThen(validators.validated(ExaminationEventValidator)) { request =>
         Option(DB.find(classOf[Exam], eid)) match
@@ -140,6 +144,7 @@ class ExaminationEventController @Inject() (
 
   def updateExaminationEvent(eid: Long, eecid: Long): Action[AnyContent] =
     authenticated
+      .andThen(audited)
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
       .andThen(validators.validated(ExaminationEventValidator)) { request =>
         val examOpt = Option(DB.find(classOf[Exam], eid))

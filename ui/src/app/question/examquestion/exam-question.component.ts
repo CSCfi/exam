@@ -3,15 +3,16 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, ViewChild, inject, input, model, output, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, computed, inject, input, model, output, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
 import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
 import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
 import type { ExamSectionQuestion, Question, ReverseQuestion } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
+import type { QuestionAdditionalInfoConfig } from 'src/app/question/shared/question-additional-info.component';
+import { QuestionAdditionalInfoComponent } from 'src/app/question/shared/question-additional-info.component';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
@@ -27,11 +28,11 @@ import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
     styleUrls: ['../question.shared.scss'],
     imports: [
         FormsModule,
-        NgbPopover,
         FixedPrecisionValidatorDirective,
         TranslateModule,
         QuestionBasicInfoComponent,
         QuestionUsageComponent,
+        QuestionAdditionalInfoComponent,
         EssayComponent,
         WeightedMultiChoiceComponent,
         MultiChoiceComponent,
@@ -49,6 +50,37 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     examNames = signal<string[]>([]);
     sectionNames = signal<string[]>([]);
     isInPublishedExam = signal(false);
+
+    additionalInfoConfig = computed<QuestionAdditionalInfoConfig | undefined>(() => {
+        const q = this.question();
+        const eq = this.examQuestion();
+        if (!q) {
+            return undefined; // Return undefined until question is loaded
+        }
+        return {
+            showWarning: this.showWarning(),
+            onSelectFile: () => this.selectFile(),
+            onDownloadAttachment: () => this.downloadQuestionAttachment(),
+            onRemoveAttachment: () => this.removeQuestionAttachment(),
+            getFileSize: () => this.getFileSize(),
+            question: q,
+            instructionsValue: eq?.answerInstructions || '',
+            onInstructionsChange: (value: string) => {
+                if (eq) {
+                    this.examQuestion.set({ ...eq, answerInstructions: value });
+                }
+            },
+            owners: q.questionOwners,
+            ownersReadOnly: true,
+            showOwners: true,
+            tags: q.tags.filter((tag) => tag.id !== undefined).map((tag) => ({ id: tag.id!, name: tag.name })),
+            tagsReadOnly: true,
+            showTags: true,
+            sectionNames: this.sectionNames(),
+            showSections: true,
+            sectionsDisplayFormat: 'list',
+        };
+    });
 
     private http = inject(HttpClient);
     private Question = inject(QuestionService);

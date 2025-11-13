@@ -19,6 +19,7 @@ import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import play.db.ebean.Transactional
 import play.libs.Json as JavaJson
 import security.scala.Auth.subjectNotPresent
+import system.AuditedAction
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,6 +27,7 @@ import scala.jdk.CollectionConverters.*
 
 class ExternalExamController @Inject() (
     externalExamHandler: ExternalExamHandler,
+    audited: AuditedAction,
     noShowHandler: NoShowHandler,
     externalAttachmentLoader: ExternalAttachmentLoader,
     collaborativeExamLoader: CollaborativeExamLoader,
@@ -55,7 +57,7 @@ class ExternalExamController @Inject() (
 
   @Transactional
   def addExamForAssessment(ref: String): Action[JsValue] =
-    Action.andThen(subjectNotPresent).async(parse.json) { request =>
+    audited.andThen(subjectNotPresent).async(parse.json) { request =>
       getPrototype(ref) match
         case None            => Future.successful(NotFound("Enrolment not found"))
         case Some(enrolment) =>
@@ -124,7 +126,7 @@ class ExternalExamController @Inject() (
     }
 
   def addNoShow(ref: String): Action[AnyContent] =
-    Action.andThen(subjectNotPresent) { _ =>
+    audited.andThen(subjectNotPresent) { _ =>
       getPrototype(ref) match
         case Some(enrolment) =>
           noShowHandler.handleNoShowAndNotify(enrolment)

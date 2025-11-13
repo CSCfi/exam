@@ -10,6 +10,7 @@ import models.user.Role
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,6 +20,7 @@ class FacilityController @Inject() (
     wsClient: WSClient,
     configReader: ConfigReader,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BaseController:
@@ -27,7 +29,7 @@ class FacilityController @Inject() (
     s"${configReader.getIopHost}/api/organisations/$orgRef/facilities"
 
   def updateFacility(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { _ =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).async { _ =>
       facilityHandler.updateFacilityById(id)
     }
 
@@ -41,8 +43,6 @@ class FacilityController @Inject() (
             if response.status != OK then
               val message = (response.json \ "message").asOpt[String].getOrElse("Connection refused")
               InternalServerError(message)
-            else
-              Ok(response.json)
+            else Ok(response.json)
           }
     }
-

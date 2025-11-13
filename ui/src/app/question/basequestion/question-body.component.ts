@@ -4,9 +4,9 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
-import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
@@ -16,6 +16,8 @@ import { QuestionUsageComponent } from 'src/app/question/question-usage.componen
 import type { QuestionDraft } from 'src/app/question/question.model';
 import { ExamSectionQuestion, Question, ReverseQuestion, Tag } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
+import type { QuestionAdditionalInfoConfig } from 'src/app/question/shared/question-additional-info.component';
+import { QuestionAdditionalInfoComponent } from 'src/app/question/shared/question-additional-info.component';
 import { TagPickerComponent } from 'src/app/question/tags/tag-picker.component';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -30,13 +32,13 @@ import { MultipleChoiceEditorComponent } from './multiple-choice.component';
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     imports: [
         FormsModule,
-        NgbPopover,
         NgClass,
         EssayEditorComponent,
         MultipleChoiceEditorComponent,
         ClaimChoiceEditorComponent,
         QuestionBasicInfoComponent,
         QuestionUsageComponent,
+        QuestionAdditionalInfoComponent,
         NgbTypeahead,
         TagPickerComponent,
         TranslateModule,
@@ -69,6 +71,35 @@ export class QuestionBodyComponent {
         { type: 'claim', name: 'i18n_toolbar_claim_choice_question' },
     ]);
     hideRestExams = signal(true);
+
+    additionalInfoConfig = computed<QuestionAdditionalInfoConfig>(() => {
+        const q = this.question();
+        return {
+            showWarning: this.showWarning(),
+            onSelectFile: () => this.selectFile(),
+            onDownloadAttachment: () => this.downloadQuestionAttachment(),
+            onRemoveAttachment: () => this.removeQuestionAttachment(),
+            getFileSize: () => this.getFileSize(),
+            hasUploadedAttachment: () => this.hasUploadedAttachment(),
+            question: q,
+            instructionsValue: q.defaultAnswerInstructions || '',
+            instructionsId: 'defaultInstructions',
+            instructionsName: 'defaultInstructions',
+            onInstructionsChange: (value: string) => this.setDefaultAnswerInstructions(value),
+            evaluationCriteriaValue: q.defaultEvaluationCriteria,
+            onEvaluationCriteriaChange: (value: string) => this.setDefaultEvaluationCriteria(value),
+            showEvaluationCriteria: q.type === 'EssayQuestion',
+            owners: this.currentOwners(),
+            ownersReadOnly: false, // Always use content projection to handle both editable and read-only cases
+            showOwners: true,
+            tags: q.tags.filter((tag) => tag.id !== undefined).map((tag) => ({ id: tag.id!, name: tag.name })),
+            tagsReadOnly: false,
+            showTags: !this.collaborative(),
+            sectionNames: this.sectionNames(),
+            showSections: this.sectionNames().length > 0,
+            sectionsDisplayFormat: 'comma',
+        };
+    });
 
     private http = inject(HttpClient);
     private Session = inject(SessionService);
@@ -237,7 +268,7 @@ export class QuestionBodyComponent {
     hasUploadedAttachment() {
         const questionValue = this.question();
         const a = questionValue.attachment;
-        return a && (a.id || a.externalId);
+        return !!(a && (a.id || a.externalId));
     }
 
     removeTag(tag: Tag) {

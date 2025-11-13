@@ -87,7 +87,7 @@ class SettingsController @Inject() (
             Future.successful(Ok(get(key).asJson))
   }
 
-  def provideMaturityInstructions(ref: String, lang: String): Action[AnyContent] = Action { _ =>
+  def provideMaturityInstructions(ref: String, lang: String): Action[AnyContent] = audited { _ =>
     Option(DB.find(classOf[Language], lang)) match
       case None => BadRequest("Language not supported")
       case Some(_) =>
@@ -96,7 +96,7 @@ class SettingsController @Inject() (
   }
 
   def updateUserAgreement(): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited)(parse.json) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited)(parse.json) { request =>
       val eula = (request.body \ "value").as[String]
       val gs   = configReader.getOrCreateSettings("eula", Some(eula), None)
 
@@ -110,7 +110,7 @@ class SettingsController @Inject() (
     }
 
   def setDeadline(): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) { request =>
       request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)) match
         case Some(deadline) =>
           Ok(configReader.getOrCreateSettings("review_deadline", Some(deadline), None).asJson)
@@ -118,7 +118,7 @@ class SettingsController @Inject() (
     }
 
   def setReservationWindowSize(): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) { request =>
       request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)) match
         case Some(size) =>
           Ok(configReader.getOrCreateSettings("reservation_window_size", Some(size), None).asJson)

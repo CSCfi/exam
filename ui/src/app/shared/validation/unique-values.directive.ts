@@ -6,10 +6,18 @@ import { Directive } from '@angular/core';
 import type { AbstractControl, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 import { NG_VALIDATORS } from '@angular/forms';
 
-export function uniqueValuesValidator(): ValidatorFn {
+/**
+ * Validator for FormArray that checks if values extracted by a key selector are unique
+ */
+export function UniquenessValidator(keySelector: (item: unknown) => unknown): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-        const items = Object.values(control.value);
-        return new Set(items).size !== items.length ? { nonUniqueValue: { value: control.value } } : null;
+        const value = control.value;
+        if (!Array.isArray(value)) {
+            return null;
+        }
+        const items = value.map(keySelector).filter((item) => item !== null && item !== undefined);
+        const uniqueItems = new Set(items);
+        return uniqueItems.size !== items.length ? { nonUniqueValue: { value: items } } : null;
     };
 }
 @Directive({
@@ -19,6 +27,6 @@ export function uniqueValuesValidator(): ValidatorFn {
 })
 export class UniqueValuesValidatorDirective implements Validator {
     validate(control: AbstractControl): ValidationErrors | null {
-        return uniqueValuesValidator()(control);
+        return UniquenessValidator((item: unknown) => item)(control);
     }
 }

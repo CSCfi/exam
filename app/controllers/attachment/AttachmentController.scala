@@ -23,6 +23,7 @@ import play.api.mvc.*
 import play.api.mvc.MultipartFormData.FilePart
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext, PermissionFilter}
+import system.AuditedAction
 
 import java.io.File
 import javax.inject.Inject
@@ -32,6 +33,7 @@ import scala.util.{Failure, Success, Try}
 class AttachmentController @Inject() (
     val controllerComponents: ControllerComponents,
     val authenticated: AuthenticatedAction,
+    val audited: AuditedAction,
     val configReader: ConfigReader,
     val fileHandler: FileHandler,
     implicit val ec: AuthExecutionContext,
@@ -44,72 +46,72 @@ class AttachmentController @Inject() (
   override protected def executionContext: ExecutionContext = ec
   override protected def materializer: Materializer         = mat
 
-  def addAttachmentToQuestionAnswer(): Action[MultipartFormData[TemporaryFile]] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.STUDENT)))
-      .async(parse.multipartFormData) { request =>
-        parseMultipartForm(request) match
-          case None => Future.successful(BadRequest("Invalid form data"))
-          case Some((filePart, formData)) =>
-            formData.get("questionId").flatMap(_.headOption).map(_.toLong) match
-              case None => Future.successful(BadRequest("Missing questionId"))
-              case Some(qid) =>
-                val user = request.attrs(Auth.ATTR_USER)
-                DB.find(classOf[ExamSectionQuestion])
-                  .fetch("essayAnswer")
-                  .where()
-                  .idEq(qid)
-                  .eq("examSection.exam.creator", user)
-                  .find match
-                  case None           => Future.successful(Forbidden)
-                  case Some(question) =>
-                    // Ensure essay answer exists
-                    if Option(question.getEssayAnswer).isEmpty then
-                      val answer = new EssayAnswer()
-                      question.setEssayAnswer(answer)
-                      question.save()
+  def addAttachmentToQuestionAnswer(): Action[MultipartFormData[TemporaryFile]] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.STUDENT)))
+    .async(parse.multipartFormData) { request =>
+      parseMultipartForm(request) match
+        case None => Future.successful(BadRequest("Invalid form data"))
+        case Some((filePart, formData)) =>
+          formData.get("questionId").flatMap(_.headOption).map(_.toLong) match
+            case None => Future.successful(BadRequest("Missing questionId"))
+            case Some(qid) =>
+              val user = request.attrs(Auth.ATTR_USER)
+              DB.find(classOf[ExamSectionQuestion])
+                .fetch("essayAnswer")
+                .where()
+                .idEq(qid)
+                .eq("examSection.exam.creator", user)
+                .find match
+                case None           => Future.successful(Forbidden)
+                case Some(question) =>
+                  // Ensure essay answer exists
+                  if Option(question.getEssayAnswer).isEmpty then
+                    val answer = new EssayAnswer()
+                    question.setEssayAnswer(answer)
+                    question.save()
 
-                    Try(
-                      copyFile(filePart.ref, "question", qid.toString, "answer", question.getEssayAnswer.getId.toString)
-                    ) match
-                      case Failure(_) =>
-                        Future.successful(InternalServerError("i18n_error_creating_attachment"))
-                      case Success(newFilePath) =>
-                        val answer = question.getEssayAnswer
-                        fileHandler.removePrevious(answer)
-                        val attachment = fileHandler.createNew(
-                          filePart.filename,
-                          filePart.contentType.getOrElse("application/octet-stream"),
-                          newFilePath
-                        )
-                        answer.setAttachment(attachment)
-                        answer.save()
-                        Future.successful(Ok(answer.asJson))
-      }
+                  Try(
+                    copyFile(filePart.ref, "question", qid.toString, "answer", question.getEssayAnswer.getId.toString)
+                  ) match
+                    case Failure(_) =>
+                      Future.successful(InternalServerError("i18n_error_creating_attachment"))
+                    case Success(newFilePath) =>
+                      val answer = question.getEssayAnswer
+                      fileHandler.removePrevious(answer)
+                      val attachment = fileHandler.createNew(
+                        filePart.filename,
+                        filePart.contentType.getOrElse("application/octet-stream"),
+                        newFilePath
+                      )
+                      answer.setAttachment(attachment)
+                      answer.save()
+                      Future.successful(Ok(answer.asJson))
+    }
 
-  def addAttachmentToQuestion(): Action[MultipartFormData[TemporaryFile]] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .async(parse.multipartFormData) { request =>
-        parseMultipartForm(request) match
-          case None => Future.successful(BadRequest("Invalid form data"))
-          case Some((filePart, formData)) =>
-            formData.get("questionId").flatMap(_.headOption).map(_.toLong) match
-              case None => Future.successful(BadRequest("Missing questionId"))
-              case Some(qid) =>
-                DB.find(classOf[Question])
-                  .fetch("examSectionQuestions.examSection.exam.parent")
-                  .where()
-                  .idEq(qid)
-                  .find match
-                  case None => Future.successful(NotFound)
-                  case Some(question) =>
-                    Try(copyFile(filePart.ref, "question", qid.toString)) match
-                      case Failure(_) =>
-                        Future.successful(InternalServerError("i18n_error_creating_attachment"))
-                      case Success(newFilePath) =>
-                        replaceAndFinish(question, filePart, newFilePath)
-      }
+  def addAttachmentToQuestion(): Action[MultipartFormData[TemporaryFile]] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .async(parse.multipartFormData) { request =>
+      parseMultipartForm(request) match
+        case None => Future.successful(BadRequest("Invalid form data"))
+        case Some((filePart, formData)) =>
+          formData.get("questionId").flatMap(_.headOption).map(_.toLong) match
+            case None => Future.successful(BadRequest("Missing questionId"))
+            case Some(qid) =>
+              DB.find(classOf[Question])
+                .fetch("examSectionQuestions.examSection.exam.parent")
+                .where()
+                .idEq(qid)
+                .find match
+                case None => Future.successful(NotFound)
+                case Some(question) =>
+                  Try(copyFile(filePart.ref, "question", qid.toString)) match
+                    case Failure(_) =>
+                      Future.successful(InternalServerError("i18n_error_creating_attachment"))
+                    case Success(newFilePath) =>
+                      replaceAndFinish(question, filePart, newFilePath)
+    }
 
   def deleteQuestionAttachment(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
@@ -177,77 +179,77 @@ class AttachmentController @Inject() (
             Future.successful(Ok)
       }
 
-  def addAttachmentToExam(): Action[MultipartFormData[TemporaryFile]] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .async(parse.multipartFormData) { request =>
-        parseMultipartForm(request) match
-          case None => Future.successful(BadRequest("Invalid form data"))
-          case Some((filePart, formData)) =>
-            formData.get("examId").flatMap(_.headOption).map(_.toLong) match
-              case None => Future.successful(BadRequest("Missing examId"))
-              case Some(eid) =>
-                Option(DB.find(classOf[Exam], eid)) match
-                  case None => Future.successful(NotFound)
-                  case Some(exam) =>
-                    val user = request.attrs(Auth.ATTR_USER)
-                    if !user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user) then
-                      Future.successful(Forbidden("i18n_error_access_forbidden"))
-                    else
-                      Try(copyFile(filePart.ref, "exam", eid.toString)) match
-                        case Failure(_) =>
-                          Future.successful(InternalServerError("i18n_error_creating_attachment"))
-                        case Success(newFilePath) =>
-                          replaceAndFinish(exam, filePart, newFilePath)
-      }
+  def addAttachmentToExam(): Action[MultipartFormData[TemporaryFile]] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .async(parse.multipartFormData) { request =>
+      parseMultipartForm(request) match
+        case None => Future.successful(BadRequest("Invalid form data"))
+        case Some((filePart, formData)) =>
+          formData.get("examId").flatMap(_.headOption).map(_.toLong) match
+            case None => Future.successful(BadRequest("Missing examId"))
+            case Some(eid) =>
+              Option(DB.find(classOf[Exam], eid)) match
+                case None => Future.successful(NotFound)
+                case Some(exam) =>
+                  val user = request.attrs(Auth.ATTR_USER)
+                  if !user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user) then
+                    Future.successful(Forbidden("i18n_error_access_forbidden"))
+                  else
+                    Try(copyFile(filePart.ref, "exam", eid.toString)) match
+                      case Failure(_) =>
+                        Future.successful(InternalServerError("i18n_error_creating_attachment"))
+                      case Success(newFilePath) =>
+                        replaceAndFinish(exam, filePart, newFilePath)
+    }
 
-  def addFeedbackAttachment(id: Long): Action[MultipartFormData[TemporaryFile]] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
-      .async(parse.multipartFormData) { request =>
-        Option(DB.find(classOf[Exam], id)) match
-          case None => Future.successful(NotFound)
-          case Some(exam) =>
-            if Option(exam.getExamFeedback).isEmpty then
-              val comment = new Comment()
-              comment.setCreatorWithDate(request.attrs(Auth.ATTR_USER))
-              comment.save()
-              exam.setExamFeedback(comment)
-              exam.update()
+  def addFeedbackAttachment(id: Long): Action[MultipartFormData[TemporaryFile]] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
+    .async(parse.multipartFormData) { request =>
+      Option(DB.find(classOf[Exam], id)) match
+        case None => Future.successful(NotFound)
+        case Some(exam) =>
+          if Option(exam.getExamFeedback).isEmpty then
+            val comment = new Comment()
+            comment.setCreatorWithDate(request.attrs(Auth.ATTR_USER))
+            comment.save()
+            exam.setExamFeedback(comment)
+            exam.update()
 
-            parseMultipartForm(request) match
-              case None => Future.successful(BadRequest("Invalid form data"))
-              case Some((filePart, _)) =>
-                Try(copyFile(filePart.ref, "exam", id.toString, "feedback")) match
-                  case Failure(_) =>
-                    Future.successful(InternalServerError("i18n_error_creating_attachment"))
-                  case Success(newFilePath) =>
-                    replaceAndFinish(exam.getExamFeedback, filePart, newFilePath)
-      }
+          parseMultipartForm(request) match
+            case None => Future.successful(BadRequest("Invalid form data"))
+            case Some((filePart, _)) =>
+              Try(copyFile(filePart.ref, "exam", id.toString, "feedback")) match
+                case Failure(_) =>
+                  Future.successful(InternalServerError("i18n_error_creating_attachment"))
+                case Success(newFilePath) =>
+                  replaceAndFinish(exam.getExamFeedback, filePart, newFilePath)
+    }
 
-  def addStatementAttachment(id: Long): Action[MultipartFormData[TemporaryFile]] =
-    authenticated
-      .andThen(PermissionFilter(Permission.Type.CAN_INSPECT_LANGUAGE))
-      .async(parse.multipartFormData) { request =>
-        DB.find(classOf[LanguageInspection]).where().eq("exam.id", id).find match
-          case None => Future.successful(NotFound)
-          case Some(inspection) =>
-            if Option(inspection.getStatement).isEmpty then
-              val comment = new Comment()
-              comment.setCreatorWithDate(request.attrs(Auth.ATTR_USER))
-              comment.save()
-              inspection.setStatement(comment)
-              inspection.update()
+  def addStatementAttachment(id: Long): Action[MultipartFormData[TemporaryFile]] = audited
+    .andThen(authenticated)
+    .andThen(PermissionFilter(Permission.Type.CAN_INSPECT_LANGUAGE))
+    .async(parse.multipartFormData) { request =>
+      DB.find(classOf[LanguageInspection]).where().eq("exam.id", id).find match
+        case None => Future.successful(NotFound)
+        case Some(inspection) =>
+          if Option(inspection.getStatement).isEmpty then
+            val comment = new Comment()
+            comment.setCreatorWithDate(request.attrs(Auth.ATTR_USER))
+            comment.save()
+            inspection.setStatement(comment)
+            inspection.update()
 
-            parseMultipartForm(request) match
-              case None => Future.successful(BadRequest("Invalid form data"))
-              case Some((filePart, _)) =>
-                Try(copyFile(filePart.ref, "exam", id.toString, "inspectionstatement")) match
-                  case Failure(_) =>
-                    Future.successful(InternalServerError("i18n_error_creating_attachment"))
-                  case Success(newFilePath) =>
-                    replaceAndFinish(inspection.getStatement, filePart, newFilePath)
-      }
+          parseMultipartForm(request) match
+            case None => Future.successful(BadRequest("Invalid form data"))
+            case Some((filePart, _)) =>
+              Try(copyFile(filePart.ref, "exam", id.toString, "inspectionstatement")) match
+                case Failure(_) =>
+                  Future.successful(InternalServerError("i18n_error_creating_attachment"))
+                case Success(newFilePath) =>
+                  replaceAndFinish(inspection.getStatement, filePart, newFilePath)
+    }
 
   def downloadQuestionAttachment(id: Long): Action[AnyContent] =
     authenticated.async { request =>

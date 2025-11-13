@@ -27,6 +27,7 @@ import play.api.libs.ws.*
 import play.api.mvc.*
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 
 import java.io.IOException
 import java.net.{URI, URL}
@@ -46,6 +47,7 @@ class CollaborativeReviewController @Inject() (
     csvBuilder: CsvBuilder,
     fileHandler: FileHandler,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     messagesApi: MessagesApi,
     implicit val mat: Materializer,
     override val controllerComponents: ControllerComponents
@@ -211,34 +213,34 @@ class CollaborativeReviewController @Inject() (
       assessmentId.exists(ids.contains) && exam.exists(isFinished)
     }
 
-  def exportAssessments(id: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
-      .async(controllerComponents.parsers.json) { request =>
-        val refs = (request.body \ "refs").asOpt[Seq[String]].getOrElse(Seq.empty)
-        findCollaborativeExam(id) match
-          case Left(errorResult) => errorResult
-          case Right(ce) =>
-            getRequest(ce, null) match
-              case Left(errorFuture) => errorFuture
-              case Right(wsRequest) =>
-                wsRequest.get().map { response =>
-                  if response.status != OK then
-                    InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
-                  else
-                    val root          = response.json
-                    val filtered      = filterFinished(root, refs)
-                    val filteredArray = play.api.libs.json.JsArray(filtered)
-                    calculateScores(filteredArray)
+  def exportAssessments(id: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
+    .async(controllerComponents.parsers.json) { request =>
+      val refs = (request.body \ "refs").asOpt[Seq[String]].getOrElse(Seq.empty)
+      findCollaborativeExam(id) match
+        case Left(errorResult) => errorResult
+        case Right(ce) =>
+          getRequest(ce, null) match
+            case Left(errorFuture) => errorFuture
+            case Right(wsRequest) =>
+              wsRequest.get().map { response =>
+                if response.status != OK then
+                  InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                else
+                  val root          = response.json
+                  val filtered      = filterFinished(root, refs)
+                  val filteredArray = play.api.libs.json.JsArray(filtered)
+                  calculateScores(filteredArray)
 
-                    try
-                      val file               = csvBuilder.build(filteredArray)
-                      val contentDisposition = fileHandler.getContentDisposition(file)
-                      Ok(fileHandler.encodeAndDelete(file))
-                        .withHeaders("Content-Disposition" -> contentDisposition)
-                    catch case _: IOException => InternalServerError("i18n_error_creating_csv_file")
-                }
-      }
+                  try
+                    val file               = csvBuilder.build(filteredArray)
+                    val contentDisposition = fileHandler.getContentDisposition(file)
+                    Ok(fileHandler.encodeAndDelete(file))
+                      .withHeaders("Content-Disposition" -> contentDisposition)
+                  catch case _: IOException => InternalServerError("i18n_error_creating_csv_file")
+              }
+    }
 
   def getAssessment(id: Long, ref: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
@@ -264,182 +266,184 @@ class CollaborativeReviewController @Inject() (
         Ok(Json.obj("rev" -> rev))
     }
 
-  def updateAnswerScore(id: Long, ref: String, qid: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-      .async(controllerComponents.parsers.json) { request =>
+  def updateAnswerScore(id: Long, ref: String, qid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async(controllerComponents.parsers.json) { request =>
+      findCollaborativeExam(id) match
+        case Left(errorResult) => errorResult
+        case Right(ce) =>
+          getURL(ce, ref) match
+            case Left(errorFuture) => errorFuture
+            case Right(url) =>
+              val scoreNode = request.body \ "evaluatedScore"
+              val score =
+                if scoreNode.isInstanceOf[play.api.libs.json.JsNumber] then scoreNode.asOpt[Double] else None
+              val revision = (request.body \ "rev").as[String]
+
+              wsClient.url(url.toString).get().flatMap { response =>
+                if response.status != OK then
+                  Future.successful(
+                    InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                  )
+                else
+                  val root     = response.json
+                  val examNode = (root \ "exam").get
+                  score.foreach(s => scoreAnswer(toJacksonJson(examNode), qid, s))
+                  val updated =
+                    root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(revision))
+                  upload(url, updated)
+              }
+    }
+
+  def sendInspectionMessage(id: Long, ref: String): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async(controllerComponents.parsers.json) { request =>
+      val messageOpt = (request.body \ "msg").asOpt[String]
+      if messageOpt.isEmpty then Future.successful(BadRequest("no message received"))
+      else
+        val user    = request.attrs(Auth.ATTR_USER)
+        val message = messageOpt.get
         findCollaborativeExam(id) match
           case Left(errorResult) => errorResult
           case Right(ce) =>
             getURL(ce, ref) match
               case Left(errorFuture) => errorFuture
               case Right(url) =>
-                val scoreNode = request.body \ "evaluatedScore"
-                val score =
-                  if scoreNode.isInstanceOf[play.api.libs.json.JsNumber] then scoreNode.asOpt[Double] else None
-                val revision = (request.body \ "rev").as[String]
-
                 wsClient.url(url.toString).get().flatMap { response =>
                   if response.status != OK then
                     Future.successful(
                       InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
                     )
                   else
-                    val root     = response.json
-                    val examNode = (root \ "exam").get
-                    score.foreach(s => scoreAnswer(toJacksonJson(examNode), qid, s))
-                    val updated =
-                      root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(revision))
-                    upload(url, updated)
-                }
-      }
-
-  def sendInspectionMessage(id: Long, ref: String): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-      .async(controllerComponents.parsers.json) { request =>
-        val messageOpt = (request.body \ "msg").asOpt[String]
-        if messageOpt.isEmpty then Future.successful(BadRequest("no message received"))
-        else
-          val user    = request.attrs(Auth.ATTR_USER)
-          val message = messageOpt.get
-          findCollaborativeExam(id) match
-            case Left(errorResult) => errorResult
-            case Right(ce) =>
-              getURL(ce, ref) match
-                case Left(errorFuture) => errorFuture
-                case Right(url) =>
-                  wsClient.url(url.toString).get().flatMap { response =>
-                    if response.status != OK then
-                      Future.successful(
-                        InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
-                      )
-                    else
-                      val examNode = (response.json \ "exam").get
-                      val exam     = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
-                      if isUnauthorizedToAssess(exam, user) then
-                        Future.successful(Forbidden("You are not allowed to modify this object"))
-                      else
-                        val recipients = exam.getExamInspections.asScala
-                          .map(_.getUser)
-                          .toSet ++ exam.getExamOwners.asScala
-
-                        actorSystem.scheduler.scheduleOnce(1.second) {
-                          recipients
-                            .filter(u => !u.getEmail.equalsIgnoreCase(user.getEmail))
-                            .foreach(u => emailComposer.composeInspectionMessage(u, user, ce, exam, message))
-                        }
-
-                        Future.successful(Ok)
-                  }
-      }
-
-  def forceUpdateAnswerScore(id: Long, ref: String, qid: Long): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-      .async(controllerComponents.parsers.json) { request =>
-        Option(DB.find(classOf[CollaborativeExam], id)) match
-          case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-          case Some(ce) =>
-            parseUrl(ce.getExternalRef, ref) match
-              case None => Future.successful(InternalServerError("Invalid URL"))
-              case Some(url) =>
-                val scoreNode = request.body \ "forcedScore"
-                val score =
-                  if scoreNode.isInstanceOf[play.api.libs.json.JsNumber] then scoreNode.asOpt[Double] else None
-                val revision = (request.body \ "rev").as[String]
-
-                wsClient.url(url.toString).get().flatMap { response =>
-                  if response.status != OK then
-                    Future.successful(
-                      InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
-                    )
-                  else
-                    val root     = response.json
-                    val examNode = (root \ "exam").get
-                    score.foreach(s => forceScoreAnswer(toJacksonJson(examNode), qid, s))
-                    val updated =
-                      root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(revision))
-                    upload(url, updated)
-                }
-      }
-
-  def updateAssessment(id: Long, ref: String): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-      .async(controllerComponents.parsers.json) { request =>
-        findCollaborativeExam(id) match
-          case Left(errorResult) => errorResult
-          case Right(ce) =>
-            parseUrl(ce.getExternalRef, ref) match
-              case None => Future.successful(InternalServerError("Invalid URL"))
-              case Some(url) =>
-                val user = request.attrs(Auth.ATTR_USER)
-                cleanUser(user)
-
-                wsClient.url(url.toString).get().flatMap { response =>
-                  if response.status != OK then
-                    Future.successful(
-                      InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
-                    )
-                  else
-                    val root     = response.json
-                    val examNode = (root \ "exam").get
+                    val examNode = (response.json \ "exam").get
                     val exam     = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
-
                     if isUnauthorizedToAssess(exam, user) then
                       Future.successful(Forbidden("You are not allowed to modify this object"))
-                    else if exam.hasState(
-                        Exam.State.ABORTED,
-                        Exam.State.REJECTED,
-                        Exam.State.GRADED_LOGGED,
-                        Exam.State.ARCHIVED
-                      )
-                    then Future.successful(Forbidden("Not allowed to update grading of this exam"))
                     else
-                      // Build updated exam node (simplified - actual implementation needs mutable JSON handling)
-                      val revision = (request.body \ "rev").asOpt[String]
-                      if revision.isEmpty then Future.successful(BadRequest("Missing revision"))
-                      else
-                        // TODO: Update examNode with grade, state, etc. from request.body
-                        val updated =
-                          root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(revision.get))
-                        upload(url, updated)
+                      val recipients = exam.getExamInspections.asScala
+                        .map(_.getUser)
+                        .toSet ++ exam.getExamOwners.asScala
+
+                      actorSystem.scheduler.scheduleOnce(1.second) {
+                        recipients
+                          .filter(u => !u.getEmail.equalsIgnoreCase(user.getEmail))
+                          .foreach(u => emailComposer.composeInspectionMessage(u, user, ce, exam, message))
+                      }
+
+                      Future.successful(Ok)
                 }
-      }
+    }
+
+  def forceUpdateAnswerScore(id: Long, ref: String, qid: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async(controllerComponents.parsers.json) { request =>
+      Option(DB.find(classOf[CollaborativeExam], id)) match
+        case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+        case Some(ce) =>
+          parseUrl(ce.getExternalRef, ref) match
+            case None => Future.successful(InternalServerError("Invalid URL"))
+            case Some(url) =>
+              val scoreNode = request.body \ "forcedScore"
+              val score =
+                if scoreNode.isInstanceOf[play.api.libs.json.JsNumber] then scoreNode.asOpt[Double] else None
+              val revision = (request.body \ "rev").as[String]
+
+              wsClient.url(url.toString).get().flatMap { response =>
+                if response.status != OK then
+                  Future.successful(
+                    InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                  )
+                else
+                  val root     = response.json
+                  val examNode = (root \ "exam").get
+                  score.foreach(s => forceScoreAnswer(toJacksonJson(examNode), qid, s))
+                  val updated =
+                    root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(revision))
+                  upload(url, updated)
+              }
+    }
+
+  def updateAssessment(id: Long, ref: String): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async(controllerComponents.parsers.json) { request =>
+      findCollaborativeExam(id) match
+        case Left(errorResult) => errorResult
+        case Right(ce) =>
+          parseUrl(ce.getExternalRef, ref) match
+            case None => Future.successful(InternalServerError("Invalid URL"))
+            case Some(url) =>
+              val user = request.attrs(Auth.ATTR_USER)
+              cleanUser(user)
+
+              wsClient.url(url.toString).get().flatMap { response =>
+                if response.status != OK then
+                  Future.successful(
+                    InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                  )
+                else
+                  val root     = response.json
+                  val examNode = (root \ "exam").get
+                  val exam     = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
+
+                  if isUnauthorizedToAssess(exam, user) then
+                    Future.successful(Forbidden("You are not allowed to modify this object"))
+                  else if exam.hasState(
+                      Exam.State.ABORTED,
+                      Exam.State.REJECTED,
+                      Exam.State.GRADED_LOGGED,
+                      Exam.State.ARCHIVED
+                    )
+                  then Future.successful(Forbidden("Not allowed to update grading of this exam"))
+                  else
+                    // Build updated exam node (simplified - actual implementation needs mutable JSON handling)
+                    val revision = (request.body \ "rev").asOpt[String]
+                    if revision.isEmpty then Future.successful(BadRequest("Missing revision"))
+                    else
+                      // TODO: Update examNode with grade, state, etc. from request.body
+                      val updated =
+                        root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(revision.get))
+                      upload(url, updated)
+              }
+    }
 
   private def getFeedback(body: JsValue, revision: String): JsValue =
     val examNode     = (body \ "exam").get
     val feedbackNode = (examNode \ "examFeedback").asOpt[JsValue].getOrElse(Json.obj())
     feedbackNode
 
-  def addComment(id: Long, ref: String): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-      .async(controllerComponents.parsers.json) { request =>
-        findCollaborativeExam(id) match
-          case Left(errorResult) => errorResult
-          case Right(ce) =>
-            getURL(ce, ref) match
-              case Left(errorFuture) => errorFuture
-              case Right(url) =>
-                val revision = (request.body \ "rev").as[String]
-                wsClient.url(url.toString).get().flatMap { response =>
-                  if response.status != OK then
-                    Future.successful(
-                      InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
-                    )
-                  else
-                    val root         = response.json
-                    val feedbackNode = getFeedback(root, revision)
-                    val comment      = (request.body \ "comment").as[String]
-                    // TODO: Update feedback node with comment
-                    upload(url, root)
-                }
-      }
+  def addComment(id: Long, ref: String): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async(controllerComponents.parsers.json) { request =>
+      findCollaborativeExam(id) match
+        case Left(errorResult) => errorResult
+        case Right(ce) =>
+          getURL(ce, ref) match
+            case Left(errorFuture) => errorFuture
+            case Right(url) =>
+              val revision = (request.body \ "rev").as[String]
+              wsClient.url(url.toString).get().flatMap { response =>
+                if response.status != OK then
+                  Future.successful(
+                    InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                  )
+                else
+                  val root         = response.json
+                  val feedbackNode = getFeedback(root, revision)
+                  val comment      = (request.body \ "comment").as[String]
+                  // TODO: Update feedback node with comment
+                  upload(url, root)
+              }
+    }
 
-  def setFeedbackRead(examRef: String, assessmentRef: String): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async(controllerComponents.parsers.json) { request =>
+  def setFeedbackRead(examRef: String, assessmentRef: String): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.STUDENT)))
+    .async(controllerComponents.parsers.json) { request =>
       findCollaborativeExam(examRef) match
         case Left(errorResult) => errorResult
         case Right(ce) =>
@@ -460,8 +464,10 @@ class CollaborativeReviewController @Inject() (
               }
     }
 
-  def updateAssessmentInfo(id: Long, ref: String): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER))).async(controllerComponents.parsers.json) { request =>
+  def updateAssessmentInfo(id: Long, ref: String): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER)))
+    .async(controllerComponents.parsers.json) { request =>
       findCollaborativeExam(id) match
         case Left(errorResult) => errorResult
         case Right(ce) =>
@@ -504,43 +510,43 @@ class CollaborativeReviewController @Inject() (
     then Some(Future.successful(Forbidden("i18n_error_exam_already_graded_logged")))
     else None
 
-  def finalizeAssessment(id: Long, ref: String): Action[JsValue] =
-    authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-      .async(controllerComponents.parsers.json) { request =>
-        val user = request.attrs(Auth.ATTR_USER)
-        cleanUser(user)
+  def finalizeAssessment(id: Long, ref: String): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+    .async(controllerComponents.parsers.json) { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      cleanUser(user)
 
-        findCollaborativeExam(id) match
-          case Left(errorResult) => errorResult
-          case Right(ce) =>
-            getURL(ce, ref) match
-              case Left(errorFuture) => errorFuture
-              case Right(url) =>
-                getRequest(ce, ref) match
-                  case Left(errorFuture) => errorFuture
-                  case Right(wsr) =>
-                    val revision = (request.body \ "rev").asOpt[String]
-                    if revision.isEmpty then Future.successful(BadRequest("Missing revision"))
-                    else
-                      val gradingType = Grade.Type.valueOf((request.body \ "gradingType").as[String])
+      findCollaborativeExam(id) match
+        case Left(errorResult) => errorResult
+        case Right(ce) =>
+          getURL(ce, ref) match
+            case Left(errorFuture) => errorFuture
+            case Right(url) =>
+              getRequest(ce, ref) match
+                case Left(errorFuture) => errorFuture
+                case Right(wsr) =>
+                  val revision = (request.body \ "rev").asOpt[String]
+                  if revision.isEmpty then Future.successful(BadRequest("Missing revision"))
+                  else
+                    val gradingType = Grade.Type.valueOf((request.body \ "gradingType").as[String])
 
-                      wsr.get().flatMap { response =>
-                        getResponse(response) match
-                          case Left(errorFuture) => errorFuture
-                          case Right(r) =>
-                            val examNode = (r.json \ "exam").get
-                            val exam     = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
+                    wsr.get().flatMap { response =>
+                      getResponse(response) match
+                        case Left(errorFuture) => errorFuture
+                        case Right(r) =>
+                          val examNode = (r.json \ "exam").get
+                          val exam     = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
 
-                            validateExamState(exam, gradingType == Grade.Type.GRADED, user) match
-                              case Some(errorFuture) => errorFuture
-                              case None              =>
-                                // TODO: Update examNode with GRADED_LOGGED state, gradedByUser, etc.
-                                val updated = r.json.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json
-                                  .JsString(revision.get))
-                                upload(url, updated)
-                      }
-      }
+                          validateExamState(exam, gradingType == Grade.Type.GRADED, user) match
+                            case Some(errorFuture) => errorFuture
+                            case None              =>
+                              // TODO: Update examNode with GRADED_LOGGED state, gradedByUser, etc.
+                              val updated = r.json.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json
+                                .JsString(revision.get))
+                              upload(url, updated)
+                    }
+    }
 
   private def getResponse(wsr: WSResponse): Either[Future[Result], WSResponse] =
     if wsr.status != OK then

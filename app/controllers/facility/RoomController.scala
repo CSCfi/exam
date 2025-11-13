@@ -22,6 +22,7 @@ import play.api.libs.json.{JsArray, JsValue, Json}
 import play.api.mvc.*
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized}
+import system.AuditedAction
 import system.interceptors.scala.SensitiveDataFilter
 
 import javax.inject.Inject
@@ -36,6 +37,7 @@ class RoomController @Inject() (
     dateTimeHandler: DateTimeHandler,
     facilityCache: FacilityCache,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     sensitiveDataFilter: SensitiveDataFilter,
     val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
@@ -62,9 +64,8 @@ class RoomController @Inject() (
     // Handle remote updates in dedicated threads
     if Option(room.getExternalRef).isDefined && examVisitActivated then
       actorSystem.scheduler.scheduleOnce(1.second) {
-        facilityHandler.updateFacility(room).recover {
-          case e: Exception =>
-            logger.error(s"Remote update of exam room #${room.getExternalRef} failed", e)
+        facilityHandler.updateFacility(room).recover { case e: Exception =>
+          logger.error(s"Remote update of exam room #${room.getExternalRef} failed", e)
         }
       }
 
@@ -118,13 +119,13 @@ class RoomController @Inject() (
       Ok(examRoom.asJson)
     }
 
-  def validatePassword(roomId: Long): Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
+  def validatePassword(roomId: Long): Action[JsValue] = audited
+    .andThen(authenticated)(parse.json)
+    .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
       val body = request.body
 
       // Check if this is an external facility validation
       val isExternalFacility = (body \ "external").asOpt[Boolean].getOrElse(false)
-
       if isExternalFacility then validateExternalFacilityPassword(body)
       else validateInternalRoomPassword(roomId, body)
     }
@@ -148,8 +149,10 @@ class RoomController @Inject() (
           case Some(password) if Option(room.getInternalPassword).contains(password) => Ok
           case _                                                                     => Forbidden("Invalid password")
 
-  def updateExamRoom(id: Long): Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
+  def updateExamRoom(id: Long): Action[JsValue] = audited
+    .andThen(authenticated)(parse.json)
+    .andThen(authorized(Seq(Role.Name.ADMIN)))
+    .async { request =>
       Option(DB.find(classOf[ExamRoom], id)) match
         case None => Future.successful(NotFound("room not found"))
         case Some(existing) =>
@@ -174,8 +177,10 @@ class RoomController @Inject() (
           updateRemote(existing)
     }
 
-  def updateExamRoomAddress(id: Long): Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
+  def updateExamRoomAddress(id: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json)
+    .async { request =>
       Option(DB.find(classOf[MailAddress], id)) match
         case None => Future.successful(NotFound("address not found"))
         case Some(existing) =>
@@ -247,8 +252,9 @@ class RoomController @Inject() (
         case _ => Forbidden("working hours or room not found")
     }
 
-  def updateExamStartingHours(): Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
+  def updateExamStartingHours(): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json) { request =>
       val body      = request.body
       val roomIds   = (body \ "roomIds").as[List[Long]]
       val rooms     = DB.find(classOf[ExamRoom]).where().idIn(roomIds.map(Long.box).asJava).list
@@ -282,8 +288,9 @@ class RoomController @Inject() (
     hours.setOutOfService((node \ "outOfService").asOpt[Boolean].getOrElse(true))
     hours
 
-  def addRoomExceptionHours(): Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
+  def addRoomExceptionHours(): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json) { request =>
       val body           = request.body
       val exceptionsNode = (body \ "exceptions").as[JsArray]
       val roomIds        = (body \ "roomIds").as[List[Long]]
@@ -309,8 +316,9 @@ class RoomController @Inject() (
       Ok(allExceptions.asJson)
     }
 
-  def updateExamRoomAccessibility(id: Long): Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
+  def updateExamRoomAccessibility(id: Long): Action[JsValue] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json) { request =>
       Option(DB.find(classOf[ExamRoom], id)) match
         case None => NotFound("room not found")
         case Some(room) =>
@@ -354,8 +362,10 @@ class RoomController @Inject() (
           else Future.successful(Ok(room.asJson))
     }
 
-  def activateExamRoom(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { _ =>
+  def activateExamRoom(id: Long): Action[AnyContent] = audited
+    .andThen(authenticated)
+    .andThen(authorized(Seq(Role.Name.ADMIN)))
+    .async { _ =>
       Option(DB.find(classOf[ExamRoom], id)) match
         case None => Future.successful(NotFound("room not found"))
         case Some(room) =>

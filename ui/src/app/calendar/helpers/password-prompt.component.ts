@@ -3,22 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CommonModule } from '@angular/common';
-import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    effect,
-    ElementRef,
-    input,
-    output,
-    ViewChild,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, input, output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-password-prompt',
-    standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, ReactiveFormsModule, TranslateModule],
     template: `
@@ -44,7 +34,7 @@ import { TranslateModule } from '@ngx-translate/core';
                             type="password"
                             class="form-control"
                             id="password"
-                            autocomplete="new-password"
+                            autocomplete="current-password"
                             formControlName="password"
                             [class.is-invalid]="
                                 passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched
@@ -58,21 +48,15 @@ import { TranslateModule } from '@ngx-translate/core';
                                 passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched
                             "
                             placeholder="{{ 'i18n_enter_password' | translate }}"
-                            (keyup.enter)="submit()"
-                            autocomplete="current-password"
                         />
                         <div id="password-help" class="form-text visually-hidden">
                             {{ 'i18n_enter_password' | translate }}
                         </div>
-                        <div
-                            id="password-error"
-                            class="invalid-feedback"
-                            role="alert"
-                            aria-live="polite"
-                            *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched"
-                        >
-                            {{ 'i18n_password_required' | translate }}
-                        </div>
+                        @if (passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched) {
+                            <div id="password-error" class="invalid-feedback" role="alert" aria-live="polite">
+                                {{ 'i18n_password_required' | translate }}
+                            </div>
+                        }
                     </div>
                     <div class="col-md-6">
                         <button
@@ -100,27 +84,13 @@ export class PasswordPromptComponent implements AfterViewInit {
         password: new FormControl('', [Validators.required]),
     });
 
-    constructor() {
-        effect(() => {
-            // Focus the password input when visibility changes to true
-            if (this.visible() && this.passwordInput) {
-                setTimeout(() => {
-                    this.passwordInput.nativeElement.focus();
-                }, 100);
-            }
-        });
-    }
-
     ngAfterViewInit() {
-        // Focus the password input when the component becomes visible initially
-        if (this.visible() && this.passwordInput) {
-            this.passwordInput.nativeElement.focus();
-        }
+        this.passwordInput?.nativeElement.focus();
     }
 
     submit() {
         if (this.passwordForm.valid) {
-            this.passwordValidated.emit(this.passwordForm.value.password || '');
+            this.passwordValidated.emit(this.passwordForm.value.password ?? '');
         }
     }
 }
