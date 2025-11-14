@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import {
     ControlContainer,
     FormControl,
@@ -17,17 +17,18 @@ import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.m
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 
 @Component({
-    selector: 'xm-question-basic-info-trial',
+    selector: 'xm-question-basic-info',
     standalone: true,
     templateUrl: './question-basic-info.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule, CKEditorComponent, UpperCasePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionBasicInfoTrialComponent implements AfterViewInit {
+export class QuestionBasicInfoComponent implements AfterViewInit {
     question = input<ReverseQuestion | QuestionDraft>();
     questionTypes = input<{ type: string; name: string }[]>([]);
     questionId = input<number>();
+    formReady = output<FormGroup>();
 
     baseInformationForm: FormGroup;
     private parentForm = inject(FormGroupDirective);
@@ -64,6 +65,10 @@ export class QuestionBasicInfoTrialComponent implements AfterViewInit {
         });
     }
 
+    get form(): FormGroup {
+        return this.baseInformationForm;
+    }
+
     get questionType(): string | null {
         return this.baseInformationForm.get('questionType')?.value || this.question()?.type || null;
     }
@@ -82,6 +87,7 @@ export class QuestionBasicInfoTrialComponent implements AfterViewInit {
     }
 
     ngAfterViewInit() {
+        this.formReady.emit(this.baseInformationForm);
         // Add to parent form - parent form is guaranteed to be initialized at this point
         this.parentForm.form.addControl('baseInformation', this.baseInformationForm);
 

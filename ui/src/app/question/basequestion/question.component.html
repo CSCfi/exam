@@ -25,35 +25,25 @@ SPDX-License-Identifier: EUPL-1.2
 
 <ng-template #content>
     <div class="row">
-        <!-- Question body -->
         <div class="col-md-12">
             <form role="form" [formGroup]="questionForm" name="questionForm">
-                @if (question()) {
+                @if (currentQuestion()) {
                     <xm-question-body
-                        [question]="question()!"
+                        [question]="currentQuestion()!"
                         [currentOwners]="currentOwners()"
                         [lotteryOn]="lotteryOn()"
-                        [examId]="examId()"
-                        [sectionQuestion]="sectionQuestion()"
                         [collaborative]="collaborative()"
+                        [questionTypes]="questionTypes"
+                        [newQuestion]="newQuestion()"
                         (currentOwnersChange)="currentOwners.set($event)"
-                        (questionChange)="question.set($event)"
+                        (tagsChange)="onTagsChange($event)"
                     ></xm-question-body>
                 }
             </form>
-            <!-- buttons -->
-
             <div class="d-flex flex-row-reverse mt-2">
-                @if (question()) {
+                @if (currentQuestion()) {
                     <button
-                        [disabled]="
-                            !question() ||
-                            !question()!.type ||
-                            hasNoCorrectOption() ||
-                            hasInvalidClaimChoiceOptions() ||
-                            !question()!.question ||
-                            questionForm.invalid
-                        "
+                        [disabled]="questionForm.invalid"
                         (click)="saveQuestion()"
                         type="submit"
                         class="btn btn-success"
@@ -62,23 +52,9 @@ SPDX-License-Identifier: EUPL-1.2
                     </button>
                 }
 
-                <button (click)="cancel()" type="submit" class="btn btn-secondary me-2">
+                <button (click)="cancel()" type="button" class="btn btn-secondary me-2">
                     {{ 'i18n_button_cancel' | translate }}
                 </button>
-                <!--button
-                    (click)="openPreview()"
-                    type="submit"
-                    class="xm-neutral-button me-2"
-                    [disabled]="
-                        !question() ||
-                        !question()!.type ||
-                        hasNoCorrectOption() ||
-                        hasInvalidClaimChoiceOptions() ||
-                        questionForm.invalid
-                    "
-                >
-                    {{ 'i18n_button_preview' | translate }}
-                </button-->
             </div>
         </div>
     </div>

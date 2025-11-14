@@ -17,6 +17,7 @@ import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question/question.model';
+import { multipleChoiceOptionsValidator } from 'src/app/question/shared/multiple-choice-validators';
 
 @Component({
     selector: 'xm-eq-unweighted-mc',
@@ -40,7 +41,7 @@ export class MultiChoiceComponent {
         // Create nested form group with FormArray for options
         this.multichoiceForm = new FormGroup({
             optionShuffling: new FormControl(false),
-            options: new FormArray<FormGroup>([]),
+            options: new FormArray<FormGroup>([], [multipleChoiceOptionsValidator]),
         });
 
         // Add to parent form

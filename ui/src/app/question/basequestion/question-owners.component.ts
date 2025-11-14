@@ -12,13 +12,13 @@ import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operat
 import type { User } from 'src/app/session/session.model';
 
 @Component({
-    selector: 'xm-question-owners-trial',
+    selector: 'xm-question-owners',
     standalone: true,
     templateUrl: './question-owners.component.html',
     imports: [TranslateModule, NgbTypeahead, NgbPopover],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionOwnersTrialComponent {
+export class QuestionOwnersComponent {
     currentOwners = input<User[]>([]);
     currentOwnersChange = output<User[]>();
 

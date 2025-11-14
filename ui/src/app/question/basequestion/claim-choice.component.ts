@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import {
     ControlContainer,
     FormArray,
@@ -14,20 +14,22 @@ import {
     Validators,
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MultipleChoiceOption, Question, QuestionDraft } from 'src/app/question/question.model';
+import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
+import { MultipleChoiceOption } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
-    selector: 'xm-claim-choice-editor',
-    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
+    selector: 'xm-claim-choice',
+    standalone: true,
     templateUrl: './claim-choice.component.html',
     styleUrls: ['../question.shared.scss'],
+    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, NgClass, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClaimChoiceEditorComponent {
-    question = input.required<Question | QuestionDraft>();
+export class ClaimChoiceComponent implements AfterViewInit {
+    question = input.required<ReverseQuestion | QuestionDraft>();
     lotteryOn = input(false);
     showWarning = input(false);
 
@@ -37,20 +39,18 @@ export class ClaimChoiceEditorComponent {
     private translate = inject(TranslateService);
     private Question = inject(QuestionService);
     private parentForm = inject(FormGroupDirective);
+
     constructor() {
         // Create nested form group with FormArray for options
         this.claimChoiceForm = new FormGroup({
             options: new FormArray<FormGroup>([]),
         });
 
-        // Add to parent form
-        this.parentForm.form.addControl('claimChoice', this.claimChoiceForm);
-
-        // Initialize options when question is new
+        // Initialize options when question is new (no options or empty options array)
         effect(() => {
             const questionValue = this.question();
-            const { state, question: questionText } = questionValue;
-            if (state === 'NEW' && questionText === '') {
+            // Initialize default options if options array is empty or undefined
+            if (!questionValue.options || questionValue.options.length === 0) {
                 const { correct, wrong, skip } = this.defaultOptions;
                 questionValue.options = [correct, wrong, skip];
             }
@@ -75,12 +75,6 @@ export class ClaimChoiceEditorComponent {
                     scoreControl?.enable({ emitEvent: false });
                 }
             });
-        });
-
-        // Sync form changes back to question object
-        const optionsArray = this.claimChoiceForm.get('options') as FormArray;
-        optionsArray.valueChanges.subscribe(() => {
-            this.syncFormToQuestion();
         });
     }
 
@@ -109,6 +103,25 @@ export class ClaimChoiceEditorComponent {
                 claimChoiceType: 'SkipOption',
             },
         };
+    }
+
+    ngAfterViewInit() {
+        // Add to parent form - parent form is guaranteed to be initialized at this point
+        this.parentForm.form.addControl('claimChoice', this.claimChoiceForm);
+
+        // Propagate dirty and valid state from claimChoice form to parent form
+        this.claimChoiceForm.valueChanges.subscribe(() => {
+            if (this.claimChoiceForm.dirty) {
+                this.parentForm.form.markAsDirty();
+            }
+        });
+
+        // Propagate valid state changes
+        this.claimChoiceForm.statusChanges.subscribe(() => {
+            if (this.claimChoiceForm.invalid) {
+                this.parentForm.form.markAsTouched();
+            }
+        });
     }
 
     getOptionDescriptionTranslation(option: MultipleChoiceOption): string {
@@ -175,43 +188,9 @@ export class ClaimChoiceEditorComponent {
                 }
             }
         });
-    }
-
-    private syncFormToQuestion() {
-        const optionsArray = this.optionsFormArray;
-        const questionValue = this.question();
-        const updatedOptions = questionValue.options.map((opt, index) => {
-            const formGroup = optionsArray.at(index) as FormGroup;
-            if (formGroup) {
-                const optionText = formGroup.get('optionText')?.value || '';
-                const score = formGroup.get('score')?.value ?? 0;
-
-                // Determine claimChoiceType based on score
-                let claimChoiceType = opt.claimChoiceType;
-                let correctOption = opt.correctOption;
-                if (score <= 0 && opt.claimChoiceType !== 'SkipOption') {
-                    claimChoiceType = 'IncorrectOption';
-                    correctOption = false;
-                } else if (score > 0 && opt.claimChoiceType !== 'SkipOption') {
-                    claimChoiceType = 'CorrectOption';
-                    correctOption = true;
-                }
-
-                return {
-                    ...opt,
-                    option: optionText,
-                    defaultScore: score,
-                    claimChoiceType,
-                    correctOption,
-                };
-            }
-            return opt;
-        });
-
-        questionValue.options = updatedOptions;
 
         // Update missingOption signal
-        const missingOptionValue = this.Question.getInvalidClaimOptionTypes(updatedOptions)
+        const missingOptionValue = this.Question.getInvalidClaimOptionTypes(options)
             .filter((type) => type !== 'SkipOption')
             .map((type) => this.Question.getOptionTypeTranslation(type))[0];
         this.missingOption.set(missingOptionValue || '');

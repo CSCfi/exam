@@ -11,14 +11,14 @@ import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.m
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 
 @Component({
-    selector: 'xm-question-additional-info-trial',
+    selector: 'xm-question-additional-info',
     standalone: true,
     templateUrl: './question-additional-info.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule, NgbPopover, NgClass],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionAdditionalInfoTrialComponent implements AfterViewInit {
+export class QuestionAdditionalInfoComponent implements AfterViewInit {
     question = input<ReverseQuestion | QuestionDraft>();
     showWarning = input(false);
 

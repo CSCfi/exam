@@ -2,37 +2,38 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
-import { ControlContainer, FormControl, FormGroup, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
+import { NgClass, UpperCasePipe } from '@angular/common';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import {
+    ControlContainer,
+    FormArray,
+    FormControl,
+    FormGroup,
+    FormGroupDirective,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
-import { MultipleChoiceOption, Question, QuestionDraft } from 'src/app/question/question.model';
-import { MultipleChoiceOptionEditorComponent } from './multiple-choice-option.component';
-import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple-choice-option.component';
+import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
+import { MultipleChoiceOption } from 'src/app/question/question.model';
+import { multipleChoiceOptionsValidator } from 'src/app/question/shared/multiple-choice-validators';
 
 @Component({
-    selector: 'xm-multiple-choice-editor',
-    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
+    selector: 'xm-multiple-choice',
+    standalone: true,
     templateUrl: './multiple-choice.component.html',
     styleUrls: ['../question.shared.scss'],
-    imports: [
-        ReactiveFormsModule,
-        MultipleChoiceOptionEditorComponent,
-        WeightedMultipleChoiceOptionEditorComponent,
-        UpperCasePipe,
-        TranslateModule,
-    ],
+    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
+    imports: [ReactiveFormsModule, NgClass, UpperCasePipe, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultipleChoiceEditorComponent {
-    question = input.required<Question | QuestionDraft>();
-    showWarning = input(false);
+export class MultipleChoiceComponent implements AfterViewInit {
+    question = input.required<ReverseQuestion | QuestionDraft>();
     lotteryOn = input(false);
+    showWarning = input(false);
     allowOptionRemoval = input(false);
-
-    questionChange = output<Question | QuestionDraft>();
 
     multipleChoiceForm: FormGroup;
     private translate = inject(TranslateService);
@@ -42,22 +43,16 @@ export class MultipleChoiceEditorComponent {
     private formInitialized = signal(false);
 
     constructor() {
-        // Create nested form group for multiple choice fields
+        // Create nested form group with FormArray for options
         this.multipleChoiceForm = new FormGroup({
             defaultNegativeScoreAllowed: new FormControl(false),
             defaultOptionShufflingOn: new FormControl(false),
+            options: new FormArray<FormGroup>([], [multipleChoiceOptionsValidator]),
         });
 
-        // Add to parent form
-        this.parentForm.form.addControl('multipleChoice', this.multipleChoiceForm);
-
-        // Delete defaultMaxScore for weighted multiple choice questions
+        // Sync form with question values
         effect(() => {
             const questionValue = this.question();
-            if (questionValue.type === 'WeightedMultipleChoiceQuestion') {
-                delete questionValue.defaultMaxScore;
-            }
-            // Sync form with question values
             if (!this.formInitialized()) {
                 // Use reset() during initialization to mark form as pristine
                 this.multipleChoiceForm.reset(
@@ -67,10 +62,10 @@ export class MultipleChoiceEditorComponent {
                     },
                     { emitEvent: false },
                 );
+                this.updateFormArray(questionValue.options);
                 this.formInitialized.set(true);
             } else {
                 // Only sync from question → form if form is pristine
-                // If form is dirty, user has made changes - don't overwrite them
                 if (this.multipleChoiceForm.pristine) {
                     this.multipleChoiceForm.patchValue(
                         {
@@ -79,22 +74,49 @@ export class MultipleChoiceEditorComponent {
                         },
                         { emitEvent: false },
                     );
+                    this.updateFormArray(questionValue.options);
                 }
             }
         });
 
-        // Sync form changes back to question object
-        this.multipleChoiceForm.get('defaultNegativeScoreAllowed')?.valueChanges.subscribe((value) => {
-            const questionValue = this.question();
-            if (questionValue !== undefined && questionValue.defaultNegativeScoreAllowed !== value) {
-                questionValue.defaultNegativeScoreAllowed = value;
+        // Update disabled state when lotteryOn changes
+        effect(() => {
+            const optionsArray = this.multipleChoiceForm.get('options') as FormArray;
+            optionsArray.controls.forEach((control) => {
+                const group = control as FormGroup;
+                const optionTextControl = group.get('optionText');
+                const correctOptionControl = group.get('correctOption');
+
+                if (this.lotteryOn()) {
+                    optionTextControl?.disable({ emitEvent: false });
+                    correctOptionControl?.disable({ emitEvent: false });
+                } else {
+                    optionTextControl?.enable({ emitEvent: false });
+                    correctOptionControl?.enable({ emitEvent: false });
+                }
+            });
+        });
+    }
+
+    get optionsFormArray(): FormArray {
+        return this.multipleChoiceForm.get('options') as FormArray;
+    }
+
+    ngAfterViewInit() {
+        // Add to parent form - parent form is guaranteed to be initialized at this point
+        this.parentForm.form.addControl('multipleChoice', this.multipleChoiceForm);
+
+        // Propagate dirty and valid state from multipleChoice form to parent form
+        this.multipleChoiceForm.valueChanges.subscribe(() => {
+            if (this.multipleChoiceForm.dirty) {
+                this.parentForm.form.markAsDirty();
             }
         });
 
-        this.multipleChoiceForm.get('defaultOptionShufflingOn')?.valueChanges.subscribe((value) => {
-            const questionValue = this.question();
-            if (questionValue !== undefined && questionValue.defaultOptionShufflingOn !== value) {
-                questionValue.defaultOptionShufflingOn = value;
+        // Propagate valid state changes
+        this.multipleChoiceForm.statusChanges.subscribe(() => {
+            if (this.multipleChoiceForm.invalid) {
+                this.parentForm.form.markAsTouched();
             }
         });
     }
@@ -104,24 +126,143 @@ export class MultipleChoiceEditorComponent {
             this.toast.error(this.translate.instant('i18n_action_disabled_lottery_on'));
             return;
         }
-        const questionValue = this.question();
-        const option: MultipleChoiceOption = {
-            option: '',
-            correctOption: false,
-            defaultScore: 0,
-        };
-        const updatedQuestion = {
-            ...questionValue,
-            options: [...questionValue.options, option],
-        };
-        this.questionChange.emit(updatedQuestion);
+        const optionsArray = this.optionsFormArray;
+        const newOptionGroup = new FormGroup({
+            optionText: new FormControl('', [Validators.required]),
+            correctOption: new FormControl(false),
+        });
+        optionsArray.push(newOptionGroup);
+        this.multipleChoiceForm.markAsDirty();
     }
 
-    calculateDefaultMaxPoints() {
-        return this.QuestionScore.calculateDefaultMaxPoints(this.question() as Question);
+    removeOption(index: number) {
+        if (!this.allowOptionRemoval() || this.lotteryOn()) {
+            return;
+        }
+        const optionsArray = this.optionsFormArray;
+        const formGroup = optionsArray.at(index) as FormGroup;
+        const isCorrect = formGroup?.get('correctOption')?.value;
+
+        // Check if removing this option would leave no correct answer
+        const hasOtherCorrectAnswer = optionsArray.controls.some((control, i) => {
+            if (i === index) return false;
+            const group = control as FormGroup;
+            return group.get('correctOption')?.value === true;
+        });
+
+        if (isCorrect && !hasOtherCorrectAnswer) {
+            this.toast.error(this.translate.instant('i18n_action_disabled_minimum_options'));
+            return;
+        }
+
+        optionsArray.removeAt(index);
+        this.multipleChoiceForm.markAsDirty();
     }
 
-    calculateDefaultMinPoints() {
-        return this.QuestionScore.calculateDefaultMinPoints(this.question() as Question);
+    onCorrectOptionChange(index: number, event: Event) {
+        const target = event.target as HTMLInputElement;
+        if (!target.checked) {
+            // Radio button was unchecked - this shouldn't happen, but handle it
+            return;
+        }
+
+        const optionsArray = this.optionsFormArray;
+
+        // Update all options: set clicked one to true, others to false
+        // Radio buttons are naturally mutually exclusive, so we just need to sync the form values
+        optionsArray.controls.forEach((control, i) => {
+            const group = control as FormGroup;
+            const correctOptionControl = group.get('correctOption');
+            if (i === index) {
+                correctOptionControl?.setValue(true, { emitEvent: false });
+            } else {
+                correctOptionControl?.setValue(false, { emitEvent: false });
+            }
+        });
+
+        this.multipleChoiceForm.markAsDirty();
+    }
+
+    getRemoveTooltip(index: number): string {
+        if (this.allowOptionRemoval() && !this.lotteryOn()) {
+            const optionsArray = this.optionsFormArray;
+            const formGroup = optionsArray.at(index) as FormGroup;
+            const isCorrect = formGroup?.get('correctOption')?.value;
+
+            // Check if removing this option would leave no correct answer
+            const hasOtherCorrectAnswer = optionsArray.controls.some((control, i) => {
+                if (i === index) return false;
+                const group = control as FormGroup;
+                return group.get('correctOption')?.value === true;
+            });
+
+            if (isCorrect && !hasOtherCorrectAnswer) {
+                return this.translate.instant('i18n_action_disabled_minimum_options');
+            }
+            return this.translate.instant('i18n_remove');
+        }
+        if (this.lotteryOn()) {
+            return this.translate.instant('i18n_action_disabled_lottery_on');
+        }
+        return this.translate.instant('i18n_remove');
+    }
+
+    calculateDefaultMaxPoints(): number {
+        return this.QuestionScore.calculateDefaultMaxPoints(this.question() as ReverseQuestion);
+    }
+
+    calculateDefaultMinPoints(): number {
+        return this.QuestionScore.calculateDefaultMinPoints(this.question() as ReverseQuestion);
+    }
+
+    private updateFormArray(options: MultipleChoiceOption[]) {
+        const optionsArray = this.optionsFormArray;
+        const currentLength = optionsArray.length;
+        const newLength = options.length;
+
+        // Add or remove form groups to match options length
+        if (newLength > currentLength) {
+            for (let i = currentLength; i < newLength; i++) {
+                const option = options[i];
+                const isCorrect = option.correctOption || false;
+                const optionGroup = new FormGroup({
+                    optionText: new FormControl({ value: option.option || '', disabled: this.lotteryOn() }, [
+                        Validators.required,
+                    ]),
+                    correctOption: new FormControl({ value: isCorrect, disabled: this.lotteryOn() || isCorrect }),
+                });
+                optionsArray.push(optionGroup);
+            }
+        } else if (newLength < currentLength) {
+            for (let i = currentLength - 1; i >= newLength; i--) {
+                optionsArray.removeAt(i);
+            }
+        }
+
+        // Update existing form group values
+        options.forEach((option, index) => {
+            const formGroup = optionsArray.at(index) as FormGroup;
+            if (formGroup) {
+                const isCorrect = option.correctOption || false;
+                formGroup.patchValue(
+                    {
+                        optionText: option.option || '',
+                        correctOption: isCorrect,
+                    },
+                    { emitEvent: false },
+                );
+
+                // Update disabled state
+                const optionTextControl = formGroup.get('optionText');
+                const correctOptionControl = formGroup.get('correctOption');
+                if (this.lotteryOn()) {
+                    optionTextControl?.disable({ emitEvent: false });
+                    correctOptionControl?.disable({ emitEvent: false });
+                } else {
+                    optionTextControl?.enable({ emitEvent: false });
+                    correctOptionControl?.enable({ emitEvent: false });
+                }
+            }
+        });
     }
 }

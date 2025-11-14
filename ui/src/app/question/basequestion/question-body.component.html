@@ -4,156 +4,96 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div [formGroup]="questionBodyForm" id="questionBody">
-    <xm-question-usage [examNames]="examNames()" />
+<div [formGroup]="questionBodyForm">
+    <!-- Basic Information - Always show question type input -->
     <xm-question-basic-info
         [question]="question()"
         [questionTypes]="questionTypes()"
-        [questionId]="question().id"
-        (newText)="setText($event)"
-        (newType)="setQuestionType($event)"
-    />
-    <div class="row mt-2">
-        <div class="col-md-12">
-            @if (question().type === 'EssayQuestion') {
-                <!-- Evaluation -->
-                <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
-            } @else if (
-                question().type === 'MultipleChoiceQuestion' ||
-                question().type === 'WeightedMultipleChoiceQuestion' ||
-                question().type === 'ClaimChoiceQuestion'
-            ) {
-                <!-- Multiple choices -->
-                <div class="xm-paragraph-title">{{ 'i18n_question_options' | translate }}</div>
-            }
-        </div>
-    </div>
+        [questionId]="'id' in question() ? question().id : undefined"
+        (formReady)="onFormReady($event)"
+    ></xm-question-basic-info>
 
-    <!-- Type specific content -->
-    @switch (question().type) {
-        @case ('EssayQuestion') {
-            <xm-essay-editor [question]="question()" [lotteryOn]="lotteryOn()" />
-        }
-        <!-- ClozeTest needs nothing extra -->
-        @case ('MultipleChoiceQuestion') {
-            <xm-multiple-choice-editor
-                [question]="question()"
-                [showWarning]="showWarning()"
-                [lotteryOn]="lotteryOn()"
-                [allowOptionRemoval]="!isInPublishedExam()"
-                (questionChange)="onQuestionChange($event)"
-            />
-        }
-        @case ('WeightedMultipleChoiceQuestion') {
-            <xm-multiple-choice-editor
-                [question]="question()"
-                [showWarning]="showWarning()"
-                [lotteryOn]="lotteryOn()"
-                [allowOptionRemoval]="!isInPublishedExam()"
-                (questionChange)="onQuestionChange($event)"
-            />
-        }
-        @case ('ClaimChoiceQuestion') {
-            <xm-claim-choice-editor [question]="question()" [lotteryOn]="lotteryOn()" [showWarning]="showWarning()" />
-        }
-    }
-
-    @if (
-        question().type === 'MultipleChoiceQuestion' ||
-        question().type === 'ClozeTestQuestion' ||
-        question().defaultEvaluationType === 'Points'
-    ) {
-        <!-- Max score -->
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_max_score' | translate }}
-            </div>
-            <div class="col-md-2">
-                <input
-                    id="defaultMaxScore"
-                    name="defaultMaxScore"
-                    type="number"
-                    lang="en"
-                    class="form-control xm-numeric-input"
-                    formControlName="defaultMaxScore"
-                    [min]="0"
-                    [max]="1000"
-                    required
-                />
-            </div>
-        </div>
-    }
-
-    <!-- Additional info -->
-    <xm-question-additional-info [config]="additionalInfoConfig()">
-        <!-- Owners content projection (handles both editable and read-only) -->
-        <div owners-content>
-            @if (isUserAllowedToModifyOwners()) {
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="input-group">
-                            <input
-                                type="text"
-                                name="questionOnwers"
-                                class="form-control"
-                                formControlName="newOwnerName"
-                                (blur)="setNewOwnerName(questionBodyForm.get('newOwnerName')?.value || '')"
-                                [ngbTypeahead]="listQuestionOwners$"
-                                [editable]="false"
-                                [inputFormatter]="nameFormat"
-                                [resultFormatter]="nameFormat"
-                                (selectItem)="setQuestionOwner($event)"
-                            />
-                            <button
-                                (click)="addQuestionOwner()"
-                                [disabled]="!newOwner()?.name"
-                                class="btn btn-success input-group-text"
-                            >
-                                {{ 'i18n_add' | translate }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="ms-1 row" [hidden]="currentOwners().length !== 1">
-                        {{ 'i18n_exam_last_owner_info' | translate }}
-                    </div>
-                    <div class="col-md-12 mt-3">
-                        @for (user of currentOwners(); track user.id) {
-                            <div class="ms-1 row" [ngClass]="{ 'hover-grey': currentOwners().length !== 1 }">
-                                <div class="row col-8">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</div>
-                                <!-- Remove button -->
-                                <button
-                                    class="btn btn-danger btn-sm ms-1 w-auto m-1"
-                                    (click)="removeOwner(user)"
-                                    [hidden]="currentOwners().length === 1"
-                                    [disabled]="removeOwnerDisabled(user)"
-                                    [attr.aria-label]="user.firstName + ' ' + user.lastName"
-                                >
-                                    {{ 'i18n_remove' | translate }}
-                                </button>
-                            </div>
-                        }
-                    </div>
-                </div>
-            } @else {
-                @for (user of currentOwners(); track user.id) {
-                    <div class="ms-1 row">
-                        <div class="row col-8">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</div>
-                    </div>
+    <!-- Hide rest of form if new question and no type selected -->
+    <div [hidden]="newQuestion() && !questionType()">
+        <xm-question-usage [examNames]="examNames()" />
+        <div class="row mt-2">
+            <div class="col-md-12">
+                @if (questionType() === 'EssayQuestion') {
+                    <!-- Evaluation -->
+                    <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
+                } @else if (
+                    questionType() === 'MultipleChoiceQuestion' ||
+                    questionType() === 'WeightedMultipleChoiceQuestion' ||
+                    questionType() === 'ClaimChoiceQuestion'
+                ) {
+                    <!-- Multiple choices -->
+                    <div class="xm-paragraph-title">{{ 'i18n_question_options' | translate }}</div>
                 }
-            }
+            </div>
         </div>
-
-        <!-- Editable tags content projection -->
-        <div tags-content>
-            @if (!collaborative()) {
-                <xm-tag-picker
+        @switch (questionType()) {
+            @case ('EssayQuestion') {
+                <xm-essay [question]="question()" [lotteryOn]="lotteryOn()"></xm-essay>
+            }
+            @case ('ClaimChoiceQuestion') {
+                <xm-claim-choice
                     [question]="question()"
-                    (tagAdded)="onTagAdded($event)"
-                    (tagRemoved)="onTagRemoved($event)"
-                ></xm-tag-picker>
+                    [lotteryOn]="lotteryOn()"
+                    [showWarning]="examNames().length > 1"
+                ></xm-claim-choice>
             }
-        </div>
-    </xm-question-additional-info>
+            @case ('MultipleChoiceQuestion') {
+                <xm-multiple-choice
+                    [question]="question()"
+                    [lotteryOn]="lotteryOn()"
+                    [showWarning]="examNames().length > 1"
+                    [allowOptionRemoval]="true"
+                ></xm-multiple-choice>
+            }
+            @case ('WeightedMultipleChoiceQuestion') {
+                <xm-weighted-multiple-choice
+                    [question]="question()"
+                    [lotteryOn]="lotteryOn()"
+                    [showWarning]="examNames().length > 1"
+                    [allowOptionRemoval]="true"
+                ></xm-weighted-multiple-choice>
+            }
+        }
+
+        <!-- Max score (not shown for WeightedMultipleChoiceQuestion - calculated from options) -->
+        @if (questionType() !== 'WeightedMultipleChoiceQuestion') {
+            <div class="row mt-3">
+                <div class="col-md-3">{{ 'i18n_max_score' | translate }}</div>
+                <div class="col-md-2">
+                    <input
+                        id="defaultMaxScore"
+                        name="defaultMaxScore"
+                        type="number"
+                        class="form-control"
+                        formControlName="defaultMaxScore"
+                        [min]="0"
+                        [max]="1000"
+                    />
+                </div>
+            </div>
+        }
+
+        <!-- Additional Info -->
+        <xm-question-additional-info [question]="question()" [showWarning]="examNames().length > 1">
+            <!-- Tags content projection -->
+            <div tags-content>
+                <xm-question-tags
+                    [question]="question()"
+                    [collaborative]="collaborative()"
+                    (tagsChange)="tagsChange.emit($event)"
+                ></xm-question-tags>
+            </div>
+            <div owners-content>
+                <xm-question-owners
+                    [currentOwners]="currentOwners()"
+                    (currentOwnersChange)="currentOwnersChange.emit($event)"
+                ></xm-question-owners>
+            </div>
+        </xm-question-additional-info>
+    </div>
 </div>

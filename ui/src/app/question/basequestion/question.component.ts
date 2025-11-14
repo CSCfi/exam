@@ -2,30 +2,18 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnDestroy,
-    computed,
-    effect,
-    inject,
-    input,
-    output,
-    signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { CanComponentDeactivate } from 'src/app/question/has-unsaved-changes.guard';
-import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
-import type { QuestionDraft } from 'src/app/question/question.model';
-import { ExamSectionQuestion, Question, ReverseQuestion } from 'src/app/question/question.model';
+import type { QuestionDraft, Tag } from 'src/app/question/question.model';
+import { Question, ReverseQuestion } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import type { User } from 'src/app/session/session.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { QuestionBodyComponent } from './question-body.component';
 
@@ -35,223 +23,338 @@ import { QuestionBodyComponent } from './question-body.component';
     styleUrls: ['../question.shared.scss'],
     imports: [
         ReactiveFormsModule,
-        QuestionBodyComponent,
         TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
         HistoryBackComponent,
+        QuestionBodyComponent,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionComponent implements OnDestroy, CanComponentDeactivate {
+export class QuestionComponent implements CanComponentDeactivate {
+    // Main form - single source of truth
     questionForm = new FormGroup({});
 
+    // Inputs - can be set via router or modal
     newQuestionInput = input(false);
     questionId = input(0);
     questionDraft = input<Question>();
     lotteryOn = input(false);
     collaborative = input(false);
     examId = input(0);
-    sectionQuestion = input<ExamSectionQuestion>();
     isPopup = input(false);
 
+    // Outputs
     saved = output<Question | QuestionDraft>();
     cancelled = output<void>();
 
     // Computed signal that reads from route data first, then falls back to input signal
-    // When opened as a modal, route data is not available, so check route data first
-    // If route data doesn't exist, it's likely a modal context, so use input signal
+    // When opened as a popup/modal, prioritize the input signal over route data
     newQuestion = computed(() => {
-        const routeData = this.route.snapshot.data.newQuestion;
-        // If route data exists, use it (router context)
+        // If opened as a popup, use input signal directly (route data might be from parent route)
+        if (this.isPopup()) {
+            return this.newQuestionInput();
+        }
+        // Otherwise, check route data first, then fall back to input signal
+        const routeData = this.route.snapshot.data['newQuestion'];
         if (routeData !== undefined) {
             return routeData;
         }
-        // Otherwise, use input signal (modal context or no route data)
-        // This handles the case where isPopup is set after component initialization
         return this.newQuestionInput();
     });
 
+    // Computed signal for questionId from route params
+    routeQuestionId = computed(() => {
+        const routeId = this.route.snapshot.paramMap.get('id');
+        if (routeId) {
+            return Number(routeId);
+        }
+        return this.questionId();
+    });
+
+    // Current question data (loaded from server or draft)
+    currentQuestion = signal<ReverseQuestion | QuestionDraft | undefined>(undefined);
     currentOwners = signal<User[]>([]);
-    question = signal<ReverseQuestion | QuestionDraft | undefined>(undefined);
-    cancelClicked = signal(false);
-    nextState = signal('');
+    currentTags = signal<Tag[]>([]);
+
+    questionTypes = [
+        { type: 'EssayQuestion', name: 'i18n_toolbar_essay_question' },
+        { type: 'ClozeTestQuestion', name: 'i18n_toolbar_cloze_test_question' },
+        { type: 'MultipleChoiceQuestion', name: 'i18n_toolbar_multiplechoice_question' },
+        { type: 'WeightedMultipleChoiceQuestion', name: 'i18n_toolbar_weighted_multiplechoice_question' },
+        { type: 'ClaimChoiceQuestion', name: 'i18n_toolbar_claim_choice_question' },
+    ];
 
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private toast = inject(ToastrService);
     private Question = inject(QuestionService);
-    private modal = inject(ModalService);
 
-    private initialized = signal(false);
-    private formInitialized = signal(false);
+    private questionLoaded = signal(false);
+    private lastIsPopup = signal(false);
 
     constructor() {
-        // Initialize nextState from route (only available in router context)
-        const nextStateValue = this.route.snapshot.queryParamMap.get('nextState') || this.route.snapshot.data.nextState;
-        if (nextStateValue) {
-            this.nextState.set(nextStateValue);
-        }
-
-        // Use effect to initialize question data after inputs are set
-        // This handles the case where component is opened as modal and inputs are set after construction
+        // Use effect to reactively load question when inputs change
+        // This is important for modal context where inputs are set after component creation
         effect(() => {
-            // Only initialize once
-            if (this.initialized()) {
-                return;
+            // Track signals to trigger reload when they change
+            this.newQuestion();
+            this.routeQuestionId();
+            this.questionDraft();
+            const isPopup = this.isPopup();
+            const wasPopup = this.lastIsPopup();
+
+            // If popup state changed from false to true, clear loaded state to allow reload
+            if (!wasPopup && isPopup) {
+                this.questionLoaded.set(false);
+                this.currentQuestion.set(undefined);
             }
+            this.lastIsPopup.set(isPopup);
 
-            const currentNewQuestion = this.newQuestion();
-            const currentQuestionDraft = this.questionDraft();
-            const currentCollaborative = this.collaborative();
-            const currentQuestionId = this.questionId();
-            const currentIsPopup = this.isPopup();
-
-            // For modal context, wait until isPopup is set (or if it's router context, proceed)
-            // If isPopup is false and we're in a modal, inputs haven't been set yet
-            const routeData = this.route.snapshot.data.newQuestion;
-            const isRouterContext = routeData !== undefined;
-
-            // If we're in a modal (no route data) and isPopup is still false, wait
-            if (!isRouterContext && !currentIsPopup) {
-                return;
-            }
-
-            // Mark as initialized to prevent re-running
-            this.initialized.set(true);
-            this.currentOwners.set([]);
-
-            if (currentNewQuestion) {
-                const questionDraft = this.Question.getQuestionDraft();
-                this.question.set(questionDraft);
-                this.currentOwners.set([...questionDraft.questionOwners]);
-            } else if (currentQuestionDraft && currentCollaborative) {
-                const questionValue = { ...currentQuestionDraft, examSectionQuestions: [] };
-                this.question.set(questionValue);
-                this.currentOwners.set([...questionValue.questionOwners]);
-            } else {
-                const id = this.route.snapshot.paramMap.get('id');
-                this.Question.getQuestion(currentQuestionId || Number(id)).subscribe({
-                    next: (question: ReverseQuestion) => {
-                        this.question.set(question);
-                        this.currentOwners.set([...question.questionOwners]);
-                        window.addEventListener('beforeunload', this.onUnload);
-                    },
-                    error: (err) => this.toast.error(err),
-                });
+            // Load question if not loaded yet, or if opened as popup without question
+            if (!this.questionLoaded() || (isPopup && !this.currentQuestion())) {
+                this.loadQuestion();
+                this.questionLoaded.set(true);
             }
         });
-
-        // Mark form as initialized after question is loaded
-        // Child forms now use reset() instead of patchValue(), so they're already pristine
-        effect(() => {
-            const q = this.question();
-            if (q && !this.formInitialized()) {
-                // Use setTimeout to ensure all child forms have been initialized
-                setTimeout(() => {
-                    this.formInitialized.set(true);
-                }, 0);
-            }
-        });
-    }
-
-    ngOnDestroy() {
-        window.removeEventListener('beforeunload', this.onUnload);
     }
 
     canDeactivate(): boolean {
-        // Allow deactivation if form is not dirty (no unsaved changes)
-        // Also allow if form hasn't been initialized yet (still loading)
-        if (!this.formInitialized()) {
-            return true;
-        }
-        // Parent form dirty state automatically includes nested forms
         return !this.questionForm.dirty;
     }
 
-    hasNoCorrectOption() {
-        const questionValue = this.question();
-        return questionValue?.type === 'MultipleChoiceQuestion' && questionValue.options.every((o) => !o.correctOption);
-    }
-
-    hasInvalidClaimChoiceOptions() {
-        const questionValue = this.question();
-        return (
-            questionValue?.type === 'ClaimChoiceQuestion' &&
-            this.Question.getInvalidClaimOptionTypes(questionValue.options).length > 0
-        );
-    }
-
-    openPreview$() {
-        const questionValue = this.question();
-        const sectionQuestionValue = this.sectionQuestion();
-        const modal = this.modal.openRef(QuestionPreviewDialogComponent, { size: 'lg' });
-        modal.componentInstance.question.set(sectionQuestionValue || questionValue!);
-        modal.componentInstance.isExamQuestion.set(!!sectionQuestionValue);
-        return this.modal.result$<void>(modal);
-    }
-
     saveQuestion() {
-        const questionValue = this.question();
-        if (!questionValue) return;
+        const currentQuestionValue = this.currentQuestion();
+        if (!currentQuestionValue || !this.questionForm.valid) {
+            return;
+        }
 
-        const questionBodyControl = this.questionForm.get('questionBody');
-        const questionBodyForm = questionBodyControl instanceof FormGroup ? questionBodyControl : null;
-
-        // Read form values and sync to question object
-        const defaultMaxScore = questionBodyForm?.get('defaultMaxScore')?.value ?? null;
-
-        const updatedQuestion = {
-            ...questionValue,
-            defaultMaxScore: defaultMaxScore,
-            questionOwners: this.currentOwners(),
+        // Read all form values - form is single source of truth
+        const formValue = this.questionForm.value as {
+            questionBody?: {
+                defaultMaxScore?: number | null;
+                baseInformation?: { questionText?: string; questionType?: string };
+                additionalInfo?: { instructions?: string; evaluationCriteria?: string };
+                essay?: {
+                    defaultExpectedWordCount?: number | null;
+                    defaultEvaluationType?: string;
+                };
+                multipleChoice?: {
+                    defaultNegativeScoreAllowed?: boolean;
+                    defaultOptionShufflingOn?: boolean;
+                    options?: Array<{ optionText?: string; correctOption?: boolean }>;
+                };
+                weightedMc?: {
+                    negativeScore?: boolean;
+                    optionShuffling?: boolean;
+                    options?: Array<{ optionText?: string; defaultScore?: number }>;
+                };
+                claimChoice?: {
+                    options?: Array<{ optionText?: string; score?: number; isSkipOption?: boolean }>;
+                };
+            };
         };
+        const questionBody = formValue.questionBody || {};
+        const baseInformation = questionBody.baseInformation || {};
+        const additionalInfo = questionBody.additionalInfo || {};
+        const essay = questionBody.essay || {};
+        const multipleChoice = questionBody.multipleChoice || {};
+        const weightedMc = questionBody.weightedMc || {};
+
+        // For claimChoice, use getRawValue() to include disabled controls (skip option text)
+        // This is safe because we only read the specific claimChoice form group
+        const questionBodyControl = this.questionForm.get('questionBody');
+        const claimChoiceControl =
+            questionBodyControl instanceof FormGroup ? questionBodyControl.get('claimChoice') : null;
+        const claimChoice =
+            claimChoiceControl instanceof FormGroup
+                ? (claimChoiceControl.getRawValue() as {
+                      options?: Array<{ optionText?: string; score?: number; isSkipOption?: boolean }>;
+                  })
+                : {};
+
+        // Map claimChoice form options back to question options
+        let updatedOptions = currentQuestionValue.options;
+        if (claimChoice.options && claimChoice.options.length > 0) {
+            updatedOptions = currentQuestionValue.options.map((opt, index) => {
+                const formOption = claimChoice.options![index];
+                if (formOption) {
+                    const optionText = formOption.optionText || '';
+                    const score = formOption.score ?? 0;
+                    const isSkipOption = formOption.isSkipOption || opt.claimChoiceType === 'SkipOption';
+
+                    // Determine claimChoiceType based on score
+                    let claimChoiceType = opt.claimChoiceType;
+                    let correctOption = opt.correctOption;
+                    if (isSkipOption) {
+                        claimChoiceType = 'SkipOption';
+                        correctOption = false;
+                    } else if (score <= 0) {
+                        claimChoiceType = 'IncorrectOption';
+                        correctOption = false;
+                    } else if (score > 0) {
+                        claimChoiceType = 'CorrectOption';
+                        correctOption = true;
+                    }
+
+                    return {
+                        ...opt,
+                        option: optionText,
+                        defaultScore: score,
+                        claimChoiceType,
+                        correctOption,
+                    };
+                }
+                return opt;
+            });
+        }
+
+        // Map multipleChoice form options back to question options
+        if (multipleChoice.options && multipleChoice.options.length > 0) {
+            updatedOptions = multipleChoice.options.map((formOption, index) => {
+                const existingOption = currentQuestionValue.options[index];
+                // correctOption should be a boolean value from the form
+                const correctOptionValue = formOption.correctOption === true;
+                return {
+                    ...(existingOption || {}),
+                    option: formOption.optionText || '',
+                    correctOption: correctOptionValue,
+                    defaultScore: existingOption?.defaultScore ?? 0,
+                };
+            });
+        }
+
+        // Map weightedMc form options back to question options
+        if (weightedMc.options && weightedMc.options.length > 0) {
+            updatedOptions = weightedMc.options.map((formOption, index) => {
+                const existingOption = currentQuestionValue.options[index];
+                return {
+                    ...(existingOption || {}),
+                    option: formOption.optionText || '',
+                    defaultScore: formOption.defaultScore ?? 0,
+                    // For weighted MC, correctOption is determined by score > 0
+                    correctOption: (formOption.defaultScore ?? 0) > 0,
+                };
+            });
+        }
+
+        const questionType = baseInformation.questionType || currentQuestionValue.type;
+        const updatedQuestion: Question | QuestionDraft = {
+            ...currentQuestionValue,
+            question: baseInformation.questionText || currentQuestionValue.question,
+            type: questionType,
+            // For WeightedMultipleChoiceQuestion, defaultMaxScore is calculated from options (delete it)
+            defaultMaxScore:
+                questionType === 'WeightedMultipleChoiceQuestion'
+                    ? undefined
+                    : (questionBody.defaultMaxScore ?? currentQuestionValue.defaultMaxScore),
+            defaultAnswerInstructions: additionalInfo.instructions ?? currentQuestionValue.defaultAnswerInstructions,
+            defaultEvaluationCriteria:
+                additionalInfo.evaluationCriteria ?? currentQuestionValue.defaultEvaluationCriteria,
+            questionOwners: this.currentOwners(),
+            tags: this.currentTags(),
+            options: updatedOptions,
+            // Multiple Choice-specific fields
+            defaultNegativeScoreAllowed:
+                multipleChoice.defaultNegativeScoreAllowed ??
+                weightedMc.negativeScore ??
+                currentQuestionValue.defaultNegativeScoreAllowed,
+            defaultOptionShufflingOn:
+                multipleChoice.defaultOptionShufflingOn ??
+                weightedMc.optionShuffling ??
+                currentQuestionValue.defaultOptionShufflingOn,
+            // Essay-specific fields
+            defaultExpectedWordCount: essay.defaultExpectedWordCount ?? currentQuestionValue.defaultExpectedWordCount,
+            defaultEvaluationType: essay.defaultEvaluationType ?? currentQuestionValue.defaultEvaluationType,
+        };
+
+        // Save to server
+        if (this.newQuestion()) {
+            this.Question.createQuestion$(updatedQuestion as QuestionDraft).subscribe({
+                next: (q) => fn(q),
+                error: (error: unknown) => this.toast.error(String(error)),
+            });
+        } else {
+            this.Question.updateQuestion$(updatedQuestion as Question).subscribe({
+                next: (q) => fn(q),
+                error: (error: unknown) => this.toast.error(String(error)),
+            });
+        }
         const fn = (q: Question | QuestionDraft) => {
-            // Update question signal with saved values
-            this.question.set(q as ReverseQuestion | QuestionDraft);
-            // Mark form as pristine after successful save
             this.questionForm.markAsPristine();
-            const nextStateValue = this.nextState();
-            if (nextStateValue) {
-                this.router.navigate(['/staff', nextStateValue]);
+            const nextState = this.route.snapshot.queryParamMap.get('nextState');
+            if (nextState) {
+                this.router.navigate(['/staff', nextState]);
             } else {
                 this.saved.emit(q);
             }
         };
-
-        if (this.collaborative()) {
-            fn(updatedQuestion);
-        } else if (this.newQuestion()) {
-            this.Question.createQuestion$(updatedQuestion as QuestionDraft).subscribe({
-                next: fn,
-                error: (error) => this.toast.error(error),
-            });
-        } else {
-            this.Question.updateQuestion$(updatedQuestion as Question).subscribe({
-                next: () => fn(updatedQuestion),
-                error: (error) => this.toast.error(error),
-            });
-        }
     }
 
     cancel() {
-        this.cancelClicked.set(true);
-        // Just initiate routing change - guard will ask for confirmation if dirty
-        // Leave form state intact (don't mark pristine)
-        const nextStateValue = this.nextState();
-        if (nextStateValue) {
-            // Navigation will trigger canDeactivate guard BEFORE navigation happens
-            // Guard will ask for confirmation if form is dirty
-            this.router.navigate(['/staff', ...nextStateValue.split('/')]);
+        // Just initiate navigation/close - guard will check dirty state
+        const nextState = this.route.snapshot.queryParamMap.get('nextState');
+        if (nextState) {
+            this.router.navigate(['/staff', ...nextState.split('/')]);
         } else {
-            // No navigation, just emit cancelled event
-            // Parent component (e.g., modal) can decide what to do
-            // Don't mark pristine - leave form state intact
             this.cancelled.emit();
         }
     }
 
-    private onUnload = (event: BeforeUnloadEvent) => {
-        if (this.questionForm.dirty) event.preventDefault();
-    };
+    onTagsChange(tags: Tag[]) {
+        this.currentTags.set(tags);
+        // Update question object so tags component can display current tags
+        const questionValue = this.currentQuestion();
+        if (questionValue) {
+            this.currentQuestion.set({ ...questionValue, tags });
+        }
+    }
+
+    private loadQuestion() {
+        const newQuestion = this.newQuestion();
+        const questionId = this.routeQuestionId();
+        const questionDraft = this.questionDraft();
+
+        if (newQuestion && questionDraft) {
+            // New question from draft - convert to ReverseQuestion format
+            this.currentQuestion.set({ ...questionDraft, examSectionQuestions: [] } as ReverseQuestion);
+            this.currentOwners.set(questionDraft.questionOwners || []);
+            this.currentTags.set(questionDraft.tags || []);
+            this.initializeForm();
+        } else if (questionId > 0) {
+            // Load existing question
+            this.Question.getQuestion(questionId).subscribe({
+                next: (question: ReverseQuestion) => {
+                    this.currentQuestion.set(question);
+                    this.currentOwners.set(question.questionOwners || []);
+                    this.currentTags.set(question.tags || []);
+                    this.initializeForm();
+                },
+                error: (err: unknown) => this.toast.error(String(err)),
+            });
+        } else if (newQuestion) {
+            // New question without draft - create empty draft
+            this.currentQuestion.set({
+                id: undefined,
+                type: '',
+                question: '',
+                options: [],
+                tags: [],
+                questionOwners: [],
+                state: 'DRAFT',
+                defaultMaxScore: 0,
+                defaultNegativeScoreAllowed: false,
+                defaultOptionShufflingOn: false,
+                examSectionQuestions: [],
+            } as QuestionDraft);
+            this.currentOwners.set([]);
+            this.currentTags.set([]);
+            this.initializeForm();
+        }
+    }
+
+    private initializeForm() {
+        // Form will be initialized by child components
+        // They will add their form groups to questionForm
+    }
 }

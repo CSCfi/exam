@@ -36,7 +36,6 @@ import { MaturityReportingComponent } from 'src/app/maturity/reporting/maturity-
 import { QuestionComponent } from 'src/app/question/basequestion/question.component';
 import { hasUnsavedChangesGuard } from 'src/app/question/has-unsaved-changes.guard';
 import { LibraryComponent } from 'src/app/question/library/library.component';
-import { QuestionTrialComponent } from 'src/app/questionTrial/question.component';
 import { ReservationsComponent } from 'src/app/reservation/reservations.component';
 import { AssessmentComponent } from 'src/app/review/assessment/assessment.component';
 import { PrintedAssessmentComponent } from 'src/app/review/assessment/print/printed-assessment.component';
@@ -83,23 +82,6 @@ export const STAFF_ROUTES: Route[] = [
             {
                 path: 'questions/new',
                 component: QuestionComponent,
-                data: { newQuestion: true },
-                canDeactivate: [hasUnsavedChangesGuard],
-                title: () => buildTitle('i18n_new_question_title'),
-            },
-            {
-                path: 'questions-trial/:id/edit',
-                component: QuestionTrialComponent,
-                data: {
-                    newQuestion: false,
-                    nextState: 'questions',
-                },
-                canDeactivate: [hasUnsavedChangesGuard],
-                title: () => buildTitle('i18n_edit_question_title'),
-            },
-            {
-                path: 'questions-trial/new',
-                component: QuestionTrialComponent,
                 data: { newQuestion: true },
                 canDeactivate: [hasUnsavedChangesGuard],
                 title: () => buildTitle('i18n_new_question_title'),

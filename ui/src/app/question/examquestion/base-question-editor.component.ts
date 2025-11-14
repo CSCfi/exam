@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject, model } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, model } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { QuestionComponent } from 'src/app/question/basequestion/question.component';
@@ -23,10 +23,10 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
                 [collaborative]="collaborative()"
                 [lotteryOn]="lotteryOn()"
                 [examId]="examId()"
-                [sectionQuestion]="sectionQuestion()"
                 [isPopup]="isPopup()"
                 autofocus
-            ></xm-question>
+            ></xm-question
+            ><!-- [sectionQuestion]="sectionQuestion()" -->
         </div>
         <div class="modal-footer"></div>
     `,
@@ -42,6 +42,7 @@ export class BaseQuestionEditorComponent {
     sectionQuestion = model<ExamSectionQuestion | undefined>(undefined);
     isPopup = model(false);
 
+    cdr = inject(ChangeDetectorRef);
     private modal = inject(NgbActiveModal);
     private translate = inject(TranslateService);
     private Dialogs = inject(ConfirmationDialogService);
