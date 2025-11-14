@@ -17,7 +17,7 @@ import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
 import models.exam.Exam
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.{Role, User}
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, DateTimeZone, Interval, LocalDate}
 import org.joda.time.format.ISODateTimeFormat
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue, Json}
@@ -156,12 +156,35 @@ class ReservationController @Inject() (
             Future.successful(Ok)
     }
 
-  private def isBookable(machine: ExamMachine, reservation: Reservation): Boolean =
-    reservation.setMachine(machine)
-    calendarHandler.isDoable(reservation, Seq.empty)
+  private def isBookable(machine: ExamMachine, reservation: Reservation): Future[Boolean] =
+    getReservationExam(reservation).map {
+      case None => false
+      case Some(exam) =>
+        // Check if machine has required software (from exam) - software is per machine
+        if !machine.hasRequiredSoftware(exam) then false
+        else
+          // Check if the reservation time slot fits within opening hours (default and exception)
+          // Note: Maintenance periods are system-wide, so they were already validated when the reservation was created
+          val room       = machine.getRoom
+          val interval   = reservation.toInterval
+          val dtz        = DateTimeZone.forID(room.getLocalTimezone)
+          val searchDate = dateTimeHandler.normalize(reservation.getStartAt.withZone(dtz), dtz).toLocalDate
+
+          val suitableSlots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.getDuration)
+          val fitsInOpeningHours = suitableSlots.exists(_.contains(interval))
+          if !fitsInOpeningHours then false
+          else
+            // Check if machine is available during the reservation's time slot
+            // Exclude the current reservation if it's already assigned to this machine
+            val conflictingReservations = machine
+              .getReservations
+              .asScala
+              .filter(r => r != reservation && interval.overlaps(r.toInterval))
+            conflictingReservations.isEmpty
+    }
 
   def findAvailableMachines(reservationId: Long, roomId: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))).async { _ =>
       val reservationOpt = Option(DB.find(classOf[Reservation], reservationId))
       val roomOpt        = Option(DB.find(classOf[ExamRoom], roomId))
 
@@ -176,11 +199,16 @@ class ReservationController @Inject() (
             .eq("room.id", roomId)
             .ne("outOfService", true)
             .ne("archived", true)
+            .ne("id", reservation.getMachine.getId)
             .list
 
-          val available = candidates.filter(machine => isBookable(machine, reservation))
-          Ok(available.asJson)
-        case _ => NotFound("Machine or room not found")
+          Future
+            .traverse(candidates) { machine =>
+              isBookable(machine, reservation).map(machine -> _)
+            }
+            .map(_.filter(_._2).map(_._1))
+            .map(available => Ok(available.asJson))
+        case _ => Future.successful(NotFound("Machine or room not found"))
     }
 
   def updateMachine(reservationId: Long): Action[JsValue] =
@@ -197,18 +225,20 @@ class ReservationController @Inject() (
               case Some(machine) =>
                 getReservationExam(reservation).flatMap {
                   case None => Future.successful(NotFound("Exam not found"))
-                  case Some(_) if !isBookable(machine, reservation) =>
-                    Future.successful(Forbidden("Machine not eligible for choosing"))
                   case Some(_) =>
-                    reservation.setMachine(machine)
-                    reservation.update()
-                    emailComposer.composeReservationChangeNotification(
-                      reservation.getUser,
-                      previous,
-                      machine,
-                      reservation.getEnrolment
-                    )
-                    Future.successful(Ok(Seq(machine).asJson))
+                    isBookable(machine, reservation).flatMap {
+                      case false => Future.successful(Forbidden("Machine not eligible for choosing"))
+                      case true =>
+                        reservation.setMachine(machine)
+                        reservation.update()
+                        emailComposer.composeReservationChangeNotification(
+                          reservation.getUser,
+                          previous,
+                          machine,
+                          reservation.getEnrolment
+                        )
+                        Future.successful(Ok(Seq(machine).asJson))
+                    }
                 }
     }
 
@@ -217,6 +247,10 @@ class ReservationController @Inject() (
     else
       collaborativeExamLoader
         .downloadExam(reservation.getEnrolment.getCollaborativeExam)
+        .recover { case e: Exception =>
+          logger.error("Could not load exam for reservation.", e)
+          None
+        }
 
   def listExaminationEvents(
       state: Option[String],
