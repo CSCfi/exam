@@ -108,6 +108,11 @@ export class QuestionTrialComponent implements CanComponentDeactivate {
                     defaultExpectedWordCount?: number | null;
                     defaultEvaluationType?: string;
                 };
+                multipleChoice?: {
+                    defaultNegativeScoreAllowed?: boolean;
+                    defaultOptionShufflingOn?: boolean;
+                    options?: Array<{ optionText?: string; correctOption?: boolean }>;
+                };
                 claimChoice?: {
                     options?: Array<{ optionText?: string; score?: number; isSkipOption?: boolean }>;
                 };
@@ -117,6 +122,7 @@ export class QuestionTrialComponent implements CanComponentDeactivate {
         const baseInformation = questionBody.baseInformation || {};
         const additionalInfo = questionBody.additionalInfo || {};
         const essay = questionBody.essay || {};
+        const multipleChoice = questionBody.multipleChoice || {};
 
         // For claimChoice, use getRawValue() to include disabled controls (skip option text)
         // This is safe because we only read the specific claimChoice form group
@@ -166,6 +172,21 @@ export class QuestionTrialComponent implements CanComponentDeactivate {
             });
         }
 
+        // Map multipleChoice form options back to question options
+        if (multipleChoice.options && multipleChoice.options.length > 0) {
+            updatedOptions = multipleChoice.options.map((formOption, index) => {
+                const existingOption = currentQuestionValue.options[index];
+                // correctOption should be a boolean value from the form
+                const correctOptionValue = formOption.correctOption === true;
+                return {
+                    ...(existingOption || {}),
+                    option: formOption.optionText || '',
+                    correctOption: correctOptionValue,
+                    defaultScore: existingOption?.defaultScore ?? 0,
+                };
+            });
+        }
+
         const updatedQuestion: Question | QuestionDraft = {
             ...currentQuestionValue,
             question: baseInformation.questionText || currentQuestionValue.question,
@@ -177,6 +198,11 @@ export class QuestionTrialComponent implements CanComponentDeactivate {
             questionOwners: this.currentOwners(),
             tags: this.currentTags(),
             options: updatedOptions,
+            // Multiple Choice-specific fields
+            defaultNegativeScoreAllowed:
+                multipleChoice.defaultNegativeScoreAllowed ?? currentQuestionValue.defaultNegativeScoreAllowed,
+            defaultOptionShufflingOn:
+                multipleChoice.defaultOptionShufflingOn ?? currentQuestionValue.defaultOptionShufflingOn,
             // Essay-specific fields
             defaultExpectedWordCount: essay.defaultExpectedWordCount ?? currentQuestionValue.defaultExpectedWordCount,
             defaultEvaluationType: essay.defaultEvaluationType ?? currentQuestionValue.defaultEvaluationType,

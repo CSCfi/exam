@@ -1,0 +1,94 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
+<div [formGroup]="multipleChoiceForm">
+    <div class="row mt-2" [formGroup]="multipleChoiceForm">
+        <div class="col-md-12">
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    name="shuffleOptions"
+                    type="checkbox"
+                    formControlName="defaultOptionShufflingOn"
+                    id="shuffleOptions"
+                />
+                <label class="form-check-label" for="shuffleOptions">{{ 'i18n_shuffle_options' | translate }}</label>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-6">
+            <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
+            <span>
+                @if (showWarning()) {
+                    <div class="edit-warning-container">
+                        <i class="bi-exclamation-circle text-danger"></i>
+                        <small class="ps-2">{{ 'i18n_shared_question_property_info_multi_choice' | translate }}</small>
+                    </div>
+                }
+            </span>
+        </div>
+        <div class="col-md-6 question-option-title">
+            {{ 'i18n_multiplechoice_question_correct' | translate | uppercase }}
+        </div>
+    </div>
+
+    <div formArrayName="options">
+        @for (optionGroup of optionsFormArray.controls; track $index; let i = $index) {
+            <div class="row">
+                <div class="col-md-12">
+                    <div [formGroupName]="i" class="m-0 p-0 exclude">
+                        <div class="row">
+                            <div
+                                class="col-md-6 question-option-empty"
+                                [ngClass]="{ 'question-correct-option': optionGroup.get('correctOption')?.value }"
+                            >
+                                <textarea
+                                    type="text"
+                                    rows="1"
+                                    name="option-{{ i }}"
+                                    class="make-inline question-option-input radiobut form-control"
+                                    formControlName="optionText"
+                                    required
+                                ></textarea>
+                            </div>
+                            <div
+                                class="col-md-2 question-option-empty-radio"
+                                [ngClass]="{ 'question-correct-option-radio': optionGroup.get('correctOption')?.value }"
+                            >
+                                <input
+                                    type="radio"
+                                    name="correctOption"
+                                    [checked]="optionGroup.get('correctOption')?.value === true"
+                                    (change)="onCorrectOptionChange(i, $event)"
+                                    class="make-inline question-option-radio"
+                                />
+                            </div>
+
+                            <button
+                                (click)="removeOption(i)"
+                                class="col-md-1 question-option-trash btn btn-link"
+                                [disabled]="!allowOptionRemoval() || lotteryOn()"
+                                [title]="getRemoveTooltip(i)"
+                            >
+                                <i class="bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <button (click)="addNewOption()" class="attachment-link pointer btn btn-sm btn-link">
+                <i class="bi-plus"></i>
+                {{ 'i18n_question_add_new_option' | translate }}
+            </button>
+        </div>
+    </div>
+</div>

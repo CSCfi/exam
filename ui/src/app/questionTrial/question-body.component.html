@@ -41,6 +41,16 @@ SPDX-License-Identifier: EUPL-1.2
         ></xm-claim-choice-trial>
     }
 
+    <!-- Multiple Choice-specific fields -->
+    @if (question().type === 'MultipleChoiceQuestion') {
+        <xm-multiple-choice-trial
+            [question]="question()"
+            [lotteryOn]="lotteryOn()"
+            [showWarning]="examNames().length > 1"
+            [allowOptionRemoval]="true"
+        ></xm-multiple-choice-trial>
+    }
+
     <!-- Max score -->
     <div class="row mt-3">
         <div class="col-md-3">{{ 'i18n_max_score' | translate }}</div>

@@ -10,6 +10,7 @@ import type { QuestionDraft, ReverseQuestion, Tag } from 'src/app/question/quest
 import type { User } from 'src/app/session/session.model';
 import { ClaimChoiceTrialComponent } from './claim-choice.component';
 import { EssayTrialComponent } from './essay.component';
+import { MultipleChoiceTrialComponent } from './multiple-choice.component';
 import { QuestionAdditionalInfoTrialComponent } from './question-additional-info.component';
 import { QuestionBasicInfoTrialComponent } from './question-basic-info.component';
 import { QuestionOwnersTrialComponent } from './question-owners.component';
@@ -25,6 +26,7 @@ import { QuestionTagsTrialComponent } from './question-tags.component';
         TranslateModule,
         ClaimChoiceTrialComponent,
         EssayTrialComponent,
+        MultipleChoiceTrialComponent,
         QuestionAdditionalInfoTrialComponent,
         QuestionBasicInfoTrialComponent,
         QuestionOwnersTrialComponent,
