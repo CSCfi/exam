@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import controllers.base.BaseController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalReservationHandler;
+import impl.CalendarHandler;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.FetchConfig;
@@ -34,8 +35,8 @@ import models.facility.ExamRoom;
 import models.user.Role;
 import models.user.User;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -46,13 +47,12 @@ import system.interceptors.Anonymous;
 
 public class ReservationController extends BaseController {
 
-    private static final Logger.ALogger logger = Logger.of(ReservationController.class);
-
     private final EmailComposer emailComposer;
     private final CollaborativeExamLoader collaborativeExamLoader;
     private final ExternalReservationHandler externalReservationHandler;
     private final DateTimeHandler dateTimeHandler;
     private final UserHandler userHandler;
+    private final CalendarHandler calendarHandler;
 
     @Inject
     public ReservationController(
@@ -60,13 +60,15 @@ public class ReservationController extends BaseController {
         CollaborativeExamLoader collaborativeExamLoader,
         ExternalReservationHandler externalReservationHandler,
         DateTimeHandler dateTimeHandler,
-        UserHandler userHandler
+        UserHandler userHandler,
+        CalendarHandler calendarHandler
     ) {
         this.emailComposer = emailComposer;
         this.collaborativeExamLoader = collaborativeExamLoader;
         this.externalReservationHandler = externalReservationHandler;
         this.dateTimeHandler = dateTimeHandler;
         this.userHandler = userHandler;
+        this.calendarHandler = calendarHandler;
     }
 
     @Authenticated
@@ -175,14 +177,26 @@ public class ReservationController extends BaseController {
     }
 
     private boolean isBookable(ExamMachine machine, Reservation reservation) {
-        // Check if the machine has required software
-        if (getReservationExam(reservation).filter(machine::hasRequiredSoftware).isEmpty()) {
+        var exam = getReservationExam(reservation);
+        if (exam.isEmpty() || !machine.hasRequiredSoftware(exam.get())) {
             return false;
         }
 
-        // Check if the machine is available during the reservation's time slot
-        // Exclude the current reservation if it's already assigned to this machine
+        // Check if the reservation time slot fits within opening hours (default and exception)
+        // Note: Maintenance periods are system-wide, so they were already validated when the reservation was created
+        var room = machine.getRoom();
         var interval = reservation.toInterval();
+        var dtz = DateTimeZone.forID(room.getLocalTimezone());
+        var searchDate = dateTimeHandler.normalize(reservation.getStartAt().withZone(dtz), dtz).toLocalDate();
+
+        var suitableSlots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.get().getDuration());
+        var fitsInOpeningHours = suitableSlots.stream().anyMatch(slot -> slot.contains(interval));
+        if (!fitsInOpeningHours) {
+            return false;
+        }
+
+        // Check if machine is available during the reservation's time slot
+        // Exclude the current reservation if it's already assigned to this machine
         var conflictingReservations = machine
             .getReservations()
             .stream()
@@ -217,8 +231,7 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
-    public Result updateMachine(Long reservationId, Http.Request request)
-        throws ExecutionException, InterruptedException {
+    public Result updateMachine(Long reservationId, Http.Request request) {
         var reservation = DB.find(Reservation.class, reservationId);
 
         if (reservation == null) {
@@ -258,7 +271,6 @@ public class ReservationController extends BaseController {
                 .toCompletableFuture()
                 .get();
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Could not load exam for reservation.", e);
             return Optional.empty();
         }
     }

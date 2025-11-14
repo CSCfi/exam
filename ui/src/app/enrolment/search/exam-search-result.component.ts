@@ -99,7 +99,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
             </div>
         </div>
     </div>`,
-    styleUrls: ['./exam-search.component.scss'],
+    styleUrls: ['./exam-search.component.scss', '../enrolment.shared.scss'],
     imports: [NgClass, RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class ExamSearchResultComponent {
