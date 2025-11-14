@@ -14,7 +14,6 @@ interface MathfieldElementConstructor {
 @Component({
     selector: 'xm-mathlive-display',
     template: ` <div #mathDisplay class="math-display" [class.inline]="inline"></div> `,
-    standalone: true,
     imports: [CommonModule],
     styles: [
         `

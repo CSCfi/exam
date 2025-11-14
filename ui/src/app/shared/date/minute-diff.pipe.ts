@@ -7,7 +7,6 @@ import { Pipe } from '@angular/core';
 
 @Pipe({
     name: 'minuteDiff',
-    standalone: true,
 })
 export class DiffInMinutesPipe implements PipeTransform {
     transform(from: string, to: string): number {

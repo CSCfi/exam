@@ -202,8 +202,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <input
                         class="form-control"
                         name="filterSearch"
-                        (input)="applySearchFilter()"
-                        [(ngModel)]="filter.text"
+                        [formControl]="searchTextControl"
                         placeholder="{{ 'i18n_search_by_question_text' | translate }}"
                     />
                     <div class="input-group-append bi-search search-append"></div>

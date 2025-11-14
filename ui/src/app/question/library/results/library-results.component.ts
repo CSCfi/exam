@@ -11,7 +11,7 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { LibraryService } from 'src/app/question/library/library.service';
-import { LibraryQuestion, Question } from 'src/app/question/question.model';
+import { LibraryQuestion } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
@@ -44,7 +44,7 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
     styleUrls: ['../library.component.scss'],
 })
 export class LibraryResultsComponent {
-    questions = input<Question[]>([]);
+    questions = input<LibraryQuestion[]>([]);
     disableLinks = input(false);
     selected = output<number[]>();
     copied = output<LibraryQuestion>();
@@ -91,8 +91,8 @@ export class LibraryResultsComponent {
 
     questionSelected = () => {
         const selections = this.fixedQuestions()
-            .filter((q) => q.selected)
-            .map((q) => q.id);
+            .filter((q) => q.selected && q.id !== undefined)
+            .map((q) => q.id!);
         this.selected.emit(selections);
     };
 

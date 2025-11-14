@@ -5,6 +5,11 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <div [formGroup]="questionBodyForm">
+    <!-- Question Usage - Show which exams use this question -->
+    <div [hidden]="newQuestion() && !questionType()">
+        <xm-question-usage [examNames]="examNames()" />
+    </div>
+
     <!-- Basic Information - Always show question type input -->
     <xm-question-basic-info
         [question]="question()"
@@ -15,7 +20,6 @@ SPDX-License-Identifier: EUPL-1.2
 
     <!-- Hide rest of form if new question and no type selected -->
     <div [hidden]="newQuestion() && !questionType()">
-        <xm-question-usage [examNames]="examNames()" />
         <div class="row mt-2">
             <div class="col-md-12">
                 @if (questionType() === 'EssayQuestion') {

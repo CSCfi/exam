@@ -36,7 +36,6 @@ export type MathMode = 'static' | 'interactive';
  */
 @Directive({
     selector: '[xmMath]',
-    standalone: true,
 })
 export class MathUnifiedDirective implements OnChanges, OnDestroy {
     @Input('xmMath') htmlContent?: string;

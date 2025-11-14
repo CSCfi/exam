@@ -17,7 +17,6 @@ import { ExamMaterialComponent } from './exam-material.component';
 @Component({
     selector: 'xm-exam-material-selector',
     templateUrl: './exam-material-picker.component.html',
-    standalone: true,
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -81,8 +80,6 @@ export class ExamMaterialSelectorComponent {
     }
 
     openMaterialEditor() {
-        this.modal
-            .open$(ExamMaterialComponent, { windowClass: 'question-editor-modal' })
-            .subscribe(() => this.changed.emit());
+        this.modal.open$(ExamMaterialComponent).subscribe(() => this.changed.emit());
     }
 }

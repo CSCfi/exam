@@ -22,32 +22,31 @@ import { Option } from 'src/app/shared/select/select.model';
             </h4>
         </div>
         <div class="modal-body">
-            <form>
-                <div class="form-group">
-                    <label for="room">{{ 'i18n_examination_location' | translate }}</label>
-                    <xm-dropdown-select
-                        id="room"
-                        [initial]="room()"
-                        [options]="availableRoomOptions()"
-                        [limitTo]="0"
-                        [allowClearing]="false"
-                        (optionSelected)="roomChanged($event)"
-                        placeholder="{{ 'i18n_select' | translate }}"
-                    ></xm-dropdown-select>
-                </div>
-                <div class="form-group mt-2">
-                    <label for="room">{{ 'i18n_exam_machine' | translate }}</label>
-                    <xm-dropdown-select
-                        #machineSelection
-                        [options]="availableMachineOptions()"
-                        [limitTo]="0"
-                        [allowClearing]="false"
-                        (optionSelected)="machineChanged($event)"
-                        placeholder="{{ 'i18n_select' | translate }}"
-                        autofocus
-                    ></xm-dropdown-select>
-                </div>
-            </form>
+            <div class="form-group">
+                <label for="room">{{ 'i18n_examination_location' | translate }}</label>
+                <xm-dropdown-select
+                    id="room"
+                    [initial]="room()"
+                    [options]="availableRoomOptions()"
+                    [limitTo]="0"
+                    [allowClearing]="false"
+                    (optionSelected)="roomChanged($event)"
+                    placeholder="{{ 'i18n_select' | translate }}"
+                ></xm-dropdown-select>
+            </div>
+            <div class="form-group mt-2">
+                <label for="room">{{ 'i18n_exam_machine' | translate }}</label>
+                <xm-dropdown-select
+                    #machineSelection
+                    [options]="availableMachineOptions()"
+                    [limitTo]="0"
+                    [allowClearing]="false"
+                    (optionSelected)="machineChanged($event)"
+                    placeholder="{{ 'i18n_select' | translate }}"
+                    autofocus
+                ></xm-dropdown-select>
+            </div>
+
             <div class="d-flex flex-row-reverse flex-align-r m-3">
                 <button class="btn btn-sm btn-success" (click)="ok()" [disabled]="!machine()?.id">
                     {{ 'i18n_button_save' | translate }}

@@ -13,12 +13,11 @@ import type { User } from 'src/app/session/session.model';
 
 @Component({
     selector: 'xm-question-owners',
-    standalone: true,
-    templateUrl: './question-owners.component.html',
+    templateUrl: './owners.component.html',
     imports: [TranslateModule, NgbTypeahead, NgbPopover],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionOwnersComponent {
+export class OwnersComponent {
     currentOwners = input<User[]>([]);
     currentOwnersChange = output<User[]>();
 

@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { AfterViewInit, Component, inject, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { AfterViewInit, Component, inject, OnDestroy, output, signal } from '@angular/core';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil, tap } from 'rxjs';
 import type { Course, Exam, ExamSection } from 'src/app/exam/exam.model';
 import { LibraryService } from 'src/app/question/library/library.service';
 import { LibraryQuestion, Tag } from 'src/app/question/question.model';
@@ -30,14 +30,23 @@ interface Filterable<T> {
 @Component({
     selector: 'xm-library-search',
     templateUrl: './library-search.component.html',
-    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, FormsModule, TranslateModule],
+    imports: [
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        FormsModule,
+        ReactiveFormsModule,
+        TranslateModule,
+    ],
 })
-export class LibrarySearchComponent implements AfterViewInit {
+export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
     updated = output<LibraryQuestion[]>();
 
     filter = { owner: '', text: '' };
     limitations = { course: '', exam: '', section: '', tag: '', owner: '' };
     user: User;
+    searchTextControl = new FormControl('');
     courses = signal<Filterable<Course>[]>([]);
     filteredCourses = signal<Filterable<Course>[]>([]);
     exams = signal<Filterable<Exam>[]>([]);
@@ -50,6 +59,7 @@ export class LibrarySearchComponent implements AfterViewInit {
     filteredOwners = signal<Filterable<User>[]>([]);
     questions: LibraryQuestion[] = [];
 
+    private readonly ngUnsubscribe = new Subject<void>();
     private Library = inject(LibraryService);
     private Session = inject(SessionService);
     private CourseCode = inject(CourseCodeService);
@@ -57,6 +67,14 @@ export class LibrarySearchComponent implements AfterViewInit {
 
     constructor() {
         this.user = this.Session.getUser();
+
+        // Subscribe to search text changes with debouncing
+        this.searchTextControl.valueChanges
+            .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe((value) => {
+                this.filter.text = value || '';
+                this.applySearchFilter();
+            });
     }
 
     ngAfterViewInit() {
@@ -74,6 +92,7 @@ export class LibrarySearchComponent implements AfterViewInit {
             this.filteredOwners.set(storedData.filters.owners || []);
             this.filter.text = storedData.filters.text;
             this.filter.owner = storedData.filters.owner;
+            this.searchTextControl.setValue(this.filter.text, { emitEvent: false });
             this.query$().subscribe((questions) => {
                 if (this.filter.text || this.filter.owner) {
                     this.applySearchFilter();
@@ -84,6 +103,11 @@ export class LibrarySearchComponent implements AfterViewInit {
         } else {
             this.query$().subscribe((resp) => this.updated.emit(resp));
         }
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     applySearchFilter = () => {

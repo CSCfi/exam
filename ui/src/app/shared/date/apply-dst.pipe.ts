@@ -9,7 +9,6 @@ import { DateTimeService } from './date.service';
 
 @Pipe({
     name: 'applyDst',
-    standalone: true,
 })
 export class ApplyDstPipe implements PipeTransform {
     private DateTimeService = inject(DateTimeService);

@@ -8,7 +8,6 @@ import { range } from 'src/app/shared/miscellaneous/helpers';
 
 @Pipe({
     name: 'pageFill',
-    standalone: true,
 })
 export class PageFillPipe implements PipeTransform {
     transform = (input: number[], total: number, current: number, pageSize: number): number[] => {

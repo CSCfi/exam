@@ -4,12 +4,11 @@
 
 package controllers.user
 
-import io.ebean.{DB, ExpressionList}
 import io.ebean.text.PathProperties
+import io.ebean.{DB, ExpressionList}
 import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import miscellaneous.user.UserHandler
 import models.enrolment.ExamEnrolment
-import models.questions.Question
 import models.user.{Language, Permission, Role, User}
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
@@ -149,18 +148,11 @@ class UserController @Inject() (
 
   def listQuestionOwners(role: String, criteria: String, qid: Option[Long]): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val users  = listUsersByRoleAndName(role, criteria).asJava
-      val owners = new java.util.HashSet[User]()
-      owners.add(request.attrs(Auth.ATTR_USER))
-
-      qid.foreach { questionId =>
-        Option(DB.find(classOf[Question], questionId)).foreach { question =>
-          owners.addAll(question.getQuestionOwners)
-        }
-      }
-
-      users.removeAll(owners)
-      Ok(users.asScala.asJson)
+      val users  = listUsersByRoleAndName(role, criteria).toSet
+      val user   = request.attrs(Auth.ATTR_USER)
+      val owners = qid.map(DB.find(classOf[User]).where().idIn(_).distinct).getOrElse(Set.empty[User]) + user
+      val users2 = users -- owners
+      Ok(users2.asJson)
     }
 
   def listTeachers(criteria: String): Action[AnyContent] =

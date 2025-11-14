@@ -16,7 +16,6 @@ import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.m
 
 @Component({
     selector: 'xm-essay',
-    standalone: true,
     templateUrl: './essay.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule],
@@ -36,7 +35,7 @@ export class EssayComponent implements AfterViewInit {
                 Validators.min(1),
                 Validators.max(1000000),
             ]),
-            defaultEvaluationType: new FormControl<string>('Points'),
+            defaultEvaluationType: new FormControl<string>('Points', [Validators.required]),
         });
 
         // Sync form from question data when available
@@ -80,6 +79,16 @@ export class EssayComponent implements AfterViewInit {
         });
     }
 
+    /**
+     * Estimate characters based on word count
+     * Uses the word count control value
+     */
+    estimateCharacters(): number {
+        const wordCountControl = this.essayForm.get('defaultExpectedWordCount');
+        const wordCount = wordCountControl?.value ?? 0;
+        return wordCount * 8;
+    }
+
     ngAfterViewInit() {
         // Add to parent form - parent form is guaranteed to be initialized at this point
         this.parentForm.form.addControl('essay', this.essayForm);
@@ -108,10 +117,5 @@ export class EssayComponent implements AfterViewInit {
                 maxScoreControl.disable({ emitEvent: false });
             }
         }
-    }
-
-    estimateCharacters(): number {
-        const wordCount = this.essayForm.get('defaultExpectedWordCount')?.value;
-        return (wordCount || 0) * 8;
     }
 }

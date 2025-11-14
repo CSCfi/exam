@@ -37,7 +37,6 @@ const DEFAULT_MATH_EXAMPLES: MathExample[] = [
 @Component({
     selector: 'xm-math-editor',
     templateUrl: './math-editor.component.html',
-    standalone: true,
     imports: [CommonModule, FormsModule, NgbDropdownModule, TranslateModule],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     styleUrl: './math-editor.component.scss',

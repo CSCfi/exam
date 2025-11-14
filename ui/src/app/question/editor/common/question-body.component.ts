@@ -2,35 +2,31 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
+import { ChangeDetectionStrategy, Component, effect, inject, input, OnDestroy, output, signal } from '@angular/core';
 import {
-    ChangeDetectionStrategy,
-    Component,
-    effect,
-    inject,
-    input,
-    OnDestroy,
-    output,
-    signal,
-    ViewChild,
-} from '@angular/core';
-import { ControlContainer, FormControl, FormGroup, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
+    ControlContainer,
+    FormControl,
+    FormGroup,
+    FormGroupDirective,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
 import type { QuestionDraft, ReverseQuestion, Tag } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
-import { ClaimChoiceComponent } from './claim-choice.component';
-import { EssayComponent } from './essay.component';
-import { MultipleChoiceComponent } from './multiple-choice.component';
-import { QuestionAdditionalInfoComponent } from './question-additional-info.component';
-import { QuestionBasicInfoComponent } from './question-basic-info.component';
-import { QuestionOwnersComponent } from './question-owners.component';
-import { QuestionTagsComponent } from './question-tags.component';
-import { WeightedMultipleChoiceComponent } from './weighted-multiple-choice.component';
+import { AdditionalInfoComponent } from './additional-info.component';
+import { BasicInfoComponent } from './basic-info.component';
+import { OwnersComponent } from './owners.component';
+import { TagsComponent } from './tags.component';
+import { ClaimChoiceComponent } from './types/claim-choice.component';
+import { EssayComponent } from './types/essay.component';
+import { MultipleChoiceComponent } from './types/multiple-choice.component';
+import { WeightedMultipleChoiceComponent } from './types/weighted-multiple-choice.component';
+import { UsageComponent } from './usage.component';
 
 @Component({
     selector: 'xm-question-body',
-    standalone: true,
     templateUrl: './question-body.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [
@@ -39,17 +35,16 @@ import { WeightedMultipleChoiceComponent } from './weighted-multiple-choice.comp
         ClaimChoiceComponent,
         EssayComponent,
         MultipleChoiceComponent,
-        QuestionAdditionalInfoComponent,
-        QuestionBasicInfoComponent,
-        QuestionOwnersComponent,
-        QuestionTagsComponent,
-        QuestionUsageComponent,
+        AdditionalInfoComponent,
+        BasicInfoComponent,
+        OwnersComponent,
+        TagsComponent,
+        UsageComponent,
         WeightedMultipleChoiceComponent,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionBodyComponent implements OnDestroy {
-    @ViewChild('questionBasicInfo') questionBasicInfo!: QuestionBasicInfoComponent;
     question = input.required<ReverseQuestion | QuestionDraft>();
     currentOwners = input<User[]>([]);
     lotteryOn = input(false);
@@ -68,9 +63,9 @@ export class QuestionBodyComponent implements OnDestroy {
     private readonly ngUnsubscribe = new Subject<void>();
 
     constructor() {
-        // Create form group for question body
+        // Create form group for question details
         this.questionBodyForm = new FormGroup({
-            defaultMaxScore: new FormControl<number | null>(null),
+            defaultMaxScore: new FormControl<number | null>(null, [Validators.required]),
         });
 
         // Add to parent form

@@ -13,7 +13,6 @@ import type { ExamMaterial } from 'src/app/exam/exam.model';
 @Component({
     selector: 'xm-exam-material',
     templateUrl: './exam-material.component.html',
-    standalone: true,
     imports: [FormsModule, TranslateModule, NgbPopoverModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })

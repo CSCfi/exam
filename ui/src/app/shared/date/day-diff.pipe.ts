@@ -7,7 +7,6 @@ import { Pipe } from '@angular/core';
 
 @Pipe({
     name: 'dayDiff',
-    standalone: true,
 })
 export class DiffInDaysPipe implements PipeTransform {
     transform(from: string, to?: string): string {

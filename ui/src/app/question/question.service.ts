@@ -54,22 +54,6 @@ export class QuestionService {
         return questionType;
     };
 
-    getQuestionDraft(): QuestionDraft {
-        return {
-            id: undefined,
-            question: '',
-            type: '',
-            examSectionQuestions: [],
-            options: [],
-            questionOwners: [this.Session.getUser()],
-            state: 'NEW',
-            tags: [],
-            defaultEvaluationType: 'Points',
-            defaultNegativeScoreAllowed: false,
-            defaultOptionShufflingOn: true,
-        };
-    }
-
     getQuestion = (id: number): Observable<ReverseQuestion> => this.http.get<ReverseQuestion>(this.questionsApi(id));
 
     createQuestion$ = (question: QuestionDraft): Observable<Question> =>

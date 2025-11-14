@@ -8,7 +8,6 @@ import { SessionService } from 'src/app/session/session.service';
 @Component({
     selector: 'xm-logout',
     template: '<div></div>',
-    standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LogoutComponent {

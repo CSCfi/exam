@@ -42,3 +42,14 @@
     background-color: yellow;
     border: 1px solid;
 }
+
+/* Ensure CKEditor balloon panels appear above modals */
+/* Bootstrap modals use z-index 1050-1055, so balloon needs to be higher */
+.ck.ck-balloon-panel {
+    z-index: 1060 !important;
+}
+
+/* Also ensure the balloon view container is above modals */
+.ck.ck-balloon {
+    z-index: 1060 !important;
+}

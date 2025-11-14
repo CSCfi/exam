@@ -15,16 +15,15 @@ import {
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { multipleChoiceOptionsValidator } from 'src/app/question/editor/common/types/multiple-choice-validators';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 import { MultipleChoiceOption } from 'src/app/question/question.model';
-import { multipleChoiceOptionsValidator } from 'src/app/question/shared/multiple-choice-validators';
 
 @Component({
     selector: 'xm-multiple-choice',
-    standalone: true,
     templateUrl: './multiple-choice.component.html',
-    styleUrls: ['../question.shared.scss'],
+    styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, NgClass, UpperCasePipe, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -208,11 +207,14 @@ export class MultipleChoiceComponent implements AfterViewInit {
     }
 
     calculateDefaultMaxPoints(): number {
-        return this.QuestionScore.calculateDefaultMaxPoints(this.question() as ReverseQuestion);
+        return this.QuestionScore.calculateDefaultMaxPoints(this.question().options);
     }
 
     calculateDefaultMinPoints(): number {
-        return this.QuestionScore.calculateDefaultMinPoints(this.question() as ReverseQuestion);
+        return this.QuestionScore.calculateDefaultMinPoints(
+            this.question().options,
+            this.question().defaultNegativeScoreAllowed,
+        );
     }
 
     private updateFormArray(options: MultipleChoiceOption[]) {

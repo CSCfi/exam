@@ -36,7 +36,7 @@ import { ToastrService } from 'ngx-toastr';
 import { switchMap } from 'rxjs/operators';
 import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
-import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
+import { BaseQuestionDialogComponent } from 'src/app/question/editor/exam/base-question-dialog.component';
 import { QuestionSelectorComponent } from 'src/app/question/picker/question-picker.component';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
@@ -467,16 +467,14 @@ export class SectionComponent {
     }
 
     private openBaseQuestionEditor() {
-        const modal = this.modal.openRef(BaseQuestionEditorComponent, {
-            windowClass: 'question-editor-modal',
-            size: 'xl',
+        const modal = this.modal.openRef(BaseQuestionDialogComponent, {
+            windowClass: 'xm-xxl-modal',
+            keyboard: false,
         });
-        modal.componentInstance.newQuestion.set(true);
+        // Don't set question or questionId - component will create new empty question
         modal.componentInstance.collaborative.set(this.collaborative());
         modal.componentInstance.isPopup.set(true);
 
-        // Trigger change detection after setting all model values
-        modal.componentInstance.cdr.markForCheck();
         this.modal.result$<Question>(modal).subscribe((resp) => {
             const currentSection = this.section();
             this.insertExamQuestion(resp, currentSection.sectionQuestions.length);

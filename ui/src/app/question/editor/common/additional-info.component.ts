@@ -12,13 +12,12 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
 
 @Component({
     selector: 'xm-question-additional-info',
-    standalone: true,
-    templateUrl: './question-additional-info.component.html',
+    templateUrl: './additional-info.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule, NgbPopover, NgClass],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionAdditionalInfoComponent implements AfterViewInit {
+export class AdditionalInfoComponent implements AfterViewInit {
     question = input<ReverseQuestion | QuestionDraft>();
     showWarning = input(false);
 

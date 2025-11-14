@@ -77,12 +77,9 @@ export class PasswordPromptComponent implements AfterViewInit {
     @ViewChild('passwordInput') passwordInput!: ElementRef<HTMLInputElement>;
 
     visible = input(false);
-
     passwordValidated = output<string>();
 
-    passwordForm = new FormGroup({
-        password: new FormControl('', [Validators.required]),
-    });
+    passwordForm = new FormGroup({ password: new FormControl('', [Validators.required]) });
 
     ngAfterViewInit() {
         this.passwordInput?.nativeElement.focus();

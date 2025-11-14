@@ -14,12 +14,11 @@ import { SessionService } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-question-tags',
-    standalone: true,
-    templateUrl: './question-tags.component.html',
+    templateUrl: './tags.component.html',
     imports: [TranslateModule, NgbPopover, NgbTypeahead],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionTagsComponent {
+export class TagsComponent {
     question = input.required<ReverseQuestion | QuestionDraft>();
     collaborative = input(false);
 

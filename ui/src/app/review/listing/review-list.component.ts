@@ -164,10 +164,7 @@ export class ReviewListComponent {
     }
 
     openAborted() {
-        const modalRef = this.modal.openRef(AbortedExamsComponent, {
-            windowClass: 'question-editor-modal',
-            size: 'xl',
-        });
+        const modalRef = this.modal.openRef(AbortedExamsComponent, { size: 'xl' });
         const currentExam = this.exam();
         if (currentExam) {
             modalRef.componentInstance.exam = currentExam;
@@ -176,10 +173,7 @@ export class ReviewListComponent {
     }
 
     openNoShows() {
-        const modalRef = this.modal.openRef(NoShowsComponent, {
-            windowClass: 'question-editor-modal',
-            size: 'xl',
-        });
+        const modalRef = this.modal.openRef(NoShowsComponent, { size: 'xl' });
         modalRef.componentInstance.noShows = this.noShows();
     }
 

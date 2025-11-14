@@ -21,9 +21,8 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
 
 @Component({
     selector: 'xm-claim-choice',
-    standalone: true,
     templateUrl: './claim-choice.component.html',
-    styleUrls: ['../question.shared.scss'],
+    styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, NgClass, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,

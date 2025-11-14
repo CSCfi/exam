@@ -33,8 +33,8 @@ import { MultiRoomComponent } from 'src/app/facility/rooms/room-mass-edit.compon
 import { RoomComponent } from 'src/app/facility/rooms/room.component';
 import { LanguageInspectionsComponent } from 'src/app/maturity/language-inspections.component';
 import { MaturityReportingComponent } from 'src/app/maturity/reporting/maturity-reporting.component';
-import { QuestionComponent } from 'src/app/question/basequestion/question.component';
-import { hasUnsavedChangesGuard } from 'src/app/question/has-unsaved-changes.guard';
+import { QuestionComponent } from 'src/app/question/editor/base/question.component';
+import { hasUnsavedChangesGuard } from 'src/app/question/editor/common/tools/has-unsaved-changes.guard';
 import { LibraryComponent } from 'src/app/question/library/library.component';
 import { ReservationsComponent } from 'src/app/reservation/reservations.component';
 import { AssessmentComponent } from 'src/app/review/assessment/assessment.component';

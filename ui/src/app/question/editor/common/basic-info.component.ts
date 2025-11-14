@@ -18,17 +18,17 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 
 @Component({
     selector: 'xm-question-basic-info',
-    standalone: true,
-    templateUrl: './question-basic-info.component.html',
+    templateUrl: './basic-info.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule, CKEditorComponent, UpperCasePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionBasicInfoComponent implements AfterViewInit {
+export class BasicInfoComponent implements AfterViewInit {
     question = input<ReverseQuestion | QuestionDraft>();
     questionTypes = input<{ type: string; name: string }[]>([]);
     questionId = input<number>();
     formReady = output<FormGroup>();
+    newText = output<string>();
 
     baseInformationForm: FormGroup;
     private parentForm = inject(FormGroupDirective);
@@ -112,6 +112,8 @@ export class QuestionBasicInfoComponent implements AfterViewInit {
                 this.baseInformationForm.markAsDirty();
                 // Update validity - use emitEvent: true for validity to propagate to parent
                 questionTextControl.updateValueAndValidity({ emitEvent: true });
+                // Emit newText output for compatibility (e.g., examquestion component)
+                this.newText.emit(text);
             }
         }
     }

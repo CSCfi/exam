@@ -6,7 +6,6 @@ import { Directive, ElementRef, HostListener, inject } from '@angular/core';
 
 @Directive({
     selector: '[xmLowerCase]',
-    standalone: true,
 })
 export class LowerCaseValidatorDirective {
     private el = inject(ElementRef);

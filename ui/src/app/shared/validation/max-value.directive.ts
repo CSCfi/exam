@@ -9,7 +9,6 @@ import { NG_VALIDATORS, Validators } from '@angular/forms';
 @Directive({
     selector: '[xmMax]',
     providers: [{ provide: NG_VALIDATORS, useExisting: MaxDirective, multi: true }],
-    standalone: true,
 })
 export class MaxDirective implements Validator {
     @Input() xmMax = 0;

@@ -10,7 +10,8 @@ export interface ReverseExamSectionQuestion extends ExamSectionQuestion {
     examSection: ReverseExamSection;
 }
 
-export interface ReverseQuestion extends Question {
+export interface ReverseQuestion extends Omit<Question, 'id'> {
+    id?: number; // Optional to support drafts (new questions without id)
     examSectionQuestions: ReverseExamSectionQuestion[];
 }
 
@@ -44,7 +45,9 @@ export interface Question {
     defaultOptionShufflingOn: boolean;
 }
 
-export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
+// QuestionDraft is now just ReverseQuestion with id: undefined
+// Keeping the type alias for backward compatibility, but it's essentially the same
+export type QuestionDraft = ReverseQuestion & { id: undefined };
 export type QuestionAmounts = {
     accepted: number;
     rejected: number;

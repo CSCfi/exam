@@ -26,16 +26,15 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { startWith } from 'rxjs';
+import { minOptionsValidator } from 'src/app/question/editor/common/types/multiple-choice-validators';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 import { MultipleChoiceOption } from 'src/app/question/question.model';
-import { minOptionsValidator } from 'src/app/question/shared/multiple-choice-validators';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-weighted-multiple-choice',
-    standalone: true,
     templateUrl: './weighted-multiple-choice.component.html',
-    styleUrls: ['../question.shared.scss'],
+    styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, NgClass, UpperCasePipe, TranslateModule, FixedPrecisionValidatorDirective],
     changeDetection: ChangeDetectionStrategy.OnPush,

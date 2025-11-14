@@ -98,7 +98,6 @@ import { Math } from './plugins/math/plugin';
         }
         <div [id]="id()"></div>
     </div> `,
-    standalone: true,
     imports: [FormsModule, CKEditorModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })

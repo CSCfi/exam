@@ -24,7 +24,6 @@ type ClozeTestAnswer = { [key: string]: string };
 @Component({
     selector: 'xm-dynamic-cloze-test',
     template: ` <div #clozeContainer></div> `,
-    standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {

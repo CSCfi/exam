@@ -12,7 +12,6 @@ import { Toast, ToastPackage, ToastrService } from 'ngx-toastr';
         <b>{{ title }}.</b>
         {{ message }}
     `,
-    standalone: true,
 })
 export class SessionExpireWarningComponent extends Toast {
     public override toastPackage: ToastPackage;

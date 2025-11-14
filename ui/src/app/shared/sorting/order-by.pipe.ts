@@ -7,7 +7,6 @@ import { Injectable, Pipe } from '@angular/core';
 import { path } from 'src/app/shared/miscellaneous/helpers';
 @Pipe({
     name: 'orderBy',
-    standalone: true,
 })
 @Injectable({ providedIn: 'root' })
 export class OrderByPipe implements PipeTransform {

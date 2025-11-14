@@ -111,19 +111,13 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
     };
 
     openAborted = () => {
-        const modalRef = this.modal.openRef(AbortedExamsComponent, {
-            windowClass: 'question-editor-modal',
-            size: 'xl',
-        });
+        const modalRef = this.modal.openRef(AbortedExamsComponent, { size: 'xl' });
         modalRef.componentInstance.exam = this.exam;
         modalRef.componentInstance.abortedExams = this.abortedExams;
     };
 
     openNoShows = () => {
-        const modalRef = this.modal.openRef(NoShowsComponent, {
-            windowClass: 'question-editor-modal',
-            size: 'xl',
-        });
+        const modalRef = this.modal.openRef(NoShowsComponent, { size: 'xl' });
         modalRef.componentInstance.noShows = this.noShows;
     };
 

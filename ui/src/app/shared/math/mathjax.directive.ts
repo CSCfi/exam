@@ -7,7 +7,6 @@ import { MathJaxService } from './mathjax.service';
 
 @Directive({
     selector: '[xmMathJax]',
-    standalone: true,
 })
 export class MathJaxDirective implements OnChanges {
     @Input('xmMathJax') math?: string;

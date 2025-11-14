@@ -10,7 +10,7 @@ import { ToastrService } from 'ngx-toastr';
 import type { ExamSection } from 'src/app/exam/exam.model';
 import { LibraryResultsComponent } from 'src/app/question/library/results/library-results.component';
 import { LibrarySearchComponent } from 'src/app/question/library/search/library-search.component';
-import { Question } from 'src/app/question/question.model';
+import { LibraryQuestion } from 'src/app/question/question.model';
 
 @Component({
     selector: 'xm-question-selector',
@@ -59,7 +59,7 @@ export class QuestionSelectorComponent {
     questionCount = model(0);
     sectionId = model(0);
     examId = model(0);
-    questions = signal<Question[]>([]);
+    questions = signal<LibraryQuestion[]>([]);
     selections = signal<number[]>([]);
 
     private modal = inject(NgbActiveModal);
@@ -67,7 +67,7 @@ export class QuestionSelectorComponent {
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
 
-    resultsUpdated = (event: Question[]) => this.questions.set(event);
+    resultsUpdated = (event: LibraryQuestion[]) => this.questions.set(event);
     questionSelected = (event: number[]) => this.selections.set(event);
     questionCopied = () => this.toast.info(this.translate.instant('i18n_question_copied'));
     cancel = () => this.modal.dismiss();

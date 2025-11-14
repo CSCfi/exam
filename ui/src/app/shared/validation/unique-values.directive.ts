@@ -23,7 +23,6 @@ export function UniquenessValidator(keySelector: (item: unknown) => unknown): Va
 @Directive({
     selector: '[xmUniqueValues]',
     providers: [{ provide: NG_VALIDATORS, useExisting: UniqueValuesValidatorDirective, multi: true }],
-    standalone: true,
 })
 export class UniqueValuesValidatorDirective implements Validator {
     validate(control: AbstractControl): ValidationErrors | null {

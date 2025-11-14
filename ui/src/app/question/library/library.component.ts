@@ -8,7 +8,7 @@ import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap'
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { tap } from 'rxjs';
-import { Question, Tag } from 'src/app/question/question.model';
+import { LibraryQuestion, Tag } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -149,7 +149,7 @@ type FileResult = { errorCount: number; successCount: number };
     styleUrl: './library.component.scss',
 })
 export class LibraryComponent {
-    questions = signal<Question[]>([]);
+    questions = signal<LibraryQuestion[]>([]);
     selections = signal<number[]>([]);
 
     private router = inject(Router);
@@ -159,7 +159,7 @@ export class LibraryComponent {
     private Attachment = inject(AttachmentService);
     private Files = inject(FileService);
 
-    resultsUpdated(results: Question[]) {
+    resultsUpdated(results: LibraryQuestion[]) {
         this.questions.set(results);
     }
 
@@ -167,9 +167,12 @@ export class LibraryComponent {
         this.selections.set(selections);
     }
 
-    questionCopied(copy: Question) {
+    questionCopied(copy: LibraryQuestion) {
         this.toast.info(this.translate.instant('i18n_question_copied'));
-        this.router.navigate(['/staff/questions', copy.id, 'edit']);
+        // Library questions always have an id (loaded from server)
+        if (copy.id) {
+            this.router.navigate(['/staff/questions', copy.id, 'edit']);
+        }
     }
 
     import() {
@@ -211,7 +214,7 @@ export class LibraryComponent {
             .result$<{ questions: number[]; users: User[] }>(modalRef)
             .pipe(
                 tap((result: { questions: number[]; users: User[] }) => {
-                    const questions = this.questions().filter((q) => result.questions.includes(q.id));
+                    const questions = this.questions().filter((q) => q.id && result.questions.includes(q.id));
                     questions.forEach((q) => q.questionOwners.push(...result.users));
                 }),
             )
@@ -225,7 +228,7 @@ export class LibraryComponent {
             .result$<{ questions: number[]; tags: Tag[] }>(modalRef)
             .pipe(
                 tap((result: { questions: number[]; tags: Tag[] }) => {
-                    const questions = this.questions().filter((q) => result.questions.includes(q.id));
+                    const questions = this.questions().filter((q) => q.id && result.questions.includes(q.id));
                     questions.forEach((q) => result.tags.forEach((t) => this.addTagIfNotExists(q, t)));
                 }),
             )
@@ -237,7 +240,7 @@ export class LibraryComponent {
         modalRef.componentInstance.selections = this.selections();
     }
 
-    private addTagIfNotExists(q: Question, t: Tag) {
+    private addTagIfNotExists(q: LibraryQuestion, t: Tag) {
         if (!q.tags.map((qt) => qt.id).includes(t.id)) {
             q.tags.push(t);
         }

@@ -12,7 +12,6 @@ interface MathfieldElementConstructor {
 
 @Directive({
     selector: '[xmMathLive]',
-    standalone: true,
 })
 export class MathLiveDirective implements OnChanges {
     @Input('xmMathLive') mathLive?: string;

@@ -27,8 +27,8 @@ import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import type { ExamSection } from 'src/app/exam/exam.model';
-import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
-import { ExamQuestionDialogComponent } from 'src/app/question/examquestion/exam-question-dialog.component';
+import { BaseQuestionDialogComponent } from 'src/app/question/editor/exam/base-question-dialog.component';
+import { ExamQuestionDialogComponent } from 'src/app/question/editor/exam/exam-question-dialog.component';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
@@ -37,7 +37,7 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { mergeDeepRight } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
@@ -51,7 +51,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         NgbDropdownToggle,
         NgbDropdownMenu,
         NgbDropdownItem,
-        MathJaxDirective,
+        MathUnifiedDirective,
         NgbCollapse,
         TranslateModule,
         OrderByPipe,
@@ -167,18 +167,18 @@ export class SectionQuestionComponent {
 
     private openBaseQuestionEditor() {
         const currentSectionQuestion = this.sectionQuestion();
-        const modal = this.modal.openRef(BaseQuestionEditorComponent, {
+        const modal = this.modal.openRef(BaseQuestionDialogComponent, {
             windowClass: 'xm-xxl-modal',
             size: 'xl',
         });
 
         modal.componentInstance.isPopup.set(true);
         modal.componentInstance.lotteryOn.set(this.lotteryOn());
+        // Convert Question to ReverseQuestion by adding examSectionQuestions
         modal.componentInstance.questionDraft.set({ ...currentSectionQuestion.question, examSectionQuestions: [] });
         modal.componentInstance.collaborative.set(this.collaborative());
         modal.componentInstance.examId.set(this.examId());
         modal.componentInstance.sectionQuestion.set(currentSectionQuestion);
-        modal.componentInstance.questionId.set(currentSectionQuestion.question.id || 0);
 
         this.modal
             .result$<Question>(modal)
@@ -241,7 +241,7 @@ export class SectionQuestionComponent {
         const currentSectionQuestion = this.sectionQuestion();
         const modal = this.modal.openRef(ExamQuestionDialogComponent, {
             windowClass: 'xm-xxl-modal',
-            size: 'xl',
+            keyboard: false,
         });
         modal.componentInstance.examQuestion.set({ ...currentSectionQuestion });
         modal.componentInstance.lotteryOn.set(this.lotteryOn());

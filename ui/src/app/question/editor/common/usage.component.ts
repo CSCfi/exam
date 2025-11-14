@@ -104,7 +104,7 @@ import { TranslateModule } from '@ngx-translate/core';
         </div>
     `,
 })
-export class QuestionUsageComponent {
+export class UsageComponent {
     examNames = input.required<string[]>();
     showWarning = input(false);
     limitNames = signal(false);
