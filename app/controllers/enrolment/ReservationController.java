@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import controllers.base.BaseController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalReservationHandler;
-import impl.CalendarHandler;
 import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.FetchConfig;
@@ -36,6 +35,7 @@ import models.user.Role;
 import models.user.User;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -46,12 +46,13 @@ import validation.core.Attrs;
 
 public class ReservationController extends BaseController {
 
+    private static final Logger.ALogger logger = Logger.of(ReservationController.class);
+
     private final EmailComposer emailComposer;
     private final CollaborativeExamLoader collaborativeExamLoader;
     private final ExternalReservationHandler externalReservationHandler;
     private final DateTimeHandler dateTimeHandler;
     private final UserHandler userHandler;
-    private final CalendarHandler calendarHandler;
 
     @Inject
     public ReservationController(
@@ -59,15 +60,13 @@ public class ReservationController extends BaseController {
         CollaborativeExamLoader collaborativeExamLoader,
         ExternalReservationHandler externalReservationHandler,
         DateTimeHandler dateTimeHandler,
-        UserHandler userHandler,
-        CalendarHandler calendarHandler
+        UserHandler userHandler
     ) {
         this.emailComposer = emailComposer;
         this.collaborativeExamLoader = collaborativeExamLoader;
         this.externalReservationHandler = externalReservationHandler;
         this.dateTimeHandler = dateTimeHandler;
         this.userHandler = userHandler;
-        this.calendarHandler = calendarHandler;
     }
 
     @Authenticated
@@ -176,8 +175,20 @@ public class ReservationController extends BaseController {
     }
 
     private boolean isBookable(ExamMachine machine, Reservation reservation) {
-        reservation.setMachine(machine);
-        return calendarHandler.isDoable(reservation, List.of());
+        // Check if the machine has required software
+        if (getReservationExam(reservation).filter(machine::hasRequiredSoftware).isEmpty()) {
+            return false;
+        }
+
+        // Check if the machine is available during the reservation's time slot
+        // Exclude the current reservation if it's already assigned to this machine
+        var interval = reservation.toInterval();
+        var conflictingReservations = machine
+            .getReservations()
+            .stream()
+            .filter(r -> !r.equals(reservation) && interval.overlaps(r.toInterval()))
+            .toList();
+        return conflictingReservations.isEmpty();
     }
 
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
@@ -190,7 +201,13 @@ public class ReservationController extends BaseController {
         var props = PathProperties.parse("(id, name)");
         var query = DB.createQuery(ExamMachine.class);
         props.apply(query);
-        var candidates = query.where().eq("room.id", roomId).ne("outOfService", true).ne("archived", true).findList();
+        var candidates = query
+            .where()
+            .eq("room.id", roomId)
+            .ne("outOfService", true)
+            .ne("archived", true)
+            .ne("id", reservation.getMachine().getId())
+            .findList();
 
         var available = candidates
             .stream()
@@ -231,13 +248,19 @@ public class ReservationController extends BaseController {
         return ok(machine, props);
     }
 
-    private Optional<Exam> getReservationExam(Reservation reservation) throws InterruptedException, ExecutionException {
-        return reservation.getEnrolment().getExam() != null
-            ? Optional.of(reservation.getEnrolment().getExam())
-            : collaborativeExamLoader
-                  .downloadExam(reservation.getEnrolment().getCollaborativeExam())
-                  .toCompletableFuture()
-                  .get();
+    private Optional<Exam> getReservationExam(Reservation reservation) {
+        if (reservation.getEnrolment().getExam() != null) {
+            return Optional.of(reservation.getEnrolment().getExam());
+        }
+        try {
+            return collaborativeExamLoader
+                .downloadExam(reservation.getEnrolment().getCollaborativeExam())
+                .toCompletableFuture()
+                .get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Could not load exam for reservation.", e);
+            return Optional.empty();
+        }
     }
 
     @Authenticated
