@@ -108,12 +108,63 @@ export class QuestionTrialComponent implements CanComponentDeactivate {
                     defaultExpectedWordCount?: number | null;
                     defaultEvaluationType?: string;
                 };
+                claimChoice?: {
+                    options?: Array<{ optionText?: string; score?: number; isSkipOption?: boolean }>;
+                };
             };
         };
         const questionBody = formValue.questionBody || {};
         const baseInformation = questionBody.baseInformation || {};
         const additionalInfo = questionBody.additionalInfo || {};
         const essay = questionBody.essay || {};
+
+        // For claimChoice, use getRawValue() to include disabled controls (skip option text)
+        // This is safe because we only read the specific claimChoice form group
+        const questionBodyControl = this.questionForm.get('questionBody');
+        const claimChoiceControl =
+            questionBodyControl instanceof FormGroup ? questionBodyControl.get('claimChoice') : null;
+        const claimChoice =
+            claimChoiceControl instanceof FormGroup
+                ? (claimChoiceControl.getRawValue() as {
+                      options?: Array<{ optionText?: string; score?: number; isSkipOption?: boolean }>;
+                  })
+                : {};
+
+        // Map claimChoice form options back to question options
+        let updatedOptions = currentQuestionValue.options;
+        if (claimChoice.options && claimChoice.options.length > 0) {
+            updatedOptions = currentQuestionValue.options.map((opt, index) => {
+                const formOption = claimChoice.options![index];
+                if (formOption) {
+                    const optionText = formOption.optionText || '';
+                    const score = formOption.score ?? 0;
+                    const isSkipOption = formOption.isSkipOption || opt.claimChoiceType === 'SkipOption';
+
+                    // Determine claimChoiceType based on score
+                    let claimChoiceType = opt.claimChoiceType;
+                    let correctOption = opt.correctOption;
+                    if (isSkipOption) {
+                        claimChoiceType = 'SkipOption';
+                        correctOption = false;
+                    } else if (score <= 0) {
+                        claimChoiceType = 'IncorrectOption';
+                        correctOption = false;
+                    } else if (score > 0) {
+                        claimChoiceType = 'CorrectOption';
+                        correctOption = true;
+                    }
+
+                    return {
+                        ...opt,
+                        option: optionText,
+                        defaultScore: score,
+                        claimChoiceType,
+                        correctOption,
+                    };
+                }
+                return opt;
+            });
+        }
 
         const updatedQuestion: Question | QuestionDraft = {
             ...currentQuestionValue,
@@ -125,6 +176,7 @@ export class QuestionTrialComponent implements CanComponentDeactivate {
                 additionalInfo.evaluationCriteria ?? currentQuestionValue.defaultEvaluationCriteria,
             questionOwners: this.currentOwners(),
             tags: this.currentTags(),
+            options: updatedOptions,
             // Essay-specific fields
             defaultExpectedWordCount: essay.defaultExpectedWordCount ?? currentQuestionValue.defaultExpectedWordCount,
             defaultEvaluationType: essay.defaultEvaluationType ?? currentQuestionValue.defaultEvaluationType,

@@ -8,6 +8,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
 import type { QuestionDraft, ReverseQuestion, Tag } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
+import { ClaimChoiceTrialComponent } from './claim-choice.component';
 import { EssayTrialComponent } from './essay.component';
 import { QuestionAdditionalInfoTrialComponent } from './question-additional-info.component';
 import { QuestionBasicInfoTrialComponent } from './question-basic-info.component';
@@ -22,6 +23,7 @@ import { QuestionTagsTrialComponent } from './question-tags.component';
     imports: [
         ReactiveFormsModule,
         TranslateModule,
+        ClaimChoiceTrialComponent,
         EssayTrialComponent,
         QuestionAdditionalInfoTrialComponent,
         QuestionBasicInfoTrialComponent,
