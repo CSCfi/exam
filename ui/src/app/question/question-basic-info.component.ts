@@ -3,14 +3,22 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { Component, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { AfterViewInit, Component, effect, inject, input, output } from '@angular/core';
+import {
+    ControlContainer,
+    FormControl,
+    FormGroup,
+    FormGroupDirective,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 
 @Component({
-    imports: [TranslateModule, FormsModule, NgbPopoverModule, UpperCasePipe, CKEditorComponent],
+    imports: [TranslateModule, ReactiveFormsModule, NgbPopoverModule, UpperCasePipe, CKEditorComponent],
+    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     selector: 'xm-question-basic-info',
     styles: '.initial-width { width: initial !important; }',
     template: ` @if (questionId()) {
@@ -21,7 +29,7 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
                 <div class="col-md-9 pe-0">#{{ questionId() }}</div>
             </div>
         }
-        <div class="row mt-3">
+        <div class="row mt-3" [formGroup]="basicInfoForm">
             <div class="col-md-3">
                 {{ 'i18n_new_question_type' | translate }}
                 <sup
@@ -38,9 +46,8 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
                     id="newQuestion"
                     name="newQuestion"
                     class="form-select initial-width"
-                    [(ngModel)]="type"
-                    (change)="typeChanged()"
-                    required="true"
+                    formControlName="questionType"
+                    required
                 >
                     @for (type of questionTypes(); track type.name) {
                         <option value="{{ type.type }}">{{ type.name | translate }}</option>
@@ -98,15 +105,57 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
             }
         }`,
 })
-export class QuestionBasicInfoComponent {
+export class QuestionBasicInfoComponent implements AfterViewInit {
     question = input<{ question: string; type: string }>(); // make required somehow
     questionTypes = input<{ type: string; name: string }[]>([]);
     questionId = input<number>();
     newText = output<string>();
     newType = output<string>();
 
-    type = '';
+    basicInfoForm: FormGroup;
+    private parentForm = inject(FormGroupDirective, { optional: true });
+
+    constructor() {
+        // Create nested form group for basic info fields
+        // questionType is only required for new questions (when type is not set)
+        this.basicInfoForm = new FormGroup({
+            questionType: new FormControl(''),
+        });
+
+        // Sync form with question type
+        effect(() => {
+            const q = this.question();
+            const questionTypeControl = this.basicInfoForm.get('questionType');
+            if (!questionTypeControl) return;
+
+            if (q?.type) {
+                // For existing questions with a type, set a value and clear validators
+                // This ensures the form is valid even though the select is hidden
+                questionTypeControl.setValue(q.type, { emitEvent: false });
+                questionTypeControl.clearValidators();
+                questionTypeControl.updateValueAndValidity({ emitEvent: false });
+            } else {
+                // For new questions, add required validator
+                questionTypeControl.setValidators([Validators.required]);
+                questionTypeControl.updateValueAndValidity({ emitEvent: false });
+            }
+        });
+
+        // Sync form changes back to output
+        this.basicInfoForm.get('questionType')?.valueChanges.subscribe((value) => {
+            if (value) {
+                this.newType.emit(value);
+            }
+        });
+    }
+
+    ngAfterViewInit() {
+        // Add to parent form if available
+        // Do this in ngAfterViewInit to ensure FormGroupDirective is fully initialized
+        if (this.parentForm?.form && !this.parentForm.form.get('basicInfo')) {
+            this.parentForm.form.addControl('basicInfo', this.basicInfoForm);
+        }
+    }
 
     textChanged = (event: string) => this.newText.emit(event);
-    typeChanged = () => this.newType.emit(this.type);
 }

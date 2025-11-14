@@ -5,7 +5,7 @@
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { ControlContainer, FormControl, FormGroup, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
@@ -29,9 +29,9 @@ import { MultipleChoiceEditorComponent } from './multiple-choice.component';
 @Component({
     selector: 'xm-question-body',
     templateUrl: './question-body.component.html',
-    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     imports: [
-        FormsModule,
+        ReactiveFormsModule,
         NgClass,
         EssayEditorComponent,
         MultipleChoiceEditorComponent,
@@ -101,16 +101,53 @@ export class QuestionBodyComponent {
         };
     });
 
+    questionBodyForm: FormGroup;
+
     private http = inject(HttpClient);
     private Session = inject(SessionService);
     private Attachment = inject(AttachmentService);
     private Question = inject(QuestionService);
+    private parentForm = inject(FormGroupDirective);
+    private formInitialized = signal(false);
 
     constructor() {
+        // Initialize nested form group for question body
+        this.questionBodyForm = new FormGroup({
+            defaultMaxScore: new FormControl(null),
+            newOwnerName: new FormControl(''),
+        });
+
+        // Add to parent form
+        this.parentForm.form.addControl('questionBody', this.questionBodyForm);
+
         // Initialize exam names and section names when question changes
         effect(() => {
             const questionValue = this.question();
             this.init(questionValue);
+            // Only initialize form once - don't sync after that
+            // Form is the source of truth while editing
+            if (questionValue && !this.formInitialized()) {
+                this.questionBodyForm.reset(
+                    {
+                        defaultMaxScore: questionValue.defaultMaxScore || null,
+                        newOwnerName: '', // Always keep owner name field empty
+                    },
+                    { emitEvent: false },
+                );
+                this.formInitialized.set(true);
+            }
+        });
+
+        // Update disabled state when lotteryOn changes
+        effect(() => {
+            const defaultMaxScoreControl = this.questionBodyForm.get('defaultMaxScore');
+            if (defaultMaxScoreControl) {
+                if (this.lotteryOn()) {
+                    defaultMaxScoreControl.disable({ emitEvent: false });
+                } else {
+                    defaultMaxScoreControl.enable({ emitEvent: false });
+                }
+            }
         });
     }
 
@@ -148,11 +185,6 @@ export class QuestionBodyComponent {
         questionValue.question = $event;
     }
 
-    setDefaultMaxScore(value: number) {
-        const questionValue = this.question();
-        questionValue.defaultMaxScore = value;
-    }
-
     setDefaultAnswerInstructions(value: string) {
         const questionValue = this.question();
         questionValue.defaultAnswerInstructions = value;
@@ -165,6 +197,8 @@ export class QuestionBodyComponent {
 
     setNewOwnerName(value: string) {
         this.newOwner.set({ name: value });
+        // Sync to form control
+        this.questionBodyForm.patchValue({ newOwnerName: value }, { emitEvent: false });
     }
 
     showWarning() {
@@ -189,7 +223,18 @@ export class QuestionBodyComponent {
         );
     };
 
-    nameFormat = (u: User) => `${u.firstName} ${u.lastName} <${u.email}>`;
+    nameFormat = (u: User | string | null | undefined): string => {
+        // If it's a string (like empty string or typed text), return it as-is
+        if (typeof u === 'string') {
+            return u;
+        }
+        // If it's null or undefined, return empty string
+        if (!u || typeof u !== 'object') {
+            return '';
+        }
+        // If it's a User object, format it
+        return `${u.firstName} ${u.lastName} <${u.email}>`;
+    };
 
     setQuestionOwner(event: NgbTypeaheadSelectItemEvent) {
         // Using template to store the selected user
@@ -203,7 +248,8 @@ export class QuestionBodyComponent {
             const updatedOwners = [...currentOwnersValue, template];
             this.currentOwnersChange.emit(updatedOwners);
 
-            // nullify input field and template
+            // Clear form control and template
+            this.questionBodyForm.patchValue({ newOwnerName: '' }, { emitEvent: false });
             this.newOwner.set({});
             this.newOwnerTemplate.set(undefined);
         }

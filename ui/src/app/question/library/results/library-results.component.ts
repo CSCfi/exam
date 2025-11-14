@@ -156,6 +156,14 @@ export class LibraryResultsComponent {
         return user;
     };
 
+    getOtherOwners = (question: LibraryQuestion): User[] => {
+        return question.questionOwners.filter((o) => o.id !== this.user.id);
+    };
+
+    getOwnersToDisplay = (question: LibraryQuestion): User[] => {
+        return this.user.isAdmin ? question.questionOwners : this.getOtherOwners(question);
+    };
+
     printTags = (question: LibraryQuestion) => {
         const ownTags = question.tags.filter((t) => t.creator?.id === this.user.id);
         return ownTags.map((t) => t.name).join(', ');

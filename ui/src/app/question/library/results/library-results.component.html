@@ -190,23 +190,18 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <td>{{ printTags(question) }}</td>
                         <td>
-                            @if (user.isAdmin) {
-                                <span>
-                                    @for (owner of question.questionOwners; track owner; let isLast = $last) {
-                                        <a [href]="renderMailTo(owner)">{{ printOwner(owner, true) }}</a
-                                        >{{ isLast ? '' : ', ' }}
+                            <span>
+                                @for (
+                                    owner of getOwnersToDisplay(question);
+                                    track owner.id ?? owner;
+                                    let isLast = $last
+                                ) {
+                                    <a [href]="renderMailTo(owner)">{{ printOwner(owner, true) }}</a>
+                                    @if (!isLast) {
+                                        <span>, </span>
                                     }
-                                </span>
-                            } @else {
-                                <span>
-                                    @for (owner of question.questionOwners; track owner; let isLast = $last) {
-                                        <a [href]="renderMailTo(owner)">{{
-                                            owner.id === user.id ? '' : printOwner(owner, true)
-                                        }}</a
-                                        >{{ isLast ? '' : ', ' }}
-                                    }
-                                </span>
-                            }
+                                }
+                            </span>
                         </td>
                         <td class="td-center-align">
                             @if (question.allowedToRemove) {

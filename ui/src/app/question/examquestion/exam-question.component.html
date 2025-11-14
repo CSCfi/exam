@@ -11,7 +11,7 @@ SPDX-License-Identifier: EUPL-1.2
 <div class="modal-body">
     <div class="row">
         <div class="col-md-12">
-            <form role="form" class="form-horizontal" #questionForm="ngForm" name="form">
+            <form role="form" class="form-horizontal" [formGroup]="questionForm" name="form">
                 <xm-question-usage [examNames]="examNames()" />
                 <xm-question-basic-info
                     [question]="question()"
@@ -93,12 +93,11 @@ SPDX-License-Identifier: EUPL-1.2
                                 step="any"
                                 lang="en"
                                 class="form-control xm-numeric-input"
-                                [(ngModel)]="eq.maxScore"
+                                formControlName="maxScore"
                                 [min]="0"
                                 [max]="1000"
                                 required
                                 xmFixedPrecision
-                                [disabled]="lotteryOn()"
                             />
                         </div>
                     </div>

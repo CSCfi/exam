@@ -3,8 +3,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
+import {
+    ControlContainer,
+    FormControl,
+    FormGroup,
+    FormGroupDirective,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { MultipleChoiceOption, Question, QuestionDraft } from 'src/app/question/question.model';
@@ -12,9 +19,9 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
 
 @Component({
     selector: 'xm-wmc-option-editor',
-    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
     template: `
-        <div ngModelGroup="wmcOptions" class="m-0 p-0">
+        <div [formGroup]="wmcOptionForm" class="m-0 p-0">
             <div class="row my-2">
                 <div class="col-md-6 me-3 question-option-empty" [ngClass]="getOptionStyle()">
                     <textarea
@@ -23,8 +30,7 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
                         type="text"
                         rows="1"
                         class="question-option-input form-control"
-                        [ngModel]="option().option"
-                        (ngModelChange)="setOptionText($event)"
+                        formControlName="optionText"
                         required
                     ></textarea>
                 </div>
@@ -36,25 +42,24 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
                         type="number"
                         step="any"
                         lang="en"
-                        [ngModel]="option().defaultScore"
-                        (ngModelChange)="setDefaultScore($event)"
+                        formControlName="defaultScore"
                         xmFixedPrecision
                         required
-                        [disabled]="lotteryOn()"
                     />
                 </div>
                 <button
                     class="col-md-1 question-option-trash pointer btn btn-link "
-                    [hidden]="lotteryOn()"
+                    [disabled]="!allowRemoval()"
                     (click)="removeOption()"
+                    [title]="getRemoveTooltip()"
                 >
-                    <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
+                    <i class="bi-trash"></i>
                 </button>
             </div>
         </div>
     `,
     styleUrls: ['../question.shared.scss'],
-    imports: [FormsModule, NgClass, FixedPrecisionValidatorDirective, TranslateModule],
+    imports: [ReactiveFormsModule, NgClass, FixedPrecisionValidatorDirective, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WeightedMultipleChoiceOptionEditorComponent {
@@ -62,23 +67,110 @@ export class WeightedMultipleChoiceOptionEditorComponent {
     index = input(0);
     question = input.required<Question | QuestionDraft>();
     lotteryOn = input(false);
+    allowRemoval = input(false);
+    isInPublishedExam = input(false);
 
     questionChange = output<Question | QuestionDraft>();
 
+    wmcOptionForm: FormGroup;
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
+    private parentForm = inject(FormGroupDirective);
 
-    setOptionText(value: string) {
-        const optionValue = this.option();
-        optionValue.option = value;
+    constructor() {
+        // Create nested form group for this option
+        this.wmcOptionForm = new FormGroup({
+            optionText: new FormControl('', [Validators.required]),
+            defaultScore: new FormControl(0, [Validators.required]),
+        });
+
+        // Add to parent form with unique name based on index
+        effect(() => {
+            const indexValue = this.index();
+            const controlName = `wmcOption_${indexValue}`;
+            if (!this.parentForm.form.get(controlName)) {
+                this.parentForm.form.addControl(controlName, this.wmcOptionForm);
+            }
+        });
+
+        // Sync form with option values
+        effect(() => {
+            const optionValue = this.option();
+            this.wmcOptionForm.patchValue(
+                {
+                    optionText: optionValue.option || '',
+                    defaultScore: optionValue.defaultScore || 0,
+                },
+                { emitEvent: false },
+            );
+        });
+
+        // Update disabled state when lotteryOn changes
+        effect(() => {
+            const scoreControl = this.wmcOptionForm.get('defaultScore');
+            if (scoreControl) {
+                if (this.lotteryOn()) {
+                    scoreControl.disable({ emitEvent: false });
+                } else {
+                    scoreControl.enable({ emitEvent: false });
+                }
+            }
+        });
+
+        // Sync form changes back to option object and emit to parent
+        this.wmcOptionForm.get('optionText')?.valueChanges.subscribe((value) => {
+            const optionValue = this.option();
+            const questionValue = this.question();
+            if (optionValue !== undefined && optionValue.option !== value) {
+                optionValue.option = value;
+                // Emit updated question to parent
+                const updatedQuestion = {
+                    ...questionValue,
+                    options: [...questionValue.options],
+                };
+                this.questionChange.emit(updatedQuestion);
+            }
+        });
+
+        this.wmcOptionForm.get('defaultScore')?.valueChanges.subscribe((value) => {
+            const optionValue = this.option();
+            const questionValue = this.question();
+            if (optionValue !== undefined && optionValue.defaultScore !== value) {
+                optionValue.defaultScore = value ?? 0;
+                // Emit updated question to parent
+                const updatedQuestion = {
+                    ...questionValue,
+                    options: [...questionValue.options],
+                };
+                this.questionChange.emit(updatedQuestion);
+            }
+        });
     }
 
-    setDefaultScore(value: number) {
-        const optionValue = this.option();
-        optionValue.defaultScore = value;
+    getRemoveTooltip(): string {
+        if (this.allowRemoval()) {
+            return this.translate.instant('i18n_remove');
+        }
+        if (this.lotteryOn()) {
+            return this.translate.instant('i18n_action_disabled_lottery_on');
+        }
+        if (this.isInPublishedExam()) {
+            const optionValue = this.option();
+            const questionValue = this.question();
+            const hasCorrectAnswer = questionValue.options.some(
+                (o) => o !== optionValue && (o.correctOption || (o.defaultScore && o.defaultScore > 0)),
+            );
+            if (!hasCorrectAnswer) {
+                return this.translate.instant('i18n_action_disabled_minimum_options');
+            }
+        }
+        return this.translate.instant('i18n_remove');
     }
 
     removeOption() {
+        if (!this.allowRemoval()) {
+            return;
+        }
         const optionValue = this.option();
         const questionValue = this.question();
         const hasCorrectAnswer = questionValue.options.some((o) => o !== optionValue && o.defaultScore > 0);

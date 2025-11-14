@@ -6,7 +6,6 @@ import {
     ChangeDetectionStrategy,
     Component,
     OnDestroy,
-    ViewChild,
     computed,
     effect,
     inject,
@@ -14,7 +13,7 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -35,7 +34,7 @@ import { QuestionBodyComponent } from './question-body.component';
     templateUrl: './question.component.html',
     styleUrls: ['../question.shared.scss'],
     imports: [
-        FormsModule,
+        ReactiveFormsModule,
         QuestionBodyComponent,
         TranslateModule,
         PageHeaderComponent,
@@ -45,7 +44,7 @@ import { QuestionBodyComponent } from './question-body.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionComponent implements OnDestroy, CanComponentDeactivate {
-    @ViewChild('questionForm', { static: false }) questionForm?: NgForm;
+    questionForm = new FormGroup({});
 
     newQuestionInput = input(false);
     questionId = input(0);
@@ -85,6 +84,7 @@ export class QuestionComponent implements OnDestroy, CanComponentDeactivate {
     private modal = inject(ModalService);
 
     private initialized = signal(false);
+    private formInitialized = signal(false);
 
     constructor() {
         // Initialize nextState from route (only available in router context)
@@ -141,6 +141,18 @@ export class QuestionComponent implements OnDestroy, CanComponentDeactivate {
                 });
             }
         });
+
+        // Mark form as initialized after question is loaded
+        // Child forms now use reset() instead of patchValue(), so they're already pristine
+        effect(() => {
+            const q = this.question();
+            if (q && !this.formInitialized()) {
+                // Use setTimeout to ensure all child forms have been initialized
+                setTimeout(() => {
+                    this.formInitialized.set(true);
+                }, 0);
+            }
+        });
     }
 
     ngOnDestroy() {
@@ -148,10 +160,13 @@ export class QuestionComponent implements OnDestroy, CanComponentDeactivate {
     }
 
     canDeactivate(): boolean {
-        if (!this.cancelClicked() || !this.questionForm?.dirty) {
+        // Allow deactivation if form is not dirty (no unsaved changes)
+        // Also allow if form hasn't been initialized yet (still loading)
+        if (!this.formInitialized()) {
             return true;
         }
-        return false;
+        // Parent form dirty state automatically includes nested forms
+        return !this.questionForm.dirty;
     }
 
     hasNoCorrectOption() {
@@ -180,11 +195,22 @@ export class QuestionComponent implements OnDestroy, CanComponentDeactivate {
         const questionValue = this.question();
         if (!questionValue) return;
 
+        const questionBodyControl = this.questionForm.get('questionBody');
+        const questionBodyForm = questionBodyControl instanceof FormGroup ? questionBodyControl : null;
+
+        // Read form values and sync to question object
+        const defaultMaxScore = questionBodyForm?.get('defaultMaxScore')?.value ?? null;
+
         const updatedQuestion = {
             ...questionValue,
+            defaultMaxScore: defaultMaxScore,
             questionOwners: this.currentOwners(),
         };
         const fn = (q: Question | QuestionDraft) => {
+            // Update question signal with saved values
+            this.question.set(q as ReverseQuestion | QuestionDraft);
+            // Mark form as pristine after successful save
+            this.questionForm.markAsPristine();
             const nextStateValue = this.nextState();
             if (nextStateValue) {
                 this.router.navigate(['/staff', nextStateValue]);
@@ -210,15 +236,22 @@ export class QuestionComponent implements OnDestroy, CanComponentDeactivate {
 
     cancel() {
         this.cancelClicked.set(true);
+        // Just initiate routing change - guard will ask for confirmation if dirty
+        // Leave form state intact (don't mark pristine)
         const nextStateValue = this.nextState();
         if (nextStateValue) {
+            // Navigation will trigger canDeactivate guard BEFORE navigation happens
+            // Guard will ask for confirmation if form is dirty
             this.router.navigate(['/staff', ...nextStateValue.split('/')]);
         } else {
+            // No navigation, just emit cancelled event
+            // Parent component (e.g., modal) can decide what to do
+            // Don't mark pristine - leave form state intact
             this.cancelled.emit();
         }
     }
 
     private onUnload = (event: BeforeUnloadEvent) => {
-        if (this.questionForm?.dirty) event.preventDefault();
+        if (this.questionForm.dirty) event.preventDefault();
     };
 }

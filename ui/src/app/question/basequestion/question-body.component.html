@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div ngModelGroup="questionBody" id="questionBody">
+<div [formGroup]="questionBodyForm" id="questionBody">
     <xm-question-usage [examNames]="examNames()" />
     <xm-question-basic-info
         [question]="question()"
@@ -34,6 +34,7 @@ SPDX-License-Identifier: EUPL-1.2
         @case ('EssayQuestion') {
             <xm-essay-editor [question]="question()" [lotteryOn]="lotteryOn()" />
         }
+        <!-- ClozeTest needs nothing extra -->
         @case ('MultipleChoiceQuestion') {
             <xm-multiple-choice-editor
                 [question]="question()"
@@ -74,12 +75,10 @@ SPDX-License-Identifier: EUPL-1.2
                     type="number"
                     lang="en"
                     class="form-control xm-numeric-input"
-                    [ngModel]="question().defaultMaxScore"
-                    (ngModelChange)="setDefaultMaxScore($event)"
+                    formControlName="defaultMaxScore"
                     [min]="0"
                     [max]="1000"
                     required
-                    [disabled]="lotteryOn()"
                 />
             </div>
         </div>
@@ -97,8 +96,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 type="text"
                                 name="questionOnwers"
                                 class="form-control"
-                                [ngModel]="newOwner().name"
-                                (ngModelChange)="setNewOwnerName($event)"
+                                formControlName="newOwnerName"
+                                (blur)="setNewOwnerName(questionBodyForm.get('newOwnerName')?.value || '')"
                                 [ngbTypeahead]="listQuestionOwners$"
                                 [editable]="false"
                                 [inputFormatter]="nameFormat"

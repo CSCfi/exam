@@ -2,19 +2,26 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
-import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, inject, input, model } from '@angular/core';
+import {
+    ControlContainer,
+    FormControl,
+    FormGroup,
+    FormGroupDirective,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-eq-essay',
-    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    imports: [FormsModule, NgbPopoverModule, TranslateModule],
+    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
+    imports: [ReactiveFormsModule, NgbPopoverModule, TranslateModule],
     styleUrls: ['../question.shared.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <div ngModelGroup="essay" id="essay">
+        <div [formGroup]="essayForm" id="essay">
             <div class="row">
                 <div class="col-md-12 mt-2 pr-0">
                     <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
@@ -31,18 +38,16 @@ import { TranslateModule } from '@ngx-translate/core';
                             type="number"
                             lang="en"
                             class="form-control"
-                            [ngModel]="expectedWordCount()"
-                            (ngModelChange)="updateWordCount($event)"
+                            formControlName="expectedWordCount"
                             [min]="1"
                             [max]="1000000"
-                            #wordCount="ngModel"
                         />
                         <span class="input-group-text" title="{{ 'i18n_average_word_length_finnish' | translate }}">
                             {{ 'i18n_approximately' | translate }} {{ estimateCharacters() }}
                             {{ 'i18n_characters' | translate }}
                         </span>
                     </div>
-                    @if (wordCount.invalid) {
+                    @if (essayForm.get('expectedWordCount')?.invalid && essayForm.get('expectedWordCount')?.touched) {
                         <div class="warning-text-small m-1 edit-warning-container">
                             <i class="bi-exclamation-circle text-danger me-2"></i>
                             {{ 'i18n_essay_length_recommendation_bounds' | translate }}
@@ -59,40 +64,37 @@ import { TranslateModule } from '@ngx-translate/core';
                         id="evaluationType"
                         class="form-select w-75"
                         name="evaluationType"
-                        [disabled]="lotteryOn()"
-                        [ngModel]="evaluationType()"
-                        (ngModelChange)="updateEvaluationType($event)"
-                        required="true"
+                        formControlName="evaluationType"
+                        required
                     >
                         <option value="Points">{{ 'i18n_word_points' | translate }}</option>
                         <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
                     </select>
                 </div>
             </div>
-        </div>
-        <!-- Evaluation criteria -->
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_exam_evaluation_criteria' | translate }}
-                <sup
-                    ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            <div class="col-md-9 pe-0">
-                <textarea
-                    id="defaultEvaluationCriteria"
-                    name="defaultEvaluationCriteria"
-                    class="form-control"
-                    rows="3"
-                    [ngModel]="evaluationCriteria()"
-                    (ngModelChange)="updateEvaluationCriteria($event)"
-                    placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
-                >
-                </textarea>
+            <!-- Evaluation criteria -->
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    {{ 'i18n_exam_evaluation_criteria' | translate }}
+                    <sup
+                        ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    >
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
+                    </sup>
+                </div>
+                <div class="col-md-9 pe-0">
+                    <textarea
+                        id="defaultEvaluationCriteria"
+                        name="defaultEvaluationCriteria"
+                        class="form-control"
+                        rows="3"
+                        formControlName="evaluationCriteria"
+                        placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
+                    >
+                    </textarea>
+                </div>
             </div>
         </div>
     `,
@@ -103,17 +105,64 @@ export class EssayComponent {
     evaluationCriteria = model<string>();
     lotteryOn = input<boolean>(false);
 
-    updateEvaluationType(type: string | null) {
-        const value = type ?? undefined;
-        this.evaluationType.set(value);
-    }
+    essayForm: FormGroup;
+    private parentForm = inject(FormGroupDirective);
 
-    updateWordCount(count: number) {
-        this.expectedWordCount.set(count);
-    }
+    constructor() {
+        // Create nested form group for essay fields
+        this.essayForm = new FormGroup({
+            expectedWordCount: new FormControl(null, [Validators.min(1), Validators.max(1000000)]),
+            evaluationType: new FormControl('', [Validators.required]),
+            evaluationCriteria: new FormControl(''),
+        });
 
-    updateEvaluationCriteria(criteria: string) {
-        this.evaluationCriteria.set(criteria);
+        // Add to parent form
+        this.parentForm.form.addControl('essay', this.essayForm);
+
+        // Sync form with model signals
+        effect(() => {
+            this.essayForm.patchValue(
+                {
+                    expectedWordCount: this.expectedWordCount() ?? null,
+                    evaluationType: this.evaluationType() || '',
+                    evaluationCriteria: this.evaluationCriteria() || '',
+                },
+                { emitEvent: false },
+            );
+        });
+
+        // Update disabled state when lotteryOn changes
+        effect(() => {
+            const evaluationTypeControl = this.essayForm.get('evaluationType');
+            if (evaluationTypeControl) {
+                if (this.lotteryOn()) {
+                    evaluationTypeControl.disable({ emitEvent: false });
+                } else {
+                    evaluationTypeControl.enable({ emitEvent: false });
+                }
+            }
+        });
+
+        // Sync form changes back to model signals
+        this.essayForm.get('expectedWordCount')?.valueChanges.subscribe((value) => {
+            if (this.expectedWordCount() !== value) {
+                this.expectedWordCount.set(value ?? undefined);
+            }
+        });
+
+        this.essayForm.get('evaluationType')?.valueChanges.subscribe((value) => {
+            const typeValue = value || undefined;
+            if (this.evaluationType() !== typeValue) {
+                this.evaluationType.set(typeValue);
+            }
+        });
+
+        this.essayForm.get('evaluationCriteria')?.valueChanges.subscribe((value) => {
+            const criteriaValue = value || undefined;
+            if (this.evaluationCriteria() !== criteriaValue) {
+                this.evaluationCriteria.set(criteriaValue);
+            }
+        });
     }
 
     estimateCharacters() {

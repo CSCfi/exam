@@ -13,15 +13,22 @@ export interface CanComponentDeactivate {
 }
 
 export const hasUnsavedChangesGuard: CanDeactivateFn<CanComponentDeactivate> = (
-    component: CanComponentDeactivate,
+    component: CanComponentDeactivate | null,
 ): Observable<boolean> => {
-    if (component.canDeactivate && component.canDeactivate()) {
+    // If component doesn't exist or doesn't implement canDeactivate, allow navigation
+    if (!component || !component.canDeactivate) {
         return of(true);
-    } else {
-        const translate = inject(TranslateService);
-        return inject(ConfirmationDialogService).open$(
-            translate.instant('i18n_confirm_exit'),
-            translate.instant('i18n_unsaved_question_data'),
-        );
     }
+
+    // If component allows deactivation (no unsaved changes), allow navigation
+    if (component.canDeactivate()) {
+        return of(true);
+    }
+
+    // Otherwise, show confirmation dialog for unsaved changes
+    const translate = inject(TranslateService);
+    return inject(ConfirmationDialogService).open$(
+        translate.instant('i18n_confirm_exit'),
+        translate.instant('i18n_unsaved_question_data'),
+    );
 };

@@ -3,168 +3,131 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, inject, input, model } from '@angular/core';
-import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { Component, effect, inject, input, model, signal } from '@angular/core';
+import {
+    ControlContainer,
+    FormArray,
+    FormControl,
+    FormGroup,
+    FormGroupDirective,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question/question.model';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-eq-weighted-mc',
-    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    imports: [FormsModule, NgClass, NgbPopoverModule, TranslateModule, UpperCasePipe],
+    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
+    imports: [
+        ReactiveFormsModule,
+        NgClass,
+        NgbPopoverModule,
+        TranslateModule,
+        UpperCasePipe,
+        FixedPrecisionValidatorDirective,
+    ],
     styleUrls: ['../question.shared.scss'],
-    template: `
-        @if (question(); as q) {
-            <div ngModelGroup="weightedMcq" id="weightedMcq">
-                <div class="row mt-2 mx-2">
-                    <ul>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_1' | translate }}</li>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_2' | translate }}</li>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_3' | translate }}</li>
-                    </ul>
-                    {{ 'i18n_weighted_multiple_choice_description_4' | translate }}
-                    <ul>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_5' | translate }}</li>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_6' | translate }}</li>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_7' | translate }}</li>
-                    </ul>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-12">
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                name="negativeScore"
-                                type="checkbox"
-                                [ngModel]="q.negativeScoreAllowed"
-                                (ngModelChange)="updateNegativeScoreSetting($event)"
-                                id="negativeScore"
-                            />
-                            <label class="form-check-label" for="negativeScore">{{
-                                'i18n_allow_negative_score' | translate
-                            }}</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-12">
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                name="optionShuffling"
-                                type="checkbox"
-                                [ngModel]="q.optionShufflingOn"
-                                (ngModelChange)="updateShufflingSetting($event)"
-                                id="optionShuffling"
-                            />
-                            <label class="form-check-label" for="optionShuffling">{{
-                                'i18n_shuffle_options' | translate
-                            }}</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
-                    </div>
-                    <div class="col question-option-title">
-                        {{ 'i18n_word_points' | translate | uppercase }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        @for (option of q.options; track option.id; let index = $index) {
-                            <div class="row form-horizontal m-0 p-0 mb-3">
-                                @if (option.option) {
-                                    <div
-                                        class="col-md-6 question-option-empty"
-                                        [ngClass]="
-                                            option.score > 0
-                                                ? 'question-correct-option'
-                                                : option.score < 0
-                                                  ? 'question-incorrect-option'
-                                                  : ''
-                                        "
-                                    >
-                                        <textarea
-                                            id="weightedOptionText_{{ option.id }}"
-                                            type="text"
-                                            rows="1"
-                                            name="weightedOptionText_{{ option.id }}"
-                                            class="question-option-input form-control mb-1"
-                                            [ngModel]="option.option!.option"
-                                            (ngModelChange)="updateText($event, index)"
-                                            required
-                                        ></textarea>
-                                    </div>
-                                }
-                                <div
-                                    class="col-md-2 question-option-empty-radio"
-                                    [ngClass]="
-                                        option.score > 0
-                                            ? 'question-correct-option-radio'
-                                            : option.score < 0
-                                              ? 'question-incorrect-option-radio'
-                                              : ''
-                                    "
-                                >
-                                    <input
-                                        xmFixedPrecision
-                                        id="optionScore_{{ option.id }}"
-                                        name="maxScore_{{ option.id }}"
-                                        class="question-option-input points"
-                                        type="number"
-                                        step="any"
-                                        lang="en"
-                                        [ngModel]="option.score"
-                                        (ngModelChange)="updateScore($event, index)"
-                                        required
-                                        [disabled]="lotteryOn()"
-                                    />
-                                </div>
-                                <button
-                                    class="col-md-1 question-option-trash pointer btn btn-link"
-                                    [hidden]="lotteryOn()"
-                                    (click)="removeOption(option)"
-                                >
-                                    <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
-                                </button>
-                            </div>
-                        }
-                        <div class="row">
-                            <div class="col-md-12 question-option-title">
-                                {{ 'i18n_max_score' | translate | uppercase }}:
-                                {{ maxScore }}
-                                {{ 'i18n_min_score' | translate | uppercase }}:
-                                {{ minScore }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-12">
-                    <button (click)="addNewOption()" class="attachment-link pointer btn btn-sm btn-link">
-                        <i class="bi-plus"></i>
-                        {{ 'i18n_question_add_new_option' | translate }}
-                    </button>
-                </div>
-            </div>
-        }
-    `,
+    templateUrl: './weighted-multichoice.component.html',
 })
 export class WeightedMultiChoiceComponent {
     question = model<ExamSectionQuestion | undefined>(undefined);
     lotteryOn = input(false);
     isInPublishedExam = input(false);
 
+    weightedMcForm: FormGroup;
     private TranslateService = inject(TranslateService);
     private ToastrService = inject(ToastrService);
     private QuestionScore = inject(QuestionScoringService);
+    private parentForm = inject(FormGroupDirective);
+    private formInitialized = signal(false);
 
+    constructor() {
+        // Create nested form group with FormArray for options
+        this.weightedMcForm = new FormGroup({
+            negativeScore: new FormControl(false),
+            optionShuffling: new FormControl(false),
+            options: new FormArray<FormGroup>([]),
+        });
+
+        // Add to parent form
+        this.parentForm.form.addControl('weightedMcq', this.weightedMcForm);
+
+        // Sync form with question model signal
+        effect(() => {
+            const q = this.question();
+            if (q) {
+                this.updateFormArray(q.options);
+                if (!this.formInitialized()) {
+                    // Use reset() during initialization to mark form as pristine
+                    this.weightedMcForm.reset(
+                        {
+                            negativeScore: q.negativeScoreAllowed || false,
+                            optionShuffling: q.optionShufflingOn || false,
+                        },
+                        { emitEvent: false },
+                    );
+                    this.formInitialized.set(true);
+                } else {
+                    // Only sync from question → form if form is pristine
+                    // If form is dirty, user has made changes - don't overwrite them
+                    if (this.weightedMcForm.pristine) {
+                        this.weightedMcForm.patchValue(
+                            {
+                                negativeScore: q.negativeScoreAllowed || false,
+                                optionShuffling: q.optionShufflingOn || false,
+                            },
+                            { emitEvent: false },
+                        );
+                    }
+                }
+                // Subscribe to existing controls after initial setup
+                this.subscribeToFormArrayControls();
+            }
+        });
+
+        // Update disabled state when lotteryOn changes
+        effect(() => {
+            const optionsArray = this.weightedMcForm.get('options') as FormArray;
+            optionsArray.controls.forEach((control) => {
+                const group = control as FormGroup;
+                const scoreControl = group.get('score');
+                if (scoreControl) {
+                    if (this.lotteryOn()) {
+                        scoreControl.disable({ emitEvent: false });
+                    } else {
+                        scoreControl.enable({ emitEvent: false });
+                    }
+                }
+            });
+        });
+
+        // Sync form changes back to question model signal
+        this.weightedMcForm.get('negativeScore')?.valueChanges.subscribe((value) => {
+            const q = this.question();
+            if (q && q.negativeScoreAllowed !== value) {
+                this.question.update((current) => (current ? { ...current, negativeScoreAllowed: value } : current));
+            }
+        });
+
+        this.weightedMcForm.get('optionShuffling')?.valueChanges.subscribe((value) => {
+            const q = this.question();
+            if (q && q.optionShufflingOn !== value) {
+                this.question.update((current) => (current ? { ...current, optionShufflingOn: value } : current));
+            }
+        });
+
+        // Note: Individual control subscriptions are set up in updateFormArray()
+        // when form groups are created, to ensure we catch all changes
+    }
+
+    get optionsFormArray(): FormArray {
+        return this.weightedMcForm.get('options') as FormArray;
+    }
     get maxScore(): number {
         const q = this.question();
         return q ? this.QuestionScore.calculateWeightedMaxPoints(q) : 0;
@@ -175,34 +138,6 @@ export class WeightedMultiChoiceComponent {
         return q ? this.QuestionScore.calculateWeightedMinPoints(q) : 0;
     }
 
-    updateScore = (score: number, index: number) => {
-        const q = this.question();
-        if (!q) return;
-        const next = [...q.options];
-        next[index] = { ...next[index], score };
-        this.question.update((current) => (current ? { ...current, options: next } : current));
-    };
-
-    updateText = (text: string, index: number) => {
-        const q = this.question();
-        if (!q) return;
-        const next = [...q.options];
-        next[index] = { ...next[index], option: { ...next[index].option, option: text } };
-        this.question.update((current) => (current ? { ...current, options: next } : current));
-    };
-
-    updateNegativeScoreSetting = (setting: boolean) => {
-        const q = this.question();
-        if (!q) return;
-        this.question.update((current) => (current ? { ...current, negativeScoreAllowed: setting } : current));
-    };
-
-    updateShufflingSetting = (setting: boolean) => {
-        const q = this.question();
-        if (!q) return;
-        this.question.update((current) => (current ? { ...current, optionShufflingOn: setting } : current));
-    };
-
     addNewOption = () => {
         const q = this.question();
         if (!q) return;
@@ -212,16 +147,13 @@ export class WeightedMultiChoiceComponent {
         }
         const newOption: ExamSectionQuestionOption = {
             id: -(Date.now() + Math.random()),
-            option: {
-                correctOption: false,
-                option: '',
-                defaultScore: 0,
-            },
+            option: { correctOption: false, option: '', defaultScore: 0 },
             score: 0,
             answered: false,
         };
-        const next = [...q.options, newOption];
-        this.question.update((current) => (current ? { ...current, options: next } : current));
+        this.question.update((current) =>
+            current ? { ...current, options: [...current.options, newOption] } : current,
+        );
     };
 
     removeOption = (option: ExamSectionQuestionOption) => {
@@ -232,19 +164,98 @@ export class WeightedMultiChoiceComponent {
             return;
         }
 
-        const hasCorrectAnswer =
-            q.options.filter(
-                (o) =>
-                    o.id !== option.id &&
-                    (o.option?.correctOption || (o.option?.defaultScore && o.option.defaultScore > 0)),
-            ).length > 0;
+        const hasCorrectAnswer = q.options.some(
+            (o) =>
+                o.id !== option.id &&
+                (o.option?.correctOption || (o.option?.defaultScore && o.option.defaultScore > 0)),
+        );
 
-        // Either not published exam or correct answer exists
         if (!this.isInPublishedExam() || hasCorrectAnswer) {
-            const next = q.options.filter((o) => o.id !== option.id);
-            this.question.update((current) => (current ? { ...current, options: next } : current));
+            this.question.update((current) =>
+                current ? { ...current, options: current.options.filter((o) => o.id !== option.id) } : current,
+            );
         } else {
             this.ToastrService.error(this.TranslateService.instant('i18n_action_disabled_minimum_options'));
         }
     };
+
+    private subscribeToFormArrayControls() {
+        this.optionsFormArray.controls.forEach((control) => {
+            this.subscribeToFormGroup(control as FormGroup);
+        });
+    }
+
+    private subscribeToFormGroup(formGroup: FormGroup) {
+        formGroup.get('optionText')?.valueChanges.subscribe(() => this.syncFormToQuestion());
+        formGroup.get('score')?.valueChanges.subscribe(() => this.syncFormToQuestion());
+    }
+
+    private updateFormArray(options: ExamSectionQuestionOption[]) {
+        const optionsArray = this.optionsFormArray;
+        const currentLength = optionsArray.length;
+        const newLength = options.length;
+
+        // Add new form groups
+        for (let i = currentLength; i < newLength; i++) {
+            const option = options[i];
+            const scoreControl = new FormControl(option.score || 0, [Validators.required]);
+            if (this.lotteryOn()) {
+                scoreControl.disable({ emitEvent: false });
+            }
+            const newGroup = new FormGroup({
+                optionText: new FormControl(option.option?.option || '', [Validators.required]),
+                score: scoreControl,
+            });
+            optionsArray.push(newGroup);
+            this.subscribeToFormGroup(newGroup);
+        }
+
+        // Remove excess form groups
+        while (optionsArray.length > newLength) {
+            optionsArray.removeAt(optionsArray.length - 1);
+        }
+
+        // Update existing form group values and disabled state
+        options.forEach((option, index) => {
+            const formGroup = optionsArray.at(index) as FormGroup;
+            if (!formGroup) return;
+
+            formGroup.patchValue(
+                {
+                    optionText: option.option?.option || '',
+                    score: option.score || 0,
+                },
+                { emitEvent: false },
+            );
+
+            const scoreControl = formGroup.get('score');
+            if (scoreControl) {
+                if (this.lotteryOn()) {
+                    scoreControl.disable({ emitEvent: false });
+                } else {
+                    scoreControl.enable({ emitEvent: false });
+                }
+            }
+        });
+    }
+
+    private syncFormToQuestion() {
+        const q = this.question();
+        if (!q) return;
+
+        const updatedOptions = q.options.map((opt, index) => {
+            const formGroup = this.optionsFormArray.at(index) as FormGroup;
+            if (!formGroup || !opt.option) return opt;
+
+            const optionText = formGroup.get('optionText')?.value || '';
+            const score = formGroup.get('score')?.value ?? 0;
+            return {
+                ...opt,
+                option: { ...opt.option, option: optionText },
+                score,
+            };
+        });
+
+        this.question.update((current) => (current ? { ...current, options: updatedOptions } : current));
+    }
 }

@@ -1,0 +1,135 @@
+@if (question(); as q) {
+    <div [formGroup]="weightedMcForm" id="weightedMcq">
+        <div class="row mt-2 mx-2">
+            <ul>
+                <li>{{ 'i18n_weighted_multiple_choice_description_1' | translate }}</li>
+                <li>{{ 'i18n_weighted_multiple_choice_description_2' | translate }}</li>
+                <li>{{ 'i18n_weighted_multiple_choice_description_3' | translate }}</li>
+            </ul>
+            {{ 'i18n_weighted_multiple_choice_description_4' | translate }}
+            <ul>
+                <li>{{ 'i18n_weighted_multiple_choice_description_5' | translate }}</li>
+                <li>{{ 'i18n_weighted_multiple_choice_description_6' | translate }}</li>
+                <li>{{ 'i18n_weighted_multiple_choice_description_7' | translate }}</li>
+            </ul>
+        </div>
+        <div class="row mt-2" [formGroup]="weightedMcForm">
+            <div class="col-md-12">
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        name="negativeScore"
+                        type="checkbox"
+                        formControlName="negativeScore"
+                        id="negativeScore"
+                    />
+                    <label class="form-check-label" for="negativeScore">{{
+                        'i18n_allow_negative_score' | translate
+                    }}</label>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2" [formGroup]="weightedMcForm">
+            <div class="col-md-12">
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        name="optionShuffling"
+                        type="checkbox"
+                        formControlName="optionShuffling"
+                        id="optionShuffling"
+                    />
+                    <label class="form-check-label" for="optionShuffling">{{
+                        'i18n_shuffle_options' | translate
+                    }}</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
+            </div>
+            <div class="col question-option-title">
+                {{ 'i18n_word_points' | translate | uppercase }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div formArrayName="options">
+                    @for (option of q.options; track option.id; let index = $index) {
+                        <div class="row form-horizontal m-0 p-0 mb-3" [formGroupName]="index">
+                            @if (option.option) {
+                                <div
+                                    class="col-md-6 question-option-empty"
+                                    [ngClass]="
+                                        option.score > 0
+                                            ? 'question-correct-option'
+                                            : option.score < 0
+                                              ? 'question-incorrect-option'
+                                              : ''
+                                    "
+                                >
+                                    <textarea
+                                        id="weightedOptionText_{{ option.id }}"
+                                        type="text"
+                                        rows="1"
+                                        name="weightedOptionText_{{ option.id }}"
+                                        class="question-option-input form-control mb-1"
+                                        formControlName="optionText"
+                                        required
+                                    ></textarea>
+                                </div>
+                            }
+                            <div
+                                class="col-md-2 question-option-empty-radio"
+                                [ngClass]="
+                                    option.score > 0
+                                        ? 'question-correct-option-radio'
+                                        : option.score < 0
+                                          ? 'question-incorrect-option-radio'
+                                          : ''
+                                "
+                            >
+                                <input
+                                    xmFixedPrecision
+                                    id="optionScore_{{ option.id }}"
+                                    name="maxScore_{{ option.id }}"
+                                    class="question-option-input points"
+                                    type="number"
+                                    step="any"
+                                    lang="en"
+                                    formControlName="score"
+                                    required
+                                />
+                            </div>
+                            @if (!lotteryOn()) {
+                                <button
+                                    class="col-md-1 question-option-trash pointer btn btn-link"
+                                    (click)="removeOption(option)"
+                                >
+                                    <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="row">
+                    <div class="col-md-12 question-option-title">
+                        {{ 'i18n_max_score' | translate | uppercase }}:
+                        {{ maxScore }}
+                        {{ 'i18n_min_score' | translate | uppercase }}:
+                        {{ minScore }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <button (click)="addNewOption()" class="attachment-link pointer btn btn-sm btn-link">
+                <i class="bi-plus"></i>
+                {{ 'i18n_question_add_new_option' | translate }}
+            </button>
+        </div>
+    </div>
+}

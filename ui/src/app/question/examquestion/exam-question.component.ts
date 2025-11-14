@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, ViewChild, computed, inject, input, model, output, signal } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { Component, OnDestroy, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
 import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
@@ -27,7 +27,7 @@ import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
     templateUrl: './exam-question.component.html',
     styleUrls: ['../question.shared.scss'],
     imports: [
-        FormsModule,
+        ReactiveFormsModule,
         FixedPrecisionValidatorDirective,
         TranslateModule,
         QuestionBasicInfoComponent,
@@ -39,8 +39,8 @@ import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
         ClaimChoiceComponent,
     ],
 })
-export class ExamQuestionComponent implements OnInit, OnDestroy {
-    @ViewChild('questionForm', { static: false }) questionForm?: NgForm;
+export class ExamQuestionComponent implements OnDestroy {
+    questionForm: FormGroup;
     examQuestion = model<ExamSectionQuestion | undefined>(undefined);
     lotteryOn = input(false);
     saved = output<{ question: Question; examQuestion: ExamSectionQuestion }>();
@@ -86,9 +86,59 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     private Question = inject(QuestionService);
     private Attachment = inject(AttachmentService);
     private modal = inject(ModalService);
+    private formInitialized = signal(false);
 
-    ngOnInit() {
-        this.init();
+    constructor() {
+        // Initialize reactive form
+        this.questionForm = new FormGroup({
+            maxScore: new FormControl(null, [Validators.min(0), Validators.max(1000)]),
+        });
+
+        // Sync form with examQuestion model signal
+        effect(() => {
+            const eq = this.examQuestion();
+            if (eq) {
+                if (!this.formInitialized()) {
+                    // Use reset() during initialization to mark form as pristine
+                    this.questionForm.reset({ maxScore: eq.maxScore || null }, { emitEvent: false });
+                    this.formInitialized.set(true);
+                } else {
+                    // Only sync from question → form if form is pristine
+                    // If form is dirty, user has made changes - don't overwrite them
+                    if (this.questionForm.pristine) {
+                        this.questionForm.patchValue({ maxScore: eq.maxScore || null }, { emitEvent: false });
+                    }
+                }
+            }
+        });
+
+        // Sync form changes back to examQuestion model signal
+        this.questionForm.get('maxScore')?.valueChanges.subscribe((value) => {
+            const eq = this.examQuestion();
+            if (eq !== undefined && eq.maxScore !== value) {
+                this.examQuestion.set({ ...eq, maxScore: value ?? 0 });
+            }
+        });
+
+        // Update disabled state when lotteryOn changes
+        effect(() => {
+            const maxScoreControl = this.questionForm.get('maxScore');
+            if (maxScoreControl) {
+                if (this.lotteryOn()) {
+                    maxScoreControl.disable({ emitEvent: false });
+                } else {
+                    maxScoreControl.enable({ emitEvent: false });
+                }
+            }
+        });
+
+        // Initialize question data when examQuestion becomes available
+        effect(() => {
+            const eq = this.examQuestion();
+            if (eq) {
+                this.init();
+            }
+        });
     }
 
     ngOnDestroy() {
@@ -120,7 +170,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         if (q) this.question.set({ ...q, question: $event });
     };
 
-    cancel = () => this.cancelled.emit({ dirty: this.questionForm?.dirty || false });
+    cancel = () => this.cancelled.emit({ dirty: this.questionForm.dirty });
 
     openPreview$ = () => {
         const modal = this.modal.openRef(QuestionPreviewDialogComponent, { size: 'lg' });
@@ -136,6 +186,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     updateEvaluationType = ($event: string | undefined) => {
         // evaluationType is already updated via two-way binding [(evaluationType)]
         // Only handle side effect: set maxScore to 0 when switching to Selection
+        // The effect will sync this to the form automatically
         if ($event === 'Selection') {
             const examQuestionValue = this.examQuestion();
             if (examQuestionValue) {
@@ -210,6 +261,6 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     };
 
     private onUnload = (event: BeforeUnloadEvent) => {
-        if (this.questionForm?.dirty) event.preventDefault();
+        if (this.questionForm.dirty) event.preventDefault();
     };
 }

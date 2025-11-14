@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 
 SPDX-License-Identifier: EUPL-1.2
 -->
-<div ngModelGroup="claimChoice" id="claimChoice">
+<div [formGroup]="claimChoiceForm" id="claimChoice">
     <div class="row">
         <div class="col-md-12">
             <p>{{ 'i18n_claim_choice_question_instruction' | translate }}</p>
@@ -34,20 +34,22 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <div class="row mx-2">
-        <div class="col-md-11">
+        <div class="col-md-11" formArrayName="options">
             @for (opt of options(); track opt.id; let index = $index) {
-                <div class="question-editor-claim-choice-option row" [ngClass]="getOptionClass(opt)">
+                <div
+                    class="question-editor-claim-choice-option row"
+                    [ngClass]="getOptionClass(opt)"
+                    [formGroupName]="index"
+                >
                     @if (opt.option) {
                         <div class="claim-choice-option-inputs col-md-9">
                             <textarea
-                                [ngModel]="opt.option!.option"
-                                (ngModelChange)="updateText($event, index)"
+                                formControlName="optionText"
                                 name="claimChoiceOption_{{ opt.id }}"
                                 type="text"
                                 rows="1"
                                 class="make-inline form-control"
                                 required
-                                [disabled]="lotteryOn() || opt.option?.claimChoiceType === 'SkipOption'"
                             ></textarea>
                         </div>
                     }
@@ -59,10 +61,8 @@ SPDX-License-Identifier: EUPL-1.2
                             step="any"
                             lang="en"
                             xmFixedPrecision
-                            [ngModel]="opt.score"
-                            (ngModelChange)="updateScore($event, index)"
+                            formControlName="score"
                             required
-                            [disabled]="lotteryOn() || opt.option!.claimChoiceType === 'SkipOption'"
                         />
                     </div>
                     <div class="claim-choice-option-description">

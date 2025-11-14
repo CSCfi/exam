@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
+import { ControlContainer, FormControl, FormGroup, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Question, QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
@@ -54,7 +54,8 @@ export interface QuestionAdditionalInfoConfig {
 @Component({
     selector: 'xm-question-additional-info',
     standalone: true,
-    imports: [FormsModule, NgbPopover, TranslateModule, NgClass],
+    viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
+    imports: [ReactiveFormsModule, NgbPopover, TranslateModule, NgClass],
     template: `
         <!-- Additional info title -->
         <div class="row mt-2">
@@ -156,7 +157,7 @@ export interface QuestionAdditionalInfoConfig {
         </div>
 
         <!-- Instructions -->
-        <div class="row mt-2">
+        <div class="row mt-2" [formGroup]="additionalInfoForm">
             <div class="col-md-3">
                 {{ 'i18n_question_instruction' | translate }}
                 <sup
@@ -173,8 +174,7 @@ export interface QuestionAdditionalInfoConfig {
                     [name]="config().instructionsName || 'instruction'"
                     class="form-control"
                     rows="3"
-                    [ngModel]="config().instructionsValue"
-                    (ngModelChange)="config().onInstructionsChange?.($event)"
+                    formControlName="instructions"
                     [placeholder]="config().instructionsPlaceholder || ('i18n_question_instruction' | translate)"
                 >
                 </textarea>
@@ -183,7 +183,7 @@ export interface QuestionAdditionalInfoConfig {
 
         <!-- Evaluation criteria (for Essay questions) -->
         @if (config().showEvaluationCriteria && config().evaluationCriteriaValue !== undefined) {
-            <div class="row mt-3">
+            <div class="row mt-3" [formGroup]="additionalInfoForm">
                 <div class="col-md-3">
                     {{ 'i18n_exam_evaluation_criteria' | translate }}
                     <sup
@@ -200,8 +200,7 @@ export interface QuestionAdditionalInfoConfig {
                         name="defaultEvaluationCriteria"
                         class="form-control"
                         rows="3"
-                        [ngModel]="config().evaluationCriteriaValue"
-                        (ngModelChange)="config().onEvaluationCriteriaChange?.($event)"
+                        formControlName="evaluationCriteria"
                         [placeholder]="'i18n_exam_evaluation_criteria' | translate"
                     >
                     </textarea>
@@ -261,4 +260,49 @@ export interface QuestionAdditionalInfoConfig {
 })
 export class QuestionAdditionalInfoComponent {
     config = input.required<QuestionAdditionalInfoConfig>();
+    additionalInfoForm: FormGroup;
+    private parentForm = inject(FormGroupDirective, { optional: true });
+
+    constructor() {
+        // Create nested form group for additional info fields
+        this.additionalInfoForm = new FormGroup({
+            instructions: new FormControl(''),
+            evaluationCriteria: new FormControl(''),
+        });
+
+        // Add to parent form if available
+        // Check both parentForm and its form property to avoid null errors
+        if (this.parentForm?.form && !this.parentForm.form.get('additionalInfo')) {
+            this.parentForm.form.addControl('additionalInfo', this.additionalInfoForm);
+        }
+
+        // Sync form with config values
+        effect(() => {
+            const cfg = this.config();
+            if (cfg) {
+                this.additionalInfoForm.patchValue(
+                    {
+                        instructions: cfg.instructionsValue || '',
+                        evaluationCriteria: cfg.evaluationCriteriaValue || '',
+                    },
+                    { emitEvent: false },
+                );
+            }
+        });
+
+        // Sync form changes back to config callbacks
+        this.additionalInfoForm.get('instructions')?.valueChanges.subscribe((value) => {
+            const cfg = this.config();
+            if (cfg?.onInstructionsChange) {
+                cfg.onInstructionsChange(value);
+            }
+        });
+
+        this.additionalInfoForm.get('evaluationCriteria')?.valueChanges.subscribe((value) => {
+            const cfg = this.config();
+            if (cfg?.onEvaluationCriteriaChange) {
+                cfg.onEvaluationCriteriaChange(value);
+            }
+        });
+    }
 }
