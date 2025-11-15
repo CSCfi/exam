@@ -53,7 +53,6 @@ export class ReservationService {
         modalRef.componentInstance.reservation.set(reservation);
         return this.modal.result$<Reservation>(modalRef).pipe(
             map((updatedReservation) => {
-                // Update the reservation object with the returned data (includes updated machine, startAt, endAt)
                 if (updatedReservation) {
                     Object.assign(reservation, {
                         machine: updatedReservation.machine,

@@ -245,7 +245,14 @@ class ReservationController @Inject() (
           case None => Future.successful(NotFound("Reservation not found"))
           case Some(reservation) =>
             val machineId = (request.body \ "machineId").as[Long]
-            val previous  = reservation.getMachine
+            // Capture previous state for email notification (ugly because of java beans)
+            val previous = {
+              val p = new Reservation
+              p.setMachine(reservation.getMachine)
+              p.setStartAt(reservation.getStartAt)
+              p.setEndAt(reservation.getEndAt)
+              p
+            }
 
             Option(DB.find(classOf[ExamMachine], machineId)) match
               case None => Future.successful(NotFound("Machine not found"))
@@ -264,12 +271,7 @@ class ReservationController @Inject() (
                             reservation.setEndAt(suitableSlot.getEnd)
                             reservation.setMachine(machine)
                             reservation.update()
-                            emailComposer.composeReservationChangeNotification(
-                              reservation.getUser,
-                              previous,
-                              machine,
-                              reservation.getEnrolment
-                            )
+                            emailComposer.composeReservationChangeNotification(reservation, previous)
                             Future.successful(Ok(reservation.asJson))
                           case None =>
                             // This shouldn't happen if isBookable returned true, but handle it gracefully

@@ -50,7 +50,7 @@ import { Option } from './select.model';
                 >
                     @if (!opt.isHeader) {
                         <span>
-                            {{ opt.label || '' | translate | slice: 0 : 40 }}
+                            {{ opt.label || '' | translate }}
                         </span>
                     }
                     @if (opt.isHeader) {
