@@ -18,7 +18,6 @@ import {
     isRemoteTransfer,
     RemoteTransferExamReservation,
     type AnyReservation,
-    type ExamMachine,
     type LocalTransferExamEnrolment,
     type LocalTransferExamReservation,
     type Reservation,
@@ -56,9 +55,11 @@ export class ReservationService {
         });
         modalRef.componentInstance.reservation = reservation;
         from(modalRef.result).subscribe({
-            next: (machine: ExamMachine) => {
-                if (machine) {
-                    reservation.machine = machine;
+            next: (data: Reservation) => {
+                if (data) {
+                    reservation.machine = data.machine;
+                    reservation.startAt = data.startAt;
+                    reservation.endAt = data.endAt;
                 }
             },
             error: noop,
