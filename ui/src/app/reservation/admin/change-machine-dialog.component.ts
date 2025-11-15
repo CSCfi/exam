@@ -105,7 +105,7 @@ export class ChangeMachineDialogComponent implements OnInit {
 
     ok = () =>
         this.http
-            .put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.machine?.id })
+            .put<Reservation>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.machine?.id })
             .subscribe({
                 next: (resp) => {
                     this.toast.info(this.translate.instant('i18n_updated'));
@@ -117,12 +117,16 @@ export class ChangeMachineDialogComponent implements OnInit {
     cancel = () => this.activeModal.dismiss();
 
     private setAvailableMachines = () =>
-        this.http.get<ExamMachine[]>(`/app/reservations/${this.reservation.id}/${this.room.id}/machines`).subscribe(
-            (resp) =>
-                (this.availableMachineOptions = resp.map((o) => ({
-                    id: o.id,
-                    label: o.name,
-                    value: o,
-                }))),
-        );
+        this.http
+            .get<
+                { machine: ExamMachine; startAt: string; endAt: string }[]
+            >(`/app/reservations/${this.reservation.id}/${this.room.id}/machines`)
+            .subscribe(
+                (resp) =>
+                    (this.availableMachineOptions = resp.map((o) => ({
+                        id: o.machine.id,
+                        label: `${o.machine.name} (${o.startAt} - ${o.endAt})`,
+                        value: o.machine,
+                    }))),
+            );
 }
