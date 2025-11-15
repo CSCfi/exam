@@ -6,11 +6,8 @@ package impl.mail
 
 import com.google.inject.ImplementedBy
 import models.assessment.LanguageInspection
-import models.enrolment.ExamEnrolment
-import models.enrolment.ExaminationEvent
-import models.enrolment.Reservation
+import models.enrolment.{ExamEnrolment, ExaminationEvent, Reservation}
 import models.exam.Exam
-import models.facility.ExamMachine
 import models.iop.CollaborativeExam
 import models.user.User
 
@@ -64,9 +61,8 @@ trait EmailComposer {
   /** Message sent to a student when a reservation has been changed.
     */
   def composeReservationChangeNotification(
-      student: User,
-      previous: ExamMachine,
-      current: ExamMachine,
+      current: Reservation,
+      previous: Reservation,
       enrolment: ExamEnrolment
   ): Unit
 

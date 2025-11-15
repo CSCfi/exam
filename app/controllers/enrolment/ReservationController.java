@@ -39,6 +39,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.ISODateTimeFormat;
+import org.springframework.beans.BeanUtils;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -277,9 +278,10 @@ public class ReservationController extends BaseController {
         }
         var machineId = request.body().asJson().get("machineId").asLong();
         var machineProps = PathProperties.parse("(id, name, room(*))");
+        var previous = new Reservation();
+        BeanUtils.copyProperties(reservation, previous);
         var query = DB.createQuery(ExamMachine.class);
         machineProps.apply(query);
-        var previous = reservation.getMachine();
         var machine = query.where().idEq(machineId).findOne();
         if (machine == null) {
             return notFound();
@@ -296,9 +298,8 @@ public class ReservationController extends BaseController {
         reservation.setMachine(machine);
         reservation.update();
         emailComposer.composeReservationChangeNotification(
-            reservation.getUser(),
+            reservation,
             previous,
-            machine,
             reservation.getEnrolment()
         );
         return ok(reservation, PathProperties.parse("(startAt, endAt, machine(*))"));
