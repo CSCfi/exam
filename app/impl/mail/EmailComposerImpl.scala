@@ -375,12 +375,12 @@ class EmailComposerImpl @Inject() (
 
   override def composeReservationChangeNotification(
       current: Reservation,
-      previous: Reservation,
-      enrolment: ExamEnrolment
+      previous: Reservation
   ): Unit =
-    val template = fileHandler.read(s"${templateRoot}reservationChanged.html")
-    val lang     = getLang(current.getUser)
-    val exam     = enrolment.getExam
+    val template  = fileHandler.read(s"${templateRoot}reservationChanged.html")
+    val lang      = getLang(current.getUser)
+    val enrolment = current.getEnrolment
+    val exam      = enrolment.getExam
     val examInfo = Option(exam)
       .map(e => s"${exam.getName} (${exam.getCourse.getCode.split("_")(0)})")
       .getOrElse(enrolment.getCollaborativeExam.getName)

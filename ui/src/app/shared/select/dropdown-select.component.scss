@@ -11,3 +11,11 @@
     align-items: center;
     overflow: hidden;
 }
+
+::ng-deep .xm-scrollable-menu button[ngbDropdownItem] span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}

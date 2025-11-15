@@ -297,11 +297,7 @@ public class ReservationController extends BaseController {
         });
         reservation.setMachine(machine);
         reservation.update();
-        emailComposer.composeReservationChangeNotification(
-            reservation,
-            previous,
-            reservation.getEnrolment()
-        );
+        emailComposer.composeReservationChangeNotification(reservation, previous);
         return ok(reservation, PathProperties.parse("(startAt, endAt, machine(*))"));
     }
 
