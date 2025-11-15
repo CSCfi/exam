@@ -7,26 +7,20 @@
     <body>
         <p>{{message}}</p>
 
-        {{previousTimeslot}}: {{previousTimeslotRange}} {{currentTimeslot}}: {{currentTimeslotRange}}
-        {{previousMachine}}:
+        {{previousTimeslot}}:
         <ul>
+            <li>{{previousTimeslotRange}}</li>
             <li>{{previousMachineName}}</li>
             <li>{{previousRoom}}</li>
             <li>{{previousBuilding}}</li>
         </ul>
 
-        {{currentMachine}}:
+        {{currentTimeslot}}:
         <ul>
+            <li>{{currentTimeslotRange}}</li>
             <li>{{currentMachineName}}</li>
             <li>{{currentRoom}}</li>
             <li>{{currentBuilding}}</li>
-        </ul>
-
-        {{examinationInfo}}:
-        <ul>
-            <li>{{examInfo}}</li>
-            <li>{{teachers}}</li>
-            <li>{{reservationTime}}</li>
         </ul>
 
         <p>{{cancellationInfo}} <a href="{{cancellationLink}}">{{cancellationLinkText}}</a></p>

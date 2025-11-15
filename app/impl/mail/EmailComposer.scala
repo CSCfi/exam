@@ -62,8 +62,7 @@ trait EmailComposer {
     */
   def composeReservationChangeNotification(
       current: Reservation,
-      previous: Reservation,
-      enrolment: ExamEnrolment
+      previous: Reservation
   ): Unit
 
   /** Message sent to student when he/she has been enrolled to a private exam.
