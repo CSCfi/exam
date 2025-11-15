@@ -17,10 +17,10 @@ import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
 import models.exam.Exam
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.{Role, User}
-import org.joda.time.{DateTime, DateTimeZone, Interval, LocalDate}
-import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
+import org.joda.time.{DateTime, DateTimeZone, Interval}
 import play.api.Logging
-import play.api.libs.json.{JsArray, JsValue, Json}
+import play.api.libs.json.{JsArray, JsNull, JsValue, Json}
 import play.api.mvc.*
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
@@ -30,7 +30,6 @@ import java.util.Date
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
-import scala.jdk.FutureConverters.*
 
 class ReservationController @Inject() (
     authenticated: AuthenticatedAction,
@@ -156,29 +155,38 @@ class ReservationController @Inject() (
             Future.successful(Ok)
     }
 
+  private def findSuitableSlot(
+      machine: ExamMachine,
+      reservation: Reservation,
+      exam: Exam
+  ): Option[Interval] =
+    val room       = machine.getRoom
+    val interval   = reservation.toInterval
+    val dtz        = DateTimeZone.forID(room.getLocalTimezone)
+    val searchDate = dateTimeHandler.normalize(reservation.getStartAt.withZone(dtz), dtz).toLocalDate
+
+    val slots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.getDuration)
+    // Find the first slot that starts at or after the interval's start
+    // and ends at or after the interval's end
+    // This handles cases where rooms have different slot start times (e.g., 10:00 vs. 10:10)
+    slots
+      .filter(!_.getStart.isBefore(interval.getStart))
+      .find(!_.getEnd.isBefore(interval.getEnd))
+
   private def isBookable(machine: ExamMachine, reservation: Reservation): Future[Boolean] =
     getReservationExam(reservation).map {
       case None => false
       case Some(exam) =>
-        // Check if machine has required software (from exam) - software is per machine
         if !machine.hasRequiredSoftware(exam) then false
         else
-          // Check if the reservation time slot fits within opening hours (default and exception)
           // Note: Maintenance periods are system-wide, so they were already validated when the reservation was created
-          val room       = machine.getRoom
-          val interval   = reservation.toInterval
-          val dtz        = DateTimeZone.forID(room.getLocalTimezone)
-          val searchDate = dateTimeHandler.normalize(reservation.getStartAt.withZone(dtz), dtz).toLocalDate
-
-          val suitableSlots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.getDuration)
-          val fitsInOpeningHours = suitableSlots.exists(_.contains(interval))
-          if !fitsInOpeningHours then false
+          val suitableSlotOpt = findSuitableSlot(machine, reservation, exam)
+          if suitableSlotOpt.isEmpty then false
           else
-            // Check if machine is available during the reservation's time slot
+            // Check if a machine is available during the reservation's time slot
             // Exclude the current reservation if it's already assigned to this machine
-            val conflictingReservations = machine
-              .getReservations
-              .asScala
+            val interval = reservation.toInterval
+            val conflictingReservations = machine.getReservations.asScala
               .filter(r => r != reservation && interval.overlaps(r.toInterval))
             conflictingReservations.isEmpty
     }
@@ -189,7 +197,7 @@ class ReservationController @Inject() (
       val roomOpt        = Option(DB.find(classOf[ExamRoom], roomId))
 
       (reservationOpt, roomOpt) match
-        case (Some(reservation), Some(_)) =>
+        case (Some(reservation), Some(room)) =>
           val props = PathProperties.parse("(id, name)")
           val query = DB.createQuery(classOf[ExamMachine])
           props.apply(query)
@@ -202,12 +210,31 @@ class ReservationController @Inject() (
             .ne("id", reservation.getMachine.getId)
             .list
 
-          Future
-            .traverse(candidates) { machine =>
-              isBookable(machine, reservation).map(machine -> _)
-            }
-            .map(_.filter(_._2).map(_._1))
-            .map(available => Ok(available.asJson))
+          getReservationExam(reservation).flatMap {
+            case None => Future.successful(NotFound("Exam not found"))
+            case Some(exam) =>
+              val timezone  = DateTimeZone.forID(room.getLocalTimezone)
+              val formatter = DateTimeFormat.forPattern("HH:mm").withZone(timezone)
+              Future
+                .traverse(candidates) { machine =>
+                  isBookable(machine, reservation).map(machine -> _)
+                }
+                .map(_.filter(_._2).map(_._1))
+                .map { availableMachines =>
+                  availableMachines.map { machine =>
+                    findSuitableSlot(machine, reservation, exam).fold(
+                      Json.obj("machine" -> machine.asJson, "startAt" -> JsNull, "endAt" -> JsNull)
+                    ) { slot =>
+                      Json.obj(
+                        "machine" -> machine.asJson,
+                        "startAt" -> formatter.print(slot.getStart),
+                        "endAt"   -> formatter.print(slot.getEnd)
+                      )
+                    }
+                  }
+                }
+                .map(result => Ok(Json.toJson(result)))
+          }
         case _ => Future.successful(NotFound("Machine or room not found"))
     }
 
@@ -225,32 +252,50 @@ class ReservationController @Inject() (
               case Some(machine) =>
                 getReservationExam(reservation).flatMap {
                   case None => Future.successful(NotFound("Exam not found"))
-                  case Some(_) =>
+                  case Some(exam) =>
                     isBookable(machine, reservation).flatMap {
                       case false => Future.successful(Forbidden("Machine not eligible for choosing"))
-                      case true =>
-                        reservation.setMachine(machine)
-                        reservation.update()
-                        emailComposer.composeReservationChangeNotification(
-                          reservation.getUser,
-                          previous,
-                          machine,
-                          reservation.getEnrolment
-                        )
-                        Future.successful(Ok(Seq(machine).asJson))
+                      case true  =>
+                        // Find the suitable slot for the new room and adjust reservation times
+                        findSuitableSlot(machine, reservation, exam) match
+                          case Some(suitableSlot) =>
+                            // Update reservation times to match the suitable slot
+                            reservation.setStartAt(suitableSlot.getStart)
+                            reservation.setEndAt(suitableSlot.getEnd)
+                            reservation.setMachine(machine)
+                            reservation.update()
+                            emailComposer.composeReservationChangeNotification(
+                              reservation.getUser,
+                              previous,
+                              machine,
+                              reservation.getEnrolment
+                            )
+                            Future.successful(Ok(reservation.asJson))
+                          case None =>
+                            // This shouldn't happen if isBookable returned true, but handle it gracefully
+                            logger.error(
+                              s"Could not find suitable slot for reservation ${reservation.getId} when moving to machine ${machine.getId}"
+                            )
+                            Future.successful(InternalServerError("Could not find suitable slot"))
                     }
                 }
     }
 
   private def getReservationExam(reservation: Reservation): Future[Option[Exam]] =
-    if Option(reservation.getEnrolment.getExam).isDefined then Future.successful(Some(reservation.getEnrolment.getExam))
-    else
-      collaborativeExamLoader
-        .downloadExam(reservation.getEnrolment.getCollaborativeExam)
-        .recover { case e: Exception =>
-          logger.error("Could not load exam for reservation.", e)
-          None
-        }
+    Option(reservation.getEnrolment.getExam) match
+      case opt @ Some(exam) => Future.successful(opt)
+      case None =>
+        Option(reservation.getEnrolment.getCollaborativeExam) match
+          case Some(collaborativeExam) =>
+            collaborativeExamLoader
+              .downloadExam(collaborativeExam)
+              .recover { case e: Throwable =>
+                logger.error(s"Could not load collaborative exam for reservation ${reservation.getId}", e)
+                None
+              }
+          case None =>
+            logger.warn(s"Reservation ${reservation.getId} has neither exam nor collaborative exam")
+            Future.successful(None)
 
   def listExaminationEvents(
       state: Option[String],

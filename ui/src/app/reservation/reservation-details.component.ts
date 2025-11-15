@@ -104,7 +104,18 @@ export class ReservationDetailsComponent {
     }
 
     changeReservationMachine(reservation: Reservation) {
-        this.Reservation.changeMachine(reservation);
+        // Update the reservation in the local array after the modal closes
+        // The service updates the reservation object, but we need to trigger change detection
+        // by updating the array reference
+        this.Reservation.changeMachine$(reservation).subscribe((updatedReservation) => {
+            if (updatedReservation) {
+                const currentReservations = this.fixedReservations();
+                const updatedReservations = currentReservations.map((r) =>
+                    r.id === reservation.id ? { ...r, ...updatedReservation } : r,
+                );
+                this.fixedReservations.set(updatedReservations);
+            }
+        });
     }
 
     hasAvailableActions(r: ReservationDetail): boolean {

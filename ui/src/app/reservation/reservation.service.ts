@@ -18,7 +18,6 @@ import {
     isRemoteTransfer,
     RemoteTransferExamReservation,
     type AnyReservation,
-    type ExamMachine,
     type LocalTransferExamEnrolment,
     type LocalTransferExamReservation,
     type Reservation,
@@ -49,19 +48,27 @@ export class ReservationService {
                     new Date(enrolment.examinationEventConfiguration.examinationEvent.start) > new Date()),
         ).length;
 
-    changeMachine = (reservation: Reservation): void => {
+    changeMachine$ = (reservation: Reservation): Observable<Reservation | undefined> => {
         const modalRef = this.modal.openRef(ChangeMachineDialogComponent);
-        modalRef.componentInstance.reservation = reservation;
-        this.modal.result$<ExamMachine>(modalRef).subscribe((machine) => {
-            if (machine) {
-                reservation.machine = machine;
-            }
-        });
+        modalRef.componentInstance.reservation.set(reservation);
+        return this.modal.result$<Reservation>(modalRef).pipe(
+            map((updatedReservation) => {
+                // Update the reservation object with the returned data (includes updated machine, startAt, endAt)
+                if (updatedReservation) {
+                    Object.assign(reservation, {
+                        machine: updatedReservation.machine,
+                        startAt: updatedReservation.startAt,
+                        endAt: updatedReservation.endAt,
+                    });
+                }
+                return updatedReservation;
+            }),
+        );
     };
 
     cancelReservation$ = (reservation: Reservation): Observable<void> => {
         const modalRef = this.modal.openRef(RemoveReservationDialogComponent);
-        modalRef.componentInstance.reservation = reservation;
+        modalRef.componentInstance.reservation.set(reservation);
         return this.modal.result$<void>(modalRef);
     };
 

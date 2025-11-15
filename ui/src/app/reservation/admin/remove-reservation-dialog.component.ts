@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -40,7 +40,7 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RemoveReservationDialogComponent {
-    reservation = input.required<Reservation>();
+    reservation = model<Reservation | undefined>(undefined);
     message = signal<{ text: string }>({ text: '' });
 
     activeModal = inject(NgbActiveModal);
@@ -49,6 +49,7 @@ export class RemoveReservationDialogComponent {
 
     ok() {
         const currentReservation = this.reservation();
+        if (!currentReservation) return;
         this.http
             .delete(`/app/reservations/${currentReservation.id}`, {
                 headers: { 'Content-Type': 'application/json' },

@@ -104,12 +104,16 @@ export class DropdownSelectComponent<V, I> {
     });
 
     constructor() {
-        // Sync initial input to selected signal
+        // Sync initial input to selected signal only on first load (before user makes a selection)
         effect(() => {
             const initialValue = this.initial();
-            if (initialValue !== undefined) {
+            const currentSelected = this.selected();
+            // Only sync from initial if no selection has been made yet (initial is just a default value)
+            // Once user selects an option, ignore future changes to initial
+            if (initialValue !== undefined && currentSelected === undefined) {
                 this.selected.set(initialValue);
             }
+            // When initial is undefined or user has already selected, don't interfere
         });
     }
 
