@@ -4,12 +4,12 @@
 
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy } from '@angular/core';
-import { DOCUMENT, Injectable, inject } from '@angular/core';
+import { DOCUMENT, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable, Unsubscribable } from 'rxjs';
-import { Subject, defer, interval, of, throwError } from 'rxjs';
+import { defer, interval, of, throwError } from 'rxjs';
 import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { StorageService } from 'src/app/shared/storage/storage.service';
@@ -25,9 +25,6 @@ interface Env {
 
 @Injectable({ providedIn: 'root' })
 export class SessionService implements OnDestroy {
-    public userChange$: Observable<User | undefined>;
-    public devLogoutChange$: Observable<void>;
-
     private http = inject(HttpClient);
     private i18n = inject(TranslateService);
     private router = inject(Router);
@@ -39,18 +36,23 @@ export class SessionService implements OnDestroy {
     private PING_INTERVAL: number = 30 * 1000;
     private sessionCheckSubscription?: Unsubscribable;
     private toastTapSubscription?: Unsubscribable;
-    private userChangeSubscription = new Subject<User | undefined>();
-    private devLogoutSubscription = new Subject<void>();
+
+    private userChange = signal<User | undefined>(undefined);
+    private devLogoutChange = signal<number | undefined>(undefined);
 
     constructor() {
-        this.userChange$ = this.userChangeSubscription.asObservable();
-        this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
+        this.userChange.set(this.getOptionalUser());
+    }
+
+    get userChangeSignal() {
+        return this.userChange.asReadonly();
+    }
+    get devLogoutChangeSignal() {
+        return this.devLogoutChange.asReadonly();
     }
 
     ngOnDestroy() {
         this.disableSessionCheck();
-        this.userChangeSubscription.complete();
-        this.devLogoutSubscription.complete();
     }
 
     getUser = (): User => {
@@ -79,7 +81,7 @@ export class SessionService implements OnDestroy {
         this.http.delete<{ logoutUrl: string }>('/app/session', {}).subscribe({
             next: (resp) => {
                 this.Storage.remove('EXAM_USER');
-                // delete this.user;
+                this.userChange.set(undefined);
                 this.onLogoutSuccess(resp);
             },
             error: (err) => this.toast.error(err),
@@ -100,6 +102,7 @@ export class SessionService implements OnDestroy {
                 next: () => {
                     user.lang = lang;
                     this.Storage.set('EXAM_USER', user);
+                    this.userChange.set(user);
                     this.translate$(lang).subscribe();
                 },
                 error: () => this.toast.error('failed to switch language'),
@@ -180,7 +183,7 @@ export class SessionService implements OnDestroy {
                 tap((u) => {
                     this.Storage.set('EXAM_USER', u);
                     this.restartSessionCheck();
-                    this.userChangeSubscription.next(u);
+                    this.userChange.set(u);
                     if (u) {
                         this.toast.success(this.i18n.instant('i18n_welcome'), `${u.firstName} ${u.lastName}`, {
                             timeOut: 2000,
@@ -280,8 +283,6 @@ export class SessionService implements OnDestroy {
     }
 
     private onLogoutSuccess(data: { logoutUrl: string }): void {
-        this.userChangeSubscription.next(undefined);
-
         this.toast.success(this.i18n.instant('i18n_logout_success'));
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
@@ -293,8 +294,8 @@ export class SessionService implements OnDestroy {
             // redirect to SP-logout directly
             location.href = localLogout;
         } else {
-            // DEV logout
-            this.devLogoutSubscription.next();
+            // DEV logout - update signal to trigger effect in app.component
+            this.devLogoutChange.set(Date.now());
         }
     }
 

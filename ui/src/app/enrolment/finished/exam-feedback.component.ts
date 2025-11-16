@@ -4,9 +4,12 @@
 
 import { DatePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
+import { combineLatest, EMPTY } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import type { ReviewedExam, Scores } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
@@ -37,25 +40,23 @@ export class ExamFeedbackComponent {
     scores = input.required<Scores>();
     collaborative = input(false);
 
-    assessmentWithAnswers = signal<Exam | undefined>(undefined);
+    // Load answers reactively when assessment or collaborative changes
+    assessmentWithAnswers = toSignal(
+        combineLatest([toObservable(this.assessment), toObservable(this.collaborative)]).pipe(
+            switchMap(([assessment, collaborative]) => {
+                if (collaborative) {
+                    return EMPTY;
+                }
+                return this.http.get<Exam | undefined>(`/app/feedback/exams/${assessment.id}/answers`);
+            }),
+        ),
+        { initialValue: undefined },
+    );
 
     private http = inject(HttpClient);
     private modal = inject(ModalService);
     private Attachment = inject(AttachmentService);
     private Files = inject(FileService);
-
-    constructor() {
-        // Load answers when assessment changes and not collaborative
-        effect(() => {
-            const assessment = this.assessment();
-            const collaborative = this.collaborative();
-            if (!collaborative) {
-                this.http
-                    .get<Exam | undefined>(`/app/feedback/exams/${assessment.id}/answers`)
-                    .subscribe((exam) => this.assessmentWithAnswers.set(exam));
-            }
-        });
-    }
 
     downloadFeedbackAttachment() {
         const assessment = this.assessment();

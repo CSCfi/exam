@@ -281,8 +281,11 @@ class ExamController @Inject() (
         config.delete()
         exam.setAutoEvaluationConfig(null)
       }
-    else Option(payload.getAutoEvaluationConfig).foreach(examUpdater.updateAutoEvaluationConfig(exam, _))
-    Option(payload.getExamFeedbackConfig).foreach(examUpdater.updateExamFeedbackConfig(exam, _))
+    else
+      // Always call update method - it handles null (removal) correctly
+      examUpdater.updateAutoEvaluationConfig(exam, payload.getAutoEvaluationConfig)
+    // Always call update method - it handles null (removal) correctly
+    examUpdater.updateExamFeedbackConfig(exam, payload.getExamFeedbackConfig)
     exam.save()
     Ok(exam.asJson)
 

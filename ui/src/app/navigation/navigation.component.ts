@@ -2,14 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, of } from 'rxjs';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
-import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import type { Link } from './navigation.model';
 import { NavigationService } from './navigation.service';
@@ -23,10 +22,16 @@ import { NavigationService } from './navigation.service';
 })
 export class NavigationComponent {
     appVersion = signal('');
-    links = signal<Link[]>([]);
     mobileMenuOpen = signal(false);
-    user = signal<User | undefined>(undefined);
-    stateInitialized = signal(false);
+    featureFlags = signal({ iop: false, byod: false });
+
+    links = computed(() => {
+        // Track a bunch of signals to establish reactive dependencies
+        this.user();
+        this.ExaminationStatus.combinedStatusSignal();
+        const { iop, byod } = this.featureFlags();
+        return this.Navigation.getLinks(iop, byod);
+    });
 
     private toast = inject(ToastrService);
     private Navigation = inject(NavigationService);
@@ -34,48 +39,24 @@ export class NavigationComponent {
     private ExaminationStatus = inject(ExaminationStatusService);
 
     constructor() {
-        const currentUser = this.Session.getUser();
-        this.user.set(currentUser);
-
-        // React to examination status changes using signals
-        effect(() => {
-            this.ExaminationStatus.examinationStartingSignal();
-            this.getLinks(false, false);
-        });
-
-        effect(() => {
-            this.ExaminationStatus.upcomingExamSignal();
-            this.getLinks(false, false);
-        });
-
-        effect(() => {
-            this.ExaminationStatus.wrongLocationSignal();
-            this.getLinks(false, false);
-        });
-
-        effect(() => {
-            this.ExaminationStatus.aquariumLoggedInSignal();
-            this.getLinks(false, false);
-        });
-
-        // Note: Session.userChange$ is still an observable - would need SessionService migration
-        this.Session.userChange$.subscribe((user) => {
-            this.user.set(user);
-            this.getLinks(true);
-        });
-
-        // Initialize links based on user
+        // Load app version for admins
+        const currentUser = this.user();
         if (currentUser?.isAdmin) {
             this.Navigation.getAppVersion$().subscribe({
                 next: (resp) => this.appVersion.set(resp.appVersion),
                 error: (err) => this.toast.error(err),
             });
-            this.getLinks(true, true);
-        } else if (currentUser) {
-            this.getLinks(true);
-        } else {
-            this.getLinks(false);
         }
+
+        // Load feature flags if user exists (links computed will react to user changes)
+        if (currentUser) {
+            this.loadLinksWithFeatures(true, currentUser.isAdmin);
+        }
+    }
+
+    // Use SessionService's user signal directly
+    get user() {
+        return this.Session.userChangeSignal;
     }
 
     isActive(link: Link) {
@@ -94,11 +75,9 @@ export class NavigationComponent {
         this.Session.switchLanguage(key);
     }
 
-    private getLinks(checkInteroperability: boolean, checkByod = false) {
-        if (!checkInteroperability && !checkByod) {
-            this.links.set(this.Navigation.getLinks(false, false));
-            return;
-        }
+    private loadLinksWithFeatures(checkInteroperability: boolean, checkByod = false) {
+        if (!checkInteroperability && !checkByod) return;
+
         const interoperability$ = checkInteroperability
             ? this.Navigation.getInteroperability$()
             : of({ isExamCollaborationSupported: false });
@@ -108,13 +87,12 @@ export class NavigationComponent {
             : of({ sebExaminationSupported: false, homeExaminationSupported: false });
 
         forkJoin([interoperability$, byod$]).subscribe({
-            next: ([iop, byod]) =>
-                this.links.set(
-                    this.Navigation.getLinks(
-                        iop.isExamCollaborationSupported,
-                        byod.sebExaminationSupported || byod.homeExaminationSupported,
-                    ),
-                ),
+            next: ([iop, byod]) => {
+                this.featureFlags.set({
+                    iop: iop.isExamCollaborationSupported,
+                    byod: byod.sebExaminationSupported || byod.homeExaminationSupported,
+                });
+            },
             error: (err) => this.toast.error(err),
         });
     }

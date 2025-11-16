@@ -36,7 +36,6 @@ SPDX-License-Identifier: EUPL-1.2
                     [attr.aria-description]="'i18n_type_to_start_search' | translate"
                     [(ngModel)]="filterText"
                     type="text"
-                    (ngModelChange)="search($event)"
                     class="form-control"
                     placeholder="{{ 'i18n_search' | translate }}"
                 />

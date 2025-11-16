@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, SlicePipe } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
@@ -46,30 +46,19 @@ import { Option } from './select.model';
                     type="button"
                     ngbDropdownItem
                     [ngClass]="getClasses(opt)"
-                    (click)="selectOption(opt); d.close()"
+                    [disabled]="!!opt.isHeader"
+                    (click)="!opt.isHeader && selectOption(opt); !opt.isHeader && d.close()"
                 >
                     @if (!opt.isHeader) {
-                        <span>
-                            {{ opt.label || '' | translate }}
-                        </span>
-                    }
-                    @if (opt.isHeader) {
-                        <span>{{ opt.label }}</span>
+                        {{ opt.label || '' | translate }}
+                    } @else {
+                        {{ opt.label }}
                     }
                 </button>
             }
         </div>
     </div>`,
-    imports: [
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgClass,
-        NgbDropdownMenu,
-        FormsModule,
-        NgbDropdownItem,
-        SlicePipe,
-        TranslateModule,
-    ],
+    imports: [NgbDropdown, NgbDropdownToggle, NgClass, NgbDropdownMenu, FormsModule, NgbDropdownItem, TranslateModule],
     styleUrl: './dropdown-select.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -104,16 +93,11 @@ export class DropdownSelectComponent<V, I> {
     });
 
     constructor() {
-        // Sync initial input to selected signal only on first load (before user makes a selection)
+        // Use initial as default value once (before user makes a selection)
         effect(() => {
-            const initialValue = this.initial();
-            const currentSelected = this.selected();
-            // Only sync from initial if no selection has been made yet (initial is just a default value)
-            // Once user selects an option, ignore future changes to initial
-            if (initialValue !== undefined && currentSelected === undefined) {
-                this.selected.set(initialValue);
+            if (this.selected() === undefined && this.initial() !== undefined) {
+                this.selected.set(this.initial());
             }
-            // When initial is undefined or user has already selected, don't interfere
         });
     }
 
@@ -122,6 +106,9 @@ export class DropdownSelectComponent<V, I> {
     }
 
     selectOption(option: Option<V, I>) {
+        if (option.isHeader) {
+            return; // Headers are not selectable
+        }
         this.selected.set(option);
         this.optionSelected.emit(option);
     }

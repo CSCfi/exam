@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ExamInfo } from 'src/app/calendar/calendar.model';
@@ -97,7 +97,7 @@ export class CalendarExamInfoComponent {
     reservationWindowSize = input(0);
     collaborative = input(false);
 
-    reservationWindowEndDate = signal(new Date());
+    reservationWindowEndDate = computed(() => DateTime.now().plus({ day: this.reservationWindowSize() }).toJSDate());
     reservationWindowDescription = computed(() => {
         const text = this.translate
             .instant('i18n_description_reservation_window')
@@ -105,19 +105,11 @@ export class CalendarExamInfoComponent {
         return `${text} (${DateTime.fromJSDate(this.reservationWindowEndDate()).toFormat('dd.MM.yyyy')})`;
     });
     showReservationWindowDescription = computed(
-        () =>
-            !!this.reservationWindowEndDate() &&
-            DateTime.fromISO(this.examInfo().periodEnd as string).toJSDate() > this.reservationWindowEndDate(),
+        () => DateTime.fromISO(this.examInfo().periodEnd as string).toJSDate() > this.reservationWindowEndDate(),
     );
 
     private translate = inject(TranslateService);
     private DateTimeService = inject(DateTimeService);
-
-    constructor() {
-        this.reservationWindowEndDate.set(
-            DateTime.fromJSDate(this.reservationWindowEndDate()).plus({ day: this.reservationWindowSize() }).toJSDate(),
-        );
-    }
 
     printExamDuration(info: ExamInfo) {
         return this.DateTimeService.formatDuration(info.duration);

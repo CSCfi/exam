@@ -3,11 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnDestroy, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { combineLatest, EMPTY, Subject } from 'rxjs';
+import { switchMap, takeUntil } from 'rxjs/operators';
 import type { CollaborativeParticipation, ParticipationLike, ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -55,24 +56,37 @@ export class ExamParticipationComponent implements OnDestroy {
     private Enrolment = inject(EnrolmentService);
 
     constructor() {
-        // React to participation changes and initialize review
-        effect(() => {
-            const participation = this.participation();
-            const state = participation.exam.state;
-            if (
-                state === 'GRADED_LOGGED' ||
-                state === 'REJECTED' ||
-                state === 'ARCHIVED' ||
-                (state === 'GRADED' && participation.exam.autoEvaluationNotified)
-            ) {
-                if (this.collaborative()) {
-                    // No need to load anything, because we have already everything.
-                    this.prepareReview(participation.exam as ReviewedExam);
-                    return;
-                }
-                this.loadReview(participation.exam as Exam);
-            }
-        });
+        // React to participation and collaborative changes to load review
+        toSignal(
+            combineLatest([toObservable(this.participation), toObservable(this.collaborative)]).pipe(
+                switchMap(([participation, collaborative]) => {
+                    const state = participation.exam.state;
+                    const shouldLoadReview =
+                        state === 'GRADED_LOGGED' ||
+                        state === 'REJECTED' ||
+                        state === 'ARCHIVED' ||
+                        (state === 'GRADED' && participation.exam.autoEvaluationNotified);
+
+                    if (!shouldLoadReview) {
+                        return EMPTY;
+                    }
+
+                    if (collaborative) {
+                        // No need to load anything, because we have already everything.
+                        this.prepareReview(participation.exam as ReviewedExam);
+                        return EMPTY;
+                    }
+
+                    // Load review asynchronously
+                    return this.Enrolment.loadFeedback$(participation.exam.id).pipe(
+                        switchMap((exam) => {
+                            this.prepareReview(exam);
+                            return EMPTY;
+                        }),
+                    );
+                }),
+            ),
+        );
 
         // React to language changes
         this.translate.onLangChange.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
@@ -114,9 +128,6 @@ export class ExamParticipationComponent implements OnDestroy {
             this.setCommentRead(reviewedExam);
         }
     }
-
-    private loadReview = (exam: Exam) =>
-        this.Enrolment.loadFeedback$(exam.id).pipe(takeUntil(this.ngUnsubscribe)).subscribe(this.prepareReview);
 
     private prepareReview = (exam: ReviewedExam) => {
         if (exam.gradingType === 'NOT_GRADED') {

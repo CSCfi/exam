@@ -9,6 +9,7 @@ import {
     Component,
     ViewChild,
     ViewEncapsulation,
+    computed,
     effect,
     inject,
     input,
@@ -28,7 +29,6 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
 import { PasswordPromptComponent } from 'src/app/calendar/helpers/password-prompt.component';
 import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
-import { updateList } from 'src/app/shared/miscellaneous/helpers';
 import { AccessibilityPickerComponent } from './accessibility-picker.component';
 import { SelectedRoomComponent } from './selected-room.component';
 
@@ -73,13 +73,33 @@ export class SlotPickerComponent {
         accessibilities: Accessibility[];
     }>();
 
-    rooms = signal<FilterableRoom[]>([]);
-    maintenancePeriods = signal<(MaintenancePeriod & { remote: boolean })[]>([]);
-    selectedRoom = signal<ExamRoom | undefined>(undefined);
     accessibilities = signal<FilterableAccessibility[]>([]);
     currentWeek = signal(DateTime.now());
     examId = signal(0);
     passwordVerified = signal(false);
+    selectedRoom = signal<ExamRoom | undefined>(undefined);
+
+    // Computed state derived from organisation
+    rooms = computed<FilterableRoom[]>(() => {
+        const org = this.organisation();
+        const filteredId = this.filteredRoomId();
+        const baseRooms = org
+            ? org.facilities.map((f): FilterableRoom => ({ ...f, filtered: false }))
+            : this.localRooms();
+        return baseRooms.map((r): FilterableRoom => ({ ...r, filtered: r.id === filteredId }));
+    });
+
+    maintenancePeriods = computed<(MaintenancePeriod & { remote: boolean })[]>(() => {
+        const org = this.organisation();
+        const local = this.localMaintenancePeriods();
+        const remote = org?.maintenancePeriods?.map((p) => ({ ...p, remote: true as const })) || [];
+        return [...local, ...remote];
+    });
+
+    // API-loaded state
+    private localRooms = signal<FilterableRoom[]>([]);
+    private localMaintenancePeriods = signal<(MaintenancePeriod & { remote: false })[]>([]);
+    private filteredRoomId = signal<number | undefined>(undefined);
 
     private translate = inject(TranslateService);
     private route = inject(ActivatedRoute);
@@ -92,31 +112,22 @@ export class SlotPickerComponent {
             this.accessibilities.set(resp.map((a) => ({ ...a, filtered: false }))),
         );
         this.Calendar.listRooms$().subscribe((resp) => {
-            const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false })).filter((r) => r.name);
-            this.rooms.set(rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)));
+            const rooms = resp
+                .map((r: ExamRoom): FilterableRoom => ({ ...r, filtered: false }))
+                .filter((r) => r.name)
+                .sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
+            this.localRooms.set(rooms);
         });
         this.Calendar.listMaintenancePeriods$().subscribe((periods) => {
-            const localMaintenances = periods.map((p) => ({ ...p, remote: false }));
-            this.maintenancePeriods.set(localMaintenances);
+            this.localMaintenancePeriods.set(periods.map((p) => ({ ...p, remote: false as const })));
         });
 
-        // React to organisation changes
+        // Reset selected room and password when organisation changes
         effect(() => {
-            const org = this.organisation();
-            if (org) {
-                this.rooms.set(org.facilities.map((f) => ({ ...f, filtered: false })));
-                this.selectedRoom.set(undefined);
-                this.passwordVerified.set(false);
-                const remoteMaintenances = (org.maintenancePeriods || []).map((p) => ({
-                    ...p,
-                    remote: true,
-                }));
-                this.maintenancePeriods.set(
-                    this.maintenancePeriods()
-                        .filter((p) => !p.remote)
-                        .concat(remoteMaintenances),
-                );
-            }
+            this.organisation(); // Track organisation changes
+            this.selectedRoom.set(undefined);
+            this.passwordVerified.set(false);
+            this.filteredRoomId.set(undefined);
         });
     }
 
@@ -139,7 +150,7 @@ export class SlotPickerComponent {
             return;
         }
         const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week');
-        this.currentWeek.set(start as DateTime<true>);
+        this.currentWeek.set(start as DateTime);
         const accessibilities = this.accessibilities()
             .filter((i) => i.filtered)
             .map((i) => i.id);
@@ -234,10 +245,7 @@ export class SlotPickerComponent {
         } else {
             this.passwordVerified.set(true);
         }
-        this.rooms.update((rs) => {
-            const unfiltered = rs.map((r) => ({ ...r, filtered: false }));
-            return updateList(unfiltered, 'id', { ...room, filtered: true });
-        });
+        this.filteredRoomId.set(room.id);
     }
 
     private query(date: string, accessibilityIds: number[]): Observable<AvailableSlot[]> {

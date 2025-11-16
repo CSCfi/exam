@@ -2,12 +2,19 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class ExaminationStatusService {
     // Signal-based API
     // Using timestamps for void events - each notification updates the timestamp, triggering effects
+    combinedStatusSignal = computed(() => ({
+        starting: this.examinationStartingSignal(),
+        upcoming: this.upcomingExamSignal(),
+        wrongLocation: this.wrongLocationSignal(),
+        aquarium: this.aquariumLoggedInSignal(),
+    }));
+
     private examinationEnding = signal<number | undefined>(undefined);
     private wrongLocation = signal<number | undefined>(undefined);
     private upcomingExam = signal<number | undefined>(undefined);

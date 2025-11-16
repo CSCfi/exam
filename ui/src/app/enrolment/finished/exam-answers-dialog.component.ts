@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Exam } from 'src/app/exam/exam.model';
@@ -26,22 +26,24 @@ export class ExamAnswersDialogComponent {
     participationTime = signal('');
     participationDuration = signal<number | string>(0);
 
+    // Computed exam with sorted sections and questions
+    sortedExam = computed(() => {
+        const examValue = this.exam();
+        if (!examValue) return null;
+        return {
+            ...examValue,
+            examSections: [...examValue.examSections]
+                .sort((a, b) => a.sequenceNumber - b.sequenceNumber)
+                .map((es) => ({
+                    ...es,
+                    sectionQuestions: [...es.sectionQuestions].sort((a, b) => a.sequenceNumber - b.sequenceNumber),
+                })),
+        };
+    });
+
     activeModal = inject(NgbActiveModal);
     private CommonExam = inject(CommonExamService);
     private Attachment = inject(AttachmentService);
-
-    constructor() {
-        // Sort exam sections when exam changes
-        effect(() => {
-            const exam = this.exam();
-            if (exam) {
-                exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
-                exam.examSections.forEach((es) =>
-                    es.sectionQuestions.sort((a, b) => a.sequenceNumber - b.sequenceNumber),
-                );
-            }
-        });
-    }
 
     downloadAttachment(answer: ExamSectionQuestion) {
         this.Attachment.downloadQuestionAnswerAttachment(answer as AnsweredQuestion);
@@ -64,10 +66,8 @@ export class ExamAnswersDialogComponent {
     }
 
     isMultiChoice(answer: ExamSectionQuestion) {
-        return (
-            ['WeightedMultipleChoiceQuestion', 'MultipleChoiceQuestion', 'ClaimChoiceQuestion'].indexOf(
-                answer.question.type,
-            ) > -1
+        return ['WeightedMultipleChoiceQuestion', 'MultipleChoiceQuestion', 'ClaimChoiceQuestion'].includes(
+            answer.question.type,
         );
     }
 }

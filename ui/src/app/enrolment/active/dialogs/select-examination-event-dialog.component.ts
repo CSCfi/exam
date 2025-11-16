@@ -70,8 +70,12 @@ export class SelectExaminationEventDialogComponent {
             return [];
         }
         return examValue.examinationEventConfigurations
-            .filter((ec) => DateTime.fromISO(ec.examinationEvent.start).toJSDate() > new Date() && ec.id !== existingId)
-            .sort((a, b) => (a.examinationEvent.start < b.examinationEvent.start ? -1 : 1));
+            .filter((ec) => DateTime.fromISO(ec.examinationEvent.start) > DateTime.now() && ec.id !== existingId)
+            .sort(
+                (a, b) =>
+                    DateTime.fromISO(a.examinationEvent.start).toMillis() -
+                    DateTime.fromISO(b.examinationEvent.start).toMillis(),
+            );
     });
 
     activeModal = inject(NgbActiveModal);

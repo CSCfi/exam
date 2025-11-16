@@ -224,15 +224,15 @@ export class EnrolmentService {
 
     showInstructions = (enrolment: ExamEnrolment): void => {
         const modalRef = this.modal.openRef(ShowInstructionsDialogComponent);
-        modalRef.componentInstance.instructions = enrolment.exam.enrollInstruction;
-        modalRef.componentInstance.title = 'i18n_instructions';
+        modalRef.componentInstance.instructions.set(enrolment.exam.enrollInstruction);
+        modalRef.componentInstance.title.set('i18n_instructions');
     };
 
     showMaturityInstructions = (enrolment: { exam: Exam }, external = false) => {
         this.getMaturityInstructions$(enrolment.exam, external).subscribe((instructions) => {
             const modalRef = this.modal.openRef(ShowInstructionsDialogComponent);
-            modalRef.componentInstance.instructions = instructions;
-            modalRef.componentInstance.title = 'i18n_maturity_instructions';
+            modalRef.componentInstance.instructions.set(instructions);
+            modalRef.componentInstance.title.set('i18n_maturity_instructions');
         });
     };
 

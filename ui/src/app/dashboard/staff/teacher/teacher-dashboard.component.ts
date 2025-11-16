@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
     NgbNav,
@@ -17,7 +17,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { take } from 'rxjs';
 import { DashboardExam, ExtraData } from 'src/app/dashboard/dashboard.model';
 import { Exam } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
@@ -110,58 +109,47 @@ export class TeacherDashboardComponent {
             },
         ];
 
-        effect(() => {
-            this.userId = this.Session.getUser().id;
-            this.TeacherDashboard.populate$()
-                .pipe(take(1))
-                .subscribe((dashboard) => {
-                    this.finishedExams.set(dashboard.finishedExams);
-                    this.filteredFinished.set(dashboard.finishedExams);
-                    this.activeExams.set(dashboard.activeExams);
-                    this.filteredActive.set(dashboard.activeExams);
-                    this.archivedExams.set(dashboard.archivedExams);
-                    this.filteredArchived.set(dashboard.archivedExams);
-                    this.draftExams.set(dashboard.draftExams);
-                    this.filteredDrafts.set(dashboard.draftExams);
-                });
-        });
+        this.userId = this.Session.getUser().id;
+        this.TeacherDashboard.populate$()
+            .pipe(take(1))
+            .subscribe((dashboard) => {
+                this.finishedExams.set(dashboard.finishedExams);
+                this.filteredFinished.set(dashboard.finishedExams);
+                this.activeExams.set(dashboard.activeExams);
+                this.filteredActive.set(dashboard.activeExams);
+                this.archivedExams.set(dashboard.archivedExams);
+                this.filteredArchived.set(dashboard.archivedExams);
+                this.draftExams.set(dashboard.draftExams);
+                this.filteredDrafts.set(dashboard.draftExams);
+            });
     }
 
     changeTab = (event: NgbNavChangeEvent) => this.activeTab.set(event.nextId);
 
     search = (text: string) => {
-        // Use same search parameter for all the 4 result tables
-        this.filteredFinished.set(this.find(this.finishedExams(), text));
-        this.filteredActive.set(this.find(this.activeExams(), text));
-        this.filteredArchived.set(this.find(this.archivedExams(), text));
-        this.filteredDrafts.set(this.find(this.draftExams(), text));
+        // Helper to check ownership
+        const isOwner = (exam: Exam) => exam.examOwners.some((eo) => eo.id === this.userId);
 
-        // for drafts, display exams only for owners AM-1658
-        this.filteredDrafts.update((drafts) =>
-            drafts.filter((exam) => exam.examOwners.some((eo: User) => eo.id === this.userId)),
-        );
-
-        // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
-        this.filteredFinished.update((finished) =>
-            finished.filter(
-                (exam) => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
-            ),
-        );
-
-        // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
-        this.filteredActive.update((active) =>
-            active.filter(
-                (exam) => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
-            ),
-        );
-    };
-
-    private find<T extends Exam>(exams: T[], filter: string): T[] {
-        const getAggregate = (exam: Exam) => {
-            const code = exam.course ? exam.course.code : '';
-            const owners = exam.examOwners.map((eo) => `${eo.firstName} ${eo.lastName}`).join(' ');
-            return `${code} ${owners} ${exam.name}`;
+        // Helper to filter exams by search text
+        const filterByText = (exams: DashboardExam[]) => {
+            if (!text) return exams;
+            const lower = text.toLowerCase();
+            return exams.filter((exam) => {
+                const code = exam.course?.code || '';
+                const owners = exam.examOwners.map((eo) => `${eo.firstName} ${eo.lastName}`).join(' ');
+                const aggregate = `${code} ${owners} ${exam.name}`.toLowerCase();
+                return aggregate.includes(lower);
+            });
         };
-        return !filter ? exams : exams.filter((e) => getAggregate(e).toLowerCase().includes(filter.toLowerCase()));
-    }
+
+        // Helper to apply owner/unassessed logic
+        const applyRules = (exams: DashboardExam[], includeUnassessed: boolean = false) =>
+            exams.filter((exam) => (includeUnassessed ? exam.unassessedCount > 0 || isOwner(exam) : true));
+
+        // Update filtered arrays
+        this.filteredDrafts.set(applyRules(filterByText(this.draftExams()), false).filter(isOwner));
+        this.filteredFinished.set(applyRules(filterByText(this.finishedExams()), true));
+        this.filteredActive.set(applyRules(filterByText(this.activeExams()), true));
+        this.filteredArchived.set(applyRules(filterByText(this.archivedExams()), false));
+    };
 }

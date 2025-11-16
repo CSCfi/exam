@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
@@ -25,8 +25,8 @@ import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
     `,
 })
 export class ShowInstructionsDialogComponent {
-    instructions = input('');
-    title = input('');
+    instructions = model('');
+    title = model('');
 
     activeModal = inject(NgbActiveModal);
 

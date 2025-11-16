@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { switchMap, tap } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -63,10 +64,29 @@ export class CalendarComponent {
           }
         | undefined
     >(undefined);
-    minDate = signal(new Date());
-    maxDate = signal(new Date());
-    reservationWindowEndDate = signal<Date | undefined>(undefined);
     reservationWindowSize = signal(0);
+
+    reservationWindowEndDate = computed(() =>
+        this.reservationWindowSize() > 0
+            ? DateTime.now().plus({ day: this.reservationWindowSize() }).toJSDate()
+            : undefined,
+    );
+
+    minDate = computed(() => {
+        const examInfo = this.examInfo();
+        if (!examInfo.periodStart) return new Date();
+        return [new Date(), new Date(examInfo.periodStart as string)].reduce((a, b) => (a > b ? a : b));
+    });
+
+    maxDate = computed(() => {
+        const examInfo = this.examInfo();
+        const windowEndDate = this.reservationWindowEndDate();
+        if (!examInfo.periodEnd || !windowEndDate) return new Date();
+        return [windowEndDate, new Date(examInfo.periodEnd as string)].reduce((a, b) => (a < b ? a : b));
+    });
+
+    sectionSelectionOk = computed(() => this.examInfo().examSections.some((es) => !es.optional || es.selected));
+
     selectedOrganisation = signal<Organisation | undefined>(undefined);
     examId = signal(0);
     selectedSections = signal<string[]>([]);
@@ -92,34 +112,46 @@ export class CalendarComponent {
         this.isExternal.set(this.route.snapshot.data.isExternal);
         this.selectedSections.set(this.route.snapshot.queryParamMap.getAll('selected'));
 
-        this.Calendar.getExamInfo$(this.isCollaborative(), this.examId())
-            .pipe(
-                tap((resp) => {
+        forkJoin({
+            examInfo: this.Calendar.getExamInfo$(this.isCollaborative(), this.examId()).pipe(
+                map((resp) => {
                     resp.examSections.sort((es1, es2) => es1.sequenceNumber - es2.sequenceNumber);
-                    this.examInfo.set(resp);
+                    return resp;
                 }),
-                switchMap(() => this.Calendar.getReservationiWindowSize$()),
-                tap((resp) => {
-                    this.reservationWindowSize.set(resp.value);
-                    const windowEndDate = DateTime.now().plus({ day: resp.value }).toJSDate();
-                    this.reservationWindowEndDate.set(windowEndDate);
-                    const examInfo = this.examInfo();
-                    this.minDate.set(
-                        [new Date(), new Date(examInfo.periodStart as string)].reduce((a, b) => (a > b ? a : b)),
-                    );
-                    this.maxDate.set(
-                        [windowEndDate, new Date(examInfo.periodEnd as string)].reduce((a, b) => (a < b ? a : b)),
-                    );
+                catchError((err) => {
+                    this.toast.error(err);
+                    return of(this.examInfo());
                 }),
-                switchMap(() => this.Calendar.getExamVisitSupportStatus$()),
-                tap((resp) => this.isInteroperable.set(resp.isExamVisitSupported)),
-                switchMap(() =>
-                    // TODO: move to section selector
-                    this.Calendar.getCurrentEnrolment$(this.examId()),
-                ),
-                tap((resp: ExamEnrolment | null) => this.prepareOptionalSections(resp)),
-            )
-            .subscribe();
+            ),
+            reservationWindowSize: this.Calendar.getReservationiWindowSize$().pipe(
+                map((resp) => resp.value),
+                catchError((err) => {
+                    this.toast.error(err);
+                    return of(0);
+                }),
+            ),
+            isInteroperable: this.Calendar.getExamVisitSupportStatus$().pipe(
+                map((resp) => resp.isExamVisitSupported),
+                catchError((err) => {
+                    this.toast.error(err);
+                    return of(false);
+                }),
+            ),
+            enrolment: this.Calendar.getCurrentEnrolment$(this.examId()).pipe(
+                catchError((err) => {
+                    this.toast.error(err);
+                    return of(null);
+                }),
+            ),
+        }).subscribe({
+            next: ({ examInfo, reservationWindowSize, isInteroperable, enrolment }) => {
+                this.examInfo.set(examInfo);
+                this.reservationWindowSize.set(reservationWindowSize);
+                this.isInteroperable.set(isInteroperable);
+                this.prepareOptionalSections(enrolment);
+            },
+            error: (err) => this.toast.error(err),
+        });
     }
 
     hasOptionalSections(): boolean {
@@ -127,32 +159,17 @@ export class CalendarComponent {
     }
 
     getSequenceNumber(area: string): number {
-        const hasOptionalSections = this.hasOptionalSections();
-        switch (area) {
-            case 'info':
-                return 1;
-            case 'material':
-                return 2;
-            case 'organization':
-                return hasOptionalSections ? 3 : 2;
-            case 'room':
-                if (this.isExternal() && hasOptionalSections) {
-                    return 4;
-                } else if (this.isExternal() || hasOptionalSections) {
-                    return 3;
-                } else {
-                    return 2;
-                }
-            case 'confirmation':
-                if (this.isExternal() && hasOptionalSections) {
-                    return 5;
-                } else if (this.isExternal() || hasOptionalSections) {
-                    return 4;
-                } else {
-                    return 3;
-                }
-        }
-        return 0;
+        const hasOptional = this.hasOptionalSections();
+        const ext = this.isExternal();
+
+        const map: Record<string, number> = {
+            info: 1,
+            material: 2,
+            organization: hasOptional ? 3 : 2,
+            room: ext && hasOptional ? 4 : ext || hasOptional ? 3 : 2,
+            confirmation: ext && hasOptional ? 5 : ext || hasOptional ? 4 : 3,
+        };
+        return map[area] ?? 0;
     }
 
     makeExternalReservation() {
@@ -215,10 +232,6 @@ export class CalendarComponent {
         }
     }
 
-    sectionSelectionOk(): boolean {
-        return this.examInfo().examSections.some((es) => !es.optional || es.selected);
-    }
-
     confirmReservation() {
         const reservation = this.reservation();
         const room = reservation?.room;
@@ -265,15 +278,15 @@ export class CalendarComponent {
 
     private prepareOptionalSections(data: ExamEnrolment | null) {
         const examInfo = this.examInfo();
-        examInfo.examSections
-            .filter((es) => es.optional)
-            .forEach((es) => {
-                es.selected =
-                    (data && data.optionalSections.map((os) => os.id).indexOf(es.id) > -1) ||
-                    this.selectedSections()
-                        .map((s) => parseInt(s))
-                        .indexOf(es.id) > -1;
-            });
-        this.examInfo.set(examInfo);
+        const updatedSections = examInfo.examSections.map((es) => {
+            if (!es.optional) return es;
+            return {
+                ...es,
+                selected:
+                    data?.optionalSections.some((os) => os.id === es.id) ||
+                    this.selectedSections().some((s) => Number(s) === es.id),
+            };
+        });
+        this.examInfo.set({ ...examInfo, examSections: updatedSections });
     }
 }

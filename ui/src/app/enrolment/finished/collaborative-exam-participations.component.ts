@@ -77,7 +77,7 @@ export class CollaborativeParticipationsComponent {
             this.participations.set(
                 this.originals().filter((participation) => {
                     const exam = participation.exam;
-                    return exam.name && exam.name.indexOf(text) > -1;
+                    return exam.name?.toLowerCase().includes(text.toLowerCase());
                 }),
             );
         }

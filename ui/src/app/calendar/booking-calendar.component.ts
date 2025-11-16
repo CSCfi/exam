@@ -2,17 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    ViewChild,
-    inject,
-    input,
-    output,
-    signal,
-} from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, ViewChild, effect, inject, input, output, signal } from '@angular/core';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalendar/core';
 import enLocale from '@fullcalendar/core/locales/en-gb';
@@ -41,7 +31,7 @@ import { CalendarService } from './calendar.service';
     `,
     imports: [FullCalendarModule],
 })
-export class BookingCalendarComponent implements AfterViewInit {
+export class BookingCalendarComponent {
     @ViewChild('fc') calendar!: FullCalendarComponent;
 
     eventSelected = output<EventApi>();
@@ -59,8 +49,8 @@ export class BookingCalendarComponent implements AfterViewInit {
     accessibilities = input<Accessibility[]>([]);
 
     calendarOptions = signal<CalendarOptions>({});
-    searchStart = DateTime.now().startOf('week').toISO();
-    searchEnd = DateTime.now().endOf('week').toISO();
+    searchStart = signal(DateTime.now().startOf('week').toISO());
+    searchEnd = signal(DateTime.now().endOf('week').toISO());
 
     private translate = inject(TranslateService);
     private Calendar = inject(CalendarService);
@@ -89,28 +79,36 @@ export class BookingCalendarComponent implements AfterViewInit {
                 ...this.getFormatOverrides(event.lang),
             });
         });
-        // Change detection ->
-        toObservable(this.room).subscribe((room) => {
-            const earliestOpening = this.Calendar.getEarliestOpening(room, this.searchStart, this.searchEnd);
+
+        effect(() => {
+            const roomVal = this.room(); // track signal
+            const earliestOpening = this.Calendar.getEarliestOpening(roomVal, this.searchStart(), this.searchEnd());
+            const latestClosing = this.Calendar.getLatestClosing(roomVal, this.searchStart(), this.searchEnd());
+
             const minTime =
                 earliestOpening.getHours() > 1
                     ? DateTime.fromJSDate(earliestOpening).minus({ hour: 1 }).toJSDate()
                     : earliestOpening;
-            const latestClosing = this.Calendar.getLatestClosing(room, this.searchStart, this.searchEnd);
             const maxTime =
                 latestClosing.getHours() < 23
                     ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
                     : latestClosing;
+
             this.calendarOptions.update((cos) => ({
                 ...cos,
-                hiddenDays: this.Calendar.getClosedWeekdays(room, this.searchStart, this.searchEnd),
+                hiddenDays: this.Calendar.getClosedWeekdays(roomVal, this.searchStart(), this.searchEnd()),
                 slotMinTime: DateTime.fromJSDate(minTime).toFormat('HH:mm:ss'),
                 slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
-                timeZone: room.localTimezone,
+                timeZone: roomVal.localTimezone,
             }));
+
             this.calendar?.getApi().refetchEvents();
         });
-        toObservable(this.accessibilities).subscribe(() => this.calendar?.getApi().refetchEvents());
+
+        effect(() => {
+            this.accessibilities(); // track signal
+            this.calendar?.getApi().refetchEvents();
+        });
 
         if (this.minDate() && this.maxDate()) {
             this.calendarOptions.update((options) => ({
@@ -128,18 +126,12 @@ export class BookingCalendarComponent implements AfterViewInit {
         }
     }
 
-    ngAfterViewInit() {
-        if (!this.minDate()) {
-            this.calendar.getApi().render(); // TODO: see if needed
-        }
-    }
-
     refetch(input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) {
-        this.searchStart = input.startStr;
-        this.searchEnd = DateTime.fromISO(input.startStr).endOf('week').toISO() as string;
-        const hidden = this.Calendar.getClosedWeekdays(this.room(), this.searchStart, this.searchEnd);
-        const earliestOpening = this.Calendar.getEarliestOpening(this.room(), this.searchStart, this.searchEnd);
-        const latestClosing = this.Calendar.getLatestClosing(this.room(), this.searchStart, this.searchEnd);
+        this.searchStart.set(input.startStr);
+        this.searchEnd.set(DateTime.fromISO(input.startStr).endOf('week').toISO() as string);
+        const hidden = this.Calendar.getClosedWeekdays(this.room(), this.searchStart(), this.searchEnd());
+        const earliestOpening = this.Calendar.getEarliestOpening(this.room(), this.searchStart(), this.searchEnd());
+        const latestClosing = this.Calendar.getLatestClosing(this.room(), this.searchStart(), this.searchEnd());
         this.calendarOptions.update((cos) => ({
             ...cos,
             hiddenDays: hidden,

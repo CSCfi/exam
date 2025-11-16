@@ -86,35 +86,73 @@ export class ExamAssessmentComponent implements OnDestroy {
     // when grade changes, delete autoeval config (locally) and call prepare
 
     updateExam(resetAutoEvaluationConfig: boolean) {
-        // Sync form data from auto-evaluation component before saving
-        // This will emit updated event which triggers autoEvaluationConfigChanged
-        // and updates the exam signal synchronously
-        if (this.autoEvaluationComponent) {
-            this.autoEvaluationComponent.save();
-        }
-
-        // Re-read exam after save() updates it via autoEvaluationConfigChanged
-        // Since signals are synchronous, the exam should be updated immediately
-        const currentExam = this.exam();
         const currentAutoEvaluation = this.autoEvaluation();
+        const currentExam = this.exam();
         const currentExamFeedbackConfig = this.examFeedbackConfig();
 
-        // Check if config exists (not just if enabled signal is true)
-        // The config should be set by autoEvaluationConfigChanged after save() emits
-        const hasAutoEvaluationConfig = !!currentExam.autoEvaluationConfig;
+        // Only sync form data if auto-evaluation is enabled
+        // If disabled, we want to save with evaluationConfig: null
+        if (this.autoEvaluationComponent && currentAutoEvaluation.enabled) {
+            this.autoEvaluationComponent.save();
+            // Re-read exam after save() updates it via autoEvaluationConfigChanged
+            // Since signals are synchronous, the exam should be updated immediately
+            const updatedExam = this.exam();
+            const hasAutoEvaluationConfig = !!updatedExam.autoEvaluationConfig;
 
+            const config = {
+                evaluationConfig:
+                    hasAutoEvaluationConfig && this.canBeAutoEvaluated() && !resetAutoEvaluationConfig
+                        ? {
+                              releaseType: updatedExam.autoEvaluationConfig?.releaseType,
+                              releaseDate: updatedExam.autoEvaluationConfig?.releaseDate
+                                  ? new Date(updatedExam.autoEvaluationConfig.releaseDate).getTime()
+                                  : null,
+                              amountDays: updatedExam.autoEvaluationConfig?.amountDays,
+                              gradeEvaluations: updatedExam.autoEvaluationConfig?.gradeEvaluations,
+                          }
+                        : null,
+                feedbackConfig:
+                    currentExamFeedbackConfig.enabled && !this.collaborative()
+                        ? {
+                              releaseType: updatedExam.examFeedbackConfig?.releaseType,
+                              releaseDate: updatedExam.examFeedbackConfig?.releaseDate
+                                  ? new Date(updatedExam.examFeedbackConfig.releaseDate).getTime()
+                                  : null,
+                              amountDays: updatedExam.examFeedbackConfig?.amountDays,
+                          }
+                        : null,
+            };
+            const examToUpdate = resetAutoEvaluationConfig
+                ? { ...updatedExam, autoEvaluationConfig: undefined }
+                : updatedExam;
+            this.Exam.updateExam$(examToUpdate, config, this.collaborative()).subscribe({
+                next: () => {
+                    this.toast.info(this.translate.instant('i18n_exam_saved'));
+                    const savedExam = { ...examToUpdate };
+                    const code = savedExam.course ? savedExam.course.code : null;
+                    this.Tabs.notifyExamUpdate({
+                        name: savedExam.name,
+                        code: code,
+                        scaleChange: resetAutoEvaluationConfig,
+                        initScale: false,
+                    });
+                    let finalExam: Exam = { ...savedExam };
+                    if (!currentAutoEvaluation.enabled) {
+                        finalExam = { ...finalExam, autoEvaluationConfig: undefined };
+                    }
+                    if (!currentExamFeedbackConfig.enabled) {
+                        finalExam = { ...finalExam, examFeedbackConfig: undefined };
+                    }
+                    this.exam.set(finalExam);
+                },
+                error: (err) => this.toast.error(err),
+            });
+            return;
+        }
+
+        // Auto-evaluation is disabled - save with evaluationConfig: null
         const config = {
-            evaluationConfig:
-                hasAutoEvaluationConfig && this.canBeAutoEvaluated() && !resetAutoEvaluationConfig
-                    ? {
-                          releaseType: currentExam.autoEvaluationConfig?.releaseType,
-                          releaseDate: currentExam.autoEvaluationConfig?.releaseDate
-                              ? new Date(currentExam.autoEvaluationConfig.releaseDate).getTime()
-                              : null,
-                          amountDays: currentExam.autoEvaluationConfig?.amountDays,
-                          gradeEvaluations: currentExam.autoEvaluationConfig?.gradeEvaluations,
-                      }
-                    : null,
+            evaluationConfig: null,
             feedbackConfig:
                 currentExamFeedbackConfig.enabled && !this.collaborative()
                     ? {
@@ -126,9 +164,8 @@ export class ExamAssessmentComponent implements OnDestroy {
                       }
                     : null,
         };
-        const examToUpdate = resetAutoEvaluationConfig
-            ? { ...currentExam, autoEvaluationConfig: undefined }
-            : currentExam;
+        // Always remove autoEvaluationConfig when disabled
+        const examToUpdate = { ...currentExam, autoEvaluationConfig: undefined };
         this.Exam.updateExam$(examToUpdate, config, this.collaborative()).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_exam_saved'));
@@ -140,12 +177,12 @@ export class ExamAssessmentComponent implements OnDestroy {
                     scaleChange: resetAutoEvaluationConfig,
                     initScale: false,
                 });
-                let finalExam = { ...updatedExam };
+                let finalExam: Exam = { ...updatedExam };
                 if (!currentAutoEvaluation.enabled) {
-                    finalExam = this.omitProperty(finalExam, 'autoEvaluationConfig') as Exam;
+                    finalExam = { ...finalExam, autoEvaluationConfig: undefined };
                 }
                 if (!currentExamFeedbackConfig.enabled) {
-                    finalExam = this.omitProperty(finalExam, 'examFeedbackConfig') as Exam;
+                    finalExam = { ...finalExam, examFeedbackConfig: undefined };
                 }
                 this.exam.set(finalExam);
             },
@@ -210,6 +247,9 @@ export class ExamAssessmentComponent implements OnDestroy {
     }
 
     autoEvaluationDisabled() {
+        const currentExam = this.exam();
+        // Remove autoEvaluationConfig from exam immediately
+        this.exam.set({ ...currentExam, autoEvaluationConfig: undefined });
         this.autoEvaluation.set({ enabled: false });
     }
 

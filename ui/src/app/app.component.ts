@@ -79,10 +79,12 @@ export class AppComponent implements OnInit {
             this.hideNavBar.set(false);
         });
 
-        // Note: Session.devLogoutChange$ is still an observable - would need SessionService migration
-        this.Session.devLogoutChange$.subscribe(() => {
-            delete this.user;
-            this.router.navigate(['']);
+        // React to dev logout signal
+        effect(() => {
+            if (this.Session.devLogoutChangeSignal()) {
+                delete this.user;
+                this.router.navigate(['']);
+            }
         });
     }
 

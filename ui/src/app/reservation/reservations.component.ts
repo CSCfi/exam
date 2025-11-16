@@ -286,7 +286,7 @@ export class ReservationsComponent {
         const machineData: Option<ExamMachine, number>[] = machines
             .filter((m) => room.examMachines.some((rem) => m.id === rem.id))
             .map((m) => {
-                return { id: m.id, value: m, label: m.name == null ? '' : m.name };
+                return { id: m.id, value: m, label: m.name === null ? '' : m.name };
             });
         machineData.unshift(header);
         return machineData;
