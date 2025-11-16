@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -21,7 +21,7 @@ import type { User } from 'src/app/session/session.model';
     styleUrls: ['../../exam.shared.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamOwnerSelectorComponent {
+export class ExamOwnerSelectorComponent implements OnInit {
     exam = input.required<Exam>();
 
     examOwners = signal<User[]>([]);
@@ -38,13 +38,10 @@ export class ExamOwnerSelectorComponent {
 
     constructor() {
         this.newOwner = {};
+    }
 
-        effect(() => {
-            const currentExam = this.exam();
-            if (currentExam) {
-                this.getExamOwners();
-            }
-        });
+    ngOnInit() {
+        this.getExamOwners();
     }
 
     listOwners$ = (criteria$: Observable<string>): Observable<User[]> =>

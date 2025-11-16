@@ -88,7 +88,7 @@ export class PaginatorComponent {
     }
 
     setPage(n: number) {
-        if (n !== this._internalPage()) {
+        if (n !== this.getCurrentPage()) {
             this._internalPage.set(n);
             this.pageSelected.emit({ page: n });
         }

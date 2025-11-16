@@ -56,10 +56,9 @@ export class ExaminationEventDialogComponent {
     constructor() {
         effect(() => {
             const currentStart = this.start();
-            const currentDuration = this.duration();
             this.http
                 .get<ExaminationEvent[]>('/app/examinationevents/conflicting', {
-                    params: { start: currentStart.toISOString(), duration: currentDuration.toString() },
+                    params: { start: currentStart.toISOString(), duration: this.duration().toString() },
                 })
                 .pipe(take(1))
                 .subscribe((events) => {

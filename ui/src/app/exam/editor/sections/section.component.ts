@@ -16,7 +16,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     ViewEncapsulation,
-    effect,
+    computed,
     inject,
     input,
     output,
@@ -82,8 +82,12 @@ export class SectionComponent {
     updated = output<ExamSection>();
     materialsChanged = output<void>();
 
-    expanded = signal(false);
+    expanded = computed(() => {
+        const override = this.expandedOverride();
+        return override !== undefined ? override : (this.section().expanded ?? false);
+    });
 
+    private expandedOverride = signal<boolean | undefined>(undefined);
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
     private modal = inject(ModalService);
@@ -92,14 +96,6 @@ export class SectionComponent {
     private QuestionScore = inject(QuestionScoringService);
     private Files = inject(FileService);
     private Exam = inject(ExamService);
-
-    constructor() {
-        // Sync expanded state from section input
-        effect(() => {
-            const currentSection = this.section();
-            this.expanded.set(currentSection.expanded ?? false);
-        });
-    }
 
     questionPointsMatch() {
         const currentSection = this.section();
@@ -151,11 +147,12 @@ export class SectionComponent {
     }
 
     toggleExpanded() {
-        this.expanded.update((v) => !v);
+        const currentExpanded = this.expanded();
+        this.expandedOverride.set(!currentExpanded);
         const currentSection = this.section();
         const updated = {
             ...currentSection,
-            expanded: !currentSection.expanded,
+            expanded: !currentExpanded,
         };
         this.updated.emit(updated);
         this.expandSection();
@@ -473,7 +470,6 @@ export class SectionComponent {
         });
         // Don't set question or questionId - component will create new empty question
         modal.componentInstance.collaborative.set(this.collaborative());
-        modal.componentInstance.isPopup.set(true);
 
         this.modal.result$<Question>(modal).subscribe((resp) => {
             const currentSection = this.section();

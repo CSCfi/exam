@@ -66,10 +66,10 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 
 <div class="row ms-2" [hidden]="!panelOpen()">
-    <div class="col-md-12 pt-2" [ngStyle]="form.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }">
+    <div class="col-md-12 pt-2 pb-2" [class.form-invalid]="form.invalid">
         <form role="form" [formGroup]="form" (ngSubmit)="save()">
             @if (form.get('gradeEvaluations')?.hasError('nonUniqueValue')) {
-                <div class="alert alert-danger mb-2">
+                <div class="alert alert-danger">
                     {{ 'i18n_autoevaluation_percentages_not_unique' | translate }}
                 </div>
             }
@@ -157,6 +157,7 @@ SPDX-License-Identifier: EUPL-1.2
                             [optional]="false"
                             (updated)="releaseDateChanged($event)"
                             [initialDate]="getReleaseDate()"
+                            [disabled]="!exam().autoEvaluationConfig"
                         ></xm-date-picker>
                     </div>
                 </div>

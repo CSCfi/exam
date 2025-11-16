@@ -5,13 +5,13 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 @if (newQuestion()) {
-    @if (!isPopup()) {
+    @if (!isModalContext()) {
         <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
     } @else {
         <xm-page-header text="i18n_toolbar_new_question" />
     }
 } @else {
-    @if (!isPopup()) {
+    @if (!isModalContext()) {
         <xm-page-header text="i18n_questions_edit" [prependTemplate]="linkBack" />
     } @else {
         <xm-page-header text="i18n_questions_edit" />

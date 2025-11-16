@@ -16,7 +16,24 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
 // This component depicts a distributed exam question. Only used thru a modal.
 @Component({
     selector: 'xm-exam-question',
-    templateUrl: './exam-question.component.html',
+    template: `
+        <div class="row">
+            <div class="col-md-12 px-4">
+                <form role="form" [formGroup]="questionForm" name="questionForm">
+                    @if (adaptedQuestion()) {
+                        <xm-question-body
+                            [question]="adaptedQuestion()!"
+                            [currentOwners]="adaptedQuestion()!.questionOwners || []"
+                            [lotteryOn]="lotteryOn()"
+                            [collaborative]="false"
+                            [questionTypes]="[]"
+                            [newQuestion]="false"
+                        />
+                    }
+                </form>
+            </div>
+        </div>
+    `,
     styleUrls: ['../question.shared.scss'],
     viewProviders: [{ provide: FormGroupDirective, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule, QuestionBodyComponent],

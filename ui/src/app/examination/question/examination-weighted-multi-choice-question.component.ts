@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
@@ -39,7 +39,7 @@ import { ExaminationService } from 'src/app/examination/examination.service';
     styleUrls: ['./question.shared.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationWeightedMultiChoiceComponent {
+export class ExaminationWeightedMultiChoiceComponent implements OnInit {
     sq = input.required<ExaminationQuestion>();
     examHash = input('');
     isPreview = input(false);
@@ -55,16 +55,10 @@ export class ExaminationWeightedMultiChoiceComponent {
 
     private Examination = inject(ExaminationService);
 
-    constructor() {
-        // Initialize options sorting when inputs change
-        effect(() => {
-            const currentSq = this.sq();
-            const currentOrderOptions = this.orderOptions();
-
-            if (currentOrderOptions) {
-                currentSq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
-            }
-        });
+    ngOnInit() {
+        if (this.orderOptions()) {
+            this.sq().options.sort((a, b) => (a.id || -1) - (b.id || -1));
+        }
     }
 
     saveOption() {

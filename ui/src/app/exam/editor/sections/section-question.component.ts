@@ -8,7 +8,7 @@ import {
     ApplicationRef,
     ChangeDetectionStrategy,
     Component,
-    effect,
+    computed,
     inject,
     input,
     output,
@@ -68,8 +68,12 @@ export class SectionQuestionComponent {
     updated = output<ExamSectionQuestion>();
     copied = output<ExamSectionQuestion>();
 
-    expanded = signal(false);
+    expanded = computed(() => {
+        const override = this.expandedOverride();
+        return override !== undefined ? override : (this.sectionQuestion().expanded ?? false);
+    });
 
+    private expandedOverride = signal<boolean | undefined>(undefined);
     private http = inject(HttpClient);
     private modal = inject(ModalService);
     private translate = inject(TranslateService);
@@ -81,15 +85,8 @@ export class SectionQuestionComponent {
     private Files = inject(FileService);
     private appRef = inject(ApplicationRef);
 
-    constructor() {
-        effect(() => {
-            const sq = this.sectionQuestion();
-            this.expanded.set(sq.expanded ?? false);
-        });
-    }
-
     toggleExpanded() {
-        this.expanded.update((v) => !v);
+        this.expandedOverride.update((v) => (v === undefined ? !this.sectionQuestion().expanded : !v));
     }
 
     calculateWeightedMaxPoints() {
@@ -172,13 +169,11 @@ export class SectionQuestionComponent {
             size: 'xl',
         });
 
-        modal.componentInstance.isPopup.set(true);
         modal.componentInstance.lotteryOn.set(this.lotteryOn());
         // Convert Question to ReverseQuestion by adding examSectionQuestions
-        modal.componentInstance.questionDraft.set({ ...currentSectionQuestion.question, examSectionQuestions: [] });
+        modal.componentInstance.question.set({ ...currentSectionQuestion.question, examSectionQuestions: [] });
         modal.componentInstance.collaborative.set(this.collaborative());
         modal.componentInstance.examId.set(this.examId());
-        modal.componentInstance.sectionQuestion.set(currentSectionQuestion);
 
         this.modal
             .result$<Question>(modal)

@@ -50,6 +50,7 @@ export class ExamFeedbackConfigComponent {
     examFeedbackConfig: ExamFeedbackConfigTemplate;
     config = signal<ExamFeedbackConfig | undefined>(undefined);
     examFeedbackConfigDisplayVisible = signal(false);
+    private initialized = false;
 
     constructor() {
         this.examFeedbackConfig = {
@@ -67,8 +68,13 @@ export class ExamFeedbackConfigComponent {
 
         effect(() => {
             const currentExam = this.exam();
-            if (currentExam) {
+            if (!currentExam) return;
+            if (!this.initialized) {
                 this.prepareExamFeedbackConfig();
+                this.initialized = true;
+            } else {
+                // Only sync enabled state, don't overwrite config
+                this.examFeedbackConfig.enabled = !!currentExam.examFeedbackConfig;
             }
         });
     }
@@ -134,13 +140,16 @@ export class ExamFeedbackConfigComponent {
                 releaseType: releaseType ? releaseType.name : this.examFeedbackConfig.releaseTypes[0].name,
                 releaseDate: null,
             });
-        }
-        if (currentExam.examFeedbackConfig) {
+        } else {
             this.config.set(currentExam.examFeedbackConfig);
             const currentConfig = this.config();
             if (currentConfig) {
                 const rt = this.getReleaseTypeByName(currentConfig.releaseType);
-                this.applyFilter(rt);
+                // Only update filter state, don't emit events
+                this.examFeedbackConfig.releaseTypes.forEach((r) => (r.filtered = false));
+                if (rt) {
+                    rt.filtered = true;
+                }
             }
         }
     }

@@ -4,7 +4,7 @@
 
 import { AsyncPipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, input, output, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
 import { Observable, Subject, filter, interval, map, startWith, switchMap, take, takeUntil } from 'rxjs';
@@ -52,7 +52,7 @@ import { Observable, Subject, filter, interval, map, startWith, switchMap, take,
     styleUrl: './examination-clock.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationClockComponent implements OnDestroy {
+export class ExaminationClockComponent implements OnInit, OnDestroy {
     examHash = input('');
     timedOut = output<void>();
 
@@ -67,57 +67,49 @@ export class ExaminationClockComponent implements OnDestroy {
     private clock = new Subject<number>();
     private ngUnsubscribe = new Subject<void>();
 
-    constructor() {
-        // Initialize clock when examHash input is available
-        effect(() => {
-            const currentExamHash = this.examHash();
-            if (!currentExamHash) {
-                return;
-            }
+    ngOnInit() {
+        const currentExamHash = this.examHash();
+        if (!currentExamHash) {
+            return;
+        }
 
-            // Clean up previous subscriptions before creating new ones
-            this.ngUnsubscribe.next();
-            this.ngUnsubscribe.complete();
-            this.ngUnsubscribe = new Subject<void>();
-
-            const sync$ = this.http.get<number>(`/app/time/${currentExamHash}`);
-            interval(this.syncInterval * 1000)
-                .pipe(
-                    takeUntil(this.ngUnsubscribe),
-                    startWith(0),
-                    switchMap(() =>
-                        sync$.pipe(
-                            switchMap((t) =>
-                                interval(1000).pipe(
-                                    map((n) => Math.max(0, t - n)),
-                                    take(this.syncInterval),
-                                ),
+        const sync$ = this.http.get<number>(`/app/time/${currentExamHash}`);
+        interval(this.syncInterval * 1000)
+            .pipe(
+                takeUntil(this.ngUnsubscribe),
+                startWith(0),
+                switchMap(() =>
+                    sync$.pipe(
+                        switchMap((t) =>
+                            interval(1000).pipe(
+                                map((n) => Math.max(0, t - n)),
+                                take(this.syncInterval),
                             ),
                         ),
                     ),
-                )
-                .subscribe(this.clock);
+                ),
+            )
+            .subscribe(this.clock);
 
-            this.remainingTime$ = this.clock.pipe(
+        this.remainingTime$ = this.clock.pipe(
+            takeUntil(this.ngUnsubscribe),
+            map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss')),
+        );
+        this.clock
+            .pipe(
                 takeUntil(this.ngUnsubscribe),
-                map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss')),
-            );
-            this.clock
-                .pipe(
-                    takeUntil(this.ngUnsubscribe),
-                    filter((t) => t % (60 * 30) === 0 || [1, 5, 10].some((n) => t === 60 * n)),
-                    map((t) => Duration.fromObject({ seconds: t }).toFormat('hh:mm:ss')),
-                )
-                .subscribe((time) => this.ariaLiveTime.set(time));
-            this.isTimeScarce$ = this.clock.pipe(
-                takeUntil(this.ngUnsubscribe),
-                map((n) => n <= this.alarmThreshold),
-            );
-            this.clock.pipe(takeUntil(this.ngUnsubscribe)).subscribe((n) => {
-                if (n === 0) this.timedOut.emit();
-            });
-            this.showRemainingTime.set(true);
+                filter((t) => t % (60 * 30) === 0 || [1, 5, 10].some((n) => t === 60 * n)),
+                map((t) => Duration.fromObject({ seconds: t }).toFormat('hh:mm:ss')),
+            )
+            .subscribe((time) => this.ariaLiveTime.set(time));
+        this.isTimeScarce$ = this.clock.pipe(
+            takeUntil(this.ngUnsubscribe),
+            map((n) => n <= this.alarmThreshold),
+        );
+        this.clock.pipe(takeUntil(this.ngUnsubscribe)).subscribe((n) => {
+            if (n === 0) this.timedOut.emit();
         });
+        this.showRemainingTime.set(true);
     }
 
     toggleShowRemainingTime() {

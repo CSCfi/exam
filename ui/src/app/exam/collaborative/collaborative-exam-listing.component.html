@@ -27,19 +27,19 @@ SPDX-License-Identifier: EUPL-1.2
                 <li [ngbNavItem]="'PUBLISHED'">
                     <a ngbNavLink>
                         {{ 'i18n_published_joint_exams' | translate }}
-                        <span class="ms-2 badge bg-secondary">{{ filterByView('PUBLISHED').length }}</span>
+                        <span class="ms-2 badge bg-secondary">{{ publishedCount() }}</span>
                     </a>
                 </li>
                 <li [ngbNavItem]="'EXPIRED'">
                     <a ngbNavLink>
                         {{ 'i18n_expired_joint_exams' | translate }}
-                        <span class="ms-2 badge bg-secondary">{{ filterByView('EXPIRED').length }}</span>
+                        <span class="ms-2 badge bg-secondary">{{ expiredCount() }}</span>
                     </a>
                 </li>
                 <li [ngbNavItem]="'DRAFTS'">
                     <a ngbNavLink>
                         {{ 'i18n_joint_exam_drafts' | translate }}
-                        <span class="ms-2 badge bg-secondary">{{ filterByView('DRAFTS').length }}</span>
+                        <span class="ms-2 badge bg-secondary">{{ draftsCount() }}</span>
                     </a>
                 </li>
             </ul>
@@ -122,7 +122,7 @@ SPDX-License-Identifier: EUPL-1.2
                     </tr>
                 </thead>
                 <tbody>
-                    @for (exam of filterByView(view()) | orderBy: examsPredicate() : reverse(); track exam) {
+                    @for (exam of filteredExams() | orderBy: examsPredicate() : reverse(); track exam) {
                         <tr>
                             <td>
                                 <a

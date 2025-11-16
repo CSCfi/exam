@@ -263,6 +263,9 @@ export class ExamAssessmentComponent implements OnDestroy {
     }
 
     feedbackConfigDisabled() {
+        const currentExam = this.exam();
+        // Remove examFeedbackConfig from exam immediately
+        this.exam.set({ ...currentExam, examFeedbackConfig: undefined });
         this.examFeedbackConfig.set({ enabled: false });
     }
 

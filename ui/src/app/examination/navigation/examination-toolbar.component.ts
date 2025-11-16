@@ -4,7 +4,7 @@
 
 import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -27,7 +27,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     imports: [NgClass, NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationToolbarComponent {
+export class ExaminationToolbarComponent implements OnInit {
     exam = input.required<Examination>();
     activeSection = input<ExaminationSection | undefined>(undefined);
     isPreview = input(false);
@@ -50,17 +50,16 @@ export class ExaminationToolbarComponent {
 
     constructor() {
         this.tab = this.route.snapshot.queryParams.tab;
+    }
 
-        // Load room when exam is available and conditions are met
-        effect(() => {
-            const currentExam = this.exam();
-            const currentIsPreview = this.isPreview();
-            if (!currentIsPreview && currentExam.implementation === 'AQUARIUM') {
-                this.http
-                    .get<ExamRoom>('/app/enrolments/room/' + currentExam.hash)
-                    .subscribe((resp) => this.room.set(resp));
-            }
-        });
+    ngOnInit() {
+        const currentExam = this.exam();
+        const currentIsPreview = this.isPreview();
+        if (!currentIsPreview && currentExam.implementation === 'AQUARIUM') {
+            this.http
+                .get<ExamRoom>('/app/enrolments/room/' + currentExam.hash)
+                .subscribe((resp) => this.room.set(resp));
+        }
     }
 
     displayUser() {

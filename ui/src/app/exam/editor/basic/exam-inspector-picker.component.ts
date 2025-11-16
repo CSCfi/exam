@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -22,7 +22,7 @@ import type { User } from 'src/app/session/session.model';
     styleUrls: ['../../exam.shared.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamInspectorSelectorComponent {
+export class ExamInspectorSelectorComponent implements OnInit {
     exam = input.required<Exam>();
     examInspections = signal<ExamInspection[]>([]);
     newInspector: {
@@ -38,13 +38,10 @@ export class ExamInspectorSelectorComponent {
 
     constructor() {
         this.newInspector = {};
+    }
 
-        effect(() => {
-            const currentExam = this.exam();
-            if (currentExam) {
-                this.getInspectors();
-            }
-        });
+    ngOnInit() {
+        this.getInspectors();
     }
 
     listInspectors$ = (criteria$: Observable<string>): Observable<User[]> =>

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, NgStyle } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -30,7 +30,6 @@ type ReleaseType = { name: string; translation: string };
     styleUrls: ['./auto-evaluation.component.scss'],
     imports: [
         NgClass,
-        NgStyle,
         NgbPopover,
         NgbCollapse,
         ReactiveFormsModule,
@@ -90,6 +89,7 @@ export class AutoEvaluationComponent {
             const exam = this.exam();
             if (!exam) return;
             const config = exam.autoEvaluationConfig ?? this.createDefaultConfig(exam);
+            const hasConfig = exam.autoEvaluationConfig != null;
 
             // Only initialize form on first load or when exam ID changes
             // This prevents overwriting user changes when exam signal updates
@@ -112,6 +112,13 @@ export class AutoEvaluationComponent {
 
                 this.updateValidators();
                 this.formInitialized = true;
+            }
+
+            // Enable/disable form based on config state
+            if (hasConfig) {
+                this.form.enable({ emitEvent: false });
+            } else {
+                this.form.disable({ emitEvent: false });
             }
         });
     }

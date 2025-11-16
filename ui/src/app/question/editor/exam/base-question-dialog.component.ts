@@ -7,7 +7,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { QuestionComponent } from 'src/app/question/editor/base/question.component';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
-import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 @Component({
@@ -15,30 +14,26 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
     template: `
         <div class="modal-body">
             <xm-question
-                [question]="questionDraft()"
+                [question]="question()"
                 [questionId]="questionId()"
                 (saved)="onSave($event)"
                 (cancelled)="cancel()"
                 [collaborative]="collaborative()"
                 [lotteryOn]="lotteryOn()"
                 [examId]="examId()"
-                [isPopup]="isPopup()"
+                [isModalContext]="true"
                 autofocus
-            ></xm-question
-            ><!-- [sectionQuestion]="sectionQuestion()" -->
+            ></xm-question>
         </div>
         <div class="modal-footer"></div>
     `,
 })
 export class BaseQuestionDialogComponent {
-    // Model signals with defaults - this component is always opened as a modal
-    questionDraft = model<ReverseQuestion | QuestionDraft | undefined>(undefined);
+    question = model<ReverseQuestion | QuestionDraft | undefined>(undefined);
     questionId = model<number | undefined>(undefined);
     collaborative = model(false);
     lotteryOn = model(false);
     examId = model(0);
-    sectionQuestion = model<ExamSectionQuestion | undefined>(undefined);
-    isPopup = model(true); // Always true for modals
 
     private modal = inject(NgbActiveModal);
     private translate = inject(TranslateService);

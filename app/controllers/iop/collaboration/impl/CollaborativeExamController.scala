@@ -17,7 +17,7 @@ import models.user.{Language, Role, User}
 import org.apache.pekko.actor.ActorSystem
 import org.joda.time.DateTime
 import play.api.Logging
-import play.api.libs.json.{JsArray, JsNumber, JsValue, Json}
+import play.api.libs.json.{JsArray, JsNumber, JsObject, JsValue, Json}
 import play.api.libs.json.Json.*
 import play.api.libs.ws.JsonBodyWritables
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
@@ -102,9 +102,18 @@ class CollaborativeExamController @Inject() (
           case Left(result) => result
           case Right(items) =>
             val exams = items
-              .map { case (ce, rev) => ce.getExam(toJacksonJson(rev)) }
-              .filter(exam => isAuthorizedToView(exam, user, homeOrg))
-              .map(exam => Json.toJson(exam.asJson))
+              .filter { case (ce, rev) =>
+                // Deserialize to check authorization
+                val exam = ce.getExam(toJacksonJson(rev))
+                isAuthorizedToView(exam, user, homeOrg)
+              }
+              .map { case (ce, rev) =>
+                // Add local database ID to the JSON response
+                // The external service uses _id (CouchDB style), but we need the local database id
+                val jsonObj = rev.as[JsObject]
+                // Ensure the local database id is set (overwrite any existing id field)
+                jsonObj + ("id" -> JsNumber(BigDecimal(ce.getId)))
+              }
               .toSeq
 
             Ok(JsArray(exams))
@@ -116,12 +125,20 @@ class CollaborativeExamController @Inject() (
     findCollaborativeExam(id) match
       case Left(errorResult) => errorResult
       case Right(ce) =>
-        examLoader.downloadExam(ce).map {
-          case None                                                   => NotFound("i18n_error_exam_not_found")
-          case Some(exam) if !isAuthorizedToView(exam, user, homeOrg) => NotFound("i18n_error_exam_not_found")
-          case Some(exam) =>
-            postProcessor(exam)
-            Ok(exam.asJson)
+        examLoader.downloadExamJson(ce).map {
+          case None => NotFound("i18n_error_exam_not_found")
+          case Some(root) =>
+            // Deserialize to check authorization
+            val jacksonNode = play.libs.Json.parse(Json.stringify(root))
+            val exam = ce.getExam(jacksonNode)
+            if !isAuthorizedToView(exam, user, homeOrg) then
+              NotFound("i18n_error_exam_not_found")
+            else
+              postProcessor(exam)
+              // Add local database ID to the JSON response
+              val jsonObj = root.as[JsObject]
+              val jsonWithId = jsonObj + ("id" -> JsNumber(BigDecimal(ce.getId)))
+              Ok(jsonWithId)
         }
 
   def listGradeScales(): Action[AnyContent] =

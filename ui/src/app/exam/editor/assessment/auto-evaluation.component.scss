@@ -31,3 +31,15 @@
     height: 40px;
     padding-top: 10px;
 }
+
+// Form validation border
+.form-invalid {
+    border: 1px solid red;
+}
+
+// Make uniqueness error less intrusive
+.alert-danger {
+    margin-bottom: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem;
+}

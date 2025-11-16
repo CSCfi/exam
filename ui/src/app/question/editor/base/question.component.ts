@@ -55,7 +55,7 @@ export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
     lotteryOn = input(false);
     collaborative = input(false);
     examId = input(0);
-    isPopup = input(false);
+    isModalContext = input(false);
 
     // Outputs
     saved = output<ReverseQuestion | QuestionDraft>();
@@ -69,7 +69,7 @@ export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
             return q.id === undefined;
         }
         // Check route data for backward compatibility
-        if (!this.isPopup()) {
+        if (!this.isModalContext()) {
             const routeData = this.route.snapshot.data['newQuestion'];
             if (routeData !== undefined) {
                 return routeData;
@@ -148,7 +148,7 @@ export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
         const nextState = this.route.snapshot.queryParamMap.get('nextState');
         if (nextState) {
             this.router.navigate(['/staff', ...nextState.split('/')]);
-        } else if (this.isPopup()) {
+        } else if (this.isModalContext()) {
             // In modal, emit cancelled event
             this.cancelled.emit();
         } else {
@@ -335,7 +335,7 @@ export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
                 this.route.snapshot.queryParamMap.get('nextState') || this.route.snapshot.data['nextState'];
             if (nextState) {
                 this.router.navigate(['/staff', ...String(nextState).split('/')]);
-            } else if (this.isPopup()) {
+            } else if (this.isModalContext()) {
                 // In modal, emit saved event
                 this.saved.emit(reverseQ);
             } else {

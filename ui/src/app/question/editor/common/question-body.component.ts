@@ -97,9 +97,11 @@ export class QuestionBodyComponent implements OnDestroy {
     }
 
     onFormReady(form: FormGroup) {
-        form.valueChanges
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe((value) => this.questionType.set(value.questionType));
+        const ctrl = form.get('questionType');
+        if (!ctrl) return;
+        ctrl.valueChanges.pipe(takeUntil(this.ngUnsubscribe)).subscribe((type) => {
+            this.questionType.set(type);
+        });
     }
 
     ngOnDestroy() {
