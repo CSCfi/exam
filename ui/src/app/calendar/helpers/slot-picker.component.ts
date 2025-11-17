@@ -74,7 +74,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     }>();
 
     rooms = signal<FilterableRoom[]>([]);
-    maintenancePeriods = signal<(MaintenancePeriod & { remote: boolean })[]>([]);
+    maintenancePeriods = signal<(MaintenancePeriod & { org: string })[]>([]);
     selectedRoom?: ExamRoom;
     accessibilities: FilterableAccessibility[] = [];
     currentWeek = signal(DateTime.now());
@@ -96,7 +96,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             this.rooms.set(rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)));
         });
         this.Calendar.listMaintenancePeriods$().subscribe((periods) => {
-            const localMaintenances = periods.map((p) => ({ ...p, remote: false }));
+            const localMaintenances = periods.map((p) => ({ ...p, org: '' }));
             this.maintenancePeriods.set(localMaintenances);
         });
     }
@@ -108,11 +108,11 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             this.passwordVerified.set(false);
             const remoteMaintenances = (this.organisation.maintenancePeriods || []).map((p) => ({
                 ...p,
-                remote: true,
+                org: this.organisation!.code,
             }));
             this.maintenancePeriods.set(
                 this.maintenancePeriods()
-                    .filter((p) => !p.remote)
+                    .filter((p) => !p.org)
                     .concat(remoteMaintenances),
             );
         }
