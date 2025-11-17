@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, SlicePipe } from '@angular/common';
+import { NgClass } from '@angular/common';
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -61,16 +61,7 @@ import { Option } from './select.model';
             }
         </div>
     </div>`,
-    imports: [
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgClass,
-        NgbDropdownMenu,
-        FormsModule,
-        NgbDropdownItem,
-        SlicePipe,
-        TranslateModule,
-    ],
+    imports: [NgbDropdown, NgbDropdownToggle, NgClass, NgbDropdownMenu, FormsModule, NgbDropdownItem, TranslateModule],
     styleUrl: './dropdown-select.component.scss',
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
