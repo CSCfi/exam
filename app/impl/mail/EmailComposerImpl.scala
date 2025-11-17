@@ -753,14 +753,9 @@ class EmailComposerImpl @Inject() (
               if Option(first.getReservation).nonEmpty then adjustDST(first.getReservation.getStartAt)
               else new DateTime(first.getExaminationEventConfiguration.getExaminationEvent.getStart, timeZone)
             commonValues + ("enrolments" ->
-<<<<<<< HEAD
-              messaging("email.template.enrolment.first", enrolments.length, EmailComposerImpl.DTF.print(date))(lang))
-=======
               messaging("email.template.enrolment.first", enrolments.length, EmailComposerImpl.DTF.print(date))(using
                 lang
               ))
->>>>>>> 1875e7e86 (CSCEXAM-1049 Adjust emails for new change in slot times)
-
         replaceAll(subTemplate, values)
       )
       .mkString

@@ -187,7 +187,9 @@ export class ExceptionDialogComponent {
         const msg = [
             this.translate.instant('i18n_confirm_adding_x'),
             results.length,
-            this.translate.instant('i18n_x_exceptions'),
+            this.outOfService
+                ? this.translate.instant('i18n_x_out_of_service_exceptions')
+                : this.translate.instant('i18n_x_in_service_exceptions'),
             this.translate.instant('i18n_and_repeats_every_x'),
             repetitionMessage,
             this.translate.instant('i18n_exception_happens_at'),
