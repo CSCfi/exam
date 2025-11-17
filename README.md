@@ -9,7 +9,7 @@ SPDX-License-Identifier: EUPL-1.2
 EXAM Quickstart for developers
 =====================================
 
-1.  Prerequisites: install SBT, Java (21), Node (>= 18) and PostgreSQL (>= 9.4).
+1.  Prerequisites: install SBT, Java (25), Node (>= 18) and PostgreSQL (>= 9.4).
 
 2.  Create PostgreSQL database
 
