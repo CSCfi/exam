@@ -89,17 +89,22 @@ export class ExceptionDialogRepetitionOptionsComponent {
         this.monthOfYear.set({ name: this.months()[0].month, ord: this.months()[0].ord });
         effect(() => {
             if (this.wholeDay()) {
+                // Track startDate and endDate to react to changes
+                const currentStart = this.startDate();
+                const currentEnd = this.endDate();
+                const start = DateTime.fromJSDate(currentStart).startOf('day');
+                const end = DateTime.fromJSDate(currentEnd).endOf('day');
+                const startJs = start.toJSDate();
+                const endJs = end.toJSDate();
+                // Only update if the times have actually changed
+                if (currentStart.getTime() !== startJs.getTime()) {
+                    this.startDate.set(startJs);
+                }
+                if (currentEnd.getTime() !== endJs.getTime()) {
+                    this.endDate.set(endJs);
+                }
+                // getConfig() reads many signals we don't want to track
                 untracked(() => {
-                    const start = DateTime.fromJSDate(this.startDate()).startOf('day');
-                    const end = DateTime.fromJSDate(this.endDate()).endOf('day');
-                    this.startDate.set(start.toJSDate());
-                    this.endDate.set(end.toJSDate());
-                    this.optionChanged.emit(this.getConfig());
-                });
-            } else {
-                untracked(() => {
-                    this.startDate.set(DateTime.now().set({ minute: 0 }).toJSDate());
-                    this.endDate.set(DateTime.now().set({ minute: 0 }).toJSDate());
                     this.optionChanged.emit(this.getConfig());
                 });
             }
