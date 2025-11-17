@@ -71,8 +71,8 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                             {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
                             {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
                             {{ period.description }}
-                            @if (period.remote) {
-                                <span class="text-danger">(remote)</span>
+                            @if (period.org) {
+                                <span class="text-danger">({{ period.org }})</span>
                             }
                         </div>
                     }
@@ -101,7 +101,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 })
 export class SelectedRoomComponent implements OnInit, OnChanges {
     @Input() room!: ExamRoom;
-    @Input() maintenancePeriods: (MaintenancePeriod & { remote: boolean })[] = [];
+    @Input() maintenancePeriods: (MaintenancePeriod & { org: string })[] = [];
     @Input() viewStart = DateTime.now();
 
     openingHours = signal<OpeningHours[]>([]);
