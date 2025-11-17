@@ -18,7 +18,6 @@ import {
     isRemoteTransfer,
     RemoteTransferExamReservation,
     type AnyReservation,
-    type ExamMachine,
     type LocalTransferExamEnrolment,
     type LocalTransferExamReservation,
     type Reservation,
@@ -52,9 +51,11 @@ export class ReservationService {
     changeMachine = (reservation: Reservation): void => {
         const modalRef = this.modal.openRef(ChangeMachineDialogComponent);
         modalRef.componentInstance.reservation = reservation;
-        this.modal.result$<ExamMachine>(modalRef).subscribe((machine) => {
-            if (machine) {
-                reservation.machine = machine;
+        this.modal.result$<Reservation>(modalRef).subscribe((data) => {
+            if (data) {
+                reservation.machine = data.machine;
+                reservation.startAt = data.startAt;
+                reservation.endAt = data.endAt;
             }
         });
     };

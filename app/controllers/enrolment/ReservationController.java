@@ -35,10 +35,15 @@ import models.facility.ExamRoom;
 import models.user.Role;
 import models.user.User;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.ISODateTimeFormat;
+import org.springframework.beans.BeanUtils;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.Anonymous;
@@ -97,7 +102,7 @@ public class ReservationController extends BaseController {
         return ok(el.findList(), props);
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result getExamRooms() {
         var examRooms = DB.find(ExamRoom.class).select("id, name").fetch("examMachines", "id").findList();
         return ok(examRooms);
@@ -175,43 +180,108 @@ public class ReservationController extends BaseController {
         }
     }
 
+    private Optional<Interval> findSuitableSlot(ExamMachine machine, Reservation reservation, Exam exam) {
+        var room = machine.getRoom();
+        var interval = reservation.toInterval();
+        var dtz = DateTimeZone.forID(room.getLocalTimezone());
+        var searchDate = dateTimeHandler.normalize(reservation.getStartAt().withZone(dtz), dtz).toLocalDate();
+        var slots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.getDuration());
+        // Find the first slot that starts at or after the interval's start
+        // and ends at or after the interval's end
+        // This handles cases where rooms have different slot start times (e.g., 10:00 vs. 10:10)
+        return slots
+            .stream()
+            .filter(s -> !s.getStart().isBefore(interval.getStart()))
+            .filter(s -> !s.getEnd().isBefore(interval.getEnd()))
+            .findFirst();
+    }
+
     private boolean isBookable(ExamMachine machine, Reservation reservation) {
-        reservation.setMachine(machine);
-        return calendarHandler.isDoable(reservation, List.of());
+        var exam = getReservationExam(reservation);
+        if (exam.isEmpty() || !machine.hasRequiredSoftware(exam.get())) {
+            return false;
+        }
+        // Check if the reservation time slot fits within opening hours (default and exception)
+        // Note: Maintenance periods are system-wide, so they were already validated when the reservation was created
+        var suitableSlotOpt = findSuitableSlot(machine, reservation, exam.get());
+        if (suitableSlotOpt.isEmpty()) {
+            return false;
+        }
+        var interval = reservation.toInterval();
+        // Check if machine is available during the reservation's time slot
+        // Exclude the current reservation if it's already assigned to this machine
+        var conflictingReservations = machine
+            .getReservations()
+            .stream()
+            .filter(r -> !r.equals(reservation) && interval.overlaps(r.toInterval()))
+            .toList();
+        return conflictingReservations.isEmpty();
     }
 
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result findAvailableMachines(Long reservationId, Long roomId)
         throws ExecutionException, InterruptedException {
         var reservation = DB.find(Reservation.class, reservationId);
-        if (reservation == null || DB.find(ExamRoom.class, roomId) == null) {
+        var room = DB.find(ExamRoom.class, roomId);
+        if (reservation == null || room == null) {
             return notFound();
         }
+        var examOpt = getReservationExam(reservation);
+        if (examOpt.isEmpty()) {
+            return notFound();
+        }
+        var exam = examOpt.get();
+
+        var timezone = DateTimeZone.forID(room.getLocalTimezone());
+        var formatter = DateTimeFormat.forPattern("HH:mm").withZone(timezone);
         var props = PathProperties.parse("(id, name)");
         var query = DB.createQuery(ExamMachine.class);
         props.apply(query);
-        var candidates = query.where().eq("room.id", roomId).ne("outOfService", true).ne("archived", true).findList();
+        var candidates = query
+            .where()
+            .eq("room.id", roomId)
+            .ne("outOfService", true)
+            .ne("archived", true)
+            .ne("id", reservation.getMachine().getId())
+            .findList();
 
         var available = candidates
             .stream()
             .filter(machine -> isBookable(machine, reservation))
+            .map(machine -> {
+                var json = Json.newObject();
+                json.set("machine", Json.toJson(machine));
+                findSuitableSlot(machine, reservation, exam).ifPresentOrElse(
+                    slot -> {
+                        json.put("startAt", formatter.print(slot.getStart()));
+                        json.put("endAt", formatter.print(slot.getEnd()));
+                    },
+                    () -> {
+                        json.put("startAt", "");
+                        json.put("endAt", "");
+                    }
+                );
+                return json;
+            })
             .toList();
-        return ok(available, props);
+        var arrayNode = Json.newArray();
+        available.forEach(arrayNode::add);
+        return Results.ok(arrayNode).as("application/json");
     }
 
     @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
-    public Result updateMachine(Long reservationId, Http.Request request)
-        throws ExecutionException, InterruptedException {
+    public Result updateMachine(Long reservationId, Http.Request request) {
         var reservation = DB.find(Reservation.class, reservationId);
 
         if (reservation == null) {
             return notFound();
         }
         var machineId = request.body().asJson().get("machineId").asLong();
-        var props = PathProperties.parse("(id, name, room(id, name))");
+        var machineProps = PathProperties.parse("(id, name, room(*))");
+        var previous = new Reservation();
+        BeanUtils.copyProperties(reservation, previous);
         var query = DB.createQuery(ExamMachine.class);
-        props.apply(query);
-        var previous = reservation.getMachine();
+        machineProps.apply(query);
         var machine = query.where().idEq(machineId).findOne();
         if (machine == null) {
             return notFound();
@@ -220,24 +290,29 @@ public class ReservationController extends BaseController {
         if (exam.isEmpty() || !isBookable(machine, reservation)) {
             return forbidden("Machine not eligible for choosing");
         }
+        // Find the suitable slot for the new room and adjust reservation times
+        findSuitableSlot(machine, reservation, exam.get()).ifPresent(suitableSlot -> {
+            reservation.setStartAt(suitableSlot.getStart());
+            reservation.setEndAt(suitableSlot.getEnd());
+        });
         reservation.setMachine(machine);
         reservation.update();
-        emailComposer.composeReservationChangeNotification(
-            reservation.getUser(),
-            previous,
-            machine,
-            reservation.getEnrolment()
-        );
-        return ok(machine, props);
+        emailComposer.composeReservationChangeNotification(reservation, previous);
+        return ok(reservation, PathProperties.parse("(startAt, endAt, machine(*))"));
     }
 
-    private Optional<Exam> getReservationExam(Reservation reservation) throws InterruptedException, ExecutionException {
-        return reservation.getEnrolment().getExam() != null
-            ? Optional.of(reservation.getEnrolment().getExam())
-            : collaborativeExamLoader
-                  .downloadExam(reservation.getEnrolment().getCollaborativeExam())
-                  .toCompletableFuture()
-                  .get();
+    private Optional<Exam> getReservationExam(Reservation reservation) {
+        if (reservation.getEnrolment().getExam() != null) {
+            return Optional.of(reservation.getEnrolment().getExam());
+        }
+        try {
+            return collaborativeExamLoader
+                .downloadExam(reservation.getEnrolment().getCollaborativeExam())
+                .toCompletableFuture()
+                .get();
+        } catch (InterruptedException | ExecutionException e) {
+            return Optional.empty();
+        }
     }
 
     @Authenticated
@@ -434,7 +509,7 @@ public class ReservationController extends BaseController {
             query = query.eq("enrolment.collaborativeExam.externalRef", externalRef.get());
         }
 
-        if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
+        if (ownerId.isPresent() && (user.hasRole(Role.Name.ADMIN) || user.hasRole(Role.Name.SUPPORT))) {
             var userId = ownerId.get();
             query = query
                 .disjunction()
