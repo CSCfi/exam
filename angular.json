@@ -68,7 +68,10 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "buildTarget": "exam:build",
-            "proxyConfig": "ui/src/proxy.conf.js"
+            "proxyConfig": "ui/src/proxy.conf.js",
+            "headers": {
+              "Content-Security-Policy": "default-src 'self'; connect-src 'self'; form-action 'none'; img-src 'self' data: blob:; font-src 'self' about: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-src 'self' http://localhost:3000; frame-ancestors 'none'; base-uri 'self';"
+            }
           },
           "configurations": {
             "production": {
