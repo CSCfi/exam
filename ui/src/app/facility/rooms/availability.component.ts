@@ -15,7 +15,6 @@ import type { OpeningHours } from 'src/app/calendar/calendar.model';
 import { CalendarService } from 'src/app/calendar/calendar.service';
 import { Availability } from 'src/app/facility/facility.model';
 import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
-import { SessionService } from 'src/app/session/session.service';
 import { RoomService } from './room.service';
 
 @Component({
@@ -40,11 +39,6 @@ export class AvailabilityComponent implements OnInit {
     private toast = inject(ToastrService);
     private roomService = inject(RoomService);
     private calendar = inject(CalendarService);
-    private session = inject(SessionService);
-
-    get isAdmin(): boolean {
-        return this.session.getUser()?.isAdmin ?? false;
-    }
 
     ngOnInit() {
         if (!this.room) {

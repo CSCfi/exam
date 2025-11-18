@@ -24,6 +24,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
+import { SessionService } from 'src/app/session/session.service';
 import { CalendarService } from './calendar.service';
 
 @Component({
@@ -55,10 +56,10 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
     room = input.required<ExamRoom>();
     visible = input(false);
     passwordVerified = input(false);
-    isAdmin = input(false);
     minDate = input<Date>();
     maxDate = input<Date>();
     accessibilities = input<Accessibility[]>([]);
+    isAdmin = signal(false);
 
     calendarOptions = signal<CalendarOptions>({});
     searchStart = DateTime.now().startOf('week').toISO();
@@ -67,7 +68,10 @@ export class BookingCalendarComponent implements OnInit, AfterViewInit {
     private translate = inject(TranslateService);
     private Calendar = inject(CalendarService);
 
+    private Session = inject(SessionService);
+
     constructor() {
+        this.isAdmin.set(this.Session.getUser().isAdmin);
         this.calendarOptions.set({
             plugins: [luxon2Plugin, timeGridPlugin],
             initialView: 'timeGridWeek',
