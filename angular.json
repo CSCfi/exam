@@ -92,7 +92,10 @@
             "hmr": true,
             "liveReload": true,
             "watch": true,
-            "poll": 1000
+            "poll": 1000,
+            "headers": {
+              "Content-Security-Policy": "default-src 'self'; connect-src 'self'; form-action 'none'; img-src 'self' data: blob:; font-src 'self' about: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-src 'self' http://localhost:3000; frame-ancestors 'none'; base-uri 'self';"
+            }
           },
           "configurations": {
             "production": {
