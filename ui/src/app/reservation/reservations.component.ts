@@ -230,7 +230,7 @@ export class ReservationsComponent implements OnInit {
             this.isInteroperable = resp.isExamVisitSupported;
         });
 
-        if (this.isAdminView()) {
+        if (this.isAdminView() || this.isSupportView()) {
             this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe({
                 next: (resp) => {
                     this.rooms = this.orderPipe.transform(resp, 'name');

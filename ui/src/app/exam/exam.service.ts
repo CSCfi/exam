@@ -166,7 +166,7 @@ export class ExamService {
 
     isOwnerOrAdmin = (exam: Exam, collaborative = false) => {
         const user = this.Session.getUser();
-        return exam && user && (user.isAdmin || this.isOwner(exam, collaborative));
+        return exam && user && (user.isAdmin || user.isSupport || this.isOwner(exam, collaborative));
     };
 
     removeExam = (exam: Exam, collaborative = false, isAdmin = false) => {

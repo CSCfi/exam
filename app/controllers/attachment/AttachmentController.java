@@ -224,7 +224,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             return wrapAsPromise(notFound());
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
+        if (!user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) && !exam.isOwnedOrCreatedBy(user)) {
             return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
         }
         String newFilePath;
