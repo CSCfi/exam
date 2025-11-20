@@ -64,8 +64,8 @@ SPDX-License-Identifier: EUPL-1.2
             }
         }
 
-        <!-- Max score (not shown for WeightedMultipleChoiceQuestion - calculated from options) -->
-        @if (questionType() !== 'WeightedMultipleChoiceQuestion') {
+        <!-- Max score (not shown for WeightedMultipleChoiceQuestion and ClaimChoiceQuestion - calculated from options) -->
+        @if (questionType() !== 'WeightedMultipleChoiceQuestion' && questionType() !== 'ClaimChoiceQuestion') {
             <div class="row mt-3">
                 <div class="col-md-3">{{ 'i18n_max_score' | translate }}</div>
                 <div class="col-md-2">

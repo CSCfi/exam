@@ -209,13 +209,14 @@ class QuestionController @Inject() (
                 .eq("creator", user)
                 .list
                 .headOption match
-                case Some(t) => question.getTags.add(t)
+                case t @ Some(_) => t
                 case None =>
                   val newTag = new Tag()
                   newTag.setName((tagNode \ "name").asOpt[String].getOrElse("").toLowerCase)
                   newTag.setCreatorWithDate(user)
                   newTag.setModifier(user)
-                  question.getTags.add(newTag)
+                  Some(newTag)
+          tag.foreach(t => question.getTags.add(t))
         }
       case None => // No tags specified
     question

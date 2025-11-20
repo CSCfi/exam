@@ -14,21 +14,25 @@ SPDX-License-Identifier: EUPL-1.2
         </small>
     </div>
 </div>
-@if (sq().essayAnswer) {
+@if (sq().essayAnswer || isPreview()) {
     <div class="row">
         <div class="col-md-12">
-            <xm-ckeditor
-                [attr.aria-label]="questionTitle()"
-                rows="10"
-                cols="80"
-                #ck="ngModel"
-                [id]="sq().id.toString()"
-                [ngModel]="sq().essayAnswer.answer"
-                (ngModelChange)="answerChanged($event)"
-            />
+            @if (isPreview()) {
+                <xm-ckeditor name="essayAnswer" [attr.aria-label]="questionTitle()" [id]="sq().id.toString()" />
+            } @else {
+                <xm-ckeditor
+                    name="essayAnswer"
+                    [attr.aria-label]="questionTitle()"
+                    [id]="sq().id.toString()"
+                    [data]="isPreview() ? '' : sq().essayAnswer.answer"
+                    [ngModel]="isPreview() ? '' : sq().essayAnswer.answer"
+                    (ngModelChange)="answerChanged($event)"
+                />
+            }
         </div>
     </div>
 }
+
 @if (sq().autosaved) {
     <div class="row">
         <div class="col-md-12">

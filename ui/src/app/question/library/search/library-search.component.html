@@ -103,19 +103,19 @@ SPDX-License-Identifier: EUPL-1.2
                     <div class="input-group-append bi-search search-append"></div>
                 </li>
                 @for (tag of filteredTags(); track tag.id) {
-                    <button
-                        [hidden]="tag.filtered"
-                        role="presentation"
-                        (click)="applyFilter(tag)"
-                        ngbDropdownItem
-                        [attr.aria-label]="'i18n_pick_tag' + ' ' + tag.name"
-                    >
-                        @if (tag.usage && tag.usage > 0) {
+                    @if (tag.usage && tag.usage > 0) {
+                        <button
+                            [hidden]="tag.filtered"
+                            role="presentation"
+                            (click)="applyFilter(tag)"
+                            ngbDropdownItem
+                            [attr.aria-label]="'i18n_pick_tag' + ' ' + tag.name"
+                        >
                             <div role="menuitem" class="text" title="{{ 'i18n_category' | translate }}">
                                 {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
                             </div>
-                        }
-                    </button>
+                        </button>
+                    }
                 }
             </ul>
         </span>

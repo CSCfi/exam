@@ -64,8 +64,9 @@ export class QuestionBodyComponent implements OnDestroy {
 
     constructor() {
         // Create form group for question details
+        // defaultMaxScore is not required for WeightedMultipleChoiceQuestion and ClaimChoiceQuestion
         this.questionBodyForm = new FormGroup({
-            defaultMaxScore: new FormControl<number | null>(null, [Validators.required]),
+            defaultMaxScore: new FormControl<number | null>(null),
         });
 
         // Add to parent form
@@ -82,7 +83,9 @@ export class QuestionBodyComponent implements OnDestroy {
                     { emitEvent: false },
                 );
             }
-            this.questionType.set(questionValue.type || null);
+            const questionTypeValue = questionValue.type || null;
+            this.questionType.set(questionTypeValue);
+            this.updateDefaultMaxScoreValidators(questionTypeValue);
 
             // Initialize exam names from question's exam section questions
             if (questionValue?.examSectionQuestions?.length > 0) {
@@ -99,13 +102,27 @@ export class QuestionBodyComponent implements OnDestroy {
     onFormReady(form: FormGroup) {
         const ctrl = form.get('questionType');
         if (!ctrl) return;
-        ctrl.valueChanges.pipe(takeUntil(this.ngUnsubscribe)).subscribe((type) => {
+        ctrl.valueChanges.pipe(takeUntil(this.ngUnsubscribe)).subscribe((type: string | null) => {
             this.questionType.set(type);
+            this.updateDefaultMaxScoreValidators(type);
         });
     }
 
     ngOnDestroy() {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    private updateDefaultMaxScoreValidators(questionType: string | null): void {
+        const defaultMaxScoreControl = this.questionBodyForm.get('defaultMaxScore');
+        if (!defaultMaxScoreControl) return;
+
+        // Required for all types except WeightedMultipleChoiceQuestion and ClaimChoiceQuestion
+        if (questionType === 'WeightedMultipleChoiceQuestion' || questionType === 'ClaimChoiceQuestion') {
+            defaultMaxScoreControl.clearValidators();
+        } else {
+            defaultMaxScoreControl.setValidators([Validators.required]);
+        }
+        defaultMaxScoreControl.updateValueAndValidity({ emitEvent: false });
     }
 }
