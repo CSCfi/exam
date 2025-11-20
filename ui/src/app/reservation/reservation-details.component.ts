@@ -99,14 +99,12 @@ export class ReservationDetailsComponent implements OnChanges {
 
     hasAvailableActions(r: ReservationDetail): boolean {
         const canRemoveReservation =
-            this.isAdminView &&
             r.enrolment.exam.state === 'PUBLISHED' &&
             !r.enrolment.noShow &&
             r.enrolment.exam.implementation === 'AQUARIUM' &&
             !this.reservationIsInPast(r);
 
         const canPermitRetrial =
-            this.isAdminView &&
             r.enrolment.exam.state === 'ABORTED' &&
             r.enrolment.exam.implementation === 'AQUARIUM' &&
             r.enrolment.exam.executionType.type === 'PUBLIC';
