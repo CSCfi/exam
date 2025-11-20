@@ -38,7 +38,7 @@ SPDX-License-Identifier: EUPL-1.2
         <li [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="5">
             <a ngbNavLink>{{ 'i18n_exam_responses' | translate }}</a>
         </li>
-        @if (!collaborative && !user.isAdmin && !user.isSupport) {
+        @if (!collaborative) {
             <li [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="6">
                 <a ngbNavLink>{{ 'i18n_question_review' | translate }}</a>
             </li>

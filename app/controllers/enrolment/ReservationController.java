@@ -102,7 +102,7 @@ public class ReservationController extends BaseController {
         return ok(el.findList(), props);
     }
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result getExamRooms() {
         var examRooms = DB.find(ExamRoom.class).select("id, name").fetch("examMachines", "id").findList();
         return ok(examRooms);
@@ -509,7 +509,7 @@ public class ReservationController extends BaseController {
             query = query.eq("enrolment.collaborativeExam.externalRef", externalRef.get());
         }
 
-        if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
+        if (ownerId.isPresent() && (user.hasRole(Role.Name.ADMIN) || user.hasRole(Role.Name.SUPPORT))) {
             var userId = ownerId.get();
             query = query
                 .disjunction()

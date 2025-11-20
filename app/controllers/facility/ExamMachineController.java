@@ -24,7 +24,7 @@ import play.mvc.Result;
 
 public class ExamMachineController extends BaseController {
 
-    @Restrict({ @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT") })
     public Result getExamMachines() {
         List<ExamMachine> machines = DB.find(ExamMachine.class).where().eq("archived", false).findList();
 

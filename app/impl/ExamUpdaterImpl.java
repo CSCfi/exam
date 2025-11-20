@@ -234,7 +234,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     @Override
     public boolean isPermittedToUpdate(Exam exam, User user) {
-        return user.hasRole(Role.Name.ADMIN) || exam.isOwnedOrCreatedBy(user);
+        return user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) || exam.isOwnedOrCreatedBy(user);
     }
 
     @Override
