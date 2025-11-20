@@ -61,9 +61,11 @@ public class OrganisationController extends BaseController {
                         ArrayNode facilities = (ArrayNode) org.get("facilities");
                         for (JsonNode facility : facilities) {
                             ObjectNode facilityObj = (ObjectNode) facility;
+                            JsonNode passwordNode = facility.get("externalPassword");
                             boolean hasPassword =
-                                facility.has("externalPassword") &&
-                                !facility.get("externalPassword").asText().isEmpty();
+                                passwordNode != null &&
+                                !passwordNode.isNull() &&
+                                !passwordNode.asText().trim().isEmpty();
 
                             // Set the flag for a client to know if a password is required
                             facilityObj.put("externalPasswordRequired", hasPassword);
