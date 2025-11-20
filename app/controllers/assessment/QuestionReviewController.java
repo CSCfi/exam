@@ -21,6 +21,7 @@ import models.base.GeneratedIdentityModel;
 import models.exam.Exam;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
+import models.user.Role;
 import models.user.User;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -40,6 +41,8 @@ public class QuestionReviewController extends BaseController {
 
     private boolean canAssess(User user, Exam exam) {
         return (
+            user.hasRole(Role.Name.ADMIN) ||
+            user.hasRole(Role.Name.SUPPORT) ||
             exam.getParent().getExamOwners().contains(user) ||
             exam
                 .getExamInspections()
@@ -49,12 +52,12 @@ public class QuestionReviewController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group("TEACHER") })
+    @Restrict({ @Group({ "TEACHER", "ADMIN", "SUPPORT" }) })
     @Anonymous(filteredProperties = { "user", "creator", "modifier" })
     public Result getEssays(Long examId, Optional<List<Long>> ids, Http.Request request) {
         Exam exam = DB.find(Exam.class, examId);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (exam == null || !exam.isInspectedOrCreatedOrOwnedBy(user)) {
+        if (exam == null || !canAssess(user, exam)) {
             return badRequest();
         }
         List<Long> questionIds = ids.orElse(Collections.emptyList());
