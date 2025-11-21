@@ -59,10 +59,8 @@ public final class ExamCopyContext {
     }
 
     public boolean shouldSetParent() {
-        // Teacher copies, non-collaborative student exams, and copies with answers should have parent set
-        return (
-            copyType == CopyType.TEACHER_COPY || copyType == CopyType.STUDENT_EXAM || copyType == CopyType.WITH_ANSWERS
-        );
+        // Teacher copies and non-collaborative student exams should have parent set
+        return (copyType == CopyType.TEACHER_COPY || copyType == CopyType.STUDENT_EXAM);
     }
 
     public boolean shouldShuffleOptions() {
