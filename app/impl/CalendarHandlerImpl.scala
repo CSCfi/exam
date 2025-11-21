@@ -142,18 +142,13 @@ class CalendarHandlerImpl @Inject() (
     val searchEndDate = if reservationWindowDate.isBefore(examEndDate) then reservationWindowDate else examEndDate
     val examStartDate = new DateTime(exam.getPeriodStart).plusMillis(startOffset).toLocalDate
 
-    var searchDate = if day.isEmpty then now else ISODateTimeFormat.dateTimeParser().parseLocalDate(day)
-    searchDate = searchDate.withDayOfWeek(1)
-
-    if searchDate.isBefore(now) then searchDate = now
-
+    val initialDate = if day.isEmpty then now else ISODateTimeFormat.dateTimeParser().parseLocalDate(day)
+    val weekStart   = initialDate.withDayOfWeek(1)
+    val afterNow    = if weekStart.isBefore(now) then now else weekStart
     // if searching for month(s) after exam's end month -> no can do
-    if searchDate.isAfter(searchEndDate) then throw new IllegalArgumentException("Search date is after exam end date")
-
+    if afterNow.isAfter(searchEndDate) then throw new IllegalArgumentException("Search date is after exam end date")
     // Do not execute search before exam starts
-    if searchDate.isBefore(examStartDate) then searchDate = examStartDate
-
-    searchDate
+    if afterNow.isBefore(examStartDate) then examStartDate else afterNow
 
   private def getEligibleMachines(room: ExamRoom, access: Seq[Long], exam: Exam): List[ExamMachine] =
     val candidates = DB
@@ -227,24 +222,24 @@ class CalendarHandlerImpl @Inject() (
       val conflicting = getReservationsDuring(reservations, slot)
 
       if conflicting.nonEmpty then
-            val concernsAnotherExam = conflicting.find(c => !isReservationForExam(c, exam))
+        val concernsAnotherExam = conflicting.find(c => !isReservationForExam(c, exam))
 
-            concernsAnotherExam match
-              case Some(reservation) =>
-                // User has a reservation to another exam
-                val conflictingExam = Option(reservation.getEnrolment.getExam)
-                  .map(_.getName)
-                  .getOrElse(reservation.getEnrolment.getCollaborativeExam.getName)
-                CalendarHandler.TimeSlot(reservation.toInterval, -1, conflictingExam)
-              case None =>
-                // User has an existing reservation to this exam
-                val reservation = conflicting.head
-                if reservation.toInterval != slot then
-                  // No matching slot found in this room, add the reservation as-is
-                  CalendarHandler.TimeSlot(reservation.toInterval, -1, "")
-                else
-                  // This is exactly the same slot, avoid duplicates
-                  CalendarHandler.TimeSlot(slot, -1, "")
+        concernsAnotherExam match
+          case Some(reservation) =>
+            // User has a reservation to another exam
+            val conflictingExam = Option(reservation.getEnrolment.getExam)
+              .map(_.getName)
+              .getOrElse(reservation.getEnrolment.getCollaborativeExam.getName)
+            CalendarHandler.TimeSlot(reservation.toInterval, -1, conflictingExam)
+          case None =>
+            // User has an existing reservation to this exam
+            val reservation = conflicting.head
+            if reservation.toInterval != slot then
+              // No matching slot found in this room, add the reservation as-is
+              CalendarHandler.TimeSlot(reservation.toInterval, -1, "")
+            else
+              // This is exactly the same slot, avoid duplicates
+              CalendarHandler.TimeSlot(slot, -1, "")
       else
         // Resolve available machine count
         val availableMachineCount: Int =
@@ -464,20 +459,19 @@ class CalendarHandlerImpl @Inject() (
         if sections.stream().allMatch(_.isOptional) then
           if !sections.stream().anyMatch(es => sectionIds.contains(es.getId)) then
             Some(Forbidden("No optional sections selected. At least one needed"))
-          else
-            checkExternalReservationAssessment(oldReservationOpt, enrolment)
-        else
-          checkExternalReservationAssessment(oldReservationOpt, enrolment)
+          else checkExternalReservationAssessment(oldReservationOpt, enrolment)
+        else checkExternalReservationAssessment(oldReservationOpt, enrolment)
 
   private def checkExternalReservationAssessment(
       oldReservationOpt: Option[Reservation],
       enrolment: ExamEnrolment
   ): Option[Result] =
     oldReservationOpt match
-      case Some(oldRes) if Option(oldRes.getExternalRef).isDefined &&
-        !oldRes.getStartAt.isAfter(dateTimeHandler.adjustDST(DateTime.now())) &&
-        !enrolment.isNoShow &&
-        enrolment.getExam.getState == Exam.State.PUBLISHED =>
+      case Some(oldRes)
+          if Option(oldRes.getExternalRef).isDefined &&
+            !oldRes.getStartAt.isAfter(dateTimeHandler.adjustDST(DateTime.now())) &&
+            !enrolment.isNoShow &&
+            enrolment.getExam.getState == Exam.State.PUBLISHED =>
         // External reservation - assessment not returned yet
         Some(Forbidden("i18n_enrolment_assessment_not_received"))
       case _ => None

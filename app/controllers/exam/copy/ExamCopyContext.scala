@@ -62,13 +62,13 @@ object ExamCopyContext:
 
   final class Builder private[ExamCopyContext] (
       private val user: Option[User],
-      private val copyType: CopyType
+      private val copyType: CopyType,
+      private val selectedSections: Set[Long] = Set.empty
   ):
-    private var selectedSections: Set[Long] = Set.empty
 
     def withSelectedSections(sections: java.util.Set[java.lang.Long] | Null): Builder =
-      selectedSections = Option(sections).map(_.asScala.map(_.longValue()).toSet).getOrElse(Set.empty)
-      this
+      val newSections = Option(sections).map(_.asScala.map(_.longValue()).toSet).getOrElse(Set.empty)
+      Builder(user, copyType, newSections)
 
     def build(): ExamCopyContext = ExamCopyContext(user, copyType, selectedSections)
 

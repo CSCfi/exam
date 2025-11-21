@@ -74,7 +74,7 @@ class RoomController @Inject() (
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.SUPPORT, Role.Name.ADMIN, Role.Name.STUDENT)))
       .andThen(sensitiveDataFilter(Set("internalPassword", "externalPassword"))) { request =>
         val user = request.attrs(Auth.ATTR_USER)
-        var query = DB
+        val baseQuery = DB
           .find(classOf[ExamRoom])
           .fetch("accessibilities")
           .fetch("examMachines")
@@ -83,7 +83,9 @@ class RoomController @Inject() (
           .fetch("examStartingHours")
           .where()
 
-        if !user.hasRole(Role.Name.ADMIN) then query = query.ne("state", ExamRoom.State.INACTIVE.toString)
+        val query = if !user.hasRole(Role.Name.ADMIN) then
+          baseQuery.ne("state", ExamRoom.State.INACTIVE.toString)
+        else baseQuery
 
         val rooms = query.list
         rooms.foreach { room =>
@@ -93,7 +95,14 @@ class RoomController @Inject() (
         }
 
         val props = PathProperties.parse(
-          "(*, mailAddress(*), accessibilities(*), defaultWorkingHours(*), calendarExceptionEvents(*), examStartingHours(*), examMachines(*, softwareInfo(*)))"
+          """(*,
+            |mailAddress(*),
+            |accessibilities(*),
+            |defaultWorkingHours(*),
+            |calendarExceptionEvents(*),
+            |examStartingHours(*),
+            |examMachines(*, softwareInfo(*))
+            |)""".stripMargin
         )
         Ok(rooms.asJson(props))
       }
@@ -104,7 +113,14 @@ class RoomController @Inject() (
         case None => NotFound("room not found")
         case Some(examRoom) =>
           val props = PathProperties.parse(
-            "(*, defaultWorkingHours(*), calendarExceptionEvents(*), accessibilities(*), mailAddress(*), examStartingHours(*), examMachines(*))"
+            """(*,
+              |defaultWorkingHours(*),
+              |calendarExceptionEvents(*),
+              |accessibilities(*),
+              |mailAddress(*),
+              |examStartingHours(*),
+              |examMachines(*)
+              |)""".stripMargin
           )
           Ok(examRoom.asJson(props))
     }

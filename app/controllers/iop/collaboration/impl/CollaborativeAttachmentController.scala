@@ -124,13 +124,15 @@ class CollaborativeAttachmentController @Inject() (
         }
 
   private def downloadExternalAttachment(attachment: Attachment): Future[Result] =
-    if attachment == null then Future.successful(NotFound)
-    else
-      val externalId = attachment.getExternalId
-      if externalId == null || externalId.isBlank then
-        logger.warn(s"External id can not be found for attachment [id=${attachment.getId}]")
-        Future.successful(NotFound)
-      else downloadAttachment(externalId, attachment.getMimeType, attachment.getFileName)
+    Option(attachment) match
+      case None => Future.successful(NotFound)
+      case Some(att) =>
+        Option(att.getExternalId).filter(_.nonEmpty) match
+          case None =>
+            logger.warn(s"External id can not be found for attachment [id=${att.getId}]")
+            Future.successful(NotFound)
+          case Some(externalId) =>
+            downloadAttachment(externalId, att.getMimeType, att.getFileName)
 
   private def downloadAttachment(id: String, mimeType: String, fileName: String): Future[Result] =
     parseUrl("/api/attachments/%s/download", id) match
@@ -245,7 +247,7 @@ class CollaborativeAttachmentController @Inject() (
 
   private def findEssayAnswerWithAttachment(esq: ExamSectionQuestion): Option[EssayAnswer] =
     Option(esq.getEssayAnswer) match
-      case Some(ea) if ea.getAttachment != null && Option(ea.getAttachment.getExternalId).exists(_.nonEmpty) =>
+      case Some(ea) if Option(ea.getAttachment).flatMap(a => Option(a.getExternalId)).exists(_.nonEmpty) =>
         Some(ea)
       case _ => None
 

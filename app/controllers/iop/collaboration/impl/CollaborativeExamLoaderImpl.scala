@@ -84,22 +84,32 @@ class CollaborativeExamLoaderImpl @Inject() (
         throw new RuntimeException(e)
 
   override def getAssessmentPath(): PathProperties =
-    val path =
-      "(*, user(id, firstName, lastName, email, eppn, userIdentifier)" +
-        "exam(id, name, state, instruction, hash, implementation, duration, trialCount, executionType(id, type), " +
-        "examLanguages(code), attachment(id, externalId, fileName)" +
-        "autoEvaluationConfig(*, gradeEvaluations(*, grade(*)))" +
-        "creditType(*), examType(*), executionType(*)" +
-        "gradeScale(*, grades(*))" +
-        "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," +
-        "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " +
-        "question(id, type, question, attachment(id, externalId, fileName), options(*))" +
-        "options(*, option(*))" +
-        "essayAnswer(id, answer, objectVersion, attachment(id, externalId, fileName))" +
-        "clozeTestAnswer(id, question, answer, objectVersion)" +
-        ")), examEnrolments(*, user(firstName, lastName, email, eppn, userIdentifier), " +
-        "reservation(*, machine(*, room(*)))" +
-        ")))"
+    val path = """(*,
+                  |user(*),
+                  |exam(*,
+                  |  executionType(*),
+                  |  examLanguages(*),
+                  |  attachment(*),
+                  |  autoEvaluationConfig(*, gradeEvaluations(*, grade(*))),
+                  |  creditType(*),
+                  |  examType(*),
+                  |  gradeScale(*, grades(*)),
+                  |  examSections(*,
+                  |    sectionQuestions(*,
+                  |      question(*, attachment(*), options(*)),
+                  |      options(*, option(*)),
+                  |      essayAnswer(*, attachment(*)),
+                  |      clozeTestAnswer(*)
+                  |    )
+                  |  )
+                  |),
+                  |examEnrolments(*,
+                  |  user(*),
+                  |  reservation(*,
+                  |    machine(*, room(*))
+                  |  )
+                  |)
+                  |)""".stripMargin
     PathProperties.parse(path)
 
   // override def getExamPath(): PathProperties = ???
@@ -256,5 +266,5 @@ class CollaborativeExamLoaderImpl @Inject() (
         request.delete().map(response => Results.Status(response.status))
 
   private def ok(obj: Any, pp: PathProperties): Result =
-    val body = if pp == null then DB.json().toJson(obj) else DB.json().toJson(obj, pp)
+    val body = Option(pp).map(p => DB.json().toJson(obj, p)).getOrElse(DB.json().toJson(obj))
     Results.Ok(body).as("application/json")

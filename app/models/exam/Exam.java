@@ -719,8 +719,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     private Set<ExamSection> selectSectionsToCopy(ExamCopyContext context) {
-        var optionality = examSections.stream().map(ExamSection::isOptional).toList();
-        System.out.println(optionality);
         if (context.shouldIncludeOnlySelectedSections()) {
             // For student exams with section selection, only include non-optional sections or selected optional sections
             return examSections

@@ -320,7 +320,7 @@ class ExamSectionController @Inject() (
                 Option(DB.find(classOf[Question], qid)) match
                   case None => None
                   case Some(question) =>
-                    if exam.getAutoEvaluationConfig != null && question.getType == Question.Type.EssayQuestion then
+                    if Option(exam.getAutoEvaluationConfig).isDefined && question.getType == Question.Type.EssayQuestion then
                       Some(Forbidden("i18n_error_autoevaluation_essay_question"))
                     else insertQuestion(exam, section, question, user, sequence)
               }
@@ -498,8 +498,10 @@ class ExamSectionController @Inject() (
       }
       val dto = SectionQuestionDTO(answerInstructions, evaluationCriteria, questionText)
 
-      var query = DB.find(classOf[ExamSectionQuestion]).where().idEq(qid)
-      if user.hasRole(Role.Name.TEACHER) then query = query.eq("examSection.exam.examOwners", user)
+      val baseQuery = DB.find(classOf[ExamSectionQuestion]).where().idEq(qid)
+      val query = if user.hasRole(Role.Name.TEACHER) then
+        baseQuery.eq("examSection.exam.examOwners", user)
+      else baseQuery
       val pp = PathProperties.parse("(*, question(*, options(*)), options(*, option(*)))")
       query.apply(pp)
       query.find match
@@ -543,8 +545,10 @@ class ExamSectionController @Inject() (
     audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
       request =>
         val user  = request.attrs(Auth.ATTR_USER)
-        var query = DB.find(classOf[ExamSectionQuestion]).where().idEq(qid)
-        if user.hasRole(Role.Name.TEACHER) then query = query.eq("examSection.exam.examOwners", user)
+        val baseQuery = DB.find(classOf[ExamSectionQuestion]).where().idEq(qid)
+        val query = if user.hasRole(Role.Name.TEACHER) then
+          baseQuery.eq("examSection.exam.examOwners", user)
+        else baseQuery
         val pp = PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))")
         query.apply(pp)
         query.find match
@@ -583,23 +587,25 @@ class ExamSectionController @Inject() (
   ): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
       val user  = request.attrs(Auth.ATTR_USER)
-      var query = DB.find(classOf[ExamSection]).where()
-      if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then query = query.where().eq("creator.id", user.getId)
-      filter.foreach { f =>
+      val baseQuery = DB.find(classOf[ExamSection]).where()
+      val withCreatorFilter = if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+        baseQuery.where().eq("creator.id", user.getId)
+      else baseQuery
+      val withFilter = filter.fold(withCreatorFilter) { f =>
         val condition = s"%$f%"
-        query = query.ilike("name", condition)
+        withCreatorFilter.ilike("name", condition)
       }
-      examIds.filter(_.nonEmpty).foreach { ids =>
-        query = query.in("exam.id", ids.asJava)
+      val withExamFilter = examIds.filter(_.nonEmpty).fold(withFilter) { ids =>
+        withFilter.in("exam.id", ids.asJava)
       }
-      courseIds.filter(_.nonEmpty).foreach { ids =>
-        query = query.in("exam.course.id", ids.asJava)
+      val withCourseFilter = courseIds.filter(_.nonEmpty).fold(withExamFilter) { ids =>
+        withExamFilter.in("exam.course.id", ids.asJava)
       }
-      tagIds.filter(_.nonEmpty).foreach { ids =>
-        query = query.in("examSectionQuestions.question.tags.id", ids.asJava)
+      val withTagFilter = tagIds.filter(_.nonEmpty).fold(withCourseFilter) { ids =>
+        withCourseFilter.in("examSectionQuestions.question.tags.id", ids.asJava)
       }
-      ownerIds.filter(_.nonEmpty).foreach { ids =>
-        query = query.in("questionOwners.id", ids.asJava)
+      val query = ownerIds.filter(_.nonEmpty).fold(withTagFilter) { ids =>
+        withTagFilter.in("questionOwners.id", ids.asJava)
       }
       Ok(query.distinct.asJson(PathProperties.parse("(*, creator(id))")))
     }

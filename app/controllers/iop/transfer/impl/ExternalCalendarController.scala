@@ -362,7 +362,7 @@ class ExternalCalendarController @Inject() (
           val user = request.attrs(Auth.ATTR_USER)
           Option(calendarHandler.getEnrolment(examId, user)) match
             case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
-            case Some(ee) if ee.getCollaborativeExam != null =>
+            case Some(ee) if Option(ee.getCollaborativeExam).isDefined =>
               Future.successful(Forbidden("i18n_error_enrolment_not_found"))
             case Some(ee) =>
               val exam = ee.getExam
@@ -428,9 +428,9 @@ class ExternalCalendarController @Inject() (
 
   private def parseSearchDate(day: String, startDate: String, endDate: String, room: ExamRoom): LocalDate =
     val windowSize = calendarHandler.getReservationWindowSize
-    val offset =
-      if room != null then DateTimeZone.forID(room.getLocalTimezone).getOffset(DateTime.now())
-      else configReader.getDefaultTimeZone.getOffset(DateTime.now())
+    val offset = Option(room)
+      .map(r => DateTimeZone.forID(r.getLocalTimezone).getOffset(DateTime.now()))
+      .getOrElse(configReader.getDefaultTimeZone.getOffset(DateTime.now()))
 
     val now                   = DateTime.now().plusMillis(offset).toLocalDate
     val reservationWindowDate = now.plusDays(windowSize)
@@ -445,16 +445,15 @@ class ExternalCalendarController @Inject() (
       .plusMillis(offset)
       .toLocalDate
 
-    var searchDate = if day.isEmpty then now else LocalDate.parse(day, ISODateTimeFormat.dateParser())
-    searchDate = searchDate.withDayOfWeek(1)
-
-    if searchDate.isBefore(now) then searchDate = now
+    val initialDate = if day.isEmpty then now else LocalDate.parse(day, ISODateTimeFormat.dateParser())
+    val weekStart   = initialDate.withDayOfWeek(1)
+    val afterNow    = if weekStart.isBefore(now) then now else weekStart
 
     // if searching for month(s) after exam's end month -> no can do
-    if searchDate.isAfter(searchEndDate) then throw new IllegalArgumentException("Search date is after exam end date")
+    if afterNow.isAfter(searchEndDate) then throw new IllegalArgumentException("Search date is after exam end date")
 
     // Do not execute search before exam starts
-    if searchDate.isBefore(examStartDate) then searchDate = examStartDate
+    val searchDate = if afterNow.isBefore(examStartDate) then examStartDate else afterNow
 
     searchDate
 

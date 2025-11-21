@@ -54,17 +54,17 @@ class ReservationController @Inject() (
       val q     = DB.createQuery(classOf[Exam])
       props.apply(q)
 
-      var el = q
+      val baseQuery = q
         .where()
         .isNull("parent") // only Exam prototypes
         .eq("state", Exam.State.PUBLISHED)
 
-      filter.foreach { f =>
-        el = el.ilike("name", s"%$f%")
+      val withFilter = filter.fold(baseQuery) { f =>
+        baseQuery.ilike("name", s"%$f%")
       }
 
-      if user.hasRole(Role.Name.TEACHER) then
-        el = el
+      val el = if user.hasRole(Role.Name.TEACHER) then
+        withFilter
           .gt("periodEnd", new Date())
           .disjunction()
           .eq("creator", user)
@@ -72,6 +72,7 @@ class ReservationController @Inject() (
           .eq("examInspections.user", user)
           .eq("shared", true)
           .endJunction()
+      else withFilter
 
       Ok(el.list.asJson)
     }
@@ -84,8 +85,10 @@ class ReservationController @Inject() (
 
   private def asJsonUsers(users: Seq[User]): JsArray =
     JsArray(users.map { u =>
-      var name = s"${u.getFirstName} ${u.getLastName}"
-      if Option(u.getUserIdentifier).isDefined then name += s" (${u.getUserIdentifier})"
+      val baseName = s"${u.getFirstName} ${u.getLastName}"
+      val name = Option(u.getUserIdentifier).fold(baseName) { identifier =>
+        s"$baseName ($identifier)"
+      }
 
       Json.obj(
         "id"             -> u.getId.longValue,
@@ -98,19 +101,19 @@ class ReservationController @Inject() (
 
   def getStudents(filter: Option[String]): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { _ =>
-      var el = DB.find(classOf[User]).where().eq("roles.name", "STUDENT")
-      filter.foreach { f =>
-        el = el.or().ilike("userIdentifier", s"%$f%")
-        el = userHandler.applyNameSearch(null, el, f).endOr()
+      val baseQuery = DB.find(classOf[User]).where().eq("roles.name", "STUDENT")
+      val el = filter.fold(baseQuery) { f =>
+        val withOr = baseQuery.or().ilike("userIdentifier", s"%$f%")
+        userHandler.applyNameSearch(null, withOr, f).endOr()
       }
       Ok(asJsonUsers(el.list))
     }
 
   def getTeachers(filter: Option[String]): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      var el = DB.find(classOf[User]).where().eq("roles.name", "TEACHER")
-      filter.foreach { f =>
-        el = userHandler.applyNameSearch(null, el.or(), f).endOr()
+      val baseQuery = DB.find(classOf[User]).where().eq("roles.name", "TEACHER")
+      val el = filter.fold(baseQuery) { f =>
+        userHandler.applyNameSearch(null, baseQuery.or(), f).endOr()
       }
       Ok(asJsonUsers(el.list))
     }
@@ -308,7 +311,7 @@ class ReservationController @Inject() (
       end: Option[String]
   ): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
-      var query = DB
+      val baseQuery = DB
         .find(classOf[ExamEnrolment])
         .fetch("user", "id, firstName, lastName, email, userIdentifier")
         .fetch("exam", "id, name, state, trialCount, implementation")
@@ -322,33 +325,35 @@ class ReservationController @Inject() (
         .isNotNull("exam")
 
       val user = request.attrs(Auth.ATTR_USER)
-      if user.hasRole(Role.Name.TEACHER) then
-        query = query
+      val withTeacherFilter = if user.hasRole(Role.Name.TEACHER) then
+        baseQuery
           .disjunction()
           .eq("exam.parent.examOwners", user)
           .eq("exam.examOwners", user)
           .endJunction()
           .ne("exam.state", Exam.State.DELETED)
+      else baseQuery
 
-      start.foreach { s =>
+      val withStartFilter = start.fold(withTeacherFilter) { s =>
         val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
-        query = query.ge("examinationEventConfiguration.examinationEvent.start", startDate.toDate)
+        withTeacherFilter.ge("examinationEventConfiguration.examinationEvent.start", startDate.toDate)
       }
 
-      state.foreach {
-        case "NO_SHOW"                                   => query = query.eq("noShow", true)
-        case "EXTERNAL_UNFINISHED" | "EXTERNAL_FINISHED" => query = query.isNull("id") // Force empty result set
-        case st => query = query.eq("exam.state", Exam.State.valueOf(st)).eq("noShow", false)
+      val withStateFilter = state.fold(withStartFilter) {
+        case "NO_SHOW"                                   => withStartFilter.eq("noShow", true)
+        case "EXTERNAL_UNFINISHED" | "EXTERNAL_FINISHED" => withStartFilter.isNull("id") // Force empty result set
+        case st => withStartFilter.eq("exam.state", Exam.State.valueOf(st)).eq("noShow", false)
       }
 
-      studentId.foreach { sid =>
-        query = query.eq("user.id", sid)
+      val withStudentFilter = studentId.fold(withStateFilter) { sid =>
+        val queryWithStudent = withStateFilter.eq("user.id", sid)
         // Hide reservations for anonymous exams.
-        if user.hasRole(Role.Name.TEACHER) then query.eq("exam.anonymous", false)
+        if user.hasRole(Role.Name.TEACHER) then queryWithStudent.eq("exam.anonymous", false)
+        else queryWithStudent
       }
 
-      examId.foreach { eid =>
-        query = query
+      val withExamFilter = examId.fold(withStudentFilter) { eid =>
+        withStudentFilter
           .ne("exam.state", Exam.State.DELETED)
           .disjunction()
           .eq("exam.parent.id", eid)
@@ -356,13 +361,14 @@ class ReservationController @Inject() (
           .endJunction()
       }
 
-      if ownerId.isDefined && user.hasRole(Role.Name.ADMIN) then
+      val query = if ownerId.isDefined && user.hasRole(Role.Name.ADMIN) then
         val userId = ownerId.get
-        query = query
+        withExamFilter
           .disjunction()
           .eq("exam.examOwners.id", userId)
           .eq("exam.parent.examOwners.id", userId)
           .endJunction()
+      else withExamFilter
 
       val enrolments = query
         .orderBy("examinationEventConfiguration.examinationEvent.start")
@@ -396,7 +402,7 @@ class ReservationController @Inject() (
       externalRef: Option[String]
   ): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
-      var query = DB
+      val baseQuery = DB
         .find(classOf[Reservation])
         .fetch("enrolment", "noShow, retrialPermitted")
         .fetch("user", "id, firstName, lastName, email, userIdentifier")
@@ -414,8 +420,8 @@ class ReservationController @Inject() (
         .where()
 
       val user = request.attrs(Auth.ATTR_USER)
-      if user.hasRole(Role.Name.TEACHER) then
-        query = query
+      val withTeacherFilter = if user.hasRole(Role.Name.TEACHER) then
+        baseQuery
           .isNull("enrolment.externalExam")
           .isNull("enrolment.collaborativeExam")
           .ne("enrolment.exam.state", Exam.State.DELETED)
@@ -423,69 +429,78 @@ class ReservationController @Inject() (
           .eq("enrolment.exam.parent.examOwners", user)
           .eq("enrolment.exam.examOwners", user)
           .endJunction()
+      else baseQuery
 
-      start.foreach { s =>
+      val withStartFilter = start.fold(withTeacherFilter) { s =>
         val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
         val offset    = dateTimeHandler.getTimezoneOffset(startDate.withDayOfYear(1))
-        query = query.ge("startAt", startDate.plusMillis(offset))
+        withTeacherFilter.ge("startAt", startDate.plusMillis(offset))
       }
 
-      end.foreach { e =>
+      val withEndFilter = end.fold(withStartFilter) { e =>
         val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
         val offset  = dateTimeHandler.getTimezoneOffset(endDate.withDayOfYear(1))
-        query = query.lt("endAt", endDate.plusMillis(offset))
+        withStartFilter.lt("endAt", endDate.plusMillis(offset))
       }
 
-      state.foreach {
-        case "NO_SHOW" => query = query.eq("enrolment.noShow", true)
+      val withStateFilter = state.fold(withEndFilter) {
+        case "NO_SHOW" => withEndFilter.eq("enrolment.noShow", true)
         case "EXTERNAL_UNFINISHED" =>
-          query = query.isNotNull("externalUserRef").isNull("enrolment.externalExam.finished")
+          withEndFilter.isNotNull("externalUserRef").isNull("enrolment.externalExam.finished")
         case "EXTERNAL_FINISHED" =>
-          query = query.isNotNull("externalUserRef").isNotNull("enrolment.externalExam.finished")
+          withEndFilter.isNotNull("externalUserRef").isNotNull("enrolment.externalExam.finished")
         case st =>
-          query = query.eq("enrolment.exam.state", Exam.State.valueOf(st)).eq("enrolment.noShow", false)
+          withEndFilter.eq("enrolment.exam.state", Exam.State.valueOf(st)).eq("enrolment.noShow", false)
       }
 
-      studentId.foreach { sid =>
-        query = query.eq("user.id", sid)
+      val withStudentFilter = studentId.fold(withStateFilter) { sid =>
+        val queryWithStudent = withStateFilter.eq("user.id", sid)
         // Hide reservations for anonymous exams.
         if user.hasRole(Role.Name.TEACHER) then
-          query
+          queryWithStudent
             .or()
             .eq("enrolment.exam.anonymous", false)
             .eq("enrolment.collaborativeExam.anonymous", false)
             .endOr()
+        else queryWithStudent
       }
 
-      roomId.foreach { rid => query = query.eq("machine.room.id", rid) }
-      machineId.foreach { mid => query = query.eq("machine.id", mid) }
+      val withRoomFilter = roomId.fold(withStudentFilter) { rid =>
+        withStudentFilter.eq("machine.room.id", rid)
+      }
 
-      examId.foreach { eid =>
-        query = query
+      val withMachineFilter = machineId.fold(withRoomFilter) { mid =>
+        withRoomFilter.eq("machine.id", mid)
+      }
+
+      val withExamFilter = examId.fold(withMachineFilter) { eid =>
+        withMachineFilter
           .disjunction()
           .eq("enrolment.exam.parent.id", eid)
           .eq("enrolment.exam.id", eid)
           .endJunction()
       }
 
-      externalRef.foreach { ref =>
-        if examId.isEmpty then query = query.eq("enrolment.collaborativeExam.externalRef", ref)
+      val withExternalRefFilter = externalRef.fold(withExamFilter) { ref =>
+        if examId.isEmpty then withExamFilter.eq("enrolment.collaborativeExam.externalRef", ref)
+        else withExamFilter
       }
 
-      if ownerId.isDefined && user.hasRole(Role.Name.ADMIN) then
+      val query = if ownerId.isDefined && user.hasRole(Role.Name.ADMIN) then
         val userId = ownerId.get
-        query = query
+        withExternalRefFilter
           .disjunction()
           .eq("enrolment.exam.examOwners.id", userId)
           .eq("enrolment.exam.parent.examOwners.id", userId)
           .endJunction()
+      else withExternalRefFilter
 
       val reservations = query.orderBy("startAt").distinct
       val anonIds = reservations
         .filter(r =>
-          r.getEnrolment != null &&
-            r.getEnrolment.getExam != null &&
-            r.getEnrolment.getExam.isAnonymous
+          Option(r.getEnrolment).exists(e =>
+            Option(e.getExam).exists(_.isAnonymous)
+          )
         )
         .map(_.getId)
 

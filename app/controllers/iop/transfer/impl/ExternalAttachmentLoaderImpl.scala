@@ -76,9 +76,9 @@ class ExternalAttachmentLoaderImpl @Inject() (
     Future.sequence(futures.toSeq).map(_ => ())
 
   override def createExternalAttachment(attachment: Attachment): Future[Unit] =
-    if attachment == null || attachment.getFilePath == null || attachment.getFilePath.isBlank then
-      Future.successful(())
-    else
+    Option(attachment).flatMap(a => Option(a.getFilePath).filter(_.nonEmpty)) match
+      case None => Future.successful(())
+      case Some(_) =>
       parseUrl("/api/attachments/") match
         case None =>
           Future.failed(new RuntimeException("Invalid URL"))
@@ -150,11 +150,12 @@ class ExternalAttachmentLoaderImpl @Inject() (
     Future.sequence(futures.toSeq).map(_ => ())
 
   private def createFromExternalAttachment(attachment: Attachment, pathParams: String*): Future[Unit] =
-    if attachment.getExternalId == null || attachment.getExternalId.isBlank then
-      logger.error("Could not find external ID for an attachment")
-      Future.failed(new RuntimeException("Could not find external ID for an attachment"))
-    else
-      parseUrl("/api/attachments/%s/download", attachment.getExternalId) match
+    Option(attachment.getExternalId).filter(_.nonEmpty) match
+      case None =>
+        logger.error("Could not find external ID for an attachment")
+        Future.failed(new RuntimeException("Could not find external ID for an attachment"))
+      case Some(externalId) =>
+        parseUrl("/api/attachments/%s/download", externalId) match
         case None =>
           Future.failed(new RuntimeException("Invalid URL!"))
         case Some(attachmentUrl) =>

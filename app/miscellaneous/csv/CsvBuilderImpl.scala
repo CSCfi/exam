@@ -140,18 +140,16 @@ class CsvBuilderImpl extends CsvBuilder with DbApiHelper with Logging:
     Try(idStr.toLong).toOption
 
   private def findExam(examId: Long, user: User, role: Role.Name): Option[Exam] =
-    var query = DB.find(classOf[Exam])
+    val baseQuery = DB.find(classOf[Exam])
       .where()
       .idEq(examId)
       .isNotNull("parent")
-      .disjunction()
+      .or()
       .eq("state", Exam.State.REVIEW)
       .eq("state", Exam.State.REVIEW_STARTED)
-      .endJunction()
+      .endOr()
 
-    if role == Role.Name.ADMIN then
-      query = query.eq("parent.examOwners", user)
-
+    val query = if role == Role.Name.ADMIN then baseQuery.eq("parent.examOwners", user) else baseQuery
     Option(query.findOne())
 
   private def findGrade(gradeName: String, scale: GradeScale): Option[Grade] =
@@ -182,8 +180,7 @@ class CsvBuilderImpl extends CsvBuilder with DbApiHelper with Logging:
 
     // Handle feedback if present
     if records.length > 2 then
-      val feedback = records(2)
-      if feedback != null && feedback.nonEmpty then
+      Option(records(2)).filter(_.nonEmpty).foreach { feedback =>
         val comment = Option(exam.getExamFeedback).getOrElse {
           val newComment = new Comment()
           newComment.setCreatorWithDate(user)
@@ -193,6 +190,7 @@ class CsvBuilderImpl extends CsvBuilder with DbApiHelper with Logging:
         comment.setComment(Jsoup.clean(feedback, Safelist.relaxed()))
         comment.save()
         exam.setExamFeedback(comment)
+      }
 
     exam.update()
 

@@ -168,7 +168,7 @@ class StudentActionsController @Inject() (
       }
 
   private def getNoShows(user: User, filter: Option[String]): Set[ExamEnrolment] =
-    var query = DB
+    val baseQuery = DB
       .find(classOf[ExamEnrolment])
       .fetch("exam", "id, state, name")
       .fetch("exam.course", "code, name")
@@ -180,9 +180,9 @@ class StudentActionsController @Inject() (
       .isNull("exam.parent")
       .eq("noShow", true)
 
-    filter.foreach { f =>
+    val query = filter.fold(baseQuery) { f =>
       val condition = s"%$f%"
-      query = query
+      baseQuery
         .disjunction()
         .ilike("exam.name", condition)
         .ilike("exam.course.code", condition)
@@ -197,7 +197,7 @@ class StudentActionsController @Inject() (
   def getFinishedExams(filter: Option[String]): Action[AnyContent] =
     authenticated.andThen(Auth.authorized(Seq(Role.Name.STUDENT))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      var query = DB
+      val baseQuery = DB
         .find(classOf[ExamParticipation])
         .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous, gradingType")
         .fetch("exam.creator", "id")
@@ -211,9 +211,9 @@ class StudentActionsController @Inject() (
         .ne("exam.state", Exam.State.DELETED)
         .eq("exam.creator", user)
 
-      filter.foreach { f =>
+      val query = filter.fold(baseQuery) { f =>
         val condition = s"%$f%"
-        query = query
+        baseQuery
           .disjunction()
           .ilike("exam.name", condition)
           .ilike("exam.course.code", condition)
@@ -233,35 +233,33 @@ class StudentActionsController @Inject() (
   def getEnrolment(eid: Long): Action[AnyContent] =
     authenticated.andThen(Auth.authorized(Seq(Role.Name.STUDENT))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
+      val pp = PathProperties.parse(
+        """(*,
+          |exam(*,
+          |  course(*),
+          |  examOwners(*),
+          |  examInspections(*, user(*))
+          |),
+          |externalExam(*),
+          |collaborativeExam(*),
+          |user(*),
+          |reservation(*,
+          |  machine(*,
+          |    room(*)
+          |  )
+          |),
+          |examinationEventConfiguration(
+          |  examinationEvent(*)
+          |)
+          |)""".stripMargin
+      )
       val enrolmentOpt =
         DB.find(classOf[ExamEnrolment])
-          .fetch("exam")
-          .fetch("externalExam")
-          .fetch("collaborativeExam")
-          .fetch("exam.course", "name, code")
-          .fetch("exam.examOwners", "firstName, lastName", FetchConfig.ofQuery())
-          .fetch("exam.examInspections", FetchConfig.ofQuery())
-          .fetch("exam.examInspections.user", "firstName, lastName")
-          .fetch("user", "id")
-          .fetch("reservation", "startAt, endAt")
-          .fetch("reservation.machine", "name")
-          .fetch(
-            "reservation.machine.room",
-            "name, roomCode, localTimezone, roomInstruction, roomInstructionEN, roomInstructionSV"
-          )
-          .fetch("examinationEventConfiguration")
-          .fetch("examinationEventConfiguration.examinationEvent")
+          .apply(pp)
           .where()
           .idEq(eid)
           .eq("user", user)
           .find
-
-      val pp = PathProperties.parse(
-        "(*, exam(*, course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName))), " +
-          "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone, " +
-          "roomInstruction, roomInstructionEN, roomInstructionSV))), " +
-          "examinationEventConfiguration(examinationEvent(*)))"
-      )
       // FIXME: Temporary helper until CollaborationController is refactored
       def ok(obj: Any): Result = Ok(DB.json().toJson(obj, pp)).as("application/json")
 
@@ -374,7 +372,7 @@ class StudentActionsController @Inject() (
     }
 
   private def listExams(filter: Option[String], courseCodes: Seq[String]): Result =
-    var query = DB
+    val baseQuery = DB
       .find(classOf[Exam])
       .select("id, name, duration, periodStart, periodEnd, enrollInstruction, implementation")
       .fetch("course", "code, name")
@@ -388,14 +386,16 @@ class StudentActionsController @Inject() (
       .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
       .gt("periodEnd", DateTime.now().toDate)
 
-    if courseCodes.nonEmpty then query = query.in("course.code", courseCodes.asJava)
+    val withCourseFilter = if courseCodes.nonEmpty then
+      baseQuery.in("course.code", courseCodes.asJava)
+    else baseQuery
 
-    filter.foreach { f =>
+    val query = filter.fold(withCourseFilter) { f =>
       val condition = s"%$f%"
-      query = query.disjunction()
-      query = userHandler.applyNameSearch("examOwners", query, f)
-      query = userHandler.applyNameSearch("examInspections.user", query, f)
-      query = query
+      val withDisjunction = withCourseFilter.disjunction()
+      val withOwnerSearch = userHandler.applyNameSearch("examOwners", withDisjunction, f)
+      val withInspectorSearch = userHandler.applyNameSearch("examInspections.user", withOwnerSearch, f)
+      withInspectorSearch
         .ilike("name", condition)
         .ilike("course.code", condition)
         .ilike("course.name", condition)

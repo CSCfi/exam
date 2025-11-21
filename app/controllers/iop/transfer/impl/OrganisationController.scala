@@ -48,10 +48,10 @@ class OrganisationController @Inject() (
                 JsArray(orgs.map { org =>
                   val orgObj = org.as[JsObject]
                   val isHomeOrg = (orgObj \ "_id").asOpt[String].contains(localRef)
-                  var updatedOrg = orgObj + ("homeOrg" -> JsBoolean(isHomeOrg))
+                  val baseOrg = orgObj + ("homeOrg" -> JsBoolean(isHomeOrg))
 
                   // Cache facility data for external organizations and set the password requirement flag
-                  (orgObj \ "facilities").asOpt[JsArray].foreach { facilities =>
+                  val updatedOrg = (orgObj \ "facilities").asOpt[JsArray].fold(baseOrg) { facilities =>
                     val updatedFacilities = JsArray(facilities.value.map { facility =>
                       val facilityObj = facility.as[JsObject]
                       val externalPassword = (facilityObj \ "externalPassword").asOpt[String].filter(_.nonEmpty)
@@ -66,7 +66,7 @@ class OrganisationController @Inject() (
                       yield facilityCache.storeFacilityPassword(facilityId, password)
                       updatedFacility
                     })
-                    updatedOrg = updatedOrg + ("facilities" -> updatedFacilities)
+                    baseOrg + ("facilities" -> updatedFacilities)
                   }
 
                   updatedOrg

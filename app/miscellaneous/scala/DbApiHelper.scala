@@ -17,11 +17,6 @@ trait DbApiHelper:
     def in[C](propertyName: String, values: Iterable[C]): ExpressionList[T] =
       el.in(propertyName, values.toSeq.asJava)
 
-  // This is for IOP with null values coming (especially) from Ebean.
-  // Apparently, we can end up having Some(null) if not mapped like this.
-  // As a result, we get None as expected.
-  extension [T](o: Option[T]) def nonNull: Option[T] = o.flatMap(Option(_))
-
   extension [T <: Model](q: Query[T])
     def find: Option[T]  = q.findOneOrEmpty().toScala
     def list: List[T]    = q.findList().asScala.toList

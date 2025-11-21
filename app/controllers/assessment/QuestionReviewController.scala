@@ -43,9 +43,21 @@ class QuestionReviewController @Inject() (
     implicit val writes: Writes[QuestionEntry] = Json.writes[QuestionEntry]
     def apply(question: Question, answers: Seq[ExamSectionQuestion], evaluationCriteria: String): QuestionEntry =
       val answerPathProps = PathProperties.parse(
-        "(*, essayAnswer(attachment(*), *), question(parent(question), attachment(*), *), " +
-          "examSection(name, exam(id, hash, creator(id, email, userIdentifier, firstName, lastName), " +
-          "state, examInspections(user(id)))))"
+        """(*,
+          |essayAnswer(attachment(*), *),
+          |question(
+          |  parent(question),
+          |  attachment(*),
+          |  *
+          |),
+          |examSection(name,
+          |  exam(id, hash,
+          |    creator(id, email, userIdentifier, firstName, lastName),
+          |    state,
+          |    examInspections(user(id))
+          |  )
+          |)
+          |)""".stripMargin
       )
       val questionPathProps = PathProperties.parse("(attachment(*), *)")
       QuestionEntry(

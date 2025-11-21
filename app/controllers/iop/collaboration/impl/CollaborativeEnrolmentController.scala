@@ -58,7 +58,7 @@ class CollaborativeEnrolmentController @Inject() (
     orgCheck &&
     exam.getState == Exam.State.PUBLISHED &&
     exam.getExecutionType.getType == ExamExecutionType.Type.PUBLIC.toString &&
-    exam.getPeriodEnd != null &&
+    Option(exam.getPeriodEnd).isDefined &&
     exam.getPeriodEnd.isAfterNow
 
   private def checkExam(exam: Option[Exam], user: User): Either[Result, Exam] =
@@ -84,9 +84,13 @@ class CollaborativeEnrolmentController @Inject() (
               .toSeq
 
             val pp = PathProperties.parse(
-              "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
-                "examLanguages(code, name), id, name, periodStart, periodEnd, " +
-                "enrollInstruction, implementation, examinationEventConfigurations)"
+              """(examOwners(firstName, lastName),
+                |examInspections(user(firstName, lastName)),
+                |examLanguages(code, name),
+                |id, name, periodStart, periodEnd,
+                |enrollInstruction, implementation,
+                |examinationEventConfigurations
+                |)""".stripMargin
             )
             Ok(exams.asJson(pp))
       }

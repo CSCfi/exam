@@ -148,18 +148,35 @@ class ReviewController @Inject() (
       .andThen(anonymous(Set("user", "creator", "modifier"))) { request =>
         val user = request.attrs(Auth.ATTR_USER)
         val pp = PathProperties.parse(
-          "(" +
-            "id, name, anonymous, state, gradedTime, customCredit, creditType, gradingType(*), answerLanguage, trialCount, " +
-            "implementation, gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*), " +
-            "course(code, name, gradeScale(grades(*))), " +
-            "examSections(name, sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
-            "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
-            "parent(name, periodStart, periodEnd, course(code, name), examOwners(firstName, lastName, email), examInspections(id, user(firstName, lastName)))" +
-            "examParticipation(*, user(id, firstName, lastName, email, userIdentifier)), " +
-            "examEnrolments(retrialPermitted)," +
-            ")"
+          """(*,
+            |gradingType(*),
+            |gradeScale(*, grades(*)),
+            |creditType(*),
+            |examType(*),
+            |executionType(*),
+            |examFeedback(*),
+            |grade(*),
+            |course(*, gradeScale(*, grades(*))),
+            |examSections(*,
+            |  sectionQuestions(*,
+            |    clozeTestAnswer(*),
+            |    question(*),
+            |    essayAnswer(*),
+            |    options(*, option(*))
+            |  )
+            |),
+            |languageInspection(*),
+            |examLanguages(*),
+            |parent(*,
+            |  course(*),
+            |  examOwners(*),
+            |  examInspections(*, user(*))
+            |),
+            |examParticipation(*, user(*)),
+            |examEnrolments(*)
+            |)""".stripMargin
         )
-        var el = DB
+        val baseQuery = DB
           .find(classOf[Exam])
           .where()
           .apply(pp)
@@ -175,9 +192,10 @@ class ReviewController @Inject() (
             Exam.State.REJECTED,
             Exam.State.ARCHIVED
           )
-        if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-          el = el.or.eq("parent.examOwners", user).eq("examInspections.user", user).endOr
-        val exams   = el.distinct
+        val finalQuery = if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+          baseQuery.or.eq("parent.examOwners", user).eq("examInspections.user", user).endOr
+        else baseQuery
+        val exams   = finalQuery.distinct
         val anonIds = exams.filter(_.isAnonymous).map(_.getExamParticipation.getId.longValue)
 
         // Set calculated fields on exams

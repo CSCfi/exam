@@ -63,8 +63,7 @@ object PlayJsonHelper:
     import org.jsoup.Jsoup
     
     parse[String](fieldName, json).map { html =>
-      if html == null then null
-      else Jsoup.clean(html, HtmlSafelist.SAFELIST)
+      Option(html).map(Jsoup.clean(_, HtmlSafelist.SAFELIST)).orNull
     }
 
   /** Parse a DateTime field using Joda DateTime

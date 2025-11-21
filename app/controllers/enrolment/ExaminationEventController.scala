@@ -71,8 +71,8 @@ class ExaminationEventController @Inject() (
       case Some(config) => ee.getStart.plusMinutes(config.getExam.getDuration)
 
   private def getParticipantUpperBound(start: DateTime, end: DateTime, id: Option[Long]): Int =
-    var query = DB.find(classOf[ExaminationEvent]).where().le("start", end)
-    id.foreach(i => query = query.ne("id", i))
+    val baseQuery = DB.find(classOf[ExaminationEvent]).where().le("start", end)
+    val query = id.fold(baseQuery) { i => baseQuery.ne("id", i) }
 
     query.distinct
       .filter(ee => !getEventEnding(ee).isBefore(start))
@@ -280,19 +280,19 @@ class ExaminationEventController @Inject() (
       val pp = PathProperties.parse(
         "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
       )
-      var query = DB.find(classOf[ExaminationEventConfiguration]).apply(pp).where()
+      val baseQuery = DB.find(classOf[ExaminationEventConfiguration]).apply(pp).where()
 
-      start.foreach { s =>
+      val withStartFilter = start.fold(baseQuery) { s =>
         val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
-        query = query.ge("examinationEvent.start", startDate.toDate)
+        baseQuery.ge("examinationEvent.start", startDate.toDate)
       }
 
-      end.foreach { e =>
+      val withEndFilter = end.fold(withStartFilter) { e =>
         val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
-        query = query.lt("examinationEvent.start", endDate.toDate)
+        withStartFilter.lt("examinationEvent.start", endDate.toDate)
       }
 
-      val exams = query.eq("exam.state", Exam.State.PUBLISHED).distinct
+      val exams = withEndFilter.eq("exam.state", Exam.State.PUBLISHED).distinct
       Ok(exams.asJson(pp))
     }
 

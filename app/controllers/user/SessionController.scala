@@ -378,7 +378,7 @@ class SessionController @Inject() (
         sessionData.get("id").flatMap(id => Try(id.toLong).toOption) match
           case Some(userId) =>
             Option(DB.find(classOf[User], userId)) match
-              case Some(user) if user.getLogoutUrl != null =>
+              case Some(user) if Option(user.getLogoutUrl).isDefined =>
                 val node = Json.obj("logoutUrl" -> user.getLogoutUrl)
                 Ok(node).withNewSession.discardingCookies(DiscardingCookie("PLAY_SESSION"))
               case _ =>

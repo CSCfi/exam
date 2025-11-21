@@ -185,7 +185,6 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       // Column index mappings
       val questionColumnIndexesBySectionName = collection.mutable.Map[String, Map[Long, Int]]()
       val sectionTotalIndexesBySectionName   = collection.mutable.Map[String, Int]()
-      var totalScoreIndex                    = 0
 
       // Build header columns
       questionIdsBySectionName.foreach { case (sectionName, questionIds) =>
@@ -212,7 +211,7 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
         sectionTotalIndexesBySectionName(sectionName) = sectionTotalIdx
       }
 
-      totalScoreIndex = appendCell(headerRow, "Kokonaispisteet")
+      val totalScoreIndex = appendCell(headerRow, "Kokonaispisteet")
 
       // Create data rows for each child exam
       childExams.foreach { exam =>

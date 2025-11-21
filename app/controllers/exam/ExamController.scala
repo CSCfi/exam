@@ -66,14 +66,14 @@ class ExamController @Inject() (
       .endOr()
 
   private def getAllExams(filter: Option[String]): List[Exam] =
-    var query = createPrototypeQuery()
-    filter match
+    val baseQuery = createPrototypeQuery()
+    val query = filter match
       case Some(f) =>
-        query = query.or()
-        query = userHandler.applyNameSearch("examOwners", query, f)
+        val withOr = baseQuery.or()
+        val withNameSearch = userHandler.applyNameSearch("examOwners", withOr, f)
         val condition = s"%$f%"
-        query = query.ilike("name", condition).ilike("course.code", condition).endOr()
-      case None => ()
+        withNameSearch.ilike("name", condition).ilike("course.code", condition).endOr()
+      case None => baseQuery
     query.list
 
   private def getAllExamsOfTeacher(user: User): List[Exam] =
@@ -120,12 +120,22 @@ class ExamController @Inject() (
       )
       val query = DB.find(classOf[Exam])
       pp.apply(query)
-      var el = query.where().isNotNull("name").isNotNull("course").isNull("parent")
-      if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then el = el.eq("examOwners", user)
-      if courses.nonEmpty then el = el.in("course.id", courses.asJava)
-      if sections.nonEmpty then el = el.in("examSections.id", sections.asJava)
-      if tags.nonEmpty then el = el.in("examSections.sectionQuestions.question.parent.tags.id", tags.asJava)
-      if owners.nonEmpty then el = el.in("questionOwners.id", user)
+      val baseQuery = query.where().isNotNull("name").isNotNull("course").isNull("parent")
+      val withOwnerFilter = if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+        baseQuery.eq("examOwners", user)
+      else baseQuery
+      val withCourseFilter = if courses.nonEmpty then
+        withOwnerFilter.in("course.id", courses.asJava)
+      else withOwnerFilter
+      val withSectionFilter = if sections.nonEmpty then
+        withCourseFilter.in("examSections.id", sections.asJava)
+      else withCourseFilter
+      val withTagFilter = if tags.nonEmpty then
+        withSectionFilter.in("examSections.sectionQuestions.question.parent.tags.id", tags.asJava)
+      else withSectionFilter
+      val el = if owners.nonEmpty then
+        withTagFilter.in("questionOwners.id", user)
+      else withTagFilter
       Future.successful(Ok(el.list.asJson(pp)))
     }
 
@@ -315,11 +325,11 @@ class ExamController @Inject() (
 
   private def didGradeChange(exam: Exam, grading: Int): Boolean =
     val canOverrideGrading = configReader.isCourseGradeScaleOverridable
-    if canOverrideGrading || exam.getCourse.getGradeScale == null then
+    if canOverrideGrading || Option(exam.getCourse.getGradeScale).isEmpty then
       DB.find(classOf[GradeScale]).fetch("grades").where().idEq(grading).find match
         case None => false
         case Some(scale) =>
-          exam.getGradeScale == null || !exam.getGradeScale.equals(scale)
+          Option(exam.getGradeScale).isEmpty || !exam.getGradeScale.equals(scale)
     else false
 
   def updateExamSoftware(eid: Long, sid: Long): Action[AnyContent] = authenticated
@@ -410,7 +420,7 @@ class ExamController @Inject() (
                   case None                => Future.successful(NotFound("i18n_execution_type_not_found"))
                   case Some(executionType) =>
                     // No sense in copying the AE config if grade scale is fixed to course (that will initially be NULL for a copy)
-                    if prototype.getAutoEvaluationConfig != null && !configReader.isCourseGradeScaleOverridable then
+                    if Option(prototype.getAutoEvaluationConfig).isDefined && !configReader.isCourseGradeScaleOverridable then
                       prototype.setAutoEvaluationConfig(null)
                     val context = ExamCopyContext.forTeacherCopy(user).build()
                     val copy    = prototype.createCopy(context)

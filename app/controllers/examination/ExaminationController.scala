@@ -344,8 +344,8 @@ class ExaminationController @Inject() (
     if Option(enrolment).isEmpty then Future.successful(Some(Forbidden("i18n_reservation_not_found")))
     else
       val exam        = enrolment.getExam
-      val isByod      = exam != null && exam.getImplementation == Exam.Implementation.CLIENT_AUTH
-      val isUnchecked = exam != null && exam.getImplementation == Exam.Implementation.WHATEVER
+      val isByod      = Option(exam).exists(_.getImplementation == Exam.Implementation.CLIENT_AUTH)
+      val isUnchecked = Option(exam).exists(_.getImplementation == Exam.Implementation.WHATEVER)
 
       if isByod then
         Future.successful(
@@ -402,18 +402,23 @@ class ExaminationController @Inject() (
 
 object ExaminationController:
   def getPath(includeEnrolment: Boolean): PathProperties =
-    val path =
-      "(id, name, state, instruction, hash, duration, cloned, external, implementation, " +
-        "course(id, code, name), examType(id, type), executionType(id, type), " +
-        "examParticipation(id), " +
-        "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
-        "examInspections(*, user(id, firstName, lastName))" +
-        "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," +
-        "examMaterials(name, author, isbn), " +
-        "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, derivedMinScore, " +
-        "question(id, type, question, attachment(id, fileName))" +
-        "options(id, answered, option(id, option))" +
-        "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
-        "clozeTestAnswer(id, question, answer, objectVersion)" +
-        ")))"
-    PathProperties.parse(if (includeEnrolment) s"(exam$path)" else path)
+    val path = """(*,
+                  |course(*),
+                  |examType(*),
+                  |executionType(*),
+                  |examParticipation(*),
+                  |examLanguages(*),
+                  |attachment(*),
+                  |examOwners(*),
+                  |examInspections(*, user(*)),
+                  |examSections(*,
+                  |  examMaterials(*),
+                  |  sectionQuestions(*,
+                  |    question(*, attachment(*)),
+                  |    options(*, option(*)),
+                  |    essayAnswer(*, attachment(*)),
+                  |    clozeTestAnswer(*)
+                  |  )
+                  |)
+                  |)""".stripMargin
+    PathProperties.parse(if includeEnrolment then s"(exam$path)" else path)

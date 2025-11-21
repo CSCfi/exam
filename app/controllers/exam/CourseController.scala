@@ -35,7 +35,7 @@ class CourseController @Inject() (
   ): Future[Result] =
     (filterType, criteria) match
       case (Some("code"), Some(c)) =>
-        externalApi.getCoursesByCode(user, c.trim).map(cs => Results.Ok(cs.asJson))
+        externalApi.getCoursesByCode(user, c.trim).map(cs => Ok(cs.asJson))
       case (Some("name"), Some(x)) if x.length >= 2 =>
         Future {
           DB.find(classOf[Course])
@@ -48,11 +48,11 @@ class CourseController @Inject() (
             .orderBy("code")
             .list
             .filter(c =>
-              c.getStartDate == null || configReader
+              Option(c.getStartDate).isEmpty || configReader
                 .getCourseValidityDate(new DateTime(c.getStartDate))
                 .isBeforeNow
             )
-        }.map(data => Results.Ok(data.asJson))
+        }.map(data => Ok(data.asJson))
       case (Some("name"), Some(_)) =>
         throw new IllegalArgumentException("Too short criteria")
       case _ =>
@@ -67,15 +67,22 @@ class CourseController @Inject() (
       tagIds: Option[List[Long]],
       ownerIds: Option[List[Long]]
   ): Result =
-    var query = DB.find(classOf[Course]).where.isNotNull("name")
-    if !user.hasRole(Role.Name.ADMIN) then
-      query = query
-        .eq("exams.examOwners", user)
-    if examIds.getOrElse(Nil).nonEmpty then query = query.in("exams.id", examIds.get)
-    if sectionIds.getOrElse(Nil).nonEmpty then query = query.in("exams.examSections.id", sectionIds.get)
-    if tagIds.getOrElse(Nil).nonEmpty then
-      query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get)
-    if ownerIds.getOrElse(Nil).nonEmpty then query = query.in("exams.examOwners.id", ownerIds.get)
+    val baseQuery = DB.find(classOf[Course]).where.isNotNull("name")
+    val withOwnerFilter = if !user.hasRole(Role.Name.ADMIN) then
+      baseQuery.eq("exams.examOwners", user)
+    else baseQuery
+    val withExamFilter = examIds.filter(_.nonEmpty).fold(withOwnerFilter) { ids =>
+      withOwnerFilter.in("exams.id", ids.asJava)
+    }
+    val withSectionFilter = sectionIds.filter(_.nonEmpty).fold(withExamFilter) { ids =>
+      withExamFilter.in("exams.examSections.id", ids.asJava)
+    }
+    val withTagFilter = tagIds.filter(_.nonEmpty).fold(withSectionFilter) { ids =>
+      withSectionFilter.in("exams.examSections.sectionQuestions.question.parent.tags.id", ids.asJava)
+    }
+    val query = ownerIds.filter(_.nonEmpty).fold(withTagFilter) { ids =>
+      withTagFilter.in("exams.examOwners.id", ids.asJava)
+    }
     Ok(query.orderBy("name desc").list.asJson)
 
   // Actions ->

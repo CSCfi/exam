@@ -61,13 +61,15 @@ class ExternalAttachmentController @Inject() (
         None
 
   private def downloadExternalAttachment(attachment: Attachment): Future[Result] =
-    if attachment == null then Future.successful(NotFound)
-    else
-      val externalId = attachment.getExternalId
-      if externalId == null || externalId.isBlank then
-        logger.warn(s"External id can not be found for attachment [id=${attachment.getId}]")
-        Future.successful(NotFound)
-      else downloadAttachment(externalId, attachment.getMimeType, attachment.getFileName)
+    Option(attachment) match
+      case None => Future.successful(NotFound)
+      case Some(att) =>
+        Option(att.getExternalId).filter(_.nonEmpty) match
+          case None =>
+            logger.warn(s"External id can not be found for attachment [id=${att.getId}]")
+            Future.successful(NotFound)
+          case Some(externalId) =>
+            downloadAttachment(externalId, att.getMimeType, att.getFileName)
 
   private def downloadAttachment(id: String, mimeType: String, fileName: String): Future[Result] =
     parseAttachmentUrl("/api/attachments/%s/download", id) match
@@ -109,7 +111,7 @@ class ExternalAttachmentController @Inject() (
 
   private def findEssayAnswerWithAttachment(sq: ExamSectionQuestion): Option[EssayAnswer] =
     Option(sq.getEssayAnswer) match
-      case Some(ea) if ea.getAttachment != null && Option(ea.getAttachment.getExternalId).exists(_.nonEmpty) =>
+      case Some(ea) if Option(ea.getAttachment).flatMap(a => Option(a.getExternalId)).exists(_.nonEmpty) =>
         Some(ea)
       case _ => None
 
@@ -229,7 +231,7 @@ class ExternalAttachmentController @Inject() (
                     findSectionQuestion(questionId, exam) match
                       case None => Future.successful(NotFound)
                       case Some(sq) =>
-                        if sq.getEssayAnswer == null then sq.setEssayAnswer(new EssayAnswer())
+                        if Option(sq.getEssayAnswer).isEmpty then sq.setEssayAnswer(new EssayAnswer())
                         request.body.file("file") match
                           case None => Future.successful(BadRequest("Missing file"))
                           case Some(filePart) =>
@@ -263,12 +265,12 @@ class ExternalAttachmentController @Inject() (
                     case None => Future.successful(NotFound)
                     case Some(ea) =>
                       val attachment = ea.getAttachment
-                      val externalId = attachment.getExternalId
-                      if externalId == null || externalId.isBlank then
-                        logger.warn(s"External id can not be found for attachment [id=${attachment.getId}]")
-                        Future.successful(NotFound)
-                      else
-                        parseAttachmentUrl("/api/attachments/%s", externalId) match
+                      Option(attachment.getExternalId).filter(_.nonEmpty) match
+                        case None =>
+                          logger.warn(s"External id can not be found for attachment [id=${attachment.getId}]")
+                          Future.successful(NotFound)
+                        case Some(externalId) =>
+                          parseAttachmentUrl("/api/attachments/%s", externalId) match
                           case None => Future.successful(InternalServerError)
                           case Some(url) =>
                             wsClient.url(url.toString).delete().flatMap { response =>

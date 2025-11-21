@@ -28,15 +28,35 @@ class ReportAPIController @Inject() (
   def getExamEnrolments(start: Option[String], end: Option[String]): Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
       val pp = PathProperties.parse(
-        "(id, enrolledOn, noShow, " +
-          "reservation(id, machine(id, name, room(name, roomCode)), startAt, endAt, externalReservation(orgName)), " +
-          "examinationEventConfiguration(examinationEvent(start)), " +
-          "exam(id, course(name, code, credits, identifier, courseImplementation, " +
-          "gradeScale(description, displayName), organisation(code, name)), " +
-          "softwares(name), duration, examType(type), creditType(type), executionType(type), " +
-          "implementation, trialCount, answerLanguage, periodStart, periodEnd, " +
-          "examParticipation(started, ended, id))" +
-          ")"
+        """(id, enrolledOn, noShow,
+          |reservation(id,
+          |  machine(id, name,
+          |    room(name, roomCode)
+          |  ),
+          |  startAt, endAt,
+          |  externalReservation(orgName)
+          |),
+          |examinationEventConfiguration(
+          |  examinationEvent(start)
+          |),
+          |exam(id,
+          |  course(name, code, credits, identifier, courseImplementation,
+          |    gradeScale(description, displayName),
+          |    organisation(code, name)
+          |  ),
+          |  softwares(name),
+          |  duration,
+          |  examType(type),
+          |  creditType(type),
+          |  executionType(type),
+          |  implementation,
+          |  trialCount,
+          |  answerLanguage,
+          |  periodStart,
+          |  periodEnd,
+          |  examParticipation(started, ended, id)
+          |)
+          |)""".stripMargin
       )
 
       val query = DB.find(classOf[ExamEnrolment])

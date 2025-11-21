@@ -37,23 +37,29 @@ class ExternalExamController @Inject() (
     with DbApiHelper
     with JavaApiHelper:
 
-  private def getPath: PathProperties =
-    val path =
-      "(id, name, state, instruction, hash, duration, cloned, subjectToLanguageInspection, " +
-        "implementation, trialCount, anonymous, " +
-        "course(id, code, name, gradeScale(id, displayName, grades(id, name))), executionType(id, type), " +
-        "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
-        "examLanguages(code), attachment(*), examOwners(firstName, lastName)" +
-        "examInspections(*, user(id, firstName, lastName)), " +
-        "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
-        "examSections(id, name, sequenceNumber, description, lotteryOn, optional, lotteryItemCount," +
-        "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " +
-        "question(id, type, question, attachment(*), options(id, option, correctOption, defaultScore, claimChoiceType)), " +
-        "options(id, answered, score, option(id, option)), " +
-        "essayAnswer(id, answer, objectVersion, attachment(*)), " +
-        "clozeTestAnswer(id, question, answer, objectVersion)" +
-        ")))"
+  private def getPath = {
+    val path = """(*,
+                  |course(*, gradeScale(*, grades(*))),
+                  |executionType(*),
+                  |autoEvaluationConfig(*, gradeEvaluations(*, grade(*, gradeScale(*)))),
+                  |examLanguages(*),
+                  |attachment(*),
+                  |examOwners(*),
+                  |examInspections(*, user(*)),
+                  |examType(*),
+                  |creditType(*),
+                  |gradeScale(*, grades(*)),
+                  |examSections(*,
+                  |  sectionQuestions(*,
+                  |    question(*, attachment(*), options(*)),
+                  |    options(*, option(*)),
+                  |    essayAnswer(*, attachment(*)),
+                  |    clozeTestAnswer(*)
+                  |  )
+                  |)
+                  |)""".stripMargin
     PathProperties.parse(path)
+  }
 
   @Transactional
   def addExamForAssessment(ref: String): Action[JsValue] =

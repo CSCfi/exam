@@ -96,7 +96,7 @@ class ExamMaterialController @Inject() (
       .find
 
   private def getOwnershipError(em: ExamMaterial, user: User): Option[Result] =
-    if em == null || !em.getCreator.equals(user) then Some(NotFound)
+    if Option(em).isEmpty || !em.getCreator.equals(user) then Some(NotFound)
     else None
 
   def addMaterialForSection(sectionId: Long, materialId: Long): Action[AnyContent] =

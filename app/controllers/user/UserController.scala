@@ -94,10 +94,11 @@ class UserController @Inject() (
 
       val results = filter match
         case Some(f) =>
-          var el: ExpressionList[User] = query.where().disjunction()
-          el = userHandler.applyNameSearch(null, el, f)
+          val baseQuery = query.where().disjunction()
+          val withNameSearch = userHandler.applyNameSearch(null, baseQuery, f)
           val condition = s"%$f%"
-          el.ilike("email", condition)
+          withNameSearch
+            .ilike("email", condition)
             .ilike("userIdentifier", condition)
             .ilike("employeeNumber", condition)
             .endJunction()
@@ -200,6 +201,6 @@ class UserController @Inject() (
       }
 
   private def listUsersByRoleAndName(role: String, nameFilter: String): Seq[User] =
-    var el: ExpressionList[User] = DB.find(classOf[User]).where().eq("roles.name", role).disjunction()
-    el = userHandler.applyNameSearch(null, el, nameFilter)
-    el.endJunction().list
+    val baseQuery = DB.find(classOf[User]).where().eq("roles.name", role).disjunction()
+    val withNameSearch = userHandler.applyNameSearch(null, baseQuery, nameFilter)
+    withNameSearch.endJunction().list

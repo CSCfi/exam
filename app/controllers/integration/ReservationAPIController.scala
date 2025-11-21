@@ -31,18 +31,27 @@ class ReservationAPIController @Inject() (
   def getReservations(start: Option[String], end: Option[String], roomId: Option[Long]): Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
       val pp = PathProperties.parse(
-        "(startAt, endAt, externalUserRef, " +
-          "user(firstName, lastName, email, userIdentifier), " +
-          "enrolment(noShow, " +
-          "exam(id, name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)), course(name, code, credits, " +
-          "identifier, gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation))), " +
-          "collaborativeExam(name)" +
-          "), " +
-          "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))"
+        """(startAt, endAt, externalUserRef,
+          |user(firstName, lastName, email, userIdentifier),
+          |enrolment(noShow,
+          |  exam(id, name,
+          |    examOwners(firstName, lastName, email),
+          |    parent(examOwners(firstName, lastName, email)),
+          |    course(name, code, credits, identifier,
+          |      gradeScale(description, externalRef, displayName),
+          |      organisation(code, name, nameAbbreviation)
+          |    )
+          |  ),
+          |  collaborativeExam(name)
+          |),
+          |machine(name, ipAddress, otherIdentifier,
+          |  room(name, roomCode)
+          |)
+          |)""".stripMargin
       )
       val query = DB.find(classOf[Reservation])
       pp.apply(query)
-      var el = query
+      val baseQuery = query
         .where()
         .or()  // *
         .and() // **
@@ -55,21 +64,21 @@ class ReservationAPIController @Inject() (
         .isNotNull("externalUserRef")
         .endOr() // *
 
-      start.foreach { s =>
+      val withStart = start.fold(baseQuery) { s =>
         val startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(s)
-        el = el.ge("startAt", startDate.toDate)
+        baseQuery.ge("startAt", startDate.toDate)
       }
 
-      end.foreach { e =>
+      val withEnd = end.fold(withStart) { e =>
         val endDate = ISODateTimeFormat.dateTimeParser().parseDateTime(e)
-        el = el.lt("endAt", endDate.toDate)
+        withStart.lt("endAt", endDate.toDate)
       }
 
-      roomId.foreach { id =>
-        el = el.eq("machine.room.id", id)
+      val finalQuery = roomId.fold(withEnd) { id =>
+        withEnd.eq("machine.room.id", id)
       }
 
-      val reservations = el.distinct
+      val reservations = finalQuery.distinct
         .map { r =>
           r.setStartAt(dateTimeHandler.normalize(r.getStartAt, r))
           r.setEndAt(dateTimeHandler.normalize(r.getEndAt, r))

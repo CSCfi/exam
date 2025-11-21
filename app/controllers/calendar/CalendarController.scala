@@ -169,7 +169,7 @@ class CalendarController @Inject() (
 
                       // Nuke the old reservation if any
                       val result = Option(oldReservation) match
-                        case Some(old) if old.getExternalRef != null =>
+                        case Some(old) if Option(old.getExternalRef).isDefined =>
                           externalReservationHandler
                             .removeReservation(old, user, "")
                             .flatMap { _ =>
@@ -235,7 +235,7 @@ class CalendarController @Inject() (
       val accessibilityIds = aids.getOrElse(Seq.empty)
 
       // Sanity check so that we avoid accidentally getting reservations for SEB exams
-      if ee == null || ee.getExam.getImplementation != Exam.Implementation.AQUARIUM then
+      if Option(ee).isEmpty || ee.getExam.getImplementation != Exam.Implementation.AQUARIUM then
         Forbidden("i18n_error_enrolment_not_found")
       else calendarHandler.getSlots(user, ee.getExam, roomId, day, accessibilityIds)
     }

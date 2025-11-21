@@ -112,7 +112,7 @@ class ExamUpdaterImpl @Inject() (
           .orElse {
             // Check maturity exam requirements
             if exam.getExecutionType.getType == ExamExecutionType.Type.MATURITY.toString then
-              if payload.getSubjectToLanguageInspection == null then
+              if Option(payload.getSubjectToLanguageInspection).isEmpty then
                 Some(BadRequest("language inspection requirement not configured"))
               else None
             else None
@@ -349,13 +349,13 @@ class ExamUpdaterImpl @Inject() (
     val now = DateTime.now()
     exam.getExamEnrolments.asScala
       .map(_.getReservation)
-      .exists(r => r != null && r.getEndAt.isAfter(now))
+      .exists(r => Option(r).exists(_.getEndAt.isAfter(now)))
 
   private def hasFutureEvents(exam: Exam): Boolean =
     val now = DateTime.now()
     exam.getExamEnrolments.asScala
       .map(_.getExaminationEventConfiguration)
-      .exists(eec => eec != null && eec.getExaminationEvent.getStart.isAfter(now))
+      .exists(eec => Option(eec).exists(_.getExaminationEvent.getStart.isAfter(now)))
 
   private def getFormValidationError(checkPeriod: Boolean, payload: Exam): Option[Result] =
     if !checkPeriod then None
@@ -381,7 +381,7 @@ class ExamUpdaterImpl @Inject() (
   private def updateGrading(exam: Exam, grading: Int): Unit =
     // Allow updating grading if allowed in settings or if the course does not restrict the setting
     val canOverrideGrading = configReader.isCourseGradeScaleOverridable
-    if canOverrideGrading || exam.getCourse == null || exam.getCourse.getGradeScale == null then
+    if canOverrideGrading || Option(exam.getCourse).isEmpty || Option(exam.getCourse).flatMap(c => Option(c.getGradeScale)).isEmpty then
       Option(DB.find(classOf[GradeScale]).fetch("grades").where().idEq(grading).findOne()) match
         case Some(scale) =>
           exam.setGradeScale(scale)

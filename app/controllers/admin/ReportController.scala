@@ -63,8 +63,17 @@ class ReportController @Inject() (
   def listParticipations(dept: Option[String], start: Option[String], end: Option[String]): Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       val pp = PathProperties.parse(
-        "noShow, exam(created, course(department)), " +
-          "externalExam(started), reservation(machine(room(id, name, outOfService)))"
+        """noShow,
+          |exam(created,
+          |  course(department)
+          |),
+          |externalExam(started),
+          |reservation(
+          |  machine(
+          |    room(id, name, outOfService)
+          |  )
+          |)
+          |)""".stripMargin
       )
       val enrolments = DB
         .find(classOf[ExamEnrolment])

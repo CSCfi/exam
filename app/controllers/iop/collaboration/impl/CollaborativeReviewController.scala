@@ -63,9 +63,9 @@ class CollaborativeReviewController @Inject() (
   override protected def materializer: Materializer         = mat
 
   private def parseUrl(examRef: String, assessmentRef: String = null): Option[URL] =
-    val url =
-      if assessmentRef != null then s"${configReader.getIopHost}/api/exams/$examRef/assessments/$assessmentRef"
-      else s"${configReader.getIopHost}/api/exams/$examRef/assessments"
+    val url = Option(assessmentRef)
+      .map(ref => s"${configReader.getIopHost}/api/exams/$examRef/assessments/$ref")
+      .getOrElse(s"${configReader.getIopHost}/api/exams/$examRef/assessments")
 
     Try(URI.create(url).toURL).toOption
 
@@ -124,8 +124,7 @@ class CollaborativeReviewController @Inject() (
       node: com.fasterxml.jackson.databind.JsonNode
   ): java.util.stream.Stream[com.fasterxml.jackson.databind.JsonNode] =
     import scala.jdk.StreamConverters.*
-    if node == null || !node.isArray then java.util.stream.Stream.empty()
-    else node.elements().asScala.asJavaSeqStream
+    Option(node).filter(_.isArray).map(_.elements().asScala.asJavaSeqStream).getOrElse(java.util.stream.Stream.empty())
 
   private def forceScoreAnswer(examNode: com.fasterxml.jackson.databind.JsonNode, qid: Long, score: Double): Unit =
     streamJackson(examNode.get("examSections"))
@@ -497,18 +496,20 @@ class CollaborativeReviewController @Inject() (
     }
 
   private def validateExamState(exam: Exam, gradeRequired: Boolean, user: User): Option[Future[Result]] =
-    if exam == null then Some(Future.successful(NotFound("Exam not found")))
-    else if isUnauthorizedToAssess(exam, user) then
-      Some(Future.successful(Forbidden("You are not allowed to modify this object")))
-    else if (exam.getGrade == null && gradeRequired) || exam.getCreditType == null || exam.getAnswerLanguage == null || exam.getGradedByUser == null
-    then Some(Future.successful(Forbidden("not yet graded by anyone!")))
-    else if exam.hasState(
-        Exam.State.ABORTED,
-        Exam.State.GRADED_LOGGED,
-        Exam.State.ARCHIVED
-      ) || exam.getExamRecord != null
-    then Some(Future.successful(Forbidden("i18n_error_exam_already_graded_logged")))
-    else None
+    Option(exam) match
+      case None => Some(Future.successful(NotFound("Exam not found")))
+      case Some(e) =>
+        if isUnauthorizedToAssess(e, user) then
+          Some(Future.successful(Forbidden("You are not allowed to modify this object")))
+        else if (Option(e.getGrade).isEmpty && gradeRequired) || Option(e.getCreditType).isEmpty || Option(e.getAnswerLanguage).isEmpty || Option(e.getGradedByUser).isEmpty then
+          Some(Future.successful(Forbidden("not yet graded by anyone!")))
+        else if e.hasState(
+            Exam.State.ABORTED,
+            Exam.State.GRADED_LOGGED,
+            Exam.State.ARCHIVED
+          ) || Option(e.getExamRecord).isDefined then
+          Some(Future.successful(Forbidden("i18n_error_exam_already_graded_logged")))
+        else None
 
   def finalizeAssessment(id: Long, ref: String): Action[JsValue] = audited
     .andThen(authenticated)

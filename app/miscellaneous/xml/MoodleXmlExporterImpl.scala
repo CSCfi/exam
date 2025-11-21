@@ -70,7 +70,7 @@ class MoodleXmlExporterImpl extends MoodleXmlExporter:
 
   private def stripHtml(html: String): String = Jsoup.parse(html).text
 
-  private def isEmpty(x: String) = x == null || x.isEmpty
+  private def isEmpty(x: String) = Option(x).forall(_.isEmpty)
 
   private def convert(tag: Tag): Node = <tag><text>{tag.getName}</text></tag>
 
@@ -79,25 +79,24 @@ class MoodleXmlExporterImpl extends MoodleXmlExporter:
     else question.getMaxDefaultScore()
 
   private def attachment(question: Question): Option[(String, Node)] =
-    question.getAttachment match
-      case null => None
-      case a =>
-        val file     = new File(a.getFilePath)
-        val data     = Files.readAllBytes(file.toPath)
-        val b64      = Base64.getEncoder.encodeToString(data)
-        val filename = a.getFileName
-        val ref =
-          s"""<br />Attachment: <a href="@@PLUGINFILE@@/$filename">${filename.toUpperCase}</a>"""
-        Some(ref, <file name={a.getFileName} path="/" encoding="base64">{b64}</file>)
+    Option(question.getAttachment).map { a =>
+      val file     = new File(a.getFilePath)
+      val data     = Files.readAllBytes(file.toPath)
+      val b64      = Base64.getEncoder.encodeToString(data)
+      val filename = a.getFileName
+      val ref =
+        s"""<br />Attachment: <a href="@@PLUGINFILE@@/$filename">${filename.toUpperCase}</a>"""
+      (ref, <file name={a.getFileName} path="/" encoding="base64">{b64}</file>)
+    }
 
   private def convert(question: Question): Node =
     val text = question.getQuestion.replace(" class=\"math-tex\"", "")
     val instructions = question.getDefaultAnswerInstructions match
       case i if isEmpty(i) => ""
       case i               => s"<br />Answer instructions: $i"
-    val wc = question.getDefaultExpectedWordCount match
-      case null => ""
-      case c    => s"<br /> Expected word count: $c"
+    val wc = Option(question.getDefaultExpectedWordCount)
+      .map(c => s"<br /> Expected word count: $c")
+      .getOrElse("")
     val att          = attachment(question)
     val ref          = att.map(_._1).getOrElse("")
     val questionText = s"$text $instructions $wc $ref"

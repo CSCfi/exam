@@ -26,12 +26,16 @@ class ExamAPIController @Inject() (
   def getActiveExams(date: Option[String]): Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
       val pp = PathProperties.parse(
-        "(course(name, code, credits, " +
-          "gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation)) " +
-          "id, name, periodStart, periodEnd, duration, enrollInstruction, " +
-          "examLanguages(code, name), gradeScale(description, externalRef, displayName), " +
-          "examOwners(firstName, lastName, email), examType(type)" +
-          ")"
+        """(course(name, code, credits,
+          |  gradeScale(description, externalRef, displayName),
+          |  organisation(code, name, nameAbbreviation)
+          |),
+          |id, name, periodStart, periodEnd, duration, enrollInstruction,
+          |examLanguages(code, name),
+          |gradeScale(description, externalRef, displayName),
+          |examOwners(firstName, lastName, email),
+          |examType(type)
+          |)""".stripMargin
       )
       val dateTime = date
         .map(ISODateTimeFormat.dateTimeParser().parseDateTime)

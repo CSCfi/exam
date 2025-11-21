@@ -66,7 +66,7 @@ class FacilityHandlerImpl @Inject() (
       case Some(room) =>
         val url = parseUrl(Option(room.getExternalRef))
 
-        if room.getExternalRef == null && room.getState != ExamRoom.State.INACTIVE.toString then
+        if Option(room.getExternalRef).isEmpty && room.getState != ExamRoom.State.INACTIVE.toString then
           // Add new
           wsClient
             .url(url)
@@ -82,7 +82,7 @@ class FacilityHandlerImpl @Inject() (
                 room.update()
                 Ok(Json.obj("externalRef" -> externalRef))
             }
-        else if room.getExternalRef != null then
+        else if Option(room.getExternalRef).isDefined then
           // Remove
           wsClient.url(url).delete().map { response =>
             if response.status == NOT_FOUND || response.status == OK then

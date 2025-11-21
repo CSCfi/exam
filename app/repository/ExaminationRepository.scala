@@ -40,10 +40,9 @@ class ExaminationRepository @Inject() (
       val isCollaborative = Option(enrolment.getCollaborativeExam).isDefined
       val reservation = enrolment.getReservation
       // TODO: support for optional sections in BYOD exams
-      val ids = if reservation == null then
-        Set.empty[java.lang.Long]
-      else
-        enrolment.getOptionalSections.asScala.map(_.getId).toSet
+      val ids = Option(reservation)
+        .map(_ => enrolment.getOptionalSections.asScala.map(_.getId).toSet)
+        .getOrElse(Set.empty[java.lang.Long])
 
       val context = if isCollaborative then
         ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids.asJava).build()
@@ -91,7 +90,7 @@ class ExaminationRepository @Inject() (
       clone.setDerivedMaxScores()
       processClozeTestQuestions(clone)
 
-      if clone.getExamParticipation == null then
+      if Option(clone.getExamParticipation).isEmpty then
         val reservation = enrolment.getReservation
         val examParticipation = new ExamParticipation()
         examParticipation.setUser(user)
@@ -99,18 +98,16 @@ class ExaminationRepository @Inject() (
         examParticipation.setCollaborativeExam(enrolment.getCollaborativeExam)
         examParticipation.setReservation(reservation)
 
-        if enrolment.getExaminationEventConfiguration != null then
-          examParticipation.setExaminationEvent(
-            enrolment.getExaminationEventConfiguration.getExaminationEvent
-          )
+        Option(enrolment.getExaminationEventConfiguration).foreach { config =>
+          examParticipation.setExaminationEvent(config.getExaminationEvent)
+        }
 
-        val now = if enrolment.getExaminationEventConfiguration == null then
-          if reservation == null then
-            dateTimeHandler.adjustDST(DateTime.now())
-          else
-            dateTimeHandler.adjustDST(DateTime.now(), enrolment.getReservation.getMachine.getRoom)
-        else
-          DateTime.now()
+        val now = Option(enrolment.getExaminationEventConfiguration) match
+          case None =>
+            Option(reservation) match
+              case None => dateTimeHandler.adjustDST(DateTime.now())
+              case Some(r) => dateTimeHandler.adjustDST(DateTime.now(), r.getMachine.getRoom)
+          case Some(_) => DateTime.now()
 
         examParticipation.setStarted(now)
         db.save(examParticipation)
@@ -131,10 +128,8 @@ class ExaminationRepository @Inject() (
 
   def getPossibleClone(hash: String, user: User, ce: CollaborativeExam, pp: PathProperties): Future[Option[Exam]] =
     Future {
-      var query = createQuery(pp).where().eq("hash", hash).eq("creator", user)
-      if ce == null then
-        query = query.isNotNull("parent")
-
+      val baseQuery = createQuery(pp).where().eq("hash", hash).eq("creator", user)
+      val query = if Option(ce).isEmpty then baseQuery.isNotNull("parent") else baseQuery
       query.find
     }
 
@@ -153,14 +148,15 @@ class ExaminationRepository @Inject() (
   private def isInEffect(ee: ExamEnrolment): Boolean =
     val now = Option(ee.getExaminationEventConfiguration).map(_ => DateTime.now).getOrElse(dateTimeHandler.adjustDST(DateTime.now()))
     
-    if ee.getReservation != null then
-      ee.getReservation.getStartAt.isBefore(now) && ee.getReservation.getEndAt.isAfter(now)
-    else if Option(ee.getExaminationEventConfiguration).isDefined then
-      val start = ee.getExaminationEventConfiguration.getExaminationEvent.getStart
-      val end = start.plusMinutes(ee.getExam.getDuration)
-      start.isBefore(now) && end.isAfter(now)
-    else
-      false
+    Option(ee.getReservation) match
+      case Some(reservation) =>
+        reservation.getStartAt.isBefore(now) && reservation.getEndAt.isAfter(now)
+      case None =>
+        Option(ee.getExaminationEventConfiguration).exists { config =>
+          val start = config.getExaminationEvent.getStart
+          val end = start.plusMinutes(ee.getExam.getDuration)
+          start.isBefore(now) && end.isAfter(now)
+        }
 
   def findEnrolment(
       user: User,
@@ -181,7 +177,7 @@ class ExaminationRepository @Inject() (
         .or()
         .eq("exam.id", prototype.getId)
         .and()
-        .eq("collaborativeExam.id", if ce != null then ce.getId else -1L)
+        .eq("collaborativeExam.id", Option(ce).map(_.getId).getOrElse(-1L))
         .isNull("exam.id")
         .endAnd()
         .endOr()
