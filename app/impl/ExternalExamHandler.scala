@@ -210,7 +210,7 @@ class ExternalExamHandlerImpl @Inject() (
     }
 
     val sections = new java.util.TreeSet[ExamSection](src.getExamSections)
-    val context  = ExamCopyContext.forCopyWithAnswers(user).build()
+    val context  = ExamCopyContext.forCopyWithAnswers(Some(user)).build()
     sections.asScala.foreach { es =>
       val esCopy = es.copy(clone, context)
       esCopy.setCreatorWithDate(user)

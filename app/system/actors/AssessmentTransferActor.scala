@@ -22,6 +22,7 @@ import java.net.URI
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
+// This actor sends participations to external exams back to the proxy server.
 class AssessmentTransferActor @Inject (
     private val wsClient: WSClient,
     private val configReader: ConfigReader,

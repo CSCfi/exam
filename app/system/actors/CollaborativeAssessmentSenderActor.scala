@@ -14,6 +14,7 @@ import play.api.Logging
 
 import javax.inject.Inject
 
+// This actor sends participations to collaborative exams back to the proxy server to be assessed further.
 class CollaborativeAssessmentSenderActor @Inject (private val collaborativeExamLoader: CollaborativeExamLoader)
     extends AbstractActor
     with DbApiHelper
@@ -25,7 +26,7 @@ class CollaborativeAssessmentSenderActor @Inject (private val collaborativeExamL
       (_: String) =>
         logger.debug("Starting collaborative assessment sending check ->")
         val query = DB.find(classOf[ExamParticipation])
-        val pp    = collaborativeExamLoader.getAssessmentPath()
+        val pp    = collaborativeExamLoader.getAssessmentPath
         pp.apply(query)
         query.where
           .isNotNull("collaborativeExam")

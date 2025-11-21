@@ -33,7 +33,7 @@ trait CollaborativeExamLoader:
   def deleteExam(ce: CollaborativeExam): Future[Result]
   def createAssessment(participation: ExamParticipation): Future[Boolean]
   def createAssessmentWithAttachments(participation: ExamParticipation): Future[Boolean]
-  def getAssessmentPath(): PathProperties
+  def getAssessmentPath: PathProperties
   //def getExamPath(): PathProperties
   def downloadExamJson(ce: CollaborativeExam): Future[Option[JsValue]]
 

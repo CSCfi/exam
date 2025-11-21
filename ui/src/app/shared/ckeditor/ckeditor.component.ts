@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 //
 // SPDX-License-Identifier: EUPL-1.2
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
     AfterViewInit,
@@ -67,16 +66,13 @@ import {
     TodoList,
     Underline,
     Undo,
-    ViewElement,
     WordCount,
 } from 'ckeditor5';
 import i18nEn from 'ckeditor5/translations/en.js';
 import i18nFi from 'ckeditor5/translations/fi.js';
 import i18nSv from 'ckeditor5/translations/sv.js';
-import { ClozeElementHelperService } from './plugins/clozetest/cloze-element-helper.service';
+import { CKEditorInitializationService } from './ckeditor-initialization.service';
 import { Cloze } from './plugins/clozetest/plugin';
-import { MathElementHelperService } from './plugins/math/math-element-helper.service';
-import { MathFieldService } from './plugins/math/math-field.service';
 import { Math } from './plugins/math/plugin';
 
 @Component({
@@ -99,6 +95,7 @@ import { Math } from './plugins/math/plugin';
         <div [id]="id()"></div>
     </div> `,
     imports: [FormsModule, CKEditorModule],
+    styleUrls: ['./ckeditor.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CKEditorComponent implements AfterViewInit {
@@ -115,10 +112,7 @@ export class CKEditorComponent implements AfterViewInit {
 
     private changeDetector = inject(ChangeDetectorRef);
     private Translate = inject(TranslateService);
-    private mathFieldService = new MathFieldService();
-    private mathElementHelper = new MathElementHelperService();
-    private clozeElementHelper = new ClozeElementHelperService();
-    private editorInstance?: Editor;
+    private initializationService = new CKEditorInitializationService(this.changeDetector);
 
     ngAfterViewInit() {
         const toolbarItems = [
@@ -307,160 +301,7 @@ export class CKEditorComponent implements AfterViewInit {
     }
 
     onReady(e: Editor) {
-        // Store editor instance globally for nuclear replacement access
-        (window as any).ckeditorInstance = e;
-        this.editorInstance = e;
-
-        const wordCountPlugin = e.plugins.get('WordCount');
-        const wordCountWrapper = document.getElementById(this.id()) as HTMLElement;
-        wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
-
-        // Process any existing math elements after editor is ready
-        setTimeout(() => {
-            this.mathFieldService.processMathInEditor(e);
-            this.changeDetector.markForCheck();
-        }, 200);
-
-        // Add CSS to ensure math and cloze elements are clickable and show hover/selection state
-        const style = document.createElement('style');
-        style.textContent = `
-            .ck-editor__editable math-field {
-                pointer-events: all !important;
-                cursor: pointer !important;
-                display: inline-block !important;
-                min-width: 20px !important;
-                min-height: 20px !important;
-                position: relative !important;
-            }
-            .ck-editor__editable .ck-widget.math-element-selectable {
-                pointer-events: all !important;
-                cursor: pointer !important;
-            }
-            .ck-editor__editable .ck-widget.math-element-selectable:hover {
-                background-color: rgba(0, 123, 255, 0.1) !important;
-            }
-            .ck-editor__editable .ck-widget.ck-widget_selected {
-                outline: 2px solid #007bff !important;
-                outline-offset: 1px !important;
-                background-color: rgba(0, 123, 255, 0.05) !important;
-            }
-            .ck-editor__editable math-field > div {
-                pointer-events: all !important;
-                cursor: pointer !important;
-            }
-            .ck-editor__editable span[cloze],
-            .ck-editor__editable span[cloze="true"],
-            .ck-editor__editable .cloze-test-wrapper {
-                cursor: pointer !important;
-                transition: background-color 0.15s ease;
-                padding: 1px 2px;
-                border-radius: 2px;
-            }
-            .ck-editor__editable span[cloze]:hover,
-            .ck-editor__editable span[cloze="true"]:hover,
-            .ck-editor__editable .cloze-test-wrapper:hover {
-                background-color: rgba(0, 123, 255, 0.1) !important;
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Listen for command execution (when math dialog saves) - this is the most reliable trigger
-        const mathCommand = e.commands.get('insertMath');
-        if (mathCommand) {
-            mathCommand.on('execute', () => {
-                // Single processing trigger with reasonable delay to let CKEditor update the view
-                setTimeout(() => {
-                    this.mathFieldService.processMathInEditor(e);
-                    this.changeDetector.markForCheck();
-                }, 100);
-            });
-        }
-
-        // More conservative model change listener to avoid excessive processing
-        let processingTimeout: any = null;
-        let lastProcessingTime = 0;
-        e.model.document.on('change:data', () => {
-            // Debounce and throttle the processing to avoid excessive re-initialization
-            const now = Date.now();
-            if (processingTimeout) clearTimeout(processingTimeout);
-
-            // Only process if it's been at least 500ms since last processing
-            const timeSinceLastProcessing = now - lastProcessingTime;
-            const delay = timeSinceLastProcessing > 500 ? 100 : 500;
-
-            processingTimeout = setTimeout(() => {
-                lastProcessingTime = Date.now();
-                this.mathFieldService.processMathInEditor(e);
-                this.changeDetector.markForCheck();
-            }, delay);
-        });
-
-        // Add double-click handler for math elements (more standard for widget editing)
-        e.editing.view.document.on(
-            'dblclick',
-            (evt: any, data: any) => {
-                const viewElement = data.target;
-                const mathElement = this.mathElementHelper.findMathElementInView(viewElement);
-
-                if (mathElement) {
-                    // Prevent default behavior
-                    data.preventDefault();
-                    evt.stop();
-
-                    // Select the model element and open dialog if successful
-                    // Cast to ViewElement since findMathElementInView returns ViewElementLike which is compatible
-                    if (this.mathElementHelper.selectMathModelElement(e, mathElement as unknown as ViewElement)) {
-                        // Give the selection time to propagate before opening dialog
-                        setTimeout(() => {
-                            this.mathElementHelper.openMathDialog(e, 'double-click');
-                            this.changeDetector.markForCheck();
-                        }, 50);
-                    } else {
-                        console.warn('Could not find mathField model element for double-click');
-                    }
-                }
-            },
-            { priority: 'highest' },
-        );
-
-        // Add single-click handler for math and cloze elements
-        e.editing.view.document.on(
-            'click',
-            (evt: any, data: any) => {
-                const viewElement = data.target;
-
-                // Check for math elements first
-                const mathElement = this.mathElementHelper.findMathElementInView(viewElement);
-                if (mathElement) {
-                    // Select the model element and open dialog if successful
-                    // Cast to ViewElement since findMathElementInView returns ViewElementLike which is compatible
-                    if (this.mathElementHelper.selectMathModelElement(e, mathElement as unknown as ViewElement)) {
-                        // Give the selection time to propagate before opening dialog
-                        setTimeout(() => {
-                            this.mathElementHelper.openMathDialog(e, 'single-click');
-                            this.changeDetector.markForCheck();
-                        }, 50);
-                    } else {
-                        console.warn('Could not find mathField model element');
-                    }
-                    return; // Don't check for cloze if we found math
-                }
-
-                // Check for cloze test elements
-                const clozeElement = this.clozeElementHelper.findClozeElementInView(viewElement);
-                if (clozeElement) {
-                    // Select the cloze element first, then open the dialog
-                    // Cast to ViewElement since findClozeElementInView returns ViewElementLike which is compatible
-                    if (this.clozeElementHelper.selectClozeElement(e, clozeElement as unknown as ViewElement)) {
-                        setTimeout(() => {
-                            this.clozeElementHelper.openClozeDialog(e);
-                            this.changeDetector.markForCheck();
-                        }, 50);
-                    }
-                }
-            },
-            { priority: 'high' },
-        );
+        this.initializationService.initializeEditor(e, this.id());
     }
 
     onDataChange(value: string) {
@@ -489,17 +330,5 @@ export class CKEditorComponent implements AfterViewInit {
         this.dataChange.emit(data);
         this.changeDetector.markForCheck();
         // Note: Math processing is handled by the debounced change:data listener in onReady
-    }
-
-    /**
-     * Manually trigger math processing - useful for debugging or forcing updates
-     */
-    public forceMathProcessing(): void {
-        if (this.editorInstance) {
-            this.mathFieldService.processMathInEditor(this.editorInstance);
-            this.changeDetector.markForCheck();
-        } else {
-            console.warn('⚠️ Cannot force math processing - editor not available');
-        }
     }
 }

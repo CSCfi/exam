@@ -83,7 +83,7 @@ class CollaborativeExamLoaderImpl @Inject() (
         logger.error("Unable to serialize exam", e)
         throw new RuntimeException(e)
 
-  override def getAssessmentPath(): PathProperties =
+  override def getAssessmentPath: PathProperties =
     val path = """(*,
                   |user(*),
                   |exam(*,
@@ -101,14 +101,13 @@ class CollaborativeExamLoaderImpl @Inject() (
                   |      essayAnswer(*, attachment(*)),
                   |      clozeTestAnswer(*)
                   |    )
+                  |  ),
+                  |  examEnrolments(*,
+                  |    user(*),
+                  |    reservation(*,
+                  |      machine(*, room(*))
+                  |    )
                   |  )
-                  |),
-                  |examEnrolments(*,
-                  |  user(*),
-                  |  reservation(*,
-                  |    machine(*, room(*))
-                  |  )
-                  |)
                   |)""".stripMargin
     PathProperties.parse(path)
 
@@ -133,7 +132,7 @@ class CollaborativeExamLoaderImpl @Inject() (
       case None => Future.successful(false)
       case Some(url) =>
         val request = wsClient.url(url.toString).withHttpHeaders("Content-Type" -> "application/json")
-        val json    = DB.json().toJson(participation, getAssessmentPath())
+        val json    = DB.json().toJson(participation, getAssessmentPath)
 
         request
           .post(json)
