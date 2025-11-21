@@ -113,7 +113,8 @@ class QuestionReviewController @Inject() (
     }
 
   private def canAssess(user: User, exam: Exam) =
-    exam.getParent.getExamOwners.contains(user) ||
+    user.isAdminOrSupport ||
+      exam.getParent.getExamOwners.contains(user) ||
       exam.getExamInspections.asScala.exists(_.getUser.equals(user))
 
   private def createMapping(

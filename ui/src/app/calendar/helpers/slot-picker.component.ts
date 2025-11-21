@@ -89,16 +89,16 @@ export class SlotPickerComponent {
         return baseRooms.map((r): FilterableRoom => ({ ...r, filtered: r.id === filteredId }));
     });
 
-    maintenancePeriods = computed<(MaintenancePeriod & { remote: boolean })[]>(() => {
+    maintenancePeriods = computed<(MaintenancePeriod & { org: string })[]>(() => {
         const org = this.organisation();
         const local = this.localMaintenancePeriods();
-        const remote = org?.maintenancePeriods?.map((p) => ({ ...p, remote: true as const })) || [];
+        const remote = org?.maintenancePeriods?.map((p) => ({ ...p, org: org.code })) || [];
         return [...local, ...remote];
     });
 
     // API-loaded state
     private localRooms = signal<FilterableRoom[]>([]);
-    private localMaintenancePeriods = signal<(MaintenancePeriod & { remote: false })[]>([]);
+    private localMaintenancePeriods = signal<(MaintenancePeriod & { org: '' })[]>([]);
     private filteredRoomId = signal<number | undefined>(undefined);
 
     private translate = inject(TranslateService);
@@ -119,7 +119,7 @@ export class SlotPickerComponent {
             this.localRooms.set(rooms);
         });
         this.Calendar.listMaintenancePeriods$().subscribe((periods) => {
-            this.localMaintenancePeriods.set(periods.map((p) => ({ ...p, remote: false as const })));
+            this.localMaintenancePeriods.set(periods.map((p) => ({ ...p, org: '' })));
         });
 
         // Reset selected room and password when organisation changes

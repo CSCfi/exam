@@ -63,22 +63,23 @@ class ReservationController @Inject() (
         baseQuery.ilike("name", s"%$f%")
       }
 
-      val el = if user.hasRole(Role.Name.TEACHER) then
-        withFilter
-          .gt("periodEnd", new Date())
-          .disjunction()
-          .eq("creator", user)
-          .eq("examOwners", user)
-          .eq("examInspections.user", user)
-          .eq("shared", true)
-          .endJunction()
-      else withFilter
+      val el =
+        if user.hasRole(Role.Name.TEACHER) then
+          withFilter
+            .gt("periodEnd", new Date())
+            .disjunction()
+            .eq("creator", user)
+            .eq("examOwners", user)
+            .eq("examInspections.user", user)
+            .eq("shared", true)
+            .endJunction()
+        else withFilter
 
       Ok(el.list.asJson)
     }
 
   def getExamRooms: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
       val examRooms = DB.find(classOf[ExamRoom]).select("id, name").fetch("examMachines", "id").list
       Ok(examRooms.asJson)
     }
@@ -325,14 +326,15 @@ class ReservationController @Inject() (
         .isNotNull("exam")
 
       val user = request.attrs(Auth.ATTR_USER)
-      val withTeacherFilter = if user.hasRole(Role.Name.TEACHER) then
-        baseQuery
-          .disjunction()
-          .eq("exam.parent.examOwners", user)
-          .eq("exam.examOwners", user)
-          .endJunction()
-          .ne("exam.state", Exam.State.DELETED)
-      else baseQuery
+      val withTeacherFilter =
+        if user.hasRole(Role.Name.TEACHER) then
+          baseQuery
+            .disjunction()
+            .eq("exam.parent.examOwners", user)
+            .eq("exam.examOwners", user)
+            .endJunction()
+            .ne("exam.state", Exam.State.DELETED)
+        else baseQuery
 
       val withStartFilter = start.fold(withTeacherFilter) { s =>
         val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
@@ -361,7 +363,7 @@ class ReservationController @Inject() (
           .endJunction()
       }
 
-      val query = if ownerId.isDefined && user.hasRole(Role.Name.ADMIN) then
+      val query = if ownerId.isDefined && user.isAdminOrSupport then
         val userId = ownerId.get
         withExamFilter
           .disjunction()
@@ -420,16 +422,17 @@ class ReservationController @Inject() (
         .where()
 
       val user = request.attrs(Auth.ATTR_USER)
-      val withTeacherFilter = if user.hasRole(Role.Name.TEACHER) then
-        baseQuery
-          .isNull("enrolment.externalExam")
-          .isNull("enrolment.collaborativeExam")
-          .ne("enrolment.exam.state", Exam.State.DELETED)
-          .disjunction()
-          .eq("enrolment.exam.parent.examOwners", user)
-          .eq("enrolment.exam.examOwners", user)
-          .endJunction()
-      else baseQuery
+      val withTeacherFilter =
+        if user.hasRole(Role.Name.TEACHER) then
+          baseQuery
+            .isNull("enrolment.externalExam")
+            .isNull("enrolment.collaborativeExam")
+            .ne("enrolment.exam.state", Exam.State.DELETED)
+            .disjunction()
+            .eq("enrolment.exam.parent.examOwners", user)
+            .eq("enrolment.exam.examOwners", user)
+            .endJunction()
+        else baseQuery
 
       val withStartFilter = start.fold(withTeacherFilter) { s =>
         val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
@@ -497,11 +500,7 @@ class ReservationController @Inject() (
 
       val reservations = query.orderBy("startAt").distinct
       val anonIds = reservations
-        .filter(r =>
-          Option(r.getEnrolment).exists(e =>
-            Option(e.getExam).exists(_.isAnonymous)
-          )
-        )
+        .filter(r => Option(r.getEnrolment).exists(e => Option(e.getExam).exists(_.isAnonymous)))
         .map(_.getId)
 
       Ok(reservations.asJson)

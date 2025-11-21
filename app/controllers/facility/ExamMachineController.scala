@@ -29,7 +29,7 @@ class ExamMachineController @Inject() (
     with JavaApiHelper:
 
   def getExamMachines: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
       val machines = DB.find(classOf[ExamMachine]).where().eq("archived", false).list
       Ok(machines.asJson)
     }

@@ -83,9 +83,9 @@ class RoomController @Inject() (
           .fetch("examStartingHours")
           .where()
 
-        val query = if !user.hasRole(Role.Name.ADMIN) then
-          baseQuery.ne("state", ExamRoom.State.INACTIVE.toString)
-        else baseQuery
+        val query =
+          if !user.hasRole(Role.Name.ADMIN) then baseQuery.ne("state", ExamRoom.State.INACTIVE.toString)
+          else baseQuery
 
         val rooms = query.list
         rooms.foreach { room =>
@@ -296,8 +296,8 @@ class RoomController @Inject() (
     }
 
   private def parseException(node: JsValue): ExceptionWorkingHours =
-    val startDate = ISODateTimeFormat.dateTime().parseDateTime((node \ "startDate").as[String])
-    val endDate   = ISODateTimeFormat.dateTime().parseDateTime((node \ "endDate").as[String])
+    val startDate = ISODateTimeFormat.dateTime().parseDateTime((node \ "start").as[String])
+    val endDate   = ISODateTimeFormat.dateTime().parseDateTime((node \ "ene").as[String])
     val hours     = new ExceptionWorkingHours()
     hours.setStartDate(startDate.toDate)
     hours.setEndDate(endDate.toDate)

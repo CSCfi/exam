@@ -67,12 +67,14 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 <div class="col-md-2 col-12">{{ 'i18n_maintenance_periods' | translate }}:</div>
                 <div class="col-md-10 col-12">
                     @for (period of thisWeeksMaintenancePeriods() | orderBy: 'startsAt'; track period.id) {
-                        {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
-                        {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
-                        {{ period.description }}
-                        @if (period.remote) {
-                            <span class="text-danger">(remote)</span>
-                        }
+                        <div>
+                            {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
+                            {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+                            {{ period.description }}
+                            @if (period.org) {
+                                <span class="text-danger">({{ period.org }})</span>
+                            }
+                        </div>
                     }
                 </div>
             </div>
@@ -99,7 +101,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 })
 export class SelectedRoomComponent {
     room = input.required<ExamRoom>();
-    maintenancePeriods = input<(MaintenancePeriod & { remote: boolean })[]>([]);
+    maintenancePeriods = input<(MaintenancePeriod & { org: string })[]>([]);
     viewStart = input<DateTime>(DateTime.now());
 
     showAllMaintenancePeriods = false;

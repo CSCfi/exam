@@ -119,16 +119,13 @@ export class ReservationDetailsComponent {
     }
 
     hasAvailableActions(r: ReservationDetail): boolean {
-        const currentIsAdminView = this.isAdminView();
         const canRemoveReservation =
-            currentIsAdminView &&
             r.enrolment.exam.state === 'PUBLISHED' &&
             !r.enrolment.noShow &&
             r.enrolment.exam.implementation === 'AQUARIUM' &&
             !this.reservationIsInPast(r);
 
         const canPermitRetrial =
-            currentIsAdminView &&
             r.enrolment.exam.state === 'ABORTED' &&
             r.enrolment.exam.implementation === 'AQUARIUM' &&
             r.enrolment.exam.executionType.type === 'PUBLIC';

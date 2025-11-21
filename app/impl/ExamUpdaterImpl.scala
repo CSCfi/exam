@@ -54,7 +54,7 @@ class ExamUpdaterImpl @Inject() (
 
       unsupervisedCheck.orElse {
         val hasFutureRes = hasFutureReservations(exam)
-        val isAdmin      = user.hasRole(Role.Name.ADMIN)
+        val isAdmin      = user.isAdminOrSupport
 
         // Update start date
         val startDateCheck = newStart.flatMap { start =>
@@ -204,16 +204,16 @@ class ExamUpdaterImpl @Inject() (
         exam.setImplementation(Exam.Implementation.AQUARIUM)
 
     // Update anonymous flag for admins on public exams
-    if loginRole == Role.Name.ADMIN &&
+    if (loginRole == Role.Name.ADMIN || loginRole == Role.Name.SUPPORT) &&
       exam.getExecutionType.getType == ExamExecutionType.Type.PUBLIC.toString &&
       !hasFutureReservations(exam)
     then exam.setAnonymous(anonymous)
 
   override def isPermittedToUpdate(exam: Exam, user: User): Boolean =
-    user.hasRole(Role.Name.ADMIN) || exam.isOwnedOrCreatedBy(user)
+    user.isAdminOrSupport || exam.isOwnedOrCreatedBy(user)
 
   override def isAllowedToUpdate(exam: Exam, user: User): Boolean =
-    user.hasRole(Role.Name.ADMIN) || !hasFutureReservations(exam)
+    user.isAdminOrSupport || !hasFutureReservations(exam)
 
   override def isAllowedToRemove(exam: Exam): Boolean =
     !hasFutureReservations(exam) && !hasFutureEvents(exam) && exam.getChildren.isEmpty
@@ -381,7 +381,10 @@ class ExamUpdaterImpl @Inject() (
   private def updateGrading(exam: Exam, grading: Int): Unit =
     // Allow updating grading if allowed in settings or if the course does not restrict the setting
     val canOverrideGrading = configReader.isCourseGradeScaleOverridable
-    if canOverrideGrading || Option(exam.getCourse).isEmpty || Option(exam.getCourse).flatMap(c => Option(c.getGradeScale)).isEmpty then
+    if canOverrideGrading || Option(exam.getCourse).isEmpty || Option(exam.getCourse)
+        .flatMap(c => Option(c.getGradeScale))
+        .isEmpty
+    then
       Option(DB.find(classOf[GradeScale]).fetch("grades").where().idEq(grading).findOne()) match
         case Some(scale) =>
           exam.setGradeScale(scale)

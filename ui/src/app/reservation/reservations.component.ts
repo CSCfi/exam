@@ -257,7 +257,7 @@ export class ReservationsComponent {
             this.isInteroperable.set(resp.isExamVisitSupported);
         });
 
-        if (this.isAdminView()) {
+        if (this.isAdminView() || this.isSupportView()) {
             this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe({
                 next: (resp) => {
                     const orderedRooms = this.orderPipe.transform(resp, 'name');
