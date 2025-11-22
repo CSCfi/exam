@@ -50,7 +50,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_inspector_statement' | translate }}:</div>
         <div class="col-md-10">
-            <div [xmMathJax]="exam().languageInspection.statement.comment"></div>
+            <div [xmMath]="exam().languageInspection.statement.comment"></div>
         </div>
     </div>
 }
@@ -83,7 +83,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_teachers_comment' | translate }}:</div>
         <div class="col-md-10">
-            <div [xmMathJax]="exam().examFeedback.comment"></div>
+            <div [xmMath]="exam().examFeedback.comment"></div>
         </div>
     </div>
 }

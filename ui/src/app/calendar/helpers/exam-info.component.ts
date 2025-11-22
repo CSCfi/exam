@@ -8,7 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ExamInfo } from 'src/app/calendar/calendar.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
@@ -72,7 +72,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                     <div class="col-md-12">
                         <span class="" [hidden]="examInfo().executionType?.type === 'MATURITY'">
                             {{ 'i18n_calendar_instructions' | translate }}:
-                            <span [xmMathJax]="examInfo().enrollInstruction"></span>
+                            <span [xmMath]="examInfo().enrollInstruction"></span>
                         </span>
                     </div>
                 </div>
@@ -90,7 +90,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    imports: [CourseCodeComponent, MathJaxDirective, DatePipe, TranslateModule],
+    imports: [CourseCodeComponent, MathUnifiedDirective, DatePipe, TranslateModule],
 })
 export class CalendarExamInfoComponent {
     examInfo = input.required<ExamInfo>();

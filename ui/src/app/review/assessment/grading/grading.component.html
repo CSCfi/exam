@@ -132,7 +132,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div
             class="col-md-10"
             [ngClass]="isCommentRead() ? '' : 'text-danger'"
-            [xmMathJax]="exam()?.examFeedback?.comment"
+            [xmMath]="exam()?.examFeedback?.comment"
         ></div>
     }
     @if (exam()?.examFeedback?.attachment) {

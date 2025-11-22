@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, input, output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -10,7 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'xm-password-prompt',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [CommonModule, ReactiveFormsModule, TranslateModule],
+    imports: [ReactiveFormsModule, TranslateModule],
     template: `
         @if (visible()) {
             <form [formGroup]="passwordForm" role="form" (ngSubmit)="submit()" aria-labelledby="password-prompt-title">

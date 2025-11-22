@@ -244,7 +244,7 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
             <div aria-live="polite" class="row mb-3 mt-3">
                 @if (showInstructions()) {
-                    <div [xmMathJax]="exam?.enrollInstruction || collabExam?.enrollInstruction || ''"></div>
+                    <div [xmMath]="exam?.enrollInstruction || collabExam?.enrollInstruction || ''"></div>
                 }
             </div>
         </div>

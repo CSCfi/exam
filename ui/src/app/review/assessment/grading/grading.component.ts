@@ -22,7 +22,7 @@ import { GradingBaseComponent } from 'src/app/review/assessment/common/grading-b
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { LanguageService } from 'src/app/shared/language/language.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { InspectionComponent } from './inspection.component';
 import { ToolbarComponent } from './toolbar.component';
@@ -37,7 +37,7 @@ import { ToolbarComponent } from './toolbar.component';
         NgbPopover,
         FormsModule,
         NgClass,
-        MathJaxDirective,
+        MathUnifiedDirective,
         ToolbarComponent,
         UpperCasePipe,
         LowerCasePipe,

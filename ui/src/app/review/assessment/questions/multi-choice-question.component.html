@@ -8,7 +8,7 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-12">
         <!-- question text -->
         <div class="d-flex justify-content-between">
-            <div [xmMathJax]="sectionQuestion().question.question"></div>
+            <div [xmMath]="sectionQuestion().question.question"></div>
             <!-- grade -->
             @if (sectionQuestion().question.type === 'MultipleChoiceQuestion') {
                 <div class="d-inline-block pe-3">

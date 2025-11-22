@@ -7,7 +7,7 @@ import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
@@ -51,7 +51,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                         }
                     </div>
                     <div class="make-inline w-75 my-1 ms-3">
-                        <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+                        <span class="exam-question-option-text" [xmMath]="option.option.option"></span>
                     </div>
                     <div class="make-inline float-end">
                         <span [ngClass]="option.score >= 0 ? 'text-success' : 'text-danger'">
@@ -62,7 +62,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             }
         </div>
     }`,
-    imports: [MathJaxDirective, NgClass, TranslateModule, OrderByPipe],
+    imports: [MathUnifiedDirective, NgClass, TranslateModule, OrderByPipe],
     styleUrl: './multi-choice-answers.shared.scss',
 })
 export class WeightedMultiChoiceAnswerComponent {

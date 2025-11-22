@@ -6,7 +6,7 @@ import { NgStyle } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
@@ -14,7 +14,7 @@ import { isNumber } from 'src/app/shared/miscellaneous/helpers';
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './templates/cloze-test.component.html',
     styleUrls: ['./print.shared.scss'],
-    imports: [MathJaxDirective, NgStyle, TranslateModule],
+    imports: [MathUnifiedDirective, NgStyle, TranslateModule],
 })
 export class PrintedClozeTestComponent {
     sectionQuestion = input.required<ExamSectionQuestion>();

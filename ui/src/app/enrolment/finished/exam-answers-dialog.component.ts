@@ -10,7 +10,7 @@ import { Exam } from 'src/app/exam/exam.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AnsweredQuestion } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
@@ -18,7 +18,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
     selector: 'xm-exam-answers-dialog',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-answers-dialog.component.html',
-    imports: [TranslateModule, MathJaxDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
+    imports: [TranslateModule, MathUnifiedDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
 })
 export class ExamAnswersDialogComponent {
     // Regular properties for programmatic access (set by modal service)

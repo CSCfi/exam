@@ -9,7 +9,7 @@ SPDX-License-Identifier: EUPL-1.2
         <!-- question text -->
         <div class="d-flex justify-content-between">
             <!-- question title -->
-            <div class="me-2" [xmMathJax]="sectionQuestion().question.question"></div>
+            <div class="me-2" [xmMath]="sectionQuestion().question.question"></div>
             @if (sectionQuestion().evaluationType === 'Points') {
                 <div class="d-inline-block pe-3">
                     @if (!!sectionQuestion().forcedScore) {
@@ -76,7 +76,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <!-- answer -->
                 <div class="mb-2">
                     {{ 'i18n_exam_answer' | translate | uppercase }}
-                    <span class="d-block" [xmMathJax]="sectionQuestion().essayAnswer?.answer"></span>
+                    <span class="d-block" [xmMath]="sectionQuestion().essayAnswer?.answer"></span>
                 </div>
 
                 <!-- answer attachment -->

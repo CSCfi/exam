@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination } from 'src/app/examination/examination.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
@@ -44,12 +44,12 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                 </div>
                 <div class="row">
                     <div class="header col-md-4">{{ 'i18n_exam_guide' | translate }}:</div>
-                    <div class="text col-md-8" [xmMathJax]="exam().instruction"></div>
+                    <div class="text col-md-8" [xmMath]="exam().instruction"></div>
                 </div>
             </div>
         </div>
     `,
-    imports: [CourseCodeComponent, MathJaxDirective, TranslateModule],
+    imports: [CourseCodeComponent, MathUnifiedDirective, TranslateModule],
     styleUrls: ['../examination.shared.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -111,7 +111,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-12" [hidden]="exam()?.instruction">N/A</div>
             @if (exam()?.instruction) {
                 <div class="col-md-12">
-                    <div [xmMathJax]="exam()!.instruction"></div>
+                    <div [xmMath]="exam()!.instruction"></div>
                 </div>
             }
         </div>
@@ -180,7 +180,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-3">
                 <strong>{{ 'i18n_teachers_comment' | translate }}:</strong>
             </div>
-            <div class="col-md-9" [xmMathJax]="exam()?.examFeedback?.comment"></div>
+            <div class="col-md-9" [xmMath]="exam()?.examFeedback?.comment"></div>
         </div>
         @if (exam()?.examFeedback?.attachment) {
             <div class="row firefox-print-fix">

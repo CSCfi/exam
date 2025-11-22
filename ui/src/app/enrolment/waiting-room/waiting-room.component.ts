@@ -17,7 +17,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
@@ -34,7 +34,7 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     imports: [
         CourseCodeComponent,
         TeacherListComponent,
-        MathJaxDirective,
+        MathUnifiedDirective,
         AsyncPipe,
         UpperCasePipe,
         SlicePipe,

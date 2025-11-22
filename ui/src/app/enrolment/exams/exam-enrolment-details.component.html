@@ -114,7 +114,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="row mt-3 mb-2">
                 <div class="col-md-3">{{ 'i18n_view_instructions' | translate }}:</div>
                 <div class="col-md-9">
-                    <div [xmMathJax]="exam().enrollInstruction"></div>
+                    <div [xmMath]="exam().enrollInstruction"></div>
                 </div>
             </div>
         }
@@ -122,7 +122,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="row mt-3 mb-2">
                 <div class="col-md-3">{{ 'i18n_maturity_instructions' | translate }}:</div>
                 <div class="col-md-9">
-                    <div [xmMathJax]="exam().maturityInstructions || ''"></div>
+                    <div [xmMath]="exam().maturityInstructions || ''"></div>
                 </div>
             </div>
         }

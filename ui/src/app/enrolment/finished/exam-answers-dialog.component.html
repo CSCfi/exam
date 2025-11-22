@@ -46,7 +46,7 @@ SPDX-License-Identifier: EUPL-1.2
     }
     @if (sortedExam()?.instruction) {
         <div class="row">
-            <div class="col-md-12" [xmMathJax]="sortedExam()!.instruction"></div>
+            <div class="col-md-12" [xmMath]="sortedExam()!.instruction"></div>
         </div>
     }
 
@@ -64,9 +64,9 @@ SPDX-License-Identifier: EUPL-1.2
                             <strong>{{ 'i18n_question' | translate }}:</strong>
                         </div>
                         @if (esq.question.type !== 'ClozeTestQuestion') {
-                            <div class="col-md-8" [xmMathJax]="esq.question.question"></div>
+                            <div class="col-md-8" [xmMath]="esq.question.question"></div>
                         } @else {
-                            <div class="col-md-8" [xmMathJax]="esq.clozeTestAnswer?.question"></div>
+                            <div class="col-md-8" [xmMath]="esq.clozeTestAnswer?.question"></div>
                         }
                     </div>
                     <!-- ESSAY -->
@@ -75,7 +75,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <div class="col-md-4">
                                 <strong>{{ 'i18n_exam_answer' | translate }}:</strong>
                             </div>
-                            <div class="col-md-8" [xmMathJax]="esq.essayAnswer?.answer"></div>
+                            <div class="col-md-8" [xmMath]="esq.essayAnswer?.answer"></div>
                         </div>
                         @if (esq.essayAnswer?.attachment) {
                             <div class="row">
@@ -147,7 +147,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <div class="col-md-8">
                                 @for (option of getAnsweredOptions(esq); track option) {
                                     <div class="row">
-                                        <div class="col-md-12" [xmMathJax]="option.option.option"></div>
+                                        <div class="col-md-12" [xmMath]="option.option.option"></div>
                                     </div>
                                 }
                             </div>
@@ -196,7 +196,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-4">
                 <strong>{{ 'i18n_teachers_comment' | translate }}: </strong>
             </div>
-            <div class="col-md-8" [xmMathJax]="sortedExam()!.examFeedback.comment"></div>
+            <div class="col-md-8" [xmMath]="sortedExam()!.examFeedback.comment"></div>
         </div>
     }
     @if (sortedExam()?.course?.credits) {

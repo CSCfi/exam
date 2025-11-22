@@ -37,9 +37,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="col mt-3 order-1">
                     @if (sq().question.type !== 'ClozeTestQuestion') {
                         @if (expanded()) {
-                            <div class="section-box-title" [xmMathJax]="sq().question.question"></div>
+                            <div class="section-box-title" [xmMath]="sq().question.question"></div>
                         } @else {
-                            <div class="section-box-title" [xmMathJax]="sq().question.question | slice: 0 : 240"></div>
+                            <div class="section-box-title" [xmMath]="sq().question.question | slice: 0 : 240"></div>
                         }
                     } @else {
                         <div class="section-box-title">

@@ -12,7 +12,7 @@ import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
@@ -20,7 +20,14 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     selector: 'xm-r-cloze-test',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './cloze-test.component.html',
-    imports: [NgStyle, MathJaxDirective, FormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
+    imports: [
+        NgStyle,
+        MathUnifiedDirective,
+        FormsModule,
+        FixedPrecisionValidatorDirective,
+        UpperCasePipe,
+        TranslateModule,
+    ],
     styleUrls: ['../assessment.shared.scss'],
 })
 export class ClozeTestComponent implements OnInit {

@@ -164,10 +164,10 @@ SPDX-License-Identifier: EUPL-1.2
                     </span>
                 }
                 @if (esq.question.type !== 'ClozeTestQuestion') {
-                    <span class="col-md-12 pquestion" [xmMathJax]="esq.question.question"></span>
+                    <span class="col-md-12 pquestion" [xmMath]="esq.question.question"></span>
                 }
                 @if (esq.question.type === 'ClozeTestQuestion') {
-                    <span class="col-md-12 pquestion" [xmMathJax]="esq.clozeTestAnswer?.question"></span>
+                    <span class="col-md-12 pquestion" [xmMath]="esq.clozeTestAnswer?.question"></span>
                 }
                 @if (
                     esq.question.type === 'MultipleChoiceQuestion' ||

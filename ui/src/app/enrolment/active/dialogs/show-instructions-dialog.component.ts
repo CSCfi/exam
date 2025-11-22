@@ -5,18 +5,18 @@
 import { Component, inject, model } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 
 @Component({
     selector: 'xm-show-instructions-dialog',
-    imports: [TranslateModule, MathJaxDirective],
+    imports: [TranslateModule, MathUnifiedDirective],
     template: `
         <div class="modal-header">
             <div class="modal-title">
                 <div class="xm-modal-title">{{ title() | translate }}</div>
             </div>
         </div>
-        <div class="modal-body" [xmMathJax]="instructions()"></div>
+        <div class="modal-body" [xmMath]="instructions()"></div>
         <div class="modal-footer">
             <button class="btn btn-secondary" (click)="ok()" autofocus>
                 {{ 'i18n_button_ok' | translate }}

@@ -12,7 +12,7 @@ import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
 import { ClozeTestAnswer, ExamSectionQuestion } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
@@ -22,7 +22,7 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
 @Component({
     selector: 'xm-printout',
     templateUrl: './printout.component.html',
-    imports: [CourseCodeComponent, TeacherListComponent, MathJaxDirective, DatePipe, TranslateModule, OrderByPipe],
+    imports: [CourseCodeComponent, TeacherListComponent, MathUnifiedDirective, DatePipe, TranslateModule, OrderByPipe],
     styleUrl: './printout.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })

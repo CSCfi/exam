@@ -9,6 +9,7 @@ import {
     Component,
     inject,
     input,
+    OnDestroy,
     output,
     signal,
 } from '@angular/core';
@@ -71,6 +72,7 @@ import {
 import i18nEn from 'ckeditor5/translations/en.js';
 import i18nFi from 'ckeditor5/translations/fi.js';
 import i18nSv from 'ckeditor5/translations/sv.js';
+import { Subscription } from 'rxjs';
 import { CKEditorInitializationService } from './ckeditor-initialization.service';
 import { Cloze } from './plugins/clozetest/plugin';
 import { Math } from './plugins/math/plugin';
@@ -98,7 +100,7 @@ import { Math } from './plugins/math/plugin';
     styleUrls: ['./ckeditor.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CKEditorComponent implements AfterViewInit {
+export class CKEditorComponent implements AfterViewInit, OnDestroy {
     data = input('');
     required = input(false);
     enableClozeTest = input(false);
@@ -109,12 +111,76 @@ export class CKEditorComponent implements AfterViewInit {
     editorConfig!: EditorConfig;
 
     isLayoutReady = signal(false);
+    private editorInstance: Editor | null = null;
+    private languageSubscription?: Subscription;
+    private currentLanguage = signal<string>('');
+    private pendingContent: string | null = null;
 
     private changeDetector = inject(ChangeDetectorRef);
     private Translate = inject(TranslateService);
     private initializationService = new CKEditorInitializationService(this.changeDetector);
 
+    constructor() {
+        // Subscribe to language changes
+        this.languageSubscription = this.Translate.onLangChange.subscribe(() => {
+            this.updateEditorLanguage();
+        });
+    }
+
     ngAfterViewInit() {
+        this.currentLanguage.set(this.Translate.currentLang);
+        this.createEditorConfig();
+        this.isLayoutReady.set(true);
+        this.changeDetector.markForCheck();
+    }
+
+    ngOnDestroy() {
+        if (this.languageSubscription) {
+            this.languageSubscription.unsubscribe();
+        }
+    }
+
+    onDataChange(value: string) {
+        this.dataChange.emit(value);
+    }
+
+    onChange({ editor }: ChangeEvent) {
+        if (!editor) {
+            console.warn('CKEditor onChange called but editor is undefined');
+            return;
+        }
+
+        const data = editor.getData();
+        this.dataChange.emit(data);
+        this.changeDetector.markForCheck();
+        // Note: Math processing is handled by the debounced change:data listener in onReady
+    }
+
+    onBlur({ editor }: BlurEvent) {
+        if (!editor) {
+            console.warn('CKEditor onBlur called but editor is undefined');
+            return;
+        }
+
+        const data = editor.getData();
+        this.dataChange.emit(data);
+        this.changeDetector.markForCheck();
+        // Note: Math processing is handled by the debounced change:data listener in onReady
+    }
+
+    onReady(e: Editor) {
+        this.editorInstance = e;
+        this.initializationService.initializeEditor(e, this.id());
+
+        // Restore content if we're recovering from a language change
+        if (this.pendingContent !== null) {
+            e.setData(this.pendingContent);
+            this.pendingContent = null;
+            this.changeDetector.markForCheck();
+        }
+    }
+
+    private createEditorConfig() {
         const toolbarItems = [
             'undo',
             'redo',
@@ -296,39 +362,36 @@ export class CKEditorComponent implements AfterViewInit {
             },
             translations: [i18nFi, i18nSv, i18nEn],
         };
-        this.isLayoutReady.set(true);
-        this.changeDetector.markForCheck();
     }
 
-    onReady(e: Editor) {
-        this.initializationService.initializeEditor(e, this.id());
-    }
+    private updateEditorLanguage() {
+        const newLang = this.Translate.currentLang;
+        const currentLang = this.currentLanguage();
 
-    onDataChange(value: string) {
-        this.dataChange.emit(value);
-    }
-
-    onChange({ editor }: ChangeEvent) {
-        if (!editor) {
-            console.warn('CKEditor onChange called but editor is undefined');
+        // Only update if language actually changed
+        if (newLang === currentLang || !this.isLayoutReady()) {
             return;
         }
 
-        const data = editor.getData();
-        this.dataChange.emit(data);
-        this.changeDetector.markForCheck();
-        // Note: Math processing is handled by the debounced change:data listener in onReady
-    }
+        // Store current editor content to restore after recreation
+        const currentContent = this.editorInstance?.getData() || this.data();
+        this.pendingContent = currentContent;
 
-    onBlur({ editor }: BlurEvent) {
-        if (!editor) {
-            console.warn('CKEditor onBlur called but editor is undefined');
-            return;
-        }
+        // Update language tracking
+        this.currentLanguage.set(newLang);
 
-        const data = editor.getData();
-        this.dataChange.emit(data);
-        this.changeDetector.markForCheck();
-        // Note: Math processing is handled by the debounced change:data listener in onReady
+        // Recreate editor config with new language
+        this.createEditorConfig();
+
+        // Recreate the editor by toggling isLayoutReady
+        // This will destroy the old editor and create a new one with the new language
+        this.isLayoutReady.set(false);
+        this.editorInstance = null;
+
+        // Use setTimeout to ensure the old editor is fully destroyed before creating a new one
+        setTimeout(() => {
+            this.isLayoutReady.set(true);
+            this.changeDetector.markForCheck();
+        }, 50);
     }
 }

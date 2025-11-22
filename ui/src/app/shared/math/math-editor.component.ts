@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -37,7 +36,7 @@ const DEFAULT_MATH_EXAMPLES: MathExample[] = [
 @Component({
     selector: 'xm-math-editor',
     templateUrl: './math-editor.component.html',
-    imports: [CommonModule, FormsModule, NgbDropdownModule, TranslateModule],
+    imports: [FormsModule, NgbDropdownModule, TranslateModule],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     styleUrl: './math-editor.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -305,49 +304,15 @@ export class MathEditorComponent implements AfterViewInit {
             element.innerHTML = mathContent;
             this.processElement(element);
         } else {
-            // Determine renderer for plain expression
-            const renderer = this.determineRenderer(mathContent);
-
-            if (renderer === 'mathlive') {
-                // Convert to math-field for MathLive processing
-                const mathField = document.createElement('math-field');
-                mathField.textContent = mathContent;
-                mathField.setAttribute('read-only', this.enableEditing() ? 'false' : 'true');
-                element.parentNode?.replaceChild(mathField, element);
-            } else {
-                // Use MathJax for rendering
-                element.innerHTML = mathContent;
-                element.setAttribute('data-mathjax', 'true');
-            }
+            const mathField = document.createElement('math-field');
+            mathField.textContent = mathContent;
+            mathField.setAttribute('read-only', this.enableEditing() ? 'false' : 'true');
+            element.parentNode?.replaceChild(mathField, element);
         }
     }
 
     private isHtmlMarkup(content: string): boolean {
         return /<[^>]+>/.test(content);
-    }
-
-    private determineRenderer(expression: string): 'mathjax' | 'mathlive' {
-        // Interactive mode prefers MathLive
-        if (this.enableEditing()) {
-            return 'mathlive';
-        }
-
-        // Check for complex LaTeX that works better with MathJax
-        if (this.containsComplexLatex(expression)) {
-            return 'mathjax';
-        }
-
-        // Default to MathJax for static display
-        return 'mathjax';
-    }
-
-    private containsComplexLatex(expression: string): boolean {
-        const complexPatterns = [
-            /\\begin\{.*?\}/, // LaTeX environments
-            /\\text\{.*?\}/, // Text within math
-            /\\mathbb|\\mathcal|\\mathfrak/, // Special fonts
-        ];
-        return complexPatterns.some((pattern) => pattern.test(expression));
     }
 
     private getDefaultContent(): string {

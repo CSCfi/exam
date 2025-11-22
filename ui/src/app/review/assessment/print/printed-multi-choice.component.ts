@@ -7,7 +7,7 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
@@ -15,7 +15,7 @@ import { isNumber } from 'src/app/shared/miscellaneous/helpers';
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './templates/multi-choice.component.html',
     styleUrls: ['./print.shared.scss'],
-    imports: [MathJaxDirective, NgClass, NgStyle, TranslateModule],
+    imports: [MathUnifiedDirective, NgClass, NgStyle, TranslateModule],
 })
 export class PrintedMultiChoiceComponent {
     sectionQuestion = input.required<ExamSectionQuestion>();

@@ -11,7 +11,7 @@ import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.component';
@@ -27,7 +27,7 @@ import { OptionalSectionsComponent } from './helpers/optional-sections.component
         CourseCodeComponent,
         TeacherListComponent,
         OptionalSectionsComponent,
-        MathJaxDirective,
+        MathUnifiedDirective,
         UpperCasePipe,
         SlicePipe,
         DatePipe,

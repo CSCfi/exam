@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Directive, ElementRef, Input, OnChanges, OnDestroy, inject } from '@angular/core';
-import { MathJaxService } from './mathjax.service';
 import { MathFieldElement, MathLiveService } from './mathlive.service';
 
 // Type guard for MathfieldElement constructor
@@ -11,28 +10,23 @@ interface MathfieldElementConstructor {
     new (): MathFieldElement;
 }
 
-export type MathRenderer = 'auto' | 'mathjax' | 'mathlive';
+export type MathRenderer = 'auto' | 'mathlive';
 export type MathMode = 'static' | 'interactive';
 
 /**
  * Unified Math Directive
  *
  * A comprehensive directive that can parse HTML content and automatically apply
- * the correct math renderer based on the markup structure:
- * - `<span class="math-tex">` or `<span xmMathJax="">` → MathJax
+ * MathLive renderer based on the markup structure:
  * - `<math-field>` or `<span xmMathLive="">` → MathLive
- * - Plain math expression → Auto-detect based on content
+ * - Plain math expression → MathLive
  *
  * @example
  * <!-- Auto-detect from HTML markup -->
- * <div xmMath='<span class="math-tex">\\frac{a}{b}</span> and <math-field>x^2</math-field>'></div>
+ * <div xmMath='<math-field>x^2</math-field>'></div>
  *
  * <!-- Auto-detect from plain expression -->
  * <span xmMath="x^2 + y^2 = z^2"></span>
- *
- * <!-- Mixed content -->
- * <div xmMath='<p>MathJax: <span class="math-tex">\\int_0^1 x dx</span></p>
- *              <p>MathLive: <math-field>\\sum_{n=1}^{\\infty} \\frac{1}{n^2}</math-field></p>'></div>
  */
 @Directive({
     selector: '[xmMath]',
@@ -44,7 +38,6 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
     @Input() editable = false; // For backward compatibility
 
     private el = inject(ElementRef);
-    private mathJaxService = inject(MathJaxService);
     private mathLiveService = inject(MathLiveService);
     private mathFields: MathFieldElement[] = [];
     private processedElements: Element[] = [];
@@ -131,59 +124,19 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         this.el.nativeElement.innerHTML = this.htmlContent;
 
         // Find and process math elements
-        await this.processMathJaxElements();
         await this.processMathLiveElements();
     }
 
     private async processPlainExpression() {
-        // Handle plain math expression with auto-detection
-        const selectedRenderer = this.determineRenderer(this.htmlContent!);
-
+        // Handle plain math expression - always use MathLive
         try {
-            if (selectedRenderer === 'mathjax') {
-                await this.renderPlainWithMathJax();
-            } else if (selectedRenderer === 'mathlive') {
-                await this.renderPlainWithMathLive();
-            }
+            await this.renderPlainWithMathLive();
         } catch (error) {
-            console.error(`Failed to render plain expression with ${selectedRenderer}:`, error);
-            // Fallback to the other renderer if auto mode
-            if (this.renderer === 'auto') {
-                await this.fallbackRenderPlain(selectedRenderer);
-            }
-        }
-    }
-
-    private async processMathJaxElements() {
-        const mathJaxSelectors = ['span.math-tex', '[xmMathJax]', '.MathJax'];
-
-        const mathJaxElements: HTMLElement[] = [];
-
-        for (const selector of mathJaxSelectors) {
-            const elements = this.el.nativeElement.querySelectorAll(selector);
-            mathJaxElements.push(...(Array.from(elements) as HTMLElement[]));
-        }
-
-        if (mathJaxElements.length > 0) {
-            // Process MathJax elements
-            for (const element of mathJaxElements) {
-                this.processedElements.push(element);
-                // Extract math content
-                let mathContent = '';
-                if (element.hasAttribute('xmMathJax')) {
-                    mathContent = element.getAttribute('xmMathJax') || '';
-                } else {
-                    mathContent = element.textContent || '';
-                }
-
-                // Set the content for MathJax processing
-                if (mathContent) {
-                    element.innerHTML = mathContent;
-                }
-            }
-
-            // Typeset all MathJax elements
-            await this.mathJaxService.typeset(mathJaxElements);
+            console.error('Failed to render plain expression with MathLive:', error);
+            // Last resort: display the raw expression
+            this.el.nativeElement.innerHTML = `<code>${this.htmlContent || ''}</code>`;
+            this.el.nativeElement.style.color = 'red';
+            this.el.nativeElement.title = 'Math rendering failed';
         }
     }
 
@@ -270,67 +223,6 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         }
     }
 
-    private determineRenderer(expression: string): 'mathjax' | 'mathlive' {
-        // Explicit renderer selection
-        if (this.renderer === 'mathjax') return 'mathjax';
-        if (this.renderer === 'mathlive') return 'mathlive';
-
-        // Auto-detection logic for 'auto' mode
-        if (this.renderer === 'auto') {
-            // Interactive mode or editable prefers MathLive
-            if (this.mode === 'interactive' || this.editable) {
-                return 'mathlive';
-            }
-
-            // Check for MathLive-specific features
-            if (this.containsMathLiveFeatures(expression)) {
-                return 'mathlive';
-            }
-
-            // Check for complex LaTeX that works better with MathJax
-            if (this.containsComplexLatex(expression)) {
-                return 'mathjax';
-            }
-
-            // Default to MathJax for static display
-            return 'mathjax';
-        }
-
-        return 'mathjax'; // Default fallback
-    }
-
-    private containsMathLiveFeatures(expression: string): boolean {
-        if (!expression) return false;
-
-        // MathLive handles these well
-        const mathLivePatterns = [
-            /\\mleft|\\mright/, // MathLive-specific brackets
-            /\\placeholder/, // MathLive placeholders
-        ];
-
-        return mathLivePatterns.some((pattern) => pattern.test(expression));
-    }
-
-    private containsComplexLatex(expression: string): boolean {
-        if (!expression) return false;
-
-        // Complex LaTeX that MathJax handles better
-        const complexPatterns = [
-            /\\begin\{.*?\}/, // LaTeX environments (align, matrix, etc.)
-            /\\text\{.*?\}/, // Text within math
-            /\\mathbb|\\mathcal|\\mathfrak/, // Special fonts
-            /\\tikz|\\pgfplots/, // TikZ/PGF graphics
-            /\\xymatrix/, // Commutative diagrams
-        ];
-
-        return complexPatterns.some((pattern) => pattern.test(expression));
-    }
-
-    private async renderPlainWithMathJax() {
-        this.el.nativeElement.innerHTML = this.htmlContent || '';
-        await this.mathJaxService.typeset([this.el.nativeElement]);
-    }
-
     private async renderPlainWithMathLive() {
         await this.mathLiveService.loadMathLive();
         this.setupPlainMathField();
@@ -369,24 +261,6 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         }
 
         this.mathFields.push(mathField);
-    }
-
-    private async fallbackRenderPlain(failedRenderer: 'mathjax' | 'mathlive') {
-        console.warn(`Falling back from ${failedRenderer} to alternative renderer for plain expression`);
-
-        try {
-            if (failedRenderer === 'mathjax') {
-                await this.renderPlainWithMathLive();
-            } else {
-                await this.renderPlainWithMathJax();
-            }
-        } catch (fallbackError) {
-            console.error('Fallback rendering also failed:', fallbackError);
-            // Last resort: display the raw expression
-            this.el.nativeElement.innerHTML = `<code>${this.htmlContent || ''}</code>`;
-            this.el.nativeElement.style.color = 'red';
-            this.el.nativeElement.title = 'Math rendering failed';
-        }
     }
 
     private cleanup() {

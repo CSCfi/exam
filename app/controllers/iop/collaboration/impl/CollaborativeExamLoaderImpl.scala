@@ -108,6 +108,7 @@ class CollaborativeExamLoaderImpl @Inject() (
                   |      machine(*, room(*))
                   |    )
                   |  )
+                  |)
                   |)""".stripMargin
     PathProperties.parse(path)
 

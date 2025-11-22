@@ -40,7 +40,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <strong>{{ 'i18n_exam_answer' | translate | uppercase }}</strong>
             </div>
         </div>
-        <div class="row ms-1"><div class="col-12" [xmMathJax]="answer().essayAnswer.answer || ''"></div></div>
+        <div class="row ms-1"><div class="col-12" [xmMath]="answer().essayAnswer.answer || ''"></div></div>
         @if (answer().essayAnswer.attachment) {
             <div class="row ms-1">
                 <div class="col-12">

@@ -15,7 +15,7 @@ import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { NoShowComponent } from './no-show.component';
 import { ParticipationComponent } from './participation.component';
 
@@ -26,7 +26,7 @@ type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './general-info.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    imports: [ParticipationComponent, NoShowComponent, MathJaxDirective, DatePipe, TranslateModule, ApplyDstPipe],
+    imports: [ParticipationComponent, NoShowComponent, MathUnifiedDirective, DatePipe, TranslateModule, ApplyDstPipe],
 })
 export class GeneralInfoComponent implements OnInit {
     exam = input.required<Exam>();

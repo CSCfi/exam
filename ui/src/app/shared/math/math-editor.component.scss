@@ -107,8 +107,7 @@
 
 /* Consolidated math elements spacing and sizing */
 :host ::ng-deep .rendered-html span[xmMathLive],
-:host ::ng-deep .rendered-html .MathJax,
-:host ::ng-deep .rendered-html mjx-container {
+:host ::ng-deep .rendered-html math-field {
     display: inline-block !important;
     margin: 0 6px 0 4px !important;
     zoom: 0.8 !important;

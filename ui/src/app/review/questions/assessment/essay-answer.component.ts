@@ -10,13 +10,13 @@ import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ReviewQuestion } from 'src/app/review/review.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathJaxDirective } from 'src/app/shared/math/mathjax.directive';
+import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 @Component({
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
-    imports: [RouterLink, MathJaxDirective, FormsModule, UpperCasePipe, NgbCollapse, TranslateModule],
+    imports: [RouterLink, MathUnifiedDirective, FormsModule, UpperCasePipe, NgbCollapse, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EssayAnswerComponent {

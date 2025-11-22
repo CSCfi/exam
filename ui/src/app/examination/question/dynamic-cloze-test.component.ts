@@ -16,7 +16,6 @@ import {
     ViewChild,
     ViewContainerRef,
 } from '@angular/core';
-import { MathJaxService } from 'src/app/shared/math/mathjax.service';
 import { hashString } from 'src/app/shared/miscellaneous/helpers';
 
 type ClozeTestAnswer = { [key: string]: string };
@@ -27,6 +26,8 @@ type ClozeTestAnswer = { [key: string]: string };
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
+    private static componentCounter = 0;
+
     @ViewChild('clozeContainer', { read: ViewContainerRef, static: true }) container?: ViewContainerRef;
 
     answer = input<ClozeTestAnswer>({});
@@ -37,7 +38,6 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
     componentRef?: AngularComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
 
     private el = inject(ElementRef);
-    private mathJaxService = inject(MathJaxService);
 
     constructor() {
         // React to input changes and recreate component
@@ -96,33 +96,46 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
         // Replace temporary input attributes with Angular input-directives
         const clozeTemplate = doc.body.innerHTML.replace(/data-input-handler/g, '(input)');
         // Compile component and module with formatted cloze template
-        const mathJaxService = this.mathJaxService;
+        const hash = hashString(clozeTemplate);
+        // Use a counter to ensure each component class is unique (Angular uses class name for component ID)
+        const componentId = DynamicClozeTestComponent.componentCounter++;
+
+        // Create a new class with a unique name to avoid component ID collisions
+        // Each class instance must be unique for Angular's component ID generation
+        const ClozeComponentClass = class {
+            static readonly __componentId = componentId;
+            el!: ElementRef;
+            onInput!: (_: { target: HTMLInputElement }) => void;
+            ngAfterViewInit() {
+                // this is ugly but I didn't find any other way
+                // see: https://github.com/angular/angular/issues/11859
+                Array.from(this.el.nativeElement.querySelectorAll('*') as Element[])
+                    .flatMap((e: Element) => Array.from(e.childNodes))
+                    .filter((n) => n.nodeName === '#text')
+                    .forEach((n) => {
+                        if (n.textContent) {
+                            n.textContent = n.textContent.replace(/&#123;/g, '{');
+                            n.textContent = n.textContent.replace(/&#125;/g, '}');
+                        }
+                    });
+                // Math content is now in MathLive format, no typesetting needed
+            }
+            handleChange(event: { target: HTMLInputElement }) {
+                this.onInput(event);
+            }
+        };
+
+        // Set unique name on the class to ensure Angular generates unique component IDs
+        Object.defineProperty(ClozeComponentClass, 'name', {
+            value: `ClozeComponent_${hash}_${componentId}`,
+            configurable: true,
+            writable: false,
+        });
+
         const clozeComponent = Component({
             template: clozeTemplate,
-            selector: `xm-dyn-ct-${hashString(clozeTemplate)}`,
-        })(
-            class ClozeComponent {
-                el!: ElementRef;
-                onInput!: (_: { target: HTMLInputElement }) => void;
-                ngAfterViewInit() {
-                    // this is ugly but I didn't find any other way
-                    // see: https://github.com/angular/angular/issues/11859
-                    Array.from(this.el.nativeElement.querySelectorAll('*') as Element[])
-                        .flatMap((e: Element) => Array.from(e.childNodes))
-                        .filter((n) => n.nodeName === '#text')
-                        .forEach((n) => {
-                            if (n.textContent) {
-                                n.textContent = n.textContent.replace(/&#123;/g, '{');
-                                n.textContent = n.textContent.replace(/&#125;/g, '}');
-                            }
-                        });
-                    mathJaxService.typeset([this.el.nativeElement]);
-                }
-                handleChange(event: { target: HTMLInputElement }) {
-                    this.onInput(event);
-                }
-            },
-        );
+            selector: `xm-dyn-ct-${hash}-${componentId}`,
+        })(ClozeComponentClass);
 
         if (this.container) {
             this.componentRef = this.container.createComponent(clozeComponent);

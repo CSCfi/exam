@@ -6,7 +6,7 @@ import { ButtonView, ContextualBalloon, Plugin, PositionOptions, clickOutsideHan
 import { _t } from './utils';
 import { MathView } from './view';
 
-export type CommandValue = { expression: string; renderer: 'mathlive' | 'mathjax' };
+export type CommandValue = { expression: string; renderer: 'mathlive' };
 
 export class MathUI extends Plugin {
     balloon!: ContextualBalloon;
