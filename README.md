@@ -15,7 +15,7 @@ EXAM Quickstart for developers
 
     **Option A: Using Docker (recommended for development):**
 
-        $ docker compose up -d postgres
+        $ docker compose up -d postgres 
 
     Or with the provided Makefile:
 
