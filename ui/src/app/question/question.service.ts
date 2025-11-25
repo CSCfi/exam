@@ -295,6 +295,10 @@ export class QuestionService {
         return this.http.post<void>(this.questionOwnerApi(uid), data);
     };
 
+    areNewFeaturesEnabled$ = () => {
+        return this.http.get<{ multichoiceFeaturesOn: boolean }>('/app/settings/newMultichoiceSupport');
+    };
+
     private questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
     private questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);
 

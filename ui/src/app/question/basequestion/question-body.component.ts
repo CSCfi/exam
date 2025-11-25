@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, inject, signal } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -59,6 +59,7 @@ export class QuestionBodyComponent implements OnInit {
     newType = '';
     questionTypes: { type: string; name: string }[] = [];
     hideRestExams = true;
+    multichoiceFeaturesOn = signal(false);
 
     private http = inject(HttpClient);
     private cdr = inject(ChangeDetectorRef);
@@ -187,5 +188,8 @@ export class QuestionBodyComponent implements OnInit {
         // remove duplicates
         this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort();
         this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
+        this.Question.areNewFeaturesEnabled$().subscribe((data) => {
+            this.multichoiceFeaturesOn.set(data.multichoiceFeaturesOn);
+        });
     };
 }

@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 
 SPDX-License-Identifier: EUPL-1.2
 -->
-@if (question.type === 'WeightedMultipleChoiceQuestion') {
+@if (question.type === 'WeightedMultipleChoiceQuestion' && multichoiceFeaturesOn) {
     <div class="row mt-2 mx-2">
         <ul>
             <li>{{ 'i18n_weighted_multiple_choice_description_1' | translate }}</li>
@@ -34,20 +34,22 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
 }
-<div class="row mt-2">
-    <div class="col-md-12">
-        <div class="form-check">
-            <input
-                class="form-check-input"
-                name="shuffleOptions"
-                type="checkbox"
-                [(ngModel)]="question.defaultOptionShufflingOn"
-                id="shuffleOptions"
-            />
-            <label class="form-check-label" for="shuffleOptions">{{ 'i18n_shuffle_options' | translate }}</label>
+@if (multichoiceFeaturesOn) {
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    name="shuffleOptions"
+                    type="checkbox"
+                    [(ngModel)]="question.defaultOptionShufflingOn"
+                    id="shuffleOptions"
+                />
+                <label class="form-check-label" for="shuffleOptions">{{ 'i18n_shuffle_options' | translate }}</label>
+            </div>
         </div>
     </div>
-</div>
+}
 <div class="row mt-2">
     <div class="col-md-6">
         <span class="question-option-title">{{ 'i18n_option' | translate }}</span>

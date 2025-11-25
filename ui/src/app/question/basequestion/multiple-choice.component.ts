@@ -29,6 +29,7 @@ export class MultipleChoiceEditorComponent implements OnInit {
     @Input() showWarning = false;
     @Input() lotteryOn = false;
     @Input() allowOptionRemoval = false;
+    @Input() multichoiceFeaturesOn = false;
 
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
