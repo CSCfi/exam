@@ -319,6 +319,13 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(node));
     }
 
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
+    public Result areNewMultichoiceFeaturesEnabled() {
+        ObjectNode node = Json.newObject();
+        node.put("multichoiceFeaturesOn", configReader.areNewMultichoiceFeaturesEnabled());
+        return ok(Json.toJson(node));
+    }
+
     private URL parseExternalUrl(String reservationRef) throws MalformedURLException {
         return URI.create(
             configReader.getIopHost() + String.format("/api/enrolments/%s/instructions", reservationRef)

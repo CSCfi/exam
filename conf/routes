@@ -444,6 +444,7 @@ GET           /app/settings/maturityInstructions                                
 GET           /app/settings/examinationQuitLink                                  controllers.admin.SettingsController.getExaminationQuitLink
 GET           /app/settings/coursecodeprefix                                     controllers.admin.SettingsController.getCourseCodePrefix
 GET           /app/settings/byodmaxparticipants                                  controllers.admin.SettingsController.getByodMaxParticipants
+GET           /app/settings/newMultichoiceSupport                                controllers.admin.SettingsController.areNewMultichoiceFeaturesEnabled
 
 
 ################# Statistics interface ##################

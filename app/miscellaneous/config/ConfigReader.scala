@@ -61,5 +61,6 @@ trait ConfigReader:
   def getSupportedLanguages: List[String]
   def getHomeOrganisations: List[String]
   def isHomeOrganisationRequired: Boolean
+  def areNewMultichoiceFeaturesEnabled: Boolean
   def hasPath(path: String): Boolean
   def getString(path: String): String

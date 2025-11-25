@@ -106,5 +106,6 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
     config.getStringList("exam.integration.iop.visit.restrict.homeOrganisations").asScala.toList
   override def isHomeOrganisationRequired: Boolean =
     config.getBoolean("exam.integration.iop.visit.restrict.disallowExternal")
-  override def hasPath(path: String): Boolean  = config.hasPath(path)
-  override def getString(path: String): String = config.getString(path)
+  override def areNewMultichoiceFeaturesEnabled: Boolean = config.getBoolean("exam.multichoice.features.640.on")
+  override def hasPath(path: String): Boolean            = config.hasPath(path)
+  override def getString(path: String): String           = config.getString(path)
