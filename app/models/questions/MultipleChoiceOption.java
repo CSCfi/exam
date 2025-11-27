@@ -11,7 +11,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.util.Set;
-import javax.validation.constraints.NotNull;
 import models.base.GeneratedIdentityModel;
 import models.sections.ExamSectionQuestionOption;
 import org.springframework.beans.BeanUtils;
@@ -132,7 +131,7 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
     }
 
     @Override
-    public int compareTo(@NotNull MultipleChoiceOption o) {
+    public int compareTo(MultipleChoiceOption o) {
         if (getId() < o.getId()) {
             return -1;
         }

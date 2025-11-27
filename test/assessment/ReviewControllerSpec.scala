@@ -1,0 +1,88 @@
+// Copyright (c) 2018 Exam Consortium
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+package assessment
+
+import base.BaseIntegrationSpec
+import io.ebean.DB
+import miscellaneous.scala.DbApiHelper
+import models.assessment.ExamInspection
+import models.exam.Exam
+import models.user.User
+import play.api.http.Status
+import play.api.libs.json.*
+import play.api.mvc.Session
+import play.api.test.Helpers.*
+
+import scala.concurrent.Future
+
+class ReviewControllerSpec extends BaseIntegrationSpec with DbApiHelper:
+
+  private lazy val exam: Option[Exam] =
+    DB.find(classOf[Exam]).where().eq("name", "Algoritmit, 2013").isNotNull("parent").find
+
+  private def setupExamInspection(user: User): Unit =
+    val examInspection = new ExamInspection()
+    exam match
+      case Some(exam) =>
+        examInspection.setUser(user)
+        examInspection.setExam(exam)
+        examInspection.save()
+      case None => fail("No exam found")
+
+  private def examParentId: Long = exam.get.getParent.getId // Safe since we validate exam exists in setup
+
+  // Custom login methods that automatically set up exam inspection
+  private def loginAsTeacherWithExamInspection(): Future[(User, Session)] =
+    loginAsTeacher().map { case (user, session) =>
+      setupExamInspection(user)
+      (user, session)
+    }
+
+  private def loginAsAdminWithExamInspection(): Future[(User, Session)] =
+    loginAsAdmin().map { case (user, session) =>
+      setupExamInspection(user)
+      (user, session)
+    }
+
+  "ReviewController" when:
+    "getting exam reviews as teacher" should:
+      "return reviews with grade scale information" in:
+        loginAsTeacherWithExamInspection().map { case (user, session) =>
+          // Execute
+          val result = get(s"/app/reviews/$examParentId", session = session)
+
+          // Verify
+          status(result).must(be(Status.OK))
+          val json = contentAsJson(result)
+          json.mustBe(a[JsArray])
+          val participationArray = json.as[JsArray]
+          participationArray.value must have size 1
+
+          val participation  = participationArray.value.head
+          val examGradeScale = (participation \ "exam" \ "gradeScale").as[JsObject]
+          examGradeScale.keys must not be empty
+          val examGrades = (examGradeScale \ "grades").as[JsArray]
+          examGrades.value must have size 2
+
+          val courseGradeScale = (participation \ "exam" \ "course" \ "gradeScale").as[JsObject]
+          courseGradeScale.keys must not be empty
+          val courseGrades = (courseGradeScale \ "grades").as[JsArray]
+          courseGrades.value must have size 6
+        }
+
+    "getting exam reviews as admin" should:
+      "return reviews array" in:
+        loginAsAdminWithExamInspection().map { case (user, session) =>
+          // Execute
+          val result = get(s"/app/reviews/$examParentId", session = session)
+
+          // Verify
+          status(result).must(be(Status.OK))
+          val json = contentAsJson(result)
+          json.mustBe(a[JsArray])
+          val participationArray = json.as[JsArray]
+          participationArray.value must have size 1
+        }

@@ -1,0 +1,19 @@
+<!-- SPDX-FileCopyrightText: 2024. The members of the EXAM Consortium -->
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
+
+<configuration>
+  <include resource="logback.xml"/>
+    <logger name="play.api.http.HttpErrorHandlerExceptions" level="WARN"/>
+    <logger name="play.shaded.ahc.io.netty" level="OFF"/>
+    <!-- Silence Hikari pool creation + shutdown logs -->
+    <logger name="play.api.db.HikariCPConnectionPool" level="WARN"/>
+    <logger name="com.zaxxer.hikari" level="ERROR"/>
+    <!-- Off the ebean core logs -->
+    <logger name="io.ebean.core" level="OFF"/>
+    <!-- Silence Play Assets debug logs -->
+    <logger name="controllers.AssetsConfiguration" level="WARN"/>
+    <logger name="controllers.AssetsMetadataProvider" level="WARN"/>
+    <!-- Silence SystemInitializer -->
+    <logger name="system.SystemInitializer" level="WARN"/>
+
+</configuration>

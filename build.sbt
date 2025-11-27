@@ -12,7 +12,7 @@ scalaVersion := "3.7.3"
 
 scalacOptions ++= Seq("-deprecation", "-feature", "-Dunused:imports")
 
-lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayEbean)
 
 libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice, caffeine)
 
@@ -25,6 +25,7 @@ libraryDependencies += "org.apache.commons"       % "commons-email"      % "1.6.
 libraryDependencies += "org.apache.poi"           % "poi"                % "5.4.1"
 libraryDependencies += "org.apache.poi"           % "poi-ooxml"          % "5.4.1"
 libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"          % "1.2.0"
+libraryDependencies += "org.springframework"      % "spring-beans"       % "7.0.1"
 libraryDependencies += "org.typelevel"           %% "cats-core"          % "2.13.0"
 libraryDependencies += "joda-time"                % "joda-time"          % "2.14.0"
 libraryDependencies += "org.jsoup"                % "jsoup"              % "1.21.2"
@@ -37,6 +38,8 @@ libraryDependencies += "org.eclipse.jetty"        % "jetty-server"       % "12.1
 libraryDependencies += "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet" % "12.1.2" % "test"
 libraryDependencies += "org.easytesting"          % "fest-assert"        % "1.4"    % "test"
 libraryDependencies += "org.yaml"                 % "snakeyaml"          % "2.5"    % "test"
+libraryDependencies += "org.scalatest"           %% "scalatest"          % "3.2.19" % "test"
+libraryDependencies += "org.scalatestplus.play"  %% "scalatestplus-play" % "7.0.1"  % "test"
 
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core"    % "jackson-databind"     % "2.20.0",
@@ -52,6 +55,7 @@ routesImport += "system.Binders._"
 routesGenerator := InjectedRoutesGenerator
 
 Test / testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
+Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
 
 Test / javaOptions += "-Dconfig.resource=integrationtest.conf"
 

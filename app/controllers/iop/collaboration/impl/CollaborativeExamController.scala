@@ -17,11 +17,11 @@ import models.user.{Language, Role, User}
 import org.apache.pekko.actor.ActorSystem
 import org.joda.time.DateTime
 import play.api.Logging
+import play.api.data.validation.{Constraints, Invalid}
 import play.api.libs.json.{JsArray, JsNumber, JsObject, JsValue, Json}
 import play.api.libs.json.Json.*
 import play.api.libs.ws.JsonBodyWritables
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
-import play.data.validation.Constraints
 import security.scala.Auth
 import security.scala.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
 import system.AuditedAction
@@ -126,17 +126,16 @@ class CollaborativeExamController @Inject() (
       case Left(errorResult) => errorResult
       case Right(ce) =>
         examLoader.downloadExamJson(ce).map {
-          case None => NotFound("i18n_error_exam_not_found")
+          case None       => NotFound("i18n_error_exam_not_found")
           case Some(root) =>
             // Deserialize to check authorization
             val jacksonNode = play.libs.Json.parse(Json.stringify(root))
-            val exam = ce.getExam(jacksonNode)
-            if !isAuthorizedToView(exam, user, homeOrg) then
-              NotFound("i18n_error_exam_not_found")
+            val exam        = ce.getExam(jacksonNode)
+            if !isAuthorizedToView(exam, user, homeOrg) then NotFound("i18n_error_exam_not_found")
             else
               postProcessor(exam)
               // Add local database ID to the JSON response
-              val jsonObj = root.as[JsObject]
+              val jsonObj    = root.as[JsObject]
               val jsonWithId = jsonObj + ("id" -> JsNumber(BigDecimal(ce.getId)))
               Ok(jsonWithId)
         }
@@ -274,16 +273,16 @@ class CollaborativeExamController @Inject() (
             case None        => Future.successful(BadRequest("i18n_error_email_missing"))
             case Some(email) =>
               // Validate email
-              val validator = Constraints.EmailValidator()
-              if !validator.isValid(email) then Future.successful(BadRequest("i18n_error_email_invalid"))
-              else
-                examLoader.downloadExam(ce).flatMap {
-                  case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-                  case Some(exam) =>
-                    val owner = createOwner(email)
-                    exam.getExamOwners.add(owner)
-                    examLoader.uploadExam(ce, exam, user, owner, null)
-                }
+              Constraints.emailAddress()(email) match
+                case Invalid(_) => Future.successful(BadRequest("i18n_error_email_invalid"))
+                case _ =>
+                  examLoader.downloadExam(ce).flatMap {
+                    case None => Future.successful(NotFound("i18n_error_exam_not_found"))
+                    case Some(exam) =>
+                      val owner = createOwner(email)
+                      exam.getExamOwners.add(owner)
+                      examLoader.uploadExam(ce, exam, user, owner, null)
+                  }
     }
 
   def removeOwner(id: Long, oid: Long): Action[AnyContent] =
