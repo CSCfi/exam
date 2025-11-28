@@ -1129,5 +1129,10 @@
     "i18n_password_required": "Lösenord är obligatoriskt",
     "i18n_exam_period_start_ascending": "Tentamensperiod börjar (tidigast först)",
     "i18n_exam_period_end_ascending": "Tentamensperiod slutar (tidigast först)",
-    "i18n_confirm_remove_attachment": "Vill du ta bort den bifogade filen?"
+    "i18n_confirm_remove_attachment": "Vill du ta bort den bifogade filen?",
+    "i18n_dashboard_exam": "Tentamen",
+    "i18n_dashboard_code": "Kod",
+    "i18n_dashboard_period": "Period",
+    "i18n_dashboard_submissions": "Inlämningar",
+    "i18n_dashboard_to_lock": "Att låsa"
 }

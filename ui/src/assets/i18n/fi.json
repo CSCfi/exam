@@ -1129,5 +1129,10 @@
     "i18n_password_required": "Salasana on pakollinen",
     "i18n_exam_period_start_ascending": "Tenttiperiodi alkaa (aikaisin ensin)",
     "i18n_exam_period_end_ascending": "Tenttiperiodi päättyy (aikaisin ensin)",
-    "i18n_confirm_remove_attachment": "Haluatko poistaa liitetiedoston?"
+    "i18n_confirm_remove_attachment": "Haluatko poistaa liitetiedoston?",
+    "i18n_dashboard_exam": "Tentti",
+    "i18n_dashboard_code": "Koodi",
+    "i18n_dashboard_period": "Periodi",
+    "i18n_dashboard_submissions": "Palautukset",
+    "i18n_dashboard_to_lock": "Lukittavat"
 }
