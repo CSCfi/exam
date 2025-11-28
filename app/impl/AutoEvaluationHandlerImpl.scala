@@ -78,4 +78,4 @@ class AutoEvaluationHandlerImpl @Inject (
     case _ =>
       Option(exam.getCourse).flatMap(c => Option(c.getGradeScale)) match
         case scale @ Some(_) => scale
-        case _               => Option(exam.getParent).flatMap(p => Option(p.getCourse)).flatMap(c => Option(c.getGradeScale))
+        case _ => Option(exam.getParent).flatMap(p => Option(p.getCourse)).flatMap(c => Option(c.getGradeScale))

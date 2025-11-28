@@ -17,6 +17,5 @@ object QuestionTextValidator extends PlayJsonValidator:
 
   override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
     val questionText = (json \ "question").asOpt[String]
-    val sanitized = questionText.map(text => Jsoup.clean(text, HTML_SAFELIST)).orNull
+    val sanitized    = questionText.map(text => Jsoup.clean(text, HTML_SAFELIST)).orNull
     Right(request.addAttr(QUESTION_TEXT_KEY, sanitized))
-

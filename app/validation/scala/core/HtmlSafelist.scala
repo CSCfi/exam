@@ -8,11 +8,12 @@ import org.jsoup.safety.Safelist
 
 /** Shared HTML safelist for sanitizing user input
   *
-  * Allows common HTML elements and attributes needed for rich text editing,
-  * including math-related attributes and math-field tags.
+  * Allows common HTML elements and attributes needed for rich text editing, including math-related attributes and
+  * math-field tags.
   */
 object HtmlSafelist:
-  val SAFELIST: Safelist = Safelist.relaxed()
+  val SAFELIST: Safelist = Safelist
+    .relaxed()
     .addAttributes("a", "target")
     .addAttributes(
       "span",
@@ -34,4 +35,3 @@ object HtmlSafelist:
     .addAttributes("pre", "class")
     .addTags("math-field")
     .addAttributes("math-field", "data-expression", "read-only", "math-virtual-keyboard-policy")
-

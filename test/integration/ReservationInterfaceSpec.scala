@@ -19,28 +19,28 @@ class ReservationInterfaceSpec extends BaseIntegrationSpec:
     "getting reservations" should:
       "return reservations for existing room and empty array for non-existing room" in:
         val filter = DateTime.now().withYear(1999).toString("yyyy-MM-dd")
-        
+
         // Test existing room
-        val result1 = get(s"/integration/reservations?start=$filter&roomId=1")
-        status(result1).must(be(Status.OK))
-        val json1 = contentAsJson(result1)
+        val result1 = runIO(get(s"/integration/reservations?start=$filter&roomId=1"))
+        statusOf(result1).must(be(Status.OK))
+        val json1 = contentAsJsonOf(result1)
         json1.mustBe(a[JsArray])
         val records1 = json1.as[JsArray]
         records1.value must have size 2
 
         // Test non-existing room
-        val result2 = get(s"/integration/reservations?start=$filter&roomId=10")
-        status(result2).must(be(Status.OK))
-        val json2 = contentAsJson(result2)
+        val result2 = runIO(get(s"/integration/reservations?start=$filter&roomId=10"))
+        statusOf(result2).must(be(Status.OK))
+        val json2 = contentAsJsonOf(result2)
         json2.mustBe(a[JsArray])
         val records2 = json2.as[JsArray]
         records2.value must be(empty)
 
     "getting rooms" should:
       "return list of available rooms" in:
-        val result = get("/integration/rooms")
-        status(result).must(be(Status.OK))
-        val json = contentAsJson(result)
+        val result = runIO(get("/integration/rooms"))
+        statusOf(result).must(be(Status.OK))
+        val json = contentAsJsonOf(result)
         json.mustBe(a[JsArray])
         val records = json.as[JsArray]
         records.value must have size 1
@@ -52,13 +52,13 @@ class ReservationInterfaceSpec extends BaseIntegrationSpec:
         val room = Option(DB.find(classOf[ExamRoom], 1L)) match
           case Some(r) => r
           case None    => fail("Test room not found")
-        
+
         val ewh = new ExceptionWorkingHours()
         ewh.setStartDate(DateTime.now().withDayOfMonth(15).toDate)
         ewh.setEndDate(DateTime.now().plusMonths(1).withDayOfMonth(15).toDate)
         ewh.setStartDateTimezoneOffset(0)
         ewh.setEndDateTimezoneOffset(0)
-        
+
         val ewh2 = new ExceptionWorkingHours()
         ewh2.setStartDate(DateTime.now().plusMonths(1).withDayOfMonth(1).toDate)
         ewh2.setEndDate(DateTime.now().plusMonths(1).withDayOfMonth(15).toDate)
@@ -71,10 +71,10 @@ class ReservationInterfaceSpec extends BaseIntegrationSpec:
 
         // Execute
         val filter = DateTime.now().toString("yyyy-MM-dd")
-        val result = get(s"/integration/rooms/1/openinghours?date=$filter")
-        status(result).must(be(Status.OK))
-        
+        val result = runIO(get(s"/integration/rooms/1/openinghours?date=$filter"))
+        statusOf(result).must(be(Status.OK))
+
         // Verify
-        val json = contentAsJson(result)
+        val json                    = contentAsJsonOf(result)
         val calendarExceptionEvents = (json \ "calendarExceptionEvents").as[JsArray]
         calendarExceptionEvents.value must have size 1

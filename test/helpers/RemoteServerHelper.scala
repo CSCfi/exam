@@ -8,16 +8,26 @@ import com.fasterxml.jackson.databind.JsonNode
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.{MultipartConfigElement, Servlet}
 import org.apache.commons.io.IOUtils
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler
+import org.eclipse.jetty.ee10.servlet.{ServletContextHandler, ServletHolder}
 import org.eclipse.jetty.server.{Connector, Server, ServerConnector}
 import play.api.libs.json.{JsValue, Json}
 
 import java.io.{File, FileInputStream, IOException}
 import java.nio.file.Files
-import scala.jdk.CollectionConverters.*
 import scala.util.Using
 
 object RemoteServerHelper:
+  sealed trait ServletDef:
+    def bind(path: String, sch: ServletContextHandler): Unit
+
+  object ServletDef:
+    final case class FromClass(clazz: Class[? <: Servlet]) extends ServletDef:
+      def bind(path: String, sch: ServletContextHandler): Unit =
+        sch.getServletHandler.addServletWithMapping(clazz, path)
+
+    final case class FromInstance(servlet: Servlet) extends ServletDef:
+      def bind(path: String, sch: ServletContextHandler): Unit =
+        sch.addServlet(new ServletHolder(servlet), path)
 
   def writeResponseFromFile(response: HttpServletResponse, filePath: String): Unit =
     response.setContentType("application/json")
@@ -59,39 +69,21 @@ object RemoteServerHelper:
       }
     catch case _: IOException => response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
 
-  def createAndStartServer(port: Int, handlers: Map[Class[? <: Servlet], List[String]]): Server =
-    createAndStartServer(port, handlers, setMultipart = false)
-
-  def createAndStartServer(
-      port: Int,
-      handlers: Map[Class[? <: Servlet], List[String]],
-      setMultipart: Boolean
-  ): Server =
+  def createServer(port: Int, multipart: Boolean, defs: (ServletDef, List[String])*): Server =
     val server               = new Server(port)
     val connector: Connector = new ServerConnector(server)
     server.addConnector(connector)
     server.setStopAtShutdown(true)
-
     val sch = new ServletContextHandler()
     sch.setContextPath("/")
-    server.setHandler(sch)
-
-    // Add servlets
-    handlers.foreach { case (servletClass, paths) =>
-      paths.foreach { path =>
-        sch.getServletHandler.addServletWithMapping(servletClass, path)
-      }
+    defs.foreach { case (servletDef, paths) =>
+      paths.foreach(path => servletDef.bind(path, sch))
     }
-
-    // Configure multipart if needed
-    if setMultipart then
+    if multipart then
       val tempPath = Files.createTempDirectory("test_upload").toString
-      handlers.foreach { case (servletClass, paths) =>
-        paths.foreach { path =>
-          val servletMapping = sch.getServletHandler.getServletMapping(path)
-          val servlet        = sch.getServletHandler.getServlet(servletMapping.getServletName)
-          servlet.getRegistration.setMultipartConfig(new MultipartConfigElement(tempPath))
-        }
+      sch.getServletHandler.getServletMappings.foreach { mapping =>
+        val servlet = sch.getServletHandler.getServlet(mapping.getServletName)
+        servlet.getRegistration.setMultipartConfig(new MultipartConfigElement(tempPath))
       }
 
     server.setHandler(sch)

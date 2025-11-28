@@ -29,7 +29,7 @@ object EssayAnswerValidator extends PlayJsonValidator:
       // Parse and sanitize HTML answer
       val answer = (body \ "answer").asOpt[String] match
         case Some(html) if html.nonEmpty => Jsoup.clean(html, HTML_SAFELIST)
-        case _                            => ""
+        case _                           => ""
       val objectVersion = PlayJsonHelper.parse[Long]("objectVersion", body)
       EssayAnswerDTO(answer, objectVersion)
 

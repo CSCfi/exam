@@ -34,7 +34,7 @@ class EnrolmentRepository @Inject() (
 ) extends Logging
     with DbApiHelper:
 
-  private val db: Database = DB.getDefault
+  private val db: Database                  = DB.getDefault
   private implicit val ec: ExecutionContext = databaseExecutionContext
 
   def getReservationHeaders(request: Request[AnyContent], userId: Long): Future[Map[String, String]] =
@@ -57,9 +57,9 @@ class EnrolmentRepository @Inject() (
         .endJunction()
         .isNotNull("reservation.machine.room")
 
-      val query = if user.hasRole(Role.Name.STUDENT) then
-        baseQuery.eq("user", user)
-      else baseQuery
+      val query =
+        if user.hasRole(Role.Name.STUDENT) then baseQuery.eq("user", user)
+        else baseQuery
 
       Option(query.findOne()).map(_.getReservation.getMachine.getRoom)
     }
@@ -117,8 +117,7 @@ class EnrolmentRepository @Inject() (
     // Hide section info if no optional sections exist
     enrolments.foreach { ee =>
       Option(ee.getExam).foreach { exam =>
-        if !exam.getExamSections.asScala.exists(_.isOptional) then
-          exam.getExamSections.clear()
+        if !exam.getExamSections.asScala.exists(_.isOptional) then exam.getExamSections.clear()
       }
     }
 
@@ -136,7 +135,7 @@ class EnrolmentRepository @Inject() (
       case Some(ongoingEnrolment) =>
         handleOngoingEnrolment(ongoingEnrolment, request, headers)
       case None =>
-        val now = DateTime.now()
+        val now              = DateTime.now()
         val lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes
         getNextEnrolment(userId, lookAheadMinutes) match
           case Some(upcomingEnrolment) =>
@@ -171,21 +170,20 @@ class EnrolmentRepository @Inject() (
       logger.info("Checking SEB config...")
       // SEB examination
       val config = enrolment.getExaminationEventConfiguration
-      val error = byodConfigHandler.checkUserAgent(request, config.getConfigKey)
+      val error  = byodConfigHandler.checkUserAgent(request, config.getConfigKey)
 
       if error.isDefined then
         val msg = ISODateTimeFormat.dateTime().print(new DateTime(config.getExaminationEvent.getStart))
         headers.put("x-exam-wrong-agent-config", msg)
         logger.warn("Wrong agent config for SEB")
         return false
-      else
-        logger.info("SEB config OK")
+      else logger.info("SEB config OK")
     else if requiresReservation then
       // Aquarium examination
       val examMachine = enrolment.getReservation.getMachine
-      val room         = examMachine.getRoom
-      val machineIp    = examMachine.getIpAddress
-      val remoteIp     = request.remoteAddress
+      val room        = examMachine.getRoom
+      val machineIp   = examMachine.getIpAddress
+      val remoteIp    = request.remoteAddress
 
       logger.debug(s"User is on IP: $remoteIp <-> Should be on IP: $machineIp")
 
@@ -196,8 +194,10 @@ class EnrolmentRepository @Inject() (
             case None =>
               // IP is not known
               val zone = DateTimeZone.forID(room.getLocalTimezone)
-              val start = ISODateTimeFormat.dateTime().withZone(zone).print(new DateTime(enrolment.getReservation.getStartAt))
-              val msg = s"${room.getCampus}:::${room.getBuildingName}:::${room.getRoomCode}:::${examMachine.getName}:::$start:::${zone.getID}"
+              val start =
+                ISODateTimeFormat.dateTime().withZone(zone).print(new DateTime(enrolment.getReservation.getStartAt))
+              val msg =
+                s"${room.getCampus}:::${room.getBuildingName}:::${room.getRoomCode}:::${examMachine.getName}:::$start:::${zone.getID}"
               ("x-exam-unknown-machine", msg)
             case Some(lookedUp) if lookedUp.getRoom.getId == room.getId =>
               // Right room, wrong machine
@@ -259,7 +259,7 @@ class EnrolmentRepository @Inject() (
       case None    => dateTimeHandler.adjustDST(DateTime.now())
       case Some(_) => DateTime.now()
     val latest = earliest.plusMinutes(minutesToFuture)
-    val delay = ee.getDelay
+    val delay  = ee.getDelay
 
     Option(ee.getReservation).exists { reservation =>
       reservation.getStartAt.plusMillis(delay).isBefore(latest) &&
@@ -309,4 +309,3 @@ class EnrolmentRepository @Inject() (
 
     // filter out enrolments that are over or not starting until tomorrow and pick the earliest (if any)
     results.filter(isInsideBounds(_, minutesToFuture)).minByOption(getStartTime)
-

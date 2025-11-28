@@ -16,10 +16,10 @@ class ExamRecordInterfaceSpec extends BaseIntegrationSpec:
     "getting records" should:
       "return empty array for current date" in:
         val filter = DateTime.now().toString("yyyy-MM-dd")
-        val result = get(s"/integration/record/$filter")
-        
-        status(result).must(be(Status.OK))
-        val json = contentAsJson(result)
+        val result = runIO(get(s"/integration/record/$filter"))
+
+        statusOf(result).must(be(Status.OK))
+        val json = contentAsJsonOf(result)
         json.mustBe(a[JsArray])
         val records = json.as[JsArray]
         records.value must have size 0

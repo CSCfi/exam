@@ -17,54 +17,50 @@ class MoodleImporterSpec extends BaseIntegrationSpec:
   "MoodleXmlImporter" when:
     "importing essay questions" should:
       "import essay question successfully" in:
-        loginAsAdmin().map { case (user, session) =>
-          val content = Files.readString(Path.of("test/resources/essay-quiz.xml"))
-          
-          val report = moodleXmlImporter.convert(content, user)
-          val questions = report._1.asJava
-          val errors = report._2.asJava
-          
-          questions must have size 1
-          questions.get(0).getTags must have size 2
-          errors must be(empty)
-        }
+        val (user, session) = runIO(loginAsAdmin())
+        val content         = Files.readString(Path.of("test/resources/essay-quiz.xml"))
+
+        val report    = moodleXmlImporter.convert(content, user)
+        val questions = report._1
+        val errors    = report._2
+
+        questions must have size 1
+        questions.head.getTags must have size 2
+        errors must be(empty)
 
       "import essay question with plain text successfully" in:
-        loginAsAdmin().map { case (user, session) =>
-          val content = Files.readString(Path.of("test/resources/essay-quiz2.xml"))
-          
-          val report = moodleXmlImporter.convert(content, user)
-          val questions = report._1.asJava
-          val errors = report._2.asJava
-          
-          questions must have size 1
-          questions.get(0).getTags must have size 2
-          errors must be(empty)
-        }
+        val (user, session) = runIO(loginAsAdmin())
+        val content         = Files.readString(Path.of("test/resources/essay-quiz2.xml"))
+
+        val report    = moodleXmlImporter.convert(content, user)
+        val questions = report._1
+        val errors    = report._2
+
+        questions must have size 1
+        questions.head.getTags must have size 2
+        errors must be(empty)
 
     "importing multiple choice questions" should:
       "import multichoice question successfully" in:
-        loginAsAdmin().map { case (user, session) =>
-          val content = Files.readString(Path.of("test/resources/multichoice-quiz.xml"))
-          
-          val report = moodleXmlImporter.convert(content, user)
-          val questions = report._1.asJava
-          val errors = report._2.asJava
-          
-          questions must have size 1
-          questions.get(0).getOptions must have size 4
-          errors must be(empty)
-        }
+        val (user, session) = runIO(loginAsAdmin())
+        val content         = Files.readString(Path.of("test/resources/multichoice-quiz.xml"))
+
+        val report    = moodleXmlImporter.convert(content, user)
+        val questions = report._1
+        val errors    = report._2
+
+        questions must have size 1
+        questions.head.getOptions must have size 4
+        errors must be(empty)
 
       "import weighted multichoice question successfully" in:
-        loginAsAdmin().map { case (user, session) =>
-          val content = Files.readString(Path.of("test/resources/weighted-multichoice-quiz.xml"))
-          
-          val report = moodleXmlImporter.convert(content, user)
-          val questions = report._1.asJava
-          val errors = report._2.asJava
-          
-          questions must have size 1
-          questions.get(0).getOptions must have size 4
-          errors must be(empty)
-        }
+        val (user, session) = runIO(loginAsAdmin())
+        val content         = Files.readString(Path.of("test/resources/weighted-multichoice-quiz.xml"))
+
+        val report    = moodleXmlImporter.convert(content, user)
+        val questions = report._1
+        val errors    = report._2
+
+        questions must have size 1
+        questions.head.getOptions must have size 4
+        errors must be(empty)

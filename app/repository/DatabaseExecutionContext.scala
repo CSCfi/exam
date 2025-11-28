@@ -17,4 +17,3 @@ class DatabaseExecutionContext @Inject() (actorSystem: ActorSystem)
 
   // Java interop: returns this as Executor (for use with CompletableFuture.supplyAsync)
   def current(): Executor = this
-

@@ -79,46 +79,45 @@ class ExternalAttachmentLoaderImpl @Inject() (
     Option(attachment).flatMap(a => Option(a.getFilePath).filter(_.nonEmpty)) match
       case None => Future.successful(())
       case Some(_) =>
-      parseUrl("/api/attachments/") match
-        case None =>
-          Future.failed(new RuntimeException("Invalid URL"))
-        case Some(attachmentUrl) =>
-          val request = wsClient.url(attachmentUrl.toString)
-          request.post("").flatMap { response =>
-            val json = response.json
-            val externalId = (json \ "id").as[String]
-            attachment.setExternalId(externalId)
+        parseUrl("/api/attachments/") match
+          case None =>
+            Future.failed(new RuntimeException("Invalid URL"))
+          case Some(attachmentUrl) =>
+            val request = wsClient.url(attachmentUrl.toString)
+            request.post("").flatMap { response =>
+              val json       = response.json
+              val externalId = (json \ "id").as[String]
+              attachment.setExternalId(externalId)
 
-            val file = new File(attachment.getFilePath)
-            if !file.exists() then
-              logger.warn(
-                s"Could not find file ${file.getAbsoluteFile} for attachment id ${attachment.getId}."
-              )
-              Future.successful(())
-            else
-              parseUrl("/api/attachments/%s", externalId) match
-                case None =>
-                  logger.error("Invalid URL!")
-                  Future.successful(())
-                case Some(updateUrl) =>
-                  val updateRequest = wsClient.url(updateUrl.toString)
-                  val source = FileIO.fromPath(file.toPath)
-                  val filePart = MultipartFormData.FilePart[Source[ByteString, ?]](
-                    "file",
-                    attachment.getFileName,
-                    Option(attachment.getMimeType),
-                    source
-                  )
-                  // Create Source with FilePart (DataPart not needed for Scala WSClient)
-                  val partsSource = Source.single(filePart)
+              val file = new File(attachment.getFilePath)
+              if !file.exists() then
+                logger.warn(
+                  s"Could not find file ${file.getAbsoluteFile} for attachment id ${attachment.getId}."
+                )
+                Future.successful(())
+              else
+                parseUrl("/api/attachments/%s", externalId) match
+                  case None =>
+                    logger.error("Invalid URL!")
+                    Future.successful(())
+                  case Some(updateUrl) =>
+                    val updateRequest = wsClient.url(updateUrl.toString)
+                    val source        = FileIO.fromPath(file.toPath)
+                    val filePart = MultipartFormData.FilePart[Source[ByteString, ?]](
+                      "file",
+                      attachment.getFileName,
+                      Option(attachment.getMimeType),
+                      source
+                    )
+                    // Create Source with FilePart (DataPart not needed for Scala WSClient)
+                    val partsSource = Source.single(filePart)
 
-                  updateRequest.put(partsSource).map { wsResponse =>
-                    if wsResponse.status != play.api.http.Status.OK then
-                      logger.warn(s"File upload ${file.getAbsoluteFile} failed!")
-                    else
-                      logger.info(s"Uploaded file ${file.getAbsoluteFile} for external exam.")
-                  }
-          }
+                    updateRequest.put(partsSource).map { wsResponse =>
+                      if wsResponse.status != play.api.http.Status.OK then
+                        logger.warn(s"File upload ${file.getAbsoluteFile} failed!")
+                      else logger.info(s"Uploaded file ${file.getAbsoluteFile} for external exam.")
+                    }
+            }
 
   override def uploadAssessmentAttachments(exam: Exam): Future[Unit] =
     val futures = scala.collection.mutable.ListBuffer[Future[Unit]]()
@@ -156,24 +155,23 @@ class ExternalAttachmentLoaderImpl @Inject() (
         Future.failed(new RuntimeException("Could not find external ID for an attachment"))
       case Some(externalId) =>
         parseUrl("/api/attachments/%s/download", externalId) match
-        case None =>
-          Future.failed(new RuntimeException("Invalid URL!"))
-        case Some(attachmentUrl) =>
-          val request = wsClient.url(attachmentUrl.toString)
-          request.stream().flatMap { response =>
-            val filePath = fileHandler.createFilePath(pathParams*)
-            val sink = FileIO.toPath(java.nio.file.Paths.get(filePath))
+          case None =>
+            Future.failed(new RuntimeException("Invalid URL!"))
+          case Some(attachmentUrl) =>
+            val request = wsClient.url(attachmentUrl.toString)
+            request.stream().flatMap { response =>
+              val filePath = fileHandler.createFilePath(pathParams*)
+              val sink     = FileIO.toPath(java.nio.file.Paths.get(filePath))
 
-            response.bodyAsSource.runWith(sink).map { _ =>
-              attachment.setFilePath(filePath)
-              attachment.save()
-              logger.info(
-                s"Saved attachment ${attachment.getExternalId} locally as # ${attachment.getId}"
-              )
+              response.bodyAsSource.runWith(sink).map { _ =>
+                attachment.setFilePath(filePath)
+                attachment.save()
+                logger.info(
+                  s"Saved attachment ${attachment.getExternalId} locally as # ${attachment.getId}"
+                )
+              }
             }
-          }
 
   private def parseUrl(format: String, args: String*): Option[URL] =
     val path = if args.isEmpty then format else format.format(args*)
     Try(URI.create(configReader.getIopHost + path).toURL).toOption
-

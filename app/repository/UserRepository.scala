@@ -14,9 +14,8 @@ import miscellaneous.scala.DbApiHelper
 
 class UserRepository @Inject() (databaseExecutionContext: DatabaseExecutionContext) extends DbApiHelper:
 
-  private val db: Database = DB.getDefault
+  private val db: Database                  = DB.getDefault
   private implicit val ec: ExecutionContext = databaseExecutionContext
 
   def getLoggedInUser(id: Long): Future[Option[User]] =
-    Future (db.find(classOf[User]).where().idEq(id).find)
-
+    Future(db.find(classOf[User]).where().idEq(id).find)

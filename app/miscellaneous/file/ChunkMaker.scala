@@ -49,4 +49,3 @@ class ChunkMaker(chunkSize: Int) extends GraphStage[FlowShape[ByteString, ByteSt
           val (chunk, remainder) = buffer.splitAt(chunkSize)
           buffer = remainder
           push(out, chunk)
-

@@ -69,9 +69,9 @@ class ExamController @Inject() (
     val baseQuery = createPrototypeQuery()
     val query = filter match
       case Some(f) =>
-        val withOr = baseQuery.or()
+        val withOr         = baseQuery.or()
         val withNameSearch = userHandler.applyNameSearch("examOwners", withOr, f)
-        val condition = s"%$f%"
+        val condition      = s"%$f%"
         withNameSearch.ilike("name", condition).ilike("course.code", condition).endOr()
       case None => baseQuery
     query.list
@@ -121,21 +121,21 @@ class ExamController @Inject() (
       val query = DB.find(classOf[Exam])
       pp.apply(query)
       val baseQuery = query.where().isNotNull("name").isNotNull("course").isNull("parent")
-      val withOwnerFilter = if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-        baseQuery.eq("examOwners", user)
-      else baseQuery
-      val withCourseFilter = if courses.nonEmpty then
-        withOwnerFilter.in("course.id", courses.asJava)
-      else withOwnerFilter
-      val withSectionFilter = if sections.nonEmpty then
-        withCourseFilter.in("examSections.id", sections.asJava)
-      else withCourseFilter
-      val withTagFilter = if tags.nonEmpty then
-        withSectionFilter.in("examSections.sectionQuestions.question.parent.tags.id", tags.asJava)
-      else withSectionFilter
-      val el = if owners.nonEmpty then
-        withTagFilter.in("questionOwners.id", user)
-      else withTagFilter
+      val withOwnerFilter =
+        if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then baseQuery.eq("examOwners", user)
+        else baseQuery
+      val withCourseFilter =
+        if courses.nonEmpty then withOwnerFilter.in("course.id", courses.asJava)
+        else withOwnerFilter
+      val withSectionFilter =
+        if sections.nonEmpty then withCourseFilter.in("examSections.id", sections.asJava)
+        else withCourseFilter
+      val withTagFilter =
+        if tags.nonEmpty then withSectionFilter.in("examSections.sectionQuestions.question.parent.tags.id", tags.asJava)
+        else withSectionFilter
+      val el =
+        if owners.nonEmpty then withTagFilter.in("questionOwners.id", user)
+        else withTagFilter
       Future.successful(Ok(el.list.asJson(pp)))
     }
 
@@ -420,8 +420,10 @@ class ExamController @Inject() (
                   case None                => Future.successful(NotFound("i18n_execution_type_not_found"))
                   case Some(executionType) =>
                     // No sense in copying the AE config if grade scale is fixed to course (that will initially be NULL for a copy)
-                    if Option(prototype.getAutoEvaluationConfig).isDefined && !configReader.isCourseGradeScaleOverridable then
-                      prototype.setAutoEvaluationConfig(null)
+                    if Option(
+                        prototype.getAutoEvaluationConfig
+                      ).isDefined && !configReader.isCourseGradeScaleOverridable
+                    then prototype.setAutoEvaluationConfig(null)
                     val context = ExamCopyContext.forTeacherCopy(user).build()
                     val copy    = prototype.createCopy(context)
                     copy.setName(s"**COPY**${copy.getName}")

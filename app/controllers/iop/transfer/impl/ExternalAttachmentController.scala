@@ -271,20 +271,20 @@ class ExternalAttachmentController @Inject() (
                           Future.successful(NotFound)
                         case Some(externalId) =>
                           parseAttachmentUrl("/api/attachments/%s", externalId) match
-                          case None => Future.successful(InternalServerError)
-                          case Some(url) =>
-                            wsClient.url(url.toString).delete().flatMap { response =>
-                              if response.status != OK && response.status != NOT_FOUND then
-                                Future.successful(Status(response.status))
-                              else
-                                ea.setAttachment(null)
-                                Try(externalExam.serialize(exam)) match
-                                  case scala.util.Failure(e) =>
-                                    logger.error("Failed to serialize exam", e)
-                                    Future.successful(InternalServerError)
-                                  case scala.util.Success(_) =>
-                                    Future.successful(Ok)
-                            }
+                            case None => Future.successful(InternalServerError)
+                            case Some(url) =>
+                              wsClient.url(url.toString).delete().flatMap { response =>
+                                if response.status != OK && response.status != NOT_FOUND then
+                                  Future.successful(Status(response.status))
+                                else
+                                  ea.setAttachment(null)
+                                  Try(externalExam.serialize(exam)) match
+                                    case scala.util.Failure(e) =>
+                                      logger.error("Failed to serialize exam", e)
+                                      Future.successful(InternalServerError)
+                                    case scala.util.Success(_) =>
+                                      Future.successful(Ok)
+                              }
     }
 
   def downloadQuestionAnswerAttachment(qid: Long, hash: String): Action[AnyContent] =

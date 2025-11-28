@@ -31,7 +31,7 @@ class AuditedAction @Inject() (parser: BodyParsers.Default)(implicit ec: Executi
       if method == "POST" || method == "PUT" && request.path != "/integration/iop/import" then
         val json = request.body match
           case ac: AnyContent => ac.asJson
-          case jv: JsValue => Some(jv)
-          case _ => None
+          case jv: JsValue    => Some(jv)
+          case _              => None
         logger.debug(s"$logEntry data: ${json.getOrElse("")}")
       else logger.debug(logEntry)

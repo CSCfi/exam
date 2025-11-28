@@ -40,4 +40,3 @@ object ReservationCreationFilter:
                 Future.successful(Left(Results.BadRequest(ex.getMessage)))
           case _ =>
             Future.successful(Left(Results.BadRequest("Expected JSON body")))
-

@@ -11,7 +11,6 @@ import models.user.{Role, User}
 import play.api.http.Status
 import play.api.test.Helpers.*
 
-import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
 class SessionControllerSpec extends BaseIntegrationSpec with DbApiHelper:
@@ -26,15 +25,14 @@ class SessionControllerSpec extends BaseIntegrationSpec with DbApiHelper:
         initialUser must be(empty)
 
         // Login and verify user creation
-        login(eppn).map { case (user, _) =>
-          user.getRoles.size must be(1)
-          user.getOrganisation mustNot be(null)
-          user.getRoles.asScala.head.getName must be(Role.Name.TEACHER.toString)
-          user.getFirstName must be("Test")
-          user.getLastName must be("Newuser")
-          user.getUserIdentifier must be("org1.org:11111 org2.org:22222 org3.org:33333")
-          user.getLanguage.getCode must be("en") // was de originally, but not supported
-        }
+        val (user, _) = runIO(login(eppn))
+        user.getRoles.size must be(1)
+        user.getOrganisation mustNot be(null)
+        user.getRoles.asScala.head.getName must be(Role.Name.TEACHER.toString)
+        user.getFirstName must be("George")
+        user.getLastName must be("Lazenby")
+        user.getUserIdentifier must be("org1.org:11111 org2.org:22222 org3.org:33333")
+        user.getLanguage.getCode must be("en") // was de originally, but not supported
 
     "handling new external user login" must:
       "reject external user and not create account" in:
@@ -45,7 +43,7 @@ class SessionControllerSpec extends BaseIntegrationSpec with DbApiHelper:
         initialUser must be(None)
 
         // Attempt login - must fail
-        loginExpectFailure(eppn)
+        runIO(loginExpectFailure(eppn))
 
         // Verify that the user was not created
         val user = DB.find(classOf[User]).where().eq("eppn", eppn).find
@@ -68,10 +66,9 @@ class SessionControllerSpec extends BaseIntegrationSpec with DbApiHelper:
               "urn:schac:personalUniqueCode:int:studentID:org1.org:11111"
           )
         )
-        login(eppn, additionalHeaders).map { case (user, _) =>
-          // Verify that the user was created with deduplicated identifiers
-          user.getUserIdentifier must be("org1.org:null org2.org:aaaaa")
-        }
+        val (user, _) = runIO(login(eppn, additionalHeaders))
+        // Verify that the user was created with deduplicated identifiers
+        user.getUserIdentifier must be("org1.org:null org2.org:aaaaa")
 
       "handle other identifier key types correctly" in:
         val eppn = "newuser@test.org"
@@ -88,10 +85,9 @@ class SessionControllerSpec extends BaseIntegrationSpec with DbApiHelper:
               "urn:schac:personalUniqueCode:org:org1.org:arturid:22222"
           )
         )
-        login(eppn, additionalHeaders).map { case (user, _) =>
-          // Verify that the user was created with a correct identifier
-          user.getUserIdentifier must be("org2.org:aaaaa")
-        }
+        val (user, _) = runIO(login(eppn, additionalHeaders))
+        // Verify that the user was created with a correct identifier
+        user.getUserIdentifier must be("org2.org:aaaaa")
 
       "handle invalid user identifier string" in:
         val eppn = "newuser@test.org"
@@ -102,10 +98,9 @@ class SessionControllerSpec extends BaseIntegrationSpec with DbApiHelper:
 
         // Login with an invalid identifier string
         val additionalHeaders = Map("schacPersonalUniqueCode" -> "11111")
-        login(eppn, additionalHeaders).map { case (user, _) =>
-          // Verify that the user was created with the raw identifier
-          user.getUserIdentifier must be("11111")
-        }
+        val (user, _)         = runIO(login(eppn, additionalHeaders))
+        // Verify that the user was created with the raw identifier
+        user.getUserIdentifier must be("11111")
 
       "handle missing user identifier value" in:
         val eppn = "newuser@test.org"
@@ -118,10 +113,9 @@ class SessionControllerSpec extends BaseIntegrationSpec with DbApiHelper:
         val additionalHeaders = Map(
           "schacPersonalUniqueCode" -> "urn:schac:personalUniqueCode:int:studentID:org2.org:"
         )
-        login(eppn, additionalHeaders).map { case (user, _) =>
-          // Verify that the user was created with a null value
-          user.getUserIdentifier must be("org2.org:null")
-        }
+        val (user, _) = runIO(login(eppn, additionalHeaders))
+        // Verify that the user was created with a null value
+        user.getUserIdentifier must be("org2.org:null")
 
       "handle national user identifier correctly" in:
         val eppn = "newuser@test.org"
@@ -137,36 +131,32 @@ class SessionControllerSpec extends BaseIntegrationSpec with DbApiHelper:
               "urn:schac:personalUniqueCode:int:esi:FI:xxx"
           )
         )
-        login(eppn, additionalHeaders).map { case (user, _) =>
-          // Verify user was created with a correct identifier (national identifier ignored)
-          user.getUserIdentifier must be("org2.org:111")
-        }
+        val (user, _) = runIO(login(eppn, additionalHeaders))
+        // Verify user was created with a correct identifier (national identifier ignored)
+        user.getUserIdentifier must be("org2.org:111")
 
     "handling session management" must:
       "maintain session across requests" in:
         // Login first and use the session for subsequent requests
-        login("sessiontest@funet.fi").map { case (user, session) =>
-          // Check session status (returns plain text, not JSON)
-          val result = get("/app/session", session = session)
-          assertOk(result)
+        val (user, session) = runIO(login("sessiontest@funet.fi"))
+        // Check session status (returns plain text, not JSON)
+        val result = runIO(get("/app/session", session = session))
+        statusOf(result) must be(Status.OK)
 
-          // Verify that the session is active (should return an empty string or "alarm", not "no_session")
-          val content = contentAsString(result)
-          content must not be "no_session"
-        }
+        // Verify that the session is active (should return an empty string or "alarm", not "no_session")
+        val content = contentAsStringOf(result)
+        content must not be "no_session"
 
       "clear session on logout" in:
         // Login first
-        login("logouttest@funet.fi").flatMap { case (user, _) =>
-          user.getId.longValue must be > 0L
+        val (user, session) = runIO(login("logouttest@funet.fi"))
+        user.getId.longValue must be > 0L
 
-          // Logout using the session
-          logout().map { logoutResult =>
-            status(Future.successful(logoutResult)) must be(Status.OK)
+        // Logout using the session
+        val logoutResult = runIO(logout())
+        statusOf(logoutResult) must be(Status.OK)
 
-            // Verify that subsequent requests without session fail
-            val sessionCheckResult = get("/app/session")
-            val content            = contentAsString(sessionCheckResult)
-            content must be("no_session")
-          }
-        }
+        // Verify that subsequent requests without session fail
+        val sessionCheckResult = runIO(get("/app/session"))
+        val content            = contentAsStringOf(sessionCheckResult)
+        content must be("no_session")

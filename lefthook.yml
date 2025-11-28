@@ -12,6 +12,10 @@ pre-commit:
       tags: backend style
       glob: "**/*.java"
       run: npx prettier --write --plugin=prettier-plugin-java --print-width=120 --tab-width=4 {staged_files}
+    scalafmt:
+      tags: backend style
+      glob: "**/*.scala"
+      run: sbt scalafmtAll
     eslint:
       tags: frontend rules
       glob: "**/*.ts"

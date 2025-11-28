@@ -42,8 +42,7 @@ class CollaborativeStudentActionController @Inject() (
         case Some(url) =>
           val wsRequest = wsClient.url(url.toString + user.getEppn)
           wsRequest.get().map { response =>
-            if response.status != OK then
-              Status(response.status)
+            if response.status != OK then Status(response.status)
             else
               val root = response.json.as[JsArray]
               calculateScores(root)
@@ -58,4 +57,3 @@ class CollaborativeStudentActionController @Inject() (
         logger.error(s"Malformed URL: $url")
         None
       case some => some
-

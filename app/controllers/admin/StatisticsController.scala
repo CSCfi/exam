@@ -24,7 +24,7 @@ import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 import scala.util.{Try, Using}
 
-class StatisticsController @Inject()(
+class StatisticsController @Inject() (
     val controllerComponents: ControllerComponents,
     val authenticated: AuthenticatedAction,
     implicit val ec: AuthExecutionContext

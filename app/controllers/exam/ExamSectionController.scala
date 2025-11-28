@@ -320,8 +320,8 @@ class ExamSectionController @Inject() (
                 Option(DB.find(classOf[Question], qid)) match
                   case None => None
                   case Some(question) =>
-                    if Option(exam.getAutoEvaluationConfig).isDefined && question.getType == Question.Type.EssayQuestion then
-                      Some(Forbidden("i18n_error_autoevaluation_essay_question"))
+                    if Option(exam.getAutoEvaluationConfig).isDefined && question.getType == Question.Type.EssayQuestion
+                    then Some(Forbidden("i18n_error_autoevaluation_essay_question"))
                     else insertQuestion(exam, section, question, user, sequence)
               }
             } match
@@ -499,9 +499,9 @@ class ExamSectionController @Inject() (
       val dto = SectionQuestionDTO(answerInstructions, evaluationCriteria, questionText)
 
       val baseQuery = DB.find(classOf[ExamSectionQuestion]).where().idEq(qid)
-      val query = if user.hasRole(Role.Name.TEACHER) then
-        baseQuery.eq("examSection.exam.examOwners", user)
-      else baseQuery
+      val query =
+        if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("examSection.exam.examOwners", user)
+        else baseQuery
       val pp = PathProperties.parse("(*, question(*, options(*)), options(*, option(*)))")
       query.apply(pp)
       query.find match
@@ -544,11 +544,11 @@ class ExamSectionController @Inject() (
   def updateUndistributedExamQuestion(eid: Long, sid: Long, qid: Long): Action[AnyContent] =
     audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
       request =>
-        val user  = request.attrs(Auth.ATTR_USER)
+        val user      = request.attrs(Auth.ATTR_USER)
         val baseQuery = DB.find(classOf[ExamSectionQuestion]).where().idEq(qid)
-        val query = if user.hasRole(Role.Name.TEACHER) then
-          baseQuery.eq("examSection.exam.examOwners", user)
-        else baseQuery
+        val query =
+          if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("examSection.exam.examOwners", user)
+          else baseQuery
         val pp = PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))")
         query.apply(pp)
         query.find match
@@ -586,11 +586,11 @@ class ExamSectionController @Inject() (
       ownerIds: Option[List[Long]]
   ): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user  = request.attrs(Auth.ATTR_USER)
+      val user      = request.attrs(Auth.ATTR_USER)
       val baseQuery = DB.find(classOf[ExamSection]).where()
-      val withCreatorFilter = if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-        baseQuery.where().eq("creator.id", user.getId)
-      else baseQuery
+      val withCreatorFilter =
+        if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then baseQuery.where().eq("creator.id", user.getId)
+        else baseQuery
       val withFilter = filter.fold(withCreatorFilter) { f =>
         val condition = s"%$f%"
         withCreatorFilter.ilike("name", condition)

@@ -40,14 +40,12 @@ class Validator[T] private (
     rules: List[T => ValidatedNel[FieldError, ?]]
 ):
 
-  /** Add a validation rule.
-    * Rules are accumulated, and all will be executed collecting all errors.
+  /** Add a validation rule. Rules are accumulated, and all will be executed collecting all errors.
     */
   def withRule(rule: T => ValidatedNel[FieldError, ?]): Validator[T] =
     new Validator(parser, rules :+ rule)
 
-  /** Parse JSON and validate the result.
-    * Returns Either with all accumulated validation errors or the valid object.
+  /** Parse JSON and validate the result. Returns Either with all accumulated validation errors or the valid object.
     */
   def validate(body: JsonNode): Either[ValidationException, T] =
     val target = parser(body)

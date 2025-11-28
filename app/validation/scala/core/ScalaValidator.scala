@@ -59,8 +59,8 @@ trait PlayJsonValidator:
 
   /** Common HTML safelist for sanitizing user input
     *
-    * Allows common HTML elements and attributes needed for rich text editing,
-    * including math-related attributes and math-field tags.
+    * Allows common HTML elements and attributes needed for rich text editing, including math-related attributes and
+    * math-field tags.
     */
   protected val HTML_SAFELIST: Safelist = HtmlSafelist.SAFELIST
 
@@ -91,7 +91,7 @@ trait PlayJsonValidator:
       // Create a temporary AnyContent request for sanitize
       val tempRequest = request.asInstanceOf[Request[AnyContent]]
       sanitize(tempRequest, request.body) match
-        case Left(error) => Left(error)
+        case Left(error)     => Left(error)
         case Right(enriched) =>
           // Cast back to Request[JsValue] - the body type is just a type parameter
           // and the actual body (JsValue) is preserved, only attributes are added
@@ -113,11 +113,11 @@ trait PlayJsonValidator:
       input match
         case jsRequest: Request[JsValue @unchecked] if input.body.isInstanceOf[JsValue] =>
           validateJsValue(jsRequest) match
-            case Left(errorResult) => Left(errorResult)
+            case Left(errorResult)      => Left(errorResult)
             case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[A]])
         case _ =>
           validate(input.asInstanceOf[Request[AnyContent]]) match
-            case Left(errorResult) => Left(errorResult)
+            case Left(errorResult)      => Left(errorResult)
             case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[A]])
     }
   }

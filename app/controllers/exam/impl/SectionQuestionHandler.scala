@@ -56,8 +56,9 @@ trait SectionQuestionHandler:
         val esqo = new ExamSectionQuestionOption()
         // Preserve scores for the exam question that is under modification right now
         val preserveScore = modifiedExamQuestion != null && modifiedExamQuestion.equals(examQuestion)
-        val unroundedScore = if preserveScore then option.getDefaultScore
-        else calculateOptionScore(question, option, examQuestion)
+        val unroundedScore =
+          if preserveScore then option.getDefaultScore
+          else calculateOptionScore(question, option, examQuestion)
         esqo.setScore(if unroundedScore == null then null else round(unroundedScore))
         esqo.setOption(option)
         examQuestion.addOption(esqo, preserveScore)
@@ -75,15 +76,18 @@ trait SectionQuestionHandler:
     * @return
     *   New calculated score rounded to two decimals.
     */
-  def calculateOptionScore(question: Question, option: MultipleChoiceOption, esq: ExamSectionQuestion): java.lang.Double =
+  def calculateOptionScore(
+      question: Question,
+      option: MultipleChoiceOption,
+      esq: ExamSectionQuestion
+  ): java.lang.Double =
     val defaultScore = option.getDefaultScore
     if defaultScore == null || defaultScore == 0 then defaultScore
     else
-      val result = if defaultScore > 0 then
-        (esq.getMaxAssessedScore / 100) * ((defaultScore / question.getMaxDefaultScore) * 100)
-      else if defaultScore < 0 then
-        (esq.getMinScore / 100) * ((defaultScore / question.getMinDefaultScore) * 100)
-      else 0.0
+      val result =
+        if defaultScore > 0 then (esq.getMaxAssessedScore / 100) * ((defaultScore / question.getMaxDefaultScore) * 100)
+        else if defaultScore < 0 then (esq.getMinScore / 100) * ((defaultScore / question.getMinDefaultScore) * 100)
+        else 0.0
       result
 
   def updateSequences(sortables: List[Sortable], ordinal: Int): Unit =
@@ -99,7 +103,9 @@ trait SectionQuestionHandler:
       case Some(id) =>
         Option(DB.find(classOf[MultipleChoiceOption], id)).foreach { option =>
           PlayJsonHelper.parse[String]("option", node).foreach(option.setOption)
-          PlayJsonHelper.parseEnum("claimChoiceType", node, classOf[ClaimChoiceOptionType]).foreach(option.setClaimChoiceType)
+          PlayJsonHelper
+            .parseEnum("claimChoiceType", node, classOf[ClaimChoiceOptionType])
+            .foreach(option.setClaimChoiceType)
           if defaults == OptionUpdateOptions.HANDLE_DEFAULTS then
             PlayJsonHelper.parse[Double]("defaultScore", node).foreach { d =>
               option.setDefaultScore(round(java.lang.Double.valueOf(d)))
@@ -139,4 +145,3 @@ trait SectionQuestionHandler:
     sectionQuestion.setNegativeScoreAllowed(question.isDefaultNegativeScoreAllowed)
     sectionQuestion.setOptionShufflingOn(question.isDefaultOptionShufflingOn)
     updateOptions(sectionQuestion, question)
-

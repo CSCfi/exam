@@ -4,8 +4,8 @@
 
 package base
 
+import cats.effect.IO
 import io.ebean.DB
-import models.exam.Exam
 import models.user.User
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.util.Timeout
@@ -13,28 +13,24 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.*
-import org.yaml.snakeyaml.representer.Representer
-import org.yaml.snakeyaml.{DumperOptions, LoaderOptions, Yaml}
 import play.api.Application
-import play.api.http.Status
+import play.api.http.{Status, Writeable}
 import play.api.libs.json.*
 import play.api.mvc.*
 import play.api.test.*
 import play.api.test.Helpers.*
 
-import java.io.FileInputStream
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import scala.concurrent.duration.*
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.jdk.CollectionConverters.*
-import scala.util.Using
+import scala.concurrent.{ExecutionContext, Future}
 
 /** Base specification class for integration tests using ScalaTest + Play.
   */
 abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with ScalaFutures with BeforeAndAfterEach:
 
-  implicit lazy val executionContext: ExecutionContext = app.actorSystem.dispatcher
+  implicit lazy val executionContext: ExecutionContext      = app.actorSystem.dispatcher
+  implicit lazy val ioRuntime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.implicits.global
   // Implicit values needed for Play test helpers
   implicit lazy val materializer: Materializer = app.materializer
   implicit val timeout: Timeout                = Timeout(5.seconds)
@@ -42,8 +38,9 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
   // IDEA seems to need this
   System.setProperty("config.resource", "integrationtest.conf")
 
-  // Common test headers (equivalent to HAKA_HEADERS in Java)
-  protected val hakaHeaders: Map[String, String] = Map(
+  // Flag to track if test data has been loaded for this test instance (a bit hacky yes)
+  private var testDataLoaded = false
+  private val hakaHeaders: Map[String, String] = Map(
     "Accept"               -> "application/json, text/plain, */*",
     "Content-Type"         -> "application/json;charset=UTF-8",
     "Csrf-Token"           -> "nocheck", // Bypass CSRF protection in tests
@@ -67,9 +64,6 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
       )
   )
 
-  // Flag to track if test data has been loaded for this test instance
-  private var testDataLoaded = false
-
   // Test data setup - equivalent to Java @Before setUp()
   override def beforeEach(): Unit =
     super.beforeEach()
@@ -80,77 +74,9 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
     */
   protected def ensureTestDataLoaded(): Unit =
     if !testDataLoaded then
-      addTestData()
+      TestDataLoader.load()
       testDataLoaded = true
 
-  /** Load test data from a YAML file. */
-  private def addTestData(): Unit =
-    val loaderOptions = new LoaderOptions()
-    loaderOptions.setMaxAliasesForCollections(400)
-    loaderOptions.setTagInspector(_ => true)
-
-    val dumperOptions = new DumperOptions()
-    val yaml = new Yaml(
-      new JodaPropertyConstructor(loaderOptions),
-      new Representer(dumperOptions),
-      dumperOptions,
-      loaderOptions
-    )
-
-    val result = Using(new FileInputStream("test/resources/initial-data.yml")): is =>
-      val all = yaml.load(is).asInstanceOf[java.util.Map[String, java.util.List[Object]]]
-
-      // Load entities in dependency order (same as Java)
-      val entityTypes = List(
-        "role",
-        "exam-type",
-        "exam-execution-type",
-        "languages",
-        "organisations",
-        "attachments",
-        "users",
-        "grade-scales",
-        "grades",
-        "question-essay",
-        "question-multiple-choice",
-        "question-weighted-multiple-choice",
-        "question-claim-choice",
-        "question-clozetest",
-        "softwares",
-        "courses",
-        "comments"
-      )
-      val examDependentTypes = List(
-        "exam-sections",
-        "section-questions",
-        "exam-participations",
-        "exam-inspections",
-        "mail-addresses",
-        "calendar-events",
-        "exam-rooms",
-        "exam-machines",
-        "exam-room-reservations",
-        "exam-enrolments"
-      )
-
-      // Save all standard entities
-      for entityType <- entityTypes yield Option(all.get(entityType)).map(DB.saveAll)
-      // Special handling for exams (need hash generation)
-      val exams = Option(all.get("exams")).map(_.asScala.toList.map(_.asInstanceOf[Exam])).getOrElse(List.empty)
-      exams.foreach { exam =>
-        exam.generateHash()
-        exam.save()
-      }
-      // Save remaining entities that depend on exams
-      for entityType <- examDependentTypes yield Option(all.get(entityType)).map(DB.saveAll)
-
-    result
-      .recover:
-        case e: Exception => throw new RuntimeException("Failed to load test data", e)
-      .get
-
-  /** Make a request with optional headers and session.
-    */
   protected def makeRequest(
       method: String,
       path: String,
@@ -158,169 +84,91 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
       headers: Map[String, String] = hakaHeaders,
       followRedirects: Boolean = false,
       session: Session = Session()
-  )(implicit app: Application): Future[Result] =
-    ensureTestDataLoaded()
+  )(implicit app: Application, ec: ExecutionContext): IO[Result] =
 
-    // Create base request with headers and session
-    val baseRequest = FakeRequest(method, path)
-      .withHeaders(headers.toSeq*)
-      .withSession(session.data.toSeq*)
-
-    // Route the request with or without JSON body
-    val result =
-      if body.isDefined && method != GET then
-        route(app, baseRequest.withJsonBody(body.get)).getOrElse(
+    def runRoute[T](req: FakeRequest[T])(implicit writeable: Writeable[T]): IO[Result] =
+      IO.fromFuture(IO {
+        route(app, req).getOrElse(
           throw new RuntimeException(s"No route found for $method $path")
         )
-      else
-        route(app, baseRequest).getOrElse(
-          throw new RuntimeException(s"No route found for $method $path")
-        )
+      })
 
-    if followRedirects then
-      // Handle redirects (simplified - you might want to make this more robust)
-      result.flatMap: res =>
-        res.header.headers.get("Location") match
-          case Some(location) => makeRequest(method, location, body, headers)
-          case None           => Future.successful(res)
-    else result
+    for
+      // This will be debuggable
+      _ <- IO.pure(ensureTestDataLoaded())
 
-  /** Convenience methods for making requests.
-    */
-  protected def get(path: String, followRedirects: Boolean = false, session: Session = Session()): Future[Result] =
+      baseRequest = FakeRequest(method, path)
+        .withHeaders(headers.toSeq*)
+        .withSession(session.data.toSeq*)
+
+      result <- body match
+        case Some(json) if method != GET => runRoute(baseRequest.withJsonBody(json))
+        case _                           => runRoute(baseRequest)
+
+      finalResult <-
+        if !followRedirects then IO.pure(result)
+        else
+          result.header.headers.get("Location") match
+            case Some(location) =>
+              // NOTE: recursive call — but still debuggable
+              makeRequest(method, location, body, headers, followRedirects = true, session)
+            case None => IO.pure(result)
+    yield finalResult
+
+  protected def login(eppn: String, additionalHeaders: Map[String, String] = Map.empty): IO[(User, Session)] =
+    for
+      headers <- IO.pure(hakaHeaders + ("eppn" -> eppn) ++ additionalHeaders)
+      result  <- makeRequest(POST, "/app/session", headers = headers)
+      _ <- IO {
+        statusOf(result) must be(Status.OK)
+      }
+      sessionData  <- IO.pure(sessionOf(result))
+      responseJson <- IO.pure(contentAsJsonOf(result))
+      userId       <- IO.pure((responseJson \ "id").as[Long])
+      user         <- IO.pure(DB.find(classOf[User], userId))
+    yield (user, sessionData)
+
+  protected def loginAsAdmin(): IO[(User, Session)]   = login("admin@funet.fi")
+  protected def loginAsTeacher(): IO[(User, Session)] = login("teacher@funet.fi")
+  protected def loginAsStudent(): IO[(User, Session)] = login("student@funet.fi")
+
+  protected def loginExpectFailure(eppn: String): IO[Result] =
+    for
+      headers <- IO.pure(hakaHeaders + ("eppn" -> eppn))
+      result  <- makeRequest(POST, "/app/session", headers = headers)
+      _ <- IO {
+        statusOf(result) must be(Status.BAD_REQUEST)
+      }
+    yield result
+
+  protected def logout(): IO[Result] = makeRequest(DELETE, "/app/session")
+
+  // Convenience methods for making requests
+  protected def get(path: String, followRedirects: Boolean = false, session: Session = Session()): IO[Result] =
     makeRequest(GET, path, followRedirects = followRedirects, session = session)
-  protected def post(path: String, session: Session = Session()): Future[Result] =
+  protected def post(path: String, session: Session = Session()): IO[Result] =
     makeRequest(POST, path, session = session)
-  protected def delete(path: String, session: Session = Session()): Future[Result] =
+  protected def delete(path: String, session: Session = Session()): IO[Result] =
     makeRequest(DELETE, path, session = session)
-  protected def put(path: String, body: JsValue, session: Session = Session()): Future[Result] =
+  protected def put(path: String, body: JsValue, session: Session = Session()): IO[Result] =
     makeRequest("PUT", path, Some(body), session = session)
-  protected def post(path: String, body: JsValue, followRedirects: Boolean): Future[Result] =
-    makeRequest(POST, path, Some(body), followRedirects = followRedirects)
 
-  /** Login with EPPN and return Future of (User, Session).
+  // Helpers for using Play test utilities with IO-based Results.
+  protected def statusOf(result: Result): Int                          = status(Future.successful(result))
+  protected def contentAsJsonOf(result: Result): JsValue               = contentAsJson(Future.successful(result))
+  protected def sessionOf(result: Result): Session                     = session(Future.successful(result))
+  protected def contentAsStringOf(result: Result): String              = contentAsString(Future.successful(result))
+  protected def headerOf(result: Result, name: String): Option[String] = result.header.headers.get(name)
+
+  // IO runners
+  protected def runIO[A](block: IO[A]): A = block.unsafeRunSync()
+  protected def runIOWithTimeout[A](timeout: FiniteDuration = 30.seconds)(test: IO[A]): A =
+    test.timeout(timeout).unsafeRunSync()
+
+  /** Resource-safe test runner for tests that need cleanup. Uses Cats Effect Resource for proper resource management.
+    *
+    * Example: Resource.make(IO(startServer()))(server => IO(server.stop())).use { server => for (user, session) <-
+    * loginAsTeacher() result <- makeRequest(GET, "/some/path", session = session) yield statusOf(result) must
+    * be(Status.OK) }
     */
-  protected def login(eppn: String, additionalHeaders: Map[String, String] = Map.empty): Future[(User, Session)] =
-    // Extract username from eppn for consistent user creation
-    val username = eppn.split("@").head
-    val domain   = eppn.split("@").last
-
-    val loginHeaders = hakaHeaders ++ additionalHeaders ++ Map(
-      "eppn"        -> eppn,
-      "mail"        -> java.net.URLEncoder.encode(eppn, "UTF-8"),
-      "displayName" -> java.net.URLEncoder.encode(s"Test $username", "UTF-8"),
-      "sn"          -> java.net.URLEncoder.encode(username.capitalize, "UTF-8")
-    )
-    val result = makeRequest(POST, "/app/session", headers = loginHeaders)
-
-    result.map { res =>
-      status(Future.successful(res)) must be(Status.OK)
-      val sessionData  = session(Future.successful(res))
-      val responseJson = contentAsJson(Future.successful(res))
-      val userId       = (responseJson \ "id").as[Long]
-      val user         = DB.find(classOf[User], userId)
-      (user, sessionData)
-    }
-
-  /** Login expecting failure (equivalent to Java loginExpectFailure method).
-    */
-  protected def loginExpectFailure(eppn: String): Future[Result] =
-    // Extract username from eppn for consistent user creation attempt
-    val username = eppn.split("@").head
-
-    val loginHeaders = hakaHeaders ++ Map(
-      "eppn"        -> eppn,
-      "mail"        -> java.net.URLEncoder.encode(eppn, "UTF-8"),
-      "displayName" -> java.net.URLEncoder.encode(s"Test $username", "UTF-8"),
-      "sn"          -> java.net.URLEncoder.encode(username.capitalize, "UTF-8")
-    )
-    val result = makeRequest(POST, "/app/session", headers = loginHeaders)
-
-    result.map { res =>
-      status(Future.successful(res)) must be(Status.BAD_REQUEST)
-      res
-    }
-
-  protected def logout(): Future[Result]                  = makeRequest(DELETE, "/app/session")
-  protected def loginAsAdmin(): Future[(User, Session)]   = login("admin@funet.fi")
-  protected def loginAsTeacher(): Future[(User, Session)] = login("teacher@funet.fi")
-  protected def loginAsStudent(): Future[(User, Session)] = login("student@funet.fi")
-
-  /** Debug helper to convert any Future to synchronous result for easier debugging.
-    * Use this when you need to set breakpoints in test code.
-    * 
-    * Example:
-    *   val (user, session) = debug(loginAsTeacher())
-    *   val result = debug(makeRequest(GET, "/some/path"))
-    */
-  protected def debug[T](future: Future[T]): T = Await.result(future, 10.seconds)
-
-  /** Helper to parse JSON response.
-    */
-  protected def parseJsonResponse(result: Future[Result]): JsValue =
-    contentAsJson(result)
-
-  /** Helper to extract specific field from JSON response.
-    */
-  protected def extractField[T](result: Future[Result], field: String)(implicit reads: Reads[T]): T =
-    val json = contentAsJson(result)
-    (json \ field).as[T]
-
-  /** Assert that a result has the expected status.
-    */
-  protected def assertStatus(result: Future[Result], expectedStatus: Int): Unit =
-    status(result) must be(expectedStatus)
-
-  /** Assert that a result is OK (200).
-    */
-  protected def assertOk(result: Future[Result]): Unit =
-    assertStatus(result, Status.OK)
-
-  /** Assert that a result is Bad Request (400).
-    */
-  protected def assertBadRequest(result: Future[Result]): Unit =
-    assertStatus(result, Status.BAD_REQUEST)
-
-  /** Helper to check if result redirects to a specific location.
-    */
-  protected def assertRedirectsTo(result: Future[Result], expectedLocation: String): Unit =
-    status(result) must be(Status.SEE_OTHER)
-    redirectLocation(result) must be(Some(expectedLocation))
-
-  /** Helper to assert JSON field value.
-    */
-  protected def assertJsonField[T](result: Future[Result], field: String, expectedValue: T)(implicit
-      reads: Reads[T]
-  ): Unit =
-    val json = contentAsJson(result)
-    (json \ field).as[T] must be(expectedValue)
-
-  /** Helper to assert that JSON contains a specific field.
-    */
-  protected def assertJsonHasField(result: Future[Result], field: String): Unit =
-    val json = contentAsJson(result)
-    (json \ field).isDefined must be(true)
-
-  /** Helper to get content type from result.
-    */
-  protected def getContentType(result: Future[Result]): Option[String] =
-    contentType(result)
-
-  /** Helper to assert content type.
-    */
-  protected def assertContentType(result: Future[Result], expectedType: String): Unit =
-    contentType(result) must be(Some(expectedType))
-
-  /** Helper for async operations with proper error handling.
-    */
-  protected def withAsyncResult[T](result: Future[Result])(action: Result => T): T =
-    whenReady(result)(action)
-
-  /** Helper to chain multiple async operations.
-    */
-  protected def chainRequests(operations: (() => Future[Result])*): Future[List[Result]] =
-    operations.foldLeft(Future.successful(List.empty[Result])): (acc, op) =>
-      for
-        results   <- acc
-        newResult <- op()
-      yield results :+ newResult
+  protected def runIOResource[A](test: cats.effect.Resource[IO, A]): A = test.use(IO.pure).unsafeRunSync()

@@ -13,4 +13,4 @@ object ReservationCreationValidator extends PlayJsonValidator:
   override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
     ReservationValidator.forCreation(json) match
       case Right(reservation) => Right(request.addAttr(ScalaAttrs.ATTR_STUDENT_RESERVATION, reservation))
-      case Left(ex)            => Left(Results.BadRequest(ex.getMessage))
+      case Left(ex)           => Left(Results.BadRequest(ex.getMessage))

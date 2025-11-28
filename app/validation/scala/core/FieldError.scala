@@ -6,4 +6,3 @@ package validation.scala.core
 
 case class FieldError(field: String, message: String):
   override def toString: String = s"$field: $message"
-

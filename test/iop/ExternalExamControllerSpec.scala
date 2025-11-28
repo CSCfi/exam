@@ -38,7 +38,6 @@ import java.nio.file.{FileSystems, Files, Path}
 import java.util
 import java.util.UUID
 import java.util.stream.StreamSupport
-import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
 class ExternalExamControllerSpec
@@ -52,15 +51,15 @@ class ExternalExamControllerSpec
   private val RESERVATION_REF   = "0e6d16c51f857a20ab578f57f105032e"
   private val RESERVATION_REF_2 = "0e6d16c51f857a20ab578f57f105032f"
   private val ROOM_REF          = "0e6d16c51f857a20ab578f57f1018456"
-  private val HASH         = "7cf002da-4263-4843-99b1-e8af51e" // Has to match with the externalRef in the test JSON file
+  private val HASH = "7cf002da-4263-4843-99b1-e8af51e" // Has to match with the externalRef in the test JSON file
   private val MAIL_TIMEOUT = 5000L
 
   // Server infrastructure - initialized once in beforeAll
   private lazy val testImage: File = getTestFile("test_files/test_image.png")
 
   // These will be initialized in beforeAll and cleaned up in afterAll
-  private var testUpload: Option[Path] = None
-  private var server: Option[Server] = None
+  private var testUpload: Option[Path]                     = None
+  private var server: Option[Server]                       = None
   private var attachmentServlet: Option[AttachmentServlet] = None
 
   // GreenMail setup for email testing
@@ -98,7 +97,7 @@ class ExternalExamControllerSpec
     startGreenMail()
 
     val serverInstance = new Server(31247)
-    val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
+    val context        = new ServletContextHandler(ServletContextHandler.SESSIONS)
     context.setContextPath("/api")
 
     val testUploadPath = Files.createTempDirectory("test_upload")
@@ -129,19 +128,19 @@ class ExternalExamControllerSpec
     greenMail.purgeEmailFromAllMailboxes()
 
     // Clean up any leftover files from previous tests
-    try
-      val fileHandler = app.injector.instanceOf(classOf[FileHandler])
+    // Note: app might be null in beforeEach with GuiceOneAppPerTest
+    Option(app).foreach { application =>
+      val fileHandler = application.injector.instanceOf(classOf[FileHandler])
       val uploadPath  = fileHandler.getAttachmentPath
       val path        = FileSystems.getDefault.getPath(uploadPath)
       if path.toFile.exists() then FileUtils.cleanDirectory(path.toFile)
-    catch
-      case _: Exception => // Ignore cleanup errors during test initialization
+    }
 
-  protected def getTestFile(s: String): File =
+  private def getTestFile(s: String): File =
     val classLoader = this.getClass.getClassLoader
     new File(java.util.Objects.requireNonNull(classLoader.getResource(s)).getFile)
 
-  protected def createAttachment(fileName: String, filePath: String, mimeType: String): Attachment =
+  private def createAttachment(fileName: String, filePath: String, mimeType: String): Attachment =
     val attachment = new Attachment()
     attachment.setFileName(fileName)
     attachment.setFilePath(filePath)
@@ -257,29 +256,26 @@ class ExternalExamControllerSpec
     "requesting enrolment" should:
       "handle enrolment request successfully" in:
         val (exam, enrolment, reservation) = setupTestData()
-        loginAsStudent().flatMap { case (_, session) =>
-          val external = Option(
-            DB.find(classOf[Reservation])
-              .fetch("enrolment")
-              .fetch("enrolment.externalExam")
-              .where()
-              .idEq(reservation.getId)
-              .findOne()
-          ) match
-            case Some(r) => r
-            case None    => fail("External reservation not found")
+        val (user, session)                = runIO(loginAsStudent())
+        val external = Option(
+          DB.find(classOf[Reservation])
+            .fetch("enrolment")
+            .fetch("enrolment.externalExam")
+            .where()
+            .idEq(reservation.getId)
+            .findOne()
+        ) match
+          case Some(r) => r
+          case None    => fail("External reservation not found")
 
-          external.getEnrolment must not be null
-          external.getEnrolment.getExternalExam must not be null
+        external.getEnrolment must not be null
+        external.getEnrolment.getExternalExam must not be null
 
-          // Check that the lottery was taken in effect
-          val examData = external.getEnrolment.getExternalExam.deserialize()
-          val s1       = examData.getExamSections.asScala.find(_.isLotteryOn)
-          s1 must be(defined)
-          s1.get.getSectionQuestions must have size s1.get.getLotteryItemCount
-
-          Future.successful(succeed)
-        }
+        // Check that the lottery was taken in effect
+        val examData = external.getEnrolment.getExternalExam.deserialize()
+        val s1       = examData.getExamSections.asScala.find(_.isLotteryOn)
+        s1 must be(defined)
+        s1.get.getSectionQuestions must have size s1.get.getLotteryItemCount
 
     "receiving exam attainment" should:
       "process exam attainment successfully" in:
@@ -296,8 +292,9 @@ class ExternalExamControllerSpec
 
         val mapper = new ObjectMapper()
         val node   = mapper.readTree(new File("test/resources/externalExamAttainment.json"))
-        val result = makeRequest(POST, s"/integration/iop/exams/$RESERVATION_REF", Some(Json.parse(node.toString)))
-        status(result).must(be(Status.CREATED))
+        val result =
+          runIO(makeRequest(POST, s"/integration/iop/exams/$RESERVATION_REF", Some(Json.parse(node.toString))))
+        statusOf(result).must(be(Status.CREATED))
 
         greenMail.purgeEmailFromAllMailboxes()
         // Note: Email sending might be asynchronous, so we'll check for the main result first
@@ -316,8 +313,8 @@ class ExternalExamControllerSpec
         val uploadPath = fileHandler.getAttachmentPath
         val path       = FileSystems.getDefault.getPath(uploadPath)
 
-        val start                   = System.currentTimeMillis()
-        val expectedFileCount       = 3
+        val start                        = System.currentTimeMillis()
+        val expectedFileCount            = 3
         var files: util.Collection[File] = new java.util.ArrayList()
 
         var done = false
@@ -338,11 +335,9 @@ class ExternalExamControllerSpec
         files.asScala.foreach(file => logger.info(file.toString))
 
         // Check that we can review it
-        loginAsAdmin().flatMap { case (_, adminSession) =>
-          val reviewResult = get(s"/app/review/${attainment.getId}", session = adminSession)
-          status(reviewResult).must(be(Status.OK))
-          Future.successful(succeed)
-        }
+        val (user, session) = runIO(loginAsAdmin())
+        val reviewResult    = runIO(get(s"/app/review/${attainment.getId}", session = session))
+        statusOf(reviewResult).must(be(Status.OK))
 
     "receiving no show" should:
       "process no show successfully" in:
@@ -366,8 +361,9 @@ class ExternalExamControllerSpec
         enrolment.setReservation(reservation)
         enrolment.update()
 
-        val result = makeRequest(POST, s"/integration/iop/reservations/$RESERVATION_REF_2/noshow", Some(Json.obj()))
-        status(result).must(be(Status.OK))
+        val result =
+          runIO(makeRequest(POST, s"/integration/iop/reservations/$RESERVATION_REF_2/noshow", Some(Json.obj())))
+        statusOf(result).must(be(Status.OK))
 
         val r = Option(DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF_2).findOne()) match
           case Some(res) => res
@@ -396,10 +392,10 @@ class ExternalExamControllerSpec
         question.setAttachment(questionAttachment)
         question.save()
 
-        val result = get(s"/integration/iop/reservations/$RESERVATION_REF")
-        status(result).must(be(Status.OK))
+        val result = runIO(get(s"/integration/iop/reservations/$RESERVATION_REF"))
+        statusOf(result).must(be(Status.OK))
 
-        val jsonNode = contentAsJson(result)
+        val jsonNode = contentAsJsonOf(result)
         jsonNode must not be null
 
         val mapper      = new ObjectMapper()

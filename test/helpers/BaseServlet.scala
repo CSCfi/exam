@@ -18,7 +18,7 @@ class BaseServlet extends HttpServlet:
     call
 
   def setWaiter(waiter: Waiter): Unit = this.waiter = waiter
-  def getWaiter: Waiter = waiter
+  def getWaiter: Waiter               = waiter
 
 object BaseServlet:
   var calledMethod: String = uninitialized

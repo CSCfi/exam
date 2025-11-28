@@ -68,9 +68,9 @@ class CourseController @Inject() (
       ownerIds: Option[List[Long]]
   ): Result =
     val baseQuery = DB.find(classOf[Course]).where.isNotNull("name")
-    val withOwnerFilter = if !user.hasRole(Role.Name.ADMIN) then
-      baseQuery.eq("exams.examOwners", user)
-    else baseQuery
+    val withOwnerFilter =
+      if !user.hasRole(Role.Name.ADMIN) then baseQuery.eq("exams.examOwners", user)
+      else baseQuery
     val withExamFilter = examIds.filter(_.nonEmpty).fold(withOwnerFilter) { ids =>
       withOwnerFilter.in("exams.id", ids.asJava)
     }

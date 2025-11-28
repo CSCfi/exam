@@ -55,8 +55,7 @@ object Auth:
       override def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
         // Try to use already-loaded user first (when used with authenticated)
         input.attrs.get(ATTR_USER) match
-          case Some(user) if roles.contains(user.getLoginRole) =>
-            None
+          case Some(user) if roles.contains(user.getLoginRole) => None
           case Some(_) =>
             Some(Forbidden("authentication failure"))
           case None =>

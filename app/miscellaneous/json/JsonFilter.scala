@@ -16,15 +16,14 @@ object JsonFilter:
           case obj: JsObject =>
             (obj \ "id").asOpt[Long] match
               case Some(id) if !ids.contains(id) => n
-              case _ => filterObject(obj, properties, isTopLevel)
+              case _                             => filterObject(obj, properties, isTopLevel)
           case _ => filterValue(n, properties, isTopLevel)
-      else
-        filterValue(n, properties, isTopLevel)
+      else filterValue(n, properties, isTopLevel)
 
     def filterValue(n: JsValue, props: Set[String], topLevel: Boolean): JsValue = n match
       case obj: JsObject => filterObject(obj, props, topLevel)
-      case arr: JsArray => JsArray(arr.value.map(e => helper(e, topLevel)))
-      case other => other
+      case arr: JsArray  => JsArray(arr.value.map(e => helper(e, topLevel)))
+      case other         => other
 
     def filterObject(obj: JsObject, props: Set[String], topLevel: Boolean): JsObject =
       val transformed = obj.fields.foldLeft(Json.obj()) { case (acc, (key, value)) =>

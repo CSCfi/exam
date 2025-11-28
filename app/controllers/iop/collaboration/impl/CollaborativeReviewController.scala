@@ -501,14 +501,16 @@ class CollaborativeReviewController @Inject() (
       case Some(e) =>
         if isUnauthorizedToAssess(e, user) then
           Some(Future.successful(Forbidden("You are not allowed to modify this object")))
-        else if (Option(e.getGrade).isEmpty && gradeRequired) || Option(e.getCreditType).isEmpty || Option(e.getAnswerLanguage).isEmpty || Option(e.getGradedByUser).isEmpty then
-          Some(Future.successful(Forbidden("not yet graded by anyone!")))
+        else if (Option(e.getGrade).isEmpty && gradeRequired) || Option(e.getCreditType).isEmpty || Option(
+            e.getAnswerLanguage
+          ).isEmpty || Option(e.getGradedByUser).isEmpty
+        then Some(Future.successful(Forbidden("not yet graded by anyone!")))
         else if e.hasState(
             Exam.State.ABORTED,
             Exam.State.GRADED_LOGGED,
             Exam.State.ARCHIVED
-          ) || Option(e.getExamRecord).isDefined then
-          Some(Future.successful(Forbidden("i18n_error_exam_already_graded_logged")))
+          ) || Option(e.getExamRecord).isDefined
+        then Some(Future.successful(Forbidden("i18n_error_exam_already_graded_logged")))
         else None
 
   def finalizeAssessment(id: Long, ref: String): Action[JsValue] = audited

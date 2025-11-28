@@ -23,19 +23,19 @@ class JsonFilterSpec extends AnyWordSpec with Matchers:
           new File(getClass.getClassLoader.getResource("jsonfilter_testdata.json").toURI),
           StandardCharsets.UTF_8
         )
-        val array = Json.parse(json).as[JsArray]
+        val array   = Json.parse(json).as[JsArray]
         val filters = Set("creator", "modifier")
 
         // Filter json
         val filtered = JsonFilter.filter(array, Set.empty[Long], filters)
 
         val filteredArray = filtered.as[JsArray]
-        val arrayList = filteredArray.value.toList
+        val arrayList     = filteredArray.value.toList
 
         // Check that node1 does not have properties
-        val node0 = arrayList.head.as[JsObject]
-        val node1Item = (node0 \ "item").as[JsObject]
-        val node1ItemDesc = (node1Item \ "description").as[JsObject]
+        val node0           = arrayList.head.as[JsObject]
+        val node1Item       = (node0 \ "item").as[JsObject]
+        val node1ItemDesc   = (node1Item \ "description").as[JsObject]
         val node1ItemOffers = (node1Item \ "offers").as[JsArray]
 
         assertThatJsonDoesNotHaveProperties(node0, filters)
@@ -52,20 +52,20 @@ class JsonFilterSpec extends AnyWordSpec with Matchers:
           new File(getClass.getClassLoader.getResource("jsonfilter_testdata.json").toURI),
           StandardCharsets.UTF_8
         )
-        val root = Json.parse(json)
+        val root    = Json.parse(json)
         val filters = Set("creator", "modifier")
 
         // Filter json
-        val ids = Set(2L)
+        val ids      = Set(2L)
         val filtered = JsonFilter.filter(root, ids, filters)
 
-        val array = filtered.as[JsArray]
+        val array     = filtered.as[JsArray]
         val arrayList = array.value.toList
 
-        val node1 = arrayList.head.as[JsObject]
-        val item = (node1 \ "item").as[JsObject]
+        val node1       = arrayList.head.as[JsObject]
+        val item        = (node1 \ "item").as[JsObject]
         val description = (item \ "description").as[JsObject]
-        val offers = (item \ "offers").as[JsArray]
+        val offers      = (item \ "offers").as[JsArray]
 
         // Check that node1 has still properties
         assertThatJsonHasProperties(node1, filters)

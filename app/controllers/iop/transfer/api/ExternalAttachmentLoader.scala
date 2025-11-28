@@ -16,4 +16,3 @@ trait ExternalAttachmentLoader:
   def fetchExternalAttachmentsAsLocal(exam: Exam): Future[Unit]
   def createExternalAttachment(attachment: Attachment): Future[Unit]
   def uploadAssessmentAttachments(exam: Exam): Future[Unit]
-

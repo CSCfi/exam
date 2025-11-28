@@ -192,9 +192,10 @@ class ReviewController @Inject() (
             Exam.State.REJECTED,
             Exam.State.ARCHIVED
           )
-        val finalQuery = if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
-          baseQuery.or.eq("parent.examOwners", user).eq("examInspections.user", user).endOr
-        else baseQuery
+        val finalQuery =
+          if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+            baseQuery.or.eq("parent.examOwners", user).eq("examInspections.user", user).endOr
+          else baseQuery
         val exams   = finalQuery.distinct
         val anonIds = exams.filter(_.isAnonymous).map(_.getExamParticipation.getId.longValue)
 

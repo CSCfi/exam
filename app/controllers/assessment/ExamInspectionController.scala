@@ -41,7 +41,7 @@ class ExamInspectionController @Inject() (
     with DbApiHelper:
 
   override protected def executionContext: ExecutionContext = ec
-  override protected def materializer: Materializer = mat
+  override protected def materializer: Materializer         = mat
 
   def addInspection(eid: Long, uid: Long): Action[AnyContent] = authenticated
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))

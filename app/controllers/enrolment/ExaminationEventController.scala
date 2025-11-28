@@ -72,7 +72,7 @@ class ExaminationEventController @Inject() (
 
   private def getParticipantUpperBound(start: DateTime, end: DateTime, id: Option[Long]): Int =
     val baseQuery = DB.find(classOf[ExaminationEvent]).where().le("start", end)
-    val query = id.fold(baseQuery) { i => baseQuery.ne("id", i) }
+    val query     = id.fold(baseQuery) { i => baseQuery.ne("id", i) }
 
     query.distinct
       .filter(ee => !getEventEnding(ee).isBefore(start))

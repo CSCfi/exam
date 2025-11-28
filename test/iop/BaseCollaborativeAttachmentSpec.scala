@@ -9,12 +9,10 @@ import base.BaseIntegrationSpec
 import helpers.*
 import io.ebean.DB
 import jakarta.servlet.MultipartConfigElement
-import miscellaneous.json.JsonDeserializer
 import models.attachment.Attachment
 import models.exam.{Exam, ExamExecutionType}
 import models.questions.EssayAnswer
 import models.sections.ExamSectionQuestion
-import models.user.User
 import net.jodah.concurrentunit.Waiter
 import org.apache.commons.io.FileUtils
 import org.apache.pekko.actor.ActorSystem
@@ -31,7 +29,7 @@ import play.api.test.Helpers.*
 import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
 import java.util.{Base64, Objects}
-import scala.concurrent.Future
+import scala.concurrent.Await
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -87,27 +85,23 @@ trait BaseCollaborativeAttachmentSpec[T]
         logger.error("Test upload directory delete failed!", e)
     finally super.afterEach()
 
-  protected def assertDownloadResult(result: Future[Result]): Future[Unit] =
-    result.map { res =>
-      header("Content-Disposition", Future.successful(res)) must be(
-        Some("attachment; filename*=UTF-8''\"test_image.png\"")
-      )
+  protected def assertDownloadResult(result: Result): Unit =
+    headerOf(result, "Content-Disposition") must be(
+      Some("attachment; filename*=UTF-8''\"test_image.png\"")
+    )
 
-      val actorSystem = ActorSystem.create("TestSystem")
-      val mat         = Materializer.createMaterializer(actorSystem)
-      try
-        implicit val timeout: Timeout = Timeout(5.seconds)
-        val content                   = contentAsString(Future.successful(res))(using timeout, mat)
-        val decoded                   = Base64.getDecoder.decode(content)
-        val f                         = new File(testUpload.toString + "/image.png")
-        FileUtils.writeByteArrayToFile(f, decoded)
-        FileUtils.contentEquals(f, testImage) must be(true)
-      finally actorSystem.terminate()
-    }
-
-  protected def deserialize[U](clazz: Class[U], jsValue: play.api.libs.json.JsValue): U =
-    val jacksonNode = play.libs.Json.parse(jsValue.toString)
-    JsonDeserializer.deserialize(clazz, jacksonNode)
+    val actorSystem                = ActorSystem.create("TestSystem")
+    implicit val mat: Materializer = Materializer.createMaterializer(actorSystem)
+    try
+      implicit val timeout: Timeout = Timeout(5.seconds)
+      // Use the materializer we created instead of relying on Play's
+      val contentBytes = Await.result(result.body.consumeData, 5.seconds)
+      val content      = contentBytes.utf8String
+      val decoded      = Base64.getDecoder.decode(content)
+      val f            = new File(testUpload.toString + "/image.png")
+      FileUtils.writeByteArrayToFile(f, decoded)
+      FileUtils.contentEquals(f, testImage) must be(true)
+    finally actorSystem.terminate()
 
   protected def getTestFile(s: String): File =
     val classLoader = this.getClass.getClassLoader
@@ -120,11 +114,6 @@ trait BaseCollaborativeAttachmentSpec[T]
     attachment.setMimeType(mimeType)
     attachment.save()
     attachment
-
-  protected def getLoggerUser: User =
-    Option(DB.find(classOf[User], 5L)) match
-      case Some(user) => user
-      case None       => fail("Test user with ID 5 not found")
 
   protected def getExamSectionQuestion(exam: Exam): ExamSectionQuestion =
     getExamSectionQuestion(exam, None)

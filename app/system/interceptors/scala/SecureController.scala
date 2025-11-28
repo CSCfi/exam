@@ -10,7 +10,7 @@ import security.scala.Auth.AuthenticatedAction
 /** Trait for controllers that need automatic sensitive data filtering on all actions
   *
   * @example
-  * {{{
+  *   {{{
   * class UserController @Inject()(
   *   val authenticated: AuthenticatedAction,
   *   val sensitiveDataFilter: SensitiveDataFilter,
@@ -29,7 +29,7 @@ import security.scala.Auth.AuthenticatedAction
   *     Ok(users.asJson)  // password, ssn, apiToken automatically removed
   *   }
   * }
-  * }}}
+  *   }}}
   */
 trait SecureController extends BaseController:
   val authenticated: AuthenticatedAction
@@ -37,13 +37,13 @@ trait SecureController extends BaseController:
 
   /** Sensitive fields to filter from all JSON responses
     *
-    * Override this in your controller to specify which fields should be filtered.
-    * These fields will be automatically removed from ALL action responses in the controller.
+    * Override this in your controller to specify which fields should be filtered. These fields will be automatically
+    * removed from ALL action responses in the controller.
     *
     * @example
-    * {{{
+    *   {{{
     * override protected val sensitiveFields = Set("password", "ssn", "apiToken")
-    * }}}
+    *   }}}
     */
   protected def sensitiveFields: Set[String]
 
@@ -58,4 +58,3 @@ trait SecureController extends BaseController:
     */
   protected def secureAction: ActionBuilder[Request, AnyContent] =
     authenticated.andThen(sensitiveDataFilter(sensitiveFields))
-

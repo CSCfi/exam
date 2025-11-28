@@ -23,4 +23,3 @@ trait FileHandler:
   def createNew(fileName: String, contentType: String, path: String): Attachment
   def copyFile(sourceFile: TemporaryFile, destFile: File): Unit
   def copyFile(sourceFile: Path, destFile: File): Unit
-

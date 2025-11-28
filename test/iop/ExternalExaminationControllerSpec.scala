@@ -30,7 +30,6 @@ import play.api.test.Helpers.*
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.UUID
-import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
 class ExternalExaminationControllerSpec
@@ -114,277 +113,293 @@ class ExternalExaminationControllerSpec
     "creating student exam" should:
       "create student exam successfully" in:
         val (exam, _, enrolment, _) = setupTestData()
-        loginAsStudent().flatMap { case (_, session) =>
-          // Execute
-          val result1 = get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session)
-          status(result1) must be(Status.SEE_OTHER)
+        val (user, session)         = runIO(loginAsStudent())
+        // Execute
+        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        statusOf(result1) must be(Status.SEE_OTHER)
 
-          val redirectLocation = header("Location", result1).getOrElse(fail("No redirect location"))
-          val result2          = get(redirectLocation, session = session)
-          status(result2) must be(Status.OK)
+        val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
+        val result2          = runIO(get(redirectLocation, session = session))
+        statusOf(result2) must be(Status.OK)
 
-          // Verify
-          val node        = contentAsJson(result2)
-          val mapper      = new ObjectMapper()
-          val jacksonNode = mapper.readTree(node.toString)
-          val studentExam = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
+        // Verify
+        val node        = contentAsJsonOf(result2)
+        val mapper      = new ObjectMapper()
+        val jacksonNode = mapper.readTree(node.toString)
+        val studentExam = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
 
-          studentExam.getName.must(be(exam.getName))
-          studentExam.getCourse.getId.must(be(exam.getCourse.getId))
-          studentExam.getInstruction.must(be(exam.getInstruction))
-          studentExam.getExamSections.must(have size exam.getExamSections.size)
-          studentExam.getExamSections.iterator.next.getSectionQuestions
-            .must(have size exam.getExamSections.iterator.next.getSectionQuestions.size)
-          studentExam.getHash.must(be(exam.getHash))
-          studentExam.getExamLanguages.must(have size exam.getExamLanguages.size)
-          studentExam.getDuration.must(be(exam.getDuration))
-
-          Future.successful(succeed)
-        }
+        studentExam.getName.must(be(exam.getName))
+        studentExam.getCourse.getId.must(be(exam.getCourse.getId))
+        studentExam.getInstruction.must(be(exam.getInstruction))
+        studentExam.getExamSections.must(have size exam.getExamSections.size)
+        studentExam.getExamSections.iterator.next.getSectionQuestions
+          .must(have size exam.getExamSections.iterator.next.getSectionQuestions.size)
+        studentExam.getHash.must(be(exam.getHash))
+        studentExam.getExamLanguages.must(have size exam.getExamLanguages.size)
+        studentExam.getDuration.must(be(exam.getDuration))
 
       "reject student exam with wrong IP" in:
         val (_, _, enrolment, machine) = setupTestData()
         machine.setIpAddress("127.0.0.2")
         machine.update()
 
-        loginAsStudent().flatMap { case (_, session) =>
-          // Execute
-          val result1 = get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session)
-          status(result1) must be(Status.SEE_OTHER)
-
-          val redirectLocation = header("Location", result1).getOrElse(fail("No redirect location"))
-          val result2          = get(redirectLocation, session = session)
-          status(result2) must be(Status.FORBIDDEN)
-
-          Future.successful(succeed)
-        }
+        val (user, session) = runIO(loginAsStudent())
+        // Execute
+        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        statusOf(result1) must be(Status.SEE_OTHER)
+        val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
+        val result2          = runIO(get(redirectLocation, session = session))
+        statusOf(result2) must be(Status.FORBIDDEN)
 
       "handle already created student exam" in:
         val (_, _, enrolment, _) = setupTestData()
-        loginAsStudent().flatMap { case (_, session) =>
-          // Execute first time
-          val result1 = get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session)
-          status(result1) must be(Status.OK)
+        val (user, session)      = runIO(loginAsStudent())
+        // Execute first time
+        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        statusOf(result1) must be(Status.SEE_OTHER)
 
-          val started = Option(
-            DB.find(classOf[ExternalExam])
-              .where()
-              .eq("hash", enrolment.getExternalExam.getHash)
-              .findOne()
-          ) match
+        val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
+        val result1Final     = runIO(get(redirectLocation, session = session))
+        statusOf(result1Final) must be(Status.OK)
+
+        val started =
+          DB.find(classOf[ExternalExam])
+            .where()
+            .eq("hash", enrolment.getExternalExam.getHash)
+            .find match
             case Some(ee) => ee.getStarted
             case None     => fail("External exam not found")
 
-          // Try again
-          val result2 = get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session)
-          status(result2) must be(Status.OK)
+        // Try again
+        val result2 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        statusOf(result2) must be(Status.SEE_OTHER)
 
-          // Check that the starting time did not change
-          val newStarted = Option(
-            DB.find(classOf[ExternalExam])
-              .where()
-              .eq("hash", enrolment.getExternalExam.getHash)
-              .findOne()
-          ) match
+        val redirectLocation2 = headerOf(result2, "Location").getOrElse(fail("No redirect location"))
+        val result2Final      = runIO(get(redirectLocation2, session = session))
+        statusOf(result2Final) must be(Status.OK)
+
+        // Check that the starting time did not change
+        val newStarted =
+          DB.find(classOf[ExternalExam])
+            .where()
+            .eq("hash", enrolment.getExternalExam.getHash)
+            .find match
             case Some(ee) => ee.getStarted
             case None     => fail("External exam not found")
-
-          newStarted.must(be(started))
-          Future.successful(succeed)
-        }
+        newStarted.must(be(started))
 
     "answering questions" should:
       "answer multiple choice question successfully" in:
         val (_, ee, enrolment, _) = setupTestData()
-        loginAsStudent().flatMap { case (_, session) =>
-          val result      = get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session)
-          val node        = contentAsJson(result)
-          val mapper      = new ObjectMapper()
-          val jacksonNode = mapper.readTree(node.toString)
-          val studentExam = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
+        val (user, session)       = runIO(loginAsStudent())
+        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        statusOf(result1) must be(Status.SEE_OTHER)
 
-          val question = studentExam.getExamSections.asScala
-            .flatMap(_.getSectionQuestions.asScala)
-            .find(_.getQuestion.getType == Question.Type.MultipleChoiceQuestion)
-            .getOrElse(fail("No multiple choice question found"))
+        val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
+        val result2          = runIO(get(redirectLocation, session = session))
+        statusOf(result2) must be(Status.OK)
+        val node        = contentAsJsonOf(result2)
+        val mapper      = new ObjectMapper()
+        val jacksonNode = mapper.readTree(node.toString)
+        val studentExam = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
 
-          val option     = question.getOptions.iterator.next
-          val answerData = createMultipleChoiceAnswerData(option)
+        val question = studentExam.getExamSections.asScala
+          .flatMap(_.getSectionQuestions.asScala)
+          .find(_.getQuestion.getType == Question.Type.MultipleChoiceQuestion)
+          .getOrElse(fail("No multiple choice question found"))
 
-          val postResult = makeRequest(
+        val option     = question.getOptions.iterator.next
+        val answerData = createMultipleChoiceAnswerData(option)
+
+        val postResult = runIO(
+          makeRequest(
             POST,
             s"/app/iop/student/exam/${enrolment.getExternalExam.getHash}/question/${question.getId}/option",
             Some(answerData),
             session = session
           )
-          status(postResult) must be(Status.OK)
+        )
+        statusOf(postResult) must be(Status.OK)
 
-          // Check that an option was marked as answered in the database
-          val savedExternalExam = Option(DB.find(classOf[ExternalExam]).where().eq("hash", ee.getHash).findOne()) match
-            case Some(ee) => ee
-            case None     => fail("External exam not found")
-          val savedExam = savedExternalExam.deserialize()
-          val savedQuestion = savedExam.getExamSections.asScala
-            .flatMap(_.getSectionQuestions.asScala)
-            .find(_.getId == question.getId)
-            .getOrElse(fail("Question not found"))
+        // Check that an option was marked as answered in the database
+        val savedExternalExam = Option(DB.find(classOf[ExternalExam]).where().eq("hash", ee.getHash).findOne()) match
+          case Some(ee) => ee
+          case None     => fail("External exam not found")
+        val savedExam = savedExternalExam.deserialize()
+        val savedQuestion = savedExam.getExamSections.asScala
+          .flatMap(_.getSectionQuestions.asScala)
+          .find(_.getId == question.getId)
+          .getOrElse(fail("Question not found"))
 
-          val answeredCount = savedQuestion.getOptions.asScala.count(_.isAnswered)
-          answeredCount.must(be > 0)
-
-          Future.successful(succeed)
-        }
+        val answeredCount = savedQuestion.getOptions.asScala.count(_.isAnswered)
+        answeredCount.must(be > 0)
 
       "reject multiple choice question with wrong IP" in:
         val (_, _, enrolment, machine) = setupTestData()
-        loginAsStudent().flatMap { case (_, session) =>
-          val result      = get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session)
-          val node        = contentAsJson(result)
-          val mapper      = new ObjectMapper()
-          val jacksonNode = mapper.readTree(node.toString)
-          val studentExam = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
+        val (_, userSession)           = runIO(loginAsStudent())
+        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = userSession))
+        statusOf(result1) must be(Status.SEE_OTHER)
 
-          val question = studentExam.getExamSections.asScala
-            .flatMap(_.getSectionQuestions.asScala)
-            .find(_.getQuestion.getType == Question.Type.MultipleChoiceQuestion)
-            .getOrElse(fail("No multiple choice question found"))
+        val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
+        val result2          = runIO(get(redirectLocation, session = userSession))
+        statusOf(result2) must be(Status.OK)
+        val node        = contentAsJsonOf(result2)
+        val mapper      = new ObjectMapper()
+        val jacksonNode = mapper.readTree(node.toString)
+        val studentExam = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
 
-          val option = question.getOptions.iterator.next
+        val question = studentExam.getExamSections.asScala
+          .flatMap(_.getSectionQuestions.asScala)
+          .find(_.getQuestion.getType == Question.Type.MultipleChoiceQuestion)
+          .getOrElse(fail("No multiple choice question found"))
 
-          // Change IP of the reservation machine to simulate that the student is on a different machine now
-          machine.setIpAddress("127.0.0.2")
-          machine.update()
+        val option = question.getOptions.iterator.next
 
-          val answerData = createMultipleChoiceAnswerData(option)
-          val postResult = makeRequest(
+        // Change IP of the reservation machine to simulate that the student is on a different machine now
+        machine.setIpAddress("127.0.0.2")
+        machine.update()
+
+        val answerData = createMultipleChoiceAnswerData(option)
+        val postResult = runIO(
+          makeRequest(
             POST,
             s"/app/iop/student/exam/${enrolment.getExternalExam.getHash}/question/${question.getId}/option",
             Some(answerData),
-            session = session
+            session = userSession
           )
-          status(postResult) must be(Status.FORBIDDEN)
-
-          Future.successful(succeed)
-        }
+        )
+        statusOf(postResult) must be(Status.FORBIDDEN)
 
       "complete full exam workflow" in:
         val (_, _, enrolment, _) = setupTestData()
-        loginAsStudent().flatMap { case (_, session) =>
-          val hash        = enrolment.getExternalExam.getHash
-          val result      = get(s"/app/student/exam/$hash", session = session)
-          val node        = contentAsJson(result)
-          val mapper      = new ObjectMapper()
-          val jacksonNode = mapper.readTree(node.toString)
-          val studentExam = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
+        val (user, session)      = runIO(loginAsStudent())
+        val hash                 = enrolment.getExternalExam.getHash
+        val result1              = runIO(get(s"/app/student/exam/$hash", session = session))
+        statusOf(result1) must be(Status.SEE_OTHER)
 
-          // Answer all questions
-          studentExam.getExamSections.asScala
-            .flatMap(_.getSectionQuestions.asScala)
-            .foreach { esq =>
-              val question = esq.getQuestion
-              question.getType match
-                case Question.Type.EssayQuestion =>
-                  val body        = Json.obj("answer" -> "this is my answer")
-                  val essayAnswer = esq.getEssayAnswer
-                  val bodyWithVersion =
-                    if essayAnswer != null && essayAnswer.getObjectVersion > 0 then
-                      body + ("objectVersion" -> Json.toJson(essayAnswer.getObjectVersion))
-                    else body
+        val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
+        val result2          = runIO(get(redirectLocation, session = session))
+        statusOf(result2) must be(Status.OK)
+        val node        = contentAsJsonOf(result2)
+        val mapper      = new ObjectMapper()
+        val jacksonNode = mapper.readTree(node.toString)
+        val studentExam = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
 
-                  val r = makeRequest(
+        // Answer all questions
+        studentExam.getExamSections.asScala
+          .flatMap(_.getSectionQuestions.asScala)
+          .foreach { esq =>
+            val question = esq.getQuestion
+            question.getType match
+              case Question.Type.EssayQuestion =>
+                val body        = Json.obj("answer" -> "this is my answer")
+                val essayAnswer = esq.getEssayAnswer
+                val bodyWithVersion =
+                  if essayAnswer != null && essayAnswer.getObjectVersion > 0 then
+                    body + ("objectVersion" -> Json.toJson(essayAnswer.getObjectVersion))
+                  else body
+
+                val r = runIO(
+                  makeRequest(
                     POST,
                     s"/app/iop/student/exam/$hash/question/${esq.getId}",
                     Some(bodyWithVersion),
                     session = session
                   )
-                  status(r) must be(Status.OK)
+                )
+                statusOf(r) must be(Status.OK)
 
-                case Question.Type.ClozeTestQuestion =>
-                  val content = Json.obj(
-                    "answer" -> Json.obj(
-                      "1" -> "this is my answer for cloze 1",
-                      "2" -> "this is my answer for cloze 2"
-                    )
+              case Question.Type.ClozeTestQuestion =>
+                val content = Json.obj(
+                  "answer" -> Json.obj(
+                    "1" -> "this is my answer for cloze 1",
+                    "2" -> "this is my answer for cloze 2"
                   )
-                  val clozeAnswer = esq.getClozeTestAnswer
-                  val contentWithVersion =
-                    if clozeAnswer != null && clozeAnswer.getObjectVersion > 0 then
-                      content + ("objectVersion" -> Json.toJson(clozeAnswer.getObjectVersion))
-                    else content
+                )
+                val clozeAnswer = esq.getClozeTestAnswer
+                val contentWithVersion =
+                  if clozeAnswer != null && clozeAnswer.getObjectVersion > 0 then
+                    content + ("objectVersion" -> Json.toJson(clozeAnswer.getObjectVersion))
+                  else content
 
-                  val r = makeRequest(
+                val r = runIO(
+                  makeRequest(
                     POST,
                     s"/app/iop/student/exam/$hash/clozetest/${esq.getId}",
                     Some(contentWithVersion),
                     session = session
                   )
-                  status(r) must be(Status.OK)
+                )
+                statusOf(r) must be(Status.OK)
 
-                case _ =>
-                  val option     = esq.getOptions.iterator.next
-                  val answerData = createMultipleChoiceAnswerData(option)
-                  val r = makeRequest(
+              case _ =>
+                val option     = esq.getOptions.iterator.next
+                val answerData = createMultipleChoiceAnswerData(option)
+                val r = runIO(
+                  makeRequest(
                     POST,
                     s"/app/iop/student/exam/$hash/question/${esq.getId}/option",
                     Some(answerData),
                     session = session
                   )
-                  status(r) must be(Status.OK)
-            }
+                )
+                statusOf(r) must be(Status.OK)
+          }
 
-          // Submit exam
-          val submitResult = put(s"/app/iop/student/exam/$hash", Json.obj(), session = session)
-          status(submitResult) must be(Status.OK)
+        // Submit exam
+        val submitResult = runIO(put(s"/app/iop/student/exam/$hash", Json.obj(), session = session))
+        statusOf(submitResult) must be(Status.OK)
 
-          val turnedExam = Option(DB.find(classOf[ExternalExam]).where().eq("hash", hash).findOne()) match
-            case Some(ee) => ee
-            case None     => fail("External exam not found")
-          turnedExam.getFinished.must(not be null)
+        val turnedExam = Option(DB.find(classOf[ExternalExam]).where().eq("hash", hash).findOne()) match
+          case Some(ee) => ee
+          case None     => fail("External exam not found")
+        turnedExam.getFinished.must(not be null)
 
-          val content = turnedExam.deserialize()
-          content.getState.must(be(Exam.State.REVIEW))
+        val content = turnedExam.deserialize()
+        content.getState.must(be(Exam.State.REVIEW))
 
-          // Briefly check that some of the above answers are there
-          val examMapper  = new ObjectMapper()
-          val textualExam = examMapper.writeValueAsString(content)
-          textualExam.must(include("cloze 1"))
-          textualExam.must(include("cloze 2"))
-          textualExam.must(include("this is my answer"))
-
-          Future.successful(succeed)
-        }
+        // Briefly check that some of the above answers are there
+        val examMapper  = new ObjectMapper()
+        val textualExam = examMapper.writeValueAsString(content)
+        textualExam.must(include("cloze 1"))
+        textualExam.must(include("cloze 2"))
+        textualExam.must(include("this is my answer"))
 
       "answer skip on claim choice question" in:
         val (_, _, enrolment, _) = setupTestData()
-        loginAsStudent().flatMap { case (_, session) =>
-          val result      = get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session)
-          val node        = contentAsJson(result)
-          val mapper      = new ObjectMapper()
-          val jacksonNode = mapper.readTree(node.toString)
-          val studentExam = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
+        val (user, session)      = runIO(loginAsStudent())
+        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        statusOf(result1) must be(Status.SEE_OTHER)
 
-          val question = studentExam.getExamSections.asScala
-            .flatMap(_.getSectionQuestions.asScala)
-            .find(_.getQuestion.getType == Question.Type.ClaimChoiceQuestion)
-            .getOrElse(fail("No claim choice question found"))
+        val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
+        val result2          = runIO(get(redirectLocation, session = session))
+        statusOf(result2) must be(Status.OK)
+        val node        = contentAsJsonOf(result2)
+        val mapper      = new ObjectMapper()
+        val jacksonNode = mapper.readTree(node.toString)
+        val studentExam = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
 
-          val options = question.getOptions.asScala.toList
+        val question = studentExam.getExamSections.asScala
+          .flatMap(_.getSectionQuestions.asScala)
+          .find(_.getQuestion.getType == Question.Type.ClaimChoiceQuestion)
+          .getOrElse(fail("No claim choice question found"))
 
-          options.head.getOption.getOption.must(be("Tosi"))
-          options(1).getOption.getOption.must(be("Epätosi"))
-          options(2).getOption.getOption.must(be("En osaa sanoa"))
+        val options = question.getOptions.asScala.toList
 
-          val answerData = createMultipleChoiceAnswerData(options(2))
-          val postResult = makeRequest(
+        options.head.getOption.getOption.must(be("Tosi"))
+        options(1).getOption.getOption.must(be("Epätosi"))
+        options(2).getOption.getOption.must(be("En osaa sanoa"))
+
+        val answerData = createMultipleChoiceAnswerData(options(2))
+        val postResult = runIO(
+          makeRequest(
             POST,
             s"/app/iop/student/exam/${enrolment.getExternalExam.getHash}/question/${question.getId}/option",
             Some(answerData),
             session = session
           )
-          status(postResult) must be(Status.OK)
-
-          Future.successful(succeed)
-        }
+        )
+        statusOf(postResult) must be(Status.OK)
 
   private def createMultipleChoiceAnswerData(options: ExamSectionQuestionOption*): JsObject =
     val oids = JsArray(options.map(option => Json.toJson(option.getId.longValue)))

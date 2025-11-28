@@ -270,9 +270,10 @@ class EmailComposerImpl @Inject() (
     val subjectTemplate =
       if (isReminder) "email.machine.reservation.reminder.subject"
       else "email.machine.reservation.subject"
-    val subject    = s"${messaging(subjectTemplate)(using lang)} \"${exam.getName}\""
-    val courseCode = Option(exam.getCourse).flatMap(c => Option(c.getCode)).map(c => s"(${c.split("_").head})").getOrElse("")
-    val examInfo   = s"${exam.getName} $courseCode"
+    val subject = s"${messaging(subjectTemplate)(using lang)} \"${exam.getName}\""
+    val courseCode =
+      Option(exam.getCourse).flatMap(c => Option(c.getCode)).map(c => s"(${c.split("_").head})").getOrElse("")
+    val examInfo = s"${exam.getName} $courseCode"
     val teacherName =
       if !exam.getExamOwners.isEmpty then getTeachers(exam)
       else s"${exam.getCreator.getFirstName} ${exam.getCreator.getLastName}"
@@ -786,9 +787,12 @@ class EmailComposerImpl @Inject() (
         replaceAll(
           template,
           Map(
-            "exam_link"      -> s"$hostName/staff/exams/${exam.getId}/5?collaborative=false",
-            "exam_name"      -> exam.getName,
-            "course_code"    -> Option(exam.getCourse).flatMap(c => Option(c.getCode)).map(_.split("_").head).getOrElse(""),
+            "exam_link" -> s"$hostName/staff/exams/${exam.getId}/5?collaborative=false",
+            "exam_name" -> exam.getName,
+            "course_code" -> Option(exam.getCourse)
+              .flatMap(c => Option(c.getCode))
+              .map(_.split("_").head)
+              .getOrElse(""),
             "review_summary" -> summary
           )
         )

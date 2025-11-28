@@ -16,4 +16,3 @@ import scala.concurrent.Future
 trait ExternalReservationHandler:
   def removeReservation(reservation: Reservation, user: User, msg: String): Future[Result]
   def removeExternalReservation(reservation: Reservation): Future[Option[Int]]
-

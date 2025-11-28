@@ -10,8 +10,8 @@ class UserHandlerImpl extends UserHandler:
 
   override def applyNameSearch[T](prefix: String, query: ExpressionList[T], filter: String): ExpressionList[T] =
     val rawFilter = filter.replaceAll(" +", " ").trim
-    val fnField = Option(prefix).map(p => s"$p.firstName").getOrElse("firstName")
-    val lnField = Option(prefix).map(p => s"$p.lastName").getOrElse("lastName")
+    val fnField   = Option(prefix).map(p => s"$p.firstName").getOrElse("firstName")
+    val lnField   = Option(prefix).map(p => s"$p.lastName").getOrElse("lastName")
 
     rawFilter.split(" ").toList match
       case name1 :: name2 :: _ =>
@@ -32,4 +32,3 @@ class UserHandlerImpl extends UserHandler:
         // Single name - search both first and last name fields
         val condition = s"%$rawFilter%"
         query.ilike(fnField, condition).ilike(lnField, condition)
-

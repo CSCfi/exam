@@ -14,9 +14,6 @@ import models.user.User
 import play.api.http.Status
 import play.api.libs.json.*
 import play.api.mvc.Session
-import play.api.test.Helpers.*
-
-import scala.concurrent.Future
 
 class ReviewControllerSpec extends BaseIntegrationSpec with DbApiHelper:
 
@@ -35,54 +32,50 @@ class ReviewControllerSpec extends BaseIntegrationSpec with DbApiHelper:
   private def examParentId: Long = exam.get.getParent.getId // Safe since we validate exam exists in setup
 
   // Custom login methods that automatically set up exam inspection
-  private def loginAsTeacherWithExamInspection(): Future[(User, Session)] =
-    loginAsTeacher().map { case (user, session) =>
-      setupExamInspection(user)
-      (user, session)
-    }
+  private def loginAsTeacherWithExamInspection(): (User, Session) =
+    val (user, session) = runIO(loginAsTeacher())
+    setupExamInspection(user)
+    (user, session)
 
-  private def loginAsAdminWithExamInspection(): Future[(User, Session)] =
-    loginAsAdmin().map { case (user, session) =>
-      setupExamInspection(user)
-      (user, session)
-    }
+  private def loginAsAdminWithExamInspection(): (User, Session) =
+    val (user, session) = runIO(loginAsAdmin())
+    setupExamInspection(user)
+    (user, session)
 
   "ReviewController" when:
     "getting exam reviews as teacher" should:
       "return reviews with grade scale information" in:
-        loginAsTeacherWithExamInspection().map { case (user, session) =>
-          // Execute
-          val result = get(s"/app/reviews/$examParentId", session = session)
+        val (user, session) = loginAsTeacherWithExamInspection()
+        // Execute
+        val result = runIO(get(s"/app/reviews/$examParentId", session = session))
 
-          // Verify
-          status(result).must(be(Status.OK))
-          val json = contentAsJson(result)
-          json.mustBe(a[JsArray])
-          val participationArray = json.as[JsArray]
-          participationArray.value must have size 1
+        // Verify
+        statusOf(result) must be(Status.OK)
+        val json = contentAsJsonOf(result)
+        json.mustBe(a[JsArray])
+        val participationArray = json.as[JsArray]
+        participationArray.value must have size 1
 
-          val participation  = participationArray.value.head
-          val examGradeScale = (participation \ "exam" \ "gradeScale").as[JsObject]
-          examGradeScale.keys must not be empty
-          val examGrades = (examGradeScale \ "grades").as[JsArray]
-          examGrades.value must have size 2
+        val participation  = participationArray.value.head
+        val examGradeScale = (participation \ "exam" \ "gradeScale").as[JsObject]
+        examGradeScale.keys must not be empty
+        val examGrades = (examGradeScale \ "grades").as[JsArray]
+        examGrades.value must have size 2
 
-          val courseGradeScale = (participation \ "exam" \ "course" \ "gradeScale").as[JsObject]
-          courseGradeScale.keys must not be empty
-          val courseGrades = (courseGradeScale \ "grades").as[JsArray]
-          courseGrades.value must have size 6
-        }
+        val courseGradeScale = (participation \ "exam" \ "course" \ "gradeScale").as[JsObject]
+        courseGradeScale.keys must not be empty
+        val courseGrades = (courseGradeScale \ "grades").as[JsArray]
+        courseGrades.value must have size 6
 
     "getting exam reviews as admin" should:
       "return reviews array" in:
-        loginAsAdminWithExamInspection().map { case (user, session) =>
-          // Execute
-          val result = get(s"/app/reviews/$examParentId", session = session)
+        val (user, session) = loginAsAdminWithExamInspection()
+        // Execute
+        val result = runIO(get(s"/app/reviews/$examParentId", session = session))
 
-          // Verify
-          status(result).must(be(Status.OK))
-          val json = contentAsJson(result)
-          json.mustBe(a[JsArray])
-          val participationArray = json.as[JsArray]
-          participationArray.value must have size 1
-        }
+        // Verify
+        statusOf(result) must be(Status.OK)
+        val json = contentAsJsonOf(result)
+        json.mustBe(a[JsArray])
+        val participationArray = json.as[JsArray]
+        participationArray.value must have size 1

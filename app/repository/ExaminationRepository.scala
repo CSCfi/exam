@@ -32,28 +32,26 @@ class ExaminationRepository @Inject() (
 ) extends Logging
     with DbApiHelper:
 
-  private val db: Database = DB.getDefault
+  private val db: Database                          = DB.getDefault
   private implicit val ec: DatabaseExecutionContext = databaseExecutionContext
 
   private def doCreateExam(prototype: Exam, user: User, enrolment: ExamEnrolment): Option[Exam] =
     Using(db.beginTransaction()) { tx =>
       val isCollaborative = Option(enrolment.getCollaborativeExam).isDefined
-      val reservation = enrolment.getReservation
+      val reservation     = enrolment.getReservation
       // TODO: support for optional sections in BYOD exams
       val ids = Option(reservation)
         .map(_ => enrolment.getOptionalSections.asScala.map(_.getId).toSet)
         .getOrElse(Set.empty[java.lang.Long])
 
-      val context = if isCollaborative then
-        ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids.asJava).build()
-      else
-        ExamCopyContext.forStudentExam(user).withSelectedSections(ids.asJava).build()
+      val context =
+        if isCollaborative then ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids.asJava).build()
+        else ExamCopyContext.forStudentExam(user).withSelectedSections(ids.asJava).build()
 
       val studentExam = prototype.createCopy(context)
       studentExam.setState(Exam.State.INITIALIZED)
       studentExam.setCreator(user)
-      if !isCollaborative then
-        studentExam.setParent(prototype)
+      if !isCollaborative then studentExam.setParent(prototype)
 
       studentExam.generateHash()
       db.save(studentExam)
@@ -91,7 +89,7 @@ class ExaminationRepository @Inject() (
       processClozeTestQuestions(clone)
 
       if Option(clone.getExamParticipation).isEmpty then
-        val reservation = enrolment.getReservation
+        val reservation       = enrolment.getReservation
         val examParticipation = new ExamParticipation()
         examParticipation.setUser(user)
         examParticipation.setExam(clone)
@@ -105,7 +103,7 @@ class ExaminationRepository @Inject() (
         val now = Option(enrolment.getExaminationEventConfiguration) match
           case None =>
             Option(reservation) match
-              case None => dateTimeHandler.adjustDST(DateTime.now())
+              case None    => dateTimeHandler.adjustDST(DateTime.now())
               case Some(r) => dateTimeHandler.adjustDST(DateTime.now(), r.getMachine.getRoom)
           case Some(_) => DateTime.now()
 
@@ -129,7 +127,7 @@ class ExaminationRepository @Inject() (
   def getPossibleClone(hash: String, user: User, ce: CollaborativeExam, pp: PathProperties): Future[Option[Exam]] =
     Future {
       val baseQuery = createQuery(pp).where().eq("hash", hash).eq("creator", user)
-      val query = if Option(ce).isEmpty then baseQuery.isNotNull("parent") else baseQuery
+      val query     = if Option(ce).isEmpty then baseQuery.isNotNull("parent") else baseQuery
       query.find
     }
 
@@ -146,15 +144,17 @@ class ExaminationRepository @Inject() (
     query
 
   private def isInEffect(ee: ExamEnrolment): Boolean =
-    val now = Option(ee.getExaminationEventConfiguration).map(_ => DateTime.now).getOrElse(dateTimeHandler.adjustDST(DateTime.now()))
-    
+    val now = Option(ee.getExaminationEventConfiguration)
+      .map(_ => DateTime.now)
+      .getOrElse(dateTimeHandler.adjustDST(DateTime.now()))
+
     Option(ee.getReservation) match
       case Some(reservation) =>
         reservation.getStartAt.isBefore(now) && reservation.getEndAt.isAfter(now)
       case None =>
         Option(ee.getExaminationEventConfiguration).exists { config =>
           val start = config.getExaminationEvent.getStart
-          val end = start.plusMinutes(ee.getExam.getDuration)
+          val end   = start.plusMinutes(ee.getExam.getDuration)
           start.isBefore(now) && end.isAfter(now)
         }
 
@@ -183,9 +183,8 @@ class ExaminationRepository @Inject() (
         .endOr()
         .list
         .filter(e => allowFuture || isInEffect(e))
-        
-      if enrolments.size > 1 then
-        logger.error("multiple enrolments found during examination")
+
+      if enrolments.size > 1 then logger.error("multiple enrolments found during examination")
 
       enrolments.headOption
     }
@@ -201,4 +200,3 @@ class ExaminationRepository @Inject() (
 
   def createExam(prototype: Exam, user: User, enrolment: ExamEnrolment): Future[Option[Exam]] =
     Future(doCreateExam(prototype, user, enrolment))
-

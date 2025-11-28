@@ -64,7 +64,7 @@ object ScalaValidatorExamples:
     */
   class ExampleEmailValidator extends PlayJsonValidator:
     val EMAIL_KEY: TypedKey[String] = TypedKey[String]("validatedEmail")
-    
+
     private val emailRegex = """^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$""".r
 
     override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
@@ -79,8 +79,8 @@ object ScalaValidatorExamples:
 
   /** Example 5: Using PlayValidator[T] for complex validation
     *
-    * This shows how to use the Cats-based PlayValidator API with PlayJsonValidator
-    * for accumulating validation errors. Pure Scala with Play JSON - no Jackson!
+    * This shows how to use the Cats-based PlayValidator API with PlayJsonValidator for accumulating validation errors.
+    * Pure Scala with Play JSON - no Jackson!
     */
   class ExampleUserRegistrationValidator extends PlayJsonValidator:
     case class UserRegistration(name: String, email: String, age: Int)
@@ -157,4 +157,3 @@ object ScalaValidatorExamples:
     *       }
     * }}}
     */
-

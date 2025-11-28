@@ -27,7 +27,8 @@ class CsvBuilderImpl extends CsvBuilder with DbApiHelper with Logging:
   override def build(startDate: Long, endDate: Long): File =
     val start = new Date(startDate)
     val end   = new Date(endDate)
-    val examRecords = DB.find(classOf[ExamRecord])
+    val examRecords = DB
+      .find(classOf[ExamRecord])
       .fetch("examScore")
       .where()
       .between("timeStamp", start, end)
@@ -38,7 +39,8 @@ class CsvBuilderImpl extends CsvBuilder with DbApiHelper with Logging:
     writeRecordsToFile(examRecords, "csv-output", ExamScore.getHeaders)
 
   override def build(examId: Long, childIds: List[Long]): File =
-    val examRecords = DB.find(classOf[ExamRecord])
+    val examRecords = DB
+      .find(classOf[ExamRecord])
       .fetch("examScore")
       .where()
       .eq("exam.parent.id", examId)
@@ -67,7 +69,8 @@ class CsvBuilderImpl extends CsvBuilder with DbApiHelper with Logging:
         logger.warn("Cannot read grades")
       case Some(reader) =>
         Using.resource(reader) { r =>
-          Iterator.continually(r.readNext())
+          Iterator
+            .continually(r.readNext())
             .takeWhile(_ != null)
             .filterNot(isHeaderOrInvalid)
             .foreach(processGradeRecord(_, user, role))
@@ -94,8 +97,8 @@ class CsvBuilderImpl extends CsvBuilder with DbApiHelper with Logging:
 
     def tryDelimiter(separator: Char): Option[(CSVReader, Int)] =
       Try {
-        val parser = new CSVParserBuilder().withSeparator(separator).build()
-        val reader = new CSVReaderBuilder(new FileReader(csvFile)).withCSVParser(parser).build()
+        val parser   = new CSVParserBuilder().withSeparator(separator).build()
+        val reader   = new CSVReaderBuilder(new FileReader(csvFile)).withCSVParser(parser).build()
         val firstRow = reader.readNext()
         (reader, Option(firstRow).map(_.length).getOrElse(0))
       }.toOption
@@ -140,7 +143,8 @@ class CsvBuilderImpl extends CsvBuilder with DbApiHelper with Logging:
     Try(idStr.toLong).toOption
 
   private def findExam(examId: Long, user: User, role: Role.Name): Option[Exam] =
-    val baseQuery = DB.find(classOf[Exam])
+    val baseQuery = DB
+      .find(classOf[Exam])
       .where()
       .idEq(examId)
       .isNotNull("parent")
@@ -153,7 +157,8 @@ class CsvBuilderImpl extends CsvBuilder with DbApiHelper with Logging:
     Option(query.findOne())
 
   private def findGrade(gradeName: String, scale: GradeScale): Option[Grade] =
-    val grades = DB.find(classOf[Grade])
+    val grades = DB
+      .find(classOf[Grade])
       .where()
       .eq("name", gradeName)
       .eq("gradeScale", scale)
@@ -245,4 +250,3 @@ class CsvBuilderImpl extends CsvBuilder with DbApiHelper with Logging:
       (exam \ "gradedTime").asOpt[String].getOrElse(""),
       (exam \ "additionalInfo").asOpt[String].getOrElse("")
     )
-

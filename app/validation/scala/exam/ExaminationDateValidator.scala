@@ -13,7 +13,10 @@ import validation.scala.core.{PlayJsonValidator, ScalaAttrs}
 /** Validates and extracts examination date from request */
 object ExaminationDateValidator extends PlayJsonValidator:
 
-  override def sanitize(request: Request[play.api.mvc.AnyContent], json: JsValue): Either[Result, Request[play.api.mvc.AnyContent]] =
+  override def sanitize(
+      request: Request[play.api.mvc.AnyContent],
+      json: JsValue
+  ): Either[Result, Request[play.api.mvc.AnyContent]] =
     (json \ "date").asOpt[String] match
       case Some(dateStr) =>
         try
@@ -24,4 +27,3 @@ object ExaminationDateValidator extends PlayJsonValidator:
             Left(Results.BadRequest("Invalid date format. Expected dd/MM/yy"))
       case None =>
         Left(Results.BadRequest("no date"))
-

@@ -52,7 +52,7 @@ class AnonymousJsonFilter @Inject() (implicit materializer: Materializer, ec: Ex
       properties: Set[String]
   ): Future[Result] =
     Future {
-      val json = Json.parse(data.utf8String)
+      val json     = Json.parse(data.utf8String)
       val filtered = JsonFilter.filter(json, ids, properties)
 
       result.copy(

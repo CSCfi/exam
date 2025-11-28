@@ -59,7 +59,7 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
         e
       case None => fail("Test exam not found")
 
-    val user = Option(DB.find(classOf[User], 5L)) match
+    val user = DB.find(classOf[User]).where().eq("eppn", "student@funet.fi").find match
       case Some(u) => u
       case None    => fail("Test user not found")
 
@@ -99,17 +99,17 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
     config.setExam(exam)
     config.save()
 
-  private def prepareExamination(examHash: String): Exam =
-    val result1 = get(s"/app/student/exam/$examHash")
-    status(result1) must be(Status.OK)
-    val node1 = contentAsJson(result1)
+  private def prepareExamination(examHash: String, session: play.api.mvc.Session): Exam =
+    val result1 = runIO(get(s"/app/student/exam/$examHash", session = session))
+    statusOf(result1) must be(Status.OK)
+    val node1 = contentAsJsonOf(result1)
     (node1 \ "cloned").as[Boolean] must be(true)
 
     val hash = deserialize(classOf[Exam], node1).getHash
 
     // ROUND 2 with updated hash
-    val result2 = get(s"/app/student/exam/$hash")
-    val node2   = contentAsJson(result2)
+    val result2 = runIO(get(s"/app/student/exam/$hash", session = session))
+    val node2   = contentAsJsonOf(result2)
     deserialize(classOf[Exam], node2)
 
   private def initExamSectionQuestions(exam: Exam): Unit =
@@ -148,366 +148,371 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
   "ExaminationController" when:
     "creating student exams" should:
       "create student exam successfully" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, _, enrolment) = setupTestData()
+        val (user, session)      = runIO(loginAsStudent())
+        val (exam, _, enrolment) = setupTestData()
 
-          val studentExam = prepareExamination(exam.getHash)
-          studentExam.getName must be(exam.getName)
-          studentExam.getCourse.getId must be(exam.getCourse.getId)
-          studentExam.getInstruction must be(exam.getInstruction)
+        val studentExam = prepareExamination(exam.getHash, session)
+        studentExam.getName must be(exam.getName)
+        studentExam.getCourse.getId must be(exam.getCourse.getId)
+        studentExam.getInstruction must be(exam.getInstruction)
 
-          val esSize = exam.getExamSections.asScala.count(!_.isOptional)
-          studentExam.getExamSections must have size esSize
-          studentExam.getHash must not be exam.getHash
-          studentExam.getExamLanguages must have size exam.getExamLanguages.size
-          studentExam.getDuration must be(exam.getDuration)
+        val esSize = exam.getExamSections.asScala.count(!_.isOptional)
+        studentExam.getExamSections must have size esSize
+        studentExam.getHash must not be exam.getHash
+        studentExam.getExamLanguages must have size exam.getExamLanguages.size
+        studentExam.getDuration must be(exam.getDuration)
 
-          DB.find(classOf[Exam]).where().eq("hash", studentExam.getHash).find must not be empty
-          DB.find(classOf[ExamEnrolment]).where().eq("id", enrolment.getId).find match
-            case Some(ee) => ee.getExam.getHash must be(studentExam.getHash)
-            case None     => fail("Enrolment not found")
+        DB.find(classOf[Exam]).where().eq("hash", studentExam.getHash).find must not be empty
+        DB.find(classOf[ExamEnrolment]).where().eq("id", enrolment.getId).find match
+          case Some(ee) => ee.getExam.getHash must be(studentExam.getHash)
+          case None     => fail("Enrolment not found")
 
-          DB.find(classOf[ExamParticipation]).where().eq("exam.id", studentExam.getId).find match
-            case Some(participation) =>
-              participation.getStarted must not be null
-              participation.getUser.getId must be(user.getId)
-            case None => fail("Participation not found")
-        }
+        DB.find(classOf[ExamParticipation]).where().eq("exam.id", studentExam.getId).find match
+          case Some(participation) =>
+            participation.getStarted must not be null
+            participation.getUser.getId must be(user.getId)
+          case None => fail("Participation not found")
 
       "reject creation with wrong IP" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, machine, _) = setupTestData()
+        val (user, session)    = runIO(loginAsStudent())
+        val (exam, machine, _) = setupTestData()
 
-          // Change IP to simulate different machine
-          machine.setIpAddress("127.0.0.2")
-          machine.update()
+        // Change IP to simulate different machine
+        machine.setIpAddress("127.0.0.2")
+        machine.update()
 
-          val result = get(s"/app/student/exam/${exam.getHash}", session = session)
-          status(result) must be(Status.FORBIDDEN)
+        val result = runIO(get(s"/app/student/exam/${exam.getHash}", session = session))
+        statusOf(result) must be(Status.FORBIDDEN)
 
-          // Verify no student exam was created
-          DB.find(classOf[Exam]).where().eq("parent.id", exam.getId).list must have size 0
-        }
+        // Verify no student exam was created
+        DB.find(classOf[Exam]).where().eq("parent.id", exam.getId).list must have size 0
 
       "prevent creating multiple student exams" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, _, _) = setupTestData()
+        val (user, session) = runIO(loginAsStudent())
+        val (exam, _, _)    = setupTestData()
 
-          val result1 = get(s"/app/student/exam/${exam.getHash}", session = session)
-          status(result1) must be(Status.OK)
+        val result1 = runIO(get(s"/app/student/exam/${exam.getHash}", session = session))
+        statusOf(result1) must be(Status.OK)
 
-          // Try again
-          val result2 = get(s"/app/student/exam/${exam.getHash}", session = session)
-          status(result2) must be(Status.FORBIDDEN)
+        // Try again
+        val result2 = runIO(get(s"/app/student/exam/${exam.getHash}", session = session))
+        statusOf(result2) must be(Status.FORBIDDEN)
 
-          // Verify only one student exam was created
-          DB.find(classOf[Exam]).where().eq("parent.id", exam.getId).list must have size 1
-        }
+        // Verify only one student exam was created
+        DB.find(classOf[Exam]).where().eq("parent.id", exam.getId).list must have size 1
 
       "return existing student exam when already started" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, _, enrolment) = setupTestData()
+        val (user, session)      = runIO(loginAsStudent())
+        val (exam, _, enrolment) = setupTestData()
 
-          val result1 = get(s"/app/student/exam/${exam.getHash}", session = session)
-          status(result1) must be(Status.OK)
-          val node1       = contentAsJson(result1)
-          val studentExam = deserialize(classOf[Exam], node1)
+        val result1 = runIO(get(s"/app/student/exam/${exam.getHash}", session = session))
+        statusOf(result1) must be(Status.OK)
+        val node1       = contentAsJsonOf(result1)
+        val studentExam = deserialize(classOf[Exam], node1)
 
-          // Try again with student exam hash
-          val result2 = get(s"/app/student/exam/${studentExam.getHash}", session = session)
-          status(result2) must be(Status.OK)
-          val node2              = contentAsJson(result2)
-          val anotherStudentExam = deserialize(classOf[Exam], node2)
+        // Try again with student exam hash
+        val result2 = runIO(get(s"/app/student/exam/${studentExam.getHash}", session = session))
+        statusOf(result2) must be(Status.OK)
+        val node2              = contentAsJsonOf(result2)
+        val anotherStudentExam = deserialize(classOf[Exam], node2)
 
-          // Verify that the same exam is returned
-          studentExam.getId must be(anotherStudentExam.getId)
+        // Verify that the same exam is returned
+        studentExam.getId must be(anotherStudentExam.getId)
 
-          DB.find(classOf[ExamEnrolment]).where().eq("id", enrolment.getId).find match
-            case Some(ee) => ee.getExam.getHash must be(studentExam.getHash)
-            case None     => fail("Enrolment not found")
+        DB.find(classOf[ExamEnrolment]).where().eq("id", enrolment.getId).find match
+          case Some(ee) => ee.getExam.getHash must be(studentExam.getHash)
+          case None     => fail("Enrolment not found")
 
-          DB.find(classOf[ExamParticipation]).where().eq("exam.id", studentExam.getId).find match
-            case Some(participation) =>
-              participation.getStarted must not be null
-              participation.getUser.getId must be(user.getId)
-            case None => fail("Participation not found")
-        }
+        DB.find(classOf[ExamParticipation]).where().eq("exam.id", studentExam.getId).find match
+          case Some(participation) =>
+            participation.getStarted must not be null
+            participation.getUser.getId must be(user.getId)
+          case None => fail("Participation not found")
 
     "answering questions" should:
       "answer multiple choice question successfully" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, _, _) = setupTestData()
-          val studentExam  = prepareExamination(exam.getHash)
+        val (user, session) = runIO(loginAsStudent())
+        val (exam, _, _)    = setupTestData()
+        val studentExam     = prepareExamination(exam.getHash, session)
 
-          val question = DB
-            .find(classOf[ExamSectionQuestion])
-            .where()
-            .eq("examSection.exam", studentExam)
-            .eq("question.type", Question.Type.MultipleChoiceQuestion)
-            .list
-            .headOption match
-            case Some(q) => q
-            case None    => fail("Multiple choice question not found")
+        val question = DB
+          .find(classOf[ExamSectionQuestion])
+          .where()
+          .eq("examSection.exam", studentExam)
+          .eq("question.type", Question.Type.MultipleChoiceQuestion)
+          .list
+          .headOption match
+          case Some(q) => q
+          case None    => fail("Multiple choice question not found")
 
-          val options    = question.getOptions.asScala.toList
-          val answerData = createMultipleChoiceAnswerData(options.head)
+        val options    = question.getOptions.asScala.toList
+        val answerData = createMultipleChoiceAnswerData(options.head)
 
-          val result1 = makeRequest(
+        val result1 = runIO(
+          makeRequest(
             POST,
             s"/app/student/exam/${studentExam.getHash}/question/${question.getId}/option",
             Some(answerData),
             session = session
           )
-          status(result1) must be(Status.OK)
+        )
+        statusOf(result1) must be(Status.OK)
 
-          // Change answer
-          val newAnswerData = createMultipleChoiceAnswerData(options.last)
-          val result2 = makeRequest(
+        // Change answer
+        val newAnswerData = createMultipleChoiceAnswerData(options.last)
+        val result2 = runIO(
+          makeRequest(
             POST,
             s"/app/student/exam/${studentExam.getHash}/question/${question.getId}/option",
             Some(newAnswerData),
             session = session
           )
-          status(result2) must be(Status.OK)
-        }
+        )
+        statusOf(result2) must be(Status.OK)
 
       "reject answer with wrong IP" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, machine, _) = setupTestData()
-          val studentExam        = prepareExamination(exam.getHash)
+        val (user, session)    = runIO(loginAsStudent())
+        val (exam, machine, _) = setupTestData()
+        val studentExam        = prepareExamination(exam.getHash, session)
 
-          val question = DB
-            .find(classOf[ExamSectionQuestion])
-            .where()
-            .eq("examSection.exam", studentExam)
-            .eq("question.type", Question.Type.MultipleChoiceQuestion)
-            .list
-            .headOption match
-            case Some(q) => q
-            case None    => fail("Multiple choice question not found")
+        val question = DB
+          .find(classOf[ExamSectionQuestion])
+          .where()
+          .eq("examSection.exam", studentExam)
+          .eq("question.type", Question.Type.MultipleChoiceQuestion)
+          .list
+          .headOption match
+          case Some(q) => q
+          case None    => fail("Multiple choice question not found")
 
-          val options = question.getOptions.asScala.toList
+        val options = question.getOptions.asScala.toList
 
-          // Change IP to simulate different machine
-          machine.setIpAddress("127.0.0.2")
-          machine.update()
+        // Change IP to simulate different machine
+        machine.setIpAddress("127.0.0.2")
+        machine.update()
 
-          val answerData = createMultipleChoiceAnswerData(options.head)
-          val result = makeRequest(
+        val answerData = createMultipleChoiceAnswerData(options.head)
+        val result = runIO(
+          makeRequest(
             POST,
             s"/app/student/exam/${studentExam.getHash}/question/${question.getId}/option",
             Some(answerData),
             session = session
           )
-          status(result) must be(Status.FORBIDDEN)
-        }
+        )
+        statusOf(result) must be(Status.FORBIDDEN)
 
       "reject cloze test question with invalid JSON" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, _, _) = setupTestData()
-          val studentExam  = prepareExamination(exam.getHash)
+        val (user, session) = runIO(loginAsStudent())
+        val (exam, _, _)    = setupTestData()
+        val studentExam     = prepareExamination(exam.getHash, session)
 
-          val question = DB
-            .find(classOf[ExamSectionQuestion])
-            .where()
-            .eq("examSection.exam", studentExam)
-            .eq("question.type", Question.Type.ClozeTestQuestion)
-            .list
-            .headOption match
-            case Some(q) => q
-            case None    => fail("Cloze test question not found")
+        val question = DB
+          .find(classOf[ExamSectionQuestion])
+          .where()
+          .eq("examSection.exam", studentExam)
+          .eq("question.type", Question.Type.ClozeTestQuestion)
+          .list
+          .headOption match
+          case Some(q) => q
+          case None    => fail("Cloze test question not found")
 
-          val invalidAnswer = "{\"foo\": \"bar"
-          val answerData = Json.obj(
-            "answer"        -> invalidAnswer,
-            "objectVersion" -> JsNumber(BigDecimal(1))
-          )
+        val invalidAnswer = "{\"foo\": \"bar"
+        val answerData = Json.obj(
+          "answer"        -> invalidAnswer,
+          "objectVersion" -> JsNumber(BigDecimal(1))
+        )
 
-          val result = makeRequest(
+        val result = runIO(
+          makeRequest(
             POST,
             s"/app/student/exam/${studentExam.getHash}/clozetest/${question.getId}",
             Some(answerData),
             session = session
           )
-          status(result) must be(Status.BAD_REQUEST)
-        }
+        )
+        statusOf(result) must be(Status.BAD_REQUEST)
 
       "handle claim choice question option order and skip answer" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, _, _) = setupTestData()
-          val studentExam  = prepareExamination(exam.getHash)
+        val (user, session) = runIO(loginAsStudent())
+        val (exam, _, _)    = setupTestData()
+        val studentExam     = prepareExamination(exam.getHash, session)
 
-          val question = DB
-            .find(classOf[ExamSectionQuestion])
-            .where()
-            .eq("examSection.exam", studentExam)
-            .eq("question.type", Question.Type.ClaimChoiceQuestion)
-            .list
-            .headOption match
-            case Some(q) => q
-            case None    => fail("Claim choice question not found")
+        val question = DB
+          .find(classOf[ExamSectionQuestion])
+          .where()
+          .eq("examSection.exam", studentExam)
+          .eq("question.type", Question.Type.ClaimChoiceQuestion)
+          .list
+          .headOption match
+          case Some(q) => q
+          case None    => fail("Claim choice question not found")
 
-          val options = question.getOptions.asScala.toList
+        val options = question.getOptions.asScala.toList
 
-          // Check option order and types
-          options.head.getScore must be(-1)
-          options.head.getOption.getClaimChoiceType must be(ClaimChoiceOptionType.CorrectOption)
-          options(1).getScore must be(1)
-          options(1).getOption.getClaimChoiceType must be(ClaimChoiceOptionType.IncorrectOption)
-          options(2).getOption.getClaimChoiceType must be(ClaimChoiceOptionType.SkipOption)
+        // Check option order and types
+        options.head.getScore must be(-1)
+        options.head.getOption.getClaimChoiceType must be(ClaimChoiceOptionType.CorrectOption)
+        options(1).getScore must be(1)
+        options(1).getOption.getClaimChoiceType must be(ClaimChoiceOptionType.IncorrectOption)
+        options(2).getOption.getClaimChoiceType must be(ClaimChoiceOptionType.SkipOption)
 
-          // Answer with a skip option
-          val answerData = createMultipleChoiceAnswerData(options(2))
-          val result = makeRequest(
+        // Answer with a skip option
+        val answerData = createMultipleChoiceAnswerData(options(2))
+        val result = runIO(
+          makeRequest(
             POST,
             s"/app/student/exam/${studentExam.getHash}/question/${question.getId}/option",
             Some(answerData),
             session = session
           )
-          status(result) must be(Status.OK)
-        }
+        )
+        statusOf(result) must be(Status.OK)
 
     "completing exams" should:
       "complete exam and auto-evaluate" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, _, _) = setupTestData()
-          setAutoEvaluationConfig(exam)
-          val studentExam = prepareExamination(exam.getHash)
+        val (user, session) = runIO(loginAsStudent())
+        val (exam, _, _)    = setupTestData()
+        setAutoEvaluationConfig(exam)
+        val studentExam = prepareExamination(exam.getHash, session)
 
-          // Answer all questions
-          studentExam.getExamSections.asScala
-            .flatMap(_.getSectionQuestions.asScala)
-            .foreach { esq =>
-              val question = esq.getQuestion
-              question.getType match
-                case Question.Type.EssayQuestion =>
-                  val body = Json.obj("answer" -> "this is my answer")
-                  val bodyWithVersion = Option(esq.getEssayAnswer) match
-                    case Some(answer) if answer.getObjectVersion > 0 =>
-                      body + ("objectVersion" -> JsNumber(BigDecimal(answer.getObjectVersion)))
-                    case _ => body
+        // Answer all questions
+        studentExam.getExamSections.asScala
+          .flatMap(_.getSectionQuestions.asScala)
+          .foreach { esq =>
+            val question = esq.getQuestion
+            question.getType match
+              case Question.Type.EssayQuestion =>
+                val body = Json.obj("answer" -> "this is my answer")
+                val bodyWithVersion = Option(esq.getEssayAnswer) match
+                  case Some(answer) if answer.getObjectVersion > 0 =>
+                    body + ("objectVersion" -> JsNumber(BigDecimal(answer.getObjectVersion)))
+                  case _ => body
 
-                  val result = makeRequest(
+                val result = runIO(
+                  makeRequest(
                     POST,
                     s"/app/student/exam/${studentExam.getHash}/question/${esq.getId}",
                     Some(bodyWithVersion),
                     session = session
                   )
-                  status(result) must be(Status.OK)
+                )
+                statusOf(result) must be(Status.OK)
 
-                case Question.Type.ClozeTestQuestion =>
-                  val content = Json.obj(
-                    "answer" -> Json.obj(
-                      "1" -> "this is my answer for cloze 1",
-                      "2" -> "this is my answer for cloze 2"
-                    )
+              case Question.Type.ClozeTestQuestion =>
+                val content = Json.obj(
+                  "answer" -> Json.obj(
+                    "1" -> "this is my answer for cloze 1",
+                    "2" -> "this is my answer for cloze 2"
                   )
-                  val contentWithVersion = Option(esq.getClozeTestAnswer) match
-                    case Some(answer) if answer.getObjectVersion > 0 =>
-                      content + ("objectVersion" -> JsNumber(BigDecimal(answer.getObjectVersion)))
-                    case _ => content
+                )
+                val contentWithVersion = Option(esq.getClozeTestAnswer) match
+                  case Some(answer) if answer.getObjectVersion > 0 =>
+                    content + ("objectVersion" -> JsNumber(BigDecimal(answer.getObjectVersion)))
+                  case _ => content
 
-                  val result = makeRequest(
+                val result = runIO(
+                  makeRequest(
                     POST,
                     s"/app/student/exam/${studentExam.getHash}/clozetest/${esq.getId}",
                     Some(contentWithVersion),
                     session = session
                   )
-                  status(result) must be(Status.OK)
+                )
+                statusOf(result) must be(Status.OK)
 
-                case _ =>
-                  val sectionQuestion = DB
-                    .find(classOf[ExamSectionQuestion])
-                    .where()
-                    .eq("examSection.exam", studentExam)
-                    .eq("question.type", Question.Type.MultipleChoiceQuestion)
-                    .list
-                    .headOption match
-                    case Some(q) => q
-                    case None    => fail("Multiple choice question not found")
+              case _ =>
+                val sectionQuestion = DB
+                  .find(classOf[ExamSectionQuestion])
+                  .where()
+                  .eq("examSection.exam", studentExam)
+                  .eq("question.type", Question.Type.MultipleChoiceQuestion)
+                  .list
+                  .headOption match
+                  case Some(q) => q
+                  case None    => fail("Multiple choice question not found")
 
-                  val options    = sectionQuestion.getOptions.asScala.toList
-                  val answerData = createMultipleChoiceAnswerData(options.head)
+                val options    = sectionQuestion.getOptions.asScala.toList
+                val answerData = createMultipleChoiceAnswerData(options.head)
 
-                  val result = makeRequest(
+                val result = runIO(
+                  makeRequest(
                     POST,
                     s"/app/student/exam/${studentExam.getHash}/question/${esq.getId}/option",
                     Some(answerData),
                     session = session
                   )
-                  status(result) must be(Status.OK)
-            }
+                )
+                statusOf(result) must be(Status.OK)
+          }
 
-          // Submit exam
-          val result = put(s"/app/student/exam/${studentExam.getHash}", Json.obj(), session = session)
-          status(result) must be(Status.OK)
+        // Submit exam
+        val result = runIO(put(s"/app/student/exam/${studentExam.getHash}", Json.obj(), session = session))
+        statusOf(result) must be(Status.OK)
 
-          // Verify exam is graded
-          Option(DB.find(classOf[Exam], studentExam.getId)) match
-            case Some(turnedExam) =>
-              turnedExam.getGrade must not be null
-              turnedExam.getState must be(Exam.State.GRADED)
-            case None => fail("Turned exam not found")
+        // Verify exam is graded
+        Option(DB.find(classOf[Exam], studentExam.getId)) match
+          case Some(turnedExam) =>
+            turnedExam.getGrade must not be null
+            turnedExam.getState must be(Exam.State.GRADED)
+          case None => fail("Turned exam not found")
 
-          greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
-        }
+        greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
 
     "handling private exams" should:
       "complete private exam and send notification" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, _, _) = setupTestData()
+        val (user, session) = runIO(loginAsStudent())
+        val (exam, _, _)    = setupTestData()
 
-          // Set exam as private
-          exam.setExecutionType(
-            DB.find(classOf[ExamExecutionType])
-              .where()
-              .eq("type", ExamExecutionType.Type.PRIVATE.toString)
-              .find
-              .orNull
-          )
-          exam.update()
+        // Set exam as private
+        exam.setExecutionType(
+          DB.find(classOf[ExamExecutionType])
+            .where()
+            .eq("type", ExamExecutionType.Type.PRIVATE.toString)
+            .find
+            .orNull
+        )
+        exam.update()
 
-          val studentExam = prepareExamination(exam.getHash)
-          val result      = put(s"/app/student/exam/${studentExam.getHash}", Json.obj(), session = session)
-          status(result) must be(Status.OK)
+        val studentExam = prepareExamination(exam.getHash, session)
+        val result      = runIO(put(s"/app/student/exam/${studentExam.getHash}", Json.obj(), session = session))
+        statusOf(result) must be(Status.OK)
 
-          // Check email notification
-          greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
-          val mails = greenMail.getReceivedMessages
-          mails must have size 1
-          mails(0).getFrom()(0).toString must include("no-reply@exam.org")
-          mails(0).getSubject must be("Personal exam has been returned")
-          val body              = GreenMailUtil.getBody(mails(0))
-          val reviewLink        = s"http://uni.org/staff/assessments/${studentExam.getId}"
-          val reviewLinkElement = s"""<a href="$reviewLink">Link to evaluation</a>"""
-          body must include(reviewLinkElement)
-        }
+        // Check email notification
+        greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
+        val mails = greenMail.getReceivedMessages
+        mails must have size 1
+        mails(0).getFrom()(0).toString must include("no-reply@exam.org")
+        mails(0).getSubject must be("Personal exam has been returned")
+        val body              = GreenMailUtil.getBody(mails(0))
+        val reviewLink        = s"http://uni.org/staff/assessments/${studentExam.getId}"
+        val reviewLinkElement = s"""<a href="$reviewLink">Link to evaluation</a>"""
+        body must include(reviewLinkElement)
 
       "abort private exam and send notification" in:
-        loginAsStudent().map { case (user, session) =>
-          val (exam, _, _) = setupTestData()
+        val (user, session) = runIO(loginAsStudent())
+        val (exam, _, _)    = setupTestData()
 
-          // Set exam as private
-          exam.setExecutionType(
-            DB.find(classOf[ExamExecutionType])
-              .where()
-              .eq("type", ExamExecutionType.Type.PRIVATE.toString)
-              .find
-              .orNull
-          )
-          exam.update()
+        // Set exam as private
+        exam.setExecutionType(
+          DB.find(classOf[ExamExecutionType])
+            .where()
+            .eq("type", ExamExecutionType.Type.PRIVATE.toString)
+            .find
+            .orNull
+        )
+        exam.update()
 
-          val studentExam = prepareExamination(exam.getHash)
-          val result      = put(s"/app/student/exam/abort/${studentExam.getHash}", Json.obj(), session = session)
-          status(result) must be(Status.OK)
+        val studentExam = prepareExamination(exam.getHash, session)
+        val result      = runIO(put(s"/app/student/exam/abort/${studentExam.getHash}", Json.obj(), session = session))
+        statusOf(result) must be(Status.OK)
 
-          // Check email notification
-          greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
-          val mails = greenMail.getReceivedMessages
-          mails must have size 1
-          mails(0).getFrom()(0).toString must include("no-reply@exam.org")
-          mails(0).getSubject must be("Personal exam has been abandoned")
-          val body = GreenMailUtil.getBody(mails(0))
-          // Make sure there is no review link
-          body must not include "<a href"
-        }
+        // Check email notification
+        greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
+        val mails = greenMail.getReceivedMessages
+        mails must have size 1
+        mails(0).getFrom()(0).toString must include("no-reply@exam.org")
+        mails(0).getSubject must be("Personal exam has been abandoned")
+        val body = GreenMailUtil.getBody(mails(0))
+        // Make sure there is no review link
+        body must not include "<a href"

@@ -10,16 +10,15 @@ import io.ebean.DB
 import models.exam.{Exam, ExamExecutionType}
 import org.joda.time.{DateTime, LocalDateTime}
 import play.api.http.Status
-import play.api.libs.json.{JsArray, JsValue}
-import play.api.test.Helpers.*
+import play.api.libs.json.JsArray
 
-import scala.jdk.CollectionConverters.*
 import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 class ExamAPIControllerSpec extends BaseIntegrationSpec:
 
-  private var exams: List[Exam] = uninitialized
-  private var publicType: ExamExecutionType = uninitialized
+  private var exams: List[Exam]              = uninitialized
+  private var publicType: ExamExecutionType  = uninitialized
   private var privateType: ExamExecutionType = uninitialized
 
   private def setupExamData(): Unit =
@@ -29,9 +28,9 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
     privateType = findType(types, ExamExecutionType.Type.PRIVATE).orNull
 
     val startDate = LocalDateTime.now().plusDays(1)
-    val endDate = LocalDateTime.now().plusDays(10)
+    val endDate   = LocalDateTime.now().plusDays(10)
     exams = DB.find(classOf[Exam]).findList().asScala.toList
-    
+
     // Set all exams to start in future
     exams.foreach { exam =>
       exam.setState(Exam.State.PUBLISHED)
@@ -48,10 +47,10 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
     "getting active exams" should:
       "return filtered active exams based on state and dates" in:
         setupExamData()
-        
+
         // Ensure we have at least 4 exams for the test
         exams.size must be >= 4
-        
+
         // Pick first exam and set it already started but not yet ended (included)
         val first = exams.head
         first.setPeriodStart(LocalDateTime.now().minusDays(1).toDateTime)
@@ -74,12 +73,12 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
         fourth.save()
 
         // Execute
-        val result = get("/integration/exams/active")
-        status(result).must(be(Status.OK))
+        val result = runIO(get("/integration/exams/active"))
+        statusOf(result).must(be(Status.OK))
 
-        val responseJson = contentAsJson(result)
+        val responseJson = contentAsJsonOf(result)
         responseJson.as[JsArray].value must have size (exams.size - 3)
-        
+
         val excludedIds = Set(second.getId, third.getId, fourth.getId)
         responseJson.as[JsArray].value.foreach { examNode =>
           val examId = (examNode \ "id").as[Long]
@@ -87,13 +86,13 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
         }
 
         // Test with date filter
-        val filter = DateTime.now().minusDays(3).toString("yyyy-MM-dd")
-        val filteredResult = get(s"/integration/exams/active?date=$filter")
-        status(filteredResult).must(be(Status.OK))
-        
-        val filteredJson = contentAsJson(filteredResult)
+        val filter         = DateTime.now().minusDays(3).toString("yyyy-MM-dd")
+        val filteredResult = runIO(get(s"/integration/exams/active?date=$filter"))
+        statusOf(filteredResult).must(be(Status.OK))
+
+        val filteredJson = contentAsJsonOf(filteredResult)
         filteredJson.as[JsArray].value must have size (exams.size - 2)
-        
+
         val filteredExcludedIds = Set(third.getId, fourth.getId)
         filteredJson.as[JsArray].value.foreach { examNode =>
           val examId = (examNode \ "id").as[Long]

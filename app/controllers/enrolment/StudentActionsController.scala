@@ -386,14 +386,14 @@ class StudentActionsController @Inject() (
       .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
       .gt("periodEnd", DateTime.now().toDate)
 
-    val withCourseFilter = if courseCodes.nonEmpty then
-      baseQuery.in("course.code", courseCodes.asJava)
-    else baseQuery
+    val withCourseFilter =
+      if courseCodes.nonEmpty then baseQuery.in("course.code", courseCodes.asJava)
+      else baseQuery
 
     val query = filter.fold(withCourseFilter) { f =>
-      val condition = s"%$f%"
-      val withDisjunction = withCourseFilter.disjunction()
-      val withOwnerSearch = userHandler.applyNameSearch("examOwners", withDisjunction, f)
+      val condition           = s"%$f%"
+      val withDisjunction     = withCourseFilter.disjunction()
+      val withOwnerSearch     = userHandler.applyNameSearch("examOwners", withDisjunction, f)
       val withInspectorSearch = userHandler.applyNameSearch("examInspections.user", withOwnerSearch, f)
       withInspectorSearch
         .ilike("name", condition)

@@ -17,18 +17,20 @@ import java.util.{Base64, UUID}
 import javax.inject.Inject
 import scala.util.Using
 
-class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigReader)
-    extends FileHandler
-    with Logging:
+class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigReader) extends FileHandler with Logging:
 
   private val KB = 1024
 
   override def read(file: File): Array[Byte] =
     Using(new FileInputStream(file)) { fis =>
       val buffer = new Array[Byte](KB)
-      val result = Iterator.continually(fis.read(buffer)).takeWhile(_ != -1).flatMap { bytesRead =>
-        buffer.take(bytesRead)
-      }.toArray
+      val result = Iterator
+        .continually(fis.read(buffer))
+        .takeWhile(_ != -1)
+        .flatMap { bytesRead =>
+          buffer.take(bytesRead)
+        }
+        .toArray
       result
     }.recover { case ex =>
       logger.error(s"Failed to read file ${file.getAbsolutePath} from disk!", ex)
@@ -68,16 +70,13 @@ class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigR
       if !uploadPath.startsWith(File.separator) then
         // Relative path - note: doesn't work on Windows, but hopefully we're not using it :)
         s"${environment.rootPath.getAbsolutePath}${File.separator}$uploadPath${File.separator}"
-      else
-        s"$uploadPath${File.separator}"
+      else s"$uploadPath${File.separator}"
     path
 
   override def removeAttachmentFile(filePath: String): Unit =
     val path = FileSystems.getDefault.getPath(filePath)
-    try
-      if !Files.deleteIfExists(path) then logger.error(s"Could not delete $path because it does not exist.")
-    catch
-      case ex: Exception => logger.error("IO Exception occurred", ex)
+    try if !Files.deleteIfExists(path) then logger.error(s"Could not delete $path because it does not exist.")
+    catch case ex: Exception => logger.error("IO Exception occurred", ex)
 
   override def removePrevious(container: AttachmentContainer): Unit =
     Option(container.getAttachment).foreach { attachment =>
@@ -114,4 +113,3 @@ class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigR
       StandardCopyOption.REPLACE_EXISTING,
       StandardCopyOption.COPY_ATTRIBUTES
     )
-

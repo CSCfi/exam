@@ -6,6 +6,7 @@ package integration
 
 import base.BaseIntegrationSpec
 import helpers.RemoteServerHelper
+import helpers.RemoteServerHelper.ServletDef
 import io.ebean.DB
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import miscellaneous.scala.DbApiHelper
@@ -17,7 +18,6 @@ import play.api.http.Status
 import play.api.libs.json.JsArray
 import play.api.test.Helpers.*
 
-import scala.jdk.CollectionConverters.*
 import scala.compiletime.uninitialized
 
 class EnrolmentInterfaceSpec
@@ -34,12 +34,12 @@ class EnrolmentInterfaceSpec
       if emptyResponse then RemoteServerHelper.writeEmptyJsonResponse(response)
       else RemoteServerHelper.writeResponseFromFile(response, "test/resources/enrolments.json")
 
+  private lazy val courseInfoServlet = new CourseInfoServlet()
+
   override def beforeAll(): Unit =
     super.beforeAll()
-    server = RemoteServerHelper.createAndStartServer(
-      31246,
-      Map(classOf[CourseInfoServlet] -> List("/enrolments"))
-    )
+    val binding = ServletDef.FromInstance(courseInfoServlet) -> List("/enrolments")
+    server = RemoteServerHelper.createServer(31246, multipart = false, binding)
 
   override def afterAll(): Unit =
     try
@@ -69,28 +69,26 @@ class EnrolmentInterfaceSpec
   "EnrolmentInterface" when:
     "listing exams" should:
       "return exams for enrolled courses" in:
-        loginAsStudent().map { case (user, session) =>
-          setupExamData()
+        val (user, session) = runIO(loginAsStudent())
+        setupExamData()
 
-          val result = get("/app/student/exams", session = session)
-          status(result).must(be(Status.OK))
+        val result = runIO(get("/app/student/exams", session = session))
+        statusOf(result).must(be(Status.OK))
 
-          val examsJson = contentAsJson(result).as[JsArray]
-          examsJson.value must have size 1
+        val examsJson = contentAsJsonOf(result).as[JsArray]
+        examsJson.value must have size 1
 
-          val examId = (examsJson.value.head \ "id").as[Long]
-          val exam   = DB.find(classOf[Exam], examId)
-          exam.getCourse.getCode must be("810136P")
-        }
+        val examId = (examsJson.value.head \ "id").as[Long]
+        val exam   = DB.find(classOf[Exam], examId)
+        exam.getCourse.getCode must be("810136P")
 
       "return empty list when no remote enrolments" in:
-        loginAsStudent().map { case (user, session) =>
-          setupExamData()
-          emptyResponse = true
+        val (user, session) = runIO(loginAsStudent())
+        setupExamData()
+        emptyResponse = true
 
-          val result = get("/app/student/exams", session = session)
-          status(result).must(be(Status.OK))
+        val result = runIO(get("/app/student/exams", session = session))
+        statusOf(result).must(be(Status.OK))
 
-          val examsJson = contentAsJson(result).as[JsArray]
-          examsJson.value must be(empty)
-        }
+        val examsJson = contentAsJsonOf(result).as[JsArray]
+        examsJson.value must be(empty)

@@ -6,7 +6,7 @@ package miscellaneous.scala
 
 import io.ebean.{DB, Transaction}
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 /** Helper for managing Ebean transactions in Scala
   *
@@ -26,7 +26,7 @@ object TransactionHelper:
     *   the result of the block, or throws the exception if rollback occurred
     *
     * @example
-    * {{{
+    *   {{{
     * withTransaction {
     *   val user = new User()
     *   user.save()
@@ -35,7 +35,7 @@ object TransactionHelper:
     *   profile.save()
     *   user  // Return value
     * }
-    * }}}
+    *   }}}
     */
   def withTransaction[T](block: => T): T =
     val tx = DB.beginTransaction()
@@ -55,7 +55,7 @@ object TransactionHelper:
     *   the result of the block
     *
     * @example
-    * {{{
+    *   {{{
     * withTransactionAccess { tx =>
     *   val user = new User()
     *   user.save()
@@ -63,7 +63,7 @@ object TransactionHelper:
     *   users.foreach(_.save())
     *   user
     * }
-    * }}}
+    *   }}}
     */
   def withTransactionAccess[T](block: Transaction => T): T =
     val tx = DB.beginTransaction()
@@ -83,7 +83,7 @@ object TransactionHelper:
     *   Success with result, or Failure with exception
     *
     * @example
-    * {{{
+    *   {{{
     * tryWithTransaction {
     *   user.save()
     *   profile.save()
@@ -91,7 +91,7 @@ object TransactionHelper:
     *   case Success(_) => Ok("Saved")
     *   case Failure(e) => InternalServerError(e.getMessage)
     * }
-    * }}}
+    *   }}}
     */
   def tryWithTransaction[T](block: => T): Try[T] =
     Try {
@@ -116,13 +116,13 @@ object TransactionHelper:
     *   the result of the block
     *
     * @example
-    * {{{
+    *   {{{
     * withLock(classOf[User], userId) {
     *   val enrolment = new ExamEnrolment()
     *   enrolment.setUser(DB.find(classOf[User], userId))
     *   enrolment.save()
     * }
-    * }}}
+    *   }}}
     */
   def withLock[E, T](entityClass: Class[E], id: Any)(block: => T): T =
     withTransaction {
@@ -130,4 +130,3 @@ object TransactionHelper:
       DB.find(entityClass).forUpdate().where().idEq(id).findOne()
       block
     }
-

@@ -137,7 +137,8 @@ private object ExamParser:
     }
 
     // Handle exam type
-    (body \ "examType").asOpt[JsObject]
+    (body \ "examType")
+      .asOpt[JsObject]
       .flatMap(node => PlayJsonHelper.parse[String]("type", node))
       .foreach { typeStr =>
         val examType = new models.exam.ExamType(typeStr)
@@ -145,7 +146,8 @@ private object ExamParser:
       }
 
     // Handle execution type
-    (body \ "executionType").asOpt[JsObject]
+    (body \ "executionType")
+      .asOpt[JsObject]
       .flatMap(node => PlayJsonHelper.parse[String]("type", node))
       .foreach { typeStr =>
         val executionType = new models.exam.ExamExecutionType()
@@ -169,7 +171,6 @@ private object ExamParser:
           .foreach(rd => config.setReleaseDate(new org.joda.time.DateTime(rd)))
         exam.setExamFeedbackConfig(config)
       case _ => // None or other JsValue types
-
     // Handle auto-evaluation config
     (body \ "evaluationConfig").asOpt[JsValue] match
       case Some(JsNull) =>
@@ -193,7 +194,8 @@ private object ExamParser:
           gradeEvaluations.foreach { evaluation =>
             val ge = new models.assessment.GradeEvaluation()
 
-            val gradeObj = (evaluation \ "grade").asOpt[JsObject]
+            val gradeObj = (evaluation \ "grade")
+              .asOpt[JsObject]
               .filter(g => (g \ "id").isDefined)
               .getOrElse(throw SanitizingException("invalid grade"))
 
@@ -215,5 +217,4 @@ private object ExamParser:
 
         exam.setAutoEvaluationConfig(config)
       case _ => // None or other JsValue types
-
     exam

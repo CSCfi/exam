@@ -43,7 +43,7 @@ class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfte
         e
       case None => fail(s"Exam with ID $examId not found")
 
-    val user = Option(DB.find(classOf[User], 5L)) match
+    val user = DB.find(classOf[User]).where().eq("eppn", "student@funet.fi").find match
       case Some(u) => u
       case None    => fail("Test user not found")
 
@@ -85,38 +85,37 @@ class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfte
   "StudentActionController" when:
     "getting enrolments for user" should:
       "return enrolments with external reservation" in:
-        loginAsStudent().map { case (user, session) =>
-          setupTestData()
+        val (user, session) = runIO(loginAsStudent())
+        setupTestData()
 
-          createEnrolment(1L)
-          val enrolment   = createEnrolment(2L)
-          val reservation = enrolment.getReservation
-          reservation.setMachine(null)
-          reservation.setExternalReservation(createExternalReservation())
-          reservation.save()
+        createEnrolment(1L)
+        val enrolment   = createEnrolment(2L)
+        val reservation = enrolment.getReservation
+        reservation.setMachine(null)
+        reservation.setExternalReservation(createExternalReservation())
+        reservation.save()
 
-          // Execute
-          val result = get("/app/student/enrolments", session = session)
-          status(result) must be(Status.OK)
+        // Execute
+        val result = runIO(get("/app/student/enrolments", session = session))
+        statusOf(result) must be(Status.OK)
 
-          // Verify
-          val node = contentAsJson(result)
-          node.isInstanceOf[JsArray] must be(true)
-          val nodes = node.as[JsArray]
-          nodes.value must have size 2
+        // Verify
+        val node = contentAsJsonOf(result)
+        node.isInstanceOf[JsArray] must be(true)
+        val nodes = node.as[JsArray]
+        nodes.value must have size 2
 
-          val external = nodes.value
-            .find(n => (n \ "exam" \ "id").as[Long] == 2L)
-            .getOrElse(fail("External enrolment not found"))
+        val external = nodes.value
+          .find(n => (n \ "exam" \ "id").as[Long] == 2L)
+          .getOrElse(fail("External enrolment not found"))
 
-          val externalEnrolment = deserialize(classOf[ExamEnrolment], external)
-          val er                = externalEnrolment.getReservation.getExternalReservation
-          er must not be null
-          er.getRoomName must be("External Room")
-          er.getMachineName must be("External machine")
-          er.getOrgRef must be("org1234")
-          er.getRoomRef must be("room1234")
-          er.getRoomInstruction must be("Room instruction")
-          er.getRoomInstructionEN must be("Room instruction EN")
-          er.getRoomInstructionSV must be("Room instruction SV")
-        }
+        val externalEnrolment = deserialize(classOf[ExamEnrolment], external)
+        val er                = externalEnrolment.getReservation.getExternalReservation
+        er must not be null
+        er.getRoomName must be("External Room")
+        er.getMachineName must be("External machine")
+        er.getOrgRef must be("org1234")
+        er.getRoomRef must be("room1234")
+        er.getRoomInstruction must be("Room instruction")
+        er.getRoomInstructionEN must be("Room instruction EN")
+        er.getRoomInstructionSV must be("Room instruction SV")

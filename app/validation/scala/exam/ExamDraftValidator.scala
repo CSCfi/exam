@@ -14,4 +14,3 @@ object ExamDraftValidator extends PlayJsonValidator:
     ExamValidator.forCreation(json) match
       case Right(exam) => Right(request.addAttr(ScalaAttrs.EXAM, exam))
       case Left(ex)    => Left(Results.BadRequest(ex.getMessage))
-

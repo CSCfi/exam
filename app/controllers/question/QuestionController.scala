@@ -81,19 +81,22 @@ class QuestionController @Inject() (
         val query = DB.find(classOf[Question])
         pp.apply(query)
         val baseQuery = query.where().isNull("parent").endJunction().ne("state", QuestionState.DELETED.toString)
-        val withOwnerFilter = if user.hasRole(Role.Name.TEACHER) then
-          if ownerIds.isEmpty then baseQuery.eq("questionOwners", user)
-          else baseQuery.in("questionOwners.id", ownerIds.asJava)
-        else baseQuery.inOrEmpty("questionOwners.id", ownerIds.asJava)
+        val withOwnerFilter =
+          if user.hasRole(Role.Name.TEACHER) then
+            if ownerIds.isEmpty then baseQuery.eq("questionOwners", user)
+            else baseQuery.in("questionOwners.id", ownerIds.asJava)
+          else baseQuery.inOrEmpty("questionOwners.id", ownerIds.asJava)
         val withExamFilter = withOwnerFilter.inOrEmpty("examSectionQuestions.examSection.exam.id", examIds.asJava)
-        val withCourseFilter = withExamFilter.inOrEmpty("examSectionQuestions.examSection.exam.course.id", courseIds.asJava)
-        val withTagFilter = withCourseFilter.inOrEmpty("tags.id", tagIds.asJava)
+        val withCourseFilter =
+          withExamFilter.inOrEmpty("examSectionQuestions.examSection.exam.course.id", courseIds.asJava)
+        val withTagFilter     = withCourseFilter.inOrEmpty("tags.id", tagIds.asJava)
         val withSectionFilter = withTagFilter.inOrEmpty("examSectionQuestions.examSection.id", sectionIds.asJava)
 
         val baseQuestions = withSectionFilter.orderBy("created desc").distinct
-        val questions = if user.hasRole(Role.Name.TEACHER) && ownerIds.nonEmpty then
-          baseQuestions.filter(_.getQuestionOwners.contains(user))
-        else baseQuestions
+        val questions =
+          if user.hasRole(Role.Name.TEACHER) && ownerIds.nonEmpty then
+            baseQuestions.filter(_.getQuestionOwners.contains(user))
+          else baseQuestions
 
         Ok(questions.asJson(pp))
     }
@@ -140,11 +143,12 @@ class QuestionController @Inject() (
   def copyQuestion(id: Long): Action[AnyContent] =
     audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
       request =>
-        val user  = request.attrs(Auth.ATTR_USER)
+        val user      = request.attrs(Auth.ATTR_USER)
         val baseQuery = DB.find(classOf[Question]).fetch("questionOwners").where().idEq(id)
-        val query = if user.hasRole(Role.Name.TEACHER) then
-          baseQuery.disjunction().eq("shared", true).eq("questionOwners", user).endJunction()
-        else baseQuery
+        val query =
+          if user.hasRole(Role.Name.TEACHER) then
+            baseQuery.disjunction().eq("shared", true).eq("questionOwners", user).endJunction()
+          else baseQuery
         query.find match
           case None => Forbidden("i18n_error_access_forbidden")
           case Some(question) =>
@@ -199,7 +203,7 @@ class QuestionController @Inject() (
     question.setDefaultEvaluationCriteria(defaultCriteria)
     question.setDefaultNegativeScoreAllowed(defaultNegativeScoreAllowed)
     question.setDefaultOptionShufflingOn(defaultOptionShufflingOn)
-    if Option(question.getState).forall(_ != QuestionState.DELETED.toString) then
+    if !Option(question.getState).contains(QuestionState.DELETED.toString) then
       question.setState(QuestionState.SAVED.toString)
     if Option(question.getId).isEmpty then question.setCreatorWithDate(user)
     question.setModifierWithDate(user)
@@ -262,16 +266,17 @@ class QuestionController @Inject() (
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
     .andThen(questionTextSanitizer)(parse.json) { request =>
-      val user  = request.attrs(Auth.ATTR_USER)
+      val user      = request.attrs(Auth.ATTR_USER)
       val baseQuery = DB.find(classOf[Question]).where().idEq(id)
-      val query = if user.hasRole(Role.Name.TEACHER) then
-        baseQuery
-          .disjunction()
-          .eq("shared", true)
-          .eq("questionOwners", user)
-          .eq("examSectionQuestions.examSection.exam.examOwners", user)
-          .endJunction()
-      else baseQuery
+      val query =
+        if user.hasRole(Role.Name.TEACHER) then
+          baseQuery
+            .or()
+            .eq("shared", true)
+            .eq("questionOwners", user)
+            .eq("examSectionQuestions.examSection.exam.examOwners", user)
+            .endOr()
+        else baseQuery
       query.find match
         case None => Forbidden("i18n_error_access_forbidden")
         case Some(question) =>
@@ -288,11 +293,12 @@ class QuestionController @Inject() (
 
   def deleteQuestion(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
+      val user     = request.attrs(Auth.ATTR_USER)
       val baseExpr = DB.find(classOf[Question]).where().idEq(id)
-      val expr = if user.hasRole(Role.Name.TEACHER) then
-        baseExpr.disjunction().eq("shared", true).eq("questionOwners", user).endJunction()
-      else baseExpr
+      val expr =
+        if user.hasRole(Role.Name.TEACHER) then
+          baseExpr.disjunction().eq("shared", true).eq("questionOwners", user).endJunction()
+        else baseExpr
       expr.find match
         case None           => NotFound
         case Some(question) =>
@@ -382,9 +388,10 @@ class QuestionController @Inject() (
               val ids      = idsStr.split(",").map(_.toLong).toSeq
               val modifier = request.attrs(Auth.ATTR_USER)
               val baseExpr = DB.find(classOf[Question]).where().idIn(ids.asJava)
-              val expr = if modifier.hasRole(Role.Name.TEACHER) then
-                baseExpr.disjunction().eq("shared", true).eq("questionOwners", modifier).endJunction()
-              else baseExpr
+              val expr =
+                if modifier.hasRole(Role.Name.TEACHER) then
+                  baseExpr.disjunction().eq("shared", true).eq("questionOwners", modifier).endJunction()
+                else baseExpr
               val questions = expr.list
               if questions.isEmpty then NotFound
               else
@@ -446,9 +453,9 @@ class QuestionController @Inject() (
 
   def getQuestionPreview(qid: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
+      val user      = request.attrs(Auth.ATTR_USER)
       val baseQuery = DB.find(classOf[Question]).fetch("attachment", "fileName").fetch("options").where().idEq(qid)
-      val el = if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("questionOwners", user) else baseQuery
+      val el        = if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("questionOwners", user) else baseQuery
       el.find match
         case None           => NotFound
         case Some(question) =>
@@ -481,9 +488,10 @@ class QuestionController @Inject() (
         .fetch("options.option", "id, option")
         .where()
         .idEq(esqId)
-      val el = if user.hasRole(Role.Name.TEACHER) then
-        baseQuery.or().in("question.questionOwners", user).in("examSection.exam.examOwners", user).endOr()
-      else baseQuery
+      val el =
+        if user.hasRole(Role.Name.TEACHER) then
+          baseQuery.or().in("question.questionOwners", user).in("examSection.exam.examOwners", user).endOr()
+        else baseQuery
       el.find match
         case None      => NotFound
         case Some(esq) => processPreview(esq)

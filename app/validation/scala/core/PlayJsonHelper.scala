@@ -27,7 +27,12 @@ object PlayJsonHelper:
 
   /** Parse comma-separated values from a string field
     */
-  def parseCommaSeparated[T](fieldName: String, json: JsValue, separator: String = ",", conv: String => Option[T]): Option[List[T]] =
+  def parseCommaSeparated[T](
+      fieldName: String,
+      json: JsValue,
+      separator: String = ",",
+      conv: String => Option[T]
+  ): Option[List[T]] =
     (json \ fieldName)
       .asOpt[String]
       .filter(_.trim.nonEmpty)
@@ -48,7 +53,7 @@ object PlayJsonHelper:
   /** Navigate to nested field using path notation
     */
   def parsePath[T](path: String, json: JsValue)(using reads: Reads[T]): Option[T] =
-    val parts = path.split('.')
+    val parts                         = path.split('.')
     val initialResult: JsLookupResult = JsDefined(json)
     val result: JsLookupResult = parts.foldLeft(initialResult) { (acc, key) =>
       acc match
@@ -61,7 +66,7 @@ object PlayJsonHelper:
     */
   def parseHtml(fieldName: String, json: JsValue): Option[String] =
     import org.jsoup.Jsoup
-    
+
     parse[String](fieldName, json).map { html =>
       Option(html).map(Jsoup.clean(_, HtmlSafelist.SAFELIST)).orNull
     }
@@ -85,4 +90,3 @@ object PlayJsonHelper:
     parse[String](fieldName, json).flatMap { str =>
       scala.util.Try(Enum.valueOf(enumClass, str)).toOption
     }
-

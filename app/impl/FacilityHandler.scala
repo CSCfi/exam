@@ -89,10 +89,8 @@ class FacilityHandlerImpl @Inject() (
               room.setExternalRef(null)
               room.update()
               Ok(Json.obj("externalRef" -> JsNull))
-            else
-              InternalServerError("Connection refused")
+            else InternalServerError("Connection refused")
           }
         else
           // Tried to add an inactive facility
           Future.successful(BadRequest("Cannot add inactive facility"))
-
