@@ -537,11 +537,16 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         String eppn = "newuser@test.org";
         assertThat(user).isNull();
 
+        // Create reservation within the same day to avoid midnight boundary issues
+        DateTime[] times = createSafeTimes();
+        DateTime startTime = times[0];
+        DateTime endTime = times[1];
+
         Reservation reservation = new Reservation();
         reservation.setExternalUserRef(eppn);
         reservation.setExternalRef(RESERVATION_REF);
-        reservation.setStartAt(DateTime.now().plusHours(2));
-        reservation.setEndAt(DateTime.now().plusHours(3));
+        reservation.setStartAt(startTime);
+        reservation.setEndAt(endTime);
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
 
@@ -587,11 +592,17 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         ExamMachine machine = room.getExamMachines().get(0);
         machine.setIpAddress("128.2.2.2");
         machine.update();
+
+        // Create reservation within the same day to avoid midnight boundary issues
+        DateTime[] times = createSafeTimes();
+        DateTime startTime = times[0];
+        DateTime endTime = times[1];
+
         Reservation reservation = new Reservation();
         reservation.setExternalUserRef(eppn);
         reservation.setExternalRef(RESERVATION_REF);
-        reservation.setStartAt(DateTime.now().plusHours(2));
-        reservation.setEndAt(DateTime.now().plusHours(3));
+        reservation.setStartAt(startTime);
+        reservation.setEndAt(endTime);
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
 
@@ -791,11 +802,16 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         String eppn = "newuser@test.org";
         assertThat(user).isNull();
 
+        // Create reservation within the same day to avoid midnight boundary issues
+        DateTime[] times = createSafeTimes();
+        DateTime startTime = times[0];
+        DateTime endTime = times[1];
+
         Reservation reservation = new Reservation();
         reservation.setExternalUserRef(eppn);
         reservation.setExternalRef(RESERVATION_REF);
-        reservation.setStartAt(DateTime.now().plusHours(2));
-        reservation.setEndAt(DateTime.now().plusHours(3));
+        reservation.setStartAt(startTime);
+        reservation.setEndAt(endTime);
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
 
@@ -812,5 +828,48 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(DB.find(Reservation.class, reservation.getId())).isNull();
         assertThat(DB.find(ExamEnrolment.class, enrolment.getId())).isNull();
         assertThat(DB.find(ExternalExam.class, enrolment.getExternalExam().getId())).isNull();
+    }
+
+    /**
+     * Creates safe start and end times that avoid the midnight boundary issue.
+     * The lookup logic in getUpcomingExternalReservation looks ahead until midnight,
+     * so we ensure reservations are scheduled before then and always in the future.
+     */
+    private DateTime[] createSafeTimes() {
+        DateTime now = DateTime.now();
+        DateTime startTime = now.plusMinutes(30); // Start in 30 minutes
+        DateTime endTime = now.plusMinutes(90); // End in 90 minutes
+
+        // If this would cross midnight, move it to a safe time today
+        DateTime midnight = now.plusDays(1).withMillisOfDay(0);
+        if (startTime.isAfter(midnight) || endTime.isAfter(midnight)) {
+            // If we're close to midnight, schedule for a safe time earlier today
+            // But ensure it's still in the future
+            DateTime safeStart = now.withHourOfDay(10).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            DateTime safeEnd = safeStart.plusHours(1);
+
+            // If 10 AM is in the past, use the original future times but cap at 23:30
+            if (safeEnd.isBefore(now)) {
+                // Use original times but ensure they don't cross midnight
+                startTime = now.plusMinutes(30);
+                endTime = now.plusMinutes(90);
+
+                // If still crossing midnight, cap at 23:30
+                DateTime latestStart = now
+                    .withHourOfDay(23)
+                    .withMinuteOfHour(30)
+                    .withSecondOfMinute(0)
+                    .withMillisOfSecond(0);
+                if (startTime.isAfter(latestStart)) {
+                    startTime = latestStart;
+                    endTime = startTime.plusMinutes(30); // Short reservation to stay before midnight
+                }
+            } else {
+                startTime = safeStart;
+                endTime = safeEnd;
+            }
+        }
+
+        return new DateTime[] { startTime, endTime };
     }
 }
