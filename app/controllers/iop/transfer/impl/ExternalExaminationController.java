@@ -19,6 +19,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.typesafe.config.Config;
 import controllers.ExaminationController;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import impl.AutoEvaluationHandler;
@@ -75,7 +76,8 @@ public class ExternalExaminationController extends ExaminationController {
         ClassLoaderExecutionContext httpExecutionContext,
         ExternalAttachmentLoader externalAttachmentLoader,
         ByodConfigHandler byodConfigHandler,
-        DateTimeHandler dateTimeHandler
+        DateTimeHandler dateTimeHandler,
+        Config config
     ) {
         super(
             emailComposer,
@@ -86,7 +88,8 @@ public class ExternalExaminationController extends ExaminationController {
             httpExecutionContext,
             externalAttachmentLoader,
             byodConfigHandler,
-            dateTimeHandler
+            dateTimeHandler,
+            config
         );
     }
 

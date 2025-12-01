@@ -3,6 +3,7 @@
         <div class="guide-wrapper" [ngClass]="isAnswered() ? 'active' : 'notactive'">
             <div class="row align-items-center">
                 <div class="col-auto">
+                    <h1>oijoij</h1>
                     @if (isAnswered()) {
                         <div [attr.aria-label]="'i18n_all_questions_answered' | translate">
                             <img class="mt-05" src="/assets/images/icon_question_type_ready_grey.png" alt="" />
@@ -123,6 +124,11 @@
                                         [orderOptions]="!exam?.external"
                                     >
                                     </xm-examination-weighted-multi-choice-question>
+                                }
+                                @case ('LtiQuestion') {
+                                    <h1>lti question aasd</h1>
+                                    <xm-examination-lti-question [sq]="sq" [isPreview]="isPreview">
+                                    </xm-examination-lti-question>
                                 }
                             }
                         </div>

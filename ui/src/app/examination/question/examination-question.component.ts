@@ -24,6 +24,7 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { DynamicClozeTestComponent } from './dynamic-cloze-test.component';
 import { ExaminationClozeTestComponent } from './examination-cloze-test.component';
 import { ExaminationEssayQuestionComponent } from './examination-essay-question.component';
+import { ExaminationLtiComponent } from './examination-lti-question.component';
 import { ExaminationMultiChoiceComponent } from './examination-multi-choice-question.component';
 import { ExaminationWeightedMultiChoiceComponent } from './examination-weighted-multi-choice-question.component';
 
@@ -44,6 +45,7 @@ type ClozeTestAnswer = { [key: string]: string };
         UpperCasePipe,
         SlicePipe,
         TranslateModule,
+        ExaminationLtiComponent,
     ],
     styleUrls: ['../examination.shared.scss', './question.shared.scss', './examination-question.component.scss'],
 })

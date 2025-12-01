@@ -56,6 +56,14 @@ import sanitizers.SanitizingHelper;
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {
 
+    public String getLtiId() {
+        return ltiId;
+    }
+
+    public void setLtiId(String ltiId) {
+        this.ltiId = ltiId;
+    }
+
     public enum Type {
         @EnumValue("1")
         MultipleChoiceQuestion,
@@ -67,6 +75,8 @@ public class Question extends OwnedModel implements AttachmentContainer {
         ClozeTestQuestion,
         @EnumValue("5")
         ClaimChoiceQuestion,
+        @EnumValue("6")
+        LtiQuestion,
     }
 
     public enum EvaluationType {
@@ -102,6 +112,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
 
     @Column
     private Integer defaultExpectedWordCount;
+
+    @Column
+    private String ltiId;
 
     @ManyToOne
     private Question parent;
@@ -402,6 +415,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         }
                     }
                 }
+                case LtiQuestion -> {}
                 default -> reason = "unknown question type";
             }
         } else {

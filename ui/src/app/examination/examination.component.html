@@ -33,7 +33,7 @@
 
         <!-- ANSWER INSTRUCTIONS -->
         @if (!activeSection && exam) {
-            <xm-answer-instructions [exam]="exam" />
+            <xm-answer-instructions [exam]="exam" [ltiUrl]="ltiUrl" />
         }
 
         <!-- NAVIGATION -->

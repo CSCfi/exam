@@ -26,6 +26,7 @@ libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"             % "1
 libraryDependencies += "joda-time"                % "joda-time"             % "2.12.5"
 libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.15.4"
 libraryDependencies += "org.postgresql"           % "postgresql"            % "42.5.4"
+libraryDependencies += "com.nimbusds"             % "nimbus-jose-jwt"       % "10.5"
 libraryDependencies += "com.icegreen"             % "greenmail"             % "2.1.0-alpha-3" % "test"
 libraryDependencies += "com.icegreen"             % "greenmail-junit4"      % "2.0.0"         % "test"
 libraryDependencies += "com.jayway.jsonpath"      % "json-path"             % "2.7.0"         % "test"

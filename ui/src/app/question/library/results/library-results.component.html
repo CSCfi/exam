@@ -175,6 +175,9 @@
                                     {{ 'i18n_toolbar_claim_choice_question' | translate }}
                                 </span>
                             }
+                            @if (question.type === 'lti') {
+                                <span>{{ 'i18n_toolbar_lti' | translate }}</span>
+                            }
                         </td>
                         <td>
                             @if (question.attachment) {

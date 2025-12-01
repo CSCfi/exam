@@ -85,6 +85,7 @@ export class QuestionBodyComponent implements OnInit {
             { type: 'multichoice', name: 'i18n_toolbar_multiplechoice_question' },
             { type: 'weighted', name: 'i18n_toolbar_weighted_multiplechoice_question' },
             { type: 'claim', name: 'i18n_toolbar_claim_choice_question' },
+            { type: 'lti', name: 'i18n_toolbar_lti' },
         ];
 
         this.init();

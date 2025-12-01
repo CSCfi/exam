@@ -113,6 +113,10 @@ export class PrintoutComponent implements OnInit {
                 break;
             case 'ClaimChoiceQuestion':
                 name = 'Väittämä-kysymys / Claim choice question SV / Claim choice question';
+                break;
+            case 'LtiQuestion':
+                name = 'LTI tehtävätyyppi';
+                break;
         }
         return name;
     };

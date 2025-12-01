@@ -104,6 +104,7 @@ reports.studentLastName=Sukunimi
 reports.studentEmail=Sähköposti
 reports.studentId=Opiskelijanumero
 reports.question.type.essay=Essee
+reports.question.type.lti=LTI
 reports.question.type.cloze=Aukkotehtävä
 reports.question.type.multiplechoice=Monivalinta
 reports.question.type.weightedmultiplechoide=Monivalinta

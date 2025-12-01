@@ -119,6 +119,7 @@ export interface Question {
     defaultEvaluationCriteria?: string;
     defaultExpectedWordCount?: number;
     defaultEvaluationType?: string;
+    ltiId?: string;
 }
 
 export interface EssayAnswer {

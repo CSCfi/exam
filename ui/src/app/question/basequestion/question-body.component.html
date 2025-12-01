@@ -149,12 +149,16 @@
                 @case ('ClaimChoiceQuestion') {
                     {{ 'i18n_toolbar_claim_choice_question' | translate }}
                 }
+                @case ('LtiQuestion') {
+                    {{ 'i18n_toolbar_lti' | translate }}
+                }
             }
         </div>
     </div>
     @if (question.type) {
         <div class="row mt-3">
             <div class="col-md-3">
+                <h1>ag111</h1>
                 {{ 'i18n_question_text' | translate }}
                 <sup
                     ngbPopover="{{ 'i18n_question_text_description' | translate }}"
@@ -219,6 +223,31 @@
             @case ('ClaimChoiceQuestion') {
                 <xm-claim-choice-editor [question]="question" [showWarning]="showWarning()" />
             }
+            @case ('LtiQuestion') {
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        {{ 'i18n_question_lti_id' | translate }}
+                        <sup
+                            ngbPopover="{{ 'i18n_question_lti_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                            <img src="/assets/images/icon_tooltip.svg" alt="" />
+                        </sup>
+                    </div>
+                    <div class="col-md-9 pe-0">
+                        <textarea
+                            id="ltiId"
+                            name="ltiId"
+                            class="form-control"
+                            rows="1"
+                            [(ngModel)]="question.ltiId"
+                            placeholder="{{ 'i18n_question_lti_id_instruction' | translate }}"
+                        >
+                        </textarea>
+                    </div>
+                </div>
+            }
         }
 
         @if (question.type === 'EssayQuestion') {
@@ -245,7 +274,8 @@
         @if (
             question.type === 'MultipleChoiceQuestion' ||
             question.type === 'ClozeTestQuestion' ||
-            question.defaultEvaluationType === 'Points'
+            question.defaultEvaluationType === 'Points' ||
+            question.type === 'LtiQuestion'
         ) {
             <!-- Max score -->
             <div class="row mt-3">

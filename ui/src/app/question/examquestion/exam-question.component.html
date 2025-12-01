@@ -133,11 +133,17 @@
                                 {{ 'i18n_toolbar_claim_choice_question' | translate }}
                             </span>
                         }
+                        @if ('lti') {
+                            <span>
+                                {{ 'i18n_toolbar_lti' | translate }}
+                            </span>
+                        }
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-3">
+                        <h3>asfasf1</h3>
                         {{ 'i18n_question_text' | translate }}
                         <sup
                             ngbPopover="{{ 'i18n_question_text_description' | translate }}"
@@ -474,6 +480,13 @@
                                 <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
                             </select>
                         </div>
+                    </div>
+                }
+
+                <!-- LTI -->
+                @if (question?.type === 'LtiQuestion') {
+                    <div class="row mt-2">
+                        <div class="col-md-3">LTI TODO</div>
                     </div>
                 }
 

@@ -1,5 +1,13 @@
 GET           /                                                        controllers.assets.FrontendController.index()
 
+# LTI
+GET     /integration/lti/start-login            controllers.ExaminationController.startLogin(request: Request)
+GET     /integration/lti/oidc/login             controllers.ExaminationController.handleOidcLogin(request: Request)
+#GET     /integration/lti/resource               controllers.ExaminationController.loadLtiResourceLink(request: Request)
+GET     /integration/lti/launch-frame           controllers.ExaminationController.renderIframeLaunch(request: Request)
+GET     /integration/lti/oidc/jwks              controllers.JwksController.jwks()
+
+
 ############### Session interface ############
 GET           /app/session                                             controllers.SessionController.checkSession(request: Request)
 PUT           /app/session                                             controllers.SessionController.extendSession(request: Request)

@@ -104,6 +104,7 @@ reports.studentLastName=Efternamn
 reports.studentEmail=E-post
 reports.studentId=Studentnummer
 reports.question.type.essay=Essä
+reports.question.type.lti=LTI
 reports.question.type.cloze=Text med luckor
 reports.question.type.multiplechoice=Flervalsfråga
 reports.question.type.weightedmultiplechoide=Flervalsfråga

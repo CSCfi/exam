@@ -190,6 +190,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
                             "reports.question.type.weightedmultiplechoide"
                         );
                         case ClaimChoiceQuestion -> messages.get(lang, "reports.question.type.claim");
+                        case LtiQuestion -> messages.get(lang, "reports.question.type.lti");
                     };
 
                 appendCell(

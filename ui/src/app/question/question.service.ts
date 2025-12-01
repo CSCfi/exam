@@ -72,6 +72,9 @@ export class QuestionService {
             case 'claim':
                 questionType = 'ClaimChoiceQuestion';
                 break;
+            case 'lti':
+                questionType = 'LtiQuestion';
+                break;
             default:
                 throw Error('question type not found!');
         }
@@ -214,6 +217,8 @@ export class QuestionService {
                 return { score: 0, rejected: false, approved: false };
             case 'ClaimChoiceQuestion':
                 return { score: this.scoreClaimChoiceAnswer(sq, false), rejected: false, approved: false };
+            case 'LtiQuestion':
+                return { score: 0, rejected: false, approved: false };
             default:
                 throw Error('unknown question type');
         }
@@ -498,6 +503,7 @@ export class QuestionService {
             questionOwners: question.questionOwners,
             tags: question.tags,
             options: question.options,
+            ltiId: question.ltiId,
         };
         if (question.id) {
             questionToUpdate.id = question.id;

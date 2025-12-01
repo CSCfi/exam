@@ -14,6 +14,7 @@
  */
 
 import { Component, Input } from '@angular/core';
+import { SafeResourceUrl } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination } from 'src/app/examination/examination.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
@@ -58,6 +59,21 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                     <div class="text col-md-8" [xmMathJax]="exam.instruction"></div>
                 </div>
             </div>
+            <div class="row mt-4 ms-3">
+                <div class="col-md-12">
+                    @if (ltiUrl) {
+                        <iframe
+                            class="lti-frame"
+                            [src]="ltiUrl"
+                            title="LTI tool"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            allow="clipboard-write *; camera *; microphone *"
+                        ></iframe>
+                    } @else {
+                        <div>NO LTI Tool loaded</div>
+                    }
+                </div>
+            </div>
         </div>
     `,
     standalone: true,
@@ -66,6 +82,8 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
 })
 export class AnswerInstructionsComponent {
     @Input() exam!: Examination;
+    @Input({ transform: (value: SafeResourceUrl | null): SafeResourceUrl | undefined => (value ? value : undefined) })
+    ltiUrl?: SafeResourceUrl;
 
     constructor(private DateTime: DateTimeService) {}
 

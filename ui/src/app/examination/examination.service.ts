@@ -35,8 +35,17 @@ export class ExaminationService {
 
     getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
 
+    getLtiInitiateUrl$() {
+        return 'http://localhost:9000/integration/lti/start-login';
+    }
+
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
+        console.log('startExam');
         const getUrl = (h: string) => (isPreview && id ? `/app/exams/${id}/preview` : `/app/student/exam/${h}`);
+        // const ltiUrl = (h: string) => (isPreview ? `/app/lti/start-login` : null);
+
+        // this.http.get('/app/lti/start-login').subscribe();
+
         return this.http.get<void>('/app/session').pipe(
             switchMap(() =>
                 this.http.get<Examination>(isCollaboration ? getUrl(hash).replace('/app/', '/app/iop/') : getUrl(hash)),

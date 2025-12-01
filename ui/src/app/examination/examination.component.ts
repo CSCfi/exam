@@ -14,6 +14,7 @@
  */
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -46,10 +47,12 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     exam!: Examination;
     activeSection?: ExaminationSection;
     isPreview = false;
+    ltiUrl: SafeResourceUrl | null = null;
 
     constructor(
         private router: Router,
         private route: ActivatedRoute,
+        private sanitizer: DomSanitizer,
         private Examination: ExaminationService,
         private Session: SessionService,
         private Enrolment: EnrolmentService,
@@ -71,6 +74,15 @@ export class ExaminationComponent implements OnInit, OnDestroy {
                 exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
                 this.exam = exam;
                 this.setActiveSection({ type: 'guide' });
+
+                // Load LTI tool in iframe when relevant
+                if (this.isPreview) {
+                    console.log('preview');
+                    this.ltiUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+                        'http://localhost:9000/integration/lti/start-login',
+                    );
+                }
+
                 if (!this.isPreview && this.exam.executionType.type === 'MATURITY') {
                     this.Enrolment.showMaturityInstructions({ exam: this.exam }, this.exam.external);
                 }

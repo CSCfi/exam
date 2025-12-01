@@ -19,6 +19,13 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import com.typesafe.config.Config;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import impl.AutoEvaluationHandler;
@@ -26,10 +33,16 @@ import impl.EmailComposer;
 import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyFactory;
+import java.security.SecureRandom;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -83,6 +96,7 @@ public class ExaminationController extends BaseController {
     private final ExternalAttachmentLoader externalAttachmentLoader;
     private final ByodConfigHandler byodConfigHandler;
     protected final DateTimeHandler dateTimeHandler;
+    private final Config config;
 
     private final Logger logger = LoggerFactory.getLogger(ExaminationController.class);
 
@@ -96,7 +110,8 @@ public class ExaminationController extends BaseController {
         ClassLoaderExecutionContext httpExecutionContext,
         ExternalAttachmentLoader externalAttachmentLoader,
         ByodConfigHandler byodConfigHandler,
-        DateTimeHandler dateTimeHandler
+        DateTimeHandler dateTimeHandler,
+        Config config
     ) {
         this.emailComposer = emailComposer;
         this.examinationRepository = examinationRepository;
@@ -107,6 +122,7 @@ public class ExaminationController extends BaseController {
         this.externalAttachmentLoader = externalAttachmentLoader;
         this.byodConfigHandler = byodConfigHandler;
         this.dateTimeHandler = dateTimeHandler;
+        this.config = config;
     }
 
     private Result postProcessClone(ExamEnrolment enrolment, Optional<Exam> oe) {
@@ -281,6 +297,352 @@ public class ExaminationController extends BaseController {
                 },
                 httpExecutionContext.current()
             );
+    }
+
+    public Result startLogin(Http.Request request) {
+        String toolInitiateLogin = config.getString("lti.tool.initiate-login-url");
+        String platformIssuer = config.getString("lti.platform.issuer");
+        String targetLinkUri = config.getString("lti.platform.target-link-uri");
+        String clientId = config.getString("lti.platform.client-id");
+
+        String resourceId = request.getQueryString("resourceId");
+
+        if (resourceId == null || resourceId.isBlank()) {
+            return badRequest("Missing resourceId");
+        }
+
+        if (toolInitiateLogin.isEmpty() || platformIssuer.isEmpty() || targetLinkUri.isEmpty() || clientId.isEmpty()) {
+            return badRequest("Missing required LTI settings (tool initiate url, issuer, target link uri, client id).");
+        }
+
+        String state = UUID.randomUUID().toString();
+        String nonce = generateNonce();
+
+        StringBuilder redirect = new StringBuilder(toolInitiateLogin);
+        if (!toolInitiateLogin.contains("?")) redirect.append("?"); else redirect.append("&");
+        redirect
+            .append("iss=")
+            .append(urlEncode(platformIssuer))
+            .append("&login_hint=")
+            .append(urlEncode("hint"))
+            .append("&target_link_uri=")
+            .append(urlEncode(targetLinkUri))
+            .append("&client_id=")
+            .append(urlEncode(clientId))
+            .append("&nonce=")
+            .append(urlEncode(nonce))
+            .append("&state=")
+            .append(urlEncode(state));
+
+        // Persist state/nonce in session for verification
+        return redirect(redirect.toString())
+            .addingToSession(request, "lti_nonce", nonce)
+            .addingToSession(request, "lti_state", state)
+            .addingToSession(request, "lti_resource_id", resourceId);
+    }
+
+    public Result handleOidcLogin(Http.Request request) throws Exception {
+        // Read query params
+        String loginHint = request.getQueryString("login_hint");
+        String redirectUri = request.getQueryString("redirect_uri");
+        String state = request.getQueryString("state");
+        String nonce = request.getQueryString("nonce");
+        String clientId = request.getQueryString("client_id");
+
+        // Required config
+        String expectedClientId = config.getString("lti.platform.client-id");
+        String deploymentId = config.getString("lti.platform.deployment-id");
+        String issuer = config.getString("lti.platform.issuer");
+        String keyId = config.getString("lti.platform.key-id");
+        String privateKeyPath = config.getString("lti.platform.private-key");
+
+        var ses = request.session();
+        String resourceId = ses.getOptional("lti_resource_id").orElse(null);
+
+        // Basic validation
+        if (clientId == null || !expectedClientId.equals(clientId)) {
+            return badRequest("Invalid client_id");
+        }
+        if (redirectUri == null || state == null || nonce == null) {
+            return badRequest("Missing required parameters");
+        }
+
+        if (resourceId == null || resourceId.isBlank()) {
+            return badRequest("Missing resourceId in session");
+        }
+
+        // TODO tarkista, että redirect uri on validi esim. sen pitää olla http://localhost:8888/moodle500/enrol/lti/launch.php
+        //targetLinkUri
+
+        // Build ID Token (5 minute expiry)
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + 5 * 60 * 1000);
+
+        Map<String, Object> contextClaim = new HashMap<>();
+        contextClaim.put("id", "platorm-internal-id-12345678");
+        contextClaim.put("label", "Oma tehtavava label");
+        contextClaim.put("title", "Oma tehtava title");
+        contextClaim.put("type", List.of("http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering"));
+
+        Map<String, Object> resourceLink = new HashMap<>();
+
+        //        String resourceId = "2788c809-8f36-4ea0-87ce-3a9191174971";
+        logger.debug("ResourceId: " + resourceId);
+        resourceLink.put("id", resourceId);
+
+        resourceLink.put("title", "Tehtava moodle toolissa");
+
+        Map<String, Object> custom = new HashMap<>();
+        custom.put("id", resourceId);
+
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+            .issuer(issuer)
+            .subject("user12345555") // your LMS-specific stable user id
+            .audience(clientId)
+            .expirationTime(exp)
+            .issueTime(now)
+            .jwtID(UUID.randomUUID().toString())
+            .claim("nonce", nonce)
+            // LTI 1.3 claims
+            .claim("https://purl.imsglobal.org/spec/lti/claim/message_type", "LtiResourceLinkRequest")
+            .claim("https://purl.imsglobal.org/spec/lti/claim/version", "1.3.0")
+            .claim("https://purl.imsglobal.org/spec/lti/claim/deployment_id", deploymentId)
+            .claim("https://purl.imsglobal.org/spec/lti/claim/target_link_uri", redirectUri)
+            .claim(
+                "https://purl.imsglobal.org/spec/lti/claim/roles",
+                List.of("http://purl.imsglobal.org/vocab/lis/v2/membership#Learner")
+            ) // FIXME
+            .claim("https://purl.imsglobal.org/spec/lti/claim/context", contextClaim)
+            .claim("https://purl.imsglobal.org/spec/lti/claim/resource_link", resourceLink)
+            .claim("https://purl.imsglobal.org/spec/lti/claim/custom", custom)
+            .build();
+
+        // Sign JWT (RS256)
+        RSAPrivateKey privateKey = loadPrivateKeyFromFile(privateKeyPath);
+        SignedJWT signedJWT = new SignedJWT(
+            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(keyId).type(JOSEObjectType.JWT).build(),
+            claims
+        );
+        signedJWT.sign(new RSASSASigner(privateKey));
+
+        String idToken = signedJWT.serialize();
+
+        // In Spring you did response.sendRedirect(...) — in Play just:
+        String encodedToken = URLEncoder.encode(idToken, StandardCharsets.UTF_8);
+        String encodedState = URLEncoder.encode(state, StandardCharsets.UTF_8);
+        String frameLaunchUrl = "/integration/lti/launch-frame?id_token=" + encodedToken + "&state=" + encodedState;
+
+        // --- Return a tiny auto-post page that submits inside THIS iframe
+        String html = buildAutoPostHtml(redirectUri, idToken, state);
+
+        return ok(html).as("text/html").withHeader("Cache-Control", "no-store").withHeader("Pragma", "no-cache");
+        // Consider also:
+        // .withHeader("Content-Security-Policy", "frame-ancestors https://your-spa-origin.example");
+    }
+
+    //    public Result handleOidcLogin(Http.Request request) throws Exception {
+    //        // Read query params
+    //        this.loginHint  = request.getQueryString("login_hint");
+    //        this.redirectUri = request.getQueryString("redirect_uri");
+    //        this.state      = request.getQueryString("state");
+    //        this.nonce      = request.getQueryString("nonce");
+    //        this.clientId   = request.getQueryString("client_id");
+    //
+    //        logger.debug("loginHint : {}", loginHint);
+    //        logger.debug("redirectUri : {}", redirectUri);
+    //        logger.debug("state     : {}", state);
+    //        logger.debug("nonce     : {}", nonce);
+    //        logger.debug("clientId   : {}", clientId);
+    //
+    //        // Required config
+    //        String expectedClientId = config.getString("lti.platform.client-id");
+    //
+    //        // Basic validation
+    //        if (clientId == null || !expectedClientId.equals(clientId)) {
+    //            return badRequest("Invalid client_id");
+    //        }
+    //        if (redirectUri == null || state == null || nonce == null) {
+    //            return badRequest("Missing required parameters");
+    //        }
+    //        logger.debug("handleOidcLogin: ok");
+    //        return ok();
+    //    }
+
+    //    public Result loadLtiResourceLink(Http.Request request) throws Exception {
+    //
+    //        String deploymentId = config.getString("lti.platform.deployment-id");
+    //        String issuer           = config.getString("lti.platform.issuer");
+    //        String keyId            = config.getString("lti.platform.key-id");
+    //        String privateKeyPath   = config.getString("lti.platform.private-key");
+    //        String resourceId       = request.getQueryString("resourceId");
+    //
+    //
+    //        // Build ID Token (5 minute expiry)
+    //        Date now = new Date();
+    //        Date exp = new Date(now.getTime() + 5 * 60 * 1000);
+    //
+    //        Map<String, Object> contextClaim = new HashMap<>();
+    //        contextClaim.put("id", "platorm-internal-id-12345678");
+    //        contextClaim.put("label", "Oma tehtavava label");
+    //        contextClaim.put("title", "Oma tehtava title");
+    //        contextClaim.put("type", List.of("http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering"));
+    //
+    //        Map<String, Object> resourceLink = new HashMap<>();
+    //
+    //        resourceLink.put("id", resourceId);
+    //        resourceLink.put("title", "Tehtava moodle toolissa");
+    //
+    //        Map<String, Object> custom = new HashMap<>();
+    //        custom.put("id", resourceId);
+    //
+    //        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+    //                .issuer(issuer)
+    //                .subject("user12345555") // your LMS-specific stable user id
+    //                .audience(clientId)
+    //                .expirationTime(exp)
+    //                .issueTime(now)
+    //                .jwtID(UUID.randomUUID().toString())
+    //                .claim("nonce", nonce)
+    //
+    //                // LTI 1.3 claims
+    //                .claim("https://purl.imsglobal.org/spec/lti/claim/message_type", "LtiResourceLinkRequest")
+    //                .claim("https://purl.imsglobal.org/spec/lti/claim/version", "1.3.0")
+    //                .claim("https://purl.imsglobal.org/spec/lti/claim/deployment_id", deploymentId)
+    //                .claim("https://purl.imsglobal.org/spec/lti/claim/target_link_uri", redirectUri)
+    //                .claim("https://purl.imsglobal.org/spec/lti/claim/roles",
+    //                        List.of("http://purl.imsglobal.org/vocab/lis/v2/membership#Learner")) // FIXME
+    //                .claim("https://purl.imsglobal.org/spec/lti/claim/context", contextClaim)
+    //                .claim("https://purl.imsglobal.org/spec/lti/claim/resource_link", resourceLink)
+    //                .claim("https://purl.imsglobal.org/spec/lti/claim/custom", custom)
+    //                .build();
+    //
+    //        // Sign JWT (RS256)
+    //        RSAPrivateKey privateKey = loadPrivateKeyFromFile(privateKeyPath);
+    //        SignedJWT signedJWT = new SignedJWT(
+    //                new JWSHeader.Builder(JWSAlgorithm.RS256)
+    //                        .keyID(keyId)
+    //                        .type(JOSEObjectType.JWT)
+    //                        .build(),
+    //                claims
+    //        );
+    //        signedJWT.sign(new RSASSASigner(privateKey));
+    //
+    //        String idToken = signedJWT.serialize();
+    //
+    //        // --- Return a tiny auto-post page that submits inside THIS iframe
+    //        String html = buildAutoPostHtml(redirectUri, idToken, state);
+    //
+    //        return ok(html)
+    //                .as("text/html")
+    //                .withHeader("Cache-Control", "no-store")
+    //                .withHeader("Pragma", "no-cache");
+    //    }
+    //<iframe id="lti-frame2" name="lti-frame2" width="100%%" height="800" frameborder="0" allowfullscreen=""></iframe>
+    //
+    //            <form id="lti-form2" method="POST" target="lti-frame2" action="http://localhost:9000/integration/lti/resource">
+    //                <input type="hidden" name="resourceId" value="2788c809-8f36-4ea0-87ce-3a9191174971">
+    //            </form><!--container--><!--container--></div>
+    private String buildAutoPostHtml(String postUrl, String idToken, String state) {
+        return String.format(
+            """
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8"/>
+              <title>LTI Launch</title>
+            </head>
+            <body>
+              <form id="ltiLaunch" action="%s" method="POST" target="_self">
+                <input type="hidden" name="id_token" value="%s"/>
+                <input type="hidden" name="state" value="%s"/>
+              </form>
+              <noscript>
+                <p>JavaScript is required to continue. Click the button below to launch.</p>
+                <button form="ltiLaunch" type="submit">Continue</button>
+              </noscript>
+              <script>document.getElementById('ltiLaunch').submit();</script>
+            </body>
+            </html>
+            """,
+            escapeHtml(postUrl),
+            escapeHtml(idToken),
+            escapeHtml(state)
+        );
+    }
+
+    public Result renderIframeLaunch(Http.Request request) {
+        String idToken = request.getQueryString("id_token");
+        String state = request.getQueryString("state");
+        String targetLinkUri = config.getString("lti.platform.target-link-uri");
+
+        String html = String.format(
+            """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Launching Moodle</title>
+                <style>iframe { border: 1px solid; width:1024px }</style>
+            </head>
+            <body>
+            <h1>Exam Demo</h1>
+            <p>Tässä voi olla examin omaa sisältöä</p>
+
+            <iframe id="lti-frame" name="lti-frame" width="100%%" height="800" frameborder="0" allowfullscreen></iframe>
+
+            <form id="lti-form" action="%s" method="POST" target="lti-frame">
+                <input type="hidden" name="id_token" value="%s"/>
+                <input type="hidden" name="state" value="%s"/>
+            </form>
+
+            <script>
+                document.getElementById("lti-form").submit();
+            </script>
+            </body>
+            </html>
+            """,
+            targetLinkUri,
+            escapeHtml(idToken),
+            escapeHtml(state)
+        );
+
+        return ok(html).as("text/html");
+    }
+
+    private String escapeHtml(String input) {
+        return input.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+
+    private RSAPrivateKey loadPrivateKey(String pem) throws Exception {
+        String privateKeyPEM = pem
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            .replaceAll(System.lineSeparator(), "");
+
+        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        return (RSAPrivateKey) kf.generatePrivate(keySpec);
+    }
+
+    public RSAPrivateKey loadPrivateKeyFromFile(String filePath) throws Exception {
+        // Read the PEM file content
+        String pem = new String(Files.readAllBytes(Paths.get(filePath)));
+        return loadPrivateKey(pem);
+    }
+
+    private static String urlEncode(String s) {
+        try {
+            return URLEncoder.encode(s, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            return s;
+        }
+    }
+
+    private static String generateNonce() {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] nonceBytes = new byte[16];
+        secureRandom.nextBytes(nonceBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(nonceBytes);
     }
 
     @Authenticated

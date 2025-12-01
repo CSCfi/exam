@@ -199,6 +199,8 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                 return 'i18n_toolbar_cloze_test_question';
             case 'ClaimChoiceQuestion':
                 return 'i18n_toolbar_claim_choice_question';
+            case 'lti':
+                return 'i18n_toolbar_lti';
         }
         return '';
     };

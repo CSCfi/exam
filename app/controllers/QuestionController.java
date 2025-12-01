@@ -206,6 +206,7 @@ public class QuestionController extends BaseController implements SectionQuestio
             .orElse(null);
         String defaultCriteria = SanitizingHelper.parse("defaultEvaluationCriteria", node, String.class).orElse(null);
         Question.Type type = SanitizingHelper.parseEnum("type", node, Question.Type.class).orElse(null);
+        String ltiId = SanitizingHelper.parse("ltiId", node, String.class).orElse(null);
 
         Question question = existing == null ? new Question() : existing;
         question.setType(type);
@@ -215,6 +216,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         question.setDefaultEvaluationType(defaultEvaluationType);
         question.setDefaultAnswerInstructions(defaultInstructions);
         question.setDefaultEvaluationCriteria(defaultCriteria);
+        question.setLtiId(ltiId);
         if (question.getState() == null || !question.getState().equals(QuestionState.DELETED.toString())) {
             question.setState(QuestionState.SAVED.toString());
         }

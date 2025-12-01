@@ -104,6 +104,7 @@ reports.studentLastName=Last name
 reports.studentEmail=Email
 reports.studentId=Student number
 reports.question.type.essay=Essay
+reports.question.type.lti=LTI
 reports.question.type.cloze=Fill-in exercise
 reports.question.type.multiplechoice=Multiple choice question
 reports.question.type.weightedmultiplechoide=Multiple choice question
