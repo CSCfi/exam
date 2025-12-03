@@ -42,6 +42,7 @@ export interface Question {
     defaultEvaluationType?: string;
     defaultNegativeScoreAllowed: boolean;
     defaultOptionShufflingOn: boolean;
+    ltiId?: string;
 }
 
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };

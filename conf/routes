@@ -5,10 +5,9 @@
 GET           /                                                               controllers.assets.FrontendController.index()
 
 # LTI
-GET     /integration/lti/start-login            controllers.ExaminationController.startLogin(request: Request)
-GET     /integration/lti/oidc/login             controllers.ExaminationController.handleOidcLogin(request: Request)
-#GET     /integration/lti/resource               controllers.ExaminationController.loadLtiResourceLink(request: Request)
-GET     /integration/lti/launch-frame           controllers.ExaminationController.renderIframeLaunch(request: Request)
+GET     /integration/lti/start-login            controllers.examination.ExaminationController.startLogin(request: Request)
+GET     /integration/lti/oidc/login             controllers.examination.ExaminationController.handleOidcLogin(request: Request)
+GET     /integration/lti/launch-frame           controllers.examination.ExaminationController.renderIframeLaunch(request: Request)
 GET     /integration/lti/oidc/jwks              controllers.JwksController.jwks()
 
 

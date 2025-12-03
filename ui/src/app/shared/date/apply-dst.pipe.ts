@@ -5,6 +5,7 @@
 import type { PipeTransform } from '@angular/core';
 import { Pipe, inject } from '@angular/core';
 import { DateTime } from 'luxon';
+import { DateTimeService } from './date.service';
 
 @Pipe({
     name: 'applyDst',
