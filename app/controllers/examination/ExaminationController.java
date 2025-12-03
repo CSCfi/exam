@@ -8,7 +8,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import controllers.admin.SettingsController;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -16,6 +15,7 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.typesafe.config.Config;
+import controllers.admin.SettingsController;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import impl.AutoEvaluationHandler;
@@ -32,10 +32,7 @@ import java.security.KeyFactory;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -313,7 +310,8 @@ public class ExaminationController extends BaseController {
         String nonce = generateNonce();
 
         StringBuilder redirect = new StringBuilder(toolInitiateLogin);
-        if (!toolInitiateLogin.contains("?")) redirect.append("?"); else redirect.append("&");
+        if (!toolInitiateLogin.contains("?")) redirect.append("?");
+        else redirect.append("&");
         redirect
             .append("iss=")
             .append(urlEncode(platformIssuer))
