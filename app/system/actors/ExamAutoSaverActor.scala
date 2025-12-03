@@ -1,38 +1,23 @@
-/*
- *
- *  * Copyright (c) 2024 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *  *
- *  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- *  * versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- *  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package system.actors
 
-import controllers.SettingsController
-import impl.EmailComposer
+import controllers.admin.SettingsController
+import impl.mail.EmailComposer
 import io.ebean.DB
+import miscellaneous.datetime.DateTimeHandler
+import miscellaneous.scala.DbApiHelper
+import models.enrolment.{ExamEnrolment, ExamParticipation}
+import models.exam.Exam
+import org.apache.pekko.actor.AbstractActor
+import org.joda.time.DateTime
+import play.api.Logging
 
 import java.io.IOException
 import javax.inject.Inject
-import models.{Exam, ExamEnrolment, ExamParticipation}
-import org.apache.pekko.actor.AbstractActor
-import org.joda.time.DateTime
-
-import play.api.Logging
-import util.AppUtil
-import util.datetime.DateTimeHandler
-import util.scala.DbApiHelper
-
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 import scala.util.control.Exception.catching
 
 class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private val dateTimeHandler: DateTimeHandler)
@@ -43,7 +28,7 @@ class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private v
   override def createReceive(): AbstractActor.Receive = receiveBuilder()
     .`match`(
       classOf[String],
-      (s: String) =>
+      (_: String) =>
         logger.debug("Starting check for ongoing exams ->")
         checkLocalExams()
         checkExternalExams()
@@ -99,7 +84,10 @@ class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private v
         if exam.isPrivate then
           // Notify teachers
           val recipients = exam.getParent.getExamOwners.asScala ++ exam.getExamInspections.asScala.map(_.getUser)
-          AppUtil.notifyPrivateExamEnded(recipients.toSet, exam, composer)
+          recipients.foreach(r =>
+            composer.composePrivateExamEnded(r, exam)
+            logger.info(s"Email sent to ${r.getEmail}")
+          )
       else logger.info(s"Exam ${exam.getId} is ongoing until $participationTimeLimit")
     )
 

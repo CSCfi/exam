@@ -1,35 +1,27 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { parseISO, roundToNearestMinutes } from 'date-fns';
-import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
-import type { ClozeTestAnswer, Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import { DateTime } from 'luxon';
+import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
-import type { QuestionAmounts } from 'src/app/question/question.service';
-import { QuestionService } from 'src/app/question/question.service';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
+import type { QuestionAmounts } from 'src/app/question/question.model';
+import { ClozeTestAnswer } from 'src/app/question/question.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { MathJaxService } from 'src/app/shared/math/mathjax.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -40,7 +32,6 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
 @Component({
     selector: 'xm-printed-assessment',
     templateUrl: './printed-assessment.component.html',
-    standalone: true,
     imports: [
         CourseCodeComponent,
         MathJaxDirective,
@@ -66,16 +57,17 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     id = 0;
     ref = '';
 
-    constructor(
-        private route: ActivatedRoute,
-        private http: HttpClient,
-        private Question: QuestionService,
-        private Exam: ExamService,
-        private CommonExam: CommonExamService,
-        private Assessment: AssessmentService,
-        private Session: SessionService,
-        private DateTime: DateTimeService,
-    ) {
+    private route = inject(ActivatedRoute);
+    private http = inject(HttpClient);
+    private QuestionScore = inject(QuestionScoringService);
+    private Exam = inject(ExamService);
+    private CommonExam = inject(CommonExamService);
+    private Assessment = inject(AssessmentService);
+    private Session = inject(SessionService);
+    private DateTime = inject(DateTimeService);
+    private mathJaxService = inject(MathJaxService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 
@@ -103,11 +95,13 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
                     ),
             );
 
-            this.questionSummary = this.Question.getQuestionAmounts(exam);
+            this.questionSummary = this.QuestionScore.getQuestionAmounts(exam);
             this.exam = exam;
             this.user = this.Session.getUser();
             this.participation = participation;
-            const duration = roundToNearestMinutes(parseISO(this.participation.duration as string));
+            const duration = DateTime.fromISO(this.participation.duration as string)
+                .set({ second: 0, millisecond: 0 })
+                .toJSDate();
             this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
 
             this.student = this.participation.user;
@@ -173,13 +167,13 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
         });
     };
 
-    private printPage = () => {
+    private printPage = async () => {
         // FIXME: check how to do this angular-style
         // $('#vmenu').hide();
         // const mainView = $('#mainView');
         // mainView.css('margin', '0 15px');
         // mainView.css('max-width', '1000px');
-        MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
+        await this.mathJaxService.typeset();
         window.setTimeout(() => window.print(), 2000);
     };
 

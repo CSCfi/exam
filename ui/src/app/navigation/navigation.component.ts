@@ -1,20 +1,9 @@
-/*
- * Copyright (c) 2019 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import type { OnDestroy, OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -22,15 +11,14 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
-import type { Link } from './navigation.service';
+import type { Link } from './navigation.model';
 import { NavigationService } from './navigation.service';
 
 @Component({
     selector: 'xm-navigation',
     templateUrl: './navigation.component.html',
-    standalone: true,
     imports: [RouterLinkActive, RouterLink, NgbCollapse, TranslateModule],
     styleUrl: './navigation.component.scss',
 })
@@ -39,22 +27,29 @@ export class NavigationComponent implements OnInit, OnDestroy {
     links: Link[] = [];
     mobileMenuOpen = false;
     user?: User;
+    stateInitialized = false;
+
+    private toast = inject(ToastrService);
+    private Navigation = inject(NavigationService);
+    private Session = inject(SessionService);
+    private ExaminationStatus = inject(ExaminationStatusService);
+
     private ngUnsubscribe = new Subject();
 
-    constructor(
-        private toast: ToastrService,
-        private Navigation: NavigationService,
-        private Session: SessionService,
-        private ExaminationStatus: ExaminationStatusService,
-    ) {
+    constructor() {
         this.user = this.Session.getUser();
-        this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.getLinks(false);
-        });
-        this.ExaminationStatus.upcomingExam$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => this.getLinks(false));
-        this.ExaminationStatus.wrongLocation$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-            this.getLinks(false);
-        });
+        this.ExaminationStatus.examinationStarting$
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => this.getLinks(false, false));
+        this.ExaminationStatus.upcomingExam$
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => this.getLinks(false, false));
+        this.ExaminationStatus.wrongLocation$
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => this.getLinks(false, false));
+        this.ExaminationStatus.aquariumLoggedIn$
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe(() => this.getLinks(false, false));
         this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user: User | undefined) => {
             this.user = user;
             this.getLinks(true);
@@ -62,22 +57,22 @@ export class NavigationComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.user = this.Session.getUser();
-        if (this.user && this.user.isAdmin) {
-            this.Navigation.getAppVersion$().subscribe({
-                next: (resp) => (this.appVersion = resp.appVersion),
-                error: (err) => this.toast.error(err),
-            });
-            this.getLinks(true, true);
-        } else if (this.user) {
-            this.getLinks(true);
-        } else {
-            this.getLinks(false);
-        }
-    }
-
-    isActive(link: Link): boolean {
-        return window.location.href.includes(link.route);
+        // Add a small timeout because there is some race condition/view update problem with initial link
+        // loading if there is an examination starting or started. To be fixed properly if solution found.
+        window.setTimeout(() => {
+            this.user = this.Session.getUser();
+            if (this.user?.isAdmin) {
+                this.Navigation.getAppVersion$().subscribe({
+                    next: (resp) => (this.appVersion = resp.appVersion),
+                    error: (err) => this.toast.error(err),
+                });
+                this.getLinks(true, true);
+            } else if (this.user) {
+                this.getLinks(true);
+            } else {
+                this.getLinks(false);
+            }
+        }, 200);
     }
 
     ngOnDestroy() {
@@ -85,9 +80,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    getSkipLinkPath = (skipTarget: string) => {
-        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
-    };
+    isActive = (link: Link) => window.location.href.includes(link.route);
+
+    getSkipLinkPath = (skipTarget: string) =>
+        window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
 
     openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
 

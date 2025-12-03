@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -10,13 +14,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.DB;
 import java.util.TimeZone;
 import java.util.stream.StreamSupport;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
-import models.iop.ExternalReservation;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExternalReservation;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.facility.ExamMachine;
+import models.facility.ExamRoom;
+import models.user.User;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,8 +55,7 @@ public class StudentActionControllerTest extends IntegrationTestCase {
         assertThat(node instanceof ArrayNode).isTrue();
         ArrayNode nodes = (ArrayNode) node;
         assertThat(nodes.size()).isEqualTo(2);
-        JsonNode external = StreamSupport
-            .stream(nodes.spliterator(), false)
+        JsonNode external = StreamSupport.stream(nodes.spliterator(), false)
             .filter(n -> n.path("exam").path("id").asLong() == 2L)
             .findFirst()
             .orElseGet(null);

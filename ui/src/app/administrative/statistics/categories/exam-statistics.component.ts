@@ -1,14 +1,18 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamInfo, QueryParams } from 'src/app/administrative/statistics/statistics.service';
+import { ExamInfo, QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({
     template: `
         <div class="row my-2">
             <div class="col-12">
-                <button class="btn btn-primary" (click)="listExams()">{{ 'i18n_search' | translate }}</button>
+                <button class="btn btn-sm btn-primary" (click)="listExams()">{{ 'i18n_search' | translate }}</button>
             </div>
         </div>
         <div class="row">
@@ -16,8 +20,8 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
                 <strong>{{ 'i18n_most_popular_exams' | translate }}</strong>
             </div>
         </div>
-        <div class="row">
-            @if (exams.length > 0) {
+        @if (exams.length > 0) {
+            <div class="row">
                 <div class="col-12">
                     <table class="table table-striped table-sm">
                         <thead>
@@ -42,28 +46,24 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
                                     <strong>{{ 'i18n_total' | translate }}</strong>
                                 </td>
                                 <td>
-                                    @if (exams) {
-                                        <strong>{{ totalExams }}</strong>
-                                    }
+                                    <strong>{{ totalExams }}</strong>
                                 </td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
-            }
-        </div>
+            </div>
+        }
     `,
     selector: 'xm-exam-statistics',
-    standalone: true,
     imports: [TranslateModule],
 })
 export class ExamStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};
-
     exams: ExamInfo[] = [];
     totalExams = 0;
 
-    constructor(private Statistics: StatisticsService) {}
+    private Statistics = inject(StatisticsService);
 
     ngOnInit() {
         this.listExams();

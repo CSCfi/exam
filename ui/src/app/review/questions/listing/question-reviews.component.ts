@@ -1,19 +1,8 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -91,7 +80,6 @@ import { QuestionReviewComponent } from './question-review.component';
         }
     </div>`,
     styleUrls: ['../assessment/question-assessment.component.scss'],
-    standalone: true,
     imports: [FormsModule, QuestionReviewComponent, TranslateModule],
 })
 export class QuestionReviewsComponent implements OnInit {
@@ -100,12 +88,10 @@ export class QuestionReviewsComponent implements OnInit {
     selectedReviews: number[] = [];
     selectionToggle = false;
 
-    constructor(
-        private router: Router,
-        private toast: ToastrService,
-        private QuestionReview: QuestionReviewService,
-        private Tabs: ExamTabService,
-    ) {}
+    private router = inject(Router);
+    private toast = inject(ToastrService);
+    private QuestionReview = inject(QuestionReviewService);
+    private Tabs = inject(ExamTabService);
 
     ngOnInit() {
         this.examId = this.Tabs.getExam().id;

@@ -1,46 +1,31 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
-import type { Exam, ExamParticipation, ExamSectionQuestion, Question } from 'src/app/exam/exam.model';
+import type { ExamParticipation, ReviewedExam } from 'src/app/enrolment/enrolment.model';
+import type { Exam } from 'src/app/exam/exam.model';
 import type { Examination } from 'src/app/examination/examination.model';
+import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
 import type { ReviewQuestion } from 'src/app/review/review.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
-import type { FileResult } from './dialogs/attachment-picker.component';
+import { AnsweredQuestion, FileResult } from './attachment.model';
 import { AttachmentSelectorComponent } from './dialogs/attachment-picker.component';
 
-export interface AnsweredQuestion {
-    id: number;
-    essayAnswer: { objectVersion: number; attachment?: { fileName: string } };
-}
 @Injectable({ providedIn: 'root' })
 export class AttachmentService {
-    constructor(
-        private dialogs: ConfirmationDialogService,
-        private http: HttpClient,
-        private modal: NgbModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Files: FileService,
-    ) {}
+    private dialogs = inject(ConfirmationDialogService);
+    private http = inject(HttpClient);
+    private modal = inject(ModalService);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Files = inject(FileService);
 
     removeQuestionAttachment(question: Partial<Question>) {
         if (question.attachment) {
@@ -48,17 +33,10 @@ export class AttachmentService {
         }
     }
 
-    eraseQuestionAttachment = (question: Question) =>
-        this.toPromise(this.http.delete<void>(this.questionAttachmentApi(question.id)));
+    eraseQuestionAttachment$ = (question: Question) => this.http.delete<void>(this.questionAttachmentApi(question.id));
 
-    eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            this.http.delete(this.collaborativeQuestionAttachmentApi(examId, questionId)).subscribe({
-                next: () => resolve(),
-                error: (err) => reject(err),
-            });
-        });
-    }
+    eraseCollaborativeQuestionAttachment$ = (examId: number, questionId: number) =>
+        this.http.delete(this.collaborativeQuestionAttachmentApi(examId, questionId));
 
     removeQuestionAnswerAttachment(question: AnsweredQuestion) {
         this.removeAnswerAttachment(this.answerAttachmentApi(question.id), question);
@@ -122,7 +100,12 @@ export class AttachmentService {
 
     removeStatementAttachment = (exam: Exam) =>
         this.dialogs
-            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
+            .open$(
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_confirm_remove_attachment'),
+                this.translate.instant('i18n_remove'),
+                this.translate.instant('i18n_button_cancel'),
+            )
             .subscribe({
                 next: () => {
                     this.http.delete(this.statementAttachmentApi(exam.id)).subscribe({
@@ -207,24 +190,17 @@ export class AttachmentService {
         return Math.round(size / 1000) + ' kB';
     }
 
-    selectFile(isTeacherModal: boolean, params?: unknown, title = 'i18n_attachment_selection'): Promise<FileResult> {
-        const modalRef = this.modal.open(AttachmentSelectorComponent, {
-            backdrop: 'static',
-            keyboard: false,
-        });
+    selectFile$ = (
+        isTeacherModal: boolean,
+        params?: unknown,
+        title = 'i18n_attachment_selection',
+    ): Observable<FileResult> => {
+        const modalRef = this.modal.openRef(AttachmentSelectorComponent);
         Object.assign(modalRef.componentInstance, params);
         modalRef.componentInstance.isTeacherModal = isTeacherModal;
         modalRef.componentInstance.title = title;
-        return modalRef.result;
-    }
-
-    private toPromise = (observable: Observable<void>) =>
-        new Promise<void>((resolve, reject) => {
-            observable.subscribe({
-                next: () => resolve(),
-                error: (err) => reject(err),
-            });
-        });
+        return this.modal.result$<FileResult>(modalRef);
+    };
 
     private removeAnswerAttachment = (url: string, question: AnsweredQuestion) =>
         this.dialogs

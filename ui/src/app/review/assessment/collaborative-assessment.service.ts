@@ -1,26 +1,18 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import type { Exam, ExamParticipation, Feedback, SelectableGrade } from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import type { Exam, SelectableGrade } from 'src/app/exam/exam.model';
+import { Feedback } from 'src/app/review/review.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { AssessmentService } from './assessment.service';
 
@@ -28,7 +20,7 @@ interface Payload {
     id: number;
     state: string;
     grade?: SelectableGrade;
-    gradeless: boolean;
+    gradingType: string;
     customCredit: number;
     creditType?: { type: string };
     answerLanguage?: string;
@@ -38,14 +30,12 @@ interface Payload {
 
 @Injectable({ providedIn: 'root' })
 export class CollaborativeAssesmentService {
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private router: Router,
-        private toast: ToastrService,
-        private dialogs: ConfirmationDialogService,
-        private Assessment: AssessmentService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private router = inject(Router);
+    private toast = inject(ToastrService);
+    private dialogs = inject(ConfirmationDialogService);
+    private Assessment = inject(AssessmentService);
 
     saveAssessmentInfo$ = (
         examId: number,
@@ -89,8 +79,8 @@ export class CollaborativeAssesmentService {
         return {
             id: exam.id,
             state: state || exam.state,
-            grade: exam.gradeless ? undefined : exam.grade,
-            gradeless: exam.gradeless,
+            grade: exam.gradingType === 'NOT_GRADED' ? undefined : exam.grade,
+            gradingType: exam.gradingType,
             customCredit: exam.customCredit,
             creditType: exam.creditType,
             answerLanguage: exam.answerLanguage,
@@ -126,7 +116,6 @@ export class CollaborativeAssesmentService {
                 );
                 dialog.subscribe({
                     next: () => this.sendAssessment(newState, payload, messages, participation, id, ref),
-                    error: (err) => this.toast.error(err),
                 });
             }
         }
@@ -140,12 +129,13 @@ export class CollaborativeAssesmentService {
         if (messages.length > 0) {
             messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
         } else {
-            const dialogNote = participation.exam.gradeless
-                ? this.translate.instant('i18n_confirm_archiving_without_grade')
-                : this.Assessment.getRecordReviewConfirmationDialogContent(
-                      (participation.exam.examFeedback as Feedback).comment,
-                      false,
-                  );
+            const dialogNote =
+                participation.exam.gradingType === 'NOT_GRADED'
+                    ? this.translate.instant('i18n_confirm_archiving_without_grade')
+                    : this.Assessment.getRecordReviewConfirmationDialogContent(
+                          (participation.exam.examFeedback as Feedback).comment,
+                          false,
+                      );
             const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
             this.dialogs.open$(this.translate.instant('i18n_confirm'), dialogNote).subscribe({
                 next: () => this.register(participation, examId, ref, payload),

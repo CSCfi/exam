@@ -1,22 +1,11 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-    NgbModal,
     NgbNav,
     NgbNavContent,
     NgbNavItem,
@@ -26,15 +15,15 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { from } from 'rxjs';
-import type { MaintenancePeriod } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { SoftwareComponent } from 'src/app/software/software.component';
 import { AccessibilityComponent } from './accessibility/accessibility.component';
+import { MaintenancePeriod } from './facility.model';
 import { RoomService } from './rooms/room.service';
 import { RoomListComponent } from './rooms/rooms.component';
 import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-dialog.component';
@@ -42,7 +31,6 @@ import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-
 @Component({
     templateUrl: './facility.component.html',
     selector: 'xm-facility',
-    standalone: true,
     imports: [
         NgbNav,
         NgbNavItem,
@@ -64,14 +52,14 @@ export class FacilityComponent implements OnInit {
     user: User;
     maintenancePeriods: MaintenancePeriod[] = [];
 
-    constructor(
-        private router: Router,
-        private modal: NgbModal,
-        private translate: TranslateService,
-        private session: SessionService,
-        private toast: ToastrService,
-        private room: RoomService,
-    ) {
+    private router = inject(Router);
+    private modal = inject(ModalService);
+    private translate = inject(TranslateService);
+    private session = inject(SessionService);
+    private toast = inject(ToastrService);
+    private room = inject(RoomService);
+
+    constructor() {
         this.user = this.session.getUser();
     }
 
@@ -89,43 +77,29 @@ export class FacilityComponent implements OnInit {
         });
     };
 
-    createPeriod = () => {
-        const modalRef = this.modal.open(MaintenancePeriodDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
+    createPeriod = () =>
+        this.modal.open$<MaintenancePeriod>(MaintenancePeriodDialogComponent, { size: 'lg' }).subscribe((res) => {
+            this.room.createMaintenancePeriod$(res).subscribe({
+                next: (mp) => {
+                    this.toast.info(this.translate.instant('i18n_maintenance_period_created'));
+                    this.maintenancePeriods.push(mp);
+                },
+                error: (err) => this.toast.error(err),
+            });
         });
-        from(modalRef.result).subscribe({
-            next: (res: MaintenancePeriod) => {
-                this.room.createMaintenancePeriod$(res).subscribe({
-                    next: (mp) => {
-                        this.toast.info(this.translate.instant('i18n_maintenance_period_created'));
-                        this.maintenancePeriods.push(mp);
-                    },
-                    error: (err) => this.toast.error(err),
-                });
-            },
-        });
-    };
 
     updatePeriod = (period: MaintenancePeriod) => {
-        const modalRef = this.modal.open(MaintenancePeriodDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+        const modalRef = this.modal.openRef(MaintenancePeriodDialogComponent, { size: 'lg' });
         modalRef.componentInstance.period = period;
-        from(modalRef.result).subscribe({
-            next: (res: MaintenancePeriod) => {
-                this.room.updateMaintenancePeriod$(res).subscribe({
-                    next: () => {
-                        this.toast.info(this.translate.instant('i18n_maintenance_period_updated'));
-                        const index = this.maintenancePeriods.indexOf(period);
-                        this.maintenancePeriods.splice(index, 1, res);
-                    },
-                    error: (err) => this.toast.error(err),
-                });
-            },
+        this.modal.result$<MaintenancePeriod>(modalRef).subscribe((res) => {
+            this.room.updateMaintenancePeriod$(res).subscribe({
+                next: () => {
+                    this.toast.info(this.translate.instant('i18n_maintenance_period_updated'));
+                    const index = this.maintenancePeriods.indexOf(period);
+                    this.maintenancePeriods.splice(index, 1, res);
+                },
+                error: (err) => this.toast.error(err),
+            });
         });
     };
 

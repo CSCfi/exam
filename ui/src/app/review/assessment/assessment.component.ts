@@ -1,30 +1,20 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ClozeTestAnswer, ExamParticipation } from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Examination } from 'src/app/examination/examination.model';
-import type { QuestionAmounts } from 'src/app/question/question.service';
-import { QuestionService } from 'src/app/question/question.service';
-import type { User } from 'src/app/session/session.service';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
+import type { QuestionAmounts } from 'src/app/question/question.model';
+import { ClozeTestAnswer } from 'src/app/question/question.model';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
@@ -42,7 +32,6 @@ import { ExamSectionComponent } from './sections/section.component';
 @Component({
     selector: 'xm-assessment',
     templateUrl: './assessment.component.html',
-    standalone: true,
     imports: [
         CourseCodeComponent,
         NgbCollapse,
@@ -69,17 +58,17 @@ export class AssessmentComponent implements OnInit {
     private ref = '';
     private examId = 0;
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private http: HttpClient,
-        private toast: ToastrService,
-        private Assessment: AssessmentService,
-        private CollaborativeAssessment: CollaborativeAssesmentService,
-        private Question: QuestionService,
-        private Exam: ExamService,
-        private Session: SessionService,
-    ) {
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+    private Assessment = inject(AssessmentService);
+    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private QuestionScore = inject(QuestionScoringService);
+    private Exam = inject(ExamService);
+    private Session = inject(SessionService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 
@@ -108,7 +97,7 @@ export class AssessmentComponent implements OnInit {
                 if (exam.languageInspection && !exam.languageInspection.statement) {
                     exam.languageInspection.statement = { comment: '' };
                 }
-                this.questionSummary = this.Question.getQuestionAmounts(exam);
+                this.questionSummary = this.QuestionScore.getQuestionAmounts(exam);
                 this.exam = exam;
                 this.participation = participation;
             },
@@ -132,7 +121,7 @@ export class AssessmentComponent implements OnInit {
 
     scoreSet = (revision: string) => {
         this.participation._rev = revision;
-        this.questionSummary = this.Question.getQuestionAmounts(this.exam);
+        this.questionSummary = this.QuestionScore.getQuestionAmounts(this.exam);
         this.startReview();
     };
 

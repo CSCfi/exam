@@ -1,20 +1,9 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
@@ -36,7 +25,6 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
             </div>
         </div>
     `,
-    standalone: true,
     imports: [TranslateModule],
 })
 export class ExaminationLogoutComponent implements OnInit {
@@ -44,12 +32,10 @@ export class ExaminationLogoutComponent implements OnInit {
     reasonPhrase = '';
     quitLink?: string;
 
-    constructor(
-        private http: HttpClient,
-        private router: Router,
-        private route: ActivatedRoute,
-        private ExaminationStatus: ExaminationStatusService,
-    ) {}
+    private http = inject(HttpClient);
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private ExaminationStatus = inject(ExaminationStatusService);
 
     ngOnInit() {
         this.reasonPhrase =

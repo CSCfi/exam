@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -27,24 +31,25 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
-import models.Attachment;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Language;
-import models.Reservation;
-import models.User;
-import models.iop.ExternalReservation;
+import miscellaneous.file.FileHandler;
+import models.attachment.Attachment;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExternalReservation;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.facility.ExamMachine;
+import models.facility.ExamRoom;
 import models.questions.Question;
 import models.sections.ExamSection;
 import models.sections.ExamSectionQuestion;
+import models.user.Language;
+import models.user.User;
 import net.jodah.concurrentunit.Waiter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -56,7 +61,6 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.file.FileHandler;
 
 public class ExternalExamControllerTest extends IntegrationTestCase {
 
@@ -75,8 +79,9 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     private final Reservation reservation = new Reservation();
 
     @Rule
-    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
-        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
+    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(
+        ServerSetupTest.SMTP
+    ).withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     public static class EnrolmentServlet extends HttpServlet {
 
@@ -156,8 +161,12 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         DB.deleteAll(DB.find(ExamEnrolment.class).findList());
-        exam =
-            DB.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
+        exam = DB.find(Exam.class)
+            .fetch("examSections")
+            .fetch("examSections.sectionQuestions")
+            .where()
+            .idEq(1L)
+            .findOne();
         initExamSectionQuestions(exam);
         exam.setPeriodStart(DateTime.now().minusDays(1));
         exam.setPeriodEnd(DateTime.now().plusDays(1));
@@ -183,7 +192,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
 
     @After
     @Override
-    public void tearDown() {
+    public void tearDown() throws IOException {
         try {
             logger.info("Cleaning test upload directory: {}", testUpload.toString());
             FileUtils.deleteDirectory(testUpload.toFile());
@@ -196,8 +205,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     @Test
     public void testRequestEnrolment() throws Exception {
         login("student@funet.fi");
-        Reservation external = DB
-            .find(Reservation.class)
+        Reservation external = DB.find(Reservation.class)
             .fetch("enrolment")
             .fetch("enrolment.externalExam")
             .where()
@@ -321,8 +329,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         assertThat(jsonNode).isNotNull();
         assertAttachment(examAttachment, jsonNode.path("attachment"));
 
-        final JsonNode questionJson = StreamSupport
-            .stream(jsonNode.path("examSections").spliterator(), false)
+        final JsonNode questionJson = StreamSupport.stream(jsonNode.path("examSections").spliterator(), false)
             .flatMap(node -> StreamSupport.stream(node.path("sectionQuestions").spliterator(), false))
             .filter(node -> node.get("id").asLong() == sectionQuestion.getId())
             .map(node -> node.path("question"))

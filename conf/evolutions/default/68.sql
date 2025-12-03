@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 INSERT INTO role (id, name, object_version) SELECT 1, 'ADMIN', 1 WHERE NOT EXISTS (
     SELECT id FROM role WHERE id = 1

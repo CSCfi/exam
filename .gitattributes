@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text=auto
 

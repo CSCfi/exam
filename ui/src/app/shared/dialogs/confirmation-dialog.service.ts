@@ -1,19 +1,27 @@
-import { Injectable } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { from, Observable } from 'rxjs';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
+import { ModalService } from './modal.service';
 
 @Injectable({ providedIn: 'root' })
 export class ConfirmationDialogService {
-    constructor(private modal: NgbModal) {}
+    private modal = inject(ModalService);
 
-    open$(title: string, description?: string): Observable<boolean> {
-        const modalRef = this.modal.open(ConfirmationDialogComponent, {
-            backdrop: 'static',
-            keyboard: false,
-        });
+    open$(
+        title: string,
+        description?: string,
+        confirmButtonText?: string,
+        cancelButtonText?: string,
+    ): Observable<boolean> {
+        const modalRef = this.modal.openRef(ConfirmationDialogComponent);
         modalRef.componentInstance.title = title;
         modalRef.componentInstance.description = description;
-        return from(modalRef.result);
+        modalRef.componentInstance.confirmButtonText = confirmButtonText;
+        modalRef.componentInstance.cancelButtonText = cancelButtonText;
+        return this.modal.result$<boolean>(modalRef);
     }
 }

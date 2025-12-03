@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.iop.transfer.impl;
 
 import be.objectify.deadbolt.java.actions.Group;
@@ -8,7 +12,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import io.ebean.DB;
-import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.io.File;
 import java.io.IOException;
@@ -25,10 +28,13 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
-import models.Attachment;
-import models.Tag;
-import models.User;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.file.FileHandler;
+import miscellaneous.json.JsonDeserializer;
+import models.attachment.Attachment;
 import models.questions.Question;
+import models.questions.Tag;
+import models.user.User;
 import org.apache.pekko.stream.IOResult;
 import org.apache.pekko.stream.javadsl.FileIO;
 import org.apache.pekko.stream.javadsl.Source;
@@ -44,11 +50,8 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import sanitizers.Attrs;
 import security.Authenticated;
-import util.config.ConfigReader;
-import util.file.FileHandler;
-import util.json.JsonDeserializer;
+import validation.core.Attrs;
 
 public class DataTransferController extends BaseController {
 
@@ -99,7 +102,7 @@ public class DataTransferController extends BaseController {
         } catch (IOException e) {
             return internalServerError("i18n_error_creating_attachment");
         }
-        // Remove existing one if found
+        // Remove the existing one if found
         fileHandler.removePrevious(question);
         Attachment attachment = fileHandler.createNew(filePart, newFilePath);
         question.setAttachment(attachment);
@@ -130,12 +133,11 @@ public class DataTransferController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (body.get("type").asText().equals(DataType.QUESTION.toString()) && !body.withArray("ids").isEmpty()) {
             String path = "/integration/iop/import";
-            Set<Long> ids = StreamSupport
-                .stream(body.get("ids").spliterator(), false)
+            Set<Long> ids = StreamSupport.stream(body.get("ids").spliterator(), false)
                 .map(JsonNode::asLong)
                 .collect(Collectors.toSet());
             PathProperties pp = PathProperties.parse("(*, options(*), tags(name))");
-            Query<Question> query = DB.find(Question.class);
+            var query = DB.find(Question.class);
             query.apply(pp);
             Set<Question> questions = query
                 .where()
@@ -146,10 +148,17 @@ public class DataTransferController extends BaseController {
                 .endOr()
                 .findSet();
 
-            JsonNode data =
-                ((ObjectNode) body).put("path", path)
-                    .put("owner", user.getEppn())
-                    .set("questions", Json.newArray().addAll(questions.stream().map(q -> serialize(q, pp)).toList()));
+            JsonNode data = ((ObjectNode) body).put("path", path)
+                .put("owner", user.getEppn())
+                .set(
+                    "questions",
+                    Json.newArray().addAll(
+                        questions
+                            .stream()
+                            .map(q -> serialize(q, pp))
+                            .toList()
+                    )
+                );
 
             URL url = parseURL(body.get("orgRef").asText());
             String uploadUrl = parseUploadURL(body.get("orgRef").asText());
@@ -161,9 +170,9 @@ public class DataTransferController extends BaseController {
                     if (response.getStatus() != Http.Status.CREATED) {
                         return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
                     }
-                    Map<Long, Long> entries = StreamSupport
-                        .stream(root.get("ids").spliterator(), false)
-                        .collect(Collectors.toMap(id -> id.get("src").asLong(), id -> id.get("dst").asLong()));
+                    Map<Long, Long> entries = StreamSupport.stream(root.get("ids").spliterator(), false).collect(
+                        Collectors.toMap(id -> id.get("src").asLong(), id -> id.get("dst").asLong())
+                    );
                     Map<Long, Attachment> localAttachments = questions
                         .stream()
                         .filter(q -> q.getAttachment() != null && new File(q.getAttachment().getFilePath()).exists())
@@ -174,29 +183,24 @@ public class DataTransferController extends BaseController {
                         .stream()
                         .filter(e -> entries.containsKey(e.getKey()))
                         .collect(Collectors.toMap(e -> entries.get(e.getKey()), Map.Entry::getValue));
-                    return CompletableFuture
-                        .allOf(
-                            remoteAttachments
-                                .entrySet()
-                                .stream()
-                                .map(ra -> {
-                                    String host = uploadUrl.replace("/id/", String.format("/%d/", ra.getKey()));
-                                    WSRequest req = wsClient.url(host);
-                                    return CompletableFuture.runAsync(() ->
-                                        req
-                                            .post(createSource(ra.getValue()))
-                                            .exceptionally(e -> {
-                                                logger.error(
-                                                    String.format("failed in uploading attachment id %s", ra.getKey()),
-                                                    e
-                                                );
-                                                return null;
-                                            })
-                                    );
-                                })
-                                .toArray(CompletableFuture[]::new)
-                        )
-                        .thenComposeAsync(__ -> wrapAsPromise(created()));
+                    return CompletableFuture.allOf(
+                        remoteAttachments
+                            .entrySet()
+                            .stream()
+                            .map(ra -> {
+                                String host = uploadUrl.replace("/id/", String.format("/%d/", ra.getKey()));
+                                WSRequest req = wsClient.url(host);
+                                return CompletableFuture.runAsync(() ->
+                                    req
+                                        .post(createSource(ra.getValue()))
+                                        .exceptionally(e -> {
+                                            logger.error("failed in uploading attachment id {}", ra.getKey(), e);
+                                            return null;
+                                        })
+                                );
+                            })
+                            .toArray(CompletableFuture[]::new)
+                    ).thenComposeAsync(_ -> wrapAsPromise(created()));
                 });
         }
         return wrapAsPromise(badRequest());
@@ -244,8 +248,7 @@ public class DataTransferController extends BaseController {
         }
         User user = ou.get();
         ArrayNode questionNode = node.withArray("questions");
-        List<QuestionEntry> entries = StreamSupport
-            .stream(questionNode.spliterator(), false)
+        List<QuestionEntry> entries = StreamSupport.stream(questionNode.spliterator(), false)
             .map(n -> {
                 Question question = JsonDeserializer.deserialize(Question.class, n);
                 Question copy = question.copy();
@@ -254,9 +257,16 @@ public class DataTransferController extends BaseController {
                 copy.setModifierWithDate(user);
                 copy.save();
                 List<Tag> userTags = DB.find(Tag.class).where().eq("creator", user).findList();
-                List<Tag> newTags = question.getTags().stream().filter(t -> isNewTag(t, userTags)).toList();
+                List<Tag> newTags = question
+                    .getTags()
+                    .stream()
+                    .filter(t -> isNewTag(t, userTags))
+                    .toList();
                 newTags.forEach(t -> t.setId(null));
-                List<Tag> existingTags = userTags.stream().filter(t -> !isNewTag(t, question.getTags())).toList();
+                List<Tag> existingTags = userTags
+                    .stream()
+                    .filter(t -> !isNewTag(t, question.getTags()))
+                    .toList();
                 DB.saveAll(newTags);
                 copy.getTags().addAll(newTags);
                 copy.getTags().addAll(existingTags);

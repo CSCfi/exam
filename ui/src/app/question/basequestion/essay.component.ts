@@ -1,23 +1,11 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Question } from 'src/app/exam/exam.model';
-import { QuestionDraft } from 'src/app/question/question.service';
+import { Question, QuestionDraft } from 'src/app/question/question.model';
 
 @Component({
     selector: 'xm-essay-editor',
@@ -55,20 +43,39 @@ import { QuestionDraft } from 'src/app/question/question.service';
                 </div>
             </div>
         </div>
+        <div class="row mt-3">
+            <div class="col-md-3">
+                {{ 'i18n_evaluation_type' | translate }}
+            </div>
+            <div class="col-md-3">
+                <select
+                    id="evaluationType"
+                    name="evaluationType"
+                    class="form-select w-75"
+                    [ngModel]="question.defaultEvaluationType"
+                    (ngModelChange)="updateEvaluationType($event)"
+                    [disabled]="lotteryOn"
+                    required="question.type == 'EssayQuestion'"
+                >
+                    <option value="Points">{{ 'i18n_word_points' | translate }}</option>
+                    <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
+                </select>
+            </div>
+        </div>
     `,
     styleUrls: ['../question.shared.scss'],
-    standalone: true,
     imports: [FormsModule, TranslateModule],
 })
-export class EssayEditorComponent implements OnInit {
+export class EssayEditorComponent {
     @Input() question!: Question | QuestionDraft;
+    @Input() lotteryOn = false;
 
-    ngOnInit() {
-        this.question.defaultEvaluationType = this.question.defaultEvaluationType || 'Points';
-        if (this.question.defaultEvaluationType === 'Selection') {
-            delete this.question.defaultMaxScore; // will screw up validation otherwise
+    updateEvaluationType = ($event: string) => {
+        this.question.defaultEvaluationType = $event;
+        if ($event === 'Selection') {
+            delete this.question.defaultMaxScore;
         }
-    }
+    };
 
     estimateCharacters = () => (this.question.defaultExpectedWordCount || 0) * 8;
 }

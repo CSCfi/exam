@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package models.questions;
 
@@ -75,7 +64,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         return clozeTestAnswer;
     }
 
-    // This sets up the question so that it can be displayed to student
+    // This sets up the question so that it can be displayed to a student
     public void setQuestion(ExamSectionQuestion esq) {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
@@ -95,7 +84,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             b.attr("class", "cloze-input mt-2");
             if (isNumeric) {
                 b.attr("step", "any");
-                // Hacky, but this should allow for using both comma and period as decimal separator even in Firefox
+                // Hacky, but this should allow using both comma and period as decimal separator even in Firefox
                 // regardless of browser language.
                 b.attr("lang", "fi");
             }
@@ -215,11 +204,12 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             .replaceAll("\\| ", "|");
         // Generate the regex pattern. Replace '*' with '.*' and put the whole
         // thing in braces if there's a '|'.
-        // For escaped '\*' and '\|' we have to first replace occurrences with special
+        // For escaped '\*' and '\|' we have to first replace occurrences with a special
         // escape sequence until restoring them in the regex.
         final String ESC = "__!ESC__";
         String regex = escapeSpecialRegexChars(correctAnswer)
-            // Also backlashes will be escaped on escapeSpecialRegexChars call, therefore '\\*' pattern needs to be replaced
+            // Also, backlashes will be escaped on escapeSpecialRegexChars call.
+            // Therefore, a pattern with '\\*' needs to be replaced
             .replaceAll("\\Q\\\\*\\E", ESC)
             .replace("*", ".*")
             .replace(ESC, "\\*")

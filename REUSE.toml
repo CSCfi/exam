@@ -1,0 +1,75 @@
+
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium 
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+version = 1
+SPDX-PackageName = "exam"
+SPDX-PackageSupplier = "Exam Consortium <https://wiki.eduuni.fi/display/CSCEXAM/EXAM-konsortio>"
+SPDX-PackageDownloadLocation = "https://github.com/CSCFi/exam"
+
+[[annotations]]
+path = "ui/src/assets/components/vendor/ckeditor/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2003-2022, CKSource Holding sp. z o.o. All rights reserved."
+SPDX-License-Identifier = "GPL-2.0-or-later"
+
+[[annotations]]
+path = "ui/src/assets/fonts/arimo-v17-latin/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2013 Steve Matteson"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "ui/src/assets/components/vendor/ckeditor/plugins/clozetest/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "ui/src/favicon.ico"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "ui/src/assets/images/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "ui/src/assets/i18n/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "ui/**.json"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "conf/template/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "conf/messages.**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "test/resources/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "**.json"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Exam Consortium"
+SPDX-License-Identifier = "EUPL-1.2"

@@ -1,23 +1,12 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop.transfer.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.iop.transfer.api.ExternalReservationHandler;
-import impl.EmailComposer;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -29,10 +18,12 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javax.inject.Inject;
-import models.ExamEnrolment;
-import models.Reservation;
-import models.User;
-import models.iop.ExternalReservation;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.datetime.DateTimeHandler;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExternalReservation;
+import models.enrolment.Reservation;
+import models.user.User;
 import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -44,8 +35,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
-import util.config.ConfigReader;
-import util.datetime.DateTimeHandler;
+import scala.jdk.javaapi.OptionConverters;
 
 public class ExternalReservationHandlerImpl implements ExternalReservationHandler {
 
@@ -95,8 +85,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     }
 
     private CompletionStage<Result> requestRemoval(String ref, User user, String msg) throws IOException {
-        final ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        final ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.machine")
             .fetch("reservation.machine.room")
@@ -109,7 +98,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
                 Results.notFound(String.format("No reservation with ref %s for current user.", ref))
             );
         }
-        // Removal not permitted if reservation is in the past or ongoing
+        // Removal is not permitted if the reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation.getExternalReservation());
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
@@ -139,7 +128,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
                         emailComposer.composeReservationCancellationNotification(
                             enrolment.getUser(),
                             reservation,
-                            msg,
+                            OptionConverters.toScala(Optional.of(msg)),
                             isStudentUser,
                             enrolment
                         );
@@ -153,7 +142,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         return request.delete().thenApplyAsync(onSuccess);
     }
 
-    // remove reservation on external side, initiated by reservation holder
+    // remove reservation on the external side, initiated by the reservation holder
     @Override
     public CompletionStage<Result> removeReservation(Reservation reservation, User user, String msg) {
         if (reservation.getExternalReservation() == null) {

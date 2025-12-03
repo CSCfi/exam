@@ -3,18 +3,16 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { switchMap } from 'rxjs';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExamSectionService {
-    constructor(
-        private Http: HttpClient,
-        private Dialogs: ConfirmationDialogService,
-        private Translate: TranslateService,
-    ) {}
+    private Http = inject(HttpClient);
+    private Dialogs = inject(ConfirmationDialogService);
+    private Translate = inject(TranslateService);
 
     clearAllQuestions$ = (examId: number, sectionId: number, collaborative = false) =>
         this.Dialogs.open$(

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <xm-page-header text="i18n_settings" />
 @if (config) {
     <xm-page-content [content]="content" />
@@ -17,11 +23,24 @@
             ></xm-ckeditor>
         </div>
     </div>
-    <div class="row mt-2">
-        <div class="col-12">
+    <div class="row mt-2 align-items-center">
+        <div class="col-12 col-md-auto mb-2 mb-md-0">
             <button (click)="updateAgreement()" class="btn btn-success">
                 {{ 'i18n_button_save' | translate }}
             </button>
+        </div>
+        <div class="col-12 col-md-auto">
+            <div class="form-check">
+                <input
+                    id="exclude-update"
+                    class="form-check-input"
+                    type="checkbox"
+                    [(ngModel)]="minorAgreementUpdate"
+                />
+                <label class="form-check-label" for="exclude-update">{{
+                    'i18n_minor_agreement_update' | translate
+                }}</label>
+            </div>
         </div>
     </div>
 

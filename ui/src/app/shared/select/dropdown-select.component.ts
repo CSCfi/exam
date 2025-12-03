@@ -1,32 +1,14 @@
-/*
- *
- *  * Copyright (c) 2018 Exam Consortium
- *  *
- *  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- *  * versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- *  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
-import { NgClass, SlicePipe } from '@angular/common';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { NgClass } from '@angular/common';
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-
-export interface Option<V, I> {
-    value?: V;
-    id?: I;
-    label: string | null;
-    isHeader?: boolean;
-}
+import { Option } from './select.model';
 
 @Component({
     selector: 'xm-dropdown-select',
@@ -52,11 +34,7 @@ export interface Option<V, I> {
                         (input)="filterOptions()"
                         placeholder="{{ placeholder | translate }}"
                     />
-                    <div class="input-group-append">
-                        <span class="input-group-text">
-                            <i class="bi-search"></i>
-                        </span>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </div>
             }
             @if (allowClearing) {
@@ -73,7 +51,7 @@ export interface Option<V, I> {
                 >
                     @if (!opt.isHeader) {
                         <span>
-                            {{ opt.label || '' | translate | slice: 0 : 40 }}
+                            {{ opt.label || '' | translate }}
                         </span>
                     }
                     @if (opt.isHeader) {
@@ -83,17 +61,7 @@ export interface Option<V, I> {
             }
         </div>
     </div>`,
-    standalone: true,
-    imports: [
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgClass,
-        NgbDropdownMenu,
-        FormsModule,
-        NgbDropdownItem,
-        SlicePipe,
-        TranslateModule,
-    ],
+    imports: [NgbDropdown, NgbDropdownToggle, NgClass, NgbDropdownMenu, FormsModule, NgbDropdownItem, TranslateModule],
     styleUrl: './dropdown-select.component.scss',
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {

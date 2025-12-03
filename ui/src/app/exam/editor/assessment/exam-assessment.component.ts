@@ -1,6 +1,10 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -12,25 +16,10 @@ import { ExamService } from 'src/app/exam/exam.service';
 import { AutoEvaluationComponent } from './auto-evaluation.component';
 import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
 
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
 @Component({
     selector: 'xm-exam-assessment',
     templateUrl: './exam-assessment.component.html',
     styleUrls: ['../../exam.shared.scss'],
-    standalone: true,
     imports: [NgbPopover, NgClass, AutoEvaluationComponent, ExamFeedbackConfigComponent, TranslateModule],
 })
 export class ExamAssessmentComponent implements OnInit, OnDestroy {
@@ -46,15 +35,15 @@ export class ExamAssessmentComponent implements OnInit, OnDestroy {
 
     unsubscribe = new Subject<unknown>();
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Tabs: ExamTabService,
-        private Exam: ExamService,
-    ) {
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Tabs = inject(ExamTabService);
+    private Exam = inject(ExamService);
+
+    constructor() {
         this.translate.onTranslationChange.pipe(takeUntil(this.unsubscribe)).subscribe(() => {
             this.refreshExamTypes();
             this.refreshGradeScales();

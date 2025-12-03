@@ -1,54 +1,33 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { HttpParams } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { InspectionStatementDialogComponent } from './dialogs/inspection-statement-dialog.component';
-import type { LanguageInspection } from './maturity.model';
-
-export interface QueryParams {
-    text?: string;
-    start?: number;
-    end?: number;
-}
+import type { LanguageInspection, QueryParams } from './maturity.model';
 
 @Injectable({ providedIn: 'root' })
 export class LanguageInspectionService {
-    constructor(
-        private http: HttpClient,
-        private router: Router,
-        private modal: NgbModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private dialogs: ConfirmationDialogService,
-    ) {}
+    private http = inject(HttpClient);
+    private router = inject(Router);
+    private modal = inject(ModalService);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private dialogs = inject(ConfirmationDialogService);
 
     query = (params: QueryParams | { month?: string }): Observable<LanguageInspection[]> =>
         this.http.get<LanguageInspection[]>('/app/inspections', { params: params as HttpParams });
 
     showStatement = (statement: { comment: string }) => {
-        const modalRef = this.modal.open(InspectionStatementDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-        });
+        const modalRef = this.modal.openRef(InspectionStatementDialogComponent, { size: 'lg' });
         modalRef.componentInstance.statement = statement.comment;
     };
 

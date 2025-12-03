@@ -1,42 +1,28 @@
-/*
- *
- *  * Copyright (c) 2018 Exam Consortium
- *  *
- *  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- *  * versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- *  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { noop } from 'rxjs';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
-import type { Reservation } from './reservation.model';
+import type { AnyReservation, Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
-import { AnyReservation } from './reservations.component';
 
 type ReservationDetail = Reservation & { org: { name: string; code: string }; userAggregate: string };
 
 @Component({
     selector: 'xm-reservation-details',
     templateUrl: './reservation-details.component.html',
-    standalone: true,
     imports: [
         TableSortComponent,
         RouterLink,
@@ -48,23 +34,25 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         TranslateModule,
         ApplyDstPipe,
         OrderByPipe,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
     ],
     styles: '.wrap { white-space: wrap !important }',
 })
 export class ReservationDetailsComponent implements OnChanges {
     @Input() reservations: AnyReservation[] = [];
     @Input() isAdminView = false;
-
+    @Input() isSupportView = false;
     predicate = 'reservation.startAt';
     reverse = false;
     fixedReservations: ReservationDetail[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Reservation: ReservationService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Reservation = inject(ReservationService);
 
     ngOnChanges() {
         // This is terrible but modeling these is a handful. Maybe we can move some reservation types to different views.
@@ -81,12 +69,10 @@ export class ReservationDetailsComponent implements OnChanges {
     };
 
     removeReservation(reservation: ReservationDetail) {
-        this.Reservation.cancelReservation(reservation)
-            .then(() => {
-                this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
-                this.toast.info(this.translate.instant('i18n_reservation_removed'));
-            })
-            .catch(noop);
+        this.Reservation.cancelReservation$(reservation).subscribe(() => {
+            this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
+            this.toast.info(this.translate.instant('i18n_reservation_removed'));
+        });
     }
 
     permitRetrial(enrolment: ExamEnrolment) {
@@ -110,6 +96,27 @@ export class ReservationDetailsComponent implements OnChanges {
     }
 
     changeReservationMachine = (reservation: Reservation) => this.Reservation.changeMachine(reservation);
+
+    hasAvailableActions(r: ReservationDetail): boolean {
+        const canRemoveReservation =
+            r.enrolment.exam.state === 'PUBLISHED' &&
+            !r.enrolment.noShow &&
+            r.enrolment.exam.implementation === 'AQUARIUM' &&
+            !this.reservationIsInPast(r);
+
+        const canPermitRetrial =
+            r.enrolment.exam.state === 'ABORTED' &&
+            r.enrolment.exam.implementation === 'AQUARIUM' &&
+            r.enrolment.exam.executionType.type === 'PUBLIC';
+
+        const canChangeReservationMachine =
+            r.enrolment.exam.state === 'PUBLISHED' &&
+            !r.enrolment.noShow &&
+            !r.externalReservation &&
+            r.enrolment.exam.implementation === 'AQUARIUM';
+
+        return canRemoveReservation || canPermitRetrial || canChangeReservationMachine;
+    }
 
     setPredicate = (predicate: string) => {
         if (this.predicate === predicate) {

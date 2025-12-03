@@ -1,4 +1,10 @@
-@import '../shared/definitions.scss';
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+@use '../shared/definitions.scss';
 .calendar-phase-title {
     font-size: 22px;
     color: #2c2c2c;

@@ -1,21 +1,11 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 /// <reference types="ckeditor" />
-import { DOCUMENT } from '@angular/common';
+
 import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
-import { Component, ElementRef, Inject, Input, NgZone, ViewChild, forwardRef } from '@angular/core';
+import { Component, DOCUMENT, ElementRef, Input, NgZone, ViewChild, forwardRef, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { debounce } from 'src/app/shared/miscellaneous/helpers';
@@ -43,16 +33,15 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
     @ViewChild('host', { static: false }) host!: ElementRef;
     @Input() required = false;
     @Input() enableClozeTest = false;
+
     instance!: CKEDITOR.editor | null;
     _value = '';
     onChange!: (_: string) => unknown;
     onTouched!: () => unknown;
 
-    constructor(
-        private zone: NgZone,
-        private translate: TranslateService,
-        @Inject(DOCUMENT) private document: Document,
-    ) {}
+    private zone = inject(NgZone);
+    private translate = inject(TranslateService);
+    private document = inject<Document>(DOCUMENT);
 
     @Input()
     get value(): string {

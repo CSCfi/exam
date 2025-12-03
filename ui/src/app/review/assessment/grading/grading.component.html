@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="row">
     <div class="col-md-2">{{ 'i18n_total_score' | translate }}:</div>
     <div class="col-md-4">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
@@ -52,7 +58,7 @@
 
 @if (exam.state === 'GRADED_LOGGED') {
     <div class="row">
-        <div class="col-md-2">{{ 'i18n_graded' | translate }}:</div>
+        <div class="col-md-2">{{ 'i18n_assessment_date' | translate }}:</div>
         <div class="col-md-10">
             {{ exam.gradedTime | date: 'dd.MM.yyyy' }}
         </div>
@@ -90,7 +96,7 @@
         /></sup>
     </div>
     <div class="col-md-8">
-        <textarea class="form-control" [(ngModel)]="exam.assessmentInfo" rows="3 "> </textarea>
+        <textarea class="form-control" [(ngModel)]="exam.assessmentInfo" rows="3"> </textarea>
     </div>
     <div class="col-md-2">
         <button class="btn btn-success" [disabled]="!exam.assessmentInfo" (click)="saveAssessmentInfo()">
@@ -149,8 +155,13 @@
             <div class="row">
                 <div class="col-md-3">
                     <label for="examGrade" class="form-label grading-title">
-                        {{ 'i18n_exam_grade' | translate | uppercase }}
-                    </label>
+                        {{ 'i18n_exam_grade' | translate | uppercase }} </label
+                    >&nbsp;<sup
+                        ngbPopover="{{ 'i18n_grade_selection_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        ><img src="/assets/images/icon_tooltip.svg" alt=""
+                    /></sup>
                     <select
                         id="examGrade"
                         name="examGrade"
@@ -170,19 +181,28 @@
                     <label for="creditType" class="form-label grading-title">
                         {{ 'i18n_exam_choose_credit_type' | translate | uppercase }}
                     </label>
-                    <select
-                        id="creditType"
-                        name="creditType"
-                        class="form-select"
-                        [(ngModel)]="selections.type"
-                        (ngModelChange)="setCreditType()"
-                        [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-                        required
-                    >
-                        @for (type of creditTypes; track type) {
-                            <option [ngValue]="type">{{ type.name }}</option>
-                        }
-                    </select>
+                    @if (exam.gradingType !== 'POINT_GRADED') {
+                        <select
+                            id="creditType"
+                            name="creditType"
+                            class="form-select"
+                            [(ngModel)]="selections.type"
+                            (ngModelChange)="setCreditType()"
+                            [disabled]="isReadOnly() || !isOwnerOrAdmin()"
+                            required
+                        >
+                            @for (type of creditTypes; track type) {
+                                <option [ngValue]="type">{{ type.name }}</option>
+                            }
+                        </select>
+                    } @else {
+                        <input
+                            type="text"
+                            class="form-control"
+                            disabled
+                            value="{{ 'i18n_exam_credit_type_partial' | translate }}"
+                        />
+                    }
                 </div>
                 <div class="col-md-3">
                     <label for="answerLanguage" class="form-label grading-title">

@@ -1,19 +1,9 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -21,7 +11,7 @@ import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
 import { QuestionService } from 'src/app/question/question.service';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { UserService } from 'src/app/shared/user/user.service';
 
 @Component({
@@ -51,7 +41,6 @@ import { UserService } from 'src/app/shared/user/user.service';
         </div>
     `,
     selector: 'xm-library-owners-dialog',
-    standalone: true,
     imports: [NgbTypeahead, TranslateModule],
 })
 export class LibraryOwnersDialogComponent implements OnInit {
@@ -61,13 +50,11 @@ export class LibraryOwnersDialogComponent implements OnInit {
     newTeachers: number[] = [];
     selectedTeacherId?: number;
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Question: QuestionService,
-        private User: UserService,
-    ) {}
+    private activeModal = inject(NgbActiveModal);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Question = inject(QuestionService);
+    private User = inject(UserService);
 
     ngOnInit() {
         this.User.listUsersByRole$('TEACHER').subscribe((users: User[]) => {
@@ -87,7 +74,7 @@ export class LibraryOwnersDialogComponent implements OnInit {
             }),
         );
 
-    nameFormatter = (data: { name: string; email: string }) => `${data.name}${data.email ? ' ' + data.email : ''}`;
+    nameFormatter = (user: User) => `${user.firstName} ${user.lastName} <${user.email}>`;
 
     setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) => (this.selectedTeacherId = event.item.id);
 

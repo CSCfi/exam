@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 CREATE FUNCTION pg_temp.sortarray(int2[]) returns int2[] as '
   SELECT ARRAY(
       SELECT $1[i]

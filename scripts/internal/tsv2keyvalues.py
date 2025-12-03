@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
 import sys
 
 LANGUAGES = ['fi', 'sv', 'en']

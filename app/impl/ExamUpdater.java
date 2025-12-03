@@ -1,38 +1,26 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package impl;
 
 import com.google.inject.ImplementedBy;
 import java.util.Optional;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamFeedbackConfig;
-import models.Role;
-import models.User;
-import play.mvc.Http;
+import models.assessment.AutoEvaluationConfig;
+import models.assessment.ExamFeedbackConfig;
+import models.exam.Exam;
+import models.user.Role;
+import models.user.User;
 import play.mvc.Result;
 
 @ImplementedBy(ExamUpdaterImpl.class)
 public interface ExamUpdater {
-    Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request);
-    Optional<Result> updateStateAndValidate(Exam exam, User user, Http.Request request);
+    Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Exam payload);
+    Optional<Result> updateStateAndValidate(Exam exam, User user, Exam payload);
     boolean isPermittedToUpdate(Exam exam, User user);
     boolean isAllowedToUpdate(Exam exam, User user);
     boolean isAllowedToRemove(Exam exam);
-    void update(Exam exam, Http.Request request, Role.Name loginRole);
+    void update(Exam exam, Exam payload, Role.Name loginRole);
     void updateAutoEvaluationConfig(Exam exam, AutoEvaluationConfig newConfig);
     Optional<Result> updateLanguage(Exam exam, String code, User user);
     void preparePreview(Exam exam);

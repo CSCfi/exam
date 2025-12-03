@@ -1,15 +1,17 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { NgbAccordionDirective, NgbAccordionModule, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamService } from 'src/app/exam/exam.service';
 
-export type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
+type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
 
 @Component({
-    selector: 'xm-examination-type-selector',
-    standalone: true,
     imports: [TranslateModule, NgbAccordionModule, NgClass],
     template: `
         <div class="modal-header">
@@ -95,11 +97,9 @@ export class ExaminationTypeSelectorComponent implements OnInit {
     executionTypes: ExamConfig[] = [];
     selectedType!: ExamConfig;
 
-    constructor(
-        private http: HttpClient,
-        private modal: NgbActiveModal,
-        private Exam: ExamService,
-    ) {}
+    private http = inject(HttpClient);
+    private modal = inject(NgbActiveModal);
+    private Exam = inject(ExamService);
 
     ngOnInit() {
         this.http

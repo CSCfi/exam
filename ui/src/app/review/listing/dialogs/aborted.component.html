@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="modal-header">
     <div class="row ms-3 mt-3">
         <div class="col-md-12">
@@ -117,7 +123,7 @@
                                                     review.examParticipation.exam.examEnrolments[0].retrialPermitted
                                                 "
                                                 (click)="permitRetrial(review.examParticipation.exam.examEnrolments[0])"
-                                                class="btn btn-sm btn-primary"
+                                                class="btn btn-sm btn-outline-primary"
                                             >
                                                 {{
                                                     review.examParticipation.exam.examEnrolments[0].retrialPermitted
@@ -147,6 +153,6 @@
 <div class="d-flex flex-row-reverse flex-align-r m-3">
     <!-- Buttons -->
     <button class="btn btn-success" (click)="cancel()">
-        {{ 'i18n_button_ok' | translate }}
+        {{ 'i18n_close' | translate }}
     </button>
 </div>

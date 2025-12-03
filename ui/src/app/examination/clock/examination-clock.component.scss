@@ -1,11 +1,17 @@
-@import '../../shared/definitions.scss';
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+@use '../../shared/definitions.scss' as shared;
 
 .floating-clock {
     display: inline-block;
     position: fixed;
     right: 3em;
     z-index: 9999;
-    @media (max-width: $mobile-width) {
+    @media (max-width: shared.$mobile-width) {
         top: 0;
     }
     .header-wrapper {

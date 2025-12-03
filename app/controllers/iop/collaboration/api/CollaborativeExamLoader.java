@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.iop.collaboration.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,10 +11,10 @@ import io.ebean.Model;
 import io.ebean.text.PathProperties;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import models.Exam;
-import models.ExamParticipation;
-import models.User;
-import models.json.CollaborativeExam;
+import models.enrolment.ExamParticipation;
+import models.exam.Exam;
+import models.iop.CollaborativeExam;
+import models.user.User;
 import play.mvc.Result;
 
 @ImplementedBy(CollaborativeExamLoaderImpl.class)

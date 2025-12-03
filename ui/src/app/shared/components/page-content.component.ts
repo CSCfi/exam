@@ -1,9 +1,12 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, Input, TemplateRef } from '@angular/core';
 
 @Component({
     selector: 'xm-page-content',
-    standalone: true,
     imports: [NgTemplateOutlet],
     template: `
         <div class="row mx-3">

@@ -1,18 +1,6 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop.transfer.impl;
 
@@ -29,8 +17,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Attachment;
-import models.Exam;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.file.FileHandler;
+import models.attachment.Attachment;
+import models.exam.Exam;
 import org.apache.pekko.actor.ActorSystem;
 import org.apache.pekko.stream.IOResult;
 import org.apache.pekko.stream.Materializer;
@@ -43,8 +33,6 @@ import org.springframework.util.ObjectUtils;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
-import util.config.ConfigReader;
-import util.file.FileHandler;
 
 public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 
@@ -129,8 +117,9 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                 }
                 final WSRequest updateRequest;
                 try {
-                    updateRequest =
-                        wsClient.url(parseUrl("/api/attachments/%s", attachment.getExternalId()).toString());
+                    updateRequest = wsClient.url(
+                        parseUrl("/api/attachments/%s", attachment.getExternalId()).toString()
+                    );
                 } catch (MalformedURLException e) {
                     logger.error("Invalid URL!", e);
                     return;
@@ -203,7 +192,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                     response
                         .getBodyAsSource()
                         .runWith(FileIO.toPath(Paths.get(filePath)), Materializer.createMaterializer(actor))
-                        .thenAccept(ioResult -> {
+                        .thenAccept(_ -> {
                             attachment.setFilePath(filePath);
                             attachment.save();
                             logger.info(

@@ -1,35 +1,25 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format, parseISO } from 'date-fns';
-import { ToastrService } from 'ngx-toastr';
-import { groupBy } from 'ramda';
+import { TranslateModule } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
+import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import { MachineListComponent } from 'src/app/facility/machines/machines.component';
 import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
 import { OpenHoursComponent } from 'src/app/facility/schedule/opening-hours.component';
 import { StartingTimeComponent } from 'src/app/facility/schedule/starting-time.component';
 import type { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
 import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 import { RoomService } from './room.service';
 
 interface ExtendedRoom extends ExamRoom {
@@ -38,18 +28,10 @@ interface ExtendedRoom extends ExamRoom {
     extendedDwh: DefaultWorkingHoursWithEditing[];
     activate: boolean;
 }
-export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
-    editing: boolean;
-    pickStartingTime: { hour: number; minute: number; second: number; millisecond?: number };
-    pickEndingTime: { hour: number; minute: number; second: number; millisecond?: number };
-    displayStartingTime: { hour: number; minute: number; second: number; millisecond?: number };
-    displayEndingTime: { hour: number; minute: number; second: number; millisecond?: number };
-}
 
 @Component({
     templateUrl: './rooms.component.html',
     selector: 'xm-rooms',
-    standalone: true,
     imports: [
         NgClass,
         NgbPopover,
@@ -66,15 +48,13 @@ export class RoomListComponent implements OnInit {
     user: User;
     rooms: ExtendedRoom[] = [];
 
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private toast: ToastrService,
-        private session: SessionService,
-        private roomService: RoomService,
-        private translate: TranslateService,
-        private timeDateService: DateTimeService,
-    ) {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private session = inject(SessionService);
+    private roomService = inject(RoomService);
+    private timeDateService = inject(DateTimeService);
+
+    constructor() {
         this.user = this.session.getUser();
     }
 
@@ -138,7 +118,7 @@ export class RoomListComponent implements OnInit {
     enableRoom = (room: ExamRoom) => this.roomService.enableRoom(room);
 
     addExceptions = (exceptions: ExceptionWorkingHours[], examRoom: ExamRoom) => {
-        this.roomService.addExceptions([examRoom.id], exceptions).then((data) => {
+        this.roomService.addExceptions$([examRoom.id], exceptions).subscribe((data) => {
             const dataList: ExceptionWorkingHours[] = [];
             data.forEach((d) => {
                 if (!dataList.map((e) => e.id).includes(d.id)) {
@@ -150,7 +130,7 @@ export class RoomListComponent implements OnInit {
     };
 
     deleteException = (exception: ExceptionWorkingHours, examRoom: ExamRoom) => {
-        this.roomService.deleteException(examRoom.id, exception.id);
+        this.roomService.deleteException$(examRoom.id, exception.id).subscribe();
     };
     getNextExceptionEvent(ees: ExceptionWorkingHours[]): ExceptionWorkingHours[] {
         return ees
@@ -165,10 +145,10 @@ export class RoomListComponent implements OnInit {
     getWorkingHoursDisplayFormat = (workingHours: DefaultWorkingHours[]): string[] => {
         const sorter = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const capitalize = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
-        const timePart = (s: string) => format(new Date(s), 'HH:mm');
-        const mapping: Record<string, DefaultWorkingHours[]> = groupBy(
-            (wh) => `${timePart(wh.startTime)} - ${timePart(wh.endTime)}`,
+        const timePart = (s: string) => DateTime.fromISO(s).toFormat('HH:mm');
+        const mapping = groupBy(
             workingHours,
+            (x: DefaultWorkingHours) => `${timePart(x.startTime)} - ${timePart(x.endTime)}`,
         );
         return Object.keys(mapping).map((k) => {
             const days = mapping[k]
@@ -188,12 +168,12 @@ export class RoomListComponent implements OnInit {
             return;
         }
         const fmt = 'dd.MM.yyyy HH:mm';
-        const start = parseISO(exception.startDate);
-        const end = parseISO(exception.endDate);
+        const start = DateTime.fromISO(exception.startDate);
+        const end = DateTime.fromISO(exception.endDate);
         return (
-            format(start, fmt) +
+            start.toFormat(fmt) +
             ' - ' +
-            (format(start, 'dd.MM.yyyy') == format(end, 'dd.MM.yyyy') ? format(end, 'HH:mm') : format(end, fmt))
+            (start.toFormat('dd.MM.yyyy') == end.toFormat('dd.MM.yyyy') ? end.toFormat('HH:mm') : end.toFormat(fmt))
         );
     };
 }

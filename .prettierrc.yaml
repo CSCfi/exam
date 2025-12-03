@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+semi: true
+trailingComma: 'all'
+singleQuote: true
+printWidth: 120
+tabWidth: 4
+plugins:
+    - 'prettier-plugin-organize-imports'

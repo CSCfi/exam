@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <xm-page-header text="i18n_speed_review" [history]="true" />
 <xm-page-content [content]="content" />
 <ng-template #content>
@@ -220,7 +226,7 @@
                 {{ 'i18n_grade_exams' | translate }}
             </button>
             <button class="btn btn-outline-secondary me-3" [routerLink]="['/staff/exams/', examId, '5']">
-                {{ 'i18n_button_cancel' | translate }}
+                {{ 'i18n_button_return' | translate }}
             </button>
         </div>
     </div>

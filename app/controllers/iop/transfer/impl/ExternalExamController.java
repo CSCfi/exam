@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop.transfer.impl;
 
@@ -19,15 +8,16 @@ import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import controllers.ExaminationController;
-import controllers.SettingsController;
+import controllers.admin.SettingsController;
 import controllers.base.BaseController;
+import controllers.exam.copy.ExamCopyContext;
+import controllers.examination.ExaminationController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import controllers.iop.transfer.api.ExternalExamAPI;
 import impl.AutoEvaluationHandler;
-import impl.EmailComposer;
 import impl.NoShowHandler;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
@@ -39,7 +29,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,20 +43,23 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
-import models.Attachment;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamInspection;
-import models.ExamParticipation;
-import models.GeneralSettings;
-import models.Reservation;
-import models.User;
-import models.json.ExternalExam;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.json.JsonDeserializer;
+import models.admin.GeneralSettings;
+import models.assessment.AutoEvaluationConfig;
+import models.assessment.ExamInspection;
+import models.attachment.Attachment;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExamParticipation;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.exam.Grade;
+import models.iop.ExternalExam;
 import models.questions.Question;
 import models.sections.ExamSection;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
+import models.user.User;
 import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -82,10 +74,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
-import scala.jdk.javaapi.CollectionConverters;
-import util.AppUtil;
-import util.config.ConfigReader;
-import util.json.JsonDeserializer;
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
 
@@ -141,6 +129,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         clone.setCreatorWithDate(user);
         clone.setModifierWithDate(user);
         clone.generateHash();
+        clone.setGradingType(Grade.Type.GRADED);
         clone.save();
 
         if (src.getAutoEvaluationConfig() != null) {
@@ -156,8 +145,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
             inspection.save();
         }
         Set<ExamSection> sections = new TreeSet<>(src.getExamSections());
+        ExamCopyContext context = ExamCopyContext.forCopyWithAnswers(user).build();
         for (ExamSection es : sections) {
-            ExamSection esCopy = es.copyWithAnswers(clone, parent != null);
+            ExamSection esCopy = es.copy(clone, context);
             esCopy.setCreatorWithDate(user);
             esCopy.setModifierWithDate(user);
             esCopy.save();
@@ -222,29 +212,26 @@ public class ExternalExamController extends BaseController implements ExternalEx
                     CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
                 );
         } else {
-            // Fetch external attachments to local exam.
+            // Fetch external attachments for the local exam.
             externalAttachmentLoader.fetchExternalAttachmentsAsLocal(clone);
             return wrapAsPromise(created());
         }
     }
 
     private void notifyTeachers(Exam exam) {
-        Set<User> recipients = Stream
-            .concat(
-                exam.getParent().getExamOwners().stream(),
-                exam.getExamInspections().stream().map(ExamInspection::getUser)
-            )
-            .collect(Collectors.toSet());
+        Set<User> recipients = Stream.concat(
+            exam.getParent().getExamOwners().stream(),
+            exam.getExamInspections().stream().map(ExamInspection::getUser)
+        ).collect(Collectors.toSet());
         actor
             .scheduler()
             .scheduleOnce(
                 Duration.create(1, TimeUnit.SECONDS),
                 () ->
-                    AppUtil.notifyPrivateExamEnded(
-                        CollectionConverters.asScala(recipients).toSet(),
-                        exam,
-                        emailComposer
-                    ),
+                    recipients.forEach(r -> {
+                        emailComposer.composePrivateExamEnded(r, exam);
+                        logger.info("Email sent to {}", r.getEmail());
+                    }),
                 actor.dispatcher()
             );
     }
@@ -259,7 +246,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
             "examInspections(*, user(id, firstName, lastName)), " +
             "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
             "examSections(id, name, sequenceNumber, description, lotteryOn, optional, lotteryItemCount," + // ((
-            "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
+            "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, " +
+            "expectedWordCount, evaluationType, derivedMaxScore, negativeScoreAllowed, optionShufflingOn, " + // (((
             "question(id, type, question, attachment(*), options(id, option, correctOption, defaultScore, claimChoiceType)), " +
             "options(id, answered, score, option(id, option)), " +
             "essayAnswer(id, answer, objectVersion, attachment(*)), " +
@@ -302,11 +290,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .forEach(question ->
                     futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
                 );
-            return CompletableFuture
-                .allOf(futures.toArray(new CompletableFuture[0]))
-                .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
+            return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenComposeAsync(_ -> wrapAsPromise(ok(exam, getPath())))
                 .exceptionally(t -> {
-                    logger.error(String.format("Could not provide enrolment [id=%s]", enrolment.getId()), t);
+                    logger.error("Could not provide enrolment [id={}]", enrolment.getId(), t);
                     return internalServerError();
                 });
         }
@@ -338,7 +325,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             // Set references so that:
             // - external ref is the reference we got from outside. Must not be changed.
             // - local ref is a UUID X. It is used locally for referencing the exam
-            // - content's hash is set to X in order to simplify things with frontend
+            // - content's hash is set to X in order to simplify things with the frontend
 
             String externalRef = document.getHash();
             String ref = UUID.randomUUID().toString();
@@ -348,8 +335,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             ArrayNode optionalSectionsNode = root.has("optionalSections")
                 ? (ArrayNode) root.get("optionalSections")
                 : Json.newArray();
-            Set<Long> ids = StreamSupport
-                .stream(optionalSectionsNode.spliterator(), false)
+            Set<Long> ids = StreamSupport.stream(optionalSectionsNode.spliterator(), false)
                 .map(JsonNode::asLong)
                 .collect(Collectors.toSet());
             document.setExamSections(
@@ -366,23 +352,23 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .forEach(esq -> {
-                    Optional<Question.Type> questionType = Optional
-                        .ofNullable(esq.getQuestion())
-                        .map(Question::getType);
+                    Optional<Question.Type> questionType = Optional.ofNullable(esq.getQuestion()).map(
+                        Question::getType
+                    );
                     if (questionType.isPresent() && questionType.get() == Question.Type.ClaimChoiceQuestion) {
-                        Set<ExamSectionQuestionOption> sorted = esq
+                        // For ClaimChoiceQuestion, ensure options are sorted by ID
+                        // (needed because JSON deserialization doesn't apply @OrderBy)
+                        List<ExamSectionQuestionOption> sorted = esq
                             .getOptions()
                             .stream()
-                            .collect(
-                                Collectors.toCollection(() ->
-                                    new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
-                                )
-                            );
+                            .sorted(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
+                            .toList();
                         esq.setOptions(sorted);
-                    } else {
+                    } else if (esq.isOptionShufflingOn()) {
+                        // Shuffle options for non-claim-choice questions
                         List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
                         Collections.shuffle(shuffled);
-                        esq.setOptions(new HashSet<>(shuffled));
+                        esq.setOptions(shuffled);
                     }
                 });
 
@@ -416,14 +402,14 @@ public class ExternalExamController extends BaseController implements ExternalEx
         return request.get().thenApplyAsync(onSuccess);
     }
 
-    private static Query<ExamEnrolment> createQuery() {
-        Query<ExamEnrolment> query = DB.find(ExamEnrolment.class);
+    private Query<ExamEnrolment> createQuery() {
+        var query = DB.find(ExamEnrolment.class);
         PathProperties props = ExaminationController.getPath(true);
         props.apply(query);
         return query;
     }
 
-    private static Optional<ExamEnrolment> getPrototype(String ref) {
+    private Optional<ExamEnrolment> getPrototype(String ref) {
         return createQuery()
             .where()
             .eq("reservation.externalRef", ref)

@@ -1,54 +1,28 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { format, formatISO, parseISO, setHours, setMinutes } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { noop } from 'rxjs';
-import { MaintenancePeriod } from 'src/app/exam/exam.model';
+import { tap } from 'rxjs';
+import { Address, Availability, MaintenancePeriod, WorkingHour } from 'src/app/facility/facility.model';
 import { ExceptionDialogComponent } from 'src/app/facility/schedule/exception-dialog.component';
 import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-
-export type Weekday = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
-
-export interface Day {
-    index: number;
-    type: string;
-}
-
-export type Week = { [day: string]: Day[] };
-
-export interface WorkingHour {
-    startingHour: string;
-    selected: boolean;
-}
-
-export interface Availability {
-    start: string;
-    end: string;
-    total: number;
-    reserved: number;
-}
-
-export interface Address {
-    id: number;
-    city: string;
-    zip: string;
-    street: string;
-}
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
-    constructor(
-        private http: HttpClient,
-        private ngbModal: NgbModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private dialogs: ConfirmationDialogService,
-        private DateTime: DateTimeService,
-    ) {}
+    private http = inject(HttpClient);
+    private modal = inject(ModalService);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private dialogs = inject(ConfirmationDialogService);
+    private DateTime = inject(DateTimeService);
 
     roomsApi = (id?: number) => (id ? `/app/rooms/${id}` : '/app/rooms');
     availabilityApi = (roomId: number, date: string) => `/app/availability/${roomId}/${date}`;
@@ -59,7 +33,7 @@ export class RoomService {
     getRoom$ = (id: number) => this.http.get<ExamRoom>(this.roomsApi(id));
 
     /* TODO, check these text response APIs on backend side, doesn't seem legit */
-    updateRoom = (room: ExamRoom) =>
+    updateRoom$ = (room: ExamRoom) =>
         this.http.put<ExamRoom>(this.roomsApi(room.id), room, { responseType: 'text' as 'json' });
 
     inactivateRoom$ = (id: number) => this.http.delete<ExamRoom>(this.roomsApi(id));
@@ -94,7 +68,6 @@ export class RoomService {
                         },
                         error: (err) => this.toast.error(err),
                     }),
-                error: (err) => this.toast.error(err),
             });
 
     enableRoom = (room: ExamRoom) =>
@@ -106,55 +79,35 @@ export class RoomService {
             error: (err) => this.toast.error(err),
         });
 
-    addExceptions = (ids: number[], exceptions: ExceptionWorkingHours[]) =>
-        new Promise<ExceptionWorkingHours[]>((resolve, reject) => {
-            this.updateExceptions$(ids, exceptions).subscribe({
-                next: (data: ExceptionWorkingHours[]) => {
-                    this.toast.info(this.translate.instant('i18n_exception_time_added'));
-                    resolve(data);
-                },
-                error: (error) => {
-                    this.toast.error(error);
-                    reject();
-                },
-            });
-        });
+    addExceptions$ = (ids: number[], exceptions: ExceptionWorkingHours[]) =>
+        this.updateExceptions$(ids, exceptions).pipe(
+            tap({
+                next: () => this.toast.info(this.translate.instant('i18n_exception_time_added')),
+                error: (error) => this.toast.error(error),
+            }),
+        );
 
     openExceptionDialog = (
         callBack: (exception: ExceptionWorkingHours[]) => void,
         outOfService?: boolean,
         exceptions?: ExceptionWorkingHours[],
     ) => {
-        const modalRef = this.ngbModal.open(ExceptionDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+        const modalRef = this.modal.openRef(ExceptionDialogComponent, { size: 'lg' });
         modalRef.componentInstance.outOfService = outOfService;
         modalRef.componentInstance.exceptions = exceptions;
-        modalRef.result
-            .then((exceptions: ExceptionWorkingHours[]) => {
-                callBack(exceptions);
-            })
-            .catch(noop);
+        this.modal.result$<ExceptionWorkingHours[]>(modalRef).subscribe(callBack);
     };
-    deleteException = (roomId: number, exceptionId: number) =>
-        new Promise<void>((resolve, reject) => {
-            this.removeException$(roomId, exceptionId).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('i18n_exception_time_removed'));
-                    resolve();
-                },
-                error: (error) => {
-                    this.toast.error(error);
-                    reject(error);
-                },
-            });
-        });
+    deleteException$ = (roomId: number, exceptionId: number) =>
+        this.removeException$(roomId, exceptionId).pipe(
+            tap({
+                next: () => this.toast.info(this.translate.instant('i18n_exception_time_removed')),
+                error: (error) => this.toast.error(error),
+            }),
+        );
 
     formatExceptionEvent = (event: ExceptionWorkingHours) => {
-        event.startDate = formatISO(parseISO(event.startDate));
-        event.endDate = formatISO(parseISO(event.endDate));
+        event.startDate = DateTime.fromISO(event.startDate).toISO() || '';
+        event.endDate = DateTime.fromISO(event.endDate).toISO() || '';
     };
 
     updateStartingHours = (hours: WorkingHour[], offset: number, roomIds: number[]) =>
@@ -189,9 +142,9 @@ export class RoomService {
 
     private formatTime = (time: string) => {
         const hours = this.DateTime.isDST(new Date()) ? 1 : 0;
-        return format(
-            setMinutes(setHours(new Date(), parseInt(time.split(':')[0]) + hours), parseInt(time.split(':')[1])),
-            'dd.MM.yyyy HH:mmXXX',
-        );
+        const [hourStr, minuteStr] = time.split(':');
+        return DateTime.now()
+            .set({ hour: parseInt(hourStr) + hours, minute: parseInt(minuteStr) })
+            .toFormat('dd.MM.yyyy HH:mmZZZ');
     };
 }

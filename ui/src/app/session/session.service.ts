@@ -1,59 +1,23 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-import { DOCUMENT } from '@angular/common';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy } from '@angular/core';
-import { Inject, Injectable } from '@angular/core';
+import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable, Unsubscribable } from 'rxjs';
-import { Subject, defer, from, interval, of, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { Subject, defer, interval, of, throwError } from 'rxjs';
+import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
+import { StorageService } from 'src/app/shared/storage/storage.service';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
+import { ExternalLoginConfirmationDialogComponent } from './eula/external-login-confirmation-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
 import { SessionExpireWarningComponent } from './session-timeout-toastr';
-
-export interface Role {
-    name: string;
-    displayName?: string;
-    icon?: string;
-}
-
-export interface User {
-    id: number;
-    eppn: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    lang: string;
-    loginRole: string | null;
-    roles: Role[];
-    userAgreementAccepted: boolean;
-    userIdentifier: string;
-    permissions: { type: string }[];
-    isAdmin: boolean;
-    isStudent: boolean;
-    isTeacher: boolean;
-    isLanguageInspector: boolean;
-    employeeNumber: string | null;
-    lastLogin: string | null;
-    canCreateByodExam: boolean;
-}
+import { Role, User } from './session.model';
 
 interface Env {
     isProd: boolean;
@@ -64,21 +28,21 @@ export class SessionService implements OnDestroy {
     public userChange$: Observable<User | undefined>;
     public devLogoutChange$: Observable<void>;
 
+    private http = inject(HttpClient);
+    private i18n = inject(TranslateService);
+    private router = inject(Router);
+    private Storage = inject(StorageService);
+    private document = inject<Document>(DOCUMENT);
+    private modal = inject(ModalService);
+    private toast = inject(ToastrService);
+
     private PING_INTERVAL: number = 30 * 1000;
     private sessionCheckSubscription?: Unsubscribable;
     private userChangeSubscription = new Subject<User | undefined>();
     private devLogoutSubscription = new Subject<void>();
     private customSessionExpireWarning = SessionExpireWarningComponent;
 
-    constructor(
-        private http: HttpClient,
-        private i18n: TranslateService,
-        private router: Router,
-        @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
-        @Inject(DOCUMENT) private document: Document,
-        private modal: NgbModal,
-        private toast: ToastrService,
-    ) {
+    constructor() {
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
     }
@@ -87,25 +51,32 @@ export class SessionService implements OnDestroy {
         this.disableSessionCheck();
     }
 
-    getUser = (): User => this.webStorageService.get('EXAM_USER');
+    getUser = (): User => {
+        if (this.Storage.has('EXAM_USER')) {
+            return this.Storage.get<User>('EXAM_USER') as User;
+        }
+        throw new Error('EXAM_USER not found');
+    };
+
+    getOptionalUser = (): User | undefined => this.Storage.get<User>('EXAM_USER');
 
     getUserName = () => {
-        const user = this.getUser();
+        const user = this.getOptionalUser();
         return user ? user.firstName + ' ' + user.lastName : '';
     };
 
     getEnv$ = (): Observable<'DEV' | 'PROD'> =>
         this.http.get<Env>('/app/settings/environment').pipe(
-            tap((env) => this.webStorageService.set('EXAM-ENV', env)),
+            tap((env) => this.Storage.set('EXAM-ENV', env)),
             map((env) => (env.isProd ? 'PROD' : 'DEV')),
         );
 
-    getEnv = (): Env | undefined => this.webStorageService.get('EXAM-ENV');
+    getEnv = (): Env | undefined => this.Storage.get<Env>('EXAM-ENV');
 
     logout(): void {
         this.http.delete<{ logoutUrl: string }>('/app/session', {}).subscribe({
             next: (resp) => {
-                this.webStorageService.remove('EXAM_USER');
+                this.Storage.remove('EXAM_USER');
                 // delete this.user;
                 this.onLogoutSuccess(resp);
             },
@@ -114,19 +85,19 @@ export class SessionService implements OnDestroy {
     }
 
     getLocale = () => {
-        const user = this.getUser();
+        const user = this.getOptionalUser();
         return user ? user.lang : 'en';
     };
 
     switchLanguage(lang: string) {
-        const user = this.getUser();
+        const user = this.getOptionalUser();
         if (!user) {
             this.translate$(lang).subscribe();
         } else {
             this.http.put('/app/user/lang', { lang: lang }).subscribe({
                 next: () => {
                     user.lang = lang;
-                    this.webStorageService.set('EXAM_USER', user);
+                    this.Storage.set('EXAM_USER', user);
                     this.translate$(lang).subscribe();
                 },
                 error: () => this.toast.error('failed to switch language'),
@@ -190,11 +161,14 @@ export class SessionService implements OnDestroy {
             .pipe(
                 switchMap((u) => this.prepareUser$(u)),
                 switchMap((u) => this.processLogin$(u)),
+                mergeMap((u) =>
+                    this.http.get<{ prefix: string }>('/app/settings/coursecodeprefix').pipe(
+                        tap((data) => this.Storage.set('COURSE_CODE_PREFIX', data.prefix)),
+                        map(() => u),
+                    ),
+                ),
                 tap((u) => {
-                    this.webStorageService.set('EXAM_USER', u);
-                    this.http
-                        .get<{ prefix: string }>('/app/settings/coursecodeprefix')
-                        .subscribe((data) => this.webStorageService.set('COURSE_CODE_PREFIX', data.prefix));
+                    this.Storage.set('EXAM_USER', u);
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
                     if (u) {
@@ -213,35 +187,41 @@ export class SessionService implements OnDestroy {
 
     translate$ = (lang: string) => this.i18n.use(lang).pipe(tap(() => (this.document.documentElement.lang = lang)));
 
-    private processLogin$(user: User): Observable<User> {
-        const userAgreementConfirmation$ = (u: User): Observable<User> =>
-            //    switchMap((u: User) => (u.isStudent && !u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
-            defer(() => (u.isStudent && !u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
-        return user.loginRole
-            ? userAgreementConfirmation$(user)
-            : this.openRoleSelectModal$(user).pipe(switchMap((u) => userAgreementConfirmation$(u)));
+    private processLogin$ = (user: User): Observable<User> => {
+        const externalLoginConfirmation$ = (u: User) =>
+            defer(() => (u.externalUserOrg ? this.openExternalLoginConfirmationModal$(u) : of(u)));
+        const userAgreementConfirmation$ = (u: User) =>
+            defer(() => (!u.userAgreementAccepted ? this.openUserAgreementModal$(u) : of(u)));
+        const roleSelectionConfirmation$ = (u: User) =>
+            defer(() => (!u.loginRole ? this.openRoleSelectModal$(u) : of(u)));
+        return externalLoginConfirmation$(user).pipe(
+            switchMap(roleSelectionConfirmation$),
+            switchMap(userAgreementConfirmation$),
+        );
+    };
+
+    private openExternalLoginConfirmationModal$(user: User): Observable<User> {
+        const modalRef = this.modal.openRef(ExternalLoginConfirmationDialogComponent, { size: 'm' });
+        modalRef.componentInstance.user = user;
+        return this.modal.result$(modalRef).pipe(map(() => user));
     }
 
     private openUserAgreementModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(EulaDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
-        return from(modalRef.result).pipe(
+        return this.modal.open$(EulaDialogComponent, { size: 'lg' }).pipe(
             switchMap(() => this.http.put('/app/users/agreement', {})),
             map(() => ({ ...user, userAgreementAccepted: true })),
         );
     }
 
     private openRoleSelectModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(SelectRoleDialogComponent);
+        const modalRef = this.modal.openRef(SelectRoleDialogComponent, { size: 'm' });
         modalRef.componentInstance.user = user;
-        return from(modalRef.result).pipe(
-            switchMap((role: Role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
-            map((role: Role) => {
+        return this.modal.result$<Role>(modalRef).pipe(
+            switchMap((role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
+            map((role) => {
                 user.loginRole = role.name;
                 user.isAdmin = role.name === 'ADMIN';
+                user.isSupport = role.name === 'SUPPORT';
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';
                 user.isLanguageInspector = user.isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
@@ -256,28 +236,33 @@ export class SessionService implements OnDestroy {
             switch (role.name) {
                 case 'ADMIN':
                     role.displayName = 'i18n_admin';
-                    role.icon = 'bi-gear';
+                    role.icon = 'bi-shield-lock';
                     break;
                 case 'TEACHER':
                     role.displayName = 'i18n_teacher';
-                    role.icon = 'bi-person';
+                    role.icon = 'bi-person-workspace';
                     break;
                 case 'STUDENT':
                     role.displayName = 'i18n_student';
                     role.icon = 'bi-mortarboard';
                     break;
+                case 'SUPPORT':
+                    role.displayName = 'i18n_support_person';
+                    role.icon = 'bi-person-heart';
+                    break;
             }
         });
 
         const loginRole = user.roles.length === 1 ? user.roles[0].name : null;
-        const isTeacher = loginRole != null && loginRole === 'TEACHER';
+        const isTeacher = loginRole === 'TEACHER';
         return this.translate$(user.lang).pipe(
             map(() => ({
                 ...user,
                 loginRole: loginRole,
                 isTeacher: isTeacher,
-                isAdmin: loginRole != null && loginRole === 'ADMIN',
-                isStudent: loginRole != null && loginRole === 'STUDENT',
+                isAdmin: loginRole === 'ADMIN',
+                isStudent: loginRole === 'STUDENT',
+                isSupport: loginRole === 'SUPPORT',
                 isLanguageInspector: isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
                 canCreateByodExam: loginRole !== 'STUDENT' && this.hasPermission(user, 'CAN_CREATE_BYOD_EXAM'),
             })),
@@ -291,7 +276,7 @@ export class SessionService implements OnDestroy {
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         const env = this.getEnv();
-        this.webStorageService.clear();
+        this.Storage.clear();
         if (data && data.logoutUrl) {
             location.href = `${localLogout}?return=${data.logoutUrl}`;
         } else if (!env || env.isProd) {

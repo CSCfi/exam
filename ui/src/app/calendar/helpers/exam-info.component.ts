@@ -1,8 +1,12 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe } from '@angular/common';
-import { Component, Input, OnInit, computed, signal } from '@angular/core';
+import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import type { ExamInfo } from 'src/app/calendar/calendar.service';
+import type { ExamInfo } from 'src/app/calendar/calendar.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
@@ -87,7 +91,6 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    standalone: true,
     imports: [CourseCodeComponent, MathJaxDirective, DatePipe, TranslateModule],
 })
 export class CalendarExamInfoComponent implements OnInit {
@@ -108,10 +111,8 @@ export class CalendarExamInfoComponent implements OnInit {
             DateTime.fromISO(this.examInfo.periodEnd as string).toJSDate() > this.reservationWindowEndDate(),
     );
 
-    constructor(
-        private translate: TranslateService,
-        private DateTimeService: DateTimeService,
-    ) {}
+    private translate = inject(TranslateService);
+    private DateTimeService = inject(DateTimeService);
 
     ngOnInit() {
         this.reservationWindowEndDate.set(
@@ -119,5 +120,5 @@ export class CalendarExamInfoComponent implements OnInit {
         );
     }
 
-    printExamDuration = (exam: { duration: number }) => this.DateTimeService.printExamDuration(exam);
+    printExamDuration = (info: ExamInfo) => this.DateTimeService.formatDuration(info.duration);
 }

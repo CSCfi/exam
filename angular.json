@@ -18,25 +18,27 @@
       "prefix": "xm",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/exam",
+            "outputPath": {
+              "base": "dist/exam"
+            },
             "index": "ui/src/index.html",
-            "main": "ui/src/main.ts",
-            "polyfills": "ui/src/polyfills.ts",
+            "polyfills": ["@angular/localize/init", "ui/src/polyfills.ts"],
             "tsConfig": "ui/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": ["ui/src/favicon.ico", "ui/src/assets"],
             "styles": ["ui/src/styles.scss"],
-            "scripts": []
+            "scripts": [],
+            "browser": "ui/src/main.ts"
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2.2mb",
-                  "maximumError": "2.3mb"
+                  "maximumWarning": "1.6mb",
+                  "maximumError": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -48,19 +50,13 @@
                 {
                   "replace": "ui/src/environments/environment.ts",
                   "with": "ui/src/environments/environment.prod.ts"
-                },
-                {
-                  "replace": "ui/src/app/interceptors/auth-interceptor.ts",
-                  "with": "ui/src/app/interceptors/auth-interceptor.prod.ts"
                 }
               ],
               "outputHashing": "all",
               "sourceMap": true
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
@@ -69,10 +65,13 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "options": {
+            "buildTarget": "exam:build",
             "proxyConfig": "ui/src/proxy.conf.js",
-            "buildTarget": "exam:build"
+            "headers": {
+              "Content-Security-Policy": "default-src 'self'; connect-src 'self'; form-action 'none'; img-src 'self' data: blob:; font-src 'self' about: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-src 'self' http://localhost:3000; frame-ancestors 'none'; base-uri 'self';"
+            }
           },
           "configurations": {
             "production": {
@@ -85,22 +84,17 @@
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "builder": "@angular/build:extract-i18n",
           "options": {
             "buildTarget": "exam:build"
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "main": "ui/src/test.ts",
-            "polyfills": "ui/src/polyfills.ts",
             "tsConfig": "ui/tsconfig.spec.json",
-            "karmaConfig": "ui/karma.conf.js",
-            "inlineStyleLanguage": "scss",
-            "assets": ["ui/src/favicon.ico", "ui/src/assets"],
-            "styles": ["ui/src/styles.scss"],
-            "scripts": []
+            "runner": "vitest",
+            "buildTarget": "exam:build:development"
           }
         },
         "lint": {
@@ -122,6 +116,30 @@
     },
     "@angular-eslint/schematics:library": {
       "setParserOptionsProject": true
+    },
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
     }
   }
 }

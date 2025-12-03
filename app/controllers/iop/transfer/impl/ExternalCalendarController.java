@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop.transfer.impl;
 
@@ -21,9 +10,10 @@ import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import controllers.CalendarController;
-import exceptions.NotFoundException;
+import controllers.base.BaseController;
+import controllers.iop.transfer.api.ExternalReservationHandler;
 import impl.CalendarHandler;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.net.MalformedURLException;
@@ -41,13 +31,15 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import javax.inject.Inject;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.datetime.DateTimeHandler;
 import models.calendar.MaintenancePeriod;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.facility.ExamMachine;
+import models.facility.ExamRoom;
+import models.user.User;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -60,25 +52,37 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.Attrs;
-import sanitizers.ExternalCalendarReservationSanitizer;
+import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
-import util.config.ConfigReader;
-import util.datetime.DateTimeHandler;
+import validation.calendar.ExternalCalendarReservationValidator;
+import validation.calendar.ExternalReservationDTO;
+import validation.core.Attrs;
 
-public class ExternalCalendarController extends CalendarController {
+public class ExternalCalendarController extends BaseController {
+
+    private final WSClient wsClient;
+    private final CalendarHandler calendarHandler;
+    private final EmailComposer emailComposer;
+    private final ConfigReader configReader;
+    private final DateTimeHandler dateTimeHandler;
+    private final ExternalReservationHandler externalReservationHandler;
 
     @Inject
-    private WSClient wsClient;
-
-    @Inject
-    private CalendarHandler calendarHandler;
-
-    @Inject
-    private ConfigReader configReader;
-
-    @Inject
-    private DateTimeHandler dateTimeHandler;
+    public ExternalCalendarController(
+        WSClient wsClient,
+        CalendarHandler calendarHandler,
+        EmailComposer emailComposer,
+        ConfigReader configReader,
+        DateTimeHandler dateTimeHandler,
+        ExternalReservationHandler externalReservationHandler
+    ) {
+        this.wsClient = wsClient;
+        this.calendarHandler = calendarHandler;
+        this.emailComposer = emailComposer;
+        this.configReader = configReader;
+        this.dateTimeHandler = dateTimeHandler;
+        this.externalReservationHandler = externalReservationHandler;
+    }
 
     private URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
         throws MalformedURLException {
@@ -90,26 +94,22 @@ public class ExternalCalendarController extends CalendarController {
     }
 
     private URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
-        return URI
-            .create(
-                configReader.getIopHost() +
+        return URI.create(
+            configReader.getIopHost() +
                 String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
-            )
-            .toURL();
+        ).toURL();
     }
 
     private URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
-        return URI
-            .create(
-                configReader.getIopHost() +
+        return URI.create(
+            configReader.getIopHost() +
                 String.format(
                     "/api/organisations/%s/facilities/%s/reservations/%s/force",
                     orgRef,
                     facilityRef,
                     reservationRef
                 )
-            )
-            .toURL();
+        ).toURL();
     }
 
     // Actions invoked by central IOP server
@@ -123,6 +123,8 @@ public class ExternalCalendarController extends CalendarController {
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("start").asText());
         DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("end").asText());
         String userEppn = node.get("user").asText();
+        String orgRef = node.get("orgRef").asText();
+        String orgName = node.get("orgName").asText();
         if (start.isBeforeNow() || end.isBefore(start)) {
             return badRequest("invalid dates");
         }
@@ -147,6 +149,8 @@ public class ExternalCalendarController extends CalendarController {
         reservation.setStartAt(start);
         reservation.setMachine(machine.get());
         reservation.setExternalUserRef(userEppn);
+        reservation.setExternalOrgRef(orgRef);
+        reservation.setExternalOrgName(orgName);
         reservation.save();
         PathProperties pp = PathProperties.parse("(*, machine(*, room(*, mailAddress(*))))");
 
@@ -156,8 +160,7 @@ public class ExternalCalendarController extends CalendarController {
     // Initiated by originator of reservation (the student)
     @SubjectNotPresent
     public Result acknowledgeReservationRemoval(String ref) {
-        Reservation reservation = DB
-            .find(Reservation.class)
+        Reservation reservation = DB.find(Reservation.class)
             .fetch("machine")
             .fetch("machine.room")
             .where()
@@ -179,11 +182,10 @@ public class ExternalCalendarController extends CalendarController {
         return ok();
     }
 
-    // Initiated by administrator of organisation where reservation takes place
+    // Initiated by administrator of organization where reservation takes place
     @SubjectNotPresent
     public Result acknowledgeReservationRevocation(String ref) {
-        ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.externalReservation")
             .fetch("reservation.machine")
@@ -224,19 +226,17 @@ public class ExternalCalendarController extends CalendarController {
                 LocalDate searchDate;
                 try {
                     searchDate = parseSearchDate(date.get(), start.get(), end.get(), room);
-                } catch (NotFoundException e) {
+                } catch (IllegalArgumentException e) {
                     return notFound();
                 }
-                List<ExamMachine> machines = DB
-                    .find(ExamMachine.class)
+                List<ExamMachine> machines = DB.find(ExamMachine.class)
                     .where()
                     .eq("room.id", room.getId())
                     .ne("outOfService", true)
                     .ne("archived", true)
                     .findList();
                 // Maintenance periods
-                List<Interval> periods = DB
-                    .find(MaintenancePeriod.class)
+                List<Interval> periods = DB.find(MaintenancePeriod.class)
                     .where()
                     .gt("endsAt", searchDate.toDate())
                     .findList()
@@ -271,7 +271,7 @@ public class ExternalCalendarController extends CalendarController {
 
     // Actions invoked directly by logged-in users
     @Authenticated
-    @With(ExternalCalendarReservationSanitizer.class)
+    @With(ExternalCalendarReservationValidator.class)
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation(Http.Request request) throws MalformedURLException {
         if (!configReader.isVisitingExaminationSupported()) {
@@ -279,17 +279,17 @@ public class ExternalCalendarController extends CalendarController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Parse request body
-        String orgRef = request.attrs().get(Attrs.ORG_REF);
-        String roomRef = request.attrs().get(Attrs.ROOM_REF);
-        DateTime start = request.attrs().get(Attrs.START_DATE);
-        DateTime end = request.attrs().get(Attrs.END_DATE);
-        Long examId = request.attrs().get(Attrs.EXAM_ID);
-        Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
+        ExternalReservationDTO dto = request.attrs().get(Attrs.EXT_STUDENT_RESERVATION);
+        String orgRef = dto.orgRef();
+        String roomRef = dto.roomRef();
+        DateTime start = dto.start();
+        DateTime end = dto.end();
+        Long examId = dto.examId();
+        List<Long> sectionIds = dto.getSectionIdsAsJava();
 
         //TODO: See if this offset thing works as intended
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        Optional<ExamEnrolment> oe = DB
-            .find(ExamEnrolment.class)
+        Optional<ExamEnrolment> oe = DB.find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("exam.examSections")
             .fetch("exam.examSections.examMaterials")
@@ -306,7 +306,7 @@ public class ExternalCalendarController extends CalendarController {
             return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
         }
         ExamEnrolment enrolment = oe.get();
-        Optional<Result> error = checkEnrolment(enrolment, user, sectionIds);
+        Optional<Result> error = calendarHandler.checkEnrolment(enrolment, user, sectionIds);
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }
@@ -363,8 +363,7 @@ public class ExternalCalendarController extends CalendarController {
     @Restrict(@Group("ADMIN"))
     public CompletionStage<Result> requestReservationRevocation(String ref, Http.Request request)
         throws MalformedURLException {
-        Optional<Reservation> or = DB
-            .find(Reservation.class)
+        Optional<Reservation> or = DB.find(Reservation.class)
             .where()
             .isNotNull("machine")
             .eq("externalRef", ref)
@@ -389,7 +388,10 @@ public class ExternalCalendarController extends CalendarController {
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
             String msg = request.body().asJson().path("msg").asText("");
-            emailComposer.composeExternalReservationCancellationNotification(reservation, msg);
+            emailComposer.composeExternalReservationCancellationNotification(
+                reservation,
+                OptionConverters.toScala(Optional.of(msg))
+            );
             reservation.delete();
             return ok();
         };
@@ -407,19 +409,19 @@ public class ExternalCalendarController extends CalendarController {
         Http.Request request
     ) throws MalformedURLException {
         if (org.isPresent() && date.isPresent()) {
-            // First check that exam exists
+            // First, check that the exam exists
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            ExamEnrolment ee = getEnrolment(examId, user);
+            ExamEnrolment ee = calendarHandler.getEnrolment(examId, user);
             // For now do not allow making an external reservation for collaborative exam
             if (ee == null || ee.getCollaborativeExam() != null) {
                 return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
             }
             Exam exam = ee.getExam();
 
-            // Also sanity check the provided search date
+            // Also, sanity-check the provided search date
             try {
                 calendarHandler.parseSearchDate(date.get(), exam, null);
-            } catch (NotFoundException e) {
+            } catch (IllegalArgumentException e) {
                 return wrapAsPromise(notFound());
             }
             // Ready to shoot
@@ -460,32 +462,33 @@ public class ExternalCalendarController extends CalendarController {
         // Check machine availability for each slot
         for (Interval slot : examSlots) {
             // Check machine availability
-            int availableMachineCount = (int) machines.stream().filter(m -> !isReservedDuring(m, slot)).count();
+            int availableMachineCount = (int) machines
+                .stream()
+                .filter(m -> !isReservedDuring(m, slot))
+                .count();
             slots.add(new CalendarHandler.TimeSlot(slot, availableMachineCount, null));
         }
         return slots;
     }
 
     /**
-     * Search date is the current date if searching for current week or earlier,
+     * Search date is the current date if searching for the current week or earlier,
      * If searching for upcoming weeks, day of week is one.
      */
     private LocalDate parseSearchDate(String day, String startDate, String endDate, ExamRoom room)
-        throws NotFoundException {
+        throws IllegalArgumentException {
         int windowSize = calendarHandler.getReservationWindowSize();
         int offset = room != null
             ? DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now())
             : configReader.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
-        LocalDate examEndDate = DateTime
-            .parse(endDate, ISODateTimeFormat.dateTimeParser())
+        LocalDate examEndDate = DateTime.parse(endDate, ISODateTimeFormat.dateTimeParser())
             .plusMillis(offset)
             .toLocalDate();
         LocalDate searchEndDate = reservationWindowDate.isBefore(examEndDate) ? reservationWindowDate : examEndDate;
 
-        LocalDate examStartDate = DateTime
-            .parse(startDate, ISODateTimeFormat.dateTimeParser())
+        LocalDate examStartDate = DateTime.parse(startDate, ISODateTimeFormat.dateTimeParser())
             .plusMillis(offset)
             .toLocalDate();
         LocalDate searchDate = day.isEmpty() ? now : LocalDate.parse(day, ISODateTimeFormat.dateParser());
@@ -495,7 +498,7 @@ public class ExternalCalendarController extends CalendarController {
         }
         // if searching for month(s) after exam's end month -> no can do
         if (searchDate.isAfter(searchEndDate)) {
-            throw new NotFoundException();
+            throw new IllegalArgumentException("Search date is after exam end date");
         }
         // Do not execute search before exam starts
         if (searchDate.isBefore(examStartDate)) {
@@ -513,6 +516,9 @@ public class ExternalCalendarController extends CalendarController {
     }
 
     private boolean isReservedDuring(ExamMachine machine, Interval interval) {
-        return machine.getReservations().stream().anyMatch(r -> interval.overlaps(r.toInterval()));
+        return machine
+            .getReservations()
+            .stream()
+            .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 }

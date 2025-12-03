@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="row ms-3 me-3 align-items-center">
     <div class="col-md-6 mb-2">
         <span class="m-1" ngbDropdown [autoClose]="'outside'">
@@ -20,16 +26,18 @@
                         placeholder="{{ 'i18n_search_course_hint' | translate }}"
                         aria-describedby="search-icon-1"
                     />
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <i id="search-icon-1" class="bi-search" width="46" height="38"></i>
-                        </div>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (course of filteredCourses; track course) {
-                    <li [hidden]="course.filtered" role="presentation" (click)="applyFilter(course)" ngbDropdownItem>
-                        <a role="menuitem">{{ formatCourse(course) }} {{ course.name }}</a>
-                    </li>
+                @for (course of filteredCourses; track course.id) {
+                    <button
+                        [hidden]="course.filtered"
+                        role="presentation"
+                        ngbDropdownItem
+                        (click)="applyFilter(course)"
+                        [attr.aria-label]="'i18n_pick_course' + ' ' + course.name"
+                    >
+                        {{ formatCourse(course) }} {{ course.name }}
+                    </button>
                 }
             </ul>
         </span>
@@ -52,21 +60,22 @@
                         placeholder="{{ 'i18n_search_exam_hint' | translate }}"
                         aria-describedby="search-icon-2"
                     />
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <i id="search-icon-2" class="bi-search"></i>
-                        </div>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (exam of filteredExams; track exam) {
-                    <li [hidden]="exam.filtered" role="presentation" (click)="applyFilter(exam)" ngbDropdownItem>
-                        <a role="menuitem"
-                            >{{ formatCourse(exam) }} {{ exam.name }}
-                            @if (exam.period) {
-                                <small class="text-muted">({{ exam.period }})</small>
-                            }
-                        </a>
-                    </li>
+                @for (exam of filteredExams; track exam.id) {
+                    <button
+                        [hidden]="exam.filtered"
+                        role="presentation"
+                        (click)="applyFilter(exam)"
+                        ngbDropdownItem
+                        tabindex="0"
+                        [attr.aria-label]="'i18n_pick_exam' + ' ' + exam.name"
+                    >
+                        {{ formatCourse(exam) }} {{ exam.name }}
+                        @if (exam.period) {
+                            <small class="text-muted">({{ exam.period }})</small>
+                        }
+                    </button>
                 }
             </ul>
         </span>
@@ -91,20 +100,22 @@
                         placeholder="{{ 'i18n_search' | translate }}"
                         aria-describedby="search-icon-3"
                     />
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <i id="search-icon-3" class="bi-search"></i>
-                        </div>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (tag of filteredTags; track tag) {
-                    <li [hidden]="tag.filtered" role="presentation" (click)="applyFilter(tag)" ngbDropdownItem>
+                @for (tag of filteredTags; track tag.id) {
+                    <button
+                        [hidden]="tag.filtered"
+                        role="presentation"
+                        (click)="applyFilter(tag)"
+                        ngbDropdownItem
+                        [attr.aria-label]="'i18n_pick_tag' + ' ' + tag.name"
+                    >
                         @if (tag.usage && tag.usage > 0) {
                             <div role="menuitem" class="text" title="{{ 'i18n_category' | translate }}">
                                 {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
                             </div>
                         }
-                    </li>
+                    </button>
                 }
             </ul>
         </span>
@@ -129,18 +140,20 @@
                         placeholder="{{ 'i18n_search' | translate }}"
                         aria-describedby="search-icon-3"
                     />
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <i id="search-icon-3" class="bi-search"></i>
-                        </div>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </li>
-                @for (section of filteredSections; track section) {
-                    <li [hidden]="section.filtered" role="presentation" (click)="applyFilter(section)" ngbDropdownItem>
+                @for (section of filteredSections; track section.id) {
+                    <button
+                        [hidden]="section.filtered"
+                        role="presentation"
+                        (click)="applyFilter(section)"
+                        ngbDropdownItem
+                        [attr.aria-label]="'i18n_pick_section' + ' ' + section.name"
+                    >
                         <div role="menuitem" class="text" title="{{ 'i18n_exam_section' | translate }}">
                             {{ section.name }}
                         </div>
-                    </li>
+                    </button>
                 }
             </ul>
         </span>
@@ -164,23 +177,21 @@
                         placeholder="{{ 'i18n_search' | translate }}"
                         aria-describedby="search-icon-3"
                     />
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <i id="search-icon-3" class="bi-search"></i>
+                    <div class="input-group-append bi-search search-append"></div>
+                </li>
+                @for (owner of filteredOwners; track owner.id) {
+                    <button
+                        [hidden]="owner.filtered"
+                        role="presentation"
+                        (click)="applyFilter(owner)"
+                        ngbDropdownItem
+                        [attr.aria-label]="'i18n_pick_owner' + ' ' + owner.name"
+                    >
+                        <div role="menuitem" class="text" title="{{ 'i18n_owner' | translate }}">
+                            {{ owner.name }}
                         </div>
-                    </div>
-                </li>
-                <li
-                    *ngFor="let owner of filteredOwners"
-                    [hidden]="owner.filtered"
-                    role="presentation"
-                    (click)="applyFilter(owner)"
-                    ngbDropdownItem
-                >
-                    <div role="menuitem" class="text" title="{{ 'i18n_owner' | translate }}">
-                        {{ owner.name }}
-                    </div>
-                </li>
+                    </button>
+                }
             </ul>
         </span>
     </div>
@@ -195,9 +206,7 @@
                         [(ngModel)]="filter.text"
                         placeholder="{{ 'i18n_search_by_question_text' | translate }}"
                     />
-                    <div class="input-group-text p-0">
-                        <img src="/assets/images/icon_search.png" width="46" height="38" />
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </div>
             </form>
         </div>

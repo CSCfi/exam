@@ -1,3 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+@use '../../shared/definitions.scss' as shared;
+
 .active-enrolment-container {
     // todo: use global container?
     border-radius: 4px;
@@ -15,16 +23,16 @@
 .active-enrolment-heading {
     a {
         font-size: 20px;
-        color: #266b99;
+        color: shared.$exam-blue;
         text-decoration: none;
     }
+}
+
+.exam-title-button {
+    font-size: 24px;
 }
 
 .exam-ready {
     color: #2c7639; //green-new
     font-size: 16px !important; // TODO: remove importance
-}
-
-.hover-grey:hover {
-    background-color: #c0c0c0;
 }

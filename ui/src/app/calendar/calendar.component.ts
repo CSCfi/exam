@@ -1,20 +1,10 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -26,10 +16,9 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
-import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
-import { CalendarService, ExamInfo, Organisation } from './calendar.service';
+import { ExamInfo, Organisation } from './calendar.model';
+import { CalendarService } from './calendar.service';
 import { CalendarExamInfoComponent } from './helpers/exam-info.component';
 import { OptionalSectionsComponent } from './helpers/optional-sections.component';
 import { OrganisationPickerComponent } from './helpers/organisation-picker.component';
@@ -39,10 +28,7 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
     selector: 'xm-calendar',
     templateUrl: './calendar.component.html',
     styleUrls: ['./calendar.component.scss'],
-    standalone: true,
     imports: [
-        HistoryBackComponent,
-        AutoFocusDirective,
         CalendarExamInfoComponent,
         OptionalSectionsComponent,
         OrganisationPickerComponent,
@@ -84,15 +70,13 @@ export class CalendarComponent implements OnInit {
     isCollaborative = false;
     isExternal = false;
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private DateTimeService: DateTimeService,
-        private Dialog: ConfirmationDialogService,
-        private Calendar: CalendarService,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private DateTimeService = inject(DateTimeService);
+    private Dialog = inject(ConfirmationDialogService);
+    private Calendar = inject(CalendarService);
 
     ngOnInit() {
         if (
@@ -165,9 +149,17 @@ export class CalendarComponent implements OnInit {
     }
 
     makeExternalReservation() {
+        const url = 'https://e-exam.fi/exam-tenttivierailu/';
+
+        const baseMessage = this.translate.instant('i18n_confirm_external_reservation');
+        const linkText = this.translate.instant('i18n_external_reservation_link_text');
+        const htmlContent = `${baseMessage}<br><a href="${url}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+
         this.Dialog.open$(
-            this.translate.instant('i18n_confirm'),
-            this.translate.instant('i18n_confirm_external_reservation'),
+            this.translate.instant('i18n_continue_to_external_reservation'),
+            htmlContent,
+            'i18n_continue',
+            'i18n_go_back',
         ).subscribe({
             next: () =>
                 this.router.navigate(['/calendar', this.examId, 'external'], {
@@ -243,13 +235,9 @@ export class CalendarComponent implements OnInit {
             .add(() => (this.confirming = false));
     };
 
-    setOrganisation(org: Organisation) {
-        this.selectedOrganisation = org;
-    }
+    setOrganisation = (org: Organisation) => (this.selectedOrganisation = org);
 
-    printExamDuration(exam: { duration: number }) {
-        return this.DateTimeService.printExamDuration(exam);
-    }
+    printExamDuration = (exam: ExamInfo) => this.DateTimeService.formatDuration(exam.duration);
 
     private asDateTime = (date: string, tz: string): DateTime => DateTime.fromISO(date, { zone: tz });
 

@@ -1,27 +1,16 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { FileService } from 'src/app/shared/file/file.service';
-import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
+import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
+import { Option } from 'src/app/shared/select/select.model';
 
 @Component({
     template: `
@@ -62,29 +51,25 @@ import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-
         </div>
     `,
     selector: 'xm-rooms-report',
-    standalone: true,
-    imports: [DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
+    imports: [DropdownSelectComponent, DatePickerComponent, TranslateModule],
 })
 export class RoomsReportComponent {
     @Input() rooms: Option<ExamRoom, number>[] = [];
-
     room?: number;
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private files: FileService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private files = inject(FileService);
 
     roomSelected = (event?: Option<ExamRoom, number>) => {
         this.room = event?.id;
     };
 
     getRoomReservationsByDate = () => {
-        const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
-        const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
+        const f = DateTime.fromJSDate(this.startDate || new Date()).toFormat('dd.MM.yyyy');
+        const t = DateTime.fromJSDate(this.endDate || new Date()).toFormat('dd.MM.yyyy');
         if (this.room) {
             this.files.download(`/app/statistics/resbydate/${this.room}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
         } else {

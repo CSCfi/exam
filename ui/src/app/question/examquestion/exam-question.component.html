@@ -1,222 +1,38 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="modal-header">
     <span class="xm-modal-title">{{ 'i18n_questions_edit' | translate }}</span>
 </div>
 
 <div class="modal-body">
-    <!-- Question body //-->
     <div class="row">
         <div class="col-md-12">
             <form role="form" class="form-horizontal" #questionForm="ngForm" name="form">
-                <div class="xm-study-item-container--warning mt-3">
-                    <!-- Exam contexts -->
-                    <div class="row">
-                        <div class="col-auto p-1">
-                            <img src="/assets/images/icon_warning.png" />
-                        </div>
-                        <div class="col warning-text">
-                            @if (examNames.length > 1) {
-                                <div class="col warning-text">
-                                    {{ 'i18n_exam_question_edit_instructions' | translate }}
-                                </div>
-                            }
-                            @if (examNames.length === 1) {
-                                <div class="col warning-text">
-                                    {{ 'i18n_exam_question_edit_instructions_for_one' | translate }}
-                                </div>
-                            }
-                            @if (examNames.length < 1) {
-                                <div class="col warning-text">
-                                    {{ 'i18n_exam_question_edit_instructions_for_none' | translate }}
-                                </div>
-                            }
-                            @if (examNames.length > 0) {
-                                <div class="col-12 justify-content-center m-4">
-                                    <ul class="list-inline row">
-                                        <li class="list-inline-item relation-text mb-3 col-12">
-                                            <span class="text-nowrap">
-                                                {{ 'i18n_exam_question_in_use' | translate }}: {{ examNames.length }}
-                                            </span>
-                                        </li>
-
-                                        @for (name of examNames.slice(0, 5); track name) {
-                                            <li class="list-inline-item relation-text col-12">
-                                                <span class="text-nowrap">
-                                                    {{ name }}
-                                                </span>
-                                            </li>
-                                        }
-
-                                        @for (name of examNames.slice(5); track name) {
-                                            <li [hidden]="hideRestExams" class="list-inline-item relation-text col-12">
-                                                <span class="text-nowrap">
-                                                    {{ name }}
-                                                </span>
-                                            </li>
-                                        }
-
-                                        @if (examNames.length > 5 && hideRestExams) {
-                                            <li>
-                                                <i
-                                                    class="bi-three-dots"
-                                                    alt=""
-                                                    [attr.aria-label]="'i18n_more_hidden' | translate"
-                                                ></i>
-                                            </li>
-                                        }
-
-                                        @if (examNames.length > 5) {
-                                            <li>
-                                                <button
-                                                    (click)="hideRestExams = !hideRestExams"
-                                                    class="btn btn-secondary"
-                                                >
-                                                    {{
-                                                        !hideRestExams
-                                                            ? ('i18n_hide' | translate)
-                                                            : ('i18n_open_list_of_exams' | translate)
-                                                    }}
-                                                </button>
-                                            </li>
-                                        }
-                                    </ul>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-2">
-                    <div class="col-md-12 pe-0">
-                        <div class="xm-paragraph-title edit-warning-container">
-                            {{ 'i18n_exam_basic_information_tab' | translate }}
-                            @if (showWarning()) {
-                                <i class="bi-exclamation-circle ps-4 text-danger"></i>
-                                <span class="warning-text-small ps-2">
-                                    {{ 'i18n_shared_question_property_info' | translate }}
-                                </span>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-3">{{ 'i18n_question_id' | translate }}</div>
-                    <div class="col-md-9">#{{ question?.id }}</div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-3">
-                        {{ 'i18n_new_question_type' | translate }}
-                        <sup
-                            ngbPopover="{{ 'i18n_question_type_description' | translate }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        >
-                            <img src="/assets/images/icon_tooltip.svg" alt="" />
-                        </sup>
-                    </div>
-                    <div class="col-md-9">
-                        @if (question?.type === 'EssayQuestion') {
-                            <span>{{ 'i18n_toolbar_essay_question' | translate }}</span>
-                        }
-                        @if (question?.type === 'ClozeTestQuestion') {
-                            <span>{{ 'i18n_toolbar_cloze_test_question' | translate }}</span>
-                        }
-                        @if (question?.type === 'MultipleChoiceQuestion') {
-                            <span>{{ 'i18n_toolbar_multiplechoice_question' | translate }}</span>
-                        }
-                        @if (question?.type === 'WeightedMultipleChoiceQuestion') {
-                            <span>{{ 'i18n_toolbar_weighted_multiplechoice_question' | translate }}</span>
-                        }
-                        @if (question?.type === 'ClaimChoiceQuestion') {
-                            <span>
-                                {{ 'i18n_toolbar_claim_choice_question' | translate }}
-                            </span>
-                        }
-                        @if ('lti') {
-                            <span>
-                                {{ 'i18n_toolbar_lti' | translate }}
-                            </span>
-                        }
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-3">
-                        <h3>asfasf1</h3>
-                        {{ 'i18n_question_text' | translate }}
-                        <sup
-                            ngbPopover="{{ 'i18n_question_text_description' | translate }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        >
-                            <img src="/assets/images/icon_tooltip.svg" />
-                        </sup>
-                    </div>
-                    @if (question?.type) {
-                        <div class="col-md-9" [ngClass]="ck.invalid ? 'ng-invalid' : ''">
-                            <xm-ckeditor
-                                id="editor"
-                                name="editor"
-                                #ck="ngModel"
-                                [enableClozeTest]="question!.type === 'ClozeTestQuestion'"
-                                rows="10"
-                                cols="60"
-                                [(ngModel)]="question!.question"
-                                [required]="true"
-                            >
-                            </xm-ckeditor>
-                        </div>
-                    }
-                </div>
-
-                <!-- TODO: Refactor these to  components -->
-                <!-- Type specific content - essay -->
-                <!-- Evaluation -->
-                @if (question?.type === 'EssayQuestion') {
-                    <div class="row">
-                        <div class="col-md-12 mt-2 pr-0">
-                            <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
-                        </div>
-                    </div>
-                }
+                <xm-question-usage [examNames]="examNames" />
+                <xm-question-basic-info
+                    [question]="question"
+                    [questionTypes]="[]"
+                    [questionId]="question?.id"
+                    (newText)="setText($event)"
+                />
 
                 @if (question?.type === 'EssayQuestion') {
-                    <div class="row mt-3">
-                        <div class="col-md-3">
-                            {{ 'i18n_essay_length_recommendation' | translate }}
-                        </div>
-                        <span class="col-md-4">
-                            <div class="input-group" id="expectedWordCount">
-                                <input
-                                    name="expectedWordCount"
-                                    type="number"
-                                    lang="en"
-                                    class="form-control"
-                                    [(ngModel)]="examQuestion.expectedWordCount"
-                                    [min]="1"
-                                    [max]="1000000"
-                                    #wordCount="ngModel"
-                                />
-                                <span
-                                    class="input-group-text"
-                                    title="{{ 'i18n_average_word_length_finnish' | translate }}"
-                                >
-                                    {{ 'i18n_approximately' | translate }} {{ estimateCharacters() }}
-                                    {{ 'i18n_characters' | translate }}
-                                </span>
-                            </div>
-                            @if (wordCount.invalid) {
-                                <div class="warning-text-small m-1 edit-warning-container">
-                                    <i class="bi-exclamation-circle text-danger me-2"></i>
-                                    {{ 'i18n_essay_length_recommendation_bounds' | translate }}
-                                </div>
-                            }
-                        </span>
-                    </div>
+                    <xm-eq-essay
+                        [evaluationType]="examQuestion.evaluationType"
+                        [expectedWordCount]="examQuestion.expectedWordCount"
+                        [evaluationCriteria]="examQuestion.evaluationCriteria"
+                        [lotteryOn]="lotteryOn"
+                        (evaluationTypeChanged)="updateEvaluationType($event)"
+                        (expectedWordCountChanged)="updateWordCount($event)"
+                        (evaluationCriteriaChanged)="updateEvaluationCriteria($event)"
+                    />
                 }
 
-                <!-- Multiple choises - title -->
+                <!-- Multiple choices - title -->
                 @if (
                     question?.type === 'MultipleChoiceQuestion' ||
                     question?.type === 'WeightedMultipleChoiceQuestion' ||
@@ -237,257 +53,31 @@
                     </div>
                 }
 
-                <!-- Type specific content - multiple choices table titles -->
+                <!-- Type specific content - weighted multiple choice -->
                 @if (question?.type === 'WeightedMultipleChoiceQuestion') {
-                    <div class="row">
-                        <div class="col-6">
-                            <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
-                        </div>
-                        <div class="col question-option-title">
-                            {{ 'i18n_word_points' | translate | uppercase }}
-                        </div>
-                    </div>
+                    <xm-eq-weighted-mc
+                        [question]="examQuestion"
+                        (optionsChanged)="optionsChanged($event)"
+                        (negativeScoreSettingChanged)="negativeScoreSettingChanged($event)"
+                        (shufflingSettingChanged)="shufflingSettingChanged($event)"
+                        [lotteryOn]="lotteryOn"
+                        [isInPublishedExam]="isInPublishedExam"
+                    />
                 }
 
-                <!-- Type specific content - weighted option -->
-                @if (question?.type === 'WeightedMultipleChoiceQuestion') {
-                    <div class="row">
-                        <div class="col-md-12">
-                            @for (option of examQuestion.options; track option.id) {
-                                <div class="row form-horizontal m-0 p-0 mb-3">
-                                    @if (option.option) {
-                                        <div
-                                            class="col-md-6 question-option-empty"
-                                            [ngClass]="
-                                                option.score.valueOf() > 0
-                                                    ? 'question-correct-option'
-                                                    : option.score.valueOf() < 0
-                                                      ? 'question-incorrect-option'
-                                                      : ''
-                                            "
-                                        >
-                                            <textarea
-                                                id="weightedOptionText_{{ option.id }}"
-                                                type="text"
-                                                rows="1"
-                                                name="weightedOptionText_{{ option.id }}"
-                                                class="question-option-input form-control mb-1"
-                                                [(ngModel)]="option.option!.option"
-                                                required
-                                            ></textarea>
-                                        </div>
-                                    }
-                                    <div
-                                        class="col-md-2 question-option-empty-radio"
-                                        [ngClass]="
-                                            option.score.valueOf() > 0
-                                                ? 'question-correct-option-radio'
-                                                : option.score.valueOf() < 0
-                                                  ? 'question-incorrect-option-radio'
-                                                  : ''
-                                        "
-                                    >
-                                        <input
-                                            xmFixedPrecision
-                                            id="optionScore_{{ option.id }}"
-                                            name="maxScore_{{ option.id }}"
-                                            class="question-option-input points"
-                                            type="number"
-                                            lang="en"
-                                            [(ngModel)]="option.score"
-                                            required
-                                            [disabled]="lotteryOn"
-                                        />
-                                    </div>
-                                    <div
-                                        class="col-md-1 question-option-trash pointer"
-                                        [hidden]="lotteryOn"
-                                        (click)="removeOption(option)"
-                                    >
-                                        <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
-                                    </div>
-                                </div>
-                            }
-                            <div class="row">
-                                <div class="col-md-6">&nbsp;</div>
-                                <div class="col-md-2 question-option-title">
-                                    {{ 'i18n_max_score' | translate | uppercase }}:
-                                    {{ calculateWeightedMaxPoints() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                <!-- Type specific content - option -->
-                @for (option of examQuestion.options; track option.id) {
-                    <div class="row" [hidden]="question?.type !== 'MultipleChoiceQuestion'">
-                        <div
-                            class="col-md-6 question-option-empty"
-                            [ngClass]="{ 'question-correct-option': option.option?.correctOption }"
-                        >
-                            @if (option.option) {
-                                <textarea
-                                    id="optionText_{{ option.id }}"
-                                    name="optionText_{{ option.id }}"
-                                    type="text"
-                                    rows="1"
-                                    class="make-inline question-option-input radiobut form-control"
-                                    [(ngModel)]="option.option!.option"
-                                    required
-                                ></textarea>
-                            }
-                        </div>
-                        <div
-                            class="col-md-2 question-option-empty-radio"
-                            [ngClass]="{ 'question-correct-option-radio': option.option?.correctOption }"
-                        >
-                            @if (option.option) {
-                                <input
-                                    name="correctOption_{{ option.id }}"
-                                    type="radio"
-                                    [(ngModel)]="option.option!.correctOption"
-                                    [value]="true"
-                                    (click)="correctAnswerToggled(option)"
-                                    [disabled]="optionDisabled(option)"
-                                    class="make-inline question-option-radio"
-                                />
-                            }
-                        </div>
-                        <div [hidden]="lotteryOn" (click)="removeOption(option)" class="col-md-1 question-option-trash">
-                            <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
-                        </div>
-                    </div>
+                @if (question?.type === 'MultipleChoiceQuestion') {
+                    <xm-eq-unweighted-mc
+                        [question]="examQuestion"
+                        (optionsChanged)="optionsChanged($event)"
+                        (shufflingSettingChanged)="shufflingSettingChanged($event)"
+                        [lotteryOn]="lotteryOn"
+                        [isInPublishedExam]="isInPublishedExam"
+                    />
                 }
 
                 <!-- Type specific content - claim choice option -->
                 @if (question?.type === 'ClaimChoiceQuestion') {
-                    <div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <p>{{ 'i18n_claim_choice_question_instruction' | translate }}</p>
-                                <p>{{ 'i18n_claim_choice_options_description' | translate }}</p>
-                                <ul>
-                                    <li>{{ 'i18n_claim_choice_correct_points_description' | translate }}</li>
-                                    <li>{{ 'i18n_claim_choice_incorrect_points_description' | translate }}</li>
-                                    <li>{{ 'i18n_claim_choice_skip_option_description' | translate }}</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 m-1 claim-choice-option-labels">
-                                <div class="claim-choice-option-label">
-                                    <span class="question-option-title">{{
-                                        'i18n_question_options' | translate | uppercase
-                                    }}</span>
-                                </div>
-                                <div class="claim-choice-option-label points">
-                                    <span class="question-option-title">
-                                        {{ 'i18n_word_points' | translate | uppercase }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 m-1">
-                                @for (opt of examQuestion.options; track opt.id) {
-                                    <div
-                                        class="question-editor-claim-choice-option row"
-                                        [ngClass]="returnOptionClass(opt)"
-                                    >
-                                        @if (opt.option) {
-                                            <div class="claim-choice-option-inputs col-md-9">
-                                                <textarea
-                                                    [(ngModel)]="opt.option!.option"
-                                                    name="claimChoiceOption_{{ opt.id }}"
-                                                    type="text"
-                                                    rows="1"
-                                                    class="make-inline form-control"
-                                                    required
-                                                    [disabled]="
-                                                        lotteryOn || opt.option?.claimChoiceType === 'SkipOption'
-                                                    "
-                                                ></textarea>
-                                            </div>
-                                        }
-                                        <div class="col-md-2">
-                                            <input
-                                                name="claimChoiceOptionScore_{{ opt.id }}"
-                                                class="question-option-input points"
-                                                type="number"
-                                                lang="en"
-                                                xmFixedPrecision
-                                                [(ngModel)]="opt.score"
-                                                required
-                                                [disabled]="lotteryOn || opt.option!.claimChoiceType === 'SkipOption'"
-                                                (change)="validate()"
-                                            />
-                                        </div>
-                                        <div class="claim-choice-option-description">
-                                            {{ returnOptionDescriptionTranslation(opt) }}
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 claim-choice-warning-wrapper">
-                                @if (missingOptions.length > 0) {
-                                    <div class="claim-choice-warning">
-                                        <i class="bi-exclamation-triangle" style="color: #e8172f"></i>
-                                        <span style="color: #e8172f">
-                                            {{ 'i18n_claim_choice_missing_options_warning' | translate }}
-                                            @for (opt of missingOptions; track $index; let l = $last) {
-                                                <span> {{ opt | translate }}{{ l ? '' : ',' }} </span>
-                                            }
-                                        </span>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                @if (
-                    question?.type === 'MultipleChoiceQuestion' || question?.type === 'WeightedMultipleChoiceQuestion'
-                ) {
-                    <div class="row mt-2">
-                        <div class="col-md-12">
-                            <a (click)="addNewOption()" class="attachment-link pointer">
-                                <i class="bi-plus"></i>
-                                {{ 'i18n_question_add_new_option' | translate }}
-                            </a>
-                        </div>
-                    </div>
-                }
-
-                <!-- Evaluation type - essay -->
-                @if (question?.type === 'EssayQuestion') {
-                    <div class="row mt-2">
-                        <div class="col-md-3">
-                            {{ 'i18n_evaluation_type' | translate }}
-                        </div>
-                        <div class="col-md-2">
-                            <select
-                                id="evaluationType"
-                                class="form-select w-75"
-                                name="evaluationType"
-                                [(ngModel)]="examQuestion.evaluationType"
-                                (change)="updateEvaluationType()"
-                                required="question.type == 'EssayQuestion'"
-                            >
-                                <option value="Points">{{ 'i18n_word_points' | translate }}</option>
-                                <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
-                            </select>
-                        </div>
-                    </div>
-                }
-
-                <!-- LTI -->
-                @if (question?.type === 'LtiQuestion') {
-                    <div class="row mt-2">
-                        <div class="col-md-3">LTI TODO</div>
-                    </div>
+                    <xm-eq-claim-choice [(options)]="examQuestion.options" [lotteryOn]="lotteryOn" />
                 }
 
                 <!-- Max score -->
@@ -505,6 +95,7 @@
                                 id="maxScore"
                                 name="maxScore"
                                 type="number"
+                                step="any"
                                 lang="en"
                                 class="form-control xm-numeric-input"
                                 [(ngModel)]="examQuestion.maxScore"
@@ -625,33 +216,6 @@
                     </div>
                 </div>
 
-                <!-- Evaluation criteria -->
-                @if (question?.type === 'EssayQuestion') {
-                    <div class="row mt-2">
-                        <div class="col-md-3">
-                            {{ 'i18n_exam_evaluation_criteria' | translate }}
-                            <sup
-                                ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                            >
-                                <img src="/assets/images/icon_tooltip.svg" alt="" />
-                            </sup>
-                        </div>
-                        <div class="col-md-9">
-                            <textarea
-                                id="evaluationCriteria"
-                                name="evaluationCriteria"
-                                class="form-control"
-                                rows="3"
-                                [(ngModel)]="examQuestion.evaluationCriteria"
-                                placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
-                            >
-                            </textarea>
-                        </div>
-                    </div>
-                }
-
                 <!-- Tags -->
                 <div class="row mt-2">
                     <div class="col-md-3">
@@ -694,7 +258,7 @@
 </div>
 <div class="d-flex flex-row-reverse flex-align-r m-3">
     <button
-        [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
+        [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions() || !question?.question"
         (click)="save()"
         type="submit"
         class="btn btn-success"

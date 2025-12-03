@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -21,11 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
-import models.Attachment;
-import models.Tag;
-import models.User;
+import models.attachment.Attachment;
 import models.base.GeneratedIdentityModel;
 import models.questions.Question;
+import models.questions.Tag;
+import models.user.User;
 import net.jodah.concurrentunit.Waiter;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
@@ -73,17 +77,16 @@ public class DataTransferControllerTest extends IntegrationTestCase {
     public static void startServer() throws Exception {
         String baseUrl1 = String.format("/api/organisations/%s/export", ORG_REF);
         String baseUrl2 = String.format("/api/organisations/%s/export/%d/attachment", ORG_REF, 1000);
-        server =
-            RemoteServerHelper.createAndStartServer(
-                31247,
-                Map.of(
-                    DataTransferServlet.class,
-                    List.of(baseUrl1),
-                    DataTransferAttachmentServlet.class,
-                    List.of(baseUrl2)
-                ),
-                true
-            );
+        server = RemoteServerHelper.createAndStartServer(
+            31247,
+            Map.of(
+                DataTransferServlet.class,
+                List.of(baseUrl1),
+                DataTransferAttachmentServlet.class,
+                List.of(baseUrl2)
+            ),
+            true
+        );
     }
 
     @AfterClass
@@ -95,16 +98,16 @@ public class DataTransferControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testExportQuestion() {
         User user = getLoggerUser();
-        List<Question> questions = DB
-            .find(Question.class)
+        List<Question> questions = DB.find(Question.class)
             .where()
             .or()
             .eq("questionOwners", user)
             .eq("creator", user)
             .endOr()
             .findList();
-        ArrayNode an = new ObjectMapper()
-            .valueToTree(questions.stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
+        ArrayNode an = new ObjectMapper().valueToTree(
+            questions.stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet())
+        );
         questions.forEach(q -> an.add(q.getId()));
         ObjectNode body = Json.newObject().put("type", "QUESTION").put("orgRef", ORG_REF).set("ids", an);
         Result result = request(Helpers.POST, "/app/iop/export", body);
@@ -115,8 +118,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testExportQuestionWithAttachment() throws InterruptedException, TimeoutException {
         User user = getLoggerUser();
-        Question question = DB
-            .find(Question.class)
+        Question question = DB.find(Question.class)
             .where()
             .or()
             .eq("questionOwners", user)
@@ -127,8 +129,9 @@ public class DataTransferControllerTest extends IntegrationTestCase {
         final Attachment attachment = createAttachment("test_image.png", testImage.getAbsolutePath(), "image/png");
         question.setAttachment(attachment);
         question.save();
-        ArrayNode an = new ObjectMapper()
-            .valueToTree(List.of(question).stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
+        ArrayNode an = new ObjectMapper().valueToTree(
+            List.of(question).stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet())
+        );
         an.add(question.getId());
         ObjectNode body = Json.newObject().put("type", "QUESTION").put("orgRef", ORG_REF).set("ids", an);
         Result result = request(Helpers.POST, "/app/iop/export", body);

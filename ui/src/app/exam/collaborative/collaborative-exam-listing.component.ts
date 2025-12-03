@@ -1,20 +1,10 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,7 +13,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import type { CollaborativeExam } from 'src/app/exam/exam.model';
 import { CollaborativeExamState } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
@@ -47,7 +37,6 @@ interface ListedCollaborativeExam extends CollaborativeExam {
 @Component({
     selector: 'xm-collaborative-exam-listing',
     templateUrl: './collaborative-exam-listing.component.html',
-    standalone: true,
     imports: [
         NgbNav,
         NgbNavItem,
@@ -76,13 +65,15 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     examCreated = new Subject<void>();
     ngUnsubscribe = new Subject();
 
-    constructor(
-        private router: Router,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Session: SessionService,
-        private CollaborativeExam: CollaborativeExamService,
-    ) {
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Session = inject(SessionService);
+    private CollaborativeExam = inject(CollaborativeExamService);
+
+    constructor() {
+        const toast = this.toast;
+
         this.view = ListingView.PUBLISHED;
         this.user = this.Session.getUser();
         this.examsPredicate = 'periodEnd';
@@ -102,7 +93,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
             .subscribe();
         this.examCreated.pipe(exhaustMap(() => this.CollaborativeExam.createExam$())).subscribe({
             next: (exam: CollaborativeExam) => {
-                toast.info(this.translate.instant('i18n_exam_created'));
+                toast.info(this.translate.instant('i18n_exam_added'));
                 this.router.navigate(['/staff/exams', exam.id, '1'], { queryParams: { collaborative: true } });
             },
             error: (err) => this.toast.error(err),

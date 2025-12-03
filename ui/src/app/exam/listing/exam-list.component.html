@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <xm-page-header text="i18n_exams" [appendTemplate]="button" />
 <xm-page-content [content]="content" />
 <ng-template #button>
@@ -9,7 +15,7 @@
     <!-- TAB NAVIGATION -->
     <div class="row">
         <div class="col-md-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs" [keyboard]="false">
                 <li role="presentation" [ngbNavItem]="0">
                     <a ngbNavLink>
                         {{ 'i18n_published_exams' | translate }}
@@ -54,10 +60,7 @@
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 />
-
-                <div class="input-group-append search">
-                    <img src="/assets/images/icon_search.png" alt="search-icon" width="45" height="38" />
-                </div>
+                <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
     </div>

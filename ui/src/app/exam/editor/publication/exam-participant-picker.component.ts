@@ -1,22 +1,11 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -24,14 +13,15 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
-import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
-import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.model';
 
 @Component({
     selector: 'xm-exam-participant-selector',
-    template: `<div class="row">
+    template: `
+        <div class="row">
             <div class="col-md-9 offset-md-3">
                 <input
                     type="text"
@@ -50,47 +40,69 @@ import type { User } from 'src/app/session/session.service';
         </div>
 
         <div class="row mt-1">
-            <span class="col-md-9 offset-md-3">
-                <!-- Students not having finished the exam -->
-                @for (enrolment of exam.examEnrolments; track enrolment) {
-                    <button
-                        class="badge ms-1"
-                        [ngClass]="exam.state === 'PUBLISHED' ? 'bg-secondary' : 'bg-light text-dark'"
-                        [disabled]="exam.state === 'PUBLISHED'"
-                        (click)="removeParticipant(enrolment.id)"
-                        title="{{ 'i18n_remove' | translate }}"
-                    >
-                        {{ renderParticipantLabel(enrolment) }}
-                        @if (enrolment.user?.userIdentifier) {
-                            ({{ enrolment.user.userIdentifier }})
-                        }
-                    </button>
+            <span class="col-md-9 offset-md-3 w-auto text-break mt-2">
+                {{ 'i18n_maturity_exam_participants_info' | translate }}
+                @if (exam.state === 'PUBLISHED') {
+                    {{ 'i18n_exam_published' | translate }}
+                } @else {
+                    {{ 'i18n_exam_not_published' | translate }}
                 }
-                <!-- Students that have finished the exam -->
-                @for (participant of participants; track participant) {
-                    <button class="badge bg-light text-dark ms-1" [disabled]="true">
-                        {{ participant.firstName }} {{ participant.lastName }}
+            </span>
+        </div>
+        @if (exam.examEnrolments.length > 0) {
+            <div class="row mt-3">
+                <div class="col-md-12">{{ 'i18n_exam_participants' | translate }}:</div>
+            </div>
+            <!-- Students not having finished the exam, sorted alphabetically -->
+            @for (enrolment of exam.examEnrolments; track enrolment) {
+                <div class="row" [ngClass]="{ 'hover-grey': exam.state !== 'PUBLISHED' }">
+                    <div class="col-md-12">
+                        &hyphen; {{ renderParticipantLabel(enrolment) }} <small><{{ enrolment.user?.email }}></small>
+                        @if (enrolment.user?.userIdentifier) {
+                            <small> ({{ enrolment.user.userIdentifier }})</small>
+                        }
+                        <button
+                            class="btn btn-danger btn-sm ms-1 w-auto m-1"
+                            (click)="removeParticipant(enrolment.id)"
+                            [hidden]="exam.state === 'PUBLISHED'"
+                            [attr.aria-label]="renderParticipantLabel(enrolment)"
+                        >
+                            {{ 'i18n_remove' | translate }}
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+        @if (participants.length > 0) {
+            <div class="row mt-3">
+                <div class="col-md-12">{{ 'i18n_finished_exam_participants' | translate }}:</div>
+            </div>
+            <!-- Students that have finished the exam -->
+            @for (participant of participants; track participant) {
+                <div class="row">
+                    <div class="col-md-12">
+                        &hyphen; {{ participant.firstName }} {{ participant.lastName }}
+                        <small><{{ participant.email }}></small>
                         @if (participant.userIdentifier) {
                             ({{ participant.userIdentifier }})
                         }
-                    </button>
-                }
-            </span>
-        </div>`,
-    standalone: true,
+                    </div>
+                </div>
+            }
+        }
+    `,
     imports: [FormsModule, NgClass, NgbTypeahead, TranslateModule],
+    styleUrls: ['../../exam.shared.scss'],
 })
 export class ExamParticipantSelectorComponent implements OnInit {
     @Input() exam!: Exam;
     newParticipant: { id?: number; name?: string } = {};
     participants: User[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Enrolment = inject(EnrolmentService);
 
     ngOnInit() {
         this.participants = this.exam.children
@@ -109,8 +121,9 @@ export class ExamParticipantSelectorComponent implements OnInit {
         );
 
     idFormat = (u: User) => u.id;
-    nameFormat = (u: User & { name: string }) => {
-        return u.name;
+    nameFormat = (u: User) => {
+        const uid = u.userIdentifier ? ` (${u.userIdentifier})` : '';
+        return `${u.firstName} ${u.lastName} <${u.email}>${uid}`;
     };
 
     setExamParticipant = (event: NgbTypeaheadSelectItemEvent) => {

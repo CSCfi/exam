@@ -3,8 +3,17 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "outDir": "./out-tsc/spec",
-        "types": ["jasmine"]
+        "types": ["vitest/globals"],
+        /**
+         * skipLibCheck is required here because Vite (used by Vitest) has internal type aliases
+         * (e.g., #types/hmrPayload) that TypeScript cannot resolve. These are resolved at build
+         * time by Vite itself, but TypeScript's type checker doesn't understand them.
+         * 
+         * This only affects test files - production builds use tsconfig.app.json which doesn't
+         * have skipLibCheck, so production code type checking remains strict.
+         */
+        "skipLibCheck": true
     },
     "files": ["src/test.ts", "src/polyfills.ts"],
-    "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
+    "include": ["src/**/*.spec.ts", "src/**/*.d.ts", "src/test-env.d.ts"]
 }

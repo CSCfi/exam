@@ -1,29 +1,20 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-import { DatePipe, SlicePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { DatePipe, NgClass, SlicePipe } from '@angular/common';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
+import { NgbCollapse, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
 import type { Exam } from 'src/app/exam/exam.model';
-import type { ReviewListView } from 'src/app/review/listing/review-list.service';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
-import type { Review } from 'src/app/review/review.model';
+import type { Review, ReviewListView } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { FileService } from 'src/app/shared/file/file.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
@@ -33,9 +24,10 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 @Component({
     selector: 'xm-rl-archived',
     templateUrl: './archived.component.html',
-    standalone: true,
     imports: [
         FormsModule,
+        NgClass,
+        NgbDropdownModule,
         TableSortComponent,
         RouterLink,
         PaginatorComponent,
@@ -47,18 +39,21 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
         OrderByPipe,
         NgbCollapse,
     ],
+    styleUrl: '../review-list.component.scss',
 })
 export class ArchivedReviewsComponent implements OnInit {
     @Input() reviews: Review[] = [];
     @Input() exam!: Exam;
+    @Input() collaborative = false;
 
     view!: ReviewListView;
+    selections: { all: boolean; page: boolean } = { all: false, page: false };
 
-    constructor(
-        private ReviewList: ReviewListService,
-        private CommonExam: CommonExamService,
-        private Session: SessionService,
-    ) {}
+    private ReviewList = inject(ReviewListService);
+    private CommonExam = inject(CommonExamService);
+    private Files = inject(FileService);
+    private Session = inject(SessionService);
+    private Translate = inject(TranslateService);
 
     ngOnInit() {
         this.view = {
@@ -88,8 +83,27 @@ export class ArchivedReviewsComponent implements OnInit {
         this.view.predicate = predicate;
     };
 
-    private translateGrade = (exam: Exam) => {
-        const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.CommonExam.getExamGradeDisplayName(grade);
+    selectAll = () => this.ReviewList.selectAll(this.selections, this.view.filtered);
+
+    selectPage = (selector: string) => this.ReviewList.selectPage(this.selections, this.view.filtered, selector);
+
+    printSelected = () => {
+        const selection = this.ReviewList.getSelectedReviews(this.view.filtered);
+        if (selection.length == 0) {
+            return;
+        }
+        const url = this.collaborative ? '/app/iop/reviews/report/' : '/app/exam/record/export/report/';
+        const ids = selection.map((r) =>
+            this.collaborative ? (r.examParticipation._id as string) : r.examParticipation.exam.id,
+        );
+
+        this.Files.download(
+            url + this.exam.id,
+            `${this.Translate.instant('i18n_grading_info')}_${DateTime.now().toFormat('dd-MM-yyyy')}.xlsx`,
+            { childIds: ids.map((i) => i.toString()) },
+            true,
+        );
     };
+
+    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
 }

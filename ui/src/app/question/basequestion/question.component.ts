@@ -1,32 +1,21 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamSectionQuestion, Question, ReverseQuestion } from 'src/app/exam/exam.model';
 import { CanComponentDeactivate } from 'src/app/question/has-unsaved-changes.quard';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
-import type { QuestionDraft } from 'src/app/question/question.service';
+import type { QuestionDraft } from 'src/app/question/question.model';
+import { ExamSectionQuestion, Question, ReverseQuestion } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { QuestionBodyComponent } from './question-body.component';
 
@@ -34,7 +23,6 @@ import { QuestionBodyComponent } from './question-body.component';
     selector: 'xm-question',
     templateUrl: './question.component.html',
     styleUrls: ['../question.shared.scss'],
-    standalone: true,
     imports: [
         FormsModule,
         QuestionBodyComponent,
@@ -64,13 +52,11 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
     cancelClicked = false;
     nextState = '';
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private toast: ToastrService,
-        private Question: QuestionService,
-        private modal: NgbModal,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private toast = inject(ToastrService);
+    private Question = inject(QuestionService);
+    private modal = inject(ModalService);
 
     ngOnInit() {
         this.nextState =
@@ -114,14 +100,11 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
         this.question.type === 'ClaimChoiceQuestion' &&
         this.Question.getInvalidClaimOptionTypes(this.question.options).length > 0;
 
-    openPreview = () => {
-        const modal = this.modal.open(QuestionPreviewDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+    openPreview$ = () => {
+        const modal = this.modal.openRef(QuestionPreviewDialogComponent, { size: 'lg' });
         modal.componentInstance.question = this.sectionQuestion || this.question;
         modal.componentInstance.isExamQuestion = this.sectionQuestion;
+        return this.modal.result$<void>(modal);
     };
 
     saveQuestion = () => {
@@ -137,12 +120,15 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
         if (this.collaborative) {
             fn(this.question);
         } else if (this.newQuestion) {
-            this.Question.createQuestion(this.question as QuestionDraft).then(fn, (error) => this.toast.error(error));
+            this.Question.createQuestion$(this.question as QuestionDraft).subscribe({
+                next: fn,
+                error: (error) => this.toast.error(error),
+            });
         } else {
-            this.Question.updateQuestion(this.question as Question).then(
-                () => fn(this.question),
-                (error) => this.toast.error(error),
-            );
+            this.Question.updateQuestion$(this.question as Question).subscribe({
+                next: () => fn(this.question),
+                error: (error) => this.toast.error(error),
+            });
         }
     };
 
@@ -155,5 +141,7 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
         }
     };
 
-    private onUnload = (event: BeforeUnloadEvent) => event.preventDefault();
+    private onUnload = (event: BeforeUnloadEvent) => {
+        if (this.questionForm?.dirty) event.preventDefault();
+    };
 }

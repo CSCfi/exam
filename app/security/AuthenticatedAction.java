@@ -1,18 +1,6 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package security;
 
@@ -21,8 +9,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Role;
-import models.User;
+import models.user.Role;
+import models.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
@@ -31,7 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import repository.UserRepository;
-import sanitizers.Attrs;
+import validation.core.Attrs;
 
 public class AuthenticatedAction extends Action<Authenticated> {
 
@@ -68,17 +56,16 @@ public class AuthenticatedAction extends Action<Authenticated> {
 
     @Override
     public CompletionStage<Result> call(Http.Request request) {
-        return getLoggedInUser(request)
-            .thenComposeAsync(
-                ou -> {
-                    if (ou.isPresent()) {
-                        User user = ou.get();
-                        return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
-                    }
-                    logger.info("Blocked unauthorized access to {}", request.path());
-                    return CompletableFuture.completedFuture(Results.unauthorized());
-                },
-                ec.current()
-            );
+        return getLoggedInUser(request).thenComposeAsync(
+            ou -> {
+                if (ou.isPresent()) {
+                    User user = ou.get();
+                    return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
+                }
+                logger.info("Blocked unauthorized access to {}", request.path());
+                return CompletableFuture.completedFuture(Results.unauthorized());
+            },
+            ec.current()
+        );
     }
 }

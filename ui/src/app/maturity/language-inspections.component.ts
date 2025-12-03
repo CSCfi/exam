@@ -1,39 +1,18 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { addDays } from 'date-fns';
+import { DateTime } from 'luxon';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { LanguageService } from 'src/app/shared/language/language.service';
-import type { QueryParams } from './language-inspections.service';
 import { LanguageInspectionService } from './language-inspections.service';
 import { ReviewedInspectionsComponent } from './listing/reviewed-inspections.component';
 import { UnfinishedInspectionsComponent } from './listing/unfinished-inspections.component';
-import type { LanguageInspection } from './maturity.model';
-
-export interface LanguageInspectionData extends LanguageInspection {
-    ownerAggregate: string;
-    studentName: string;
-    studentNameAggregate: string;
-    inspectorName: string;
-    inspectorNameAggregate: string;
-    answerLanguage?: string;
-}
+import type { LanguageInspection, LanguageInspectionData, QueryParams } from './maturity.model';
 
 @Component({
     selector: 'xm-language-inspections',
@@ -59,7 +38,6 @@ export interface LanguageInspectionData extends LanguageInspection {
             </div>
         </ng-template>
     `,
-    standalone: true,
     imports: [
         UnfinishedInspectionsComponent,
         ReviewedInspectionsComponent,
@@ -71,13 +49,12 @@ export interface LanguageInspectionData extends LanguageInspection {
 export class LanguageInspectionsComponent implements OnInit {
     ongoingInspections: LanguageInspectionData[] = [];
     processedInspections: LanguageInspectionData[] = [];
+
+    private Language = inject(LanguageService);
+    private LanguageInspection = inject(LanguageInspectionService);
+
     private startDate: Date | null = null;
     private endDate: Date | null = null;
-
-    constructor(
-        private Language: LanguageService,
-        private LanguageInspection: LanguageInspectionService,
-    ) {}
 
     ngOnInit() {
         this.query();
@@ -100,7 +77,7 @@ export class LanguageInspectionsComponent implements OnInit {
             params.start = this.startDate.getTime() + tzOffset;
         }
         if (this.endDate) {
-            params.end = addDays(this.endDate, 1).getTime();
+            params.end = DateTime.fromJSDate(this.endDate).plus({ days: 1 }).toMillis();
         }
         const refreshAll = Object.keys(params).length === 0;
         this.LanguageInspection.query(params).subscribe((resp: LanguageInspection[]) => {

@@ -1,4 +1,10 @@
-@import '../definitions.scss';
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+@use '../definitions.scss' as shared;
 .paginator {
     list-style: none;
     margin: 15px;
@@ -23,14 +29,14 @@
         }
         a:hover {
             color: white;
-            background: $exam-medium-green;
+            background: shared.$exam-medium-green;
             border-radius: 50%;
         }
         &.active {
             a,
             a:focus {
                 color: white;
-                background: $exam-medium-green;
+                background: shared.$exam-medium-green;
                 border-radius: 50%;
             }
         }

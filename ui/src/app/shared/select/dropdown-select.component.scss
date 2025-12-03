@@ -1,7 +1,21 @@
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
 .dropdown-select-full-width {
     display: flex !important;
     width: 100%;
     justify-content: space-between;
     align-items: center;
     overflow: hidden;
+}
+
+::ng-deep .xm-scrollable-menu button[ngbDropdownItem] span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 }

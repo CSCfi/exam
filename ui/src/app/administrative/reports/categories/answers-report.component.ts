@@ -1,21 +1,10 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-import { Component } from '@angular/core';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { FileService } from 'src/app/shared/file/file.service';
 
@@ -48,18 +37,17 @@ import { FileService } from 'src/app/shared/file/file.service';
         </div>
     `,
     selector: 'xm-answers-report',
-    standalone: true,
-    imports: [DatePickerComponent, NgbPopover, TranslateModule],
+    imports: [DatePickerComponent, TranslateModule],
 })
 export class AnswersReportComponent {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(private files: FileService) {}
+    private files = inject(FileService);
 
     getExamAnswerReport = () => {
-        const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
-        const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
+        const f = DateTime.fromJSDate(this.startDate || new Date()).toFormat('dd.MM.yyyy');
+        const t = DateTime.fromJSDate(this.endDate || new Date()).toFormat('dd.MM.yyyy');
         this.files.download(`/app/statistics/allexams/${f}/${t}`, `exam_answers_${f}_${t}.xlsx`);
     };
 

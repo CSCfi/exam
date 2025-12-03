@@ -1,19 +1,9 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { LowerCasePipe, NgClass } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
     NgbNav,
@@ -25,17 +15,16 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, forkJoin, Observable, of, tap } from 'rxjs';
+import { Observable, catchError, forkJoin, of, tap } from 'rxjs';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { QuestionFlowComponent } from 'src/app/review/questions/flow/question-flow.component';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { QuestionReview, ReviewQuestion } from 'src/app/review/review.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { EssayAnswerListComponent } from './essay-answers.component';
@@ -44,9 +33,7 @@ import { EssayAnswerListComponent } from './essay-answers.component';
     selector: 'xm-question-assessment',
     templateUrl: './question-assessment.component.html',
     styleUrls: ['./question-assessment.component.scss'],
-    standalone: true,
     imports: [
-        HistoryBackComponent,
         NgClass,
         MathJaxDirective,
         NgbNav,
@@ -71,16 +58,17 @@ export class QuestionAssessmentComponent implements OnInit {
     assessedAnswers: ReviewQuestion[] = [];
     unassessedAnswers: ReviewQuestion[] = [];
     lockedAnswers: ReviewQuestion[] = [];
+    allAnswersExpanded = true;
 
-    constructor(
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private QuestionReview: QuestionReviewService,
-        private Assessment: AssessmentService,
-        private Session: SessionService,
-        private Attachment: AttachmentService,
-    ) {
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private QuestionReview = inject(QuestionReviewService);
+    private Assessment = inject(AssessmentService);
+    private Session = inject(SessionService);
+    private Attachment = inject(AttachmentService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 
@@ -118,6 +106,14 @@ export class QuestionAssessmentComponent implements OnInit {
         forkJoin(answers.map(this.saveEvaluation$)).subscribe(() => (this.reviews = [...this.reviews]));
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
+
+    toggleAllAnswers = () => {
+        const allAnswers = [...this.assessedAnswers, ...this.unassessedAnswers, ...this.lockedAnswers];
+        this.allAnswersExpanded = !this.allAnswersExpanded;
+        allAnswers.forEach((answer) => {
+            answer.expanded = this.allAnswersExpanded;
+        });
+    };
 
     setSelectedReview = (review: QuestionReview) => {
         this.selectedReview = { ...review, expanded: true };

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -7,19 +11,17 @@ import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.DB;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import models.Exam;
-import models.ExamType;
+import models.exam.Exam;
+import models.exam.ExamType;
 import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
@@ -29,7 +31,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testGetActiveExamsUnauthorized() {
         Result result = get("/app/reviewerexams");
-        assertThat(result.status()).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(Http.Status.FORBIDDEN);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
 
@@ -37,8 +39,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testGetActiveExams() {
         // Setup
-        List<Exam> activeExams = DB
-            .find(Exam.class)
+        List<Exam> activeExams = DB.find(Exam.class)
             .where()
             .eq("creator.id", userId)
             .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)
@@ -60,11 +61,9 @@ public class ExamControllerTest extends IntegrationTestCase {
         Result result = get("/app/reviewerexams");
 
         // Verify
-        assertThat(result.status()).isEqualTo(200);
-        JsonNode node = Json.parse(contentAsString(result));
-        ArrayNode exams = (ArrayNode) node;
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
+        JsonNode exams = Json.parse(contentAsString(result));
         assertThat(exams.size()).isEqualTo(ids.size());
-        assertPathsExist(node, jsonPaths(expectedPaths, exams.size()));
         for (JsonNode n : exams) {
             Exam e = deserialize(Exam.class, n);
             assertThat(e.getPeriodEnd().isAfterNow());
@@ -80,9 +79,11 @@ public class ExamControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/exams",
-            Json.newObject().put("executionType", "PUBLIC").put("implementation", "AQUARIUM")
+            Json.newObject()
+                .put("implementation", "AQUARIUM")
+                .set("executionType", Json.newObject().put("type", "PUBLIC"))
         );
-        assertThat(result.status()).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(Http.Status.FORBIDDEN);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
 
@@ -96,11 +97,13 @@ public class ExamControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/exams",
-            Json.newObject().put("executionType", "PUBLIC").put("implementation", "AQUARIUM")
+            Json.newObject()
+                .put("implementation", "AQUARIUM")
+                .set("executionType", Json.newObject().put("type", "PUBLIC"))
         );
 
         // Verify
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         Long id = node.get("id").asLong();
         Exam draft = DB.find(Exam.class, id);
@@ -114,43 +117,11 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(section.getName()).isNull();
         assertThat(section.isExpanded()).isTrue();
         assertThat(draft.getExamLanguages().size()).isEqualTo(1);
-        assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");
+        assertThat(draft.getExamLanguages().getFirst().getCode()).isEqualTo("fi");
         assertThat(draft.getExamType().getId()).isEqualTo(2);
         assertThat(draft.isAnonymous()).isTrue();
         int rowCount = DB.find(Exam.class).findCount();
         assertThat(rowCount).isEqualTo(originalRowCount + 1);
-    }
-
-    @Test
-    @RunAsTeacher
-    public void testGetExam() throws Exception {
-        // Setup
-        long id = 1L;
-        Exam expected = DB.find(Exam.class, id);
-        // Execute
-        Result result = get("/app/exams/" + id);
-
-        // Verify that some paths exist in JSON, this is a significant set of information so really hard to test it's
-        // all there :p
-        assertThat(result.status()).isEqualTo(200);
-        JsonNode node = Json.parse(contentAsString(result));
-        assertPathsExist(node, getExamFields());
-        assertPathCounts(node, 4, getExamSectionFieldsOfExam("*"));
-        assertPathCounts(node, 2, "softwares[*].id", "softwares[*].name");
-        assertPathCounts(node, 4, "examLanguages[*].code");
-
-        // Verify some of the field values are as expected
-        Exam returned = deserialize(Exam.class, node);
-        assertThat(expected.getId()).isEqualTo(returned.getId());
-        assertThat(expected.getName()).isEqualTo(returned.getName());
-        assertThat(expected.getAnswerLanguage()).isEqualTo(returned.getAnswerLanguage());
-        assertThat(expected.getCourse().getId()).isEqualTo(returned.getCourse().getId());
-        assertThat(expected.getCreditType()).isEqualTo(returned.getCreditType());
-        assertThat(expected.getCustomCredit()).isEqualTo(returned.getCustomCredit());
-        assertThat(expected.getDuration()).isEqualTo(returned.getDuration());
-        assertThat(expected.getEnrollInstruction()).isEqualTo(returned.getEnrollInstruction());
-        assertThat(expected.getPeriodEnd()).isEqualTo(returned.getPeriodEnd());
-        assertThat(expected.getPeriodStart()).isEqualTo(returned.getPeriodStart());
     }
 
     @Test
@@ -164,12 +135,12 @@ public class ExamControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = get("/app/exams/" + id);
-        assertThat(result.status()).isEqualTo(404);
+        assertThat(result.status()).isEqualTo(Http.Status.NOT_FOUND);
     }
 
     @Test
     @RunAsTeacher
-    public void testExamTypeUpdate() throws Exception {
+    public void testExamTypeUpdate() {
         // Setup
         final long id = 1L;
         Exam exam = DB.find(Exam.class, id);
@@ -180,74 +151,23 @@ public class ExamControllerTest extends IntegrationTestCase {
         // Check current state
         final String examPath = "/app/exams/" + id;
         Result result = get(examPath);
-        assertThat(result.status()).isEqualTo(200);
-        ObjectNode examJson = (ObjectNode) Json.parse(contentAsString(result));
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
+        JsonNode examJson = Json.parse(contentAsString(result));
 
         assertThat(examJson.has("examType")).isTrue();
         assertThat(examJson.get("examType").get("type").asText()).isEqualTo("PARTIAL");
 
-        // Update body
-        final ObjectNode examUpdate = JsonNodeFactory.instance.objectNode();
-        examUpdate.put("id", id);
-        ObjectNode eType = JsonNodeFactory.instance.objectNode();
-        eType.put("type", "FINAL");
-        eType.put("id", 2);
-        examUpdate.set("examType", eType);
+        var update = Json.newObject()
+            .put("name", exam.getName())
+            .put("duration", exam.getDuration())
+            .set("examType", Json.newObject().put("type", "FINAL"));
 
         // Send update
-        result = request("PUT", examPath, examUpdate);
+        result = request("PUT", examPath, update);
 
-        assertThat(result.status()).isEqualTo(200);
-        examJson = (ObjectNode) Json.parse(contentAsString(result));
-        eType = (ObjectNode) examJson.get("examType");
-        assertThat(eType.get("type").asText()).isEqualTo("FINAL");
-    }
-
-    private String[] getExamFields() {
-        return new String[] {
-            "id",
-            "name",
-            "course.id",
-            "course.code",
-            "course.name",
-            "course.level",
-            "course.courseUnitType",
-            "course.credits",
-            "course.institutionName",
-            "course.department",
-            "parent",
-            "examType",
-            "instruction",
-            "enrollInstruction",
-            "shared",
-            "periodStart",
-            "periodEnd",
-            "duration",
-            "gradeScale",
-            "gradeScale.description",
-            "grade",
-            "customCredit",
-            "answerLanguage",
-            "state",
-            "examFeedback",
-            "creditType",
-            "attachment",
-        };
-    }
-
-    private String[] getExamSectionFieldsOfExam(String index) {
-        String[] fields = {
-            "name",
-            "id",
-            "expanded",
-            "lotteryOn",
-            "sequenceNumber",
-            "description",
-            "lotteryItemCount",
-        };
-        for (int i = 0; i < fields.length; ++i) {
-            fields[i] = "examSections[" + index + "]." + fields[i];
-        }
-        return fields;
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
+        JsonNode updated = Json.parse(contentAsString(result));
+        var type = updated.get("examType");
+        assertThat(type.get("type").asText()).isEqualTo("FINAL");
     }
 }

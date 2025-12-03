@@ -1,26 +1,16 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { parseISO } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { QuestionService } from 'src/app/question/question.service';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { SessionService } from 'src/app/session/session.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
@@ -34,7 +24,7 @@ import type {
     Implementation,
 } from './exam.model';
 
-export type ExaminationEventConfigurationInput = {
+type ExaminationEventConfigurationInput = {
     id?: number;
     config: {
         examinationEvent: {
@@ -51,16 +41,14 @@ type SectionContainer = { examSections: ExamSection[] };
 
 @Injectable({ providedIn: 'root' })
 export class ExamService {
-    constructor(
-        private router: Router,
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private CommonExam: CommonExamService,
-        private Question: QuestionService,
-        private Session: SessionService,
-        private ConfirmationDialog: ConfirmationDialogService,
-    ) {}
+    private router = inject(Router);
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private CommonExam = inject(CommonExamService);
+    private QuestionScore = inject(QuestionScoringService);
+    private Session = inject(SessionService);
+    private ConfirmationDialog = inject(ConfirmationDialogService);
 
     getReviewablesCount = (exam: Exam) =>
         exam.children.filter((child) => child.state === 'REVIEW' || child.state === 'REVIEW_STARTED').length;
@@ -72,7 +60,7 @@ export class ExamService {
 
     createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
         this.http
-            .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
+            .post<Exam>('/app/exams', { executionType: { type: executionType }, implementation: examinationType })
             .subscribe({
                 next: (response) => {
                     this.toast.info(this.translate.instant('i18n_exam_added'));
@@ -178,7 +166,7 @@ export class ExamService {
 
     isOwnerOrAdmin = (exam: Exam, collaborative = false) => {
         const user = this.Session.getUser();
-        return exam && user && (user.isAdmin || this.isOwner(exam, collaborative));
+        return exam && user && (user.isAdmin || user.isSupport || this.isOwner(exam, collaborative));
     };
 
     removeExam = (exam: Exam, collaborative = false, isAdmin = false) => {
@@ -256,14 +244,15 @@ export class ExamService {
 
     getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
 
-    getTotalScore = (exam: SectionContainer): string => {
+    getTotalScore = (exam: SectionContainer): number => {
         const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalNumericScore(es), 0).toFixed(2);
-        return parseFloat(score) > 0 ? score : '0';
+        // total score cannot be negative as for now
+        return Math.max(0, parseFloat(score) > 0 ? parseFloat(score) : 0);
     };
 
     getSectionTotalNumericScore = (section: ExamSection): number => {
         const score = section.sectionQuestions.reduce((n, sq) => {
-            const points = this.Question.calculateAnswerScore(sq);
+            const points = this.QuestionScore.calculateAnswerScore(sq);
             // handle only numeric scores (leave out approved/rejected type of scores)
             return n + (points.rejected === false && points.approved === false ? points.score : 0);
         }, 0);
@@ -272,7 +261,7 @@ export class ExamService {
 
     getSectionTotalScore = (section: ExamSection): number => {
         const score = section.sectionQuestions.reduce((n, sq) => {
-            const points = this.Question.calculateAnswerScore(sq);
+            const points = this.QuestionScore.calculateAnswerScore(sq);
             return n + points.score;
         }, 0);
         return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
@@ -283,7 +272,7 @@ export class ExamService {
             if (!sq || !sq.question) {
                 return n;
             }
-            return n + this.Question.calculateMaxScore(sq);
+            return n + this.QuestionScore.calculateMaxScore(sq);
         }, 0);
         if (section.lotteryOn) {
             maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
@@ -292,5 +281,5 @@ export class ExamService {
     };
 
     private hasEffectiveEnrolments = (exam: Exam) =>
-        exam.examEnrolments.some((ee) => ee.reservation && parseISO(ee.reservation.endAt) > new Date());
+        exam.examEnrolments.some((ee) => ee.reservation && DateTime.fromISO(ee.reservation.endAt) > DateTime.now());
 }

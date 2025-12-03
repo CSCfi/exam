@@ -1,20 +1,10 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -22,7 +12,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { AccessibilitySelectorComponent } from 'src/app/facility/accessibility/accessibility-picker.component';
 import { AddressComponent } from 'src/app/facility/address/address.component';
-import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { AvailabilityComponent } from './availability.component';
@@ -33,9 +23,9 @@ import { RoomService } from './room.service';
     templateUrl: './room.component.html',
     styleUrls: ['./rooms.component.scss'],
     selector: 'xm-room',
-    standalone: true,
     imports: [
         FormsModule,
+        NgClass,
         NgbPopover,
         AvailabilityComponent,
         AccessibilitySelectorComponent,
@@ -52,15 +42,15 @@ export class RoomComponent implements OnInit {
     showName = false;
     isInteroperable = false;
     editingMultipleRooms = false;
+    internalPasswordInputType = 'password';
+    externalPasswordInputType = 'password';
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private roomService: RoomService,
-        private interoperability: InteroperabilityService,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private roomService = inject(RoomService);
+    private interoperability = inject(InteroperabilityService);
 
     ngOnInit() {
         this.showName = true;
@@ -77,35 +67,8 @@ export class RoomComponent implements OnInit {
         });
     }
 
-    addExceptions = (exceptions: ExceptionWorkingHours[]) => {
-        this.roomService.addExceptions([this.room.id], exceptions).then((data) => {
-            this.room.calendarExceptionEvents = [...this.room.calendarExceptionEvents, ...data];
-        });
-    };
-
-    deleteException = (exception: ExceptionWorkingHours) => {
-        this.roomService.deleteException(this.room.id, exception.id).then(() => {
-            this.room.calendarExceptionEvents = this.room.calendarExceptionEvents.splice(
-                this.room.calendarExceptionEvents.indexOf(exception),
-                1,
-            );
-        });
-    };
-
     disableRoom = () => {
         this.roomService.disableRoom(this.room);
-    };
-
-    enableRoom = () => {
-        this.roomService.enableRoom(this.room);
-    };
-
-    validateInputAndUpdateRoom = (event: FocusEvent & { target: HTMLInputElement | HTMLTextAreaElement }) => {
-        const { name } = event.target;
-        const ctrl = this.roomForm.controls[name];
-        if (ctrl.valid) {
-            this.updateRoom();
-        }
     };
 
     validateAndUpdateRoom = () => {
@@ -115,7 +78,7 @@ export class RoomComponent implements OnInit {
     };
 
     updateRoom = () => {
-        this.roomService.updateRoom(this.room).subscribe({
+        this.roomService.updateRoom$(this.room).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_room_updated'));
             },
@@ -127,7 +90,7 @@ export class RoomComponent implements OnInit {
         if (!this.roomService.isAnyExamMachines(this.room))
             this.toast.error(this.translate.instant('i18n_dont_forget_to_add_machines') + ' ' + this.room.name);
 
-        this.roomService.updateRoom(this.room).subscribe({
+        this.roomService.updateRoom$(this.room).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_room_saved'));
                 this.router.navigate(['/staff/rooms']);
@@ -147,5 +110,13 @@ export class RoomComponent implements OnInit {
                 this.toast.error(err.data.message);
             },
         });
+    };
+
+    toggleInternalPasswordInputType = () => {
+        this.internalPasswordInputType = this.internalPasswordInputType === 'text' ? 'password' : 'text';
+    };
+
+    toggleExternalPasswordInputType = () => {
+        this.externalPasswordInputType = this.externalPasswordInputType === 'text' ? 'password' : 'text';
     };
 }

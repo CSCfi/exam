@@ -1,14 +1,20 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <xm-page-header text="i18n_dashboard" [appendTemplate]="buttons" />
 <xm-page-content [content]="content" />
 <ng-template #buttons>
     <div class="float-end pe-3">
-        <button [routerLink]="['/staff/exams']" class="btn btn-success me-3">
+        <button [routerLink]="['/staff/exams']" class="btn btn-success me-3 mb-3">
             {{ 'i18n_toolbar_new_exam' | translate }}
         </button>
         <button
             [routerLink]="['/staff/questions/new']"
             [queryParams]="{ nextState: 'teacher' }"
-            class="btn btn-success"
+            class="btn btn-success align-top"
         >
             {{ 'i18n_toolbar_new_question' | translate }}
         </button>
@@ -17,7 +23,7 @@
 <ng-template #content>
     <div class="row">
         <div class="col-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs" [keyboard]="false">
                 <li [ngbNavItem]="1">
                     <a ngbNavLink>
                         <div class="make-inline me-2">{{ 'i18n_active_exams_title' | translate }}</div>

@@ -1,3 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+@use '../../shared/definitions.scss' as shared;
+
 .speed-review-title {
     font-size: 22px;
     font-weight: normal;
@@ -14,5 +22,5 @@
 .speed-review-csv {
     font-size: 16px;
     font-weight: bold;
-    color: #266b99;
+    color: shared.$exam-blue;
 }

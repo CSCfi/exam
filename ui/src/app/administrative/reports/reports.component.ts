@@ -1,27 +1,16 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import { ExamRoom } from 'src/app/reservation/reservation.model';
-import { User } from 'src/app/session/session.service';
+import { User } from 'src/app/session/session.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { Option } from 'src/app/shared/select/dropdown-select.component';
+import { Option } from 'src/app/shared/select/select.model';
 import { UserService } from 'src/app/shared/user/user.service';
 import { AnswersReportComponent } from './categories/answers-report.component';
 import { EnrolmentsReportComponent } from './categories/enrolments-report.component';
@@ -31,8 +20,13 @@ import { ReviewsReportComponent } from './categories/reviews-report.component';
 import { RoomsReportComponent } from './categories/rooms-report.component';
 import { StudentsReportComponent } from './categories/students-report.component';
 import { TeachersReportComponent } from './categories/teachers-report.component';
-import { ReportsService, UserRole } from './reports.service';
+import { ReportsService } from './reports.service';
 
+enum UserRole {
+    TEACHER = 'TEACHER',
+    STUDENT = 'STUDENT',
+    ADMIN = 'ADMIN',
+}
 @Component({
     selector: 'xm-reports',
     template: `
@@ -49,7 +43,6 @@ import { ReportsService, UserRole } from './reports.service';
             <div class="report-category"><xm-teachers-report [teachers]="teachers" /></div>
         </ng-template>
     `,
-    standalone: true,
     imports: [
         RoomsReportComponent,
         ExamsReportComponent,
@@ -71,11 +64,9 @@ export class ReportsComponent implements OnInit {
     teachers: Option<User, number>[] = [];
     students: Option<User, number>[] = [];
 
-    constructor(
-        private Users: UserService,
-        private Reports: ReportsService,
-        private Room: RoomService,
-    ) {}
+    private Users = inject(UserService);
+    private Reports = inject(ReportsService);
+    private Room = inject(RoomService);
 
     ngOnInit() {
         this.Room.getRooms$().subscribe((resp) => {

@@ -1,8 +1,12 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Organisation } from 'src/app/calendar/calendar.service';
+import type { Organisation } from 'src/app/calendar/calendar.model';
 import { CalendarService } from 'src/app/calendar/calendar.service';
 
 @Component({
@@ -83,7 +87,6 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    standalone: true,
     imports: [NgClass, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
 })
 export class OrganisationPickerComponent implements OnInit {
@@ -95,7 +98,7 @@ export class OrganisationPickerComponent implements OnInit {
     organisations = signal<Organisation[]>([]);
     selectedOrganisation = signal<Organisation | undefined>(undefined);
 
-    constructor(private Calendar: CalendarService) {}
+    private Calendar = inject(CalendarService);
 
     ngOnInit() {
         this.Calendar.listOrganisations$().subscribe((resp) =>
@@ -104,9 +107,10 @@ export class OrganisationPickerComponent implements OnInit {
     }
 
     setOrganisation = (organisation: Organisation) => {
-        const orgs = this.organisations().map((o) => ({ ...o, filtered: false }));
         const i = this.organisations().findIndex((o) => o._id === organisation._id);
-        this.organisations.set(orgs.splice(i, 1, { ...orgs[i], filtered: true }));
+        const orgs = this.organisations().map((o) => ({ ...o, filtered: false }));
+        orgs.splice(i, 1, { ...orgs[i], filtered: true });
+        this.organisations.set(orgs);
         this.selectedOrganisation.set({ ...organisation, filtered: true });
         this.selected.emit(organisation);
     };

@@ -1,27 +1,17 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { LowerCasePipe } from '@angular/common';
 import type { OnDestroy, OnInit } from '@angular/core';
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavItemRole, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
@@ -33,9 +23,7 @@ import { ExamTabService } from './exam-tabs.service';
 @Component({
     selector: 'xm-exam-tabs',
     templateUrl: './exam-tabs.component.html',
-    standalone: true,
     imports: [
-        RouterLink,
         NgbNav,
         NgbNavItem,
         NgbNavItemRole,
@@ -57,15 +45,15 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
     activeTab = 1;
     private ngUnsubscribe = new Subject();
 
-    constructor(
-        private cdr: ChangeDetectorRef,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private Session: SessionService,
-        private Tabs: ExamTabService,
-        private CourseCode: CourseCodeService,
-    ) {
+    private cdr = inject(ChangeDetectorRef);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private Session = inject(SessionService);
+    private Tabs = inject(ExamTabService);
+    private CourseCode = inject(CourseCodeService);
+
+    constructor() {
         this.user = this.Session.getUser();
         this.examInfo = { title: null };
         this.Tabs.tabChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((tab: number) => {

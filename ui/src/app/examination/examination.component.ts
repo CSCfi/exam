@@ -1,19 +1,8 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -32,7 +21,6 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
 @Component({
     selector: 'xm-examination',
     templateUrl: './examination.component.html',
-    standalone: true,
     imports: [
         ExaminationPageHeaderComponent,
         ExaminationSectionComponent,
@@ -49,14 +37,12 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     isPreview = false;
     ltiUrl: SafeResourceUrl | null = null;
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private sanitizer: DomSanitizer,
-        private Examination: ExaminationService,
-        private Session: SessionService,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private sanitizer = inject(DomSanitizer);
+    private Examination = inject(ExaminationService);
+    private Session = inject(SessionService);
+    private Enrolment = inject(EnrolmentService);
 
     ngOnInit() {
         this.isPreview = this.route.snapshot.data.isPreview;
@@ -147,5 +133,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
         throw Error('invalid index');
     };
 
-    private onUnload = (event: BeforeUnloadEvent) => event.preventDefault();
+    private onUnload = (event: BeforeUnloadEvent) => {
+        event.preventDefault();
+    };
 }

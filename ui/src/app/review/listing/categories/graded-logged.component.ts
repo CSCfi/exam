@@ -1,21 +1,11 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -27,12 +17,11 @@ import {
     NgbPopover,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam } from 'src/app/exam/exam.model';
-import type { ReviewListView } from 'src/app/review/listing/review-list.service';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
-import type { Review } from 'src/app/review/review.model';
+import type { Review, ReviewListView } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -45,7 +34,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 @Component({
     selector: 'xm-rl-graded-logged',
     templateUrl: './graded-logged.component.html',
-    standalone: true,
     imports: [
         NgbPopover,
         FormsModule,
@@ -75,15 +63,13 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
     view!: ReviewListView;
     selections: { all: boolean; page: boolean } = { all: false, page: false };
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private ReviewList: ReviewListService,
-        private Files: FileService,
-        private CommonExam: CommonExamService,
-        private Session: SessionService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private ReviewList = inject(ReviewListService);
+    private Files = inject(FileService);
+    private CommonExam = inject(CommonExamService);
+    private Session = inject(SessionService);
 
     ngOnInit() {
         this.init();
@@ -143,7 +129,7 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
 
         this.Files.download(
             url + this.exam.id,
-            `${this.translate.instant('i18n_grading_info')}_${format(new Date(), 'dd-MM-yyyy')}.${fileType}`,
+            `${this.translate.instant('i18n_grading_info')}_${DateTime.now().toFormat('dd-MM-yyyy')}.${fileType}`,
             { childIds: ids.map((i) => i.toString()) },
             true,
         );
@@ -161,10 +147,7 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
         this.selections = { all: false, page: false };
     };
 
-    private translateGrade = (exam: Exam) => {
-        const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.CommonExam.getExamGradeDisplayName(grade);
-    };
+    private translateGrade = (exam: Exam) => this.ReviewList.translateGrade(exam);
 
     private handleGradedReviews = (r: Review) => {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection

@@ -3,19 +3,18 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { groupBy } from 'ramda';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 import { Reservation } from 'src/app/reservation/reservation.model';
+import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
     template: `
         <div class="row my-2">
             <div class="col-12">
-                <button class="btn btn-primary" (click)="listReservations()">
+                <button class="btn btn-sm btn-primary" (click)="listReservations()">
                     {{ 'i18n_search' | translate }}
                 </button>
             </div>
@@ -40,7 +39,7 @@ import { Reservation } from 'src/app/reservation/reservation.model';
                             </tr>
                         </thead>
                         <tbody>
-                            @for (rg of grouped | keyvalue; track rg) {
+                            @for (rg of grouped | keyvalue; track rg.key) {
                                 <tr>
                                     <td>{{ rg.key }}</td>
                                     <td>{{ outgoingTo(rg.key) }}</td>
@@ -75,33 +74,27 @@ import { Reservation } from 'src/app/reservation/reservation.model';
         }
     `,
     selector: 'xm-iop-reservation-statistics',
-    standalone: true,
     imports: [KeyValuePipe, TranslateModule],
 })
-export class IopReservationStatisticsComponent implements OnInit {
+export class IopReservationStatisticsComponent {
     @Input() queryParams: QueryParams = {};
-
     reservations: Reservation[] = [];
     grouped: Record<string, Reservation[]> = {};
 
-    constructor(private Statistics: StatisticsService) {}
-
-    ngOnInit() {
-        this.listReservations();
-    }
+    private Statistics = inject(StatisticsService);
 
     listReservations = () =>
         this.Statistics.listIopReservations$(this.queryParams).subscribe((resp) => {
-            const byOrg = groupBy((r: Reservation) => r.externalOrgName || r.externalReservation?.orgName || '');
-            this.grouped = byOrg(resp) as Record<string, Reservation[]>;
+            this.grouped = groupBy(resp, (r: Reservation) => r.externalOrgName || r.externalReservation?.orgName || '');
+            console.log(this.grouped);
         });
 
     incomingFrom = (org: keyof typeof this.grouped): number =>
-        this.grouped[org].filter((r) => r.externalOrgRef && !r.enrolment?.noShow).length;
+        this.grouped[org].filter((r) => r.externalOrgRef && r.enrolment?.externalExam?.finished).length;
     incomingNoShowsFrom = (org: keyof typeof this.grouped): number =>
-        this.grouped[org].filter((r) => r.externalOrgRef && r.enrolment?.noShow === true).length;
+        this.grouped[org].filter((r) => r.externalOrgRef && !r.enrolment?.externalExam?.finished).length;
     outgoingTo = (org: keyof typeof this.grouped): number =>
-        this.grouped[org].filter((r) => r.externalReservation?.orgName && !r.enrolment?.noShow).length;
+        this.grouped[org].filter((r) => r.externalReservation?.orgName && r.enrolment?.noShow === false).length;
     outgoingNoShowsTo = (org: keyof typeof this.grouped): number =>
         this.grouped[org].filter((r) => r.externalReservation?.orgName && r.enrolment?.noShow === true).length;
     totalIncoming = () => this.reduce(this.incomingFrom);
