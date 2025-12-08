@@ -235,19 +235,19 @@ export class SpeedReviewComponent implements OnInit {
                 };
             })
             .filter(isRealGrade);
-        // The "not graded" option
-        const notGraded: NoGrade = {
-            name: this.CommonExam.getExamGradeDisplayName('NOT_GRADED'),
-            type: 'NOT_GRADED',
-            marksRejection: false,
-        };
         // The "point graded" option
         const pointGraded: NoGrade = {
             name: this.CommonExam.getExamGradeDisplayName('POINT_GRADED'),
             type: 'POINT_GRADED',
             marksRejection: false,
         };
-        return [...grades, notGraded, pointGraded];
+        // The "not graded" option
+        const notGraded: NoGrade = {
+            name: this.CommonExam.getExamGradeDisplayName('NOT_GRADED'),
+            type: 'NOT_GRADED',
+            marksRejection: false,
+        };
+        return [...grades, pointGraded, notGraded];
     };
 
     private getErrors = (review: Review) => {
