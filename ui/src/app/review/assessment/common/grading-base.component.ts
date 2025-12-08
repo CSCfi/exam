@@ -99,7 +99,7 @@ export abstract class GradingBaseComponent {
         } else if (exam.gradingType === 'POINT_GRADED' && !this.selections.grade) {
             this.selections.grade = pointGraded;
         }
-        const extraGrades = isMaturity || isCollaborative ? [notGraded] : [notGraded, pointGraded];
+        const extraGrades = isMaturity || isCollaborative ? [notGraded] : [pointGraded, notGraded];
         this.grades.push(...extraGrades);
     };
 
