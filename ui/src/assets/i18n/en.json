@@ -1118,7 +1118,7 @@
     "i18n_weighted_multiple_choice_description_6": "The score for an incorrect answer is always less than 0.",
     "i18n_weighted_multiple_choice_description_7": "The student is shown the maximum and minimum score for the question",
     "i18n_min_score": "Minimum points",
-    "i18n_questions_imported_with_errors": "All questions could not be imported due to errors. Number of erroneus questions:",
+    "i18n_questions_imported_with_errors": "All questions could not be imported due to errors. Number of erroneous questions:",
     "i18n_shuffle_options": "Mix the answer options in the student's exam",
     "i18n_support_person": "Support person",
     "i18n_internal_password": "Password for own students.",
@@ -1129,5 +1129,10 @@
     "i18n_password_required": "Password is required",
     "i18n_exam_period_start_ascending": "Exam period starts (earliest first)",
     "i18n_exam_period_end_ascending": "Exam period ends (earliest first)",
-    "i18n_confirm_remove_attachment": "Do you want to remove the attachment?"
+    "i18n_confirm_remove_attachment": "Do you want to remove the attachment?",
+    "i18n_dashboard_exam": "Exam",
+    "i18n_dashboard_code": "Code",
+    "i18n_dashboard_period": "Period",
+    "i18n_dashboard_submissions": "Submissions",
+    "i18n_dashboard_to_lock": "To lock"
 }
