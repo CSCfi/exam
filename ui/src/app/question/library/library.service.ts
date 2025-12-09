@@ -161,19 +161,19 @@ export class LibraryService {
         };
 
         if (courseIds.length > 0) {
-            params = append('course', courseIds, params);
+            params = append('courseIds', courseIds, params);
         }
         if (sectionIds.length > 0) {
-            params = append('section', sectionIds, params);
+            params = append('sectionIds', sectionIds, params);
         }
         if (tagIds.length > 0) {
-            params = append('tag', tagIds, params);
+            params = append('tagIds', tagIds, params);
         }
         if (examIds.length > 0) {
-            params = append('exam', examIds, params);
+            params = append('examIds', examIds, params);
         }
         if (ownerIds.length > 0) {
-            params = append('owner', ownerIds, params);
+            params = append('ownerIds', ownerIds, params);
         }
 
         return params;
