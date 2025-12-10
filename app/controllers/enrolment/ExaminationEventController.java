@@ -250,9 +250,9 @@ public class ExaminationEventController extends BaseController {
         try {
             String oldPwd = eec.getEncryptedSettingsPassword() != null
                 ? byodConfigHandler.getPlaintextPassword(
-                    eec.getEncryptedSettingsPassword(),
-                    eec.getSettingsPasswordSalt()
-                )
+                      eec.getEncryptedSettingsPassword(),
+                      eec.getSettingsPasswordSalt()
+                  )
                 : null;
 
             if (!password.equals(oldPwd)) {

@@ -353,10 +353,10 @@ public class EnrolmentRepository {
         return enrolment.getReservation() != null
             ? enrolment.getReservation().getStartAt().plusMillis(enrolment.getDelay())
             : enrolment
-                .getExaminationEventConfiguration()
-                .getExaminationEvent()
-                .getStart()
-                .plusMillis(enrolment.getDelay());
+                  .getExaminationEventConfiguration()
+                  .getExaminationEvent()
+                  .getStart()
+                  .plusMillis(enrolment.getDelay());
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {
