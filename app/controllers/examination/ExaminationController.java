@@ -862,7 +862,7 @@ public class ExaminationController extends BaseController {
             "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
             "examMaterials(name, author, isbn), " +
             "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, derivedMinScore, " + // (((
-            "question(id, type, question, attachment(id, fileName))" +
+            "question(id, type, ltiId, question, attachment(id, fileName))" +
             "options(id, answered, option(id, option))" +
             "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
             "clozeTestAnswer(id, question, answer, objectVersion)" +
