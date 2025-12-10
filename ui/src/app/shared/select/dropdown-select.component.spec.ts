@@ -199,7 +199,7 @@ describe('DropdownSelectComponent', () => {
             // Headers cannot be selected, so they should only have dropdown-header class
             expect(classes).not.toContain('active');
             expect(classes).toContain('dropdown-header');
-            expect(component.selected()).toBeUndefined();
+            expect(component.selected).toBeUndefined();
         });
 
         it('should return empty array when no special classes apply', () => {
