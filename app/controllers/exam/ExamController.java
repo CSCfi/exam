@@ -146,7 +146,7 @@ public class ExamController extends BaseController {
         List<Long> tags = tagIds.orElse(Collections.emptyList());
         List<Long> owners = ownerIds.orElse(Collections.emptyList());
         PathProperties pp = PathProperties.parse(
-            "(id, name, examActiveStartDate, examActiveEndDate, course(id, code), examSections(id, name))"
+            "(id, name, periodStart, periodEnd, course(id, code), examSections(id, name))"
         );
         var query = DB.find(Exam.class);
         pp.apply(query);
@@ -164,7 +164,7 @@ public class ExamController extends BaseController {
             el = el.in("examSections.sectionQuestions.question.parent.tags.id", tags);
         }
         if (!owners.isEmpty()) {
-            el = el.in("questionOwners.id", user);
+            el = el.in("examOwners.id", owners);
         }
         return ok(el.findList(), pp);
     }
