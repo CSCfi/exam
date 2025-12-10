@@ -191,13 +191,15 @@ describe('DropdownSelectComponent', () => {
             expect(classes).toContain('dropdown-header');
         });
 
-        it('should return both active and dropdown-header for selected header', () => {
+        it('should not allow selecting header options', () => {
             const headerOption = mockOptions.find((o) => o.isHeader)!;
             component.selected = headerOption;
             const classes = component.getClasses(headerOption);
 
-            expect(classes).toContain('active');
+            // Headers cannot be selected, so they should only have dropdown-header class
+            expect(classes).not.toContain('active');
             expect(classes).toContain('dropdown-header');
+            expect(component.selected()).toBeUndefined();
         });
 
         it('should return empty array when no special classes apply', () => {
