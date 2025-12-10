@@ -37,12 +37,7 @@ PUT           /app/exams/:eid/course/:cid                                     co
 GET           /app/exams/:id/preview                                          controllers.exam.ExamController.getExamPreview(id: Long)
 GET           /app/reviewerexams                                              controllers.exam.ExamController.getTeachersExams()
 
-<<<<<<< HEAD
 GET           /app/examsearch                                                 controllers.exam.ExamController.listExams(courseIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]], ownerIds: Option[List[Long]])
-=======
-GET           /app/examsearch                                                 controllers.exam.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList], ownerIds: java.util.Optional[LongList], request: Request)
->>>>>>> dev
-
 PUT           /app/exam/:eid/software/:sid                                    controllers.exam.ExamController.updateExamSoftware(eid: Long, sid: Long)
 
 PUT           /app/exams/:eid/language/:code                                  controllers.exam.ExamController.updateExamLanguage(eid: Long, code: String)

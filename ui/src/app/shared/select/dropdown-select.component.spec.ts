@@ -199,14 +199,16 @@ describe('DropdownSelectComponent', () => {
             expect(classes).toContain('dropdown-header');
         });
 
-        it('should return both active and dropdown-header for selected header', () => {
+        it('should not allow selecting header options', () => {
             const headerOption = mockOptions.find((o) => o.isHeader)!;
-            component.selectOption(headerOption);
-            fixture.detectChanges();
+            // Even if a header is manually set as selected, getClasses should not return 'active'
+            component.selected.set(headerOption);
             const classes = component.getClasses(headerOption);
 
-            expect(classes).toContain('active');
+            // Headers cannot be selected, so they should only have dropdown-header class
+            expect(classes).not.toContain('active');
             expect(classes).toContain('dropdown-header');
+            // Note: selected can be set manually, but getClasses prevents 'active' class for headers
         });
 
         it('should return empty array when no special classes apply', () => {
@@ -269,7 +271,9 @@ describe('DropdownSelectComponent', () => {
             fixture.detectChanges();
             component.setSearchFilter('Option 1');
             fixture.detectChanges();
-            const result = component.filteredOptions().some((opt) => opt.id === mockOptions[0].id);
+            const result = component
+                .filteredOptions()
+                .some((opt: Option<string, number>) => opt.id === mockOptions[0].id);
 
             expect(result).toBe(true);
         });
@@ -277,7 +281,9 @@ describe('DropdownSelectComponent', () => {
         it('should exclude non-matching options', () => {
             component.setSearchFilter('Option 1');
             fixture.detectChanges();
-            const result = component.filteredOptions().some((opt) => opt.id === mockOptions[1].id);
+            const result = component
+                .filteredOptions()
+                .some((opt: Option<string, number>) => opt.id === mockOptions[1].id);
 
             expect(result).toBe(false);
         });
@@ -285,7 +291,9 @@ describe('DropdownSelectComponent', () => {
         it('should be case insensitive', () => {
             component.setSearchFilter('option 1');
             fixture.detectChanges();
-            const result = component.filteredOptions().some((opt) => opt.id === mockOptions[0].id);
+            const result = component
+                .filteredOptions()
+                .some((opt: Option<string, number>) => opt.id === mockOptions[0].id);
 
             expect(result).toBe(true);
         });
@@ -293,7 +301,9 @@ describe('DropdownSelectComponent', () => {
         it('should handle partial matches', () => {
             component.setSearchFilter('Opt');
             fixture.detectChanges();
-            const result = component.filteredOptions().some((opt) => opt.id === mockOptions[0].id);
+            const result = component
+                .filteredOptions()
+                .some((opt: Option<string, number>) => opt.id === mockOptions[0].id);
 
             expect(result).toBe(true);
         });
@@ -310,7 +320,7 @@ describe('DropdownSelectComponent', () => {
             fixture.componentRef.setInput('options', optionsWithNull);
             component.setSearchFilter('test');
             fixture.detectChanges();
-            const result = component.filteredOptions().some((opt) => opt.id === 99);
+            const result = component.filteredOptions().some((opt: Option<string, number>) => opt.id === 99);
 
             expect(result).toBe(false);
         });

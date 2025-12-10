@@ -115,8 +115,8 @@ export class DropdownSelectComponent<V, I> {
 
     getClasses(option: Option<V, I>): string[] {
         const classes: string[] = [];
-        const currentSelected = this.selected();
-        if (currentSelected && currentSelected.id === option.id) {
+        const selected = this.selected();
+        if (selected && selected.id === option.id && !option.isHeader) {
             classes.push('active');
         }
         if (option.isHeader) {
