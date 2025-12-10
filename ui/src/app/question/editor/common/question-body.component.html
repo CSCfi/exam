@@ -52,6 +52,7 @@ SPDX-License-Identifier: EUPL-1.2
                     [lotteryOn]="lotteryOn()"
                     [showWarning]="examNames().length > 1"
                     [allowOptionRemoval]="true"
+                    [multichoiceFeaturesOn]="multichoiceFeaturesOn()"
                 ></xm-multiple-choice>
             }
             @case ('WeightedMultipleChoiceQuestion') {
@@ -60,6 +61,7 @@ SPDX-License-Identifier: EUPL-1.2
                     [lotteryOn]="lotteryOn()"
                     [showWarning]="examNames().length > 1"
                     [allowOptionRemoval]="true"
+                    [multichoiceFeaturesOn]="multichoiceFeaturesOn()"
                 ></xm-weighted-multiple-choice>
             }
         }

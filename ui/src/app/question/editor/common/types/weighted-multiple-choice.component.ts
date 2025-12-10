@@ -44,6 +44,7 @@ export class WeightedMultipleChoiceComponent implements AfterViewInit {
     lotteryOn = input(false);
     showWarning = input(false);
     allowOptionRemoval = input(false);
+    multichoiceFeaturesOn = input(false);
 
     weightedMcForm: FormGroup;
 

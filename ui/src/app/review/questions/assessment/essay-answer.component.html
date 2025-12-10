@@ -96,7 +96,7 @@ SPDX-License-Identifier: EUPL-1.2
                             class="form-control"
                             [(ngModel)]="answer().essayAnswer.temporaryScore"
                             size="5"
-                            onclick="this.focus();"
+                            onclick="this.focus()"
                             [disabled]="!editable()"
                             [min]="0"
                             [max]="answer().maxScore"

@@ -28,15 +28,14 @@ SPDX-License-Identifier: EUPL-1.2
                             [reverse]="sorting().reverse"
                             [predicate]="sorting().predicate"
                             by="name"
-                            text="i18n_exam_name"
+                            text="i18n_dashboard_exam"
                             (click)="setPredicate('name')"
                         ></xm-table-sort>
                     </th>
                     <th class="with-top">
                         <xm-table-sort
                             by="course.code"
-                            text="i18n_course_code"
-                            [sliced]="true"
+                            text="i18n_dashboard_code"
                             [predicate]="sorting().predicate"
                             [reverse]="sorting().reverse"
                             (click)="setPredicate('course.code')"
@@ -54,7 +53,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <th class="with-top">
                         <xm-table-sort
                             by="periodEnd"
-                            text="i18n_exam_validity"
+                            text="i18n_dashboard_period"
                             [predicate]="sorting().predicate"
                             [reverse]="sorting().reverse"
                             (click)="setPredicate('periodEnd')"

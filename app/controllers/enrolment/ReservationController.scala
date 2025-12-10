@@ -320,6 +320,7 @@ class ReservationController @Inject() (
         .fetch("exam.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
         .fetch("exam.parent.examOwners", "id, firstName, lastName", FetchConfig.ofQuery())
         .fetch("exam.examInspections.user", "id, firstName, lastName")
+        .fetch("exam.executionType", "type")
         .fetch("examinationEventConfiguration.examinationEvent")
         .where()
         .isNotNull("examinationEventConfiguration")

@@ -14,6 +14,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import type { QuestionDraft, ReverseQuestion, Tag } from 'src/app/question/question.model';
+import { QuestionService } from 'src/app/question/question.service';
 import type { User } from 'src/app/session/session.model';
 import { AdditionalInfoComponent } from './additional-info.component';
 import { BasicInfoComponent } from './basic-info.component';
@@ -58,11 +59,17 @@ export class QuestionBodyComponent implements OnDestroy {
     questionBodyForm: FormGroup;
     examNames = signal<string[]>([]);
     questionType = signal<string | null>(null);
+    multichoiceFeaturesOn = signal(false);
 
     private parentForm = inject(FormGroupDirective);
+    private Question = inject(QuestionService);
     private readonly ngUnsubscribe = new Subject<void>();
 
     constructor() {
+        this.Question.areNewFeaturesEnabled$().subscribe((data) => {
+            this.multichoiceFeaturesOn.set(data.multichoiceFeaturesOn);
+        });
+
         // Create form group for question details
         // defaultMaxScore is not required for WeightedMultipleChoiceQuestion and ClaimChoiceQuestion
         this.questionBodyForm = new FormGroup({

@@ -11,11 +11,11 @@
     "ng": "ng",
     "start": "ng serve --port 4200",
     "build": "ng build --output-path ./public",
+    "postinstall": "lefthook install",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint --fix",
     "format": "prettier --write \"ui/src/app/**/*.{ts,html}\" --write \"{app,test}/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
-    "prepare": "lefthook install",
     "check-format": "prettier --check \"ui/src/app/**/*.{ts,html}\" --check \"{app,test}/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4",
     "check-lint": "ng lint",
     "analyze": "ng build --configuration production && node scripts/internal/analyze-chunks.js"
@@ -35,7 +35,7 @@
     "@fullcalendar/angular": "^6.1.19",
     "@fullcalendar/luxon3": "^6.1.19",
     "@fullcalendar/timegrid": "^6.1.17",
-    "@ng-bootstrap/ng-bootstrap": "^19.0.1",
+    "@ng-bootstrap/ng-bootstrap": "20.0.0-rc.0",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "bootstrap": "^5.3.7",
@@ -70,5 +70,13 @@
     "prettier-plugin-organize-imports": "^4.0.0",
     "typescript": "^5.8.3",
     "vitest": "^4.0.13"
+  },
+  "overrides": {
+    "@fullcalendar/angular": {
+      "@angular/common": "$@angular/common",
+      "@angular/core": "$@angular/core"
+    },
+    "rxjs": "^7.8.1",
+    "ckeditor5": "44.3.0"
   }
 }

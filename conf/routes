@@ -37,7 +37,11 @@ PUT           /app/exams/:eid/course/:cid                                     co
 GET           /app/exams/:id/preview                                          controllers.exam.ExamController.getExamPreview(id: Long)
 GET           /app/reviewerexams                                              controllers.exam.ExamController.getTeachersExams()
 
+<<<<<<< HEAD
 GET           /app/examsearch                                                 controllers.exam.ExamController.listExams(courseIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]], ownerIds: Option[List[Long]])
+=======
+GET           /app/examsearch                                                 controllers.exam.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList], ownerIds: java.util.Optional[LongList], request: Request)
+>>>>>>> dev
 
 PUT           /app/exam/:eid/software/:sid                                    controllers.exam.ExamController.updateExamSoftware(eid: Long, sid: Long)
 
@@ -190,8 +194,7 @@ GET           /app/courses/user                                                c
 GET           /app/courses/:id                                                 controllers.exam.CourseController.getCourse(id: Long)
 
 ############### Question interface ###############
-
-GET           /app/questions                                                   controllers.question.QuestionController.getQuestions(exam: List[Long], course: List[Long], tag: List[Long], section: List[Long], owner: List[Long])
+GET           /app/questions                                                   controllers.question.QuestionController.getQuestions(examIds: List[Long], courseIds: List[Long], tagIds: List[Long], sectionIds: List[Long], ownerIds: List[Long])
 GET           /app/questions/:id                                               controllers.question.QuestionController.getQuestion(id: Long)
 PUT           /app/questions/:id                                               controllers.question.QuestionController.updateQuestion(id: Long)
 
@@ -444,6 +447,7 @@ GET           /app/settings/maturityInstructions                                
 GET           /app/settings/examinationQuitLink                                  controllers.admin.SettingsController.getExaminationQuitLink
 GET           /app/settings/coursecodeprefix                                     controllers.admin.SettingsController.getCourseCodePrefix
 GET           /app/settings/byodmaxparticipants                                  controllers.admin.SettingsController.getByodMaxParticipants
+GET           /app/settings/newMultichoiceSupport                                controllers.admin.SettingsController.areNewMultichoiceFeaturesEnabled
 
 
 ################# Statistics interface ##################

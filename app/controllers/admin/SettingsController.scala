@@ -239,6 +239,11 @@ class SettingsController @Inject() (
       Ok(Json.obj("max" -> configReader.getMaxByodExaminationParticipantCount))
     }
 
+  def areNewMultichoiceFeaturesEnabled: Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { _ =>
+      Ok(Json.obj("multichoiceFeaturesOn" -> configReader.areNewMultichoiceFeaturesEnabled))
+    }
+
   private def parseExternalUrl(reservationRef: String): java.net.URL =
     URI
       .create(

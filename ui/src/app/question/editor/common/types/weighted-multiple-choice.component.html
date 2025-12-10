@@ -5,46 +5,50 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 
 <div [formGroup]="weightedMcForm">
-    <div class="row mt-2 mx-2">
-        <ul>
-            <li>{{ 'i18n_weighted_multiple_choice_description_1' | translate }}</li>
-            <li>{{ 'i18n_weighted_multiple_choice_description_2' | translate }}</li>
-            <li>{{ 'i18n_weighted_multiple_choice_description_3' | translate }}</li>
-        </ul>
-        {{ 'i18n_weighted_multiple_choice_description_4' | translate }}
-        <ul>
-            <li>{{ 'i18n_weighted_multiple_choice_description_5' | translate }}</li>
-            <li>{{ 'i18n_weighted_multiple_choice_description_6' | translate }}</li>
-            <li>{{ 'i18n_weighted_multiple_choice_description_7' | translate }}</li>
-        </ul>
-    </div>
-    <div class="row mt-2" [formGroup]="weightedMcForm">
-        <div class="col-md-12">
-            <div class="form-check">
-                <input
-                    class="form-check-input"
-                    name="negativeScore"
-                    type="checkbox"
-                    formControlName="negativeScore"
-                    id="negativeScore"
-                />
-                <label class="form-check-label" for="negativeScore">{{
-                    'i18n_allow_negative_score' | translate
-                }}</label>
+    <div [hidden]="!multichoiceFeaturesOn()">
+        <div class="row mt-2 mx-2">
+            <ul>
+                <li>{{ 'i18n_weighted_multiple_choice_description_1' | translate }}</li>
+                <li>{{ 'i18n_weighted_multiple_choice_description_2' | translate }}</li>
+                <li>{{ 'i18n_weighted_multiple_choice_description_3' | translate }}</li>
+            </ul>
+            {{ 'i18n_weighted_multiple_choice_description_4' | translate }}
+            <ul>
+                <li>{{ 'i18n_weighted_multiple_choice_description_5' | translate }}</li>
+                <li>{{ 'i18n_weighted_multiple_choice_description_6' | translate }}</li>
+                <li>{{ 'i18n_weighted_multiple_choice_description_7' | translate }}</li>
+            </ul>
+        </div>
+        <div class="row mt-2" [formGroup]="weightedMcForm">
+            <div class="col-md-12">
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        name="negativeScore"
+                        type="checkbox"
+                        formControlName="negativeScore"
+                        id="negativeScore"
+                    />
+                    <label class="form-check-label" for="negativeScore">{{
+                        'i18n_allow_negative_score' | translate
+                    }}</label>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="row mt-2" [formGroup]="weightedMcForm">
-        <div class="col-md-12">
-            <div class="form-check">
-                <input
-                    class="form-check-input"
-                    name="shuffleOptions"
-                    type="checkbox"
-                    formControlName="optionShuffling"
-                    id="shuffleOptions"
-                />
-                <label class="form-check-label" for="shuffleOptions">{{ 'i18n_shuffle_options' | translate }}</label>
+        <div class="row mt-2" [formGroup]="weightedMcForm">
+            <div class="col-md-12">
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        name="shuffleOptions"
+                        type="checkbox"
+                        formControlName="optionShuffling"
+                        id="shuffleOptions"
+                    />
+                    <label class="form-check-label" for="shuffleOptions">{{
+                        'i18n_shuffle_options' | translate
+                    }}</label>
+                </div>
             </div>
         </div>
     </div>

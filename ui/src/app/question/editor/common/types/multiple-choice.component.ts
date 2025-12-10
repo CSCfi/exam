@@ -33,6 +33,7 @@ export class MultipleChoiceComponent implements AfterViewInit {
     lotteryOn = input(false);
     showWarning = input(false);
     allowOptionRemoval = input(false);
+    multichoiceFeaturesOn = input(false);
 
     multipleChoiceForm: FormGroup;
     private translate = inject(TranslateService);

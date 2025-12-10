@@ -63,18 +63,16 @@ export class TeacherDashboardComponent {
     constructor() {
         this.activeExtraData = [
             {
-                text: 'i18n_participation_unreviewed',
+                text: 'i18n_dashboard_submissions',
                 property: 'unassessedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
-                sliced: true,
             },
             {
-                text: 'i18n_participation_unfinished',
+                text: 'i18n_dashboard_to_lock',
                 property: 'unfinishedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
-                sliced: true,
             },
             {
                 text: 'i18n_dashboard_title_waiting_reservation',
@@ -85,18 +83,16 @@ export class TeacherDashboardComponent {
         ];
         this.finishedExtraData = [
             {
-                text: 'i18n_participation_unreviewed',
+                text: 'i18n_dashboard_submissions',
                 property: 'unassessedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
-                sliced: true,
             },
             {
-                text: 'i18n_participation_unfinished',
+                text: 'i18n_dashboard_to_lock',
                 property: 'unfinishedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
-                sliced: true,
             },
         ];
         this.archivedExtraData = [

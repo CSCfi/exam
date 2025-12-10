@@ -8,7 +8,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { SessionService } from 'src/app/session/session.service';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -26,7 +25,6 @@ export class QuestionService {
     private http = inject(HttpClient);
     private translate = inject(TranslateService);
     private toast = inject(ToastrService);
-    private Session = inject(SessionService);
     private Files = inject(FileService);
     private Attachment = inject(AttachmentService);
 
@@ -281,6 +279,10 @@ export class QuestionService {
         this.http.put<ExamSectionQuestion>(resource, {
             question: question,
         });
+
+    areNewFeaturesEnabled$ = () => {
+        return this.http.get<{ multichoiceFeaturesOn: boolean }>('/app/settings/newMultichoiceSupport');
+    };
 
     private questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
     private questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);

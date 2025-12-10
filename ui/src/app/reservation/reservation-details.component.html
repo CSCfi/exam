@@ -186,13 +186,12 @@ SPDX-License-Identifier: EUPL-1.2
                 }
                 <td class="reservation-search">
                     @if (r.externalUserRef || r.enrolment.exam.implementation === 'AQUARIUM') {
-                        <span>
+                        @if (r.org) {
+                            {{ r.machine?.room?.name }}, {{ r.org.name }} ({{ r.org.code }})
+                        } @else {
                             {{ r.machine?.room?.name }}
-                            @if (r.org) {
-                                <span>,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
-                            }
-                            <br />{{ r.machine?.name }}
-                        </span>
+                        }
+                        <br />{{ r.machine?.name }}
                     }
                     @if (!r.externalUserRef && r.enrolment.exam.implementation !== 'AQUARIUM') {
                         <span><strong class="text text-primary">BYOD</strong></span>
@@ -227,7 +226,6 @@ SPDX-License-Identifier: EUPL-1.2
                                     }
                                     @if (
                                         r.enrolment.exam.state === 'ABORTED' &&
-                                        r.enrolment.exam.implementation === 'AQUARIUM' &&
                                         r.enrolment.exam.executionType.type === 'PUBLIC'
                                     ) {
                                         <button
