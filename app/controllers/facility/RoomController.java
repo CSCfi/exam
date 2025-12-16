@@ -249,8 +249,14 @@ public class RoomController extends BaseController {
         existing.setStatusComment(room.getStatusComment());
         existing.setOutOfService(room.getOutOfService());
         existing.setState(room.getState());
-        existing.setInternalPassword(room.getInternalPassword());
-        existing.setExternalPassword(room.getExternalPassword());
+        String internalPassword = room.getInternalPassword();
+        existing.setInternalPassword(
+            internalPassword != null && !internalPassword.trim().isEmpty() ? internalPassword.trim() : null
+        );
+        String externalPassword = room.getExternalPassword();
+        existing.setExternalPassword(
+            externalPassword != null && !externalPassword.trim().isEmpty() ? externalPassword.trim() : null
+        );
 
         existing.update();
 
