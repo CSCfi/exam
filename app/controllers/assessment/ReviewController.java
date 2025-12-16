@@ -579,7 +579,8 @@ public class ReviewController extends BaseController {
         return (
             !exam.getParent().isOwnedOrCreatedBy(user) &&
             !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) &&
-            !isRejectedInLanguageInspection(exam, user, newState)
+            !isRejectedInLanguageInspection(exam, user, newState) &&
+            !user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE)
         );
     }
 
