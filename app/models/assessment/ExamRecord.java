@@ -10,11 +10,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import miscellaneous.datetime.DateTimeAdapter;
 import models.base.GeneratedIdentityModel;
 import models.exam.Exam;
 import models.user.User;
 import org.joda.time.DateTime;
+import services.datetime.DateTimeAdapter;
 
 @Entity
 public class ExamRecord extends GeneratedIdentityModel {

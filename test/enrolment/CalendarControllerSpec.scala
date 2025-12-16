@@ -8,7 +8,7 @@ import base.BaseIntegrationSpec
 import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.util.{GreenMail, GreenMailUtil, ServerSetupTest}
 import io.ebean.DB
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.calendar.DefaultWorkingHours
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.{Exam, ExamExecutionType}
@@ -19,13 +19,13 @@ import org.joda.time.format.ISODateTimeFormat
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status
 import play.api.libs.json.{JsNumber, Json}
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
-class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach with DbApiHelper:
+class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach with EbeanQueryExtensions:
 
   private val MAIL_TIMEOUT = 5000L
 

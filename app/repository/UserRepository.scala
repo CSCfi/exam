@@ -5,14 +5,13 @@
 package repository
 
 import io.ebean.{DB, Database}
+import database.EbeanQueryExtensions
 import models.user.User
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.OptionConverters.*
-import miscellaneous.scala.DbApiHelper
 
-class UserRepository @Inject() (databaseExecutionContext: DatabaseExecutionContext) extends DbApiHelper:
+class UserRepository @Inject() (databaseExecutionContext: DatabaseExecutionContext) extends EbeanQueryExtensions:
 
   private val db: Database                  = DB.getDefault
   private implicit val ec: ExecutionContext = databaseExecutionContext

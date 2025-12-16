@@ -6,6 +6,7 @@ package helpers
 
 import jakarta.servlet.http.HttpServlet
 import net.jodah.concurrentunit.Waiter
+
 import scala.compiletime.uninitialized
 
 class BaseServlet extends HttpServlet:

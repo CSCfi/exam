@@ -10,7 +10,7 @@ import org.yaml.snakeyaml.representer.Representer
 import org.yaml.snakeyaml.{DumperOptions, LoaderOptions, Yaml}
 
 import java.io.FileInputStream
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 object TestDataLoader:

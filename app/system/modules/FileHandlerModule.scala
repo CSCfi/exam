@@ -5,8 +5,7 @@
 package system.modules
 
 import com.google.inject.AbstractModule
-import miscellaneous.file.FileHandler
-import miscellaneous.file.FileHandlerImpl
+import services.file.{FileHandler, FileHandlerImpl}
 
 class FileHandlerModule extends AbstractModule:
   override def configure(): Unit = bind(classOf[FileHandler]).to(classOf[FileHandlerImpl])

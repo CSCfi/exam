@@ -7,15 +7,15 @@ package assessment
 
 import base.BaseIntegrationSpec
 import io.ebean.DB
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.assessment.ExamInspection
 import models.exam.Exam
 import models.user.User
 import play.api.http.Status
-import play.api.libs.json.*
+import play.api.libs.json._
 import play.api.mvc.Session
 
-class ReviewControllerSpec extends BaseIntegrationSpec with DbApiHelper:
+class ReviewControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
   private lazy val exam: Option[Exam] =
     DB.find(classOf[Exam]).where().eq("name", "Algoritmit, 2013").isNotNull("parent").find

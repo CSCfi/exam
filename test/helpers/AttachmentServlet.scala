@@ -4,14 +4,14 @@
 
 package helpers
 
-import jakarta.servlet.{ServletException, ServletOutputStream}
-import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse, Part}
+import jakarta.servlet.ServletException
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import net.jodah.concurrentunit.Waiter
 import org.apache.commons.io.IOUtils
-import scala.util.Using
 
 import java.io.{File, FileInputStream, IOException}
 import java.util.Objects
+import scala.util.Using
 
 class AttachmentServlet(private var testFile: File) extends BaseServlet:
 

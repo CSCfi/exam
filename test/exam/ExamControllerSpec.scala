@@ -9,10 +9,10 @@ import io.ebean.DB
 import models.exam.{Exam, ExamType}
 import org.joda.time.DateTime
 import play.api.http.Status
-import play.api.libs.json.*
-import play.api.test.Helpers.*
+import play.api.libs.json._
+import play.api.test.Helpers._
 
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 class ExamControllerSpec extends BaseIntegrationSpec:
 

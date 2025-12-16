@@ -8,7 +8,6 @@ import base.BaseIntegrationSpec
 import io.ebean.DB
 import models.facility.ExamRoom
 import play.api.http.Status
-import play.api.test.Helpers.*
 
 class RoomControllerSpec extends BaseIntegrationSpec:
 

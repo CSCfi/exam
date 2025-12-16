@@ -6,7 +6,7 @@ package system
 
 import play.api.Logging
 import play.api.libs.json.JsValue
-import play.api.mvc.*
+import play.api.mvc._
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

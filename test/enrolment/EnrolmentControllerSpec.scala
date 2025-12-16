@@ -13,8 +13,7 @@ import helpers.RemoteServerHelper.ServletDef
 import io.ebean.DB
 import io.ebean.text.json.EJson
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import miscellaneous.json.JsonDeserializer
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.{Exam, ExamExecutionType}
 import models.facility.ExamRoom
@@ -25,7 +24,8 @@ import org.joda.time.DateTime
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.http.Status
 import play.api.libs.json.Json
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
+import services.json.JsonDeserializer
 
 import java.io.File
 import java.nio.charset.Charset
@@ -37,7 +37,7 @@ class EnrolmentControllerSpec
     extends BaseIntegrationSpec
     with BeforeAndAfterEach
     with BeforeAndAfterAll
-    with DbApiHelper:
+    with EbeanQueryExtensions:
 
   private val MAIL_TIMEOUT   = 2000L
   private var server: Server = uninitialized

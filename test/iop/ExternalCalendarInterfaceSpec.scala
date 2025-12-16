@@ -12,8 +12,7 @@ import helpers.RemoteServerHelper.ServletDef
 import helpers.{AttachmentServlet, RemoteServerHelper}
 import io.ebean.DB
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import miscellaneous.json.JsonDeserializer
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.admin.GeneralSettings
 import models.assessment.{AutoEvaluationConfig, GradeEvaluation}
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
@@ -33,18 +32,19 @@ import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsArray, Json}
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
+import services.json.JsonDeserializer
 
 import java.io.{File, FileInputStream, IOException}
 import java.util
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 class ExternalCalendarInterfaceSpec
     extends BaseIntegrationSpec
     with BeforeAndAfterAll
     with BeforeAndAfterEach
     with Matchers
-    with DbApiHelper:
+    with EbeanQueryExtensions:
 
   private val ORG_REF         = "thisissomeorgref"
   private val ROOM_REF        = "0e6d16c51f857a20ab578f57f1018456"
@@ -560,7 +560,7 @@ class ExternalCalendarInterfaceSpec
         updatedReservation.getUser.getId must be(newUser.getId)
 
         // See that user is eventually directed to waiting room
-        val sessionResult = runIO(get("/app/checkSession", session = session))
+        val sessionResult = runIO(get("/app/session", session = session))
         sessionResult.header.headers.get("x-exam-upcoming-exam") must be(defined)
 
         // Try do some teacher stuff, see that it is not allowed
@@ -605,7 +605,7 @@ class ExternalCalendarInterfaceSpec
 
         val (user, session) = runIO(login(eppn))
         // See that user is informed of wrong ip
-        val result = runIO(get("/app/checkSession", session = session))
+        val result = runIO(get("/app/session", session = session))
         result.header.headers.get("x-exam-unknown-machine") must be(defined)
 
     "requesting external reservations as student" should:

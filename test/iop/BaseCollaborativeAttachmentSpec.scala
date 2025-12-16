@@ -6,7 +6,7 @@
 package iop
 
 import base.BaseIntegrationSpec
-import helpers.*
+import helpers._
 import io.ebean.DB
 import jakarta.servlet.MultipartConfigElement
 import models.attachment.Attachment
@@ -24,14 +24,13 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.Logger
 import play.api.mvc.Result
-import play.api.test.Helpers.*
 
 import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
 import java.util.{Base64, Objects}
 import scala.concurrent.Await
-import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters.*
+import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 
 trait BaseCollaborativeAttachmentSpec[T]
     extends BaseIntegrationSpec

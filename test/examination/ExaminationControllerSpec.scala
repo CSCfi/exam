@@ -8,8 +8,7 @@ import base.BaseIntegrationSpec
 import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.util.{GreenMail, GreenMailUtil, ServerSetupTest}
 import io.ebean.DB
-import miscellaneous.json.JsonDeserializer
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.assessment.{AutoEvaluationConfig, GradeEvaluation}
 import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
 import models.exam.{Exam, ExamExecutionType}
@@ -22,12 +21,13 @@ import org.joda.time.DateTime
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status
 import play.api.libs.json.{JsArray, JsNumber, Json}
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
+import services.json.JsonDeserializer
 
 import java.util
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
-class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach with DbApiHelper:
+class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach with EbeanQueryExtensions:
 
   private val MAIL_TIMEOUT = 20000L
 

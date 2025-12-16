@@ -7,7 +7,7 @@ package integration
 import base.BaseIntegrationSpec
 import io.ebean.DB
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.exam.{Course, Grade, GradeScale}
 import models.facility.Organisation
 import models.user.User
@@ -26,7 +26,7 @@ class ExternalCourseHandlerSpec
     extends BaseIntegrationSpec
     with BeforeAndAfterAll
     with BeforeAndAfterEach
-    with DbApiHelper:
+    with EbeanQueryExtensions:
 
   private var server: Server = uninitialized
 

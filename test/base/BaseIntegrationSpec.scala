@@ -12,17 +12,17 @@ import org.apache.pekko.util.Timeout
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.*
+import org.scalatestplus.play.guice._
 import play.api.Application
 import play.api.http.{Status, Writeable}
-import play.api.libs.json.*
-import play.api.mvc.*
-import play.api.test.*
-import play.api.test.Helpers.*
+import play.api.libs.json._
+import play.api.mvc._
+import play.api.test.Helpers._
+import play.api.test._
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import scala.concurrent.duration.*
+import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 /** Base specification class for integration tests using ScalaTest + Play.

@@ -6,7 +6,7 @@ package models.sections;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import controllers.exam.copy.ExamCopyContext;
+import features.exam.copy.ExamCopyContext;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

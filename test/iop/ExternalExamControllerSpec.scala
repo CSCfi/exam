@@ -12,8 +12,7 @@ import helpers.{AttachmentServlet, RemoteServerHelper}
 import io.ebean.DB
 import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import miscellaneous.file.FileHandler
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.attachment.Attachment
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
 import models.exam.Exam
@@ -31,14 +30,15 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.Logging
 import play.api.http.Status
 import play.api.libs.json.Json
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
+import services.file.FileHandler
 
 import java.io.{File, FileInputStream, IOException}
 import java.nio.file.{FileSystems, Files, Path}
 import java.util
 import java.util.UUID
 import java.util.stream.StreamSupport
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 class ExternalExamControllerSpec
     extends BaseIntegrationSpec
@@ -46,7 +46,7 @@ class ExternalExamControllerSpec
     with BeforeAndAfterAll
     with Matchers
     with Logging
-    with DbApiHelper:
+    with EbeanQueryExtensions:
 
   private val RESERVATION_REF   = "0e6d16c51f857a20ab578f57f105032e"
   private val RESERVATION_REF_2 = "0e6d16c51f857a20ab578f57f105032f"

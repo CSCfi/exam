@@ -7,7 +7,7 @@ package base
 import org.joda.time.{DateTime, DateTimeZone}
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.constructor.{Construct, Constructor}
-import org.yaml.snakeyaml.nodes.{Node, NodeId, ScalarNode, Tag}
+import org.yaml.snakeyaml.nodes._
 
 import java.util.Date
 

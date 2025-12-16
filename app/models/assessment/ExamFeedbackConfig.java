@@ -11,13 +11,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import miscellaneous.datetime.DateTimeAdapter;
 import models.base.GeneratedIdentityModel;
 import models.exam.Exam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
+import services.datetime.DateTimeAdapter;
 
 @Entity
 public class ExamFeedbackConfig extends GeneratedIdentityModel {

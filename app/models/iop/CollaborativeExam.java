@@ -10,13 +10,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.persistence.*;
 import java.util.List;
-import miscellaneous.datetime.DateTimeAdapter;
-import miscellaneous.json.JsonDeserializer;
 import models.base.GeneratedIdentityModel;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.ExamParticipation;
 import models.exam.Exam;
 import org.joda.time.DateTime;
+import services.datetime.DateTimeAdapter;
+import services.json.JsonDeserializer;
 
 @Entity
 public class CollaborativeExam extends GeneratedIdentityModel {

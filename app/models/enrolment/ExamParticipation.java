@@ -13,7 +13,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import miscellaneous.datetime.DateTimeAdapter;
 import models.base.GeneratedIdentityModel;
 import models.exam.Exam;
 import models.iop.CollaborativeExam;
@@ -21,6 +20,7 @@ import models.user.User;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
+import services.datetime.DateTimeAdapter;
 
 @Entity
 public class ExamParticipation extends GeneratedIdentityModel {

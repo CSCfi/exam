@@ -7,7 +7,7 @@ package models.exam;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import controllers.exam.copy.ExamCopyContext;
+import features.exam.copy.ExamCopyContext;
 import io.ebean.annotation.EnumValue;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -34,7 +34,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import miscellaneous.datetime.DateTimeAdapter;
 import models.assessment.AutoEvaluationConfig;
 import models.assessment.Comment;
 import models.assessment.ExamFeedbackConfig;
@@ -61,6 +60,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
+import services.datetime.DateTimeAdapter;
 
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {

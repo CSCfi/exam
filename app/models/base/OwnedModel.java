@@ -10,9 +10,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import miscellaneous.datetime.DateTimeAdapter;
 import models.user.User;
 import org.joda.time.DateTime;
+import services.datetime.DateTimeAdapter;
 
 @MappedSuperclass
 public class OwnedModel extends GeneratedIdentityModel {

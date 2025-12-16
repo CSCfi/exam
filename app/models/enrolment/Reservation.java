@@ -14,7 +14,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import javax.annotation.Nonnull;
-import miscellaneous.datetime.DateTimeAdapter;
 import models.base.GeneratedIdentityModel;
 import models.facility.ExamMachine;
 import models.user.User;
@@ -22,6 +21,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import services.datetime.DateTimeAdapter;
 
 @Entity
 public class Reservation extends GeneratedIdentityModel implements Comparable<Reservation> {

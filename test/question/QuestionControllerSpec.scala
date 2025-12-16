@@ -6,18 +6,18 @@ package question
 
 import base.BaseIntegrationSpec
 import io.ebean.DB
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.questions.{MultipleChoiceOption, Question}
 import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.User
 import play.api.http.Status
-import play.api.libs.json.*
+import play.api.libs.json._
 import play.api.mvc.Result
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
-class QuestionControllerSpec extends BaseIntegrationSpec with DbApiHelper:
+class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
   "QuestionController" when:
     "adding essay question to exam" should:

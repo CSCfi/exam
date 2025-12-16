@@ -4,9 +4,9 @@
 
 package functional
 
-import miscellaneous.config.ByodConfigHandler
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import services.config.ByodConfigHandler
 
 class ByodConfigHandlerSpec extends PlaySpec with GuiceOneAppPerTest:
 

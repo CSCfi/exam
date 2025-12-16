@@ -6,14 +6,13 @@ package session
 
 import base.BaseIntegrationSpec
 import io.ebean.DB
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.user.{Role, User}
 import play.api.http.Status
-import play.api.test.Helpers.*
 
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
-class SessionControllerSpec extends BaseIntegrationSpec with DbApiHelper:
+class SessionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 
   "SessionController" when:
     "handling new local user login".must:

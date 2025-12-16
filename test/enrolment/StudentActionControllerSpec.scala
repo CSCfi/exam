@@ -6,8 +6,7 @@ package enrolment
 
 import base.BaseIntegrationSpec
 import io.ebean.DB
-import miscellaneous.json.JsonDeserializer
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
 import models.exam.Exam
 import models.facility.ExamRoom
@@ -16,11 +15,11 @@ import org.joda.time.DateTime
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status
 import play.api.libs.json.JsArray
-import play.api.test.Helpers.*
+import services.json.JsonDeserializer
 
 import java.util.TimeZone
 
-class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach with DbApiHelper:
+class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach with EbeanQueryExtensions:
 
   override def beforeEach(): Unit =
     super.beforeEach()

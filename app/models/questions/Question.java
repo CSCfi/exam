@@ -42,7 +42,7 @@ import play.api.libs.json.Json;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.jdk.javaapi.OptionConverters;
-import validation.scala.core.SanitizingHelper;
+import validation.core.SanitizingHelper;
 
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {

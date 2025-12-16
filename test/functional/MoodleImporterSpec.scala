@@ -5,10 +5,9 @@
 package functional
 
 import base.BaseIntegrationSpec
-import miscellaneous.xml.MoodleXmlImporter
+import services.xml.MoodleXmlImporter
 
 import java.nio.file.{Files, Path}
-import scala.jdk.CollectionConverters.*
 
 class MoodleImporterSpec extends BaseIntegrationSpec:
 

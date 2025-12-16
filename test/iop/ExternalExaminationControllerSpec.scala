@@ -11,8 +11,7 @@ import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.util.{GreenMail, ServerSetupTest}
 import io.ebean.DB
 import io.ebean.text.json.EJson
-import miscellaneous.json.JsonDeserializer
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
 import models.facility.{ExamMachine, ExamRoom}
@@ -25,19 +24,20 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.http.Status
 import play.api.libs.json.{JsArray, JsObject, Json}
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
+import services.json.JsonDeserializer
 
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.UUID
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 class ExternalExaminationControllerSpec
     extends BaseIntegrationSpec
     with BeforeAndAfterEach
     with BeforeAndAfterAll
     with Matchers
-    with DbApiHelper:
+    with EbeanQueryExtensions:
 
   private lazy val greenMail = new GreenMail(ServerSetupTest.SMTP)
     .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication())

@@ -4,33 +4,32 @@
 
 package repository
 
-import controllers.exam.copy.ExamCopyContext
-import controllers.iop.collaboration.api.CollaborativeExamLoader
-import io.ebean.{DB, Database, Query, Transaction}
+import features.exam.copy.ExamCopyContext
+import features.iop.collaboration.api.CollaborativeExamLoader
 import io.ebean.text.PathProperties
-import miscellaneous.datetime.DateTimeHandler
-import miscellaneous.scala.DbApiHelper
-import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
+import io.ebean.{DB, Database, Query}
+import database.EbeanQueryExtensions
+import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
 import models.facility.ExamRoom
 import models.iop.CollaborativeExam
 import models.questions.{ClozeTestAnswer, Question}
-import models.sections.ExamSection
 import models.user.User
 import org.joda.time.DateTime
 import play.api.Logging
+import services.datetime.DateTimeHandler
 
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.*
-import scala.util.{Try, Using}
+import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 class ExaminationRepository @Inject() (
     cel: CollaborativeExamLoader,
     databaseExecutionContext: DatabaseExecutionContext,
     dateTimeHandler: DateTimeHandler
 ) extends Logging
-    with DbApiHelper:
+    with EbeanQueryExtensions:
 
   private val db: Database                          = DB.getDefault
   private implicit val ec: DatabaseExecutionContext = databaseExecutionContext

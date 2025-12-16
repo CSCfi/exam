@@ -4,27 +4,24 @@
 
 package repository
 
-import io.ebean.{DB, Database}
 import io.ebean.text.PathProperties
-import miscellaneous.config.ByodConfigHandler
-import miscellaneous.datetime.DateTimeHandler
-import miscellaneous.scala.DbApiHelper
-import models.enrolment.{ExamEnrolment, ExaminationEvent, ExaminationEventConfiguration, Reservation}
+import io.ebean.{DB, Database}
+import database.EbeanQueryExtensions
+import models.enrolment.ExamEnrolment
 import models.exam.Exam
 import models.facility.{ExamMachine, ExamRoom}
-import models.iop.CollaborativeExam
-import models.sections.ExamSection
 import models.user.{Role, User}
 import org.apache.commons.codec.binary.Base64
-import org.joda.time.{DateTime, DateTimeZone, Minutes}
 import org.joda.time.format.ISODateTimeFormat
-import play.api.{Environment, Logging, Mode}
+import org.joda.time.{DateTime, DateTimeZone, Minutes}
 import play.api.mvc.{AnyContent, Request, RequestHeader}
+import play.api.{Environment, Logging, Mode}
+import services.config.ByodConfigHandler
+import services.datetime.DateTimeHandler
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.*
+import scala.jdk.CollectionConverters._
 
 class EnrolmentRepository @Inject() (
     environment: Environment,
@@ -32,7 +29,7 @@ class EnrolmentRepository @Inject() (
     byodConfigHandler: ByodConfigHandler,
     dateTimeHandler: DateTimeHandler
 ) extends Logging
-    with DbApiHelper:
+    with EbeanQueryExtensions:
 
   private val db: Database                  = DB.getDefault
   private implicit val ec: ExecutionContext = databaseExecutionContext
@@ -170,7 +167,8 @@ class EnrolmentRepository @Inject() (
       logger.info("Checking SEB config...")
       // SEB examination
       val config = enrolment.getExaminationEventConfiguration
-      val error  = byodConfigHandler.checkUserAgent(request, config.getConfigKey)
+      val error =
+        byodConfigHandler.checkUserAgent(request.headers.toMap, request.uri, request.host, config.getConfigKey)
 
       if error.isDefined then
         val msg = ISODateTimeFormat.dateTime().print(new DateTime(config.getExaminationEvent.getStart))

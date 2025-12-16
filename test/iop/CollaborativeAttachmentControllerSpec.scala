@@ -7,14 +7,12 @@ package iop
 
 import cats.effect.IO
 import helpers.BaseServlet
-import io.ebean.DB
 import models.iop.CollaborativeExam
-import models.sections.ExamSectionQuestion
 import play.api.http.Status
 import play.api.libs.Files
 import play.api.mvc.{MultipartFormData, Result}
-import play.api.test.Helpers.{POST, route, writeableOf_AnyContentAsMultipartForm}
 import play.api.test.FakeRequest
+import play.api.test.Helpers.{POST, route, writeableOf_AnyContentAsMultipartForm}
 
 class CollaborativeAttachmentControllerSpec extends BaseCollaborativeAttachmentSpec[CollaborativeExam]:
 

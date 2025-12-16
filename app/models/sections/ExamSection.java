@@ -6,7 +6,7 @@ package models.sections;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import controllers.exam.copy.ExamCopyContext;
+import features.exam.copy.ExamCopyContext;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;

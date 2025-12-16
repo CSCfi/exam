@@ -10,7 +10,8 @@ licenses += "EUPL 1.2" -> url("https://joinup.ec.europa.eu/software/page/eupl/li
 
 scalaVersion := "3.7.3"
 
-scalacOptions ++= Seq("-deprecation", "-feature", "-Dunused:imports")
+scalacOptions ++= Seq("-deprecation", "-feature")
+// use -Wunused:imports for unused imports checking
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayEbean)
 
@@ -49,8 +50,6 @@ dependencyOverrides ++= Seq(
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")
-
-routesImport += "system.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 

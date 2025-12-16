@@ -5,8 +5,7 @@
 package system.modules
 
 import com.google.inject.AbstractModule
-import miscellaneous.datetime.DateTimeHandler
-import miscellaneous.datetime.DateTimeHandlerImpl
+import services.datetime.{DateTimeHandler, DateTimeHandlerImpl}
 
 class DateTimeHandlerModule extends AbstractModule:
   override def configure(): Unit = bind(classOf[DateTimeHandler]).to(classOf[DateTimeHandlerImpl])

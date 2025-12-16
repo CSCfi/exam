@@ -13,7 +13,7 @@ import play.api.http.Status
 import play.api.libs.json.JsArray
 
 import scala.compiletime.uninitialized
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 class ExamAPIControllerSpec extends BaseIntegrationSpec:
 

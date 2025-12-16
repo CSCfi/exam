@@ -19,7 +19,6 @@ import jakarta.persistence.TemporalType;
 import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import miscellaneous.datetime.DateTimeAdapter;
 import models.base.GeneratedIdentityModel;
 import models.exam.Exam;
 import models.iop.CollaborativeExam;
@@ -29,6 +28,7 @@ import models.user.User;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
+import services.datetime.DateTimeAdapter;
 
 @Entity
 public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {

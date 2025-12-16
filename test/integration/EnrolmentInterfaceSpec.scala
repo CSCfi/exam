@@ -9,14 +9,13 @@ import helpers.RemoteServerHelper
 import helpers.RemoteServerHelper.ServletDef
 import io.ebean.DB
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.exam.Exam
 import org.eclipse.jetty.server.Server
 import org.joda.time.DateTime
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.http.Status
 import play.api.libs.json.JsArray
-import play.api.test.Helpers.*
 
 import scala.compiletime.uninitialized
 
@@ -24,7 +23,7 @@ class EnrolmentInterfaceSpec
     extends BaseIntegrationSpec
     with BeforeAndAfterAll
     with BeforeAndAfterEach
-    with DbApiHelper:
+    with EbeanQueryExtensions:
 
   private var server: Server         = uninitialized
   private var emptyResponse: Boolean = false

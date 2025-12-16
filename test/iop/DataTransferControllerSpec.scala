@@ -11,7 +11,7 @@ import helpers.RemoteServerHelper.ServletDef
 import io.ebean.DB
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import miscellaneous.scala.DbApiHelper
+import database.EbeanQueryExtensions
 import models.attachment.Attachment
 import models.questions.{Question, Tag}
 import models.user.User
@@ -21,13 +21,17 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.http.Status
 import play.api.libs.json.{JsArray, Json}
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 
 import java.io.{File, IOException}
 import java.util.Objects
 import scala.compiletime.uninitialized
 
-class DataTransferControllerSpec extends BaseIntegrationSpec with BeforeAndAfterAll with Matchers with DbApiHelper:
+class DataTransferControllerSpec
+    extends BaseIntegrationSpec
+    with BeforeAndAfterAll
+    with Matchers
+    with EbeanQueryExtensions:
 
   private val ORG_REF              = "thisissomeorgref"
   private lazy val testImage: File = getTestFile("test_files/test_image.png")

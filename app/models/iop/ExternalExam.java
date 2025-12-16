@@ -15,11 +15,11 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.io.IOException;
 import java.util.Map;
-import miscellaneous.json.JsonDeserializer;
 import models.base.GeneratedIdentityModel;
 import models.exam.Exam;
 import models.user.User;
 import org.joda.time.DateTime;
+import services.json.JsonDeserializer;
 
 @Entity
 public class ExternalExam extends GeneratedIdentityModel {
