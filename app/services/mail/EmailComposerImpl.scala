@@ -686,7 +686,8 @@ class EmailComposerImpl @Inject() (
 
     val examDuration =
       messaging("email.template.participant.notification.exam.duration", exam.getDuration)(using
-      lang)
+        lang
+      )
     val reservationInfo =
       if isAquarium then ""
       else

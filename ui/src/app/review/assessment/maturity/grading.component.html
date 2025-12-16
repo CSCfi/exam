@@ -114,7 +114,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div
         class="row mt-2 align-items-center"
-        [hidden]="!isReadOnly() || !isOwnerOrAdmin() || !user().isLanguageInspector"
+        [hidden]="!isReadOnly() || (!isOwnerOrAdmin() && !user().isLanguageInspector)"
     >
         <div class="col-md-4">
             {{ 'i18n_additional_info_for_student' | translate }}:

@@ -479,7 +479,8 @@ class ReviewService @Inject() (
   private def isDisallowedToModify(exam: Exam, user: User, newState: Exam.State) =
     !exam.getParent.isOwnedOrCreatedBy(user) &&
       !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) &&
-      !isRejectedInLanguageInspection(exam, user, newState)
+      !isRejectedInLanguageInspection(exam, user, newState) &&
+      !user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE)
 
   private def isDisallowedToScore(exam: Exam, user: User) =
     !exam.getParent.isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole(
