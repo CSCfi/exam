@@ -14,11 +14,13 @@ import org.joda.time.DateTime
 import play.api.Logging
 
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success}
 
 class ReservationPollerActor @Inject (
     private val noShowHandler: NoShowHandler,
-    private val dateTimeHandler: DateTimeHandler
+    private val dateTimeHandler: DateTimeHandler,
+    implicit val ec: ExecutionContext
 ) extends AbstractActor
     with Logging
     with DbApiHelper:
@@ -65,7 +67,14 @@ class ReservationPollerActor @Inject (
           .list
 
         if enrolments.isEmpty && reservations.isEmpty then logger.debug("None found")
-        else noShowHandler.handleNoShows(enrolments, reservations)
+        else
+          // Fire-and-forget: process asynchronously and log results
+          noShowHandler.handleNoShows(enrolments, reservations).onComplete {
+            case Success(_) =>
+              logger.debug("No-show processing completed")
+            case Failure(e) =>
+              logger.error("Error processing no-shows", e)
+          }
         logger.debug("<- done")
     )
     .build
