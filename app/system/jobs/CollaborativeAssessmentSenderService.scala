@@ -5,6 +5,7 @@
 package system.jobs
 
 import cats.effect.{IO, Resource}
+import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.syntax.all._
 import features.iop.collaboration.api.CollaborativeExamLoader
 import io.ebean.DB
@@ -14,14 +15,30 @@ import models.exam.Exam
 import play.api.Logging
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 // This service sends participations to collaborative exams back to the proxy server to be assessed further.
 class CollaborativeAssessmentSenderService @Inject() (
-    private val collaborativeExamLoader: CollaborativeExamLoader
+    private val collaborativeExamLoader: CollaborativeExamLoader,
+    implicit val ec: ExecutionContext
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions:
+
+  // Maximum number of concurrent HTTP requests
+  private val maxConcurrency = 10
+
+  private def send(participation: ExamParticipation): IO[Unit] =
+    val ref = participation.getCollaborativeExam.getExternalRef
+    logger.info(s"Sending collaborative assessment for exam $ref")
+    IO.fromFuture(IO(collaborativeExamLoader.createAssessmentWithAttachments(participation)))
+      .flatMap(success =>
+        if success then IO(logger.info(s"Collaborative assessment for exam $ref processed successfully"))
+        else IO(logger.error(s"Failed to send collaborative assessment for exam $ref"))
+      )
+      .handleErrorWith(e => IO(logger.error(s"Error sending collaborative assessment for exam $ref", e)))
+      .void
 
   private def runCheck(): IO[Unit] =
     IO.blocking {
@@ -36,9 +53,15 @@ class CollaborativeAssessmentSenderService @Inject() (
         .isNotNull("started")
         .isNotNull("ended")
         .list
-        .foreach(collaborativeExamLoader.createAssessmentWithAttachments)
-      logger.info("<- done")
-    }
+    }.flatMap(participations =>
+      val count = participations.size
+      if count > 0 then
+        logger.info(s"Processing $count collaborative assessments with max concurrency of $maxConcurrency")
+        participations
+          .parTraverseN(maxConcurrency)(send)
+          .handleErrorWith(e => IO(logger.error("Error processing collaborative assessments", e)))
+      else IO(logger.info("No collaborative assessments to process"))
+    ) *> IO(logger.info("<- done"))
 
   def resource: Resource[IO, Unit] =
     val (delay, interval) = (80.seconds, 15.minutes)

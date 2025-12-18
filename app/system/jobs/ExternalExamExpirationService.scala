@@ -5,6 +5,7 @@
 package system.jobs
 
 import cats.effect.{IO, Resource}
+import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.syntax.all._
 import io.ebean.DB
 import database.EbeanQueryExtensions
@@ -33,6 +34,9 @@ class ExternalExamExpirationService @Inject() (
     with Logging
     with EbeanQueryExtensions:
 
+  // Maximum number of concurrent HTTP requests
+  private val maxConcurrency = 10
+
   private def parseUrl(id: String) =
     val url = s"${configReader.getIopHost}/api/attachments/$id"
     catching(classOf[MalformedURLException]).either(URI.create(url).toURL) match
@@ -41,25 +45,49 @@ class ExternalExamExpirationService @Inject() (
 
   private def deleteAttachment(attachment: Attachment): IO[Unit] =
     val url = parseUrl(attachment.getExternalId).map(_.toString).getOrElse("")
-    IO.fromFuture(IO(wsClient.url(url).delete())).void
+    if url.nonEmpty then
+      IO.fromFuture(IO(wsClient.url(url).delete()))
+        .void
+        .handleErrorWith(e => IO(logger.error(s"Failed to delete attachment ${attachment.getExternalId}", e)))
+    else IO.unit
 
   private def processExternalExam(ee: ExternalExam): IO[Unit] =
-    val attachments = ee.deserialize.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .map(_.getEssayAnswer)
-      .flatMap(ea => Option(ea).flatMap(e => Option(e.getAttachment)))
-    attachments.toList
-      .traverse_(deleteAttachment)
-      .handleErrorWith(e => IO(logger.error(s"Failed in deleting attachments for ${ee.getId}", e)))
-      .flatMap(_ =>
-        if ee.getSent.plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION).isBeforeNow then
-          IO.blocking {
-            ee.setContent(Map.empty[String, Object].asJava)
-            ee.update()
-            logger.info(s"Marked external exam ${ee.getId} as expired")
-          }
-        else IO.unit
+    val attachments =
+      try
+        ee.deserialize.getExamSections.asScala
+          .flatMap(_.getSectionQuestions.asScala)
+          .map(_.getEssayAnswer)
+          .flatMap(ea => Option(ea).flatMap(e => Option(e.getAttachment)))
+          .toList
+      catch
+        case e: Exception =>
+          logger.error(s"Failed to deserialize external exam ${ee.getId}", e)
+          List.empty[Attachment]
+
+    if attachments.nonEmpty then
+      val count = attachments.size
+      logger.info(
+        s"Processing $count attachments for external exam ${ee.getId} with max concurrency of $maxConcurrency"
       )
+      attachments
+        .parTraverseN(maxConcurrency)(deleteAttachment)
+        .handleErrorWith(e => IO(logger.error(s"Failed in deleting attachments for external exam ${ee.getId}", e)))
+        .flatMap(_ =>
+          if ee.getSent.plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION).isBeforeNow then
+            IO.blocking {
+              ee.setContent(Map.empty[String, Object].asJava)
+              ee.update()
+              logger.info(s"Marked external exam ${ee.getId} as expired")
+            }
+          else IO.unit
+        )
+    else if ee.getSent.plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION).isBeforeNow then
+      IO.blocking {
+        ee.setContent(Map.empty[String, Object].asJava)
+        ee.update()
+        logger.info(s"Marked external exam ${ee.getId} as expired")
+      }
+    else IO.unit
 
   private def runCheck(): IO[Unit] =
     IO.blocking {
@@ -73,9 +101,13 @@ class ExternalExamExpirationService @Inject() (
         .filter(ee => Option(ee.getSent).nonEmpty)
         .distinct
     }.flatMap(exams =>
-      exams
-        .traverse_(processExternalExam)
-        .handleErrorWith(e => IO(logger.error("Error processing external exam expiration", e)))
+      val count = exams.size
+      if count > 0 then
+        logger.info(s"Processing $count external exams with max concurrency of $maxConcurrency")
+        exams
+          .parTraverseN(maxConcurrency)(processExternalExam)
+          .handleErrorWith(e => IO(logger.error("Error processing external exam expiration", e)))
+      else IO(logger.info("No external exams to process"))
     ) *> IO(logger.info("<- done"))
 
   def resource: Resource[IO, Unit] =

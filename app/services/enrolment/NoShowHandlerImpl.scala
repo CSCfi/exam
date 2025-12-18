@@ -4,6 +4,10 @@
 
 package services.enrolment
 
+import cats.effect.IO
+import cats.effect.syntax.all.concurrentParTraverseOps
+import cats.effect.unsafe.implicits.global
+import cats.syntax.all._
 import io.ebean.Model
 import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, Reservation}
@@ -29,19 +33,50 @@ class NoShowHandlerImpl @Inject (
     with EbeanQueryExtensions
     with Logging:
 
-  private def send[A <: Model](ref: String, item: A)(success: A => Unit) =
-    val url = parseUrl(ref)
-    wsClient
-      .url(url.toString)
-      .execute(Http.HttpVerbs.POST)
-      .map(response =>
-        if response.status != OK then logger.error(s"No success in sending no-show #$ref to XM")
-        else
-          success(item)
-          item.update()
-          logger.info(s"Successfully sent no-show #$ref to XM")
+  // Maximum number of concurrent HTTP requests
+  private val maxConcurrency = 10
+
+  private def sendEnrolmentNoShow(ee: ExamEnrolment): IO[Unit] =
+    val ref = ee.getReservation.getExternalRef
+    logger.info(s"Sending no-show for enrolment with reservation $ref")
+    IO.fromFuture(
+      IO(
+        wsClient
+          .url(parseUrl(ref).toString)
+          .execute(Http.HttpVerbs.POST)
+          .map(response =>
+            if response.status != OK then logger.error(s"No success in sending no-show #$ref to XM")
+            else
+              ee.setNoShow(true)
+              ee.update()
+              logger.info(s"Successfully sent no-show #$ref to XM")
+          )
+          .recover { case e: Exception =>
+            logger.error(s"Failed in sending no-show #$ref back", e)
+          }
       )
-      .recover(logger.error("Failed in sending no-shows back", _))
+    ).void
+
+  private def sendReservationNoShow(r: Reservation): IO[Unit] =
+    val ref = r.getExternalRef
+    logger.info(s"Sending no-show for reservation $ref")
+    IO.fromFuture(
+      IO(
+        wsClient
+          .url(parseUrl(ref).toString)
+          .execute(Http.HttpVerbs.POST)
+          .map(response =>
+            if response.status != OK then logger.error(s"No success in sending no-show reservation #$ref to XM")
+            else
+              r.setSentAsNoShow(true)
+              r.update()
+              logger.info(s"Successfully sent no-show reservation #$ref to XM")
+          )
+          .recover { case e: Exception =>
+            logger.error(s"Failed in sending no-show reservation #$ref back", e)
+          }
+      )
+    ).void
 
   private def parseUrl(reservationRef: String) =
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/noshow").toURL
@@ -61,11 +96,26 @@ class NoShowHandlerImpl @Inject (
       ref.nonEmpty && !ns.getReservation.isSentAsNoShow &&
       (Option(ns.getUser).isEmpty || Option(ns.getExternalExam).flatMap(e => Option(e.getStarted)).isEmpty)
     )
-    // Send to XM for further processing
-    // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
-    // no-shows and sending them one by one over network would be inefficient. However, this is not very likely.
-    externals.foreach(ee => send(ee.getReservation.getExternalRef, ee)(_.setNoShow(true)))
-    reservations.foreach(r => send(r.getExternalRef, r)(_.setSentAsNoShow(true)))
+
+    // Process externals and reservations with bounded concurrency
+    val io = (if externals.nonEmpty then
+                val count = externals.size
+                logger.info(s"Processing $count external no-shows with max concurrency of $maxConcurrency")
+                externals
+                  .parTraverseN(maxConcurrency)(sendEnrolmentNoShow)
+                  .handleErrorWith(e => IO(logger.error("Error processing external no-shows", e)))
+              else IO.unit)
+    *>
+      (if reservations.nonEmpty then
+         val count = reservations.size
+         logger.info(s"Processing $count reservation no-shows with max concurrency of $maxConcurrency")
+         reservations
+           .parTraverseN(maxConcurrency)(sendReservationNoShow)
+           .handleErrorWith(e => IO(logger.error("Error processing reservation no-shows", e)))
+       else IO.unit)
+
+    // Run the IO synchronously to maintain backward compatibility
+    io.unsafeRunSync()
 
   override def handleNoShowAndNotify(enrolment: ExamEnrolment): Unit =
     val exam = enrolment.getExam

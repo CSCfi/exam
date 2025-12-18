@@ -5,6 +5,7 @@
 package system.jobs
 
 import cats.effect.{IO, Resource}
+import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.syntax.all._
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ebean.DB
@@ -34,6 +35,10 @@ class AssessmentTransferService @Inject() (
     with EbeanQueryExtensions
     with EbeanJsonExtensions:
 
+  // Maximum number of concurrent HTTP requests
+  private val maxConcurrency = 10
+  private val objectMapper   = new ObjectMapper().registerModule(new PlayJsonMapperModule(JsonParserSettings.settings))
+
   private def parseUrl(reservationRef: String) =
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/assessment").toURL
 
@@ -44,8 +49,7 @@ class AssessmentTransferService @Inject() (
     val request = wsClient.url(url.toString)
     val ee      = enrolment.getExternalExam
     val json    = DB.json.toJson(ee, PathProperties.parse("(*, creator(id))"))
-    val om      = new ObjectMapper().registerModule(new PlayJsonMapperModule(JsonParserSettings.settings))
-    val node    = om.readTree(json)
+    val node    = objectMapper.readTree(json)
     IO.fromFuture(
       IO(
         request
@@ -79,9 +83,13 @@ class AssessmentTransferService @Inject() (
         .isNotNull("reservation.externalRef")
         .list
     }.flatMap(enrolments =>
-      enrolments
-        .traverse_(send)
-        .handleErrorWith(e => IO(logger.error("Error processing assessment transfers", e)))
+      val count = enrolments.size
+      if count > 0 then
+        logger.info(s"Processing $count assessment transfers with max concurrency of $maxConcurrency")
+        enrolments
+          .parTraverseN(maxConcurrency)(send)
+          .handleErrorWith(e => IO(logger.error("Error processing assessment transfers", e)))
+      else IO(logger.info("No assessment transfers to process"))
     ) *> IO(logger.info("<- done"))
 
   def resource: Resource[IO, Unit] =
