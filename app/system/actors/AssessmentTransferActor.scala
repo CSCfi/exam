@@ -11,6 +11,8 @@ import miscellaneous.config.ConfigReader
 import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.enrolment.ExamEnrolment
 import org.apache.pekko.actor.AbstractActor
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{Sink, Source}
 import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsonParserSettings
@@ -25,18 +27,22 @@ import scala.concurrent.ExecutionContext
 class AssessmentTransferActor @Inject (
     private val wsClient: WSClient,
     private val configReader: ConfigReader,
-    implicit val ec: ExecutionContext
+    implicit val ec: ExecutionContext,
+    implicit val mat: Materializer
 ) extends AbstractActor
     with Logging
     with DbApiHelper
     with JavaApiHelper:
 
+  // Maximum number of concurrent HTTP requests
+  private val maxConcurrency = 10
+
   override def createReceive(): AbstractActor.Receive = receiveBuilder()
     .`match`(
       classOf[String],
       (_: String) =>
-        logger.debug("Assessment transfer check started ->")
-        DB
+        logger.info("Assessment transfer check started ->")
+        val enrolments = DB
           .find(classOf[ExamEnrolment])
           .where
           .isNotNull("externalExam")
@@ -45,14 +51,28 @@ class AssessmentTransferActor @Inject (
           .isNotNull("externalExam.finished")
           .isNotNull("reservation.externalRef")
           .list
-          .foreach(send)
-        logger.debug("<- done")
+
+        val count = enrolments.size
+        if count > 0 then
+          logger.info(s"Processing $count assessment transfers with max concurrency of $maxConcurrency")
+          Source(enrolments)
+            .mapAsync(maxConcurrency)(send)
+            .runWith(Sink.ignore)
+            .onComplete {
+              case scala.util.Success(_) =>
+                logger.info("<- Assessment transfer check completed successfully")
+              case scala.util.Failure(e) =>
+                logger.error("Error processing assessment transfers", e)
+            }
+        else
+          logger.info("No assessment transfers to process")
+          logger.info("<- done")
     )
     .build
 
-  private def send(enrolment: ExamEnrolment): Unit =
+  private def send(enrolment: ExamEnrolment): scala.concurrent.Future[Unit] =
     val ref = enrolment.getReservation.getExternalRef
-    logger.debug(s"Transferring back assessment for reservation $ref")
+    logger.info(s"Transferring back assessment for reservation $ref")
     val url     = parseUrl(ref)
     val request = wsClient.url(url.toString)
     val ee      = enrolment.getExternalExam
@@ -67,13 +87,14 @@ class AssessmentTransferActor @Inject (
           case Http.Status.CREATED =>
             ee.setSent(DateTime.now)
             ee.update()
-            logger.info("Assessment transfer for reservation $ref processed successfully")
+            logger.info(s"Assessment transfer for reservation $ref processed successfully")
           case _ =>
             logger.error(s"Failed in transferring assessment for reservation $ref")
       )
       .recover { case e: Exception =>
         logger.error("I/O failure while sending assessment to proxy server", e)
       }
+      .map(_ => ())
 
   private def parseUrl(reservationRef: String) =
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/assessment").toURL

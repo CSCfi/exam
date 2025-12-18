@@ -10,16 +10,20 @@ import miscellaneous.datetime.DateTimeHandler
 import miscellaneous.scala.DbApiHelper
 import models.assessment.AutoEvaluationConfig.ReleaseType
 import models.exam.Exam
-import org.apache.pekko.actor.AbstractActor
+import org.apache.pekko.actor.{AbstractActor, ActorSystem}
 import org.joda.time.DateTime
 import play.api.Logging
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.*
 import scala.util.control.Exception.catching
 
 class AutoEvaluationNotifierActor @Inject (
     private val composer: EmailComposer,
-    private val dateTimeHandler: DateTimeHandler
+    private val dateTimeHandler: DateTimeHandler,
+    private val actorSystem: ActorSystem,
+    implicit val ec: ExecutionContext
 ) extends AbstractActor
     with Logging
     with DbApiHelper:
@@ -63,11 +67,16 @@ class AutoEvaluationNotifierActor @Inject (
 
   private def notifyStudent(exam: Exam): Unit =
     val student = exam.getCreator
-    catching(classOf[RuntimeException]).either(
-      composer.composeInspectionReady(student, null, exam)
-    ) match
-      case Left(e) => logger.error(s"Sending mail to ${student.getEmail} failed", e)
-      case Right(_) =>
-        logger.debug(s"Mail sent to ${student.getEmail}")
-        exam.setAutoEvaluationNotified(DateTime.now)
-        exam.update()
+    // Update database synchronously
+    exam.setAutoEvaluationNotified(DateTime.now)
+    exam.update()
+    // Schedule email sending asynchronously
+    actorSystem.scheduler.scheduleOnce(
+      1.second,
+      () =>
+        catching(classOf[RuntimeException]).either(
+          composer.composeInspectionReady(student, null, exam)
+        ) match
+          case Left(e) => logger.error(s"Sending mail to ${student.getEmail} failed", e)
+          case Right(_) => logger.debug(s"Mail sent to ${student.getEmail}")
+    )
