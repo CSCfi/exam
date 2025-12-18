@@ -9,23 +9,32 @@ import io.ebean.DB
 import miscellaneous.datetime.DateTimeHandler
 import miscellaneous.scala.DbApiHelper
 import models.enrolment.Reservation
-import org.apache.pekko.actor.AbstractActor
+import org.apache.pekko.actor.{AbstractActor, ActorSystem}
 import org.joda.time.DateTime
 import play.api.Logging
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.*
 
 class ReservationReminderActor @Inject (
     private val emailComposer: EmailComposer,
-    private val dateTimeHandler: DateTimeHandler
+    private val dateTimeHandler: DateTimeHandler,
+    private val actorSystem: ActorSystem,
+    implicit val ec: ExecutionContext
 ) extends AbstractActor
     with DbApiHelper
     with Logging:
 
   private def remind(r: Reservation): Unit =
-    emailComposer.composeReservationNotification(r.getUser, r, r.getEnrolment.getExam, true)
+    // Update database synchronously
     r.setReminderSent(true)
     r.update()
+    // Schedule email sending asynchronously
+    actorSystem.scheduler.scheduleOnce(
+      1.second,
+      () => emailComposer.composeReservationNotification(r.getUser, r, r.getEnrolment.getExam, true)
+    )
 
   override def createReceive(): AbstractActor.Receive = receiveBuilder()
     .`match`(
