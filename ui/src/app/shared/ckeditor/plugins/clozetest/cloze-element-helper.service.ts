@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Editor, findAttributeRange, ViewElement, Writer } from 'ckeditor5';
+import { Editor, findAttributeRange, ModelWriter, ViewElement } from 'ckeditor5';
 
 /**
  * Type for CKEditor view elements with common properties
@@ -91,7 +91,7 @@ export class ClozeElementHelperService {
                     );
 
                     if (attributeRange) {
-                        model.change((writer: Writer) => {
+                        model.change((writer: ModelWriter) => {
                             writer.setSelection(attributeRange);
                         });
                         return true;

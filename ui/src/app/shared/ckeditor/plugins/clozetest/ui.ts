@@ -2,7 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ButtonView, ContextualBalloon, Plugin, PositionOptions, Range, clickOutsideHandler } from 'ckeditor5';
+import {
+    ButtonView,
+    ContextualBalloon,
+    DomOptimalPositionOptions,
+    ModelRange,
+    Plugin,
+    clickOutsideHandler,
+} from 'ckeditor5';
 import { ClozeCommand } from './command';
 import { _t, getRangeText } from './utils';
 import { ClozeView } from './view';
@@ -12,7 +19,7 @@ export type CommandValue = {
     precision: string;
     numeric: boolean;
     caseSensitive: boolean;
-    range?: Range;
+    range?: ModelRange;
 };
 
 export class ClozeUI extends Plugin {
@@ -153,7 +160,7 @@ export class ClozeUI extends Plugin {
         this.editor.editing.view.focus();
     }
 
-    private getBalloonPositionData = (): Partial<PositionOptions> => {
+    private getBalloonPositionData = (): Partial<DomOptimalPositionOptions> => {
         const view = this.editor.editing.view;
         const viewDocument = view.document;
         const range = viewDocument.selection.getFirstRange();

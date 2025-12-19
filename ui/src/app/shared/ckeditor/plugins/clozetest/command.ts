@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Command, findAttributeRange, Range } from 'ckeditor5';
+import { Command, findAttributeRange, ModelRange } from 'ckeditor5';
 import { CommandValue } from './ui';
 import { getRangeText } from './utils';
 
@@ -103,7 +103,7 @@ export class ClozeCommand extends Command {
             }
         });
     }
-    private setValue = (caseSensitive: unknown, precision: unknown, numeric: unknown, range: Range) =>
+    private setValue = (caseSensitive: unknown, precision: unknown, numeric: unknown, range: ModelRange) =>
         (this.value = {
             text: getRangeText(range),
             caseSensitive: caseSensitive,

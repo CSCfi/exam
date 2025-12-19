@@ -7,15 +7,16 @@ import {
     FocusCycler,
     FocusTracker,
     FocusableView,
+    IconCancel,
+    IconCheck,
     KeystrokeHandler,
     LabeledFieldView,
     Locale,
     View,
     ViewCollection,
-    icons,
     submitHandler,
 } from 'ckeditor5';
-import { _t, createButton, createTextarea } from './utils.js';
+import { _t, createButton, createTextarea } from './utils';
 
 export class MathView extends View {
     titleView!: View;
@@ -57,11 +58,11 @@ export class MathView extends View {
             },
         });
 
-        this.saveButtonView = createButton(_t('save', locale), icons.check, 'ck-button-save');
+        this.saveButtonView = createButton(_t('save', locale), IconCheck, 'ck-button-save');
         this.saveButtonView.type = 'submit';
         this.saveButtonView.bind('isEnabled').to(this.expressionTextarea, 'isEmpty', (isEmpty) => !isEmpty);
 
-        this.cancelButtonView = createButton(_t('cancel', locale), icons.cancel, 'ck-button-cancel');
+        this.cancelButtonView = createButton(_t('cancel', locale), IconCancel, 'ck-button-cancel');
         this.cancelButtonView.delegate('execute').to(this, 'cancel');
 
         this.childViews = this.createCollection([this.expressionTextarea, this.saveButtonView, this.cancelButtonView]);

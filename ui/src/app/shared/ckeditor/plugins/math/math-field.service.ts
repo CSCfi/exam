@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Editor, ViewElement, Writer } from 'ckeditor5';
+import { Editor, ModelWriter, ViewElement } from 'ckeditor5';
 
 /**
  * Type for MathLive math-field element with its custom properties
@@ -367,7 +367,7 @@ export class MathFieldService {
                                                     viewElement as ViewElement,
                                                 );
                                                 if (modelElement) {
-                                                    editor.model.change((writer: Writer) => {
+                                                    editor.model.change((writer: ModelWriter) => {
                                                         writer.setAttribute(
                                                             'mathExpression',
                                                             targetValue,

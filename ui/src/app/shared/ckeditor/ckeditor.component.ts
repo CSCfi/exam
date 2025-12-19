@@ -333,6 +333,7 @@ export class CKEditorComponent implements AfterViewInit, OnDestroy {
                     },
                 ],
             },
+            licenseKey: 'GPL',
             link: {
                 addTargetToExternalLinks: true,
                 defaultProtocol: 'https://',

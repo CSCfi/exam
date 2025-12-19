@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ButtonView, ContextualBalloon, Plugin, PositionOptions, clickOutsideHandler } from 'ckeditor5';
+import { ButtonView, ContextualBalloon, DomOptimalPositionOptions, Plugin, clickOutsideHandler } from 'ckeditor5';
 import { _t } from './utils';
 import { MathView } from './view';
 
@@ -150,7 +150,7 @@ export class MathUI extends Plugin {
         this.editor.editing.view.focus();
     }
 
-    private getBalloonPositionData = (): Partial<PositionOptions> => {
+    private getBalloonPositionData = (): Partial<DomOptimalPositionOptions> => {
         const view = this.editor.editing.view;
         const viewDocument = view.document;
         const range = viewDocument.selection.getFirstRange();

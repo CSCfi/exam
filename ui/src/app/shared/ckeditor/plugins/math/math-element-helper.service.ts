@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Editor, ViewElement, Writer } from 'ckeditor5';
+import { Editor, ModelWriter, ViewElement } from 'ckeditor5';
 
 /**
  * Type for CKEditor view elements with common properties
@@ -57,7 +57,7 @@ export class MathElementHelperService {
         }
 
         if (modelElement && modelElement.is('element', 'mathField')) {
-            editor.model.change((writer: Writer) => {
+            editor.model.change((writer: ModelWriter) => {
                 writer.setSelection(modelElement, 'on');
             });
             return true;
@@ -86,7 +86,7 @@ export class MathElementHelperService {
                         // Select this element - item.item is an Item, but if it's an element we can use it directly
                         const element = item.item.is('element') ? item.item : null;
                         if (element) {
-                            model.change((writer: Writer) => {
+                            model.change((writer: ModelWriter) => {
                                 writer.setSelection(element, 'on');
                             });
                             return true;

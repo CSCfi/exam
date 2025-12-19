@@ -8,14 +8,14 @@ import {
     createLabeledInputText,
     LabeledFieldView,
     Locale,
-    Range,
+    ModelRange,
 } from 'ckeditor5';
 import i18nEn from './lang/translations/en';
 import i18nFi from './lang/translations/fi';
 import { Dictionary } from './lang/translations/model';
 import i18nSv from './lang/translations/sv';
 
-export function getRangeText(range: Range) {
+export function getRangeText(range: ModelRange) {
     return Array.from(range.getItems()).reduce((rangeText, node) => {
         if (!(node.is('$text') || node.is('$textProxy'))) {
             return rangeText;

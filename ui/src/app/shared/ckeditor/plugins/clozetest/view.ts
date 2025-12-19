@@ -7,6 +7,8 @@ import {
     FocusCycler,
     FocusTracker,
     FocusableView,
+    IconCancel,
+    IconCheck,
     InputNumberView,
     InputTextView,
     KeystrokeHandler,
@@ -15,7 +17,6 @@ import {
     SwitchButtonView,
     View,
     ViewCollection,
-    icons,
     submitHandler,
 } from 'ckeditor5';
 import { _t, createButton, createInput, createNumberInput } from './utils';
@@ -56,11 +57,11 @@ export class ClozeView extends View {
         this.numericButtonView.on('execute', this.numericSettingChange);
         this.precisionInputView = createNumberInput(_t('precisionLabel', locale), locale, _t('precisionTip', locale));
 
-        this.saveButtonView = createButton(_t('save', locale), icons.check, 'ck-button-save');
+        this.saveButtonView = createButton(_t('save', locale), IconCheck, 'ck-button-save');
         this.saveButtonView.type = 'submit'; // (see submitHandler() in render() below).
         // unfortunately it seems that input view value changes do not fire events, pretty hard to do validation :(
         this.saveButtonView.bind('isEnabled').to(this.answerInputView, 'errorText', (e) => e === null);
-        this.cancelButtonView = createButton(_t('cancel', locale), icons.cancel, 'ck-button-cancel');
+        this.cancelButtonView = createButton(_t('cancel', locale), IconCancel, 'ck-button-cancel');
         this.cancelButtonView.delegate('execute').to(this, 'cancel');
 
         this.childViews = this.createCollection([
