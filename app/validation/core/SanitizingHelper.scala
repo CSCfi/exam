@@ -12,8 +12,9 @@ import scala.util.Try
 
 /** Scala-idiomatic helper for parsing and sanitizing JSON fields using Play JSON.
   *
-  * Provides type-safe parsing with Option return types and HTML sanitization. This is a legacy helper that maintains
-  * compatibility with existing code. New code should prefer using PlayJsonHelper directly.
+  * Provides type-safe parsing with Option return types and HTML sanitization. This is a legacy
+  * helper that maintains compatibility with existing code. New code should prefer using
+  * PlayJsonHelper directly.
   */
 object SanitizingHelper:
 

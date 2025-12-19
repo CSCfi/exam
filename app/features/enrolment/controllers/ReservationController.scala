@@ -26,9 +26,10 @@ class ReservationController @Inject() (
     with EbeanJsonExtensions:
 
   def getExams(filter: Option[String]): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      Ok(reservationService.getExams(filter, user).asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        Ok(reservationService.getExams(filter, user).asJson)
     }
 
   def getExamRooms: Action[AnyContent] =
@@ -37,8 +38,9 @@ class ReservationController @Inject() (
     }
 
   def getStudents(filter: Option[String]): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { _ =>
-      Ok(reservationService.getStudents(filter))
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) {
+      _ =>
+        Ok(reservationService.getStudents(filter))
     }
 
   def getTeachers(filter: Option[String]): Action[AnyContent] =
@@ -71,7 +73,10 @@ class ReservationController @Inject() (
     }
 
   def updateMachine(reservationId: Long): Action[JsValue] =
-    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))).async {
+    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(
+      Role.Name.ADMIN,
+      Role.Name.SUPPORT
+    ))).async {
       request =>
         val machineId = (request.body \ "machineId").as[Long]
         reservationService.updateMachine(reservationId, machineId).map {
@@ -95,10 +100,19 @@ class ReservationController @Inject() (
       start: Option[String],
       end: Option[String]
   ): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
-      val user       = request.attrs(Auth.ATTR_USER)
-      val enrolments = reservationService.listExaminationEvents(state, ownerId, studentId, examId, start, end, user)
-      Ok(enrolments.asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        val enrolments = reservationService.listExaminationEvents(
+          state,
+          ownerId,
+          studentId,
+          examId,
+          start,
+          end,
+          user
+        )
+        Ok(enrolments.asJson)
     }
 
   def listReservations(
@@ -112,19 +126,20 @@ class ReservationController @Inject() (
       end: Option[String],
       externalRef: Option[String]
   ): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      val reservations = reservationService.listReservations(
-        state,
-        ownerId,
-        studentId,
-        roomId,
-        machineId,
-        examId,
-        start,
-        end,
-        externalRef,
-        user
-      )
-      Ok(reservations.asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        val reservations = reservationService.listReservations(
+          state,
+          ownerId,
+          studentId,
+          roomId,
+          machineId,
+          examId,
+          start,
+          end,
+          externalRef,
+          user
+        )
+        Ok(reservations.asJson)
     }

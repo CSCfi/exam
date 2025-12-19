@@ -38,12 +38,13 @@ class SettingsController @Inject() (
       Ok(settingsService.getReservationWindowSize.asJson)
     }
 
-  def getMaturityInstructions(lang: String, hash: Option[String]): Action[AnyContent] = authenticated.async { _ =>
-    settingsService.getMaturityInstructions(lang, hash).map {
-      case Left(error) => BadRequest(error)
-      case Right(json) => Ok(json)
+  def getMaturityInstructions(lang: String, hash: Option[String]): Action[AnyContent] =
+    authenticated.async { _ =>
+      settingsService.getMaturityInstructions(lang, hash).map {
+        case Left(error) => BadRequest(error)
+        case Right(json) => Ok(json)
+      }
     }
-  }
 
   def provideMaturityInstructions(ref: String, lang: String): Action[AnyContent] = audited { _ =>
     settingsService.provideMaturityInstructions(lang) match
@@ -52,7 +53,9 @@ class SettingsController @Inject() (
   }
 
   def updateUserAgreement(): Action[JsValue] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited)(parse.json) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited)(
+      parse.json
+    ) { request =>
       val eula        = (request.body \ "value").as[String]
       val minorUpdate = (request.body \ "minorUpdate").as[Boolean]
       val gs          = settingsService.updateUserAgreement(eula, minorUpdate)
@@ -60,17 +63,19 @@ class SettingsController @Inject() (
     }
 
   def setDeadline(): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) { request =>
-      request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)) match
-        case Some(deadline) => Ok(settingsService.setDeadline(deadline).asJson)
-        case None           => BadRequest("Missing value")
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) {
+      request =>
+        request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)) match
+          case Some(deadline) => Ok(settingsService.setDeadline(deadline).asJson)
+          case None           => BadRequest("Missing value")
     }
 
   def setReservationWindowSize(): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) { request =>
-      request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)) match
-        case Some(size) => Ok(settingsService.setReservationWindowSize(size).asJson)
-        case None       => BadRequest("Missing value")
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) {
+      request =>
+        request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)) match
+          case Some(size) => Ok(settingsService.setReservationWindowSize(size).asJson)
+          case None       => BadRequest("Missing value")
     }
 
   def getHostname: Action[AnyContent] = authenticated { _ =>
@@ -82,33 +87,39 @@ class SettingsController @Inject() (
   }
 
   def getExamDurations: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { _ =>
-      Ok(Json.obj("examDurations" -> settingsService.getExamDurations))
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) {
+      _ =>
+        Ok(Json.obj("examDurations" -> settingsService.getExamDurations))
     }
 
   def getExamMaxDuration: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { _ =>
-      Ok(Json.obj("maxDuration" -> settingsService.getExamMaxDuration))
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) {
+      _ =>
+        Ok(Json.obj("maxDuration" -> settingsService.getExamMaxDuration))
     }
 
   def getExamMinDuration: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { _ =>
-      Ok(Json.obj("minDuration" -> settingsService.getExamMinDuration))
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) {
+      _ =>
+        Ok(Json.obj("minDuration" -> settingsService.getExamMinDuration))
     }
 
   def isExamGradeScaleOverridable: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { _ =>
-      Ok(Json.obj("overridable" -> settingsService.isExamGradeScaleOverridable))
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) {
+      _ =>
+        Ok(Json.obj("overridable" -> settingsService.isExamGradeScaleOverridable))
     }
 
   def isEnrolmentPermissionCheckActive: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.STUDENT))) { _ =>
-      Ok(Json.obj("active" -> settingsService.isEnrolmentPermissionCheckActive))
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.STUDENT))) {
+      _ =>
+        Ok(Json.obj("active" -> settingsService.isEnrolmentPermissionCheckActive))
     }
 
-  def getAppVersion: Action[AnyContent] = authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
-    Ok(Json.obj("appVersion" -> settingsService.getAppVersion))
-  }
+  def getAppVersion: Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
+      Ok(Json.obj("appVersion" -> settingsService.getAppVersion))
+    }
 
   def isProd: Action[AnyContent] = Action { _ =>
     Ok(Json.obj("isProd" -> settingsService.isProd))
@@ -128,12 +139,16 @@ class SettingsController @Inject() (
 
   def getByodSupport: Action[AnyContent] = Action { _ =>
     val (sebSupported, homeSupported) = settingsService.getByodSupport
-    Ok(Json.obj("sebExaminationSupported" -> sebSupported, "homeExaminationSupported" -> homeSupported))
+    Ok(Json.obj(
+      "sebExaminationSupported"  -> sebSupported,
+      "homeExaminationSupported" -> homeSupported
+    ))
   }
 
-  def getExaminationQuitLink: Action[AnyContent] = authenticated.andThen(authorized(Seq(Role.Name.STUDENT))) { _ =>
-    Ok(Json.obj("quitLink" -> settingsService.getExaminationQuitLink))
-  }
+  def getExaminationQuitLink: Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))) { _ =>
+      Ok(Json.obj("quitLink" -> settingsService.getExaminationQuitLink))
+    }
 
   def getConfig: Action[AnyContent] = authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
     Ok(settingsService.getConfig)
@@ -144,11 +159,13 @@ class SettingsController @Inject() (
   }
 
   def getByodMaxParticipants: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { _ =>
-      Ok(Json.obj("max" -> settingsService.getByodMaxParticipants))
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) {
+      _ =>
+        Ok(Json.obj("max" -> settingsService.getByodMaxParticipants))
     }
 
   def areNewMultichoiceFeaturesEnabled: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) { _ =>
-      Ok(Json.obj("multichoiceFeaturesOn" -> settingsService.areNewMultichoiceFeaturesEnabled))
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))) {
+      _ =>
+        Ok(Json.obj("multichoiceFeaturesOn" -> settingsService.areNewMultichoiceFeaturesEnabled))
     }

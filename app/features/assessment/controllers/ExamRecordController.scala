@@ -38,12 +38,17 @@ class ExamRecordController @Inject() (
           case Some(id) =>
             val user = request.attrs(Auth.ATTR_USER)
             examRecordService.addExamRecord(id, user) match
-              case Right(_)                                                                         => Ok
-              case Left(ExamRecordError.ExamNotFound) | Left(ExamRecordError.ParticipationNotFound) => NotFound
-              case Left(ExamRecordError.AccessForbidden)     => Forbidden(ExamRecordError.AccessForbidden.message)
-              case Left(ExamRecordError.NotYetGraded)        => Forbidden(ExamRecordError.NotYetGraded.message)
-              case Left(ExamRecordError.AlreadyGradedLogged) => Forbidden(ExamRecordError.AlreadyGradedLogged.message)
-              case Left(_)                                   => Forbidden
+              case Right(_) => Ok
+              case Left(ExamRecordError.ExamNotFound) | Left(
+                    ExamRecordError.ParticipationNotFound
+                  ) => NotFound
+              case Left(ExamRecordError.AccessForbidden) =>
+                Forbidden(ExamRecordError.AccessForbidden.message)
+              case Left(ExamRecordError.NotYetGraded) =>
+                Forbidden(ExamRecordError.NotYetGraded.message)
+              case Left(ExamRecordError.AlreadyGradedLogged) =>
+                Forbidden(ExamRecordError.AlreadyGradedLogged.message)
+              case Left(_) => Forbidden
           case None => BadRequest
       }
 
@@ -55,23 +60,28 @@ class ExamRecordController @Inject() (
           case Some(id) =>
             val user = request.attrs(Auth.ATTR_USER)
             examRecordService.registerExamWithoutRecord(id, user) match
-              case Right(_)                                  => Ok
-              case Left(ExamRecordError.ExamNotFound)        => NotFound(ExamRecordError.ExamNotFound.message)
-              case Left(ExamRecordError.AccessForbidden)     => Forbidden(ExamRecordError.AccessForbidden.message)
-              case Left(ExamRecordError.NotYetGraded)        => Forbidden(ExamRecordError.NotYetGraded.message)
-              case Left(ExamRecordError.AlreadyGradedLogged) => Forbidden(ExamRecordError.AlreadyGradedLogged.message)
-              case Left(_)                                   => Forbidden
+              case Right(_) => Ok
+              case Left(ExamRecordError.ExamNotFound) =>
+                NotFound(ExamRecordError.ExamNotFound.message)
+              case Left(ExamRecordError.AccessForbidden) =>
+                Forbidden(ExamRecordError.AccessForbidden.message)
+              case Left(ExamRecordError.NotYetGraded) =>
+                Forbidden(ExamRecordError.NotYetGraded.message)
+              case Left(ExamRecordError.AlreadyGradedLogged) =>
+                Forbidden(ExamRecordError.AlreadyGradedLogged.message)
+              case Left(_) => Forbidden
           case None => BadRequest
       }
 
   def exportExamRecordsAsCsv(start: Long, end: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { _ =>
-      examRecordService.exportExamRecordsAsCsv(start, end) match
-        case Right((content, contentDisposition)) =>
-          Ok(content).withHeaders("Content-Disposition" -> contentDisposition)
-        case Left(ExamRecordError.ErrorCreatingCsvFile) =>
-          InternalServerError(ExamRecordError.ErrorCreatingCsvFile.message)
-        case Left(_) => InternalServerError
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) {
+      _ =>
+        examRecordService.exportExamRecordsAsCsv(start, end) match
+          case Right((content, contentDisposition)) =>
+            Ok(content).withHeaders("Content-Disposition" -> contentDisposition)
+          case Left(ExamRecordError.ErrorCreatingCsvFile) =>
+            InternalServerError(ExamRecordError.ErrorCreatingCsvFile.message)
+          case Left(_) => InternalServerError
     }
 
   def exportSelectedExamRecordsAsCsv(examId: Long): Action[AnyContent] = authenticated

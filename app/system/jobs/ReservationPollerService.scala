@@ -64,13 +64,15 @@ class ReservationPollerService @Inject() (
         .lt("endAt", dateTimeHandler.adjustDST(DateTime.now))
         .list
 
-      if enrolments.isEmpty && reservations.isEmpty then logger.info("No-show check completed: None found")
+      if enrolments.isEmpty && reservations.isEmpty then
+        logger.info("No-show check completed: None found")
       else noShowHandler.handleNoShows(enrolments, reservations)
       logger.info("<- done")
     }
 
   def resource: Resource[IO, Unit] =
     val (delay, interval) = (30.seconds, 60.minutes)
-    val job: IO[Unit]     = runCheck().handleErrorWith(e => IO(logger.error("Error in reservation poller", e)))
+    val job: IO[Unit] =
+      runCheck().handleErrorWith(e => IO(logger.error("Error in reservation poller", e)))
     val program: IO[Unit] = IO.sleep(delay) *> (job *> IO.sleep(interval)).foreverM
     Resource.make(program.start)(_.cancel).void

@@ -55,7 +55,12 @@ trait CalendarHandler:
       aids: Seq[Long]
   ): Option[ExamMachine]
 
-  def createReservation(start: DateTime, end: DateTime, machine: ExamMachine, user: User): Reservation
+  def createReservation(
+      start: DateTime,
+      end: DateTime,
+      machine: ExamMachine,
+      user: User
+  ): Reservation
 
   def getEndSearchDate(searchDate: LocalDate, examEnd: LocalDate): LocalDate
 
@@ -75,7 +80,12 @@ trait CalendarHandler:
       sectionIds: Seq[Long]
   ): Future[Option[Integer]]
 
-  def postProcessSlots(node: JsValue, date: String, exam: Exam, user: User): Set[CalendarHandler.TimeSlot]
+  def postProcessSlots(
+      node: JsValue,
+      date: String,
+      exam: Exam,
+      user: User
+  ): Set[CalendarHandler.TimeSlot]
 
   def normalizeMaintenanceTime(dateTime: DateTime): DateTime
 

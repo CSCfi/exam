@@ -23,7 +23,8 @@ class FacilityService @Inject() (
   def updateFacility(id: Long): Future[play.api.mvc.Result] =
     facilityHandler.updateFacilityById(id)
 
-  def listFacilities(organisation: Option[String]): Future[Either[String, play.api.libs.json.JsValue]] =
+  def listFacilities(organisation: Option[String])
+      : Future[Either[String, play.api.libs.json.JsValue]] =
     organisation match
       case None => Future.successful(Left("Organisation parameter required"))
       case Some(org) =>

@@ -51,6 +51,7 @@ class ReservationReminderService @Inject() (
 
   def resource: Resource[IO, Unit] =
     val (delay, interval) = (90.seconds, 10.minutes)
-    val job: IO[Unit]     = runCheck().handleErrorWith(e => IO(logger.error("Error in reservation reminder", e)))
+    val job: IO[Unit] =
+      runCheck().handleErrorWith(e => IO(logger.error("Error in reservation reminder", e)))
     val program: IO[Unit] = IO.sleep(delay) *> (job *> IO.sleep(interval)).foreverM
     Resource.make(program.start)(_.cancel).void

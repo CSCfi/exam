@@ -67,7 +67,8 @@ class ExternalExamService @Inject() (
         Option(JsonDeserializer.deserialize(classOf[ExternalExam], jsonBody)) match
           case None => Future.successful(Left(ExternalExamError.InvalidExternalExamData))
           case Some(ee) =>
-            val parent = DB.find(classOf[models.exam.Exam]).where().eq("hash", ee.getExternalRef).find
+            val parent =
+              DB.find(classOf[models.exam.Exam]).where().eq("hash", ee.getExternalRef).find
             if parent.isEmpty && Option(enrolment.getCollaborativeExam).isEmpty then
               Future.successful(Left(ExternalExamError.ParentExamNotFound))
             else

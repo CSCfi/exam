@@ -22,6 +22,7 @@ class LanguageController @Inject() (
     with EbeanJsonExtensions:
 
   def listSupportedLanguages: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      Ok(languageService.listSupportedLanguages.asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        Ok(languageService.listSupportedLanguages.asJson)
     }

@@ -14,7 +14,8 @@ import play.api.mvc.{MultipartFormData, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{POST, route, writeableOf_AnyContentAsMultipartForm}
 
-class CollaborativeAttachmentControllerSpec extends BaseCollaborativeAttachmentSpec[CollaborativeExam]:
+class CollaborativeAttachmentControllerSpec
+    extends BaseCollaborativeAttachmentSpec[CollaborativeExam]:
 
   private val baseURL = "/app/iop/collab/attachment"
 
@@ -32,11 +33,17 @@ class CollaborativeAttachmentControllerSpec extends BaseCollaborativeAttachmentS
       "add attachment to question as teacher" in:
         val (_, examSectionQuestion, externalExam) = setupTestData()
         val (user, session)                        = runIO(loginAsTeacher())
-        getExamSectionQuestion(examServlet.getExam, Some(examSectionQuestion.getId)).getQuestion.setAttachment(null)
+        getExamSectionQuestion(
+          examServlet.getExam,
+          Some(examSectionQuestion.getId)
+        ).getQuestion.setAttachment(null)
         val path = "/question"
         uploadAttachment(
           path,
-          Map("examId" -> externalExam.getId.toString, "questionId" -> examSectionQuestion.getId.toString),
+          Map(
+            "examId"     -> externalExam.getId.toString,
+            "questionId" -> examSectionQuestion.getId.toString
+          ),
           session
         )
         examServlet.getWaiter.await(10000, 1)
@@ -124,7 +131,11 @@ class CollaborativeAttachmentControllerSpec extends BaseCollaborativeAttachmentS
   ): Result =
     // Create a temporary file from the test image
     val tempFile = java.io.File.createTempFile("test_upload", ".png")
-    java.nio.file.Files.copy(testImage.toPath, tempFile.toPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+    java.nio.file.Files.copy(
+      testImage.toPath,
+      tempFile.toPath,
+      java.nio.file.StandardCopyOption.REPLACE_EXISTING
+    )
     val temporaryFile = Files.SingletonTemporaryFileCreator.create(tempFile.toPath)
 
     try

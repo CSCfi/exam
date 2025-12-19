@@ -20,7 +20,10 @@ object ReservationCreationFilter:
           case body: JsValue =>
             ReservationValidator.forCreation(body) match
               case Right(reservation) =>
-                Future.successful(Right(request.addAttr(ScalaAttrs.ATTR_STUDENT_RESERVATION, reservation)))
+                Future.successful(Right(request.addAttr(
+                  ScalaAttrs.ATTR_STUDENT_RESERVATION,
+                  reservation
+                )))
               case Left(ex) =>
                 Future.successful(Left(Results.BadRequest(ex.getMessage)))
           case _ =>
@@ -35,7 +38,10 @@ object ReservationCreationFilter:
           case body: JsValue =>
             ReservationValidator.forCreationExternal(body) match
               case Right(reservation) =>
-                Future.successful(Right(request.addAttr(ScalaAttrs.ATTR_EXT_RESERVATION, reservation)))
+                Future.successful(Right(request.addAttr(
+                  ScalaAttrs.ATTR_EXT_RESERVATION,
+                  reservation
+                )))
               case Left(ex) =>
                 Future.successful(Left(Results.BadRequest(ex.getMessage)))
           case _ =>

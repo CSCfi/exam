@@ -53,7 +53,13 @@ class AttachmentService @Inject() (
           question.save()
 
         Try(
-          copyFile(filePart.ref, "question", questionId.toString, "answer", question.getEssayAnswer.getId.toString)
+          copyFile(
+            filePart.ref,
+            "question",
+            questionId.toString,
+            "answer",
+            question.getEssayAnswer.getId.toString
+          )
         ) match
           case Failure(_) => Future.successful(Left("i18n_error_creating_attachment"))
           case Success(newFilePath) =>
@@ -70,7 +76,10 @@ class AttachmentService @Inject() (
               Right(answer)
             }
 
-  def addAttachmentToQuestion(questionId: Long, filePart: FilePart[TemporaryFile]): Future[Either[String, Question]] =
+  def addAttachmentToQuestion(
+      questionId: Long,
+      filePart: FilePart[TemporaryFile]
+  ): Future[Either[String, Question]] =
     DB.find(classOf[Question])
       .fetch("examSectionQuestions.examSection.exam.parent")
       .where()
@@ -83,7 +92,7 @@ class AttachmentService @Inject() (
           case Success(newFilePath) =>
             replaceAndFinish(question, filePart, newFilePath).map {
               case attachment if Option(attachment).isDefined => Right(question)
-              case _                                          => Left("i18n_error_creating_attachment")
+              case _ => Left("i18n_error_creating_attachment")
             }
 
   def deleteQuestionAttachment(questionId: Long): Either[String, Unit] =
@@ -93,7 +102,10 @@ class AttachmentService @Inject() (
         fileHandler.removePrevious(question)
         Right(())
 
-  def deleteQuestionAnswerAttachment(questionId: Long, user: User): Future[Either[String, EssayAnswer]] =
+  def deleteQuestionAnswerAttachment(
+      questionId: Long,
+      user: User
+  ): Future[Either[String, EssayAnswer]] =
     val question =
       if user.hasRole(Role.Name.STUDENT) then
         DB.find(classOf[ExamSectionQuestion])
@@ -146,7 +158,11 @@ class AttachmentService @Inject() (
           Right(())
         }
 
-  def addAttachmentToExam(examId: Long, filePart: FilePart[TemporaryFile], user: User): Future[Either[String, Exam]] =
+  def addAttachmentToExam(
+      examId: Long,
+      filePart: FilePart[TemporaryFile],
+      user: User
+  ): Future[Either[String, Exam]] =
     Option(DB.find(classOf[Exam], examId)) match
       case None => Future.successful(Left("NotFound"))
       case Some(exam) =>
@@ -176,7 +192,9 @@ class AttachmentService @Inject() (
         Try(copyFile(filePart.ref, "exam", examId.toString, "feedback")) match
           case Failure(_) => Future.successful(Left("i18n_error_creating_attachment"))
           case Success(newFilePath) =>
-            replaceAndFinish(exam.getExamFeedback, filePart, newFilePath).map(_ => Right(exam.getExamFeedback))
+            replaceAndFinish(exam.getExamFeedback, filePart, newFilePath).map(_ =>
+              Right(exam.getExamFeedback)
+            )
 
   def addStatementAttachment(
       examId: Long,
@@ -196,7 +214,9 @@ class AttachmentService @Inject() (
         Try(copyFile(filePart.ref, "exam", examId.toString, "inspectionstatement")) match
           case Failure(_) => Future.successful(Left("i18n_error_creating_attachment"))
           case Success(newFilePath) =>
-            replaceAndFinish(inspection.getStatement, filePart, newFilePath).map(_ => Right(inspection.getStatement))
+            replaceAndFinish(inspection.getStatement, filePart, newFilePath).map(_ =>
+              Right(inspection.getStatement)
+            )
 
   def downloadQuestionAttachment(questionId: Long, user: User): Future[Either[String, Attachment]] =
     val question =
@@ -212,7 +232,10 @@ class AttachmentService @Inject() (
       case Some(q) if Option(q.getAttachment).isDefined => Future.successful(Right(q.getAttachment))
       case _                                            => Future.successful(Left("NotFound"))
 
-  def downloadQuestionAnswerAttachment(questionId: Long, user: User): Future[Either[String, Attachment]] =
+  def downloadQuestionAnswerAttachment(
+      questionId: Long,
+      user: User
+  ): Future[Either[String, Attachment]] =
     getExamSectionQuestion(questionId, user) match
       case Some(q) if Option(q.getEssayAnswer).exists(a => Option(a.getAttachment).isDefined) =>
         Future.successful(Right(q.getEssayAnswer.getAttachment))
@@ -220,12 +243,14 @@ class AttachmentService @Inject() (
 
   def downloadExamAttachment(examId: Long): Future[Either[String, Attachment]] =
     Option(DB.find(classOf[Exam], examId)) match
-      case Some(exam) if Option(exam.getAttachment).isDefined => Future.successful(Right(exam.getAttachment))
-      case _                                                  => Future.successful(Left("NotFound"))
+      case Some(exam) if Option(exam.getAttachment).isDefined =>
+        Future.successful(Right(exam.getAttachment))
+      case _ => Future.successful(Left("NotFound"))
 
   def downloadFeedbackAttachment(examId: Long, user: User): Future[Either[String, Attachment]] =
     val exam =
-      if user.hasRole(Role.Name.STUDENT) then DB.find(classOf[Exam]).where().idEq(examId).eq("creator", user).find
+      if user.hasRole(Role.Name.STUDENT) then
+        DB.find(classOf[Exam]).where().idEq(examId).eq("creator", user).find
       else Option(DB.find(classOf[Exam], examId))
 
     exam match
@@ -234,7 +259,9 @@ class AttachmentService @Inject() (
       case _ => Future.successful(Left("NotFound"))
 
   def downloadStatementAttachment(examId: Long, user: User): Future[Either[String, Attachment]] =
-    val query = DB.find(classOf[Exam]).where().idEq(examId).isNotNull("languageInspection.statement.attachment")
+    val query = DB.find(classOf[Exam]).where().idEq(examId).isNotNull(
+      "languageInspection.statement.attachment"
+    )
     val exam =
       if user.hasRole(Role.Name.STUDENT) then query.eq("creator", user).find
       else query.find
@@ -243,7 +270,8 @@ class AttachmentService @Inject() (
       case Some(e) => Future.successful(Right(e.getLanguageInspection.getStatement.getAttachment))
       case None    => Future.successful(Left("NotFound"))
 
-  def serveAttachment(attachment: Attachment): Future[Either[String, Source[ByteString, Future[IOResult]]]] =
+  def serveAttachment(attachment: Attachment)
+      : Future[Either[String, Source[ByteString, Future[IOResult]]]] =
     val file = new File(attachment.getFilePath)
     if !file.exists() then Future.successful(Left("i18n_file_not_found_but_referred_in_database"))
     else
@@ -257,7 +285,11 @@ class AttachmentService @Inject() (
   ): Future[Attachment] =
     Future {
       fileHandler.removePrevious(ac)
-      val attachment = fileHandler.createNew(fp.filename, fp.contentType.getOrElse("application/octet-stream"), path)
+      val attachment = fileHandler.createNew(
+        fp.filename,
+        fp.contentType.getOrElse("application/octet-stream"),
+        path
+      )
       ac.setAttachment(attachment)
       ac.save()
       attachment
@@ -265,7 +297,10 @@ class AttachmentService @Inject() (
 
   private def getExamSectionQuestion(questionId: Long, user: User): Option[ExamSectionQuestion] =
     if user.hasRole(Role.Name.STUDENT) then
-      DB.find(classOf[ExamSectionQuestion]).where().idEq(questionId).eq("examSection.exam.creator", user).find
+      DB.find(classOf[ExamSectionQuestion]).where().idEq(questionId).eq(
+        "examSection.exam.creator",
+        user
+      ).find
     else Option(DB.find(classOf[ExamSectionQuestion], questionId))
 
   private def copyFile(srcFile: TemporaryFile, pathParams: String*): String =

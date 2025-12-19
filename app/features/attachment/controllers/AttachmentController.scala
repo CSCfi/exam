@@ -69,14 +69,17 @@ class AttachmentController @Inject() (
     }
 
   def deleteQuestionAttachment(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      attachmentService.deleteQuestionAttachment(id) match
-        case Right(_) => Ok
-        case Left(_)  => NotFound
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        attachmentService.deleteQuestionAttachment(id) match
+          case Right(_) => Ok
+          case Left(_)  => NotFound
     }
 
   def deleteQuestionAnswerAttachment(qid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT, Role.Name.SUPPORT))).async { request =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT, Role.Name.SUPPORT))
+    ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       attachmentService.deleteQuestionAnswerAttachment(qid, user).map {
         case Right(answer) => Ok(answer.asJson)
@@ -85,7 +88,9 @@ class AttachmentController @Inject() (
     }
 
   def deleteExamAttachment(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))
+    ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       attachmentService.deleteExamAttachment(id, user).map {
         case Right(_)                            => Ok
@@ -95,7 +100,9 @@ class AttachmentController @Inject() (
     }
 
   def deleteFeedbackAttachment(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { _ =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))
+    ).async { _ =>
       attachmentService.deleteFeedbackAttachment(id).map {
         case Right(_) => Ok
         case Left(_)  => NotFound("i18n_exam_not_found")
@@ -127,7 +134,7 @@ class AttachmentController @Inject() (
                 case Right(exam)                         => Ok(exam.asJson)
                 case Left("i18n_error_access_forbidden") => Forbidden("i18n_error_access_forbidden")
                 case Left("NotFound")                    => NotFound
-                case Left(_)                             => InternalServerError("i18n_error_creating_attachment")
+                case Left(_) => InternalServerError("i18n_error_creating_attachment")
               }
     }
 

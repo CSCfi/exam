@@ -14,7 +14,11 @@ import scala.util.control.Exception.catching
 
 class EmailSenderImpl @Inject() (private val config: Config) extends EmailSender with Logging:
 
-  private def mockSending(email: HtmlEmail, content: String, attachments: Set[EmailAttachment]): Unit =
+  private def mockSending(
+      email: HtmlEmail,
+      content: String,
+      attachments: Set[EmailAttachment]
+  ): Unit =
     logger.info("mock implementation, send email")
     val to  = email.getToAddresses.asScala.mkString(", ")
     val cc  = email.getCcAddresses.asScala.mkString(", ")
@@ -46,7 +50,10 @@ class EmailSenderImpl @Inject() (private val config: Config) extends EmailSender
     email.setHostName(config.getString("play.mailer.host"))
     email.setSmtpPort(config.getInt("play.mailer.port"))
     email.setAuthenticator(
-      new DefaultAuthenticator(config.getString("play.mailer.user"), config.getString("play.mailer.password"))
+      new DefaultAuthenticator(
+        config.getString("play.mailer.user"),
+        config.getString("play.mailer.password")
+      )
     )
     email.setSSLOnConnect(config.getString("play.mailer.ssl") == "YES")
     email.setSubject(subject)

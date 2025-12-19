@@ -26,9 +26,9 @@ class ExamMachineController @Inject() (
 
   private def toResult(error: ExamMachineError): Result =
     error match
-      case ExamMachineError.MachineNotFound           => NotFound(ExamMachineError.MachineNotFound.message)
-      case ExamMachineError.RoomNotFound              => NotFound(ExamMachineError.RoomNotFound.message)
-      case ExamMachineError.SoftwareNotFound          => NotFound(ExamMachineError.SoftwareNotFound.message)
+      case ExamMachineError.MachineNotFound  => NotFound(ExamMachineError.MachineNotFound.message)
+      case ExamMachineError.RoomNotFound     => NotFound(ExamMachineError.RoomNotFound.message)
+      case ExamMachineError.SoftwareNotFound => NotFound(ExamMachineError.SoftwareNotFound.message)
       case ExamMachineError.IpAddressConflict(msg)    => Forbidden(msg)
       case ExamMachineError.SoftwareNameConflict(msg) => BadRequest(msg)
 
@@ -52,10 +52,11 @@ class ExamMachineController @Inject() (
     }
 
   def updateExamMachine(id: Long): Action[JsValue] =
-    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
-      examMachineService.updateExamMachine(id, request.body) match
-        case Left(error)          => toResult(error)
-        case Right((machine, pp)) => Ok(machine.asJson(pp))
+    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) {
+      request =>
+        examMachineService.updateExamMachine(id, request.body) match
+          case Left(error)          => toResult(error)
+          case Right((machine, pp)) => Ok(machine.asJson(pp))
     }
 
   def resetMachineSoftware(mid: Long): Action[AnyContent] =
@@ -93,10 +94,11 @@ class ExamMachineController @Inject() (
     }
 
   def getSoftware(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      examMachineService.getSoftware(id) match
-        case Left(error)     => toResult(error)
-        case Right(software) => Ok(software.asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        examMachineService.getSoftware(id) match
+          case Left(error)     => toResult(error)
+          case Right(software) => Ok(software.asJson)
     }
 
   def addSoftware(name: String): Action[AnyContent] =

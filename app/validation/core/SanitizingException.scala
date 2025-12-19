@@ -4,10 +4,11 @@
 
 package validation.core
 
-/** Exception thrown when sanitization/validation fails. Used to signal that request data does not meet validation
-  * requirements.
+/** Exception thrown when sanitization/validation fails. Used to signal that request data does not
+  * meet validation requirements.
   */
-class SanitizingException(message: String, cause: Throwable = null) extends Exception(message, cause):
+class SanitizingException(message: String, cause: Throwable = null)
+    extends Exception(message, cause):
 
   def this(message: String) = this(message, null)
 

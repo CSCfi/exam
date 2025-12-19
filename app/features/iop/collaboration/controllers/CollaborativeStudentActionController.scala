@@ -29,7 +29,13 @@ class CollaborativeStudentActionController @Inject() (
     authenticated: AuthenticatedAction,
     override val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
-    extends CollaborationController(wsClient, examUpdater, examLoader, configReader, controllerComponents)
+    extends CollaborationController(
+      wsClient,
+      examUpdater,
+      examLoader,
+      configReader,
+      controllerComponents
+    )
     with Logging:
 
   def getFinishedExams(): Action[AnyContent] =

@@ -10,7 +10,11 @@ import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 
 class DateTimeAdapter extends JsonSerializer[DateTime] {
-  override def serialize(value: DateTime, gen: JsonGenerator, serializers: SerializerProvider): Unit = {
+  override def serialize(
+      value: DateTime,
+      gen: JsonGenerator,
+      serializers: SerializerProvider
+  ): Unit = {
     gen.writeString(ISODateTimeFormat.dateTime.print(value))
   }
 }

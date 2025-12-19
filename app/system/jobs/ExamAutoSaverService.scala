@@ -49,7 +49,9 @@ class ExamAutoSaverService @Inject() (
       val now                    = getNow(participation)
       if participationTimeLimit.isBefore(now) then
         participation.setEnded(now)
-        participation.setDuration(new DateTime(participation.getEnded.getMillis - participation.getStarted.getMillis))
+        participation.setDuration(
+          new DateTime(participation.getEnded.getMillis - participation.getStarted.getMillis)
+        )
         val settings     = configReader.getOrCreateSettings("review_deadline", None, Some("14"))
         val deadlineDays = settings.getValue.toInt
         val deadline     = new DateTime(participation.getEnded).plusDays(deadlineDays)
@@ -60,7 +62,8 @@ class ExamAutoSaverService @Inject() (
         exam.save()
         if exam.isPrivate then
           // Notify teachers
-          val recipients = exam.getParent.getExamOwners.asScala ++ exam.getExamInspections.asScala.map(_.getUser)
+          val recipients =
+            exam.getParent.getExamOwners.asScala ++ exam.getExamInspections.asScala.map(_.getUser)
           recipients.foreach(r =>
             composer.composePrivateExamEnded(r, exam)
             logger.info(s"Email sent to ${r.getEmail}")
@@ -111,7 +114,7 @@ class ExamAutoSaverService @Inject() (
           val (exam, reservation)    = (enrolment.getExternalExam, enrolment.getReservation)
           val reservationStart       = new DateTime(reservation.getStartAt)
           val participationTimeLimit = reservationStart.plusMinutes(content.getDuration)
-          val now                    = dateTimeHandler.adjustDST(DateTime.now, reservation.getMachine.getRoom)
+          val now = dateTimeHandler.adjustDST(DateTime.now, reservation.getMachine.getRoom)
           if participationTimeLimit.isBefore(now) then
             exam.setFinished(now)
             content.setState(Exam.State.REVIEW)
@@ -129,6 +132,7 @@ class ExamAutoSaverService @Inject() (
 
   def resource: Resource[IO, Unit] =
     val (delay, interval) = (15.seconds, 1.minutes)
-    val job: IO[Unit]     = runCheck().handleErrorWith(e => IO(logger.error("Error in exam auto saver", e)))
+    val job: IO[Unit] =
+      runCheck().handleErrorWith(e => IO(logger.error("Error in exam auto saver", e)))
     val program: IO[Unit] = IO.sleep(delay) *> (job *> IO.sleep(interval)).foreverM
     Resource.make(program.start)(_.cancel).void

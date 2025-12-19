@@ -36,7 +36,8 @@ class ReviewDocumentsService @Inject() (
 
   def importGrades(file: File, user: User): Either[String, Unit] =
     try
-      val role = if user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then Role.Name.ADMIN else Role.Name.TEACHER
+      val role = if user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then Role.Name.ADMIN
+      else Role.Name.TEACHER
       csvBuilder.parseGrades(file, user, role)
       Right(())
     catch
@@ -136,23 +137,24 @@ class ReviewDocumentsService @Inject() (
   ): Unit =
     val file = File.createTempFile("summary", ".txt")
     try
-      Using.resource(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)))) { writer =>
-        if start.isDefined || end.isDefined then
-          val dtf = DateTimeFormat.forPattern("dd.MM.yyyy")
-          val s   = start.map(dtf.print).getOrElse("")
-          val e   = end.map(dtf.print).getOrElse("")
-          writer.write(s"period: $s-$e")
+      Using.resource(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)))) {
+        writer =>
+          if start.isDefined || end.isDefined then
+            val dtf = DateTimeFormat.forPattern("dd.MM.yyyy")
+            val s   = start.map(dtf.print).getOrElse("")
+            val e   = end.map(dtf.print).getOrElse("")
+            writer.write(s"period: $s-$e")
+            writer.newLine()
+          writer.write(s"exam id: ${exam.getId}")
           writer.newLine()
-        writer.write(s"exam id: ${exam.getId}")
-        writer.newLine()
-        writer.write(s"exam name: ${exam.getName}")
-        writer.newLine()
-        writer.newLine()
-        writer.write("questions")
-        writer.newLine()
-        for ((k, v) <- questions)
-          writer.write(s"$k: ${Jsoup.parse(v).text}")
+          writer.write(s"exam name: ${exam.getName}")
           writer.newLine()
+          writer.newLine()
+          writer.write("questions")
+          writer.newLine()
+          for ((k, v) <- questions)
+            writer.write(s"$k: ${Jsoup.parse(v).text}")
+            writer.newLine()
       }
       addFileEntry("summary.txt", file, aos)
     finally if file.exists then file.delete()

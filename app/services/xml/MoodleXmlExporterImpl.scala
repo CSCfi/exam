@@ -53,7 +53,9 @@ class MoodleXmlExporterImpl extends MoodleXmlExporter:
         <single>false</single>
         <answernumbering>none</answernumbering>
       val options =
-        question.getOptions.asScala.map(o => convertWeightedMultiChoiceOption(o, question.getMaxDefaultScore))
+        question.getOptions.asScala.map(o =>
+          convertWeightedMultiChoiceOption(o, question.getMaxDefaultScore)
+        )
       config ++= options
     case "EssayQuestion" =>
       val criteria = question.getDefaultEvaluationCriteria match

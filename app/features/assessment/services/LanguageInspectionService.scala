@@ -26,7 +26,11 @@ class LanguageInspectionService @Inject() (
     with EbeanJsonExtensions
     with Logging:
 
-  def listInspections(month: Option[String], start: Option[Long], end: Option[Long]): List[LanguageInspection] =
+  def listInspections(
+      month: Option[String],
+      start: Option[Long],
+      end: Option[Long]
+  ): List[LanguageInspection] =
     val query = DB
       .find(classOf[LanguageInspection])
       .fetch("exam")
@@ -41,11 +45,16 @@ class LanguageInspectionService @Inject() (
       .ne("exam.state", Exam.State.DELETED)
     applyDateFilters(query, month, start, end).distinct.toList
 
-  def createInspection(examId: Long, user: User): Either[LanguageInspectionError, LanguageInspection] =
+  def createInspection(
+      examId: Long,
+      user: User
+  ): Either[LanguageInspectionError, LanguageInspection] =
     Option(DB.find(classOf[Exam], examId)) match
       case Some(exam) =>
-        if Option(exam.getLanguageInspection).isDefined then Left(LanguageInspectionError.AlreadySentForInspection)
-        else if !exam.getSubjectToLanguageInspection then Left(LanguageInspectionError.NotAllowedForLanguageInspection)
+        if Option(exam.getLanguageInspection).isDefined then
+          Left(LanguageInspectionError.AlreadySentForInspection)
+        else if !exam.getSubjectToLanguageInspection then
+          Left(LanguageInspectionError.NotAllowedForLanguageInspection)
         else
           val inspection = new LanguageInspection
           inspection.setExam(exam)
@@ -57,7 +66,8 @@ class LanguageInspectionService @Inject() (
   def assignInspection(id: Long, user: User): Either[LanguageInspectionError, LanguageInspection] =
     Option(DB.find(classOf[LanguageInspection], id)) match
       case Some(inspection) =>
-        if Option(inspection.getAssignee).isDefined then Left(LanguageInspectionError.AlreadyAssigned)
+        if Option(inspection.getAssignee).isDefined then
+          Left(LanguageInspectionError.AlreadyAssigned)
         else
           inspection.setModifierWithDate(user)
           inspection.setAssignee(user)
@@ -70,8 +80,12 @@ class LanguageInspectionService @Inject() (
     Option(DB.find(classOf[LanguageInspection], id)) match
       case Some(inspection) =>
         if Option(inspection.getStartedAt).isEmpty then Left(LanguageInspectionError.NotAssigned)
-        else if Option(inspection.getFinishedAt).isDefined then Left(LanguageInspectionError.AlreadyFinalized)
-        else if Option(inspection.getStatement).isEmpty || inspection.getStatement.getComment.isEmpty then
+        else if Option(inspection.getFinishedAt).isDefined then
+          Left(LanguageInspectionError.AlreadyFinalized)
+        else if Option(
+            inspection.getStatement
+          ).isEmpty || inspection.getStatement.getComment.isEmpty
+        then
           Left(LanguageInspectionError.NoStatementGiven)
         else
           inspection.setFinishedAt(new Date)
@@ -89,11 +103,16 @@ class LanguageInspectionService @Inject() (
           Right(())
       case None => Left(LanguageInspectionError.InspectionNotFound)
 
-  def setStatement(id: Long, comment: String, user: User): Either[LanguageInspectionError, LanguageInspection] =
+  def setStatement(
+      id: Long,
+      comment: String,
+      user: User
+  ): Either[LanguageInspectionError, LanguageInspection] =
     Option(DB.find(classOf[LanguageInspection], id)) match
       case Some(inspection) =>
         if Option(inspection.getStartedAt).isEmpty then Left(LanguageInspectionError.NotAssigned)
-        else if Option(inspection.getFinishedAt).isDefined then Left(LanguageInspectionError.AlreadyFinalized)
+        else if Option(inspection.getFinishedAt).isDefined then
+          Left(LanguageInspectionError.AlreadyFinalized)
         else
           val statement = Option(inspection.getStatement).getOrElse {
             val newComment = new Comment

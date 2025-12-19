@@ -21,8 +21,10 @@ object ScalaAttrs:
   val FEEDBACK_STATUS: TypedKey[Boolean] = TypedKey[Boolean]("feedbackStatus")
 
   // Reservation validation
-  val ATTR_STUDENT_RESERVATION: TypedKey[ReservationDTO]     = TypedKey[ReservationDTO]("studentReservation")
-  val ATTR_EXT_RESERVATION: TypedKey[ExternalReservationDTO] = TypedKey[ExternalReservationDTO]("externalReservation")
+  val ATTR_STUDENT_RESERVATION: TypedKey[ReservationDTO] =
+    TypedKey[ReservationDTO]("studentReservation")
+  val ATTR_EXT_RESERVATION: TypedKey[ExternalReservationDTO] =
+    TypedKey[ExternalReservationDTO]("externalReservation")
 
   // Enrolment validation
   val COURSE_CODE: TypedKey[String]           = TypedKey[String]("code")
@@ -39,7 +41,8 @@ object ScalaAttrs:
   val EXAM: TypedKey[Exam] = TypedKey[Exam]("exam")
 
   // Section question validation
-  val SECTION_QUESTION: TypedKey[SectionQuestionDTO] = TypedKey[SectionQuestionDTO]("sectionQuestion")
+  val SECTION_QUESTION: TypedKey[SectionQuestionDTO] =
+    TypedKey[SectionQuestionDTO]("sectionQuestion")
 
   // User validation
   val LANG: TypedKey[String] = TypedKey[String]("lang")

@@ -10,7 +10,11 @@ import validation.core.{PlayJsonValidator, ScalaAttrs}
 
 object ExternalCalendarReservationValidator extends PlayJsonValidator:
 
-  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
     ReservationValidator.forCreationExternal(json) match
-      case Right(reservation) => Right(request.addAttr(ScalaAttrs.ATTR_EXT_RESERVATION, reservation))
-      case Left(ex)           => Left(Results.BadRequest(ex.getMessage))
+      case Right(reservation) =>
+        Right(request.addAttr(ScalaAttrs.ATTR_EXT_RESERVATION, reservation))
+      case Left(ex) => Left(Results.BadRequest(ex.getMessage))

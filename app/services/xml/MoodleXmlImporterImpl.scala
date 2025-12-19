@@ -209,8 +209,9 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
   private def convertQuestion(src: Node, user: User): ConversionResult =
     try {
       src.attribute("type").get.text match
-        case "essay"       => ConversionResult(Some(convertEssay(src, user)), None, Some("essay"))
-        case "multichoice" => ConversionResult(Some(convertMultiChoice(src, user)), None, Some("multichoice"))
+        case "essay" => ConversionResult(Some(convertEssay(src, user)), None, Some("essay"))
+        case "multichoice" =>
+          ConversionResult(Some(convertMultiChoice(src, user)), None, Some("multichoice"))
         case "category" => // some moodle oddity
           logger.debug("Skipping question of type \"category\" (not a question)")
           ConversionResult(None, None, Some("category"))

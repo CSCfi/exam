@@ -27,14 +27,18 @@ class ExaminationEventController @Inject() (
 ) extends BaseController
     with EbeanJsonExtensions:
 
-  private def toResult[T](result: Either[ExaminationEventError, T])(onSuccess: T => Result): Result =
+  private def toResult[T](result: Either[ExaminationEventError, T])(onSuccess: T => Result)
+      : Result =
     result match
-      case Right(value)                             => onSuccess(value)
-      case Left(ExaminationEventError.ExamNotFound) => NotFound(ExaminationEventError.ExamNotFound.message)
+      case Right(value) => onSuccess(value)
+      case Left(ExaminationEventError.ExamNotFound) =>
+        NotFound(ExaminationEventError.ExamNotFound.message)
       case Left(ExaminationEventError.ExaminationDateNotFound) =>
         NotFound(ExaminationEventError.ExaminationDateNotFound.message)
-      case Left(ExaminationEventError.EventNotFound)  => NotFound(ExaminationEventError.EventNotFound.message)
-      case Left(ExaminationEventError.EventInThePast) => Forbidden(ExaminationEventError.EventInThePast.message)
+      case Left(ExaminationEventError.EventNotFound) =>
+        NotFound(ExaminationEventError.EventNotFound.message)
+      case Left(ExaminationEventError.EventInThePast) =>
+        Forbidden(ExaminationEventError.EventInThePast.message)
       case Left(ExaminationEventError.ConflictsWithMaintenancePeriod) =>
         Forbidden(ExaminationEventError.ConflictsWithMaintenancePeriod.message)
       case Left(ExaminationEventError.MaxCapacityExceeded) =>
@@ -58,8 +62,9 @@ class ExaminationEventController @Inject() (
       }
 
   def removeExaminationDate(id: Long, edid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      toResult(examinationEventService.removeExaminationDate(edid))(_ => Ok)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        toResult(examinationEventService.removeExaminationDate(edid))(_ => Ok)
     }
 
   def insertExaminationEvent(eid: Long): Action[AnyContent] =
@@ -77,12 +82,15 @@ class ExaminationEventController @Inject() (
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
       .andThen(validators.validated(ExaminationEventValidator)) { request =>
         val dto = request.attrs(ScalaAttrs.EXAMINATION_EVENT)
-        toResult(examinationEventService.updateExaminationEvent(eid, eecid, dto))(eec => Ok(eec.asJson))
+        toResult(examinationEventService.updateExaminationEvent(eid, eecid, dto))(eec =>
+          Ok(eec.asJson)
+        )
       }
 
   def removeExaminationEvent(eid: Long, eeid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      toResult(examinationEventService.removeExaminationEvent(eid, eeid))(_ => Ok)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        toResult(examinationEventService.removeExaminationEvent(eid, eeid))(_ => Ok)
     }
 
   def listExaminationEvents(start: Option[String], end: Option[String]): Action[AnyContent] =
@@ -95,8 +103,9 @@ class ExaminationEventController @Inject() (
     }
 
   def listOverlappingExaminationEvents(start: String, duration: Int): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      val pp     = PathProperties.parse("(*, examinationEventConfiguration(exam(id, duration)))")
-      val events = examinationEventService.listOverlappingExaminationEvents(start, duration)
-      Ok(events.asJson(pp))
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        val pp     = PathProperties.parse("(*, examinationEventConfiguration(exam(id, duration)))")
+        val events = examinationEventService.listOverlappingExaminationEvents(start, duration)
+        Ok(events.asJson(pp))
     }

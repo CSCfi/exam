@@ -22,7 +22,11 @@ class CourseService @Inject() (
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions:
 
-  def listCourses(filterType: Option[String], criteria: Option[String], user: User): Future[List[Course]] =
+  def listCourses(
+      filterType: Option[String],
+      criteria: Option[String],
+      user: User
+  ): Future[List[Course]] =
     (filterType, criteria) match
       case (Some("code"), Some(c)) =>
         externalApi.getCoursesByCode(user, c.trim).map(_.toList)
@@ -44,7 +48,9 @@ class CourseService @Inject() (
             )
         }
       case (Some("name"), Some(_)) =>
-        Future.failed(new IllegalArgumentException("Search criteria too short (minimum 2 characters)"))
+        Future.failed(
+          new IllegalArgumentException("Search criteria too short (minimum 2 characters)")
+        )
       case _ =>
         Future {
           DB.find(classOf[Course]).where.isNotNull("name").orderBy("code").list
@@ -71,7 +77,10 @@ class CourseService @Inject() (
       withExamFilter.in("exams.examSections.id", ids.asJava)
     }
     val withTagFilter = tagIds.filter(_.nonEmpty).fold(withSectionFilter) { ids =>
-      withSectionFilter.in("exams.examSections.sectionQuestions.question.parent.tags.id", ids.asJava)
+      withSectionFilter.in(
+        "exams.examSections.sectionQuestions.question.parent.tags.id",
+        ids.asJava
+      )
     }
     val query = ownerIds.filter(_.nonEmpty).fold(withTagFilter) { ids =>
       withTagFilter.in("exams.examOwners.id", ids.asJava)

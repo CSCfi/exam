@@ -25,7 +25,11 @@ class ReservationAPIController @Inject() (
       case ReservationAPIError.NoSearchDate => BadRequest(error.message)
       case ReservationAPIError.RoomNotFound => NotFound(error.message)
 
-  def getReservations(start: Option[String], end: Option[String], roomId: Option[Long]): Action[AnyContent] =
+  def getReservations(
+      start: Option[String],
+      end: Option[String],
+      roomId: Option[Long]
+  ): Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
       val pp = PathProperties.parse(
         """(startAt, endAt, externalUserRef,
@@ -52,7 +56,7 @@ class ReservationAPIController @Inject() (
 
   def getRooms: Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
-      val pp    = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
+      val pp = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
       val rooms = reservationAPIService.getRooms
       Ok(rooms.asJson(pp))
     }

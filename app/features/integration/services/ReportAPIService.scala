@@ -91,7 +91,11 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
 
     participations
 
-  private def filterByDate(enrolment: ExamEnrolment, start: Option[String], end: Option[String]): Boolean =
+  private def filterByDate(
+      enrolment: ExamEnrolment,
+      start: Option[String],
+      end: Option[String]
+  ): Boolean =
     val min       = start.getOrElse(new DateTime(0L).toDateTimeISO.toString)
     val max       = end.getOrElse(new DateTime(Long.MaxValue).toDateTimeISO.toString)
     val startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(min)

@@ -37,14 +37,22 @@ class CollaborativeExamSectionController @Inject() (
     audited: AuditedAction,
     override val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
-    extends CollaborationController(wsClient, examUpdater, examLoader, configReader, controllerComponents)
+    extends CollaborationController(
+      wsClient,
+      examUpdater,
+      examLoader,
+      configReader,
+      controllerComponents
+    )
     with EbeanQueryExtensions
     with EbeanJsonExtensions
     with SectionQuestionHandler
     with Logging:
 
   def addSection(examId: Long): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
+    audited.andThen(authenticated).andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))
+    ).async { request =>
       val homeOrg = configReader.getHomeOrganisationRef
       findCollaborativeExam(examId) match
         case Left(errorResult) => errorResult
@@ -116,7 +124,9 @@ class CollaborativeExamSectionController @Inject() (
             val formData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
             formData.get("name").flatMap(_.headOption).foreach(es.setName)
             formData.get("expanded").flatMap(_.headOption).foreach(v => es.setExpanded(v.toBoolean))
-            formData.get("lotteryOn").flatMap(_.headOption).foreach(v => es.setLotteryOn(v.toBoolean))
+            formData.get("lotteryOn").flatMap(_.headOption).foreach(v =>
+              es.setLotteryOn(v.toBoolean)
+            )
             formData
               .get("lotteryItemCount")
               .flatMap(_.headOption)
@@ -146,8 +156,9 @@ class CollaborativeExamSectionController @Inject() (
               case Some(err) => Some(err)
               case None      =>
                 // Reorder by sequenceNumber (TreeSet orders the collection based on it)
-                val sections = exam.getExamSections.asScala.toSeq.sortBy(_.getSequenceNumber).toBuffer
-                val prev     = sections(from)
+                val sections =
+                  exam.getExamSections.asScala.toSeq.sortBy(_.getSequenceNumber).toBuffer
+                val prev = sections(from)
                 sections.remove(from)
                 sections.insert(to, prev)
                 sections.zipWithIndex.foreach { case (section, i) =>
@@ -176,8 +187,9 @@ class CollaborativeExamSectionController @Inject() (
                   case None     => Some(NotFound("i18n_error_not_found"))
                   case Some(es) =>
                     // Reorder by sequenceNumber
-                    val questions = es.getSectionQuestions.asScala.toSeq.sortBy(_.getSequenceNumber).toBuffer
-                    val prev      = questions(from)
+                    val questions =
+                      es.getSectionQuestions.asScala.toSeq.sortBy(_.getSequenceNumber).toBuffer
+                    val prev = questions(from)
                     questions.remove(from)
                     questions.insert(to, prev)
                     questions.zipWithIndex.foreach { case (question, i) =>
@@ -201,7 +213,8 @@ class CollaborativeExamSectionController @Inject() (
           case None => Some(NotFound("i18n_error_not_found"))
           case Some(es) =>
             val questionBody = (request.body \ "question").get
-            val question     = JsonDeserializer.deserialize(classOf[Question], toJacksonJson(questionBody))
+            val question =
+              JsonDeserializer.deserialize(classOf[Question], toJacksonJson(questionBody))
             question.getQuestionOwners.asScala.foreach(cleanUser)
 
             // Validate question
@@ -323,10 +336,13 @@ class CollaborativeExamSectionController @Inject() (
                   es.getSectionQuestions.asScala.find(_.getId == questionId) match
                     case None => Future.successful(NotFound("i18n_error_not_found"))
                     case Some(esq) =>
-                      val payload      = (request.body \ "question").get
-                      val questionBody = JsonDeserializer.deserialize(classOf[Question], toJacksonJson(payload))
+                      val payload = (request.body \ "question").get
+                      val questionBody =
+                        JsonDeserializer.deserialize(classOf[Question], toJacksonJson(payload))
 
-                      questionBody.getValidationResult(toJacksonJson(payload)).toScala.map(_.asScala) match
+                      questionBody.getValidationResult(toJacksonJson(payload)).toScala.map(
+                        _.asScala
+                      ) match
                         case Some(error) => Future.successful(error)
                         case None =>
                           questionBody.getOptions.asScala
@@ -355,5 +371,6 @@ class CollaborativeExamSectionController @Inject() (
     section
 
   // Helper to convert Play JSON to Jackson JSON (for models that still use Jackson)
-  private def toJacksonJson(value: play.api.libs.json.JsValue): com.fasterxml.jackson.databind.JsonNode =
+  private def toJacksonJson(value: play.api.libs.json.JsValue)
+      : com.fasterxml.jackson.databind.JsonNode =
     play.libs.Json.parse(play.api.libs.json.Json.stringify(value))

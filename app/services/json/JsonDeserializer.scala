@@ -27,7 +27,11 @@ object JsonDeserializer:
   def deserialize[T](model: Class[T], node: JsonNode): T = gson.fromJson(node.toString, model)
 
 class DateDeserializer extends JsonDeserializer[Date] with Logging:
-  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Date =
+  override def deserialize(
+      json: JsonElement,
+      typeOfT: Type,
+      context: JsonDeserializationContext
+  ): Date =
     Try(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(json.getAsString)) match
       case Success(d) => d
       case _ =>
@@ -41,7 +45,11 @@ class DateDeserializer extends JsonDeserializer[Date] with Logging:
                 null
 
 class DateTimeDeserializer extends JsonDeserializer[DateTime] with Logging:
-  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): DateTime =
+  override def deserialize(
+      json: JsonElement,
+      typeOfT: Type,
+      context: JsonDeserializationContext
+  ): DateTime =
     Try(ISODateTimeFormat.dateTime().parseDateTime(json.getAsString)) match
       case Success(dt) => dt
       case _ =>

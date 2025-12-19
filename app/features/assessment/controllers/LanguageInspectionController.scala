@@ -30,22 +30,32 @@ class LanguageInspectionController @Inject() (
 ) extends BaseController
     with EbeanJsonExtensions:
 
-  def listInspections(month: Option[String], start: Option[Long], end: Option[Long]): Action[AnyContent] =
-    authenticated.andThen(CombinedRoleAndPermissionFilter.anyMatch(Type.CAN_INSPECT_LANGUAGE, Role.Name.ADMIN)) { _ =>
+  def listInspections(
+      month: Option[String],
+      start: Option[Long],
+      end: Option[Long]
+  ): Action[AnyContent] =
+    authenticated.andThen(CombinedRoleAndPermissionFilter.anyMatch(
+      Type.CAN_INSPECT_LANGUAGE,
+      Role.Name.ADMIN
+    )) { _ =>
       val inspections = languageInspectionService.listInspections(month, start, end)
       Ok(inspections.asJson)
     }
 
   def createInspection(): Action[JsValue] =
     authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)).andThen(audited))(
+      .andThen(
+        authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)).andThen(audited)
+      )(
         parse.json
       ) { request =>
         val examId = (request.body \ "examId").as[Long]
         val user   = request.attrs(Auth.ATTR_USER)
         languageInspectionService.createInspection(examId, user) match
-          case Right(_)                                   => Ok
-          case Left(LanguageInspectionError.ExamNotFound) => BadRequest(LanguageInspectionError.ExamNotFound.message)
+          case Right(_) => Ok
+          case Left(LanguageInspectionError.ExamNotFound) =>
+            BadRequest(LanguageInspectionError.ExamNotFound.message)
           case Left(LanguageInspectionError.AlreadySentForInspection) =>
             Forbidden(LanguageInspectionError.AlreadySentForInspection.message)
           case Left(LanguageInspectionError.NotAllowedForLanguageInspection) =>
@@ -66,7 +76,9 @@ class LanguageInspectionController @Inject() (
     }
 
   def setApproval(id: Long): Action[JsValue] =
-    authenticated.andThen(PermissionFilter(Type.CAN_INSPECT_LANGUAGE))(parse.json).andThen(audited) { request =>
+    authenticated.andThen(PermissionFilter(Type.CAN_INSPECT_LANGUAGE))(parse.json).andThen(
+      audited
+    ) { request =>
       (request.body \ "approved").asOpt[Boolean] match
         case Some(approval) =>
           val user = request.attrs(Auth.ATTR_USER)

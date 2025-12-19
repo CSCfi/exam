@@ -83,11 +83,12 @@ class ExamService @Inject() (
       tagIds: Option[List[Long]],
       ownerIds: Option[List[Long]]
   ): List[Exam] =
-    val courses   = courseIds.getOrElse(Nil)
-    val sections  = sectionIds.getOrElse(Nil)
-    val tags      = tagIds.getOrElse(Nil)
-    val owners    = ownerIds.getOrElse(Nil)
-    val baseQuery = DB.find(classOf[Exam]).where().isNotNull("name").isNotNull("course").isNull("parent")
+    val courses  = courseIds.getOrElse(Nil)
+    val sections = sectionIds.getOrElse(Nil)
+    val tags     = tagIds.getOrElse(Nil)
+    val owners   = ownerIds.getOrElse(Nil)
+    val baseQuery =
+      DB.find(classOf[Exam]).where().isNotNull("name").isNotNull("course").isNull("parent")
     val withOwnerFilter =
       if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then baseQuery.eq("examOwners", user)
       else baseQuery
@@ -98,7 +99,8 @@ class ExamService @Inject() (
       if sections.nonEmpty then withCourseFilter.in("examSections.id", sections.asJava)
       else withCourseFilter
     val withTagFilter =
-      if tags.nonEmpty then withSectionFilter.in("examSections.sectionQuestions.question.parent.tags.id", tags.asJava)
+      if tags.nonEmpty then
+        withSectionFilter.in("examSections.sectionQuestions.question.parent.tags.id", tags.asJava)
       else withSectionFilter
     val el =
       if owners.nonEmpty then withTagFilter.in("questionOwners.id", user)
@@ -229,7 +231,8 @@ class ExamService @Inject() (
         ExamValidator.forUpdate(payload) match
           case Left(ex) => Left(ExamError.ValidationError(ex.getMessage))
           case Right(validatedPayload) =>
-            if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+            if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
+            then
               val result = examUpdater
                 .updateTemporalFieldsAndValidate(exam, user, validatedPayload)
                 .getOrElse(
@@ -428,7 +431,8 @@ class ExamService @Inject() (
       case None => Left(ExamError.NotFound)
       case Some(exam) =>
         if !examUpdater.isAllowedToUpdate(exam, user) then Left(ExamError.FutureReservationsExist)
-        else if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+        else if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
+        then
           Option(DB.find(classOf[models.exam.Course], cid)) match
             case None => Left(ExamError.NotFound)
             case Some(course) =>

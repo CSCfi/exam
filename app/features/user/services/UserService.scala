@@ -105,7 +105,12 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
     val users = DB.find(classOf[User]).where().eq("roles.name", role).orderBy("lastName").list
     (users, pp)
 
-  def listQuestionOwners(role: String, criteria: String, qid: Option[Long], currentUser: User): Seq[User] =
+  def listQuestionOwners(
+      role: String,
+      criteria: String,
+      qid: Option[Long],
+      currentUser: User
+  ): Seq[User] =
     val users = listUsersByRoleAndName(role, criteria).toSet
     val owners = qid
       .map(id => DB.find(classOf[User]).where().idIn(List(id).asJava).distinct.toList.toSet)

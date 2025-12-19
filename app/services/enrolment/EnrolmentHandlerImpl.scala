@@ -13,7 +13,8 @@ import models.user.User
 import java.util.Date
 import javax.inject.Inject
 
-class EnrolmentHandlerImpl @Inject() (noShowHandler: NoShowHandler) extends EnrolmentHandler with EbeanQueryExtensions:
+class EnrolmentHandlerImpl @Inject() (noShowHandler: NoShowHandler) extends EnrolmentHandler
+    with EbeanQueryExtensions:
 
   override def isAllowedToParticipate(exam: Exam, user: User): Boolean =
     handleNoShow(user, exam.getId)

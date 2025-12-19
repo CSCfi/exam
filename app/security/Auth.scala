@@ -41,7 +41,8 @@ object Auth:
               .map(_.split(",").map(_.trim).filter(_.nonEmpty).toSet)
               .getOrElse(Set.empty[String])
 
-            val enrichedRequest = request.addAttr(ATTR_USER, user).addAttr(ATTR_PERMISSIONS, permissions)
+            val enrichedRequest =
+              request.addAttr(ATTR_USER, user).addAttr(ATTR_PERMISSIONS, permissions)
 
             block(enrichedRequest)
           case None => failure
@@ -62,7 +63,7 @@ object Auth:
             // Fallback: check session directly (when used standalone)
             input.session.get("role").flatMap(r => Try(Role.Name.valueOf(r)).toOption) match
               case Some(role) if roles.contains(role) => None
-              case _                                  => Some(Unauthorized("Authentication required"))
+              case _ => Some(Unauthorized("Authentication required"))
       }
     }
 

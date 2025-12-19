@@ -241,8 +241,8 @@ class ExternalCalendarInterfaceSpec
     config.save()
 
     /** Creates safe start and end times that avoid the midnight boundary issue. The lookup logic in
-      * getUpcomingExternalReservation looks ahead until midnight, so we ensure reservations are scheduled before then
-      * and always in the future.
+      * getUpcomingExternalReservation looks ahead until midnight, so we ensure reservations are
+      * scheduled before then and always in the future.
       */
   private def createSafeTimes =
     val now       = DateTime.now
@@ -254,15 +254,17 @@ class ExternalCalendarInterfaceSpec
     if startTime.isAfter(midnight) || endTime.isAfter(midnight) then
       // If we're close to midnight, schedule for a safe time earlier today
       // But ensure it's still in the future
-      val safeStart = now.withHourOfDay(10).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0)
-      val safeEnd   = safeStart.plusHours(1)
+      val safeStart =
+        now.withHourOfDay(10).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0)
+      val safeEnd = safeStart.plusHours(1)
       // If 10 AM is in the past, use the original future times but cap at 23:30
       if safeEnd.isBefore(now) then
         // Use original times but ensure they don't cross midnight
         startTime = now.plusMinutes(30)
         endTime = now.plusMinutes(90)
         // If still crossing midnight, cap at 23:30
-        val latestStart = now.withHourOfDay(23).withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0)
+        val latestStart =
+          now.withHourOfDay(23).withMinuteOfHour(30).withSecondOfMinute(0).withMillisOfSecond(0)
         if startTime.isAfter(latestStart) then
           startTime = latestStart
           endTime = startTime.plusMinutes(30) // Short reservation to stay before midnight
@@ -348,8 +350,12 @@ class ExternalCalendarInterfaceSpec
       "create reservation successfully" in:
         val (_, _, room, _) = setupTestData()
 
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1)
-        val end   = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2)
+        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(1)
+        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(2)
 
         val requestData = Json.obj(
           "id"      -> RESERVATION_REF,
@@ -365,7 +371,9 @@ class ExternalCalendarInterfaceSpec
         statusOf(result) must be(Status.CREATED)
 
         val reservation =
-          Option(DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne()) match
+          Option(
+            DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne()
+          ) match
             case Some(r) => r
             case None    => fail("Reservation not found")
 
@@ -494,7 +502,8 @@ class ExternalCalendarInterfaceSpec
         )
         statusOf(result) must be(Status.FORBIDDEN)
 
-        val removed = Option(DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne())
+        val removed =
+          Option(DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne())
         removed must be(defined)
 
     "providing enrolment" should:
@@ -554,7 +563,9 @@ class ExternalCalendarInterfaceSpec
         newUser.getRoles.get(0).getName must be(Role.Name.TEACHER.toString)
 
         val updatedReservation =
-          Option(DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne()) match
+          Option(
+            DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne()
+          ) match
             case Some(r) => r
             case None    => fail("Reservation not found")
         updatedReservation.getUser.getId must be(newUser.getId)
@@ -627,13 +638,21 @@ class ExternalCalendarInterfaceSpec
           "sectionIds"    -> Json.arr(1)
         )
 
-        val result = runIO(makeRequest(POST, "/app/iop/reservations/external", Some(requestData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          "/app/iop/reservations/external",
+          Some(requestData),
+          session = session
+        ))
         statusOf(result) must be(Status.CREATED)
 
         val body = contentAsJsonOf(result)
         body.as[String] must be(RESERVATION_REF)
 
-        val created = Option(DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne()) match
+        val created = Option(DB.find(classOf[Reservation]).where().eq(
+          "externalRef",
+          RESERVATION_REF
+        ).findOne()) match
           case Some(r) => r
           case None    => fail("Created reservation not found")
 
@@ -670,11 +689,19 @@ class ExternalCalendarInterfaceSpec
           "sectionIds"    -> Json.arr(1)
         )
 
-        val result = runIO(makeRequest(POST, "/app/iop/reservations/external", Some(requestData), session = session))
-        val body   = contentAsJsonOf(result)
+        val result = runIO(makeRequest(
+          POST,
+          "/app/iop/reservations/external",
+          Some(requestData),
+          session = session
+        ))
+        val body = contentAsJsonOf(result)
         body.as[String] must be(RESERVATION_REF)
 
-        val created = Option(DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF).findOne()) match
+        val created = Option(DB.find(classOf[Reservation]).where().eq(
+          "externalRef",
+          RESERVATION_REF
+        ).findOne()) match
           case Some(r) => r
           case None    => fail("Created reservation not found")
         created.setStartAt(DateTime.now().minusHours(2))
@@ -682,7 +709,12 @@ class ExternalCalendarInterfaceSpec
         created.save()
 
         val enrolmentData = Json.obj("code" -> exam.getCourse.getCode)
-        val result2 = runIO(makeRequest(POST, s"/app/enrolments/${exam.getId}", Some(enrolmentData), session = session))
+        val result2 = runIO(makeRequest(
+          POST,
+          s"/app/enrolments/${exam.getId}",
+          Some(enrolmentData),
+          session = session
+        ))
         statusOf(result2) must be(Status.FORBIDDEN)
 
       "handle previous reservation in effect" in:
@@ -692,8 +724,12 @@ class ExternalCalendarInterfaceSpec
           case None    => fail("Student user not found")
         val (exam, user, room, enrolment) = setupTestData(Some(studentUser))
 
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1)
-        val end   = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2)
+        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(1)
+        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(2)
 
         val reservation = new Reservation()
         reservation.setStartAt(DateTime.now().minusMinutes(10))
@@ -711,7 +747,12 @@ class ExternalCalendarInterfaceSpec
           "orgId"  -> ORG_REF,
           "roomId" -> ROOM_REF
         )
-        val result = runIO(makeRequest(POST, "/app/iop/reservations/external", Some(requestData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          "/app/iop/reservations/external",
+          Some(requestData),
+          session = session
+        ))
 
         statusOf(result) must be(Status.FORBIDDEN)
         contentAsStringOf(result) must be("i18n_error_enrolment_not_found")
@@ -729,8 +770,12 @@ class ExternalCalendarInterfaceSpec
           case None    => fail("Student user not found")
         val (exam, user, room, enrolment) = setupTestData(Some(studentUser))
 
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(6)
-        val end   = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(7)
+        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(6)
+        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(7)
 
         val reservation = new Reservation()
         reservation.setStartAt(DateTime.now().plusHours(2))
@@ -755,7 +800,12 @@ class ExternalCalendarInterfaceSpec
           "orgId"  -> ORG_REF,
           "roomId" -> ROOM_REF
         )
-        val result = runIO(makeRequest(POST, "/app/iop/reservations/external", Some(requestData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          "/app/iop/reservations/external",
+          Some(requestData),
+          session = session
+        ))
 
         statusOf(result) must be(Status.CREATED)
 
@@ -793,7 +843,8 @@ class ExternalCalendarInterfaceSpec
         enrolment.update()
 
         val (_, session) = runIO(loginAsStudent())
-        val result       = runIO(delete(s"/app/iop/reservations/external/$RESERVATION_REF", session = session))
+        val result =
+          runIO(delete(s"/app/iop/reservations/external/$RESERVATION_REF", session = session))
         statusOf(result) must be(Status.OK)
 
         val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match

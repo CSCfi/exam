@@ -54,7 +54,7 @@ class MoodleImporterSpec extends BaseIntegrationSpec:
 
       "import weighted multichoice question successfully" in:
         val (user, session) = runIO(loginAsAdmin())
-        val content         = Files.readString(Path.of("test/resources/weighted-multichoice-quiz.xml"))
+        val content = Files.readString(Path.of("test/resources/weighted-multichoice-quiz.xml"))
 
         val report    = moodleXmlImporter.convert(content, user)
         val questions = report._1

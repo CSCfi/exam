@@ -12,8 +12,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /** Action filter that routes external students to IOP endpoints
   *
-  * If a session contains "visitingStudent" key, the request is redirected from /app/ to /app/iop/ endpoints for
-  * external exam execution.
+  * If a session contains "visitingStudent" key, the request is redirected from /app/ to /app/iop/
+  * endpoints for external exam execution.
   */
 class ExamActionRouter @Inject() (implicit ec: ExecutionContext) extends ActionFilter[Request]:
 

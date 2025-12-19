@@ -77,29 +77,36 @@ class SessionController @Inject() (
     else result.discardingCookies(play.api.mvc.DiscardingCookie(configReader.getCsrfCookie))
   }
 
-  def setLoginRole(roleName: String): Action[AnyContent] = Action.andThen(audited).async { request =>
-    request.session.get("id") match
-      case None => Future.successful(toResult(SessionError.NoSession))
-      case Some(id) =>
-        Try(id.toLong).toOption match
-          case None => Future.successful(toResult(SessionError.InvalidUserId))
-          case Some(userId) =>
-            sessionService
-              .setLoginRole(userId, roleName, request.headers.toMap, request.remoteAddress)
-              .flatMap {
-                case Left(error) => Future.successful(toResult(error))
-                case Right(role) =>
-                  // Update session with reservation headers if student
-                  val newSessionData: SessionData = request.session.data + ("role" -> roleName)
-                  if sessionService.isStudent(newSessionData) then
-                    enrolmentRepository.getReservationHeaders(request, userId).map { headers =>
-                      val updatedSessionData =
-                        sessionService.updateSessionWithReservationHeaders(newSessionData, headers)
-                      Ok(role.asJson).withSession(play.api.mvc.Session(updatedSessionData))
-                    }
-                  else Future.successful(Ok(role.asJson).withSession(play.api.mvc.Session(newSessionData)))
-              }
-  }
+  def setLoginRole(roleName: String): Action[AnyContent] =
+    Action.andThen(audited).async { request =>
+      request.session.get("id") match
+        case None => Future.successful(toResult(SessionError.NoSession))
+        case Some(id) =>
+          Try(id.toLong).toOption match
+            case None => Future.successful(toResult(SessionError.InvalidUserId))
+            case Some(userId) =>
+              sessionService
+                .setLoginRole(userId, roleName, request.headers.toMap, request.remoteAddress)
+                .flatMap {
+                  case Left(error) => Future.successful(toResult(error))
+                  case Right(role) =>
+                    // Update session with reservation headers if student
+                    val newSessionData: SessionData = request.session.data + ("role" -> roleName)
+                    if sessionService.isStudent(newSessionData) then
+                      enrolmentRepository.getReservationHeaders(request, userId).map { headers =>
+                        val updatedSessionData =
+                          sessionService.updateSessionWithReservationHeaders(
+                            newSessionData,
+                            headers
+                          )
+                        Ok(role.asJson).withSession(play.api.mvc.Session(updatedSessionData))
+                      }
+                    else
+                      Future.successful(
+                        Ok(role.asJson).withSession(play.api.mvc.Session(newSessionData))
+                      )
+                }
+    }
 
   def extendSession: Action[AnyContent] = Action { request =>
     val newSessionData: SessionData = sessionService.extendSession

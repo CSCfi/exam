@@ -32,7 +32,8 @@ class MaintenancePeriodService @Inject() (
       .gt("endsAt", DateTime.now())
       .list
 
-  def createMaintenancePeriod(body: JsValue): Future[Either[MaintenancePeriodError, MaintenancePeriod]] =
+  def createMaintenancePeriod(body: JsValue)
+      : Future[Either[MaintenancePeriodError, MaintenancePeriod]] =
     parseBody(body) match
       case (Some(s), Some(e), Some(d)) =>
         val period = update(new MaintenancePeriod, s, e, d)
@@ -47,7 +48,10 @@ class MaintenancePeriodService @Inject() (
             .map(_ => Right(period))
       case _ => Future.successful(Left(BadPayload))
 
-  def updateMaintenancePeriod(id: Long, body: JsValue): Future[Either[MaintenancePeriodError, MaintenancePeriod]] =
+  def updateMaintenancePeriod(
+      id: Long,
+      body: JsValue
+  ): Future[Either[MaintenancePeriodError, MaintenancePeriod]] =
     DB.find(classOf[MaintenancePeriod]).where().idEq(id).find match
       case Some(mp) =>
         parseBody(body) match
@@ -91,7 +95,12 @@ class MaintenancePeriodService @Inject() (
     val description          = (body \ "description").asOpt[String]
     (start, end, description)
 
-  private def update(period: MaintenancePeriod, start: DateTime, end: DateTime, description: String) =
+  private def update(
+      period: MaintenancePeriod,
+      start: DateTime,
+      end: DateTime,
+      description: String
+  ) =
     period.setStartsAt(start)
     period.setEndsAt(end)
     period.setDescription(description)

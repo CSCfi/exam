@@ -13,7 +13,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 // This is a top-level filter that only has access to request headers - not bodies.
 // For that there's the AuditedAction composite (scala) and SystemRequestHandler (java)
-class AuditLogFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext) extends Filter with Logging:
+class AuditLogFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext) extends Filter
+    with Logging:
   override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
     val (method, session, uri) = (rh.method, rh.session, rh.uri)
     // No point in logging asset requests. Also, requests with bodies are handled down the line

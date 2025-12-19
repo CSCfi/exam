@@ -65,17 +65,23 @@ class QuestionService @Inject() (
       )
       val query = DB.find(classOf[Question])
       pp.apply(query)
-      val baseQuery = query.where().isNull("parent").endJunction().ne("state", QuestionState.DELETED.toString)
+      val baseQuery =
+        query.where().isNull("parent").endJunction().ne("state", QuestionState.DELETED.toString)
       val withOwnerFilter =
         if user.hasRole(Role.Name.TEACHER) then
           if ownerIds.isEmpty then baseQuery.eq("questionOwners", user)
           else baseQuery.in("questionOwners.id", ownerIds.asJava)
         else baseQuery.inOrEmpty("questionOwners.id", ownerIds.asJava)
-      val withExamFilter = withOwnerFilter.inOrEmpty("examSectionQuestions.examSection.exam.id", examIds.asJava)
+      val withExamFilter =
+        withOwnerFilter.inOrEmpty("examSectionQuestions.examSection.exam.id", examIds.asJava)
       val withCourseFilter =
-        withExamFilter.inOrEmpty("examSectionQuestions.examSection.exam.course.id", courseIds.asJava)
-      val withTagFilter     = withCourseFilter.inOrEmpty("tags.id", tagIds.asJava)
-      val withSectionFilter = withTagFilter.inOrEmpty("examSectionQuestions.examSection.id", sectionIds.asJava)
+        withExamFilter.inOrEmpty(
+          "examSectionQuestions.examSection.exam.course.id",
+          courseIds.asJava
+        )
+      val withTagFilter = withCourseFilter.inOrEmpty("tags.id", tagIds.asJava)
+      val withSectionFilter =
+        withTagFilter.inOrEmpty("examSectionQuestions.examSection.id", sectionIds.asJava)
 
       val baseQuestions = withSectionFilter.orderBy("created desc").distinct
       val questions =
@@ -155,16 +161,21 @@ class QuestionService @Inject() (
   ): Question =
     val sanitizedQuestionText = questionText.orNull
     val defaultMaxScore =
-      (body \ "defaultMaxScore").asOpt[Double].map(_.asInstanceOf[java.lang.Double]).map(round).orNull
-    val defaultWordCount = (body \ "defaultExpectedWordCount").asOpt[Int].map(_.asInstanceOf[java.lang.Integer]).orNull
+      (body \ "defaultMaxScore").asOpt[Double].map(_.asInstanceOf[java.lang.Double]).map(
+        round
+      ).orNull
+    val defaultWordCount =
+      (body \ "defaultExpectedWordCount").asOpt[Int].map(_.asInstanceOf[java.lang.Integer]).orNull
     val defaultEvaluationType = (body \ "defaultEvaluationType")
       .asOpt[String]
       .flatMap(s => Try(Question.EvaluationType.valueOf(s)).toOption)
       .orNull
-    val defaultInstructions         = (body \ "defaultAnswerInstructions").asOpt[String].orNull
-    val defaultCriteria             = (body \ "defaultEvaluationCriteria").asOpt[String].orNull
-    val defaultNegativeScoreAllowed = (body \ "defaultNegativeScoreAllowed").asOpt[Boolean].getOrElse(false)
-    val defaultOptionShufflingOn    = (body \ "defaultOptionShufflingOn").asOpt[Boolean].getOrElse(true)
+    val defaultInstructions = (body \ "defaultAnswerInstructions").asOpt[String].orNull
+    val defaultCriteria     = (body \ "defaultEvaluationCriteria").asOpt[String].orNull
+    val defaultNegativeScoreAllowed =
+      (body \ "defaultNegativeScoreAllowed").asOpt[Boolean].getOrElse(false)
+    val defaultOptionShufflingOn =
+      (body \ "defaultOptionShufflingOn").asOpt[Boolean].getOrElse(true)
     val questionType = (body \ "type")
       .asOpt[String]
       .flatMap(s => Try(Question.Type.valueOf(s)).toOption)
@@ -247,7 +258,8 @@ class QuestionService @Inject() (
   private def createOption(question: Question, node: JsValue, user: User): Unit =
     val option = new MultipleChoiceOption()
     option.setOption(parseHtml("option", node).orNull)
-    val scoreFieldName = if (node \ "defaultScore").asOpt[Double].isDefined then "defaultScore" else "score"
+    val scoreFieldName =
+      if (node \ "defaultScore").asOpt[Double].isDefined then "defaultScore" else "score"
     option.setDefaultScore(
       (node \ scoreFieldName).asOpt[Double].map(_.asInstanceOf[java.lang.Double]).map(round).orNull
     )
@@ -268,7 +280,11 @@ class QuestionService @Inject() (
   private def toJacksonJson(jsValue: JsValue): JsonNode =
     PlayJson.parse(Json.stringify(jsValue))
 
-  def createQuestion(body: JsValue, user: User, questionText: Option[String]): Either[QuestionError, Question] =
+  def createQuestion(
+      body: JsValue,
+      user: User,
+      questionText: Option[String]
+  ): Either[QuestionError, Question] =
     val question = parseFromBody(body, user, None, questionText)
     question.getQuestionOwners.add(user)
     question.getValidationResult(toJacksonJson(body)).toScala match
@@ -309,7 +325,11 @@ class QuestionService @Inject() (
             Left(QuestionError.ValidationError)
           case None =>
             if updatedQuestion.getType != Question.Type.EssayQuestion then
-              processOptions(updatedQuestion, user, (body \ "options").asOpt[JsArray].getOrElse(Json.arr()))
+              processOptions(
+                updatedQuestion,
+                user,
+                (body \ "options").asOpt[JsArray].getOrElse(Json.arr())
+              )
             updatedQuestion.update()
             Right(updatedQuestion)
 
@@ -338,7 +358,9 @@ class QuestionService @Inject() (
             question.delete()
           } match
             case Failure(_: PersistenceException) =>
-              logger.info("Shared question attachment reference found, can not delete the reference yet")
+              logger.info(
+                "Shared question attachment reference found, can not delete the reference yet"
+              )
               question.setAttachment(null)
               question.delete()
             case _ => // Success
@@ -359,7 +381,10 @@ class QuestionService @Inject() (
             val baseExpr = DB.find(classOf[Question]).where().idIn(ids.asJava)
             val expr =
               if modifier.hasRole(Role.Name.TEACHER) then
-                baseExpr.disjunction().eq("shared", true).eq("questionOwners", modifier).endJunction()
+                baseExpr.disjunction().eq("shared", true).eq(
+                  "questionOwners",
+                  modifier
+                ).endJunction()
               else baseExpr
             val questions = expr.list
             if questions.isEmpty then Left(QuestionNotFound)
@@ -384,7 +409,9 @@ class QuestionService @Inject() (
       .where()
       .idIn(ids.asJava)
       .list
-      .filter(q => q.getType != Question.Type.ClaimChoiceQuestion && q.getType != Question.Type.ClozeTestQuestion)
+      .filter(q =>
+        q.getType != Question.Type.ClaimChoiceQuestion && q.getType != Question.Type.ClozeTestQuestion
+      )
     xmlExporter.convert(questions)
 
   def importQuestions(fileContent: String, user: User): (Seq[Question], Seq[String]) =
@@ -398,12 +425,15 @@ class QuestionService @Inject() (
       esq.setClozeTestAnswer(answer)
     esq.setDerivedMaxScore()
     if esq.getQuestion.getType == Question.Type.ClaimChoiceQuestion then esq.setDerivedMinScore()
-    if esq.getQuestion.getType == Question.Type.ClozeTestQuestion then esq.getQuestion.setQuestion(null)
+    if esq.getQuestion.getType == Question.Type.ClozeTestQuestion then
+      esq.getQuestion.setQuestion(null)
     esq.asJson
 
   def getQuestionPreview(qid: Long, user: User): Either[QuestionError, JsValue] =
-    val baseQuery = DB.find(classOf[Question]).fetch("attachment", "fileName").fetch("options").where().idEq(qid)
-    val el        = if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("questionOwners", user) else baseQuery
+    val baseQuery =
+      DB.find(classOf[Question]).fetch("attachment", "fileName").fetch("options").where().idEq(qid)
+    val el =
+      if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("questionOwners", user) else baseQuery
     el.find match
       case None           => Left(QuestionNotFound)
       case Some(question) =>
@@ -435,7 +465,10 @@ class QuestionService @Inject() (
       .idEq(esqId)
     val el =
       if user.hasRole(Role.Name.TEACHER) then
-        baseQuery.or().in("question.questionOwners", user).in("examSection.exam.examOwners", user).endOr()
+        baseQuery.or().in("question.questionOwners", user).in(
+          "examSection.exam.examOwners",
+          user
+        ).endOr()
       else baseQuery
     el.find match
       case None      => Left(QuestionNotFound)

@@ -23,7 +23,13 @@ trait EmailComposer {
   /** Message sent to other inspectors when a review is ready.
     */
   def composeInspectionMessage(inspector: User, sender: User, exam: Exam, msg: String): Unit
-  def composeInspectionMessage(inspector: User, sender: User, ce: CollaborativeExam, exam: Exam, msg: String): Unit
+  def composeInspectionMessage(
+      inspector: User,
+      sender: User,
+      ce: CollaborativeExam,
+      exam: Exam,
+      msg: String
+  ): Unit
 
   /** Weekly summary report
     */
@@ -31,16 +37,33 @@ trait EmailComposer {
 
   /** Message sent to a student when a reservation has been made.
     */
-  def composeReservationNotification(student: User, reservation: Reservation, exam: Exam, isReminder: Boolean): Unit
+  def composeReservationNotification(
+      student: User,
+      reservation: Reservation,
+      exam: Exam,
+      isReminder: Boolean
+  ): Unit
 
   /** Message sent to a student when an examination event has been selected.
     */
-  def composeExaminationEventNotification(student: User, enrolment: ExamEnrolment, isReminder: Boolean): Unit
+  def composeExaminationEventNotification(
+      student: User,
+      enrolment: ExamEnrolment,
+      isReminder: Boolean
+  ): Unit
 
   /** Message sent to a student when an examination event has been canceled.
     */
-  def composeExaminationEventCancellationNotification(user: User, exam: Exam, event: ExaminationEvent): Unit
-  def composeExaminationEventCancellationNotification(users: Set[User], exam: Exam, event: ExaminationEvent): Unit
+  def composeExaminationEventCancellationNotification(
+      user: User,
+      exam: Exam,
+      event: ExaminationEvent
+  ): Unit
+  def composeExaminationEventCancellationNotification(
+      users: Set[User],
+      exam: Exam,
+      event: ExaminationEvent
+  ): Unit
 
   /** Message sent to newly added inspectors.
     */
@@ -58,7 +81,10 @@ trait EmailComposer {
 
   /** Message sent to a student when externally made reservation has been canceled by hosting admin.
     */
-  def composeExternalReservationCancellationNotification(reservation: Reservation, message: Option[String]): Unit
+  def composeExternalReservationCancellationNotification(
+      reservation: Reservation,
+      message: Option[String]
+  ): Unit
 
   /** Message sent to a student when a reservation has been changed.
     */
@@ -85,13 +111,18 @@ trait EmailComposer {
 
   /** Message sent to teacher when language inspection is finished.
     */
-  def composeLanguageInspectionFinishedMessage(toUser: User, inspector: User, inspection: LanguageInspection): Unit
+  def composeLanguageInspectionFinishedMessage(
+      toUser: User,
+      inspector: User,
+      inspection: LanguageInspection
+  ): Unit
 
   /** Message sent to teacher when a collaborative exam is created in the system.
     */
   def composeCollaborativeExamAnnouncement(emails: Set[String], sender: User, exam: Exam): Unit
 
-  /** Schedule an email action to run after a delay. The action runs in the background and errors are logged.
+  /** Schedule an email action to run after a delay. The action runs in the background and errors
+    * are logged.
     */
   def scheduleEmail(delay: Duration)(action: => Unit): Unit
 }

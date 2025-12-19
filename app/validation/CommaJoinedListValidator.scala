@@ -10,7 +10,10 @@ import validation.core._
 
 object CommaJoinedListValidator extends PlayJsonValidator:
 
-  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
     // Alternative path for file download requests that have params field
     val root: JsValue = (json \ "params" \ "ids").toOption match
       case Some(_) => (json \ "params").as[JsValue]

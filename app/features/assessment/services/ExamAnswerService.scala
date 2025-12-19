@@ -50,7 +50,8 @@ class ExamAnswerService @Inject() (
       .find
 
   def prepareExamForAnswerRelease(exam: Exam, user: User): Exam =
-    val blankAnswerText = messaging("clozeTest.blank.answer")(using Lang.forCode(user.getLanguage.getCode))
+    val blankAnswerText =
+      messaging("clozeTest.blank.answer")(using Lang.forCode(user.getLanguage.getCode))
 
     // Create ClozeTestAnswer if missing and set question with results
     exam.getExamSections.asScala
@@ -91,4 +92,5 @@ class ExamAnswerService @Inject() (
     val config = exam.getParent.getExamFeedbackConfig
     config.getReleaseType match
       case ONCE_LOCKED => true
-      case GIVEN_DATE  => DateTime.now.isAfter(config.getReleaseDate.withTimeAtStartOfDay.plusDays(1))
+      case GIVEN_DATE =>
+        DateTime.now.isAfter(config.getReleaseDate.withTimeAtStartOfDay.plusDays(1))

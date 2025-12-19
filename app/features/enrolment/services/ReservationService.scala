@@ -100,7 +100,10 @@ class ReservationService @Inject() (
     }
     asJsonUsers(el.list)
 
-  def removeReservation(reservationId: Long, message: Option[String]): Future[Either[ReservationError, Unit]] =
+  def removeReservation(
+      reservationId: Long,
+      message: Option[String]
+  ): Future[Either[ReservationError, Unit]] =
     DB.find(classOf[ExamEnrolment])
       .where()
       .eq("reservation.id", reservationId)
@@ -138,10 +141,11 @@ class ReservationService @Inject() (
       reservation: Reservation,
       exam: Exam
   ): Option[Interval] =
-    val room       = machine.getRoom
-    val interval   = reservation.toInterval
-    val dtz        = DateTimeZone.forID(room.getLocalTimezone)
-    val searchDate = dateTimeHandler.normalize(reservation.getStartAt.withZone(dtz), dtz).toLocalDate
+    val room     = machine.getRoom
+    val interval = reservation.toInterval
+    val dtz      = DateTimeZone.forID(room.getLocalTimezone)
+    val searchDate =
+      dateTimeHandler.normalize(reservation.getStartAt.withZone(dtz), dtz).toLocalDate
 
     val slots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.getDuration)
     // Find the first slot that starts at or after the interval's start
@@ -270,7 +274,10 @@ class ReservationService @Inject() (
             collaborativeExamLoader
               .downloadExam(collaborativeExam)
               .recover { case e: Throwable =>
-                logger.error(s"Could not load collaborative exam for reservation ${reservation.getId}", e)
+                logger.error(
+                  s"Could not load collaborative exam for reservation ${reservation.getId}",
+                  e
+                )
                 None
               }
           case None =>
@@ -316,8 +323,9 @@ class ReservationService @Inject() (
     }
 
     val withStateFilter = state.fold(withStartFilter) {
-      case "NO_SHOW"                                   => withStartFilter.eq("noShow", true)
-      case "EXTERNAL_UNFINISHED" | "EXTERNAL_FINISHED" => withStartFilter.isNull("id") // Force empty result set
+      case "NO_SHOW" => withStartFilter.eq("noShow", true)
+      case "EXTERNAL_UNFINISHED" | "EXTERNAL_FINISHED" =>
+        withStartFilter.isNull("id") // Force empty result set
       case st => withStartFilter.eq("exam.state", Exam.State.valueOf(st)).eq("noShow", false)
     }
 
@@ -353,7 +361,9 @@ class ReservationService @Inject() (
         end.forall { e =>
           val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
           val eventEnd =
-            ee.getExaminationEventConfiguration.getExaminationEvent.getStart.plusMinutes(ee.getExam.getDuration)
+            ee.getExaminationEventConfiguration.getExaminationEvent.getStart.plusMinutes(
+              ee.getExam.getDuration
+            )
           eventEnd.isBefore(endDate)
         }
       }
@@ -418,7 +428,10 @@ class ReservationService @Inject() (
       case "EXTERNAL_FINISHED" =>
         withEndFilter.isNotNull("externalUserRef").isNotNull("enrolment.externalExam.finished")
       case st =>
-        withEndFilter.eq("enrolment.exam.state", Exam.State.valueOf(st)).eq("enrolment.noShow", false)
+        withEndFilter.eq("enrolment.exam.state", Exam.State.valueOf(st)).eq(
+          "enrolment.noShow",
+          false
+        )
     }
 
     val withStudentFilter = studentId.fold(withStateFilter) { sid =>

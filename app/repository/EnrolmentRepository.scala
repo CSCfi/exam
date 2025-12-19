@@ -34,7 +34,10 @@ class EnrolmentRepository @Inject() (
   private val db: Database                  = DB.getDefault
   private implicit val ec: ExecutionContext = databaseExecutionContext
 
-  def getReservationHeaders(request: Request[AnyContent], userId: Long): Future[Map[String, String]] =
+  def getReservationHeaders(
+      request: Request[AnyContent],
+      userId: Long
+  ): Future[Map[String, String]] =
     Future(doGetReservationHeaders(request, userId))
 
   def getStudentEnrolments(user: User): Future[List[ExamEnrolment]] =
@@ -121,7 +124,10 @@ class EnrolmentRepository @Inject() (
     enrolments.filter { ee =>
       Option(ee.getExam).flatMap(e => Option(e.getPeriodEnd)) match
         case Some(periodEnd) =>
-          periodEnd.isAfterNow && ee.getExam.hasState(Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED)
+          periodEnd.isAfterNow && ee.getExam.hasState(
+            Exam.State.PUBLISHED,
+            Exam.State.STUDENT_STARTED
+          )
         case None =>
           Option(ee.getCollaborativeExam).exists(_.getPeriodEnd.isAfterNow)
     }
@@ -132,8 +138,9 @@ class EnrolmentRepository @Inject() (
       case Some(ongoingEnrolment) =>
         handleOngoingEnrolment(ongoingEnrolment, request, headers)
       case None =>
-        val now              = DateTime.now()
-        val lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes
+        val now = DateTime.now()
+        val lookAheadMinutes =
+          Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes
         getNextEnrolment(userId, lookAheadMinutes) match
           case Some(upcomingEnrolment) =>
             handleUpcomingEnrolment(upcomingEnrolment, request, headers)
@@ -168,10 +175,16 @@ class EnrolmentRepository @Inject() (
       // SEB examination
       val config = enrolment.getExaminationEventConfiguration
       val error =
-        byodConfigHandler.checkUserAgent(request.headers.toMap, request.uri, request.host, config.getConfigKey)
+        byodConfigHandler.checkUserAgent(
+          request.headers.toMap,
+          request.uri,
+          request.host,
+          config.getConfigKey
+        )
 
       if error.isDefined then
-        val msg = ISODateTimeFormat.dateTime().print(new DateTime(config.getExaminationEvent.getStart))
+        val msg =
+          ISODateTimeFormat.dateTime().print(new DateTime(config.getExaminationEvent.getStart))
         headers.put("x-exam-wrong-agent-config", msg)
         logger.warn("Wrong agent config for SEB")
         return false
@@ -193,7 +206,9 @@ class EnrolmentRepository @Inject() (
               // IP is not known
               val zone = DateTimeZone.forID(room.getLocalTimezone)
               val start =
-                ISODateTimeFormat.dateTime().withZone(zone).print(new DateTime(enrolment.getReservation.getStartAt))
+                ISODateTimeFormat.dateTime().withZone(zone).print(new DateTime(
+                  enrolment.getReservation.getStartAt
+                ))
               val msg =
                 s"${room.getCampus}:::${room.getBuildingName}:::${room.getRoomCode}:::${examMachine.getName}:::$start:::${zone.getID}"
               ("x-exam-unknown-machine", msg)
@@ -213,7 +228,9 @@ class EnrolmentRepository @Inject() (
   private def getExamHash(enrolment: ExamEnrolment): String =
     Option(enrolment.getExternalExam)
       .map(_.getHash)
-      .orElse(Option(enrolment.getCollaborativeExam).filter(_ => Option(enrolment.getExam).isEmpty).map(_.getHash))
+      .orElse(Option(enrolment.getCollaborativeExam).filter(_ =>
+        Option(enrolment.getExam).isEmpty
+      ).map(_.getHash))
       .getOrElse(Option(enrolment.getExam).map(_.getHash).get)
 
   private def handleOngoingEnrolment(
@@ -241,12 +258,14 @@ class EnrolmentRepository @Inject() (
         // Aquarium exam
         val threshold      = DateTime.now().plusMinutes(5)
         val thresholdEarly = DateTime.now().withTimeAtStartOfDay().plusDays(1)
-        val start          = dateTimeHandler.normalize(enrolment.getReservation.getStartAt, enrolment.getReservation)
+        val start =
+          dateTimeHandler.normalize(enrolment.getReservation.getStartAt, enrolment.getReservation)
         // if start is within 5 minutes, set the upcoming exam header
         if start.isBefore(threshold) then
           headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.getId}")
         // otherwise set the early login header if start is within today. For dev purposes skip requirement
-        else if start.isBefore(thresholdEarly) && start.isAfterNow && environment.mode != Mode.Dev then
+        else if start.isBefore(thresholdEarly) && start.isAfterNow && environment.mode != Mode.Dev
+        then
           headers.put("x-exam-aquarium-login", s"${getExamHash(enrolment)}:::${enrolment.getId}")
       else
         // SEB exam
@@ -273,7 +292,9 @@ class EnrolmentRepository @Inject() (
       case Some(reservation) =>
         reservation.getStartAt.plusMillis(enrolment.getDelay)
       case None =>
-        enrolment.getExaminationEventConfiguration.getExaminationEvent.getStart.plusMillis(enrolment.getDelay)
+        enrolment.getExaminationEventConfiguration.getExaminationEvent.getStart.plusMillis(
+          enrolment.getDelay
+        )
 
   private def getNextEnrolment(userId: Long, minutesToFuture: Int): Option[ExamEnrolment] =
     val results = db

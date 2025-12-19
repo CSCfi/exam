@@ -17,7 +17,8 @@ import java.util.{Base64, UUID}
 import javax.inject.Inject
 import scala.util.Using
 
-class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigReader) extends FileHandler with Logging:
+class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigReader)
+    extends FileHandler with Logging:
 
   private val KB = 1024
 
@@ -75,7 +76,9 @@ class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigR
 
   override def removeAttachmentFile(filePath: String): Unit =
     val path = FileSystems.getDefault.getPath(filePath)
-    try if !Files.deleteIfExists(path) then logger.error(s"Could not delete $path because it does not exist.")
+    try
+      if !Files.deleteIfExists(path) then
+        logger.error(s"Could not delete $path because it does not exist.")
     catch case ex: Exception => logger.error("IO Exception occurred", ex)
 
   override def removePrevious(container: AttachmentContainer): Unit =
@@ -86,7 +89,8 @@ class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigR
       attachment.delete()
 
       // Remove the file from the disk if no references to it are found
-      val removeFromDisk = DB.find(classOf[Attachment]).where().eq("filePath", filePath).findList().isEmpty
+      val removeFromDisk =
+        DB.find(classOf[Attachment]).where().eq("filePath", filePath).findList().isEmpty
       if removeFromDisk then removeAttachmentFile(attachment.getFilePath)
     }
 

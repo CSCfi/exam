@@ -22,10 +22,11 @@ class ExternalExamController @Inject() (
 
   private def toResult[T](result: Either[ExternalExamError, T])(onSuccess: T => Result): Result =
     result match
-      case Right(value)                                    => onSuccess(value)
-      case Left(ExternalExamError.EnrolmentNotFound)       => Results.NotFound("Enrolment not found")
-      case Left(ExternalExamError.InvalidExternalExamData) => Results.BadRequest("Invalid external exam data")
-      case Left(ExternalExamError.ParentExamNotFound)      => Results.NotFound("Parent exam not found")
+      case Right(value)                              => onSuccess(value)
+      case Left(ExternalExamError.EnrolmentNotFound) => Results.NotFound("Enrolment not found")
+      case Left(ExternalExamError.InvalidExternalExamData) =>
+        Results.BadRequest("Invalid external exam data")
+      case Left(ExternalExamError.ParentExamNotFound) => Results.NotFound("Parent exam not found")
       case Left(ExternalExamError.FailedToCreateAssessment) =>
         Results.InternalServerError("Failed to create assessment")
       case Left(ExternalExamError.CouldNotDownloadCollaborativeExam) =>

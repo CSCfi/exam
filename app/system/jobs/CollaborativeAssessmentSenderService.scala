@@ -34,10 +34,13 @@ class CollaborativeAssessmentSenderService @Inject() (
     logger.info(s"Sending collaborative assessment for exam $ref")
     IO.fromFuture(IO(collaborativeExamLoader.createAssessmentWithAttachments(participation)))
       .flatMap(success =>
-        if success then IO(logger.info(s"Collaborative assessment for exam $ref processed successfully"))
+        if success then
+          IO(logger.info(s"Collaborative assessment for exam $ref processed successfully"))
         else IO(logger.error(s"Failed to send collaborative assessment for exam $ref"))
       )
-      .handleErrorWith(e => IO(logger.error(s"Error sending collaborative assessment for exam $ref", e)))
+      .handleErrorWith(e =>
+        IO(logger.error(s"Error sending collaborative assessment for exam $ref", e))
+      )
       .void
 
   private def runCheck(): IO[Unit] =
@@ -56,7 +59,9 @@ class CollaborativeAssessmentSenderService @Inject() (
     }.flatMap(participations =>
       val count = participations.size
       if count > 0 then
-        logger.info(s"Processing $count collaborative assessments with max concurrency of $maxConcurrency")
+        logger.info(
+          s"Processing $count collaborative assessments with max concurrency of $maxConcurrency"
+        )
         participations
           .parTraverseN(maxConcurrency)(send)
           .handleErrorWith(e => IO(logger.error("Error processing collaborative assessments", e)))
@@ -65,6 +70,8 @@ class CollaborativeAssessmentSenderService @Inject() (
 
   def resource: Resource[IO, Unit] =
     val (delay, interval) = (80.seconds, 15.minutes)
-    val job: IO[Unit] = runCheck().handleErrorWith(e => IO(logger.error("Error in collaborative assessment sender", e)))
+    val job: IO[Unit] = runCheck().handleErrorWith(e =>
+      IO(logger.error("Error in collaborative assessment sender", e))
+    )
     val program: IO[Unit] = IO.sleep(delay) *> (job *> IO.sleep(interval)).foreverM
     Resource.make(program.start)(_.cancel).void

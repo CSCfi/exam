@@ -27,7 +27,8 @@ import services.json.JsonDeserializer
 import java.util
 import scala.jdk.CollectionConverters._
 
-class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach with EbeanQueryExtensions:
+class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
+    with EbeanQueryExtensions:
 
   private val MAIL_TIMEOUT = 20000L
 
@@ -141,7 +142,8 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
     val jacksonNode = play.libs.Json.parse(jsValue.toString)
     JsonDeserializer.deserialize(clazz, jacksonNode)
 
-  private def createMultipleChoiceAnswerData(options: ExamSectionQuestionOption*): play.api.libs.json.JsValue =
+  private def createMultipleChoiceAnswerData(options: ExamSectionQuestionOption*)
+      : play.api.libs.json.JsValue =
     val oids = JsArray(options.map(option => JsNumber(BigDecimal(option.getId))))
     Json.obj("oids" -> oids)
 
@@ -447,7 +449,8 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
           }
 
         // Submit exam
-        val result = runIO(put(s"/app/student/exam/${studentExam.getHash}", Json.obj(), session = session))
+        val result =
+          runIO(put(s"/app/student/exam/${studentExam.getHash}", Json.obj(), session = session))
         statusOf(result) must be(Status.OK)
 
         // Verify exam is graded
@@ -475,7 +478,8 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
         exam.update()
 
         val studentExam = prepareExamination(exam.getHash, session)
-        val result      = runIO(put(s"/app/student/exam/${studentExam.getHash}", Json.obj(), session = session))
+        val result =
+          runIO(put(s"/app/student/exam/${studentExam.getHash}", Json.obj(), session = session))
         statusOf(result) must be(Status.OK)
 
         // Check email notification
@@ -504,7 +508,11 @@ class ExaminationControllerSpec extends BaseIntegrationSpec with BeforeAndAfterE
         exam.update()
 
         val studentExam = prepareExamination(exam.getHash, session)
-        val result      = runIO(put(s"/app/student/exam/abort/${studentExam.getHash}", Json.obj(), session = session))
+        val result = runIO(put(
+          s"/app/student/exam/abort/${studentExam.getHash}",
+          Json.obj(),
+          session = session
+        ))
         statusOf(result) must be(Status.OK)
 
         // Check email notification

@@ -41,7 +41,10 @@ class SettingsService @Inject() (
   def getReservationWindowSize: GeneralSettings =
     configReader.getOrCreateSettings("reservation_window_size", None, Some("30"))
 
-  def getMaturityInstructions(lang: String, hash: Option[String]): Future[Either[String, play.api.libs.json.JsValue]] =
+  def getMaturityInstructions(
+      lang: String,
+      hash: Option[String]
+  ): Future[Either[String, play.api.libs.json.JsValue]] =
     Option(DB.find(classOf[Language], lang)) match
       case None => Future.successful(Left("Language not supported"))
       case Some(language) =>
@@ -64,7 +67,9 @@ class SettingsService @Inject() (
                         if response.status == 200 then Right(response.json)
                         else
                           Left(
-                            (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+                            (response.json \ "message").asOpt[String].getOrElse(
+                              "Connection refused"
+                            )
                           )
                       }
           case None =>
@@ -83,7 +88,8 @@ class SettingsService @Inject() (
 
     if !minorUpdate then
       // Force users to accept EULA again
-      val update = DB.createUpdate(classOf[User], "update app_user set user_agreement_accepted = :hasNot")
+      val update =
+        DB.createUpdate(classOf[User], "update app_user set user_agreement_accepted = :hasNot")
       update.set("hasNot", false)
       update.execute()
 
@@ -125,17 +131,21 @@ class SettingsService @Inject() (
   def getExaminationQuitLink: String = configReader.getQuitExaminationLink
 
   def getConfig: JsObject =
-    val courseIntegrationUrls = JsObject(configReader.getCourseIntegrationUrls.toSeq.map { case (k, v) =>
-      k -> JsString(v)
+    val courseIntegrationUrls = JsObject(configReader.getCourseIntegrationUrls.toSeq.map {
+      case (k, v) =>
+        k -> JsString(v)
     })
 
     val roles = JsObject(
-      configReader.getRoleMapping.map { case (k, v) => k.getName -> JsArray(v.map(JsString(_))) }.toSeq
+      configReader.getRoleMapping.map { case (k, v) =>
+        k.getName -> JsArray(v.map(JsString(_)))
+      }.toSeq
     )
 
-    val eula                  = configReader.getOrCreateSettings("eula", None, None)
-    val reservationWindowSize = configReader.getOrCreateSettings("reservation_window_size", None, Some("30"))
-    val reviewDeadline        = configReader.getOrCreateSettings("review_deadline", None, Some("14"))
+    val eula = configReader.getOrCreateSettings("eula", None, None)
+    val reservationWindowSize =
+      configReader.getOrCreateSettings("reservation_window_size", None, Some("30"))
+    val reviewDeadline = configReader.getOrCreateSettings("review_deadline", None, Some("14"))
 
     Json.obj(
       "hasCourseSearchIntegration"   -> configReader.isCourseSearchActive,

@@ -48,7 +48,9 @@ class ExternalExamExpirationService @Inject() (
     if url.nonEmpty then
       IO.fromFuture(IO(wsClient.url(url).delete()))
         .void
-        .handleErrorWith(e => IO(logger.error(s"Failed to delete attachment ${attachment.getExternalId}", e)))
+        .handleErrorWith(e =>
+          IO(logger.error(s"Failed to delete attachment ${attachment.getExternalId}", e))
+        )
     else IO.unit
 
   private def processExternalExam(ee: ExternalExam): IO[Unit] =
@@ -71,9 +73,14 @@ class ExternalExamExpirationService @Inject() (
       )
       attachments
         .parTraverseN(maxConcurrency)(deleteAttachment)
-        .handleErrorWith(e => IO(logger.error(s"Failed in deleting attachments for external exam ${ee.getId}", e)))
+        .handleErrorWith(e =>
+          IO(logger.error(s"Failed in deleting attachments for external exam ${ee.getId}", e))
+        )
         .flatMap(_ =>
-          if ee.getSent.plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION).isBeforeNow then
+          if ee.getSent.plusMonths(
+              ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION
+            ).isBeforeNow
+          then
             IO.blocking {
               ee.setContent(Map.empty[String, Object].asJava)
               ee.update()
@@ -81,7 +88,8 @@ class ExternalExamExpirationService @Inject() (
             }
           else IO.unit
         )
-    else if ee.getSent.plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION).isBeforeNow then
+    else if ee.getSent.plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION).isBeforeNow
+    then
       IO.blocking {
         ee.setContent(Map.empty[String, Object].asJava)
         ee.update()
@@ -112,6 +120,7 @@ class ExternalExamExpirationService @Inject() (
 
   def resource: Resource[IO, Unit] =
     val (delay, interval) = (100.seconds, (60 * 24).minutes)
-    val job: IO[Unit]     = runCheck().handleErrorWith(e => IO(logger.error("Error in external exam expiration", e)))
+    val job: IO[Unit] =
+      runCheck().handleErrorWith(e => IO(logger.error("Error in external exam expiration", e)))
     val program: IO[Unit] = IO.sleep(delay) *> (job *> IO.sleep(interval)).foreverM
     Resource.make(program.start)(_.cancel).void

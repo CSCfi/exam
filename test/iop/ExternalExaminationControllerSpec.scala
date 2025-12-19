@@ -115,7 +115,8 @@ class ExternalExaminationControllerSpec
         val (exam, _, enrolment, _) = setupTestData()
         val (user, session)         = runIO(loginAsStudent())
         // Execute
-        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        val result1 =
+          runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
         statusOf(result1) must be(Status.SEE_OTHER)
 
         val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
@@ -145,7 +146,8 @@ class ExternalExaminationControllerSpec
 
         val (user, session) = runIO(loginAsStudent())
         // Execute
-        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        val result1 =
+          runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
         statusOf(result1) must be(Status.SEE_OTHER)
         val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
         val result2          = runIO(get(redirectLocation, session = session))
@@ -155,7 +157,8 @@ class ExternalExaminationControllerSpec
         val (_, _, enrolment, _) = setupTestData()
         val (user, session)      = runIO(loginAsStudent())
         // Execute first time
-        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        val result1 =
+          runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
         statusOf(result1) must be(Status.SEE_OTHER)
 
         val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
@@ -171,11 +174,13 @@ class ExternalExaminationControllerSpec
             case None     => fail("External exam not found")
 
         // Try again
-        val result2 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        val result2 =
+          runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
         statusOf(result2) must be(Status.SEE_OTHER)
 
-        val redirectLocation2 = headerOf(result2, "Location").getOrElse(fail("No redirect location"))
-        val result2Final      = runIO(get(redirectLocation2, session = session))
+        val redirectLocation2 =
+          headerOf(result2, "Location").getOrElse(fail("No redirect location"))
+        val result2Final = runIO(get(redirectLocation2, session = session))
         statusOf(result2Final) must be(Status.OK)
 
         // Check that the starting time did not change
@@ -192,7 +197,8 @@ class ExternalExaminationControllerSpec
       "answer multiple choice question successfully" in:
         val (_, ee, enrolment, _) = setupTestData()
         val (user, session)       = runIO(loginAsStudent())
-        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        val result1 =
+          runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
         statusOf(result1) must be(Status.SEE_OTHER)
 
         val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
@@ -222,9 +228,10 @@ class ExternalExaminationControllerSpec
         statusOf(postResult) must be(Status.OK)
 
         // Check that an option was marked as answered in the database
-        val savedExternalExam = Option(DB.find(classOf[ExternalExam]).where().eq("hash", ee.getHash).findOne()) match
-          case Some(ee) => ee
-          case None     => fail("External exam not found")
+        val savedExternalExam =
+          Option(DB.find(classOf[ExternalExam]).where().eq("hash", ee.getHash).findOne()) match
+            case Some(ee) => ee
+            case None     => fail("External exam not found")
         val savedExam = savedExternalExam.deserialize()
         val savedQuestion = savedExam.getExamSections.asScala
           .flatMap(_.getSectionQuestions.asScala)
@@ -237,7 +244,10 @@ class ExternalExaminationControllerSpec
       "reject multiple choice question with wrong IP" in:
         val (_, _, enrolment, machine) = setupTestData()
         val (_, userSession)           = runIO(loginAsStudent())
-        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = userSession))
+        val result1 = runIO(get(
+          s"/app/student/exam/${enrolment.getExternalExam.getHash}",
+          session = userSession
+        ))
         statusOf(result1) must be(Status.SEE_OTHER)
 
         val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))
@@ -350,9 +360,10 @@ class ExternalExaminationControllerSpec
         val submitResult = runIO(put(s"/app/iop/student/exam/$hash", Json.obj(), session = session))
         statusOf(submitResult) must be(Status.OK)
 
-        val turnedExam = Option(DB.find(classOf[ExternalExam]).where().eq("hash", hash).findOne()) match
-          case Some(ee) => ee
-          case None     => fail("External exam not found")
+        val turnedExam =
+          Option(DB.find(classOf[ExternalExam]).where().eq("hash", hash).findOne()) match
+            case Some(ee) => ee
+            case None     => fail("External exam not found")
         turnedExam.getFinished.must(not be null)
 
         val content = turnedExam.deserialize()
@@ -368,7 +379,8 @@ class ExternalExaminationControllerSpec
       "answer skip on claim choice question" in:
         val (_, _, enrolment, _) = setupTestData()
         val (user, session)      = runIO(loginAsStudent())
-        val result1 = runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
+        val result1 =
+          runIO(get(s"/app/student/exam/${enrolment.getExternalExam.getHash}", session = session))
         statusOf(result1) must be(Status.SEE_OTHER)
 
         val redirectLocation = headerOf(result1, "Location").getOrElse(fail("No redirect location"))

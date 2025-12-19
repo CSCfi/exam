@@ -52,9 +52,12 @@ class StudentActionsController @Inject() (
         studentActionsService.getExamScoreReport(eid, user) match
           case Right(fileResponse) =>
             Ok(fileResponse.content)
-              .withHeaders("Content-Disposition" -> s"attachment; filename=\"${fileResponse.fileName}\"")
+              .withHeaders(
+                "Content-Disposition" -> s"attachment; filename=\"${fileResponse.fileName}\""
+              )
               .as(fileResponse.contentType)
-          case Left(StudentActionsError.ExamNotFound) => NotFound(StudentActionsError.ExamNotFound.message)
+          case Left(StudentActionsError.ExamNotFound) =>
+            NotFound(StudentActionsError.ExamNotFound.message)
           case Left(StudentActionsError.ErrorCreatingExcelFile) =>
             InternalServerError(StudentActionsError.ErrorCreatingExcelFile.message)
           case Left(_) => InternalServerError
@@ -91,7 +94,9 @@ class StudentActionsController @Inject() (
       studentActionsService.getExamConfigFile(enrolmentId, user) match
         case Right(fileResponse) =>
           Ok(fileResponse.content)
-            .withHeaders("Content-Disposition" -> s"attachment; filename=\"${fileResponse.fileName}\"")
+            .withHeaders(
+              "Content-Disposition" -> s"attachment; filename=\"${fileResponse.fileName}\""
+            )
             .as(fileResponse.contentType)
         case Left(StudentActionsError.ExamConfigNotAvailable) =>
           Forbidden(StudentActionsError.ExamConfigNotAvailable.message)

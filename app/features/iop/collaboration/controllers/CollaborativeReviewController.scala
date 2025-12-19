@@ -48,7 +48,13 @@ class CollaborativeReviewController @Inject() (
     messagesApi: MessagesApi,
     override val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
-    extends CollaborationController(wsClient, examUpdater, examLoader, configReader, controllerComponents)
+    extends CollaborationController(
+      wsClient,
+      examUpdater,
+      examLoader,
+      configReader,
+      controllerComponents
+    )
     with EbeanQueryExtensions
     with EbeanJsonExtensions
     with JsonBodyWritables
@@ -71,9 +77,10 @@ class CollaborativeReviewController @Inject() (
     if response.status != OK then
       InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
     else
-      val root            = response.json
-      val examNode        = (root \ "exam").get
-      val blankAnswerText = messagesApi("clozeTest.blank.answer")(using Lang(user.getLanguage.getCode))
+      val root     = response.json
+      val examNode = (root \ "exam").get
+      val blankAnswerText =
+        messagesApi("clozeTest.blank.answer")(using Lang(user.getLanguage.getCode))
 
       // Manipulate cloze test answers for convenient display
       val examSections = (examNode \ "examSections").as[Seq[JsValue]]
@@ -86,7 +93,10 @@ class CollaborativeReviewController @Inject() (
             val clozeAnswer = (esq \ "clozeTestAnswer").asOpt[JsValue]
             val cta =
               if clozeAnswer.exists(_.asOpt[Map[String, JsValue]].exists(_.nonEmpty)) then
-                JsonDeserializer.deserialize(classOf[ClozeTestAnswer], toJacksonJson(clozeAnswer.get))
+                JsonDeserializer.deserialize(
+                  classOf[ClozeTestAnswer],
+                  toJacksonJson(clozeAnswer.get)
+                )
               else new ClozeTestAnswer()
             cta.setQuestionWithResults(toJacksonJson(esq), blankAnswerText)
             // Note: actual JSON modification would require mutable JSON manipulation
@@ -117,16 +127,28 @@ class CollaborativeReviewController @Inject() (
       node: com.fasterxml.jackson.databind.JsonNode
   ): java.util.stream.Stream[com.fasterxml.jackson.databind.JsonNode] =
     import scala.jdk.StreamConverters.*
-    Option(node).filter(_.isArray).map(_.elements().asScala.asJavaSeqStream).getOrElse(java.util.stream.Stream.empty())
+    Option(node).filter(_.isArray).map(_.elements().asScala.asJavaSeqStream).getOrElse(
+      java.util.stream.Stream.empty()
+    )
 
-  private def forceScoreAnswer(examNode: com.fasterxml.jackson.databind.JsonNode, qid: Long, score: Double): Unit =
+  private def forceScoreAnswer(
+      examNode: com.fasterxml.jackson.databind.JsonNode,
+      qid: Long,
+      score: Double
+  ): Unit =
     streamJackson(examNode.get("examSections"))
       .flatMap(es => streamJackson(es.get("sectionQuestions")))
       .filter(esq => esq.get("id").asLong() == qid)
       .findAny()
-      .ifPresent(esq => esq.asInstanceOf[com.fasterxml.jackson.databind.node.ObjectNode].put("forcedScore", score))
+      .ifPresent(esq =>
+        esq.asInstanceOf[com.fasterxml.jackson.databind.node.ObjectNode].put("forcedScore", score)
+      )
 
-  private def scoreAnswer(examNode: com.fasterxml.jackson.databind.JsonNode, qid: Long, score: Double): Unit =
+  private def scoreAnswer(
+      examNode: com.fasterxml.jackson.databind.JsonNode,
+      qid: Long,
+      score: Double
+  ): Unit =
     streamJackson(examNode.get("examSections"))
       .flatMap(es => streamJackson(es.get("sectionQuestions")))
       .filter(esq => esq.get("id").asLong() == qid)
@@ -134,10 +156,16 @@ class CollaborativeReviewController @Inject() (
       .ifPresent { esq =>
         val essayAnswer = esq.get("essayAnswer")
         if essayAnswer.isObject && !essayAnswer.isEmpty then
-          essayAnswer.asInstanceOf[com.fasterxml.jackson.databind.node.ObjectNode].put("evaluatedScore", score)
+          essayAnswer.asInstanceOf[com.fasterxml.jackson.databind.node.ObjectNode].put(
+            "evaluatedScore",
+            score
+          )
         else
           val newAnswer = play.libs.Json.newObject().put("evaluatedScore", score)
-          essayAnswer.asInstanceOf[com.fasterxml.jackson.databind.node.ObjectNode].set("essayAnswer", newAnswer)
+          essayAnswer.asInstanceOf[com.fasterxml.jackson.databind.node.ObjectNode].set(
+            "essayAnswer",
+            newAnswer
+          )
       }
 
   def listAssessments(id: Long): Action[AnyContent] =
@@ -180,7 +208,8 @@ class CollaborativeReviewController @Inject() (
                           val nodeId   = (node \ "_id").asOpt[String]
                           nodeEppn == eppn && !nodeId.contains(aid)
                         }
-                        val anonIds = if user.hasRole(Role.Name.ADMIN) then Set.empty[Long] else Set(1L)
+                        val anonIds =
+                          if user.hasRole(Role.Name.ADMIN) then Set.empty[Long] else Set(1L)
                         withAnonymousResult(request, Ok(Json.toJson(filtered)), anonIds)
               }
     }
@@ -218,7 +247,9 @@ class CollaborativeReviewController @Inject() (
             case Right(wsRequest) =>
               wsRequest.get().map { response =>
                 if response.status != OK then
-                  InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                  InternalServerError(
+                    (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+                  )
                 else
                   val root          = response.json
                   val filtered      = filterFinished(root, refs)
@@ -270,20 +301,25 @@ class CollaborativeReviewController @Inject() (
             case Right(url) =>
               val scoreNode = request.body \ "evaluatedScore"
               val score =
-                if scoreNode.isInstanceOf[play.api.libs.json.JsNumber] then scoreNode.asOpt[Double] else None
+                if scoreNode.isInstanceOf[play.api.libs.json.JsNumber] then scoreNode.asOpt[Double]
+                else None
               val revision = (request.body \ "rev").as[String]
 
               wsClient.url(url.toString).get().flatMap { response =>
                 if response.status != OK then
                   Future.successful(
-                    InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                    InternalServerError(
+                      (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+                    )
                   )
                 else
                   val root     = response.json
                   val examNode = (root \ "exam").get
                   score.foreach(s => scoreAnswer(toJacksonJson(examNode), qid, s))
                   val updated =
-                    root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(revision))
+                    root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(
+                      revision
+                    ))
                   upload(url, updated)
               }
     }
@@ -306,11 +342,13 @@ class CollaborativeReviewController @Inject() (
                 wsClient.url(url.toString).get().flatMap { response =>
                   if response.status != OK then
                     Future.successful(
-                      InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                      InternalServerError(
+                        (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+                      )
                     )
                   else
                     val examNode = (response.json \ "exam").get
-                    val exam     = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
+                    val exam = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
                     if isUnauthorizedToAssess(exam, user) then
                       Future.successful(Forbidden("You are not allowed to modify this object"))
                     else
@@ -321,7 +359,9 @@ class CollaborativeReviewController @Inject() (
                       emailComposer.scheduleEmail(1.second) {
                         recipients
                           .filter(u => !u.getEmail.equalsIgnoreCase(user.getEmail))
-                          .foreach(u => emailComposer.composeInspectionMessage(u, user, ce, exam, message))
+                          .foreach(u =>
+                            emailComposer.composeInspectionMessage(u, user, ce, exam, message)
+                          )
                       }
 
                       Future.successful(Ok)
@@ -340,20 +380,25 @@ class CollaborativeReviewController @Inject() (
             case Some(url) =>
               val scoreNode = request.body \ "forcedScore"
               val score =
-                if scoreNode.isInstanceOf[play.api.libs.json.JsNumber] then scoreNode.asOpt[Double] else None
+                if scoreNode.isInstanceOf[play.api.libs.json.JsNumber] then scoreNode.asOpt[Double]
+                else None
               val revision = (request.body \ "rev").as[String]
 
               wsClient.url(url.toString).get().flatMap { response =>
                 if response.status != OK then
                   Future.successful(
-                    InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                    InternalServerError(
+                      (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+                    )
                   )
                 else
                   val root     = response.json
                   val examNode = (root \ "exam").get
                   score.foreach(s => forceScoreAnswer(toJacksonJson(examNode), qid, s))
                   val updated =
-                    root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(revision))
+                    root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(
+                      revision
+                    ))
                   upload(url, updated)
               }
     }
@@ -374,12 +419,14 @@ class CollaborativeReviewController @Inject() (
               wsClient.url(url.toString).get().flatMap { response =>
                 if response.status != OK then
                   Future.successful(
-                    InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                    InternalServerError(
+                      (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+                    )
                   )
                 else
                   val root     = response.json
                   val examNode = (root \ "exam").get
-                  val exam     = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
+                  val exam = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
 
                   if isUnauthorizedToAssess(exam, user) then
                     Future.successful(Forbidden("You are not allowed to modify this object"))
@@ -397,7 +444,9 @@ class CollaborativeReviewController @Inject() (
                     else
                       // TODO: Update examNode with grade, state, etc. from request.body
                       val updated =
-                        root.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(revision.get))
+                        root.as[
+                          play.api.libs.json.JsObject
+                        ] + ("rev" -> play.api.libs.json.JsString(revision.get))
                       upload(url, updated)
               }
     }
@@ -421,7 +470,9 @@ class CollaborativeReviewController @Inject() (
               wsClient.url(url.toString).get().flatMap { response =>
                 if response.status != OK then
                   Future.successful(
-                    InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                    InternalServerError(
+                      (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+                    )
                   )
                 else
                   val root         = response.json
@@ -446,7 +497,9 @@ class CollaborativeReviewController @Inject() (
               wsClient.url(url.toString).get().flatMap { response =>
                 if response.status != OK then
                   Future.successful(
-                    InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+                    InternalServerError(
+                      (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+                    )
                   )
                 else
                   val root         = response.json
@@ -474,7 +527,7 @@ class CollaborativeReviewController @Inject() (
                   case Left(errorFuture) => errorFuture
                   case Right(r) =>
                     val examNode = (r.json \ "exam").get
-                    val exam     = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
+                    val exam = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
 
                     if isUnauthorizedToAssess(exam, user) then
                       Future.successful(Forbidden("You are not allowed to modify this object"))
@@ -483,18 +536,26 @@ class CollaborativeReviewController @Inject() (
                     else
                       // TODO: Update examNode with assessmentInfo
                       val updated =
-                        r.json.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json.JsString(revision))
+                        r.json.as[
+                          play.api.libs.json.JsObject
+                        ] + ("rev" -> play.api.libs.json.JsString(revision))
                       upload(url, updated)
               }
     }
 
-  private def validateExamState(exam: Exam, gradeRequired: Boolean, user: User): Option[Future[Result]] =
+  private def validateExamState(
+      exam: Exam,
+      gradeRequired: Boolean,
+      user: User
+  ): Option[Future[Result]] =
     Option(exam) match
       case None => Some(Future.successful(NotFound("Exam not found")))
       case Some(e) =>
         if isUnauthorizedToAssess(e, user) then
           Some(Future.successful(Forbidden("You are not allowed to modify this object")))
-        else if (Option(e.getGrade).isEmpty && gradeRequired) || Option(e.getCreditType).isEmpty || Option(
+        else if (Option(e.getGrade).isEmpty && gradeRequired) || Option(
+            e.getCreditType
+          ).isEmpty || Option(
             e.getAnswerLanguage
           ).isEmpty || Option(e.getGradedByUser).isEmpty
         then Some(Future.successful(Forbidden("not yet graded by anyone!")))
@@ -532,21 +593,25 @@ class CollaborativeReviewController @Inject() (
                         case Left(errorFuture) => errorFuture
                         case Right(r) =>
                           val examNode = (r.json \ "exam").get
-                          val exam     = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
+                          val exam =
+                            JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
 
                           validateExamState(exam, gradingType == Grade.Type.GRADED, user) match
                             case Some(errorFuture) => errorFuture
                             case None              =>
                               // TODO: Update examNode with GRADED_LOGGED state, gradedByUser, etc.
-                              val updated = r.json.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json
-                                .JsString(revision.get))
+                              val updated =
+                                r.json.as[play.api.libs.json.JsObject] + ("rev" -> play.api.libs.json
+                                  .JsString(revision.get))
                               upload(url, updated)
                     }
     }
 
   private def getResponse(wsr: WSResponse): Either[Future[Result], WSResponse] =
     if wsr.status != OK then
-      Left(Future.successful(InternalServerError((wsr.json \ "message").asOpt[String].getOrElse("Connection refused"))))
+      Left(Future.successful(
+        InternalServerError((wsr.json \ "message").asOpt[String].getOrElse("Connection refused"))
+      ))
     else Right(wsr)
 
   private def getURL(ce: CollaborativeExam, ref: String): Either[Future[Result], URL] =
@@ -560,7 +625,8 @@ class CollaborativeReviewController @Inject() (
       case None      => Left(Future.successful(InternalServerError("Invalid URL")))
 
   // Helper to convert Play JSON to Jackson JSON (for models that still use Jackson)
-  private def toJacksonJson(value: play.api.libs.json.JsValue): com.fasterxml.jackson.databind.JsonNode =
+  private def toJacksonJson(value: play.api.libs.json.JsValue)
+      : com.fasterxml.jackson.databind.JsonNode =
     play.libs.Json.parse(play.api.libs.json.Json.stringify(value))
 
   // Helper to convert Jackson JSON to Play JSON

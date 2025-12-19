@@ -31,19 +31,21 @@ class CalendarController @Inject() (
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       calendarService.removeReservation(id, user) match
-        case Right(_)                                  => Ok
-        case Left(CalendarError.ReservationInEffect)   => Forbidden(CalendarError.ReservationInEffect.message)
+        case Right(_) => Ok
+        case Left(CalendarError.ReservationInEffect) =>
+          Forbidden(CalendarError.ReservationInEffect.message)
         case Left(CalendarError.InvalidReservation(_)) => NotFound
         case Left(_)                                   => Forbidden
     }
 
-  def getCurrentEnrolment(id: Long): Action[AnyContent] = authenticated.andThen(authorized(Seq(Role.Name.STUDENT))) {
-    request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      calendarService.getCurrentEnrolment(id, user) match
-        case Some(enrolment) => Ok(enrolment.asJson)
-        case None            => Ok
-  }
+  def getCurrentEnrolment(id: Long): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        calendarService.getCurrentEnrolment(id, user) match
+          case Some(enrolment) => Ok(enrolment.asJson)
+          case None            => Ok
+    }
 
   def createReservation(): Action[JsValue] = audited
     .andThen(authenticated)(parse.json)
@@ -53,20 +55,28 @@ class CalendarController @Inject() (
       val dto  = request.attrs(ScalaAttrs.ATTR_STUDENT_RESERVATION)
       val user = request.attrs(Auth.ATTR_USER)
       calendarService.createReservation(dto, user).map {
-        case Right(_)                                => Ok
-        case Left(CalendarError.EnrolmentNotFound)   => Forbidden(CalendarError.EnrolmentNotFound.message)
-        case Left(CalendarError.NoMachinesAvailable) => Forbidden(CalendarError.NoMachinesAvailable.message)
-        case Left(CalendarError.Forbidden)           => Forbidden
-        case Left(CalendarError.NotFound)            => NotFound
-        case Left(error)                             => Forbidden(error.message)
+        case Right(_) => Ok
+        case Left(CalendarError.EnrolmentNotFound) =>
+          Forbidden(CalendarError.EnrolmentNotFound.message)
+        case Left(CalendarError.NoMachinesAvailable) =>
+          Forbidden(CalendarError.NoMachinesAvailable.message)
+        case Left(CalendarError.Forbidden) => Forbidden
+        case Left(CalendarError.NotFound)  => NotFound
+        case Left(error)                   => Forbidden(error.message)
       }
     }
 
-  def getSlots(examId: Long, roomId: Long, day: String, aids: Option[Seq[Long]]): Action[AnyContent] =
+  def getSlots(
+      examId: Long,
+      roomId: Long,
+      day: String,
+      aids: Option[Seq[Long]]
+  ): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       calendarService.getSlots(examId, roomId, day, aids, user) match
-        case Right(json)                           => Ok(json)
-        case Left(CalendarError.EnrolmentNotFound) => Forbidden(CalendarError.EnrolmentNotFound.message)
-        case Left(_)                               => Forbidden
+        case Right(json) => Ok(json)
+        case Left(CalendarError.EnrolmentNotFound) =>
+          Forbidden(CalendarError.EnrolmentNotFound.message)
+        case Left(_) => Forbidden
     }

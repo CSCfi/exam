@@ -18,7 +18,7 @@ class ExternalAttachmentControllerSpec extends BaseCollaborativeAttachmentSpec[E
       "allow teacher to download exam attachment" in:
         val (exam, examSectionQuestion, externalExam) = setupTestData()
         val (_, session)                              = runIO(loginAsTeacher())
-        val result                                    = runIO(requestExamAttachment(Status.OK, session))
+        val result = runIO(requestExamAttachment(Status.OK, session))
         assertLastCall("GET")
         assertDownloadResult(result)
 

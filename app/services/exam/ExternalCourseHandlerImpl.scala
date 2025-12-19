@@ -39,7 +39,7 @@ class ExternalCourseHandlerImpl @Inject (
   private val USER_ID_PLACEHOLDER     = "${employee_number}"
   private val USER_LANG_PLACEHOLDER   = "${employee_lang}"
   private val DF                      = new SimpleDateFormat("yyyyMMdd")
-  private val BOM                     = ByteString.fromArray(Array[Byte](0xef.toByte, 0xbb.toByte, 0xbf.toByte))
+  private val BOM = ByteString.fromArray(Array[Byte](0xef.toByte, 0xbb.toByte, 0xbf.toByte))
 
   private def getLocalCourses(code: String) = DB
     .find(classOf[Course])
@@ -52,7 +52,9 @@ class ExternalCourseHandlerImpl @Inject (
     .orderBy("code")
     .distinct
     .filter(c =>
-      Option(c.getStartDate).isEmpty || configReader.getCourseValidityDate(new DateTime(c.getStartDate)).isBeforeNow
+      Option(c.getStartDate).isEmpty || configReader.getCourseValidityDate(
+        new DateTime(c.getStartDate)
+      ).isBeforeNow
     )
 
   override def getCoursesByCode(user: User, code: String): Future[Set[Course]] =
@@ -62,7 +64,9 @@ class ExternalCourseHandlerImpl @Inject (
     val url = parseUrl(user.getOrganisation, code)
     downloadCourses(url).map(externals =>
       externals.foreach(saveOrUpdate)
-      TreeSet.empty[Course](using (a, b) => a.getCode.compareTo(b.getCode)) ++ externals ++ getLocalCourses(code)
+      TreeSet.empty[Course](
+        using (a, b) => a.getCode.compareTo(b.getCode)
+      ) ++ externals ++ getLocalCourses(code)
     )
 
   override def getPermittedCourses(user: User): Future[Set[String]] =
@@ -75,7 +79,10 @@ class ExternalCourseHandlerImpl @Inject (
         nodes.map(_.as[String]).toSet
       )
       .recover { case e: Exception =>
-        logger.error("Unable to check for permitted courses due to exception in network connection", e)
+        logger.error(
+          "Unable to check for permitted courses due to exception in network connection",
+          e
+        )
         Set.empty
       }
 
@@ -156,8 +163,11 @@ class ExternalCourseHandlerImpl @Inject (
       case _ => None
 
   private def importScales(cui: CourseUnitInfo) =
-    val (ext, loc) = cui.gradeScales.map(_.partition(_.`type` == "OTHER")).getOrElse((Seq.empty, Seq.empty))
-    ext.flatMap(importScale) ++ loc.flatMap(gs => DB.find(classOf[GradeScale]).where.eq("description", gs.`type`).find)
+    val (ext, loc) =
+      cui.gradeScales.map(_.partition(_.`type` == "OTHER")).getOrElse((Seq.empty, Seq.empty))
+    ext.flatMap(importScale) ++ loc.flatMap(gs =>
+      DB.find(classOf[GradeScale]).where.eq("description", gs.`type`).find
+    )
 
   private def importScale(gs: ExtGradeScale) = gs match
     case ExtGradeScale(Some(name), "OTHER", Some(code), Some(grades)) =>
@@ -201,7 +211,9 @@ class ExternalCourseHandlerImpl @Inject (
   private def queryRequest(url: URL) =
     val host = url.toString.split("\\?").head
     val query =
-      url.getQuery.split("&").collectFirst { case s"$k=$v" => k -> URLDecoder.decode(v, StandardCharsets.UTF_8) }
+      url.getQuery.split("&").collectFirst { case s"$k=$v" =>
+        k -> URLDecoder.decode(v, StandardCharsets.UTF_8)
+      }
     val request = query match
       case None     => wsClient.url(host)
       case Some(qp) => wsClient.url(host).withQueryStringParameters(qp)
@@ -223,19 +235,26 @@ class ExternalCourseHandlerImpl @Inject (
     val path = configReader.getString(configPath.getOrElse(""))
     if (!path.contains(COURSE_CODE_PLACEHOLDER))
       throw new RuntimeException("exam.integration.courseUnitInfo.url is malformed")
-    val url = path.replace(COURSE_CODE_PLACEHOLDER, URLEncoder.encode(courseCode, StandardCharsets.UTF_8))
+    val url =
+      path.replace(COURSE_CODE_PLACEHOLDER, URLEncoder.encode(courseCode, StandardCharsets.UTF_8))
     URI.create(url).toURL
 
   private def parseUrl(user: User) =
-    if configReader.getPermissionCheckUserIdentifier == "userIdentifier" && Option(user.getUserIdentifier).isEmpty then
+    if configReader.getPermissionCheckUserIdentifier == "userIdentifier" && Option(
+        user.getUserIdentifier
+      ).isEmpty
+    then
       throw new MalformedURLException("User has no identifier number!")
     val url =
       Option(configReader.getPermissionCheckUrl).filter(_.contains(USER_ID_PLACEHOLDER))
     url match
-      case None => throw new MalformedURLException("exam.integration.enrolmentPermissionCheck.url is malformed")
+      case None => throw new MalformedURLException(
+          "exam.integration.enrolmentPermissionCheck.url is malformed"
+        )
       case Some(url) =>
         val identifier = URLEncoder.encode(
-          if (configReader.getPermissionCheckUserIdentifier == "userIdentifier") user.getUserIdentifier
+          if (configReader.getPermissionCheckUserIdentifier == "userIdentifier")
+            user.getUserIdentifier
           else user.getEppn,
           StandardCharsets.UTF_8
         )

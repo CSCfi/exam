@@ -15,7 +15,10 @@ object QuestionTextValidator extends PlayJsonValidator:
   // Create Scala TypedKey with same key name as Java version
   val QUESTION_TEXT_KEY: TypedKey[String] = TypedKey[String]("question")
 
-  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
     val questionText = (json \ "question").asOpt[String]
     val sanitized    = questionText.map(text => Jsoup.clean(text, HTML_SAFELIST)).orNull
     Right(request.addAttr(QUESTION_TEXT_KEY, sanitized))

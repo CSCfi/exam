@@ -33,6 +33,9 @@ object SectionQuestionValidator extends PlayJsonValidator:
 
       SectionQuestionDTO(answerInstructions, evaluationCriteria, questionText)
 
-  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
     val dto = QuestionParser.parseFromJson(json)
     Right(request.addAttr(ScalaAttrs.SECTION_QUESTION, dto))

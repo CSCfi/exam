@@ -131,8 +131,9 @@ class CollaborativeExamLoaderImpl @Inject() (
     parseAssessmentUrl(ref) match
       case None => Future.successful(false)
       case Some(url) =>
-        val request = wsClient.url(url.toString).withHttpHeaders("Content-Type" -> "application/json")
-        val json    = DB.json().toJson(participation, getAssessmentPath)
+        val request =
+          wsClient.url(url.toString).withHttpHeaders("Content-Type" -> "application/json")
+        val json = DB.json().toJson(participation, getAssessmentPath)
 
         request
           .post(json)
@@ -151,7 +152,11 @@ class CollaborativeExamLoaderImpl @Inject() (
             false
           }
 
-  override def uploadAssessment(ce: CollaborativeExam, ref: String, payload: JsValue): Future[Option[String]] =
+  override def uploadAssessment(
+      ce: CollaborativeExam,
+      ref: String,
+      payload: JsValue
+  ): Future[Option[String]] =
     parseUrl(ce.getExternalRef, ref) match
       case None      => Future.successful(None)
       case Some(url) =>
@@ -178,7 +183,9 @@ class CollaborativeExamLoaderImpl @Inject() (
         request.get().map { response =>
           val root = response.json
           if response.status != OK then
-            logger.warn(s"non-ok response from XM: ${(root \ "message").asOpt[String].getOrElse("unknown")}")
+            logger.warn(
+              s"non-ok response from XM: ${(root \ "message").asOpt[String].getOrElse("unknown")}"
+            )
             None
           else
             // Set revision if present (CouchDB revision field can be _rev or rev)
@@ -211,7 +218,9 @@ class CollaborativeExamLoaderImpl @Inject() (
         request.get().map { response =>
           val root = response.json
           if response.status != OK then
-            logger.warn(s"non-ok response from XM: ${(root \ "message").asOpt[String].getOrElse("unknown")}")
+            logger.warn(
+              s"non-ok response from XM: ${(root \ "message").asOpt[String].getOrElse("unknown")}"
+            )
             None
           else
             val revision = (root \ "_rev").asOpt[String].orElse((root \ "rev").asOpt[String])
@@ -228,7 +237,9 @@ class CollaborativeExamLoaderImpl @Inject() (
         request.get().map { response =>
           val root = response.json
           if response.status != OK then
-            logger.warn(s"non-ok response from XM: ${(root \ "message").asOpt[String].getOrElse("unknown")}")
+            logger.warn(
+              s"non-ok response from XM: ${(root \ "message").asOpt[String].getOrElse("unknown")}"
+            )
             None
           else Some(root)
         }

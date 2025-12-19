@@ -18,14 +18,18 @@ case class ClozeTestAnswerDTO(answer: String, objectVersion: Option[Long]):
 
 object ClozeTestAnswerValidator extends PlayJsonValidator:
 
-  val CLOZE_TEST_ANSWER_KEY: TypedKey[ClozeTestAnswerDTO] = TypedKey[ClozeTestAnswerDTO]("clozeTestAnswer")
+  val CLOZE_TEST_ANSWER_KEY: TypedKey[ClozeTestAnswerDTO] =
+    TypedKey[ClozeTestAnswerDTO]("clozeTestAnswer")
 
   private object AnswerValidator:
     def get(body: JsValue): Either[ValidationException, ClozeTestAnswerDTO] =
       PlayValidator(ClozeTestAnswerParser.parseFromJson).withRule(requireJson).validate(body)
 
     private def requireJson(answer: ClozeTestAnswerDTO): ValidatedNel[FieldError, Unit] =
-      PlayValidator.when(answer.answer.trim.nonEmpty)(PlayValidator.requireJson("answer", answer.answer))
+      PlayValidator.when(answer.answer.trim.nonEmpty)(PlayValidator.requireJson(
+        "answer",
+        answer.answer
+      ))
 
   private object ClozeTestAnswerParser:
     def parseFromJson(body: JsValue): ClozeTestAnswerDTO =
@@ -37,7 +41,10 @@ object ClozeTestAnswerValidator extends PlayJsonValidator:
       val objectVersion = PlayJsonHelper.parse[Long]("objectVersion", body)
       ClozeTestAnswerDTO(answer, objectVersion)
 
-  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
     AnswerValidator.get(json) match
       case Right(answer) => Right(request.addAttr(CLOZE_TEST_ANSWER_KEY, answer))
       case Left(ex)      => Left(Results.BadRequest(ex.getMessage))

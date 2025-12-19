@@ -91,7 +91,9 @@ object CombinedRoleAndPermissionFilter:
     * @return
     *   an ActionFilter that allows access if EITHER permission OR role matches
     */
-  def anyMatch(permission: Permission.Type, role: Role.Name)(implicit ec: ExecutionContext): ActionFilter[Request] =
+  def anyMatch(permission: Permission.Type, role: Role.Name)(implicit
+      ec: ExecutionContext
+  ): ActionFilter[Request] =
     apply(permission, role, anyMatch = true)
 
   /** Create an ActionFilter that checks permission pattern AND role (convenience method)
@@ -105,5 +107,7 @@ object CombinedRoleAndPermissionFilter:
     * @return
     *   an ActionFilter that requires BOTH the permission AND role to match
     */
-  def allMatch(permission: Permission.Type, role: Role.Name)(implicit ec: ExecutionContext): ActionFilter[Request] =
+  def allMatch(permission: Permission.Type, role: Role.Name)(implicit
+      ec: ExecutionContext
+  ): ActionFilter[Request] =
     apply(permission, role)

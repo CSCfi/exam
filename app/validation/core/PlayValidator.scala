@@ -12,8 +12,8 @@ import scala.jdk.CollectionConverters._
 
 /** Play JSON-based validator for any type T.
   *
-  * Pure Scala alternative to Validator[T] that works with Play's JSON library. Provides a fluent API for composing
-  * validation rules that accumulate errors.
+  * Pure Scala alternative to Validator[T] that works with Play's JSON library. Provides a fluent
+  * API for composing validation rules that accumulate errors.
   *
   * Example usage:
   * {{{
@@ -44,7 +44,8 @@ class PlayValidator[T] private (
   def withRule(rule: T => ValidatedNel[FieldError, ?]): PlayValidator[T] =
     new PlayValidator(parser, rules :+ rule)
 
-  /** Parse JSON and validate the result. Returns Either with all accumulated validation errors or the valid object.
+  /** Parse JSON and validate the result. Returns Either with all accumulated validation errors or
+    * the valid object.
     */
   def validate(json: JsValue): Either[ValidationException, T] =
     val target = parser(json)
@@ -103,19 +104,32 @@ object PlayValidator:
 
   /** Validates that a collection is not empty.
     */
-  def requireNonEmpty[T](fieldName: String, collection: List[T]): ValidatedNel[FieldError, List[T]] =
-    if collection.isEmpty then invalid(fieldName, s"$fieldName cannot be empty") else valid(collection)
+  def requireNonEmpty[T](
+      fieldName: String,
+      collection: List[T]
+  ): ValidatedNel[FieldError, List[T]] =
+    if collection.isEmpty then invalid(fieldName, s"$fieldName cannot be empty")
+    else valid(collection)
 
   /** Validates that a numeric value is within a range (inclusive).
     */
-  def requireInRange[T: Numeric](fieldName: String, value: T, min: T, max: T): ValidatedNel[FieldError, T] =
+  def requireInRange[T: Numeric](
+      fieldName: String,
+      value: T,
+      min: T,
+      max: T
+  ): ValidatedNel[FieldError, T] =
     val num = summon[Numeric[T]]
     if num.gteq(value, min) && num.lteq(value, max) then valid(value)
     else invalid(fieldName, s"$fieldName must be between $min and $max")
 
   /** Validates that a string matches a regex pattern.
     */
-  def requirePattern(fieldName: String, value: String, pattern: String): ValidatedNel[FieldError, String] =
+  def requirePattern(
+      fieldName: String,
+      value: String,
+      pattern: String
+  ): ValidatedNel[FieldError, String] =
     if value.matches(pattern) then valid(value)
     else invalid(fieldName, s"$fieldName has invalid format")
 

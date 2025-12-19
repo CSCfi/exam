@@ -22,7 +22,10 @@ class SensitiveDataFilter @Inject() (implicit materializer: Materializer, ec: Ex
     new ActionFunction[Request, Request]:
       override def executionContext: ExecutionContext = ec
 
-      override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
+      override def invokeBlock[A](
+          request: Request[A],
+          block: Request[A] => Future[Result]
+      ): Future[Result] =
         block(request).flatMap { result =>
           filterJsonResponse(result, sensitiveFields)
         }

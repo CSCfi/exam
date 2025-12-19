@@ -40,7 +40,10 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
       exam.save()
     }
 
-  private def findType(types: List[ExamExecutionType], examType: ExamExecutionType.Type): Option[ExamExecutionType] =
+  private def findType(
+      types: List[ExamExecutionType],
+      examType: ExamExecutionType.Type
+  ): Option[ExamExecutionType] =
     types.find(_.getType == examType.toString)
 
   "ExamAPIController" when:

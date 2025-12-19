@@ -33,17 +33,20 @@ class TagService @Inject() () extends EbeanQueryExtensions:
     }
 
     val queryWithExams = examIds.fold(queryWithFilter) { ids =>
-      if ids.nonEmpty then queryWithFilter.in("questions.examSectionQuestions.examSection.exam.id", ids.asJava)
+      if ids.nonEmpty then
+        queryWithFilter.in("questions.examSectionQuestions.examSection.exam.id", ids.asJava)
       else queryWithFilter
     }
 
     val queryWithCourses = courseIds.fold(queryWithExams) { ids =>
-      if ids.nonEmpty then queryWithExams.in("questions.examSectionQuestions.examSection.exam.course.id", ids.asJava)
+      if ids.nonEmpty then
+        queryWithExams.in("questions.examSectionQuestions.examSection.exam.course.id", ids.asJava)
       else queryWithExams
     }
 
     val queryWithSections = sectionIds.fold(queryWithCourses) { ids =>
-      if ids.nonEmpty then queryWithCourses.in("questions.examSectionQuestions.examSection.id", ids.asJava)
+      if ids.nonEmpty then
+        queryWithCourses.in("questions.examSectionQuestions.examSection.id", ids.asJava)
       else queryWithCourses
     }
 

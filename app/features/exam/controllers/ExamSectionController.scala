@@ -47,7 +47,11 @@ class ExamSectionController @Inject() (
       case ValidationError(message)      => BadRequest(message)
 
   def insertSection(eid: Long): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+    audited.andThen(authenticated).andThen(authorized(Seq(
+      Role.Name.TEACHER,
+      Role.Name.ADMIN,
+      Role.Name.SUPPORT
+    ))) {
       request =>
         val user = request.attrs(Auth.ATTR_USER)
         examSectionService.insertSection(eid, user) match
@@ -57,11 +61,12 @@ class ExamSectionController @Inject() (
     }
 
   def removeSection(eid: Long, sid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      examSectionService.removeSection(eid, sid, user) match
-        case Left(error) => toResult(error)
-        case Right(_)    => Ok
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        examSectionService.removeSection(eid, sid, user) match
+          case Left(error) => toResult(error)
+          case Right(_)    => Ok
     }
 
   def updateSection(eid: Long, sid: Long): Action[JsValue] =
@@ -121,7 +126,13 @@ class ExamSectionController @Inject() (
 
         (fromOpt, toOpt) match
           case (Some(from), Some(to)) =>
-            examSectionService.reorderSectionQuestions(eid, sid, from, to, request.attrs(Auth.ATTR_USER)) match
+            examSectionService.reorderSectionQuestions(
+              eid,
+              sid,
+              from,
+              to,
+              request.attrs(Auth.ATTR_USER)
+            ) match
               case Left(error) => Future.successful(toResult(error))
               case Right(_)    => Future.successful(Ok)
           case _ => Future.successful(toResult(MissingFromOrTo))
@@ -163,19 +174,21 @@ class ExamSectionController @Inject() (
       }
 
   def removeQuestion(eid: Long, sid: Long, qid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      examSectionService.removeQuestion(eid, sid, qid, user) match
-        case Left(error)    => toResult(error)
-        case Right(section) => Ok(section.asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        examSectionService.removeQuestion(eid, sid, qid, user) match
+          case Left(error)    => toResult(error)
+          case Right(section) => Ok(section.asJson)
     }
 
   def clearQuestions(eid: Long, sid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      examSectionService.clearQuestions(eid, sid, user) match
-        case Left(error)    => toResult(error)
-        case Right(section) => Ok(section.asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        examSectionService.clearQuestions(eid, sid, user) match
+          case Left(error)    => toResult(error)
+          case Right(section) => Ok(section.asJson)
     }
 
   def updateDistributedExamQuestion(eid: Long, sid: Long, qid: Long): Action[JsValue] =
@@ -194,21 +207,28 @@ class ExamSectionController @Inject() (
       }
 
   def updateUndistributedExamQuestion(eid: Long, sid: Long, qid: Long): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+    audited.andThen(authenticated).andThen(authorized(Seq(
+      Role.Name.TEACHER,
+      Role.Name.ADMIN,
+      Role.Name.SUPPORT
+    ))) {
       request =>
         val user = request.attrs(Auth.ATTR_USER)
         examSectionService.updateUndistributedExamQuestion(eid, sid, qid, user) match
           case Left(error) => toResult(error)
           case Right(examSectionQuestion) =>
-            val pp = PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))")
+            val pp = PathProperties.parse(
+              "(*, question(*, attachment(*), options(*)), options(*, option(*)))"
+            )
             Ok(examSectionQuestion.asJson(pp))
     }
 
   def getQuestionDistribution(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      examSectionService.getQuestionDistribution(id) match
-        case Left(error)          => toResult(error)
-        case Right(isDistributed) => Ok(Json.obj("distributed" -> isDistributed))
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        examSectionService.getQuestionDistribution(id) match
+          case Left(error)          => toResult(error)
+          case Right(isDistributed) => Ok(Json.obj("distributed" -> isDistributed))
     }
 
   def listSections(
@@ -218,8 +238,10 @@ class ExamSectionController @Inject() (
       tagIds: Option[List[Long]],
       ownerIds: Option[List[Long]]
   ): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user     = request.attrs(Auth.ATTR_USER)
-      val sections = examSectionService.listSections(user, filter, courseIds, examIds, tagIds, ownerIds)
-      Ok(sections.asJson(PathProperties.parse("(*, creator(id))")))
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        val sections =
+          examSectionService.listSections(user, filter, courseIds, examIds, tagIds, ownerIds)
+        Ok(sections.asJson(PathProperties.parse("(*, creator(id))")))
     }

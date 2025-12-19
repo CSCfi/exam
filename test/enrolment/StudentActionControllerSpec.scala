@@ -19,7 +19,8 @@ import services.json.JsonDeserializer
 
 import java.util.TimeZone
 
-class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach with EbeanQueryExtensions:
+class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
+    with EbeanQueryExtensions:
 
   override def beforeEach(): Unit =
     super.beforeEach()

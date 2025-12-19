@@ -10,7 +10,10 @@ import validation.core._
 
 object ExamUpdateValidator extends PlayJsonValidator:
 
-  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
     ExamValidator.forUpdate(json) match
       case Right(exam) => Right(request.addAttr(ScalaAttrs.EXAM, exam))
       case Left(ex)    => Left(Results.BadRequest(ex.getMessage))

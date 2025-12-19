@@ -36,10 +36,11 @@ class TagController @Inject() (
       sectionIds: Option[List[Long]],
       ownerIds: Option[List[Long]]
   ): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) { request =>
-      val user       = request.attrs(Auth.ATTR_USER)
-      val (tags, pp) = tagService.listTags(user, filter, courseIds, examIds, sectionIds, ownerIds)
-      Ok(tags.asJson(pp))
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) {
+      request =>
+        val user       = request.attrs(Auth.ATTR_USER)
+        val (tags, pp) = tagService.listTags(user, filter, courseIds, examIds, sectionIds, ownerIds)
+        Ok(tags.asJson(pp))
     }
 
   def addTagToQuestions(): Action[JsValue] =

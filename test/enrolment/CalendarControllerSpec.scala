@@ -25,7 +25,8 @@ import java.util.concurrent.{CountDownLatch, TimeUnit}
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 
-class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach with EbeanQueryExtensions:
+class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
+    with EbeanQueryExtensions:
 
   private val MAIL_TIMEOUT = 5000L
 
@@ -51,9 +52,10 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
     // Clean up existing enrolments
     DB.find(classOf[ExamEnrolment]).list.foreach(_.delete())
 
-    val exam = DB.find(classOf[Exam]).where().eq("state", Exam.State.PUBLISHED).list.headOption match
-      case Some(e) => e
-      case None    => fail("No published exam found")
+    val exam =
+      DB.find(classOf[Exam]).where().eq("state", Exam.State.PUBLISHED).list.headOption match
+        case Some(e) => e
+        case None    => fail("No published exam found")
 
     val user = DB.find(classOf[User]).where().eq("eppn", "student@funet.fi").find match
       case Some(u) =>
@@ -134,7 +136,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
                 "end"    -> ISODateTimeFormat.dateTime().print(end)
               )
               val result =
-                runIO(makeRequest(POST, "/app/calendar/reservation", Some(reservationData), session = session))
+                runIO(makeRequest(
+                  POST,
+                  "/app/calendar/reservation",
+                  Some(reservationData),
+                  session = session
+                ))
               statuses.synchronized {
                 statuses += statusOf(result)
               }
@@ -163,7 +170,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         emailsReceived must be(true)
 
         // Verify only one reservation was created
-        val reservationCount = DB.find(classOf[Reservation]).where().eq("user.id", user.getId).list.size
+        val reservationCount =
+          DB.find(classOf[Reservation]).where().eq("user.id", user.getId).list.size
         reservationCount must be(1)
 
     "creating single reservations" should:
@@ -197,7 +205,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
 
-        val result = runIO(makeRequest(POST, "/app/calendar/reservation", Some(reservationData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          "/app/calendar/reservation",
+          Some(reservationData),
+          session = session
+        ))
         statusOf(result).must(be(Status.OK))
 
         // Verify reservation
@@ -253,7 +266,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
 
-        val result = runIO(makeRequest(POST, "/app/calendar/reservation", Some(reservationData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          "/app/calendar/reservation",
+          Some(reservationData),
+          session = session
+        ))
         statusOf(result).must(be(Status.OK))
 
         // Verify new reservation replaced old one
@@ -312,7 +330,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
 
-        val result = runIO(makeRequest(POST, "/app/calendar/reservation", Some(reservationData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          "/app/calendar/reservation",
+          Some(reservationData),
+          session = session
+        ))
         statusOf(result).must(be(Status.OK))
 
         // Verify new reservation
@@ -334,8 +357,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
       "reject reservation with start time in past" in:
         val (user, session)            = runIO(loginAsStudent())
         val (exam, room, _, enrolment) = setupTestData()
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusHours(1)
-        val end   = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2)
+        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).minusHours(1)
+        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(2)
 
         val reservationData = Json.obj(
           "roomId" -> JsNumber(BigDecimal(room.getId)),
@@ -344,7 +371,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
 
-        val result = runIO(makeRequest(POST, "/app/calendar/reservation", Some(reservationData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          "/app/calendar/reservation",
+          Some(reservationData),
+          session = session
+        ))
         statusOf(result).must(be(Status.BAD_REQUEST))
 
         // Verify no reservation created
@@ -355,8 +387,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
       "reject reservation that ends before it starts" in:
         val (user, session)            = runIO(loginAsStudent())
         val (exam, room, _, enrolment) = setupTestData()
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2)
-        val end   = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1)
+        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(2)
+        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(1)
 
         val reservationData = Json.obj(
           "roomId" -> JsNumber(BigDecimal(room.getId)),
@@ -365,7 +401,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
 
-        val result = runIO(makeRequest(POST, "/app/calendar/reservation", Some(reservationData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          "/app/calendar/reservation",
+          Some(reservationData),
+          session = session
+        ))
         statusOf(result).must(be(Status.BAD_REQUEST))
 
         // Verify no reservation created
@@ -376,8 +417,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
       "reject reservation when previous reservation is in effect" in:
         val (user, session)                      = runIO(loginAsStudent())
         val (exam, room, reservation, enrolment) = setupTestData()
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1)
-        val end   = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2)
+        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(1)
+        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
+          0
+        ).plusHours(2)
 
         // Setup current reservation
         reservation.setStartAt(DateTime.now().minusMinutes(10))
@@ -394,7 +439,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
 
-        val result = runIO(makeRequest(POST, "/app/calendar/reservation", Some(reservationData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          "/app/calendar/reservation",
+          Some(reservationData),
+          session = session
+        ))
         statusOf(result).must(be(Status.FORBIDDEN))
         contentAsStringOf(result) must be("i18n_error_enrolment_not_found")
 
@@ -415,7 +465,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         enrolment.setReservation(reservation)
         enrolment.update()
 
-        val result = runIO(delete(s"/app/calendar/reservation/${reservation.getId}", session = session))
+        val result =
+          runIO(delete(s"/app/calendar/reservation/${reservation.getId}", session = session))
         statusOf(result).must(be(Status.OK))
         greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
 
@@ -437,7 +488,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         enrolment.setReservation(reservation)
         enrolment.update()
 
-        val result = runIO(delete(s"/app/calendar/reservation/${reservation.getId}", session = session))
+        val result =
+          runIO(delete(s"/app/calendar/reservation/${reservation.getId}", session = session))
         statusOf(result).must(be(Status.FORBIDDEN))
 
         // Verify reservation unchanged
@@ -456,7 +508,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         enrolment.setReservation(reservation)
         enrolment.update()
 
-        val result = runIO(delete(s"/app/calendar/reservation/${reservation.getId}", session = session))
+        val result =
+          runIO(delete(s"/app/calendar/reservation/${reservation.getId}", session = session))
         statusOf(result).must(be(Status.FORBIDDEN))
 
         // Verify reservation unchanged

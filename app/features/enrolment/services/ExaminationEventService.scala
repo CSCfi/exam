@@ -29,7 +29,10 @@ class ExaminationEventService @Inject() (
     with EbeanJsonExtensions
     with Logging:
 
-  def insertExaminationDate(examId: Long, date: LocalDate): Either[ExaminationEventError, ExaminationDate] =
+  def insertExaminationDate(
+      examId: Long,
+      date: LocalDate
+  ): Either[ExaminationEventError, ExaminationDate] =
     Option(DB.find(classOf[Exam], examId)) match
       case None => Left(ExaminationEventError.ExamNotFound)
       case Some(exam) =>
@@ -89,11 +92,13 @@ class ExaminationEventService @Inject() (
               Left(ExaminationEventError.MaxCapacityExceeded)
             else
               val quitPassword = dto.quitPassword
-              if exam.getImplementation == Exam.Implementation.CLIENT_AUTH && quitPassword.isEmpty then
+              if exam.getImplementation == Exam.Implementation.CLIENT_AUTH && quitPassword.isEmpty
+              then
                 Left(ExaminationEventError.NoQuitPasswordProvided)
               else
                 val settingsPassword = dto.settingsPassword
-                if exam.getImplementation == Exam.Implementation.CLIENT_AUTH && settingsPassword.isEmpty then
+                if exam.getImplementation == Exam.Implementation.CLIENT_AUTH && settingsPassword.isEmpty
+                then
                   Left(ExaminationEventError.NoSettingsPasswordProvided)
                 else
                   val eec = new ExaminationEventConfiguration()
@@ -141,11 +146,13 @@ class ExaminationEventService @Inject() (
         val ee            = eec.getExaminationEvent
         val quitPassword  = dto.quitPassword
 
-        if eec.getExam.getImplementation == Exam.Implementation.CLIENT_AUTH && quitPassword.isEmpty then
+        if eec.getExam.getImplementation == Exam.Implementation.CLIENT_AUTH && quitPassword.isEmpty
+        then
           Left(ExaminationEventError.NoQuitPasswordProvided)
         else
           val settingsPassword = dto.settingsPassword
-          if eec.getExam.getImplementation == Exam.Implementation.CLIENT_AUTH && settingsPassword.isEmpty then
+          if eec.getExam.getImplementation == Exam.Implementation.CLIENT_AUTH && settingsPassword.isEmpty
+          then
             Left(ExaminationEventError.NoSettingsPasswordProvided)
           else
             val start = dto.start
@@ -183,7 +190,10 @@ class ExaminationEventService @Inject() (
                       // Disallow changing password if enrolments exist - pass back original unchanged passwords
                       eec.setQuitPassword(
                         byodConfigHandler
-                          .getPlaintextPassword(eec.getEncryptedQuitPassword, eec.getQuitPasswordSalt)
+                          .getPlaintextPassword(
+                            eec.getEncryptedQuitPassword,
+                            eec.getQuitPasswordSalt
+                          )
                       )
                       eec.setSettingsPassword(
                         byodConfigHandler.getPlaintextPassword(
@@ -197,7 +207,10 @@ class ExaminationEventService @Inject() (
       case _ => Left(ExaminationEventError.EventNotFound)
 
   def removeExaminationEvent(examId: Long, configId: Long): Either[ExaminationEventError, Unit] =
-    val eecOpt  = DB.find(classOf[ExaminationEventConfiguration]).where().idEq(configId).eq("exam.id", examId).find
+    val eecOpt = DB.find(classOf[ExaminationEventConfiguration]).where().idEq(configId).eq(
+      "exam.id",
+      examId
+    ).find
     val examOpt = Option(DB.find(classOf[Exam], examId))
 
     (eecOpt, examOpt) match
@@ -259,7 +272,10 @@ class ExaminationEventService @Inject() (
       Left(ExaminationEventError.PasswordEncryptionFailed)
     }.get
 
-  def listExaminationEvents(start: Option[String], end: Option[String]): List[ExaminationEventConfiguration] =
+  def listExaminationEvents(
+      start: Option[String],
+      end: Option[String]
+  ): List[ExaminationEventConfiguration] =
     val pp = PathProperties.parse(
       "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
     )

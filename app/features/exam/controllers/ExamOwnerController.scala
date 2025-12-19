@@ -32,11 +32,12 @@ class ExamOwnerController @Inject() (
       case ExamOwnerError.AccessForbidden => Forbidden("i18n_error_access_forbidden")
 
   def list(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      examOwnerService.listOwners(id) match
-        case Left(error) => toResult(error)
-        case Right(owners) =>
-          Ok(owners.asJson(PathProperties.parse("(*)")))
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        examOwnerService.listOwners(id) match
+          case Left(error) => toResult(error)
+          case Right(owners) =>
+            Ok(owners.asJson(PathProperties.parse("(*)")))
     }
 
   def add(eid: Long, uid: Long): Action[AnyContent] =
@@ -50,9 +51,10 @@ class ExamOwnerController @Inject() (
       }
 
   def remove(eid: Long, uid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      examOwnerService.removeOwner(eid, uid, user) match
-        case Left(error) => toResult(error)
-        case Right(_)    => Ok
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        examOwnerService.removeOwner(eid, uid, user) match
+          case Left(error) => toResult(error)
+          case Right(_)    => Ok
     }

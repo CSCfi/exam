@@ -78,7 +78,11 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
 
   // Helper methods
 
-  private def writeRecordsToFile(records: List[ExamRecord], prefix: String, headers: Array[String]): File =
+  private def writeRecordsToFile(
+      records: List[ExamRecord],
+      prefix: String,
+      headers: Array[String]
+  ): File =
     val file = File.createTempFile(prefix, ".tmp")
 
     Using.resource(new CSVWriter(new FileWriter(file))) { writer =>
@@ -153,7 +157,8 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
       .eq("state", Exam.State.REVIEW_STARTED)
       .endOr()
 
-    val query = if role == Role.Name.ADMIN then baseQuery.eq("parent.examOwners", user) else baseQuery
+    val query =
+      if role == Role.Name.ADMIN then baseQuery.eq("parent.examOwners", user) else baseQuery
     Option(query.findOne())
 
   private def findGrade(gradeName: String, scale: GradeScale): Option[Grade] =

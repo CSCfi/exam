@@ -37,13 +37,20 @@ class CollaborativeEnrolmentController @Inject() (
     audited: AuditedAction,
     override val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
-    extends CollaborationController(wsClient, examUpdater, examLoader, configReader, controllerComponents)
+    extends CollaborationController(
+      wsClient,
+      examUpdater,
+      examLoader,
+      configReader,
+      controllerComponents
+    )
     with EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:
 
   // Helper to convert Play JSON to Jackson JSON (for models that still use Jackson)
-  private def toJacksonJson(value: play.api.libs.json.JsValue): com.fasterxml.jackson.databind.JsonNode =
+  private def toJacksonJson(value: play.api.libs.json.JsValue)
+      : com.fasterxml.jackson.databind.JsonNode =
     play.libs.Json.parse(play.api.libs.json.Json.stringify(value))
 
   private def isEnrollable(exam: Exam, homeOrg: String): Boolean =
@@ -62,10 +69,11 @@ class CollaborativeEnrolmentController @Inject() (
   private def checkExam(exam: Option[Exam], user: User): Either[Result, Exam] =
     val homeOrg = configReader.getHomeOrganisationRef
     exam match
-      case None                                                         => Left(NotFound("i18n_error_exam_not_found"))
-      case Some(e) if !isEnrollable(e, homeOrg)                         => Left(NotFound("i18n_error_exam_not_found"))
-      case Some(e) if !enrolmentHandler.isAllowedToParticipate(e, user) => Left(Forbidden("i18n_no_trials_left"))
-      case Some(e)                                                      => Right(e)
+      case None                                 => Left(NotFound("i18n_error_exam_not_found"))
+      case Some(e) if !isEnrollable(e, homeOrg) => Left(NotFound("i18n_error_exam_not_found"))
+      case Some(e) if !enrolmentHandler.isAllowedToParticipate(e, user) =>
+        Left(Forbidden("i18n_no_trials_left"))
+      case Some(e) => Right(e)
 
   def searchExams(filter: Option[String]): Action[AnyContent] =
     controllerComponents.actionBuilder.andThen(subjectNotPresent).async { _ =>
@@ -186,7 +194,9 @@ class CollaborativeEnrolmentController @Inject() (
     end try
 
   def createEnrolment(id: Long): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))).async { request =>
+    audited.andThen(authenticated).andThen(
+      authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
 
       Option(DB.find(classOf[CollaborativeExam], id)) match
@@ -197,7 +207,8 @@ class CollaborativeEnrolmentController @Inject() (
             case Some(exam) =>
               val homeOrg = configReader.getHomeOrganisationRef
               if !isEnrollable(exam, homeOrg) then NotFound("i18n_error_exam_not_found")
-              else if enrolmentHandler.isAllowedToParticipate(exam, user) then doCreateEnrolment(ce, user)
+              else if enrolmentHandler.isAllowedToParticipate(exam, user) then
+                doCreateEnrolment(ce, user)
               else Forbidden
           }
     }

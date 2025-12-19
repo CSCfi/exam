@@ -27,12 +27,15 @@ class ExamMaterialController @Inject() (
 
   private def toResult(error: ExamMaterialError): Result =
     error match
-      case ExamMaterialError.MaterialNotFound => NotFound(ExamMaterialError.MaterialNotFound.message)
-      case ExamMaterialError.SectionNotFound  => NotFound(ExamMaterialError.SectionNotFound.message)
-      case ExamMaterialError.NotAuthorized    => NotFound(ExamMaterialError.NotAuthorized.message)
+      case ExamMaterialError.MaterialNotFound =>
+        NotFound(ExamMaterialError.MaterialNotFound.message)
+      case ExamMaterialError.SectionNotFound => NotFound(ExamMaterialError.SectionNotFound.message)
+      case ExamMaterialError.NotAuthorized   => NotFound(ExamMaterialError.NotAuthorized.message)
 
   def createMaterial(): Action[JsValue] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))(parse.json) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))(
+      parse.json
+    ) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       val em   = examMaterialService.createMaterial(request.body, user)
       Ok(em.asJson)
@@ -54,7 +57,9 @@ class ExamMaterialController @Inject() (
     }
 
   def updateMaterial(materialId: Long): Action[JsValue] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))(parse.json) { request =>
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))(
+      parse.json
+    ) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       examMaterialService.updateMaterial(materialId, request.body, user) match
         case Left(error) => toResult(error)
@@ -62,11 +67,12 @@ class ExamMaterialController @Inject() (
     }
 
   def addMaterialForSection(sectionId: Long, materialId: Long): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      examMaterialService.addMaterialForSection(sectionId, materialId, user) match
-        case Left(error) => toResult(error)
-        case Right(_)    => Ok
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        examMaterialService.addMaterialForSection(sectionId, materialId, user) match
+          case Left(error) => toResult(error)
+          case Right(_)    => Ok
     }
 
   def removeMaterialFromSection(sectionId: Long, materialId: Long): Action[AnyContent] =

@@ -21,7 +21,11 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
   case class QuestionEntry(question: JsValue, answers: Seq[JsValue], evaluationCriteria: JsValue)
   object QuestionEntry:
     implicit val writes: Writes[QuestionEntry] = Json.writes[QuestionEntry]
-    def apply(question: Question, answers: Seq[ExamSectionQuestion], evaluationCriteria: String): QuestionEntry =
+    def apply(
+        question: Question,
+        answers: Seq[ExamSectionQuestion],
+        evaluationCriteria: String
+    ): QuestionEntry =
       val answerPathProps = PathProperties.parse(
         """(*,
           |essayAnswer(attachment(*), *),
@@ -47,7 +51,13 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
       )
 
   private val VALID_STATES =
-    Seq(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)
+    Seq(
+      Exam.State.REVIEW,
+      Exam.State.REVIEW_STARTED,
+      Exam.State.GRADED,
+      Exam.State.GRADED_LOGGED,
+      Exam.State.REJECTED
+    )
 
   def findExam(examId: Long): Option[Exam] = Option(DB.find(classOf[Exam], examId))
 
@@ -81,7 +91,9 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
       .toMap
 
     createMapping(answers, questionSequence)
-      .map((question, answers) => QuestionEntry(question, answers, evaluationCriteriaMap.getOrElse(question, "")))
+      .map((question, answers) =>
+        QuestionEntry(question, answers, evaluationCriteriaMap.getOrElse(question, ""))
+      )
       .toList
 
   private def canAssess(user: User, exam: Exam) =

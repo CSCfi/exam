@@ -37,8 +37,8 @@ trait SecureController extends BaseController:
 
   /** Sensitive fields to filter from all JSON responses
     *
-    * Override this in your controller to specify which fields should be filtered. These fields will be automatically
-    * removed from ALL action responses in the controller.
+    * Override this in your controller to specify which fields should be filtered. These fields will
+    * be automatically removed from ALL action responses in the controller.
     *
     * @example
     *   {{{

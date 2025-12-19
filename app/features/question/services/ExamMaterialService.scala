@@ -72,7 +72,11 @@ class ExamMaterialService @Inject() () extends SectionQuestionHandler with Ebean
     if Option(em).isEmpty || !em.getCreator.equals(user) then Some(ExamMaterialError.NotAuthorized)
     else None
 
-  def addMaterialForSection(sectionId: Long, materialId: Long, user: User): Either[ExamMaterialError, Unit] =
+  def addMaterialForSection(
+      sectionId: Long,
+      materialId: Long,
+      user: User
+  ): Either[ExamMaterialError, Unit] =
     Option(DB.find(classOf[ExamMaterial], materialId)) match
       case None => Left(ExamMaterialError.MaterialNotFound)
       case Some(em) =>
@@ -86,7 +90,11 @@ class ExamMaterialService @Inject() () extends SectionQuestionHandler with Ebean
                 es.update()
                 Right(())
 
-  def removeMaterialFromSection(sectionId: Long, materialId: Long, user: User): Either[ExamMaterialError, Unit] =
+  def removeMaterialFromSection(
+      sectionId: Long,
+      materialId: Long,
+      user: User
+  ): Either[ExamMaterialError, Unit] =
     Option(DB.find(classOf[ExamMaterial], materialId)) match
       case None => Left(ExamMaterialError.MaterialNotFound)
       case Some(em) =>

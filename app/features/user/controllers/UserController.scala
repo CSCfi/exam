@@ -55,14 +55,15 @@ class UserController @Inject() (
       }
 
   def revokeUserPermission: Action[JsValue] =
-    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val body             = request.body
-      val permissionString = (body \ "permission").as[String]
-      val userId           = (body \ "id").as[String]
+    authenticated(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val body             = request.body
+        val permissionString = (body \ "permission").as[String]
+        val userId           = (body \ "id").as[String]
 
-      userService.revokeUserPermission(userId, permissionString) match
-        case Left(error) => toResult(error)
-        case Right(_)    => Ok
+        userService.revokeUserPermission(userId, permissionString) match
+          case Left(error) => toResult(error)
+          case Right(_)    => Ok
     }
 
   def listUsers(filter: Option[String]): Action[AnyContent] =
@@ -72,10 +73,11 @@ class UserController @Inject() (
     }
 
   def addRole(uid: Long, roleName: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))).andThen(audited) { _ =>
-      userService.addRole(uid, roleName) match
-        case Left(error) => toResult(error)
-        case Right(_)    => Ok
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))).andThen(audited) {
+      _ =>
+        userService.addRole(uid, roleName) match
+          case Left(error) => toResult(error)
+          case Right(_)    => Ok
     }
 
   def removeRole(uid: Long, roleName: String): Action[AnyContent] =
@@ -86,38 +88,48 @@ class UserController @Inject() (
     }
 
   def listUsersByRole(role: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      val (users, pp) = userService.listUsersByRole(role)
-      Ok(users.asJson(pp))
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        val (users, pp) = userService.listUsersByRole(role)
+        Ok(users.asJson(pp))
     }
 
   def listQuestionOwners(role: String, criteria: String, qid: Option[Long]): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      Ok(userService.listQuestionOwners(role, criteria, qid, user).asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        Ok(userService.listQuestionOwners(role, criteria, qid, user).asJson)
     }
 
   def listTeachers(criteria: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      Ok(userService.listTeachers(criteria).asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        Ok(userService.listTeachers(criteria).asJson)
     }
 
   def listUnenrolledStudents(eid: Long, criteria: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      Ok(userService.listUnenrolledStudents(eid, criteria).asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        Ok(userService.listUnenrolledStudents(eid, criteria).asJson)
     }
 
-  def updateUserAgreementAccepted(): Action[AnyContent] = authenticated.andThen(audited) { request =>
-    val userId = request.attrs(Auth.ATTR_USER).getId
-    userService.updateUserAgreementAccepted(userId.longValue) match
-      case Left(error) => toResult(error)
-      case Right(_)    => Ok
-  }
+  def updateUserAgreementAccepted(): Action[AnyContent] =
+    authenticated.andThen(audited) { request =>
+      val userId = request.attrs(Auth.ATTR_USER).getId
+      userService.updateUserAgreementAccepted(userId.longValue) match
+        case Left(error) => toResult(error)
+        case Right(_)    => Ok
+    }
 
   def updateLanguage(): Action[JsValue] =
     authenticated
       .andThen(audited)(parse.json)
-      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER, Role.Name.STUDENT)))
+      .andThen(authorized(Seq(
+        Role.Name.ADMIN,
+        Role.Name.SUPPORT,
+        Role.Name.TEACHER,
+        Role.Name.STUDENT
+      )))
       .andThen(validators.validated(UserLanguageValidator)) { request =>
         val user = request.attrs(Auth.ATTR_USER)
         val lang = request.attrs(ScalaAttrs.LANG)

@@ -24,13 +24,15 @@ class StatisticsController @Inject() (
 
   private val XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
-  def getStudents: Action[AnyContent] = authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
-    Ok(statisticsService.getStudents.asJson)
-  }
+  def getStudents: Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
+      Ok(statisticsService.getStudents.asJson)
+    }
 
-  def getExamNames: Action[AnyContent] = authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
-    Ok(statisticsService.getExamNames.asJson)
-  }
+  def getExamNames: Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
+      Ok(statisticsService.getExamNames.asJson)
+    }
 
   def getExam(id: Long, reportType: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>

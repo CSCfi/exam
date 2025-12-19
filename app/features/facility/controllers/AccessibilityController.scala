@@ -29,17 +29,19 @@ class AccessibilityController @Inject() (
       case AccessibilityError.NotFound => NotFound(AccessibilityError.NotFound.message)
 
   def addAccessibility(): Action[JsValue] =
-    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
-      val name          = (request.body \ "name").as[String]
-      val accessibility = accessibilityService.addAccessibility(name)
-      Ok(accessibility.asJson)
+    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) {
+      request =>
+        val name          = (request.body \ "name").as[String]
+        val accessibility = accessibilityService.addAccessibility(name)
+        Ok(accessibility.asJson)
     }
 
   def updateAccessibility(): Action[JsValue] =
-    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
-      val name          = (request.body \ "name").as[String]
-      val accessibility = accessibilityService.updateAccessibility(name)
-      Ok(accessibility.asJson)
+    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))) {
+      request =>
+        val name          = (request.body \ "name").as[String]
+        val accessibility = accessibilityService.updateAccessibility(name)
+        Ok(accessibility.asJson)
     }
 
   def removeAccessibility(id: Long): Action[AnyContent] =
@@ -50,7 +52,8 @@ class AccessibilityController @Inject() (
     }
 
   def listAccessibilityItems: Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))) { _ =>
-      val items = accessibilityService.listAccessibilityItems
-      Ok(items.asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))) {
+      _ =>
+        val items = accessibilityService.listAccessibilityItems
+        Ok(items.asJson)
     }

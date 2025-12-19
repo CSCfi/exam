@@ -33,7 +33,12 @@ object ExternalCourseValidator:
         (JsPath \ "code").readNullable[String](using readInt) and
         (JsPath \ "grades").readNullable[Map[String, Grade]]
     )(GradeScale.apply)
-  case class GradeScale(name: Option[String], `type`: String, code: Option[String], grades: Option[Map[String, Grade]])
+  case class GradeScale(
+      name: Option[String],
+      `type`: String,
+      code: Option[String],
+      grades: Option[Map[String, Grade]]
+  )
 
   object Organisation:
     implicit val organisationReads: Reads[Organisation] = Json.reads[Organisation]
@@ -52,7 +57,8 @@ object ExternalCourseValidator:
   case class Department(name: String)
 
   object LecturerResponsible:
-    implicit val lecturerResponsibleReads: Reads[LecturerResponsible] = Json.reads[LecturerResponsible]
+    implicit val lecturerResponsibleReads: Reads[LecturerResponsible] =
+      Json.reads[LecturerResponsible]
   case class LecturerResponsible(name: String)
 
   object Lecturer:
@@ -64,8 +70,9 @@ object ExternalCourseValidator:
   case class CreditLanguage(name: String)
 
   object CourseUnitInfo:
-    private val asScales: Reads[Seq[GradeScale]]  = implicitly[Reads[GradeScale]].map(Seq(_))
-    private val readScale: Reads[Seq[GradeScale]] = implicitly[Reads[Seq[GradeScale]]].orElse(asScales)
+    private val asScales: Reads[Seq[GradeScale]] = implicitly[Reads[GradeScale]].map(Seq(_))
+    private val readScale: Reads[Seq[GradeScale]] =
+      implicitly[Reads[Seq[GradeScale]]].orElse(asScales)
     implicit val cuiReads: Reads[CourseUnitInfo] = (
       (JsPath \ "identifier").read[String](using readInt) and
         (JsPath \ "courseUnitCode").read[String] and

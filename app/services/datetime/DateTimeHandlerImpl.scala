@@ -47,10 +47,17 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
       }
       .toList
 
-  private def removeNonOverlappingIntervals(reserved: List[Interval], searchInterval: Interval): List[Interval] =
+  private def removeNonOverlappingIntervals(
+      reserved: List[Interval],
+      searchInterval: Interval
+  ): List[Interval] =
     reserved.filter(_.overlaps(searchInterval))
 
-  private def hasNoOverlap(reserved: List[Interval], searchStart: DateTime, searchEnd: DateTime): Boolean =
+  private def hasNoOverlap(
+      reserved: List[Interval],
+      searchStart: DateTime,
+      searchEnd: DateTime
+  ): Boolean =
     val earliestStart = reserved.head.getStart
     val latestStop    = reserved.last.getEnd
     !searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop)
@@ -96,15 +103,17 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
     @tailrec
     def helper(slots: List[Interval]): List[Interval] =
       val sorted = slots.sortBy(_.getStart.getMillis)
-      val (merged, wasMerged) = sorted.tail.foldLeft((List(sorted.head), false)) { case ((acc, isMerged), current) =>
-        acc.lastOption match
-          case Some(prev) if !current.getStart.isAfter(prev.getEnd) =>
-            val laterEnding = if prev.getEnd.isAfter(current.getEnd) then prev.getEnd else current.getEnd
-            val newInterval = new Interval(prev.getStart, laterEnding)
-            (acc.init :+ newInterval, true)
-          case _ =>
-            (acc :+ current, isMerged)
-      }
+      val (merged, wasMerged) =
+        sorted.tail.foldLeft((List(sorted.head), false)) { case ((acc, isMerged), current) =>
+          acc.lastOption match
+            case Some(prev) if !current.getStart.isAfter(prev.getEnd) =>
+              val laterEnding =
+                if prev.getEnd.isAfter(current.getEnd) then prev.getEnd else current.getEnd
+              val newInterval = new Interval(prev.getStart, laterEnding)
+              (acc.init :+ newInterval, true)
+            case _ =>
+              (acc :+ current, isMerged)
+        }
       if wasMerged then helper(merged) else merged
 
     helper(intervals)
@@ -122,7 +131,7 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
   override def adjustDST(dateTime: DateTime, reservation: Reservation): DateTime =
     Option(reservation.getExternalReservation) match
       case Some(externalReservation) => adjustDST(dateTime, externalReservation)
-      case None                      => doAdjustDST(dateTime, Option(reservation.getMachine).map(_.getRoom))
+      case None => doAdjustDST(dateTime, Option(reservation.getMachine).map(_.getRoom))
 
   override def adjustDST(dateTime: DateTime, externalReservation: ExternalReservation): DateTime =
     val dtz = DateTimeZone.forID(externalReservation.getRoomTz)
@@ -196,14 +205,17 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
     val updatedWorkingHours =
       if extensionEvents.nonEmpty then
         val unifiedIntervals = mergeSlots(workingHours.map(_.hours) ++ extensionEvents)
-        val offset           = DateTimeZone.forID(room.getLocalTimezone).getOffset(DateTime.now().withDayOfYear(1))
+        val offset =
+          DateTimeZone.forID(room.getLocalTimezone).getOffset(DateTime.now().withDayOfYear(1))
         unifiedIntervals.map(interval => OpeningHours(interval, offset))
       else workingHours
 
     val availableHours =
       if restrictionEvents.nonEmpty then
         updatedWorkingHours.flatMap { hours =>
-          findGaps(restrictionEvents, hours.hours).map(gap => OpeningHours(gap, hours.timezoneOffset))
+          findGaps(restrictionEvents, hours.hours).map(gap =>
+            OpeningHours(gap, hours.timezoneOffset)
+          )
         }
       else updatedWorkingHours
 

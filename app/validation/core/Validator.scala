@@ -45,7 +45,8 @@ class Validator[T] private (
   def withRule(rule: T => ValidatedNel[FieldError, ?]): Validator[T] =
     new Validator(parser, rules :+ rule)
 
-  /** Parse JSON and validate the result. Returns Either with all accumulated validation errors or the valid object.
+  /** Parse JSON and validate the result. Returns Either with all accumulated validation errors or
+    * the valid object.
     */
   def validate(body: JsonNode): Either[ValidationException, T] =
     val target = parser(body)
@@ -99,12 +100,13 @@ object Validator:
     def times(x: java.lang.Long, y: java.lang.Long): java.lang.Long = x * y
     def negate(x: java.lang.Long): java.lang.Long                   = -x
     def fromInt(x: Int): java.lang.Long                             = x.toLong
-    def parseString(str: String): Option[java.lang.Long]            = str.toLongOption.map(java.lang.Long.valueOf)
-    def toInt(x: java.lang.Long): Int                               = x.intValue()
-    def toLong(x: java.lang.Long): Long                             = x.longValue()
-    def toFloat(x: java.lang.Long): Float                           = x.floatValue()
-    def toDouble(x: java.lang.Long): Double                         = x.doubleValue()
-    def compare(x: java.lang.Long, y: java.lang.Long): Int          = x.compareTo(y)
+    def parseString(str: String): Option[java.lang.Long] =
+      str.toLongOption.map(java.lang.Long.valueOf)
+    def toInt(x: java.lang.Long): Int                      = x.intValue()
+    def toLong(x: java.lang.Long): Long                    = x.longValue()
+    def toFloat(x: java.lang.Long): Float                  = x.floatValue()
+    def toDouble(x: java.lang.Long): Double                = x.doubleValue()
+    def compare(x: java.lang.Long, y: java.lang.Long): Int = x.compareTo(y)
 
   given Numeric[java.lang.Double] with
     def plus(x: java.lang.Double, y: java.lang.Double): java.lang.Double  = x + y
@@ -112,7 +114,8 @@ object Validator:
     def times(x: java.lang.Double, y: java.lang.Double): java.lang.Double = x * y
     def negate(x: java.lang.Double): java.lang.Double                     = -x
     def fromInt(x: Int): java.lang.Double                                 = x.toDouble
-    def parseString(str: String): Option[java.lang.Double]     = str.toDoubleOption.map(java.lang.Double.valueOf)
+    def parseString(str: String): Option[java.lang.Double] =
+      str.toDoubleOption.map(java.lang.Double.valueOf)
     def toInt(x: java.lang.Double): Int                        = x.intValue()
     def toLong(x: java.lang.Double): Long                      = x.longValue()
     def toFloat(x: java.lang.Double): Float                    = x.floatValue()
@@ -128,8 +131,8 @@ object Validator:
       .filter(_.trim.nonEmpty)
       .toValidNel(FieldError(fieldName, s"$fieldName is required"))
 
-  /** Validates that a numeric field is present and greater than zero. Works with any numeric type (Int, Long, Double,
-    * etc.)
+  /** Validates that a numeric field is present and greater than zero. Works with any numeric type
+    * (Int, Long, Double, etc.)
     */
   def requirePositive[T: Numeric](fieldName: String, value: T): ValidatedNel[FieldError, T] =
     val num = summon[Numeric[T]]
@@ -155,8 +158,12 @@ object Validator:
 
   /** Validates that a collection is not empty.
     */
-  def requireNonEmpty[T](fieldName: String, collection: List[T]): ValidatedNel[FieldError, List[T]] =
-    if collection.isEmpty then invalid(fieldName, s"$fieldName cannot be empty") else valid(collection)
+  def requireNonEmpty[T](
+      fieldName: String,
+      collection: List[T]
+  ): ValidatedNel[FieldError, List[T]] =
+    if collection.isEmpty then invalid(fieldName, s"$fieldName cannot be empty")
+    else valid(collection)
 
   /** Always valid - useful for conditional validation.
     */

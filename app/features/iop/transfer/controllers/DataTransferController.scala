@@ -46,9 +46,10 @@ class DataTransferController @Inject() (
       toResult(dataTransferService.importQuestionAttachment(id, filePart))(_ => Created)
     }
 
-  def importData(): Action[JsValue] = Action(parse.json(maxLength = SeventyMB)).andThen(audited) { request =>
-    toResult(dataTransferService.importData(request.body))(data => Created(data))
-  }
+  def importData(): Action[JsValue] =
+    Action(parse.json(maxLength = SeventyMB)).andThen(audited) { request =>
+      toResult(dataTransferService.importData(request.body))(data => Created(data))
+    }
 
   def exportData(): Action[JsValue] =
     authenticated

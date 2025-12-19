@@ -33,7 +33,10 @@ object EssayAnswerValidator extends PlayJsonValidator:
       val objectVersion = PlayJsonHelper.parse[Long]("objectVersion", body)
       EssayAnswerDTO(answer, objectVersion)
 
-  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
     AnswerValidator.get(json) match
       case Right(answer) => Right(request.addAttr(ESSAY_ANSWER_KEY, answer))
       case Left(ex)      => Left(Results.BadRequest(ex.getMessage))

@@ -14,7 +14,11 @@ import scala.jdk.CollectionConverters._
 
 @ImplementedBy(classOf[ConfigReaderImpl])
 trait ConfigReader:
-  def getOrCreateSettings(name: String, value: Option[String], defaultValue: Option[String]): GeneralSettings
+  def getOrCreateSettings(
+      name: String,
+      value: Option[String],
+      defaultValue: Option[String]
+  ): GeneralSettings
   def getDefaultTimeZone: DateTimeZone
   def getHostName: String
   def getMaxFileSize: Int

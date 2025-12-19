@@ -95,7 +95,9 @@ class ExamInspectionService @Inject() (
     Option(DB.find(classOf[ExamInspection], id)) match
       case Some(inspection) =>
         inspection.getExam.getChildren.asScala
-          .filter(c => c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED))
+          .filter(c =>
+            c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED)
+          )
           .foreach(c =>
             c.getExamInspections.asScala
               .filter(ei => ei.getUser.equals(inspection.getUser))

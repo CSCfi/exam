@@ -46,7 +46,9 @@ class CalendarService @Inject() (
       .find
 
     enrolmentOpt match
-      case None => Left(CalendarError.InvalidReservation(s"No reservation with id $reservationId for current user."))
+      case None => Left(CalendarError.InvalidReservation(
+          s"No reservation with id $reservationId for current user."
+        ))
       case Some(enrolment) =>
         // Removal is not permitted if the reservation is in the past or ongoing
         val reservation = enrolment.getReservation
@@ -138,7 +140,7 @@ class CalendarService @Inject() (
                   else
                     // We are good to go :)
                     val oldReservation = enrolment.getReservation
-                    val reservation    = calendarHandler.createReservation(start, end, machine, user)
+                    val reservation = calendarHandler.createReservation(start, end, machine, user)
 
                     // Nuke the old reservation if any
                     val result = Option(oldReservation) match

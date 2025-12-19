@@ -76,7 +76,8 @@ class SessionService @Inject() (
         val userIsLocal         = isLocalUser(eppn)
         val homeOrgRequired     = configReader.isHomeOrganisationRequired
 
-        if !isTemporaryVisitor && !userIsLocal && homeOrgRequired then Future.successful(Left(DisallowedLogin))
+        if !isTemporaryVisitor && !userIsLocal && homeOrgRequired then
+          Future.successful(Left(DisallowedLogin))
         else
           val userResult = DB.find(classOf[User]).where().eq("eppn", eppn).find match
             case Some(u) => updateUser(u, headers).map(_ => u)
@@ -87,10 +88,16 @@ class SessionService @Inject() (
               u.setLastLogin(new Date())
               u.save()
               associateWithPreEnrolments(u)
-              handleExternalReservationAndCreateSession(u, externalReservation, headers, remoteAddress)
+              handleExternalReservationAndCreateSession(
+                u,
+                externalReservation,
+                headers,
+                remoteAddress
+              )
             case Left(error) =>
               logger.error(s"Login failed: ${error.message}")
-              val headerStr = headers.map { case (k, v) => s"$k: ${v.mkString(",")}" }.mkString("\n")
+              val headerStr =
+                headers.map { case (k, v) => s"$k: ${v.mkString(",")}" }.mkString("\n")
               logger.error(s"Received following request headers: $headerStr")
               Future.successful(Left(error))
 
@@ -100,7 +107,9 @@ class SessionService @Inject() (
       remoteAddress: String
   ): Future[Either[SessionError, LoginResponse]] =
     if environment.mode == play.api.Mode.Prod then
-      logger.warn("Developer login mode is enabled in production environment. This should only be used for testing!")
+      logger.warn(
+        "Developer login mode is enabled in production environment. This should only be used for testing!"
+      )
 
     body match
       case None => Future.successful(Left(Unauthenticated))
@@ -121,7 +130,12 @@ class SessionService @Inject() (
                 u.setLastLogin(new Date())
                 u.update()
                 val externalReservation = getUpcomingExternalReservation(u.getEppn, remoteAddress)
-                handleExternalReservationAndCreateSession(u, externalReservation, headers, remoteAddress)
+                handleExternalReservationAndCreateSession(
+                  u,
+                  externalReservation,
+                  headers,
+                  remoteAddress
+                )
               case None =>
                 Future.successful(Left(Unauthenticated))
           case _ =>
@@ -159,10 +173,14 @@ class SessionService @Inject() (
         ee.update()
       }
 
-  private def getUpcomingExternalReservation(eppn: String, remoteAddress: String): Option[Reservation] =
-    val now              = dateTimeHandler.adjustDST(new DateTime())
-    val lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes
-    val future           = now.plusMinutes(lookAheadMinutes)
+  private def getUpcomingExternalReservation(
+      eppn: String,
+      remoteAddress: String
+  ): Option[Reservation] =
+    val now = dateTimeHandler.adjustDST(new DateTime())
+    val lookAheadMinutes =
+      Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes
+    val future = now.plusMinutes(lookAheadMinutes)
     DB
       .find(classOf[Reservation])
       .where()
@@ -213,7 +231,8 @@ class SessionService @Inject() (
     if value.isBlank then "null" else value
 
   private def parseUserIdentifier(src: String): String =
-    if !configReader.isMultiStudentIdEnabled || !src.startsWith(URN_PREFIX) then src.substring(src.lastIndexOf(":") + 1)
+    if !configReader.isMultiStudentIdEnabled || !src.startsWith(URN_PREFIX) then
+      src.substring(src.lastIndexOf(":") + 1)
     else
       src
         .split(";")
@@ -227,7 +246,9 @@ class SessionService @Inject() (
         .map { case (domain, entries) =>
           if entries.length > 1 then
             val values = entries.map(_._2).mkString(", ")
-            logger.error(s"Duplicate user identifier key for values $values. It will be marked with a null string")
+            logger.error(
+              s"Duplicate user identifier key for values $values. It will be marked with a null string"
+            )
             (domain, "null")
           else (domain, entries.head._2)
         }
@@ -252,7 +273,10 @@ class SessionService @Inject() (
   private def findOrganisation(attribute: String): Option[Organisation] =
     DB.find(classOf[Organisation]).where().eq("code", attribute).find
 
-  private def updateUser(user: User, headers: Map[String, Seq[String]]): Either[SessionError, Unit] =
+  private def updateUser(
+      user: User,
+      headers: Map[String, Seq[String]]
+  ): Either[SessionError, Unit] =
     user.setOrganisation(
       parse(headers.get("homeOrganisation").flatMap(_.headOption))
         .flatMap(findOrganisation)
@@ -265,7 +289,10 @@ class SessionService @Inject() (
     )
 
     // Grant BYOD permission automatically for teachers if configuration so mandates
-    if user.hasRole(Role.Name.TEACHER) && configReader.isByodExamCreationPermissionGrantedForNewUsers then
+    if user.hasRole(
+        Role.Name.TEACHER
+      ) && configReader.isByodExamCreationPermissionGrantedForNewUsers
+    then
       val permission = DB
         .find(classOf[Permission])
         .where()
@@ -306,7 +333,9 @@ class SessionService @Inject() (
 
     rolesResult.flatMap { roles =>
       user.getRoles.addAll(roles.asJava)
-      user.setLanguage(getLanguage(parse(headers.get("preferredLanguage").flatMap(_.headOption)).orNull))
+      user.setLanguage(
+        getLanguage(parse(headers.get("preferredLanguage").flatMap(_.headOption)).orNull)
+      )
       user.setEppn(eppn)
       updateUser(user, headers).map(_ => user)
     }
@@ -346,7 +375,8 @@ class SessionService @Inject() (
 
     val isLocal = isLocalUser(user.getEppn)
     val roles =
-      if isTemporaryVisitor || !isLocal then DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).list
+      if isTemporaryVisitor || !isLocal then
+        DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).list
       else user.getRoles.asScala.toSeq
 
     val (rolePayload, responseData) =
@@ -355,16 +385,24 @@ class SessionService @Inject() (
       else if isTemporaryVisitor then
         (Map("visitingStudent" -> "true", "role" -> roles.head.getName), Map.empty[String, JsValue])
       else if !isLocal then
-        (Map("role" -> roles.head.getName), Map("externalUserOrg" -> Json.toJson(user.getEppn.split("@")(1))))
+        (
+          Map("role"            -> roles.head.getName),
+          Map("externalUserOrg" -> Json.toJson(user.getEppn.split("@")(1)))
+        )
       else (Map.empty[String, String], Map.empty[String, JsValue])
 
     val sessionData = basePayload ++ permissionsPayload ++ rolePayload
     val finalUserData = responseData
-      .foldLeft(userData) { case (acc, (k, v)) => acc + (k -> v) } + ("roles" -> Json.toJson(roles.map(_.asJson)))
+      .foldLeft(userData) { case (acc, (k, v)) => acc + (k -> v) } + ("roles" -> Json.toJson(
+      roles.map(_.asJson)
+    ))
 
     Future.successful(Right(LoginResponse(finalUserData, sessionData)))
 
-  private def parseRoles(attribute: String, ignoreRoleNotFound: Boolean): Either[SessionError, Set[Role]] =
+  private def parseRoles(
+      attribute: String,
+      ignoreRoleNotFound: Boolean
+  ): Either[SessionError, Set[Role]] =
     val userRoles = attribute
       .split(";")
       .flatMap { affiliation =>
@@ -374,7 +412,8 @@ class SessionService @Inject() (
       }
       .toSet
 
-    if userRoles.isEmpty && !ignoreRoleNotFound then Left(ValidationError(s"i18n_error_role_not_found $attribute"))
+    if userRoles.isEmpty && !ignoreRoleNotFound then
+      Left(ValidationError(s"i18n_error_role_not_found $attribute"))
     else Right(userRoles)
 
   def logout(userId: Option[Long]): Either[SessionError, LogoutResponse] =
@@ -425,7 +464,8 @@ class SessionService @Inject() (
           logger.info("Session has expired")
           Future.successful(Right(CheckSessionStatus.NoSession))
         else
-          val status = if alarmTime.isBeforeNow then CheckSessionStatus.Alarm else CheckSessionStatus.Valid
+          val status =
+            if alarmTime.isBeforeNow then CheckSessionStatus.Alarm else CheckSessionStatus.Valid
           Future.successful(Right(status))
 
   def updateSessionWithReservationHeaders(

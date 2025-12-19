@@ -28,9 +28,9 @@ object ByodConfigHandlerImpl:
   private val AllowQuittingPlaceholder = "<!-- allowQuit /-->"
   private val PasswordEncryption       = "pswd"
   private val ConfigKeyHeader          = "X-SafeExamBrowser-ConfigKeyHash" // Standard SEB header
-  private val CustomConfigKeyHeader    = "X-Exam-Seb-Config-Key"           // Custom header from JS API
-  private val CustomConfigUrlHeader    = "X-Exam-Seb-Config-Url"           // Custom header from JS API
-  private val IgnoredKeys              = Seq("originatorVersion")
+  private val CustomConfigKeyHeader = "X-Exam-Seb-Config-Key" // Custom header from JS API
+  private val CustomConfigUrlHeader = "X-Exam-Seb-Config-Url" // Custom header from JS API
+  private val IgnoredKeys           = Seq("originatorVersion")
 
 class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environment)
     extends ByodConfigHandler
@@ -101,7 +101,12 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
         .sortBy(_._1.toLowerCase)
       Some(JsObject(json))
 
-  override def getExamConfig(hash: String, pwd: Array[Byte], salt: String, quitPwd: String): Array[Byte] =
+  override def getExamConfig(
+      hash: String,
+      pwd: Array[Byte],
+      salt: String,
+      quitPwd: String
+  ): Array[Byte] =
     val template   = getTemplate(hash, quitPwd)
     val templateGz = compress(template.getBytes(StandardCharsets.UTF_8))
     // Decrypt user-defined setting password
@@ -131,7 +136,10 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
       case (None, None) =>
         logger.warn(
           s"""SEB headers MISSING from request to $uri.
-             |Checked: '$ConfigKeyHeader' and '$CustomConfigKeyHeader'""".stripMargin.replaceAll("\n", " ")
+             |Checked: '$ConfigKeyHeader' and '$CustomConfigKeyHeader'""".stripMargin.replaceAll(
+            "\n",
+            " "
+          )
         )
         Some(Results.Unauthorized("SEB headers missing"))
       case (Some(digest), _) =>
@@ -144,7 +152,9 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
         headers.get(CustomConfigUrlHeader).flatMap(_.headOption) match
           case Some(url) => validate(url, digest, configKey)
           case None =>
-            logger.warn(s"SEB validation FAILED (JavaScript API): $CustomConfigUrlHeader header is missing")
+            logger.warn(
+              s"SEB validation FAILED (JavaScript API): $CustomConfigUrlHeader header is missing"
+            )
             Some(Results.Unauthorized("SEB page URL header missing"))
 
   private def validate(url: String, digest: String, configKey: String): Option[Result] =

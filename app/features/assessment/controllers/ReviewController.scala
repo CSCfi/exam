@@ -59,7 +59,9 @@ class ReviewController @Inject() (
   def getReview(eid: Long): Action[AnyContent] =
     authenticated
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER)))
-      .andThen(anonymous(Set("user", "preEnrolledUserEmail", "creator", "modifier", "reservation"))) { request =>
+      .andThen(
+        anonymous(Set("user", "preEnrolledUserEmail", "creator", "modifier", "reservation"))
+      ) { request =>
         val user            = request.attrs(Auth.ATTR_USER)
         val blankAnswerText = reviewService.getBlankAnswerText(user)
         reviewService.getReview(eid, user, blankAnswerText) match
@@ -113,15 +115,16 @@ class ReviewController @Inject() (
       }
 
   def updateAssessmentInfo(id: Long): Action[JsValue] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER)))(parse.json).andThen(audited) { request =>
-      val info = (request.body \ "assessmentInfo").asOpt[String]
-      val user = request.attrs(Auth.ATTR_USER)
-      reviewService.updateAssessmentInfo(id, info, user) match
-        case Right(_) => Ok
-        case Left(ReviewError.ModificationForbidden) =>
-          Forbidden(ReviewError.ModificationForbidden.message)
-        case Left(ReviewError.ExamNotFound) => NotFound(ReviewError.ExamNotFound.message)
-        case Left(_)                        => NotFound
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER)))(parse.json).andThen(audited) {
+      request =>
+        val info = (request.body \ "assessmentInfo").asOpt[String]
+        val user = request.attrs(Auth.ATTR_USER)
+        reviewService.updateAssessmentInfo(id, info, user) match
+          case Right(_) => Ok
+          case Left(ReviewError.ModificationForbidden) =>
+            Forbidden(ReviewError.ModificationForbidden.message)
+          case Left(ReviewError.ExamNotFound) => NotFound(ReviewError.ExamNotFound.message)
+          case Left(_)                        => NotFound
     }
 
   def reviewExam(id: Long): Action[JsValue] =
@@ -185,7 +188,9 @@ class ReviewController @Inject() (
         val user        = request.attrs(Auth.ATTR_USER)
         reviewService.addComment(id, commentText, user) match
           case Right(comment) =>
-            Ok(comment.asJson(PathProperties.parse("(creator(firstName, lastName, email), created, comment)")))
+            Ok(comment.asJson(
+              PathProperties.parse("(creator(firstName, lastName, email), created, comment)")
+            ))
           case Left(ReviewError.ExamNotFound) => NotFound(ReviewError.ExamNotFound.message)
           case Left(_)                        => NotFound(ReviewError.ExamNotFound.message)
       }

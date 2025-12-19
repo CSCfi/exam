@@ -37,7 +37,8 @@ class AssessmentTransferService @Inject() (
 
   // Maximum number of concurrent HTTP requests
   private val maxConcurrency = 10
-  private val objectMapper   = new ObjectMapper().registerModule(new PlayJsonMapperModule(JsonParserSettings.settings))
+  private val objectMapper =
+    new ObjectMapper().registerModule(new PlayJsonMapperModule(JsonParserSettings.settings))
 
   private def parseUrl(reservationRef: String) =
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/assessment").toURL
@@ -85,7 +86,9 @@ class AssessmentTransferService @Inject() (
     }.flatMap(enrolments =>
       val count = enrolments.size
       if count > 0 then
-        logger.info(s"Processing $count assessment transfers with max concurrency of $maxConcurrency")
+        logger.info(
+          s"Processing $count assessment transfers with max concurrency of $maxConcurrency"
+        )
         enrolments
           .parTraverseN(maxConcurrency)(send)
           .handleErrorWith(e => IO(logger.error("Error processing assessment transfers", e)))
@@ -94,6 +97,7 @@ class AssessmentTransferService @Inject() (
 
   def resource: Resource[IO, Unit] =
     val (delay, interval) = (70.seconds, 60.minutes)
-    val job: IO[Unit]     = runCheck().handleErrorWith(e => IO(logger.error("Error in assessment transfer", e)))
+    val job: IO[Unit] =
+      runCheck().handleErrorWith(e => IO(logger.error("Error in assessment transfer", e)))
     val program: IO[Unit] = IO.sleep(delay) *> (job *> IO.sleep(interval)).foreverM
     Resource.make(program.start)(_.cancel).void

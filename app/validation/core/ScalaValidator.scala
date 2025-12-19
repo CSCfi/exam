@@ -43,11 +43,12 @@ trait ScalaValidator[A]:
     new ActionRefiner[Request, Request] {
       override def executionContext: ExecutionContext = ec
 
-      override def refine[B](input: Request[B]): Future[Either[Result, Request[B]]] = Future.successful {
-        validate(input.asInstanceOf[Request[A]]) match
-          case Left(errorResult)      => Left(errorResult)
-          case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[B]])
-      }
+      override def refine[B](input: Request[B]): Future[Either[Result, Request[B]]] =
+        Future.successful {
+          validate(input.asInstanceOf[Request[A]]) match
+            case Left(errorResult)      => Left(errorResult)
+            case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[B]])
+        }
     }
 
 /** Play JSON validator (recommended for Scala code)
@@ -59,8 +60,8 @@ trait PlayJsonValidator:
 
   /** Common HTML safelist for sanitizing user input
     *
-    * Allows common HTML elements and attributes needed for rich text editing, including math-related attributes and
-    * math-field tags.
+    * Allows common HTML elements and attributes needed for rich text editing, including
+    * math-related attributes and math-field tags.
     */
   protected val HTML_SAFELIST: Safelist = HtmlSafelist.SAFELIST
 
@@ -106,18 +107,20 @@ trait PlayJsonValidator:
 
   /** Create an ActionRefiner that applies this validator and enriches the request
     */
-  def filter(implicit ec: ExecutionContext): ActionRefiner[Request, Request] = new ActionRefiner[Request, Request] {
-    override def executionContext: ExecutionContext = ec
+  def filter(implicit ec: ExecutionContext): ActionRefiner[Request, Request] =
+    new ActionRefiner[Request, Request] {
+      override def executionContext: ExecutionContext = ec
 
-    override def refine[A](input: Request[A]): Future[Either[Result, Request[A]]] = Future.successful {
-      input match
-        case jsRequest: Request[JsValue @unchecked] if input.body.isInstanceOf[JsValue] =>
-          validateJsValue(jsRequest) match
-            case Left(errorResult)      => Left(errorResult)
-            case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[A]])
-        case _ =>
-          validate(input.asInstanceOf[Request[AnyContent]]) match
-            case Left(errorResult)      => Left(errorResult)
-            case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[A]])
+      override def refine[A](input: Request[A]): Future[Either[Result, Request[A]]] =
+        Future.successful {
+          input match
+            case jsRequest: Request[JsValue @unchecked] if input.body.isInstanceOf[JsValue] =>
+              validateJsValue(jsRequest) match
+                case Left(errorResult)      => Left(errorResult)
+                case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[A]])
+            case _ =>
+              validate(input.asInstanceOf[Request[AnyContent]]) match
+                case Left(errorResult)      => Left(errorResult)
+                case Right(enrichedRequest) => Right(enrichedRequest.asInstanceOf[Request[A]])
+        }
     }
-  }

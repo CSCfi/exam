@@ -63,6 +63,7 @@ class ExamExpirationService @Inject() (private val configReader: ConfigReader)
 
   def resource: Resource[IO, Unit] =
     val (delay, interval) = (45.seconds, (60 * 24).minutes)
-    val job: IO[Unit]     = runCheck().handleErrorWith(e => IO(logger.error("Error in exam expiration check", e)))
+    val job: IO[Unit] =
+      runCheck().handleErrorWith(e => IO(logger.error("Error in exam expiration check", e)))
     val program: IO[Unit] = IO.sleep(delay) *> (job *> IO.sleep(interval)).foreverM
     Resource.make(program.start)(_.cancel).void

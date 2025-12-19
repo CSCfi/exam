@@ -41,10 +41,12 @@ class WeeklyReportService @Inject() (
       )
       .withDayOfWeek(DateTimeConstants.MONDAY)
     // If it's a Monday after scheduled run time -> postpone
-    val postponedRun = if !normalNextRun.isAfter(now) then normalNextRun.plusWeeks(1) else normalNextRun
+    val postponedRun =
+      if !normalNextRun.isAfter(now) then normalNextRun.plusWeeks(1) else normalNextRun
     val nextRun =
       // Case for: now there's no DST in effect, but by the next run there will be.
-      if adjustedHours == 5 && !defaultTimeZone.isStandardOffset(postponedRun.getMillis) then postponedRun.minusHours(1)
+      if adjustedHours == 5 && !defaultTimeZone.isStandardOffset(postponedRun.getMillis) then
+        postponedRun.minusHours(1)
       // Case for: now there's DST in effect, but by the next run there won't be
       else if adjustedHours != 5 && defaultTimeZone.isStandardOffset(postponedRun.getMillis) then
         postponedRun.plusHours(1)
@@ -55,7 +57,9 @@ class WeeklyReportService @Inject() (
     // If calculation results in a negative or very small delay (e.g., due to DST edge cases),
     // schedule for next week instead
     val safeDelay = if delaySeconds <= 3600 then
-      logger.warn(s"Calculated delay ($delaySeconds seconds) too small, scheduling for next week instead")
+      logger.warn(
+        s"Calculated delay ($delaySeconds seconds) too small, scheduling for next week instead"
+      )
       val nextWeekRun = nextRun.plusWeeks(1)
       Seconds.secondsBetween(now, nextWeekRun).getSeconds + 1
     else delaySeconds

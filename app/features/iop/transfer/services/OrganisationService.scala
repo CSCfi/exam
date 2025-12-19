@@ -41,12 +41,14 @@ class OrganisationService @Inject() (
               // Cache facility data for external organizations and set the password requirement flag
               val updatedOrg = (orgObj \ "facilities").asOpt[JsArray].fold(baseOrg) { facilities =>
                 val updatedFacilities = JsArray(facilities.value.map { facility =>
-                  val facilityObj      = facility.as[JsObject]
-                  val externalPassword = (facilityObj \ "externalPassword").asOpt[String].filter(_.nonEmpty)
-                  val hasPassword      = externalPassword.isDefined
+                  val facilityObj = facility.as[JsObject]
+                  val externalPassword =
+                    (facilityObj \ "externalPassword").asOpt[String].filter(_.nonEmpty)
+                  val hasPassword = externalPassword.isDefined
 
                   // Set the flag for a client to know if a password is required
-                  val updatedFacility = facilityObj + ("externalPasswordRequired" -> JsBoolean(hasPassword))
+                  val updatedFacility =
+                    facilityObj + ("externalPasswordRequired" -> JsBoolean(hasPassword))
                   // Cache the password if present
                   for
                     facilityId <- (facilityObj \ "_id").asOpt[String]

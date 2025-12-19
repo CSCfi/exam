@@ -90,9 +90,15 @@ class CollaborativeExternalCalendarController @Inject() (
                     val oldReservation = enrolment.getReservation
                     val checkResult =
                       if exam.getState == Exam.State.STUDENT_STARTED ||
-                        (oldReservation != null && oldReservation.toInterval.isBefore(DateTime.now()))
+                        (oldReservation != null && oldReservation.toInterval.isBefore(
+                          DateTime.now()
+                        ))
                       then Some(Forbidden("i18n_reservation_in_effect"))
-                      else if oldReservation == null && !enrolmentHandler.isAllowedToParticipate(exam, user) then
+                      else if oldReservation == null && !enrolmentHandler.isAllowedToParticipate(
+                          exam,
+                          user
+                        )
+                      then
                         Some(Forbidden("i18n_no_trials_left"))
                       else None
 
@@ -124,7 +130,9 @@ class CollaborativeExternalCalendarController @Inject() (
                                 if response.status != CREATED then
                                   Future.successful(
                                     InternalServerError(
-                                      (root \ "message").asOpt[String].getOrElse("Connection refused")
+                                      (root \ "message").asOpt[String].getOrElse(
+                                        "Connection refused"
+                                      )
                                     )
                                   )
                                 else
@@ -142,7 +150,8 @@ class CollaborativeExternalCalendarController @Inject() (
                                     )
                                     .map { err =>
                                       if err.isEmpty then Created((root \ "id").as[JsValue])
-                                      else InternalServerError("Failed to handle external reservation")
+                                      else
+                                        InternalServerError("Failed to handle external reservation")
                                     }
                               }
                 }
@@ -182,8 +191,10 @@ class CollaborativeExternalCalendarController @Inject() (
                             Future.successful(InternalServerError("Failed to parse date"))
                           case Success(_) =>
                             // Ready to shoot
-                            val start    = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart))
-                            val end      = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd))
+                            val start =
+                              ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart))
+                            val end =
+                              ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd))
                             val duration = exam.getDuration
 
                             Try(parseUrl(orgValue, roomRef, dateValue, start, end, duration)) match
@@ -204,10 +215,13 @@ class CollaborativeExternalCalendarController @Inject() (
                                   val root = response.json
                                   if response.status != OK then
                                     InternalServerError(
-                                      (root \ "message").asOpt[String].getOrElse("Connection refused")
+                                      (root \ "message").asOpt[String].getOrElse(
+                                        "Connection refused"
+                                      )
                                     )
                                   else
-                                    val slots = calendarHandler.postProcessSlots(root, dateValue, exam, user)
+                                    val slots =
+                                      calendarHandler.postProcessSlots(root, dateValue, exam, user)
                                     Ok(Json.toJson(slots.toSeq))
                                 }
                   }

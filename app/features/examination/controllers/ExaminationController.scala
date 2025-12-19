@@ -44,29 +44,33 @@ class ExaminationController @Inject() (
 
   private def toResult(error: ExaminationError): Result =
     error match
-      case ExaminationError.ExamNotFound               => NotFound("i18n_error_exam_not_found")
-      case ExaminationError.QuestionNotFound           => Forbidden("Question not found")
-      case ExaminationError.EnrolmentNotFound          => Forbidden("Enrolment not found")
-      case ExaminationError.ParticipationNotFound      => Forbidden("Participation not found")
-      case ExaminationError.ReservationNotFound        => Forbidden("i18n_reservation_not_found")
-      case ExaminationError.ReservationMachineNotFound => Forbidden("i18n_reservation_machine_not_found")
-      case ExaminationError.RoomNotFound               => NotFound("Room not found")
-      case ExaminationError.InvalidExamState           => Forbidden("Invalid exam state")
-      case ExaminationError.WrongExamMachine           => Forbidden("i18n_wrong_exam_machine")
-      case ExaminationError.FailedToCreateExam         => InternalServerError("Failed to create exam")
-      case ExaminationError.ValidationError(message)   => Forbidden(message)
+      case ExaminationError.ExamNotFound          => NotFound("i18n_error_exam_not_found")
+      case ExaminationError.QuestionNotFound      => Forbidden("Question not found")
+      case ExaminationError.EnrolmentNotFound     => Forbidden("Enrolment not found")
+      case ExaminationError.ParticipationNotFound => Forbidden("Participation not found")
+      case ExaminationError.ReservationNotFound   => Forbidden("i18n_reservation_not_found")
+      case ExaminationError.ReservationMachineNotFound =>
+        Forbidden("i18n_reservation_machine_not_found")
+      case ExaminationError.RoomNotFound             => NotFound("Room not found")
+      case ExaminationError.InvalidExamState         => Forbidden("Invalid exam state")
+      case ExaminationError.WrongExamMachine         => Forbidden("i18n_wrong_exam_machine")
+      case ExaminationError.FailedToCreateExam       => InternalServerError("Failed to create exam")
+      case ExaminationError.ValidationError(message) => Forbidden(message)
 
   def startExam(hash: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).andThen(examActionRouter).async { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      examinationService.prepareExam(hash, user, extractRequestData(request)).map {
-        case Left(error) => toResult(error)
-        case Right(exam) => Ok(exam.asJson(getPath(false)))
-      }
+    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).andThen(examActionRouter).async {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        examinationService.prepareExam(hash, user, extractRequestData(request)).map {
+          case Left(error) => toResult(error)
+          case Right(exam) => Ok(exam.asJson(getPath(false)))
+        }
     }
 
   def initializeExam(hash: String): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).andThen(examActionRouter).async {
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).andThen(
+      examActionRouter
+    ).async {
       request =>
         val user = request.attrs(Auth.ATTR_USER)
         examinationService.initializeExam(hash, user, extractRequestData(request)).map {
@@ -107,20 +111,33 @@ class ExaminationController @Inject() (
       .async(parse.json) { request =>
         val user      = request.attrs(Auth.ATTR_USER)
         val answerDTO = request.attrs(EssayAnswerValidator.ESSAY_ANSWER_KEY)
-        examinationService.answerEssay(hash, questionId, user, answerDTO, extractRequestData(request)).map {
+        examinationService.answerEssay(
+          hash,
+          questionId,
+          user,
+          answerDTO,
+          extractRequestData(request)
+        ).map {
           case Left(error)   => toResult(error)
           case Right(answer) => Ok(answer.asJson)
         }
       }
 
   def answerMultiChoice(hash: String, qid: Long): Action[JsValue] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) { request =>
-      val user      = request.attrs(Auth.ATTR_USER)
-      val optionIds = (request.body \ "oids").asOpt[Seq[Long]].getOrElse(Seq.empty)
-      examinationService.answerMultiChoice(hash, qid, user, optionIds, extractRequestData(request)).map {
-        case Left(error) => toResult(error)
-        case Right(_)    => Ok
-      }
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) {
+      request =>
+        val user      = request.attrs(Auth.ATTR_USER)
+        val optionIds = (request.body \ "oids").asOpt[Seq[Long]].getOrElse(Seq.empty)
+        examinationService.answerMultiChoice(
+          hash,
+          qid,
+          user,
+          optionIds,
+          extractRequestData(request)
+        ).map {
+          case Left(error) => toResult(error)
+          case Right(_)    => Ok
+        }
     }
 
   def answerClozeTest(hash: String, questionId: Long): Action[JsValue] =
@@ -131,7 +148,13 @@ class ExaminationController @Inject() (
       .async(parse.json) { request =>
         val user      = request.attrs(Auth.ATTR_USER)
         val answerDTO = request.attrs(ClozeTestAnswerValidator.CLOZE_TEST_ANSWER_KEY)
-        examinationService.answerClozeTest(hash, questionId, user, answerDTO, extractRequestData(request)).map {
+        examinationService.answerClozeTest(
+          hash,
+          questionId,
+          user,
+          answerDTO,
+          extractRequestData(request)
+        ).map {
           case Left(error) => toResult(error)
           case Right(answer) =>
             Ok(answer.asJson(PathProperties.parse("(id, objectVersion, answer)")))

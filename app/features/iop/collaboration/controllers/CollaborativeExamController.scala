@@ -41,14 +41,21 @@ class CollaborativeExamController @Inject() (
     audited: AuditedAction,
     override val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
-    extends CollaborationController(wsClient, examUpdater, examLoader, configReader, controllerComponents)
+    extends CollaborationController(
+      wsClient,
+      examUpdater,
+      examLoader,
+      configReader,
+      controllerComponents
+    )
     with EbeanQueryExtensions
     with EbeanJsonExtensions
     with JsonBodyWritables
     with Logging:
 
   // Helper to convert Play JSON to Jackson JSON (for models that still use Jackson)
-  private def toJacksonJson(value: play.api.libs.json.JsValue): com.fasterxml.jackson.databind.JsonNode =
+  private def toJacksonJson(value: play.api.libs.json.JsValue)
+      : com.fasterxml.jackson.databind.JsonNode =
     play.libs.Json.parse(play.api.libs.json.Json.stringify(value))
 
   private def prepareDraft(user: User): Exam =
@@ -170,7 +177,9 @@ class CollaborativeExamController @Inject() (
 
           wsRequest.post(body.asJson).map { response =>
             if response.status != CREATED then
-              InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
+              InternalServerError(
+                (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+              )
             else
               val externalRef = (response.json \ "id").as[String]
               val revision    = (response.json \ "rev").as[String]
@@ -188,7 +197,8 @@ class CollaborativeExamController @Inject() (
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { _ =>
       findCollaborativeExam(id) match
         case Left(errorResult) => errorResult
-        case Right(ce) if ce.getState != Exam.State.DRAFT && ce.getState != Exam.State.PRE_PUBLISHED =>
+        case Right(ce)
+            if ce.getState != Exam.State.DRAFT && ce.getState != Exam.State.PRE_PUBLISHED =>
           Future.successful(Forbidden("i18n_exam_removal_not_possible"))
         case Right(ce) =>
           examLoader.deleteExam(ce).map { result =>
@@ -237,7 +247,11 @@ class CollaborativeExamController @Inject() (
                         if result.header.status == Ok.header.status && isPrePublication then
                           val receivers = exam.getExamOwners.asScala.map(_.getEmail).toSet
                           emailComposer.scheduleEmail(1.second) {
-                            emailComposer.composeCollaborativeExamAnnouncement(receivers, user, exam)
+                            emailComposer.composeCollaborativeExamAnnouncement(
+                              receivers,
+                              user,
+                              exam
+                            )
                           }
                         result
                       }

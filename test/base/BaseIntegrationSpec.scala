@@ -27,7 +27,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /** Base specification class for integration tests using ScalaTest + Play.
   */
-abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with ScalaFutures with BeforeAndAfterEach:
+abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with ScalaFutures
+    with BeforeAndAfterEach:
 
   implicit lazy val executionContext: ExecutionContext      = app.actorSystem.dispatcher
   implicit lazy val ioRuntime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.implicits.global
@@ -69,8 +70,9 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
     super.beforeEach()
     testDataLoaded = false
 
-  /** Ensure test data is loaded before running tests. Call this method explicitly in tests that need to access the
-    * database directly before making any HTTP requests (which would trigger automatic loading).
+  /** Ensure test data is loaded before running tests. Call this method explicitly in tests that
+    * need to access the database directly before making any HTTP requests (which would trigger
+    * automatic loading).
     */
   protected def ensureTestDataLoaded(): Unit =
     if !testDataLoaded then
@@ -115,7 +117,10 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
             case None => IO.pure(result)
     yield finalResult
 
-  protected def login(eppn: String, additionalHeaders: Map[String, String] = Map.empty): IO[(User, Session)] =
+  protected def login(
+      eppn: String,
+      additionalHeaders: Map[String, String] = Map.empty
+  ): IO[(User, Session)] =
     for
       headers <- IO.pure(hakaHeaders + ("eppn" -> eppn) ++ additionalHeaders)
       result  <- makeRequest(POST, "/app/session", headers = headers)
@@ -144,7 +149,11 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
   protected def logout(): IO[Result] = makeRequest(DELETE, "/app/session")
 
   // Convenience methods for making requests
-  protected def get(path: String, followRedirects: Boolean = false, session: Session = Session()): IO[Result] =
+  protected def get(
+      path: String,
+      followRedirects: Boolean = false,
+      session: Session = Session()
+  ): IO[Result] =
     makeRequest(GET, path, followRedirects = followRedirects, session = session)
   protected def post(path: String, session: Session = Session()): IO[Result] =
     makeRequest(POST, path, session = session)
@@ -154,21 +163,25 @@ abstract class BaseIntegrationSpec extends PlaySpec with GuiceOneAppPerTest with
     makeRequest("PUT", path, Some(body), session = session)
 
   // Helpers for using Play test utilities with IO-based Results.
-  protected def statusOf(result: Result): Int                          = status(Future.successful(result))
-  protected def contentAsJsonOf(result: Result): JsValue               = contentAsJson(Future.successful(result))
-  protected def sessionOf(result: Result): Session                     = session(Future.successful(result))
-  protected def contentAsStringOf(result: Result): String              = contentAsString(Future.successful(result))
-  protected def headerOf(result: Result, name: String): Option[String] = result.header.headers.get(name)
+  protected def statusOf(result: Result): Int            = status(Future.successful(result))
+  protected def contentAsJsonOf(result: Result): JsValue = contentAsJson(Future.successful(result))
+  protected def sessionOf(result: Result): Session       = session(Future.successful(result))
+  protected def contentAsStringOf(result: Result): String =
+    contentAsString(Future.successful(result))
+  protected def headerOf(result: Result, name: String): Option[String] =
+    result.header.headers.get(name)
 
   // IO runners
   protected def runIO[A](block: IO[A]): A = block.unsafeRunSync()
   protected def runIOWithTimeout[A](timeout: FiniteDuration = 30.seconds)(test: IO[A]): A =
     test.timeout(timeout).unsafeRunSync()
 
-  /** Resource-safe test runner for tests that need cleanup. Uses Cats Effect Resource for proper resource management.
+  /** Resource-safe test runner for tests that need cleanup. Uses Cats Effect Resource for proper
+    * resource management.
     *
-    * Example: Resource.make(IO(startServer()))(server => IO(server.stop())).use { server => for (user, session) <-
-    * loginAsTeacher() result <- makeRequest(GET, "/some/path", session = session) yield statusOf(result) must
-    * be(Status.OK) }
+    * Example: Resource.make(IO(startServer()))(server => IO(server.stop())).use { server => for
+    * (user, session) <- loginAsTeacher() result <- makeRequest(GET, "/some/path", session =
+    * session) yield statusOf(result) must be(Status.OK) }
     */
-  protected def runIOResource[A](test: cats.effect.Resource[IO, A]): A = test.use(IO.pure).unsafeRunSync()
+  protected def runIOResource[A](test: cats.effect.Resource[IO, A]): A =
+    test.use(IO.pure).unsafeRunSync()

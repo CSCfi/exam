@@ -96,22 +96,37 @@ class ReportService @Inject() (
       if map.contains(key) then map else map + (key -> Set.empty[Participation])
     }
 
-  def listReservations(dept: Option[String], start: Option[String], end: Option[String]): (Int, Int) =
+  def listReservations(
+      dept: Option[String],
+      start: Option[String],
+      end: Option[String]
+  ): (Int, Int) =
     val query = DB.find(classOf[ExamEnrolment]).where()
     val enrolments =
       withFilters(query, "exam.course", "reservation.startAt", dept, start, end).distinct
     enrolments.partition(_.isNoShow) match
       case (a, b) => (a.size, b.size)
 
-  def listIopReservations(dept: Option[String], start: Option[String], end: Option[String]): List[Reservation] =
-    val pp    = PathProperties.parse("*, enrolment(noShow, externalExam(finished)), externalReservation(*)")
+  def listIopReservations(
+      dept: Option[String],
+      start: Option[String],
+      end: Option[String]
+  ): List[Reservation] =
+    val pp =
+      PathProperties.parse("*, enrolment(noShow, externalExam(finished)), externalReservation(*)")
     val query = DB.find(classOf[Reservation]).where().apply(pp)
     val el    = query.where().isNotNull("externalRef")
     withFilters(el, "enrolment.exam.course", "startAt", dept, start, end).distinct
-      .filter(r => Option(r.getExternalOrgName).isDefined || Option(r.getExternalReservation).isDefined)
+      .filter(r =>
+        Option(r.getExternalOrgName).isDefined || Option(r.getExternalReservation).isDefined
+      )
       .toList
 
-  def listPublishedExams(dept: Option[String], start: Option[String], end: Option[String]): List[ExamInfo] =
+  def listPublishedExams(
+      dept: Option[String],
+      start: Option[String],
+      end: Option[String]
+  ): List[ExamInfo] =
     val query = DB
       .find(classOf[Exam])
       .fetch("course", "code")
@@ -128,11 +143,19 @@ class ReportService @Inject() (
       hasValidState &&
       hasParticipation &&
       start.forall(s => DateTime.parse(s, ISODateTimeFormat.dateTimeParser()).isBefore(created)) &&
-      end.forall(e => DateTime.parse(e, ISODateTimeFormat.dateTimeParser()).plusDays(1).isAfter(created))
+      end.forall(e =>
+        DateTime.parse(e, ISODateTimeFormat.dateTimeParser()).plusDays(1).isAfter(created)
+      )
 
-    exams.map(e => ExamInfo(s"[${e.getCourse.getCode}] ${e.getName}", e.getChildren.asScala.count(examFilter))).toList
+    exams.map(e =>
+      ExamInfo(s"[${e.getCourse.getCode}] ${e.getName}", e.getChildren.asScala.count(examFilter))
+    ).toList
 
-  def listResponses(dept: Option[String], start: Option[String], end: Option[String]): (Int, Int, Int) =
+  def listResponses(
+      dept: Option[String],
+      start: Option[String],
+      end: Option[String]
+  ): (Int, Int, Int) =
     val query   = DB.find(classOf[Exam]).where().isNotNull("parent").isNotNull("course")
     val exams   = withFilters(query, "course", "created", dept, start, end).distinct
     val aborted = exams.count(e => e.getState == Exam.State.ABORTED)

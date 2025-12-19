@@ -108,17 +108,27 @@ class CollaborativeCalendarController @Inject() (
                   checkEnrolment(enrolment, exam, user) match
                     case Some(errorResult) => errorResult
                     case None =>
-                      calendarHandler.getRandomMachine(room, exam, start, end, aids.getOrElse(List.empty)) match
+                      calendarHandler.getRandomMachine(
+                        room,
+                        exam,
+                        start,
+                        end,
+                        aids.getOrElse(List.empty)
+                      ) match
                         case None          => Forbidden("i18n_no_machines_available")
                         case Some(machine) =>
                           // We are good to go :)
                           // Start manual transaction.
                           Using(DB.beginTransaction()) { tx =>
                             // Take pessimistic lock for user to prevent multiple reservations creating.
-                            DB.find(classOf[User]).forUpdate().where().eq("id", user.getId).findOne()
+                            DB.find(classOf[User]).forUpdate().where().eq(
+                              "id",
+                              user.getId
+                            ).findOne()
 
                             val oldReservation = enrolment.getReservation
-                            val reservation    = calendarHandler.createReservation(start, end, machine, user)
+                            val reservation =
+                              calendarHandler.createReservation(start, end, machine, user)
 
                             // Nuke the old reservation if any
                             if Option(oldReservation).isEmpty then
@@ -127,7 +137,13 @@ class CollaborativeCalendarController @Inject() (
                               oldReservation.delete()
 
                             val result =
-                              makeNewReservation(enrolment, exam, reservation, user, sectionIds.getOrElse(List.empty))
+                              makeNewReservation(
+                                enrolment,
+                                exam,
+                                reservation,
+                                user,
+                                sectionIds.getOrElse(List.empty)
+                              )
                             tx.commit()
                             result
                           }.get // Extract from Try
@@ -184,8 +200,9 @@ class CollaborativeCalendarController @Inject() (
                   else
                     val accessibilityIds = aids.getOrElse(Seq.empty)
                     calendarHandler.getSlots(user, exam, roomId, day, accessibilityIds) match
-                      case Right(json)                                => Ok(json)
-                      case Left(CalendarHandlerError.RoomNotFound(_)) => Forbidden("i18n_error_enrolment_not_found")
+                      case Right(json) => Ok(json)
+                      case Left(CalendarHandlerError.RoomNotFound(_)) =>
+                        Forbidden("i18n_error_enrolment_not_found")
               }
     }
 

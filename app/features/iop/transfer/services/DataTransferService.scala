@@ -174,7 +174,8 @@ class DataTransferService @Inject() (
   private def createSource(
       attachment: models.attachment.Attachment
   ): ScalaSource[MultipartFormData.Part[ScalaSource[ByteString, Future[IOResult]]], NotUsed] =
-    val source: ScalaSource[ByteString, Future[IOResult]] = FileIO.fromPath(Paths.get(attachment.getFilePath))
+    val source: ScalaSource[ByteString, Future[IOResult]] =
+      FileIO.fromPath(Paths.get(attachment.getFilePath))
     val filePart = MultipartFormData.FilePart(
       "file",
       attachment.getFileName,
@@ -194,7 +195,10 @@ class DataTransferService @Inject() (
         val questions = (body \ "questions").as[Seq[JsValue]]
         val entries = questions.map { questionNode =>
           val question =
-            JsonDeserializer.deserialize(classOf[Question], play.libs.Json.parse(Json.stringify(questionNode)))
+            JsonDeserializer.deserialize(
+              classOf[Question],
+              play.libs.Json.parse(Json.stringify(questionNode))
+            )
           val copy = question.copy()
           copy.setParent(null)
           copy.setCreatorWithDate(user)

@@ -29,9 +29,10 @@ final class ExamCopyContext private (
     val selectedSections: Set[Long]
 ):
   // Java interop methods
-  def getUser: User                                      = user.orNull
-  def getCopyType: CopyType                              = copyType
-  def getSelectedSections: java.util.Set[java.lang.Long] = selectedSections.map(java.lang.Long.valueOf).asJava
+  def getUser: User         = user.orNull
+  def getCopyType: CopyType = copyType
+  def getSelectedSections: java.util.Set[java.lang.Long] =
+    selectedSections.map(java.lang.Long.valueOf).asJava
 
   def isStudentExam: Boolean =
     copyType == CopyType.STUDENT_EXAM || copyType == CopyType.COLLABORATIVE_EXAM
@@ -56,9 +57,11 @@ object ExamCopyContext:
 
   def forStudentExam(student: User): Builder = Builder(Some(student), CopyType.STUDENT_EXAM)
 
-  def forCollaborativeExam(student: User): Builder = Builder(Some(student), CopyType.COLLABORATIVE_EXAM)
+  def forCollaborativeExam(student: User): Builder =
+    Builder(Some(student), CopyType.COLLABORATIVE_EXAM)
 
-  /** Creates context for copying with answers. User is optional since WITH_ANSWERS copies don't need user metadata.
+  /** Creates context for copying with answers. User is optional since WITH_ANSWERS copies don't
+    * need user metadata.
     */
   def forCopyWithAnswers(user: Option[User]): Builder = Builder(user, CopyType.WITH_ANSWERS)
 
@@ -69,7 +72,8 @@ object ExamCopyContext:
   ):
 
     def withSelectedSections(sections: java.util.Set[java.lang.Long] | Null): Builder =
-      val newSections = Option(sections).map(_.asScala.map(_.longValue()).toSet).getOrElse(Set.empty)
+      val newSections =
+        Option(sections).map(_.asScala.map(_.longValue()).toSet).getOrElse(Set.empty)
       Builder(user, copyType, newSections)
 
     def build(): ExamCopyContext = ExamCopyContext(user, copyType, selectedSections)

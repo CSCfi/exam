@@ -125,7 +125,10 @@ class EnrolmentService @Inject() (
   def removeEnrolment(enrolmentId: Long, user: User): Either[EnrolmentError, Unit] =
     val enrolmentOpt =
       if user.hasRole(Role.Name.STUDENT) then
-        DB.find(classOf[ExamEnrolment]).fetch("exam").where().idEq(enrolmentId).eq("user", user).find
+        DB.find(classOf[ExamEnrolment]).fetch("exam").where().idEq(enrolmentId).eq(
+          "user",
+          user
+        ).find
       else DB.find(classOf[ExamEnrolment]).fetch("exam").where().idEq(enrolmentId).find
 
     enrolmentOpt match
@@ -141,7 +144,11 @@ class EnrolmentService @Inject() (
           enrolment.delete()
           Right(())
 
-  def updateEnrolment(enrolmentId: Long, user: User, information: Option[String]): Either[EnrolmentError, Unit] =
+  def updateEnrolment(
+      enrolmentId: Long,
+      user: User,
+      information: Option[String]
+  ): Either[EnrolmentError, Unit] =
     DB.find(classOf[ExamEnrolment]).where().idEq(enrolmentId).eq("user", user).find match
       case None => Left(EnrolmentError.EnrolmentNotFound)
       case Some(enrolment) =>
@@ -235,7 +242,9 @@ class EnrolmentService @Inject() (
 
           // Already enrolled (regular examination)
           if enrolments.exists(e =>
-              e.getExam.getImplementation == Exam.Implementation.AQUARIUM && Option(e.getReservation).isEmpty
+              e.getExam.getImplementation == Exam.Implementation.AQUARIUM && Option(
+                e.getReservation
+              ).isEmpty
             )
           then
             tx.rollback()
@@ -270,11 +279,15 @@ class EnrolmentService @Inject() (
           else
             // Enrolments with future reservations
             val futureReservations = enrolments.filter { ee =>
-              Option(ee.getReservation).exists(_.toInterval.isAfter(dateTimeHandler.adjustDST(DateTime.now())))
+              Option(ee.getReservation).exists(
+                _.toInterval.isAfter(dateTimeHandler.adjustDST(DateTime.now()))
+              )
             }
 
             if futureReservations.size > 1 then
-              logger.error(s"Several enrolments with future reservations found for user $user and exam ${exam.getId}")
+              logger.error(
+                s"Several enrolments with future reservations found for user $user and exam ${exam.getId}"
+              )
               tx.rollback()
               Future.successful(Left(EnrolmentError.MultipleFutureReservations))
             // Reservation in the future, replace it
@@ -444,7 +457,8 @@ class EnrolmentService @Inject() (
           case None => Left(EnrolmentError.ConfigNotFound)
           case Some(config) =>
             val event = config.getExaminationEvent
-            if config.getExamEnrolments.size() + 1 > event.getCapacity then Left(EnrolmentError.MaxEnrolmentsReached)
+            if config.getExamEnrolments.size() + 1 > event.getCapacity then
+              Left(EnrolmentError.MaxEnrolmentsReached)
             else
               enrolment.setExaminationEventConfiguration(config)
               enrolment.update()
@@ -468,7 +482,11 @@ class EnrolmentService @Inject() (
         enrolment.setExaminationEventConfiguration(null)
         enrolment.update()
         emailComposer.scheduleEmail(1.second) {
-          emailComposer.composeExaminationEventCancellationNotification(user, enrolment.getExam, event)
+          emailComposer.composeExaminationEventCancellationNotification(
+            user,
+            enrolment.getExam,
+            event
+          )
           logger.info(s"Examination event cancellation notification email sent to ${user.getEmail}")
         }
         Right(())
@@ -498,8 +516,14 @@ class EnrolmentService @Inject() (
 
           val users = enrolments.flatMap(e => Option(e.getUser))
           emailComposer.scheduleEmail(1.second) {
-            emailComposer.composeExaminationEventCancellationNotification(users.asJava.asScala.toSet, exam, event)
-            logger.info(s"Examination event cancellation notification email sent to ${enrolments.size} participants")
+            emailComposer.composeExaminationEventCancellationNotification(
+              users.asJava.asScala.toSet,
+              exam,
+              event
+            )
+            logger.info(
+              s"Examination event cancellation notification email sent to ${enrolments.size} participants"
+            )
           }
           Right(())
 

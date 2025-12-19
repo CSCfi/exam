@@ -52,8 +52,8 @@ class EnrolmentController @Inject() (
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       enrolmentService.checkIfEnrolled(id, user) match
-        case Right(enrolments)                          => Ok(enrolments.asJson)
-        case Left(EnrolmentError.NoTrialsLeft)          => Unauthorized(EnrolmentError.NoTrialsLeft.message)
+        case Right(enrolments)                 => Ok(enrolments.asJson)
+        case Left(EnrolmentError.NoTrialsLeft) => Unauthorized(EnrolmentError.NoTrialsLeft.message)
         case Left(EnrolmentError.InvalidEnrolment(msg)) => BadRequest(msg)
         case Left(_)                                    => BadRequest
     }
@@ -62,9 +62,10 @@ class EnrolmentController @Inject() (
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       enrolmentService.removeEnrolment(id, user) match
-        case Right(_)                               => Ok
-        case Left(EnrolmentError.EnrolmentNotFound) => NotFound(EnrolmentError.EnrolmentNotFound.message)
-        case Left(EnrolmentError.PrivateExam)       => Forbidden(EnrolmentError.PrivateExam.message)
+        case Right(_) => Ok
+        case Left(EnrolmentError.EnrolmentNotFound) =>
+          NotFound(EnrolmentError.EnrolmentNotFound.message)
+        case Left(EnrolmentError.PrivateExam) => Forbidden(EnrolmentError.PrivateExam.message)
         case Left(EnrolmentError.CancelReservationFirst) =>
           Forbidden(EnrolmentError.CancelReservationFirst.message)
         case Left(_) => Forbidden
@@ -77,9 +78,10 @@ class EnrolmentController @Inject() (
       val info = request.attrs.get(ScalaAttrs.ENROLMENT_INFORMATION)
       val user = request.attrs(Auth.ATTR_USER)
       enrolmentService.updateEnrolment(id, user, info) match
-        case Right(_)                               => Ok
-        case Left(EnrolmentError.EnrolmentNotFound) => NotFound(EnrolmentError.EnrolmentNotFound.message)
-        case Left(_)                                => Forbidden
+        case Right(_) => Ok
+        case Left(EnrolmentError.EnrolmentNotFound) =>
+          NotFound(EnrolmentError.EnrolmentNotFound.message)
+        case Left(_) => Forbidden
     }
 
   def createEnrolment(id: Long): Action[AnyContent] = audited
@@ -89,15 +91,22 @@ class EnrolmentController @Inject() (
     .async { request =>
       val code = request.attrs(ScalaAttrs.COURSE_CODE)
       val user = request.attrs(Auth.ATTR_USER)
-      enrolmentService.createEnrolment(id, models.exam.ExamExecutionType.Type.PUBLIC, user, Some(code)).map {
-        case Right(enrolment)                     => Ok(enrolment.asJson)
-        case Left(EnrolmentError.ExamNotFound)    => NotFound(EnrolmentError.ExamNotFound.message)
-        case Left(EnrolmentError.EnrolmentExists) => Forbidden(EnrolmentError.EnrolmentExists.message)
+      enrolmentService.createEnrolment(
+        id,
+        models.exam.ExamExecutionType.Type.PUBLIC,
+        user,
+        Some(code)
+      ).map {
+        case Right(enrolment)                  => Ok(enrolment.asJson)
+        case Left(EnrolmentError.ExamNotFound) => NotFound(EnrolmentError.ExamNotFound.message)
+        case Left(EnrolmentError.EnrolmentExists) =>
+          Forbidden(EnrolmentError.EnrolmentExists.message)
         case Left(EnrolmentError.ReservationInEffect) =>
           Forbidden(EnrolmentError.ReservationInEffect.message)
         case Left(EnrolmentError.AssessmentNotReceived) =>
           Forbidden(EnrolmentError.AssessmentNotReceived.message)
-        case Left(EnrolmentError.AccessForbidden) => Forbidden(EnrolmentError.AccessForbidden.message)
+        case Left(EnrolmentError.AccessForbidden) =>
+          Forbidden(EnrolmentError.AccessForbidden.message)
         case Left(EnrolmentError.MultipleFutureReservations) =>
           InternalServerError(EnrolmentError.MultipleFutureReservations.message)
         case Left(EnrolmentError.MultipleFutureEvents) =>
@@ -143,37 +152,46 @@ class EnrolmentController @Inject() (
     }
 
   def addExaminationEventConfig(enrolmentId: Long, configId: Long): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      enrolmentService.addExaminationEventConfig(enrolmentId, configId, user) match
-        case Right(_)                               => Ok
-        case Left(EnrolmentError.EnrolmentNotFound) => NotFound(EnrolmentError.EnrolmentNotFound.message)
-        case Left(EnrolmentError.ConfigNotFound)    => NotFound(EnrolmentError.ConfigNotFound.message)
-        case Left(EnrolmentError.MaxEnrolmentsReached) =>
-          Forbidden(EnrolmentError.MaxEnrolmentsReached.message)
-        case Left(_) => Forbidden
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        enrolmentService.addExaminationEventConfig(enrolmentId, configId, user) match
+          case Right(_) => Ok
+          case Left(EnrolmentError.EnrolmentNotFound) =>
+            NotFound(EnrolmentError.EnrolmentNotFound.message)
+          case Left(EnrolmentError.ConfigNotFound) =>
+            NotFound(EnrolmentError.ConfigNotFound.message)
+          case Left(EnrolmentError.MaxEnrolmentsReached) =>
+            Forbidden(EnrolmentError.MaxEnrolmentsReached.message)
+          case Left(_) => Forbidden
     }
 
   def removeExaminationEventConfig(enrolmentId: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       enrolmentService.removeExaminationEventConfig(enrolmentId, user) match
-        case Right(_)                               => Ok
-        case Left(EnrolmentError.EnrolmentNotFound) => NotFound(EnrolmentError.EnrolmentNotFound.message)
-        case Left(_)                                => Forbidden
+        case Right(_) => Ok
+        case Left(EnrolmentError.EnrolmentNotFound) =>
+          NotFound(EnrolmentError.EnrolmentNotFound.message)
+        case Left(_) => Forbidden
     }
 
   def removeExaminationEvent(configId: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       enrolmentService.removeExaminationEvent(configId) match
-        case Right(_)                            => Ok
-        case Left(EnrolmentError.ConfigNotFound) => BadRequest(EnrolmentError.ConfigNotFound.message)
-        case Left(EnrolmentError.EventInPast)    => Forbidden(EnrolmentError.EventInPast.message)
-        case Left(_)                             => Forbidden
+        case Right(_) => Ok
+        case Left(EnrolmentError.ConfigNotFound) =>
+          BadRequest(EnrolmentError.ConfigNotFound.message)
+        case Left(EnrolmentError.EventInPast) => Forbidden(EnrolmentError.EventInPast.message)
+        case Left(_)                          => Forbidden
     }
 
   def permitRetrial(id: Long): Action[AnyContent] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+    audited.andThen(authenticated).andThen(authorized(Seq(
+      Role.Name.TEACHER,
+      Role.Name.ADMIN,
+      Role.Name.SUPPORT
+    ))) {
       _ =>
         enrolmentService.permitRetrial(id) match
           case Right(_)                               => Ok

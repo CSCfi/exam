@@ -58,7 +58,9 @@ trait BaseCollaborativeAttachmentSpec[T]
     context.setContextPath("/api")
 
     val fileUploadServletHolder = new ServletHolder(attachmentServlet)
-    fileUploadServletHolder.getRegistration.setMultipartConfig(new MultipartConfigElement(testUpload.toString))
+    fileUploadServletHolder.getRegistration.setMultipartConfig(
+      new MultipartConfigElement(testUpload.toString)
+    )
     context.addServlet(fileUploadServletHolder, "/attachments/*")
     context.addServlet(new ServletHolder(examServlet), "/exams/*")
 
@@ -123,8 +125,9 @@ trait BaseCollaborativeAttachmentSpec[T]
       .find(sq => id.isEmpty || sq.getId == id.get)
       .getOrElse(throw new Exception("Null section question"))
 
-  /** Setup test data including exam, attachments, and external exam. Returns a tuple of (exam, examSectionQuestion,
-    * externalExam) to avoid mutable state. Call this method at the beginning of each test that needs database access.
+  /** Setup test data including exam, attachments, and external exam. Returns a tuple of (exam,
+    * examSectionQuestion, externalExam) to avoid mutable state. Call this method at the beginning
+    * of each test that needs database access.
     */
   protected def setupTestData(): (Exam, ExamSectionQuestion, T) =
     ensureTestDataLoaded()
@@ -148,8 +151,9 @@ trait BaseCollaborativeAttachmentSpec[T]
     answer.save()
     examSectionQuestion.setEssayAnswer(answer)
 
-    val question           = examSectionQuestion.getQuestion
-    val questionAttachment = createAttachment("test_image.png", testImage.getAbsolutePath, "image/png")
+    val question = examSectionQuestion.getQuestion
+    val questionAttachment =
+      createAttachment("test_image.png", testImage.getAbsolutePath, "image/png")
     questionAttachment.setExternalId("9284774jdfjdfk")
     question.setAttachment(questionAttachment)
     question.save()

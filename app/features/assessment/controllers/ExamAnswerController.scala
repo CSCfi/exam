@@ -24,13 +24,15 @@ class ExamAnswerController @Inject() (
 ) extends SecureController
     with EbeanJsonExtensions:
 
-  override protected val sensitiveFields = Set("score", "defaultScore", "correctOption", "claimChoiceType", "configKey")
+  override protected val sensitiveFields =
+    Set("score", "defaultScore", "correctOption", "claimChoiceType", "configKey")
 
-  def listAnswers(eid: Long): Action[AnyContent] = Action.andThen(authorized(Seq(Role.Name.STUDENT))) { request =>
-    val user = request.attrs(Auth.ATTR_USER)
-    examAnswerService.findExamForUser(eid, user) match
-      case Some(exam) if examAnswerService.canReleaseAnswers(exam) =>
-        val preparedExam = examAnswerService.prepareExamForAnswerRelease(exam, user)
-        Ok(preparedExam.asJson)
-      case _ => Ok
-  }
+  def listAnswers(eid: Long): Action[AnyContent] =
+    Action.andThen(authorized(Seq(Role.Name.STUDENT))) { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      examAnswerService.findExamForUser(eid, user) match
+        case Some(exam) if examAnswerService.canReleaseAnswers(exam) =>
+          val preparedExam = examAnswerService.prepareExamForAnswerRelease(exam, user)
+          Ok(preparedExam.asJson)
+        case _ => Ok
+    }

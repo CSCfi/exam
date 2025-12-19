@@ -36,31 +36,51 @@ class ReportController @Inject() (
       Ok(Json.obj("departments" -> Json.toJson(departments)))
     }
 
-  def listParticipations(dept: Option[String], start: Option[String], end: Option[String]): Action[AnyContent] =
+  def listParticipations(
+      dept: Option[String],
+      start: Option[String],
+      end: Option[String]
+  ): Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       val roomMap = reportService.listParticipations(dept, start, end)
       Ok(Json.toJson(roomMap))
     }
 
-  def listReservations(dept: Option[String], start: Option[String], end: Option[String]): Action[AnyContent] =
+  def listReservations(
+      dept: Option[String],
+      start: Option[String],
+      end: Option[String]
+  ): Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       val (noShows, appearances) = reportService.listReservations(dept, start, end)
       Ok(Json.obj("noShows" -> noShows, "appearances" -> appearances))
     }
 
-  def listIopReservations(dept: Option[String], start: Option[String], end: Option[String]): Action[AnyContent] =
+  def listIopReservations(
+      dept: Option[String],
+      start: Option[String],
+      end: Option[String]
+  ): Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       val reservations = reportService.listIopReservations(dept, start, end)
       Ok(reservations.asJson)
     }
 
-  def listPublishedExams(dept: Option[String], start: Option[String], end: Option[String]): Action[AnyContent] =
+  def listPublishedExams(
+      dept: Option[String],
+      start: Option[String],
+      end: Option[String]
+  ): Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       val infos = reportService.listPublishedExams(dept, start, end)
       Ok(Json.toJson(infos))
     }
 
-  def listResponses(dept: Option[String], start: Option[String], end: Option[String]): Action[AnyContent] =
+  def listResponses(
+      dept: Option[String],
+      start: Option[String],
+      end: Option[String]
+  ): Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       val (aborted, assessed, unassessed) = reportService.listResponses(dept, start, end)
       Ok(Json.obj("aborted" -> aborted, "assessed" -> assessed, "unassessed" -> unassessed))

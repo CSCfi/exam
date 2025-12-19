@@ -40,7 +40,11 @@ class ExaminationService @Inject() (
 ) extends EbeanQueryExtensions
     with Logging:
 
-  def prepareExam(hash: String, user: User, requestData: RequestData): Future[Either[ExaminationError, Exam]] =
+  def prepareExam(
+      hash: String,
+      user: User,
+      requestData: RequestData
+  ): Future[Either[ExaminationError, Exam]] =
     examinationRepository
       .getCollaborativeExam(hash)
       .flatMap { oce =>
@@ -63,7 +67,11 @@ class ExaminationService @Inject() (
           }
       }
 
-  def initializeExam(hash: String, user: User, requestData: RequestData): Future[Either[ExaminationError, Unit]] =
+  def initializeExam(
+      hash: String,
+      user: User,
+      requestData: RequestData
+  ): Future[Either[ExaminationError, Unit]] =
     val pp = ExaminationService.getPath(false)
     examinationRepository
       .getCollaborativeExam(hash)
@@ -77,7 +85,13 @@ class ExaminationService @Inject() (
                 .getPossibleClone(hash, user, oce.orNull, pp)
                 .flatMap {
                   case Some(_) => Future.successful(Right(()))
-                  case None    => createClone(exam, user, oce, requestData, isInitialization = true).map(_.map(_ => ()))
+                  case None => createClone(
+                      exam,
+                      user,
+                      oce,
+                      requestData,
+                      isInitialization = true
+                    ).map(_.map(_ => ()))
                 }
           }
       }
@@ -208,7 +222,10 @@ class ExaminationService @Inject() (
 
   // Private helper methods
 
-  private def postProcessClone(enrolment: ExamEnrolment, exam: Exam): Future[Either[ExaminationError, Exam]] =
+  private def postProcessClone(
+      enrolment: ExamEnrolment,
+      exam: Exam
+  ): Future[Either[ExaminationError, Exam]] =
     Option(enrolment.getCollaborativeExam) match
       case None =>
         // No collaborative exam, proceed synchronously
@@ -357,8 +374,10 @@ class ExaminationService @Inject() (
       skipIpCheck: Boolean = false
   ): Future[Either[ExaminationError, Unit]] =
     if Option(enrolment).isEmpty then Future.successful(Left(ReservationNotFound))
-    else if Option(enrolment.getReservation).isEmpty then Future.successful(Left(ReservationNotFound))
-    else if Option(enrolment.getReservation.getMachine).isEmpty then Future.successful(Left(ReservationMachineNotFound))
+    else if Option(enrolment.getReservation).isEmpty then
+      Future.successful(Left(ReservationNotFound))
+    else if Option(enrolment.getReservation.getMachine).isEmpty then
+      Future.successful(Left(ReservationMachineNotFound))
     else if !skipIpCheck && environment.mode != Mode.Dev &&
       !enrolment.getReservation.getMachine.getIpAddress.equals(requestData.remoteAddress)
     then Future.successful(Left(WrongExamMachine))

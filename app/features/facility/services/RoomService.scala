@@ -55,7 +55,9 @@ class RoomService @Inject() (
     // Handle remote updates in dedicated threads
     if Option(room.getExternalRef).isDefined && examVisitActivated then
       (IO.sleep(1.second) *> IO.fromFuture(IO(facilityHandler.updateFacility(room))))
-        .handleErrorWith(e => IO(logger.error(s"Remote update of exam room #${room.getExternalRef} failed", e)))
+        .handleErrorWith(e =>
+          IO(logger.error(s"Remote update of exam room #${room.getExternalRef} failed", e))
+        )
         .unsafeRunAndForget()
 
   def getExamRooms(user: User): (List[ExamRoom], PathProperties) =
@@ -69,7 +71,8 @@ class RoomService @Inject() (
       .where()
 
     val query =
-      if !user.hasRole(models.user.Role.Name.ADMIN) then baseQuery.ne("state", ExamRoom.State.INACTIVE.toString)
+      if !user.hasRole(models.user.Role.Name.ADMIN) then
+        baseQuery.ne("state", ExamRoom.State.INACTIVE.toString)
       else baseQuery
 
     val rooms = query.list
@@ -129,7 +132,7 @@ class RoomService @Inject() (
           case Some(facilityPassword) =>
             (body \ "password").asOpt[String] match
               case Some(providedPassword) if facilityPassword == providedPassword => Right(())
-              case _                                                              => Left(InvalidFacilityPassword)
+              case _ => Left(InvalidFacilityPassword)
 
   private def validateInternalRoomPassword(roomId: Long, body: JsValue): Either[RoomError, Unit] =
     Option(DB.find(classOf[ExamRoom], roomId)) match
@@ -137,7 +140,7 @@ class RoomService @Inject() (
       case Some(room) =>
         (body \ "password").asOpt[String] match
           case Some(password) if Option(room.getInternalPassword).contains(password) => Right(())
-          case _                                                                     => Left(InvalidPassword)
+          case _ => Left(InvalidPassword)
 
   def updateExamRoom(id: Long, body: JsValue): Future[Either[RoomError, ExamRoom]] =
     Option(DB.find(classOf[ExamRoom], id)) match
@@ -185,8 +188,10 @@ class RoomService @Inject() (
     val dwh       = new DefaultWorkingHours()
     dwh.setWeekday((node \ "weekday").as[String])
     // Deliberately use Jan to have no DST in effect
-    val startTime = DateTime.parse((node \ "startTime").as[String], formatter).withDayOfYear(1).withYear(EPOCH)
-    val endTime   = DateTime.parse((node \ "endTime").as[String], formatter).withDayOfYear(1).withYear(EPOCH)
+    val startTime =
+      DateTime.parse((node \ "startTime").as[String], formatter).withDayOfYear(1).withYear(EPOCH)
+    val endTime =
+      DateTime.parse((node \ "endTime").as[String], formatter).withDayOfYear(1).withYear(EPOCH)
     dwh.setStartTime(startTime)
     dwh.setEndTime(endTime)
     dwh
@@ -223,7 +228,10 @@ class RoomService @Inject() (
     hours.getId.longValue
 
   def removeExamRoomWorkingHours(roomId: Long, id: Long): Either[RoomError, Unit] =
-    (Option(DB.find(classOf[DefaultWorkingHours], id)), Option(DB.find(classOf[ExamRoom], roomId))) match
+    (
+      Option(DB.find(classOf[DefaultWorkingHours], id)),
+      Option(DB.find(classOf[ExamRoom], roomId))
+    ) match
       case (Some(dwh), Some(room)) =>
         dwh.delete()
         room.getDefaultWorkingHours.remove(dwh)
@@ -304,8 +312,14 @@ class RoomService @Inject() (
           }
         Right(())
 
-  def removeRoomExceptionHour(roomId: Long, exceptionId: Long): Future[Either[RoomError, ExamRoom]] =
-    (Option(DB.find(classOf[ExceptionWorkingHours], exceptionId)), Option(DB.find(classOf[ExamRoom], roomId))) match
+  def removeRoomExceptionHour(
+      roomId: Long,
+      exceptionId: Long
+  ): Future[Either[RoomError, ExamRoom]] =
+    (
+      Option(DB.find(classOf[ExceptionWorkingHours], exceptionId)),
+      Option(DB.find(classOf[ExamRoom], roomId))
+    ) match
       case (Some(exception), Some(room)) =>
         exception.delete()
         room.getCalendarExceptionEvents.remove(exception)

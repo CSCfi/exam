@@ -15,5 +15,6 @@ class Validators @Inject() (implicit ec: AuthExecutionContext):
 
   /** Create a validator refiner from a PlayJsonValidator instance
     */
-  def validated(validator: PlayJsonValidator): ActionRefiner[play.api.mvc.Request, play.api.mvc.Request] =
+  def validated(validator: PlayJsonValidator)
+      : ActionRefiner[play.api.mvc.Request, play.api.mvc.Request] =
     validator.filter

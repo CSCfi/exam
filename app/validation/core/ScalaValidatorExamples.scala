@@ -10,7 +10,8 @@ import play.api.mvc._
 
 /** Example validators showing different patterns
   *
-  * These examples demonstrate how to create custom Play JSON validators that work with the andThen pattern.
+  * These examples demonstrate how to create custom Play JSON validators that work with the andThen
+  * pattern.
   */
 object ScalaValidatorExamples:
 
@@ -19,7 +20,10 @@ object ScalaValidatorExamples:
   class ExampleFieldValidator extends PlayJsonValidator:
     val FIELD_KEY: TypedKey[String] = TypedKey[String]("exampleField")
 
-    override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+    override def sanitize(
+        request: Request[AnyContent],
+        json: JsValue
+    ): Either[Result, Request[AnyContent]] =
       (json \ "fieldName").asOpt[String] match
         case Some(value) if value.nonEmpty =>
           Right(request.addAttr(FIELD_KEY, value))
@@ -34,7 +38,10 @@ object ScalaValidatorExamples:
     val NAME_KEY: TypedKey[String]  = TypedKey[String]("name")
     val EMAIL_KEY: TypedKey[String] = TypedKey[String]("email")
 
-    override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+    override def sanitize(
+        request: Request[AnyContent],
+        json: JsValue
+    ): Either[Result, Request[AnyContent]] =
       ((json \ "name").asOpt[String], (json \ "email").asOpt[String]) match
         case (Some(name), Some(email)) =>
           Right(
@@ -51,7 +58,10 @@ object ScalaValidatorExamples:
     val START_KEY: TypedKey[Int] = TypedKey[Int]("start")
     val END_KEY: TypedKey[Int]   = TypedKey[Int]("end")
 
-    override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+    override def sanitize(
+        request: Request[AnyContent],
+        json: JsValue
+    ): Either[Result, Request[AnyContent]] =
       ((json \ "start").asOpt[Int], (json \ "end").asOpt[Int]) match
         case (Some(start), Some(end)) if start < end =>
           Right(request.addAttr(START_KEY, start).addAttr(END_KEY, end))
@@ -67,7 +77,10 @@ object ScalaValidatorExamples:
 
     private val emailRegex = """^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$""".r
 
-    override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+    override def sanitize(
+        request: Request[AnyContent],
+        json: JsValue
+    ): Either[Result, Request[AnyContent]] =
       PlayJsonHelper.parse[String]("email", json) match
         case Some(email) =>
           val trimmed = email.trim.toLowerCase
@@ -79,8 +92,8 @@ object ScalaValidatorExamples:
 
   /** Example 5: Using PlayValidator[T] for complex validation
     *
-    * This shows how to use the Cats-based PlayValidator API with PlayJsonValidator for accumulating validation errors.
-    * Pure Scala with Play JSON - no Jackson!
+    * This shows how to use the Cats-based PlayValidator API with PlayJsonValidator for accumulating
+    * validation errors. Pure Scala with Play JSON - no Jackson!
     */
   class ExampleUserRegistrationValidator extends PlayJsonValidator:
     case class UserRegistration(name: String, email: String, age: Int)
@@ -113,7 +126,10 @@ object ScalaValidatorExamples:
         age = (json \ "age").asOpt[Int].getOrElse(0)
       )
 
-    override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+    override def sanitize(
+        request: Request[AnyContent],
+        json: JsValue
+    ): Either[Result, Request[AnyContent]] =
       // Direct Play JSON validation - no Jackson conversion! ✨
       userValidator.validate(json) match
         case Right(user) =>

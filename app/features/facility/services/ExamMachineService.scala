@@ -17,7 +17,8 @@ import javax.inject.Inject
 
 class ExamMachineService @Inject() () extends EbeanQueryExtensions:
 
-  private val defaultPathProperties = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))")
+  private val defaultPathProperties =
+    PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))")
 
   def getExamMachines: List[ExamMachine] =
     DB.find(classOf[ExamMachine]).where().eq("archived", false).list
@@ -37,7 +38,10 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
       .gt("endAt", DateTime.now())
       .list
 
-  def updateExamMachine(id: Long, body: JsValue): Either[ExamMachineError, (ExamMachine, PathProperties)] =
+  def updateExamMachine(
+      id: Long,
+      body: JsValue
+  ): Either[ExamMachineError, (ExamMachine, PathProperties)] =
     Option(DB.find(classOf[ExamMachine], id)) match
       case None       => Left(MachineNotFound)
       case Some(dest) =>
@@ -49,7 +53,8 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
             .filter(m => !m.equals(dest))
             .flatMap(m => Option(m.getIpAddress))
 
-          if existingIps.contains(newIp) then Some(IpAddressConflict("i18n_error_ip_address_exists_for_room"))
+          if existingIps.contains(newIp) then
+            Some(IpAddressConflict("i18n_error_ip_address_exists_for_room"))
           else None
         }
 

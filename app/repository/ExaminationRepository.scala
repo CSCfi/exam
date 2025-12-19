@@ -44,7 +44,8 @@ class ExaminationRepository @Inject() (
         .getOrElse(Set.empty[java.lang.Long])
 
       val context =
-        if isCollaborative then ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids.asJava).build()
+        if isCollaborative then
+          ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids.asJava).build()
         else ExamCopyContext.forStudentExam(user).withSelectedSections(ids.asJava).build()
 
       val studentExam = prototype.createCopy(context)
@@ -123,7 +124,12 @@ class ExaminationRepository @Inject() (
             case _ => None
     }
 
-  def getPossibleClone(hash: String, user: User, ce: CollaborativeExam, pp: PathProperties): Future[Option[Exam]] =
+  def getPossibleClone(
+      hash: String,
+      user: User,
+      ce: CollaborativeExam,
+      pp: PathProperties
+  ): Future[Option[Exam]] =
     Future {
       val baseQuery = createQuery(pp).where().eq("hash", hash).eq("creator", user)
       val query     = if Option(ce).isEmpty then baseQuery.isNotNull("parent") else baseQuery

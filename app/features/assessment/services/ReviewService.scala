@@ -61,7 +61,11 @@ class ReviewService @Inject() (
       .distinct
       .toList
 
-  def getReview(examId: Long, user: User, blankAnswerText: String): Either[ReviewError, ExamParticipation] =
+  def getReview(
+      examId: Long,
+      user: User,
+      blankAnswerText: String
+  ): Either[ReviewError, ExamParticipation] =
     val isAdmin = user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
     val states = Set(
       Exam.State.REVIEW,
@@ -78,7 +82,9 @@ class ReviewService @Inject() (
       .find match
       case Some(participation) =>
         val exam = participation.getExam
-        if !exam.isChildInspectedOrCreatedOrOwnedBy(user) && !isAdmin && !exam.isViewableForLanguageInspector(user)
+        if !exam.isChildInspectedOrCreatedOrOwnedBy(
+            user
+          ) && !isAdmin && !exam.isViewableForLanguageInspector(user)
         then Left(ReviewError.AccessForbidden)
         else
           exam.getExamSections.asScala
@@ -189,7 +195,11 @@ class ReviewService @Inject() (
         Right(())
       case None => Left(ReviewError.QuestionNotFound)
 
-  def forceScoreExamQuestion(id: Long, score: Option[Double], user: User): Either[ReviewError, Unit] =
+  def forceScoreExamQuestion(
+      id: Long,
+      score: Option[Double],
+      user: User
+  ): Either[ReviewError, Unit] =
     DB.find(classOf[ExamSectionQuestion])
       .fetch("examSection.exam.parent.examOwners")
       .where()
@@ -199,9 +209,15 @@ class ReviewService @Inject() (
       case Some(esq) =>
         val exam = esq.getExamSection.getExam
         if isDisallowedToScore(exam, user) then Left(ReviewError.NoPermissionToScore)
-        else if exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
+        else if exam.hasState(
+            Exam.State.ABORTED,
+            Exam.State.REJECTED,
+            Exam.State.GRADED_LOGGED,
+            Exam.State.ARCHIVED
+          )
         then Left(ReviewError.NotAllowedToUpdateScoring)
-        else if score.isDefined && (score.get < esq.getMinScore || score.get > esq.getMaxAssessedScore) then
+        else if score.isDefined && (score.get < esq.getMinScore || score.get > esq.getMaxAssessedScore)
+        then
           Left(ReviewError.InvalidScoreRange)
         else
           esq.setForcedScore(round(score.fold(null: java.lang.Double)(Double.box)))
@@ -231,7 +247,12 @@ class ReviewService @Inject() (
       case Some(exam) =>
         val newState = Exam.State.valueOf((body \ "state").asOpt[String].orNull)
         if isDisallowedToModify(exam, user, newState) then Left(ReviewError.ModificationForbidden)
-        else if exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
+        else if exam.hasState(
+            Exam.State.ABORTED,
+            Exam.State.REJECTED,
+            Exam.State.GRADED_LOGGED,
+            Exam.State.ARCHIVED
+          )
         then Left(ReviewError.NotAllowedToUpdateGrading)
         else
           if isRejectedInLanguageInspection(exam, user, newState) then
@@ -249,7 +270,8 @@ class ReviewService @Inject() (
               case Some(g) =>
                 val examGrade = DB.find(classOf[Grade], g)
                 val scale =
-                  if Option(exam.getGradeScale).isEmpty then exam.getCourse.getGradeScale else exam.getGradeScale
+                  if Option(exam.getGradeScale).isEmpty then exam.getCourse.getGradeScale
+                  else exam.getGradeScale
                 if scale.getGrades.contains(examGrade) then
                   exam.setGrade(examGrade)
                   exam.setGradingType(Grade.Type.GRADED)
@@ -263,7 +285,10 @@ class ReviewService @Inject() (
                   exam.setGrade(null)
                   exam.setGradingType(Grade.Type.POINT_GRADED)
                   // Forced partial credit type
-                  exam.setCreditType(DB.find(classOf[ExamType]).where().eq("type", "PARTIAL").find.orNull)
+                  exam.setCreditType(DB.find(classOf[ExamType]).where().eq(
+                    "type",
+                    "PARTIAL"
+                  ).find.orNull)
             exam.setAdditionalInfo(additionalInfo)
             exam.setAnswerLanguage((body \ "answerLanguage").asOpt[String].orNull)
             exam.setCustomCredit((body \ "customCredit").asOpt[Double].map(Double.box).orNull)
@@ -271,7 +296,11 @@ class ReviewService @Inject() (
           Right(())
       case None => Left(ReviewError.ExamNotFound)
 
-  def sendInspectionMessage(examId: Long, message: String, loggedInUser: User): Either[ReviewError, Unit] =
+  def sendInspectionMessage(
+      examId: Long,
+      message: String,
+      loggedInUser: User
+  ): Either[ReviewError, Unit] =
     Option(DB.find(classOf[Exam], examId)) match
       case Some(exam) =>
         val inspections = DB
@@ -283,9 +312,12 @@ class ReviewService @Inject() (
           .ne("user", loggedInUser)
           .distinct
           .map(_.getUser)
-        val recipients = inspections ++ exam.getParent.getExamOwners.asScala.filterNot(_ == loggedInUser)
+        val recipients =
+          inspections ++ exam.getParent.getExamOwners.asScala.filterNot(_ == loggedInUser)
         emailComposer.scheduleEmail(1.seconds) {
-          recipients.foreach(user => emailComposer.composeInspectionMessage(user, loggedInUser, exam, message))
+          recipients.foreach(user =>
+            emailComposer.composeInspectionMessage(user, loggedInUser, exam, message)
+          )
         }
         Right(())
       case None => Left(ReviewError.ExamNotFound)
@@ -344,7 +376,11 @@ class ReviewService @Inject() (
               case None => Right(comment)
       case None => Left(ReviewError.ExamNotFound)
 
-  def addComment(examId: Long, commentText: String, user: User): Either[ReviewError, InspectionComment] =
+  def addComment(
+      examId: Long,
+      commentText: String,
+      user: User
+  ): Either[ReviewError, InspectionComment] =
     Option(DB.find(classOf[Exam], examId)) match
       case Some(exam) =>
         val comment = new InspectionComment
@@ -357,7 +393,8 @@ class ReviewService @Inject() (
       case None => Left(ReviewError.ExamNotFound)
 
   def archiveExams(ids: List[Long]): Unit =
-    val exams = DB.find(classOf[Exam]).where().eq("state", Exam.State.GRADED_LOGGED).idIn(ids.asJava).distinct
+    val exams =
+      DB.find(classOf[Exam]).where().eq("state", Exam.State.GRADED_LOGGED).idIn(ids.asJava).distinct
     exams.foreach(e =>
       e.setState(Exam.State.ARCHIVED)
       e.update()
@@ -380,7 +417,12 @@ class ReviewService @Inject() (
         case None => "nothing"
     else "everything"
 
-  def markCommentAsRead(examId: Long, commentId: Long, status: Boolean, user: User): Either[ReviewError, Unit] =
+  def markCommentAsRead(
+      examId: Long,
+      commentId: Long,
+      status: Boolean,
+      user: User
+  ): Either[ReviewError, Unit] =
     Option(DB.find(classOf[Exam], examId)) match
       case Some(exam) =>
         if exam.hasState(Exam.State.ABORTED, Exam.State.ARCHIVED) then Left(ReviewError.Forbidden)
@@ -440,7 +482,10 @@ class ReviewService @Inject() (
       !isRejectedInLanguageInspection(exam, user, newState)
 
   private def isDisallowedToScore(exam: Exam, user: User) =
-    !exam.getParent.isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
+    !exam.getParent.isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole(
+      Role.Name.ADMIN,
+      Role.Name.SUPPORT
+    )
 
   private def isRejectedInLanguageInspection(exam: Exam, user: User, newState: Exam.State) =
     val li = Option(exam.getLanguageInspection)
@@ -450,7 +495,12 @@ class ReviewService @Inject() (
     Option(li.get.getFinishedAt).isDefined &&
     user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE)
 
-  private def updateReviewState(user: User, exam: Exam, state: Exam.State, stateOnly: Boolean): Unit =
+  private def updateReviewState(
+      user: User,
+      exam: Exam,
+      state: Exam.State,
+      stateOnly: Boolean
+  ): Unit =
     exam.setState(state)
     // set grading info only if the exam is really graded, not just modified
     if exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED) then

@@ -70,10 +70,17 @@ class CollaborationController @Inject() (
   protected def downloadExam(ce: CollaborativeExam): Future[Option[Exam]] =
     examLoader.downloadExam(ce)
 
-  protected def uploadAssessment(ce: CollaborativeExam, ref: String, payload: JsValue): Future[Option[String]] =
+  protected def uploadAssessment(
+      ce: CollaborativeExam,
+      ref: String,
+      payload: JsValue
+  ): Future[Option[String]] =
     examLoader.uploadAssessment(ce, ref, payload)
 
-  protected def downloadAssessment(examRef: String, assessmentRef: String): Future[Option[JsValue]] =
+  protected def downloadAssessment(
+      examRef: String,
+      assessmentRef: String
+  ): Future[Option[JsValue]] =
     examLoader.downloadAssessment(examRef, assessmentRef)
 
   // This is for getting rid of uninteresting user-related 1-M relations that can cause problems in
@@ -161,7 +168,8 @@ class CollaborationController @Inject() (
   protected def stream(node: JsArray): Iterator[JsValue] =
     node.value.iterator
 
-  protected def findExamsToProcess(response: WSResponse): Either[Result, Map[CollaborativeExam, JsValue]] =
+  protected def findExamsToProcess(response: WSResponse)
+      : Either[Result, Map[CollaborativeExam, JsValue]] =
     val root = response.json
     if response.status != Http.Status.OK then
       val message = (root \ "message").asOpt[String].getOrElse("Connection refused")

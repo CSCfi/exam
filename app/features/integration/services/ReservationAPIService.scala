@@ -17,9 +17,14 @@ import services.datetime.DateTimeHandler
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
-class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler) extends EbeanQueryExtensions:
+class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
+    extends EbeanQueryExtensions:
 
-  def getReservations(start: Option[String], end: Option[String], roomId: Option[Long]): List[Reservation] =
+  def getReservations(
+      start: Option[String],
+      end: Option[String],
+      roomId: Option[Long]
+  ): List[Reservation] =
     val pp = PathProperties.parse(
       """(startAt, endAt, externalUserRef,
         |user(firstName, lastName, email, userIdentifier),

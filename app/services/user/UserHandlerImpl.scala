@@ -8,7 +8,11 @@ import io.ebean.ExpressionList
 
 class UserHandlerImpl extends UserHandler:
 
-  override def applyNameSearch[T](prefix: String, query: ExpressionList[T], filter: String): ExpressionList[T] =
+  override def applyNameSearch[T](
+      prefix: String,
+      query: ExpressionList[T],
+      filter: String
+  ): ExpressionList[T] =
     val rawFilter = filter.replaceAll(" +", " ").trim
     val fnField   = Option(prefix).map(p => s"$p.firstName").getOrElse("firstName")
     val lnField   = Option(prefix).map(p => s"$p.lastName").getOrElse("lastName")

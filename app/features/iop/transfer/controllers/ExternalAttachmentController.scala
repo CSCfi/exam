@@ -4,7 +4,11 @@
 
 package features.iop.transfer.controllers
 
-import features.iop.transfer.services.{DownloadResponse, ExternalAttachmentError, ExternalAttachmentService}
+import features.iop.transfer.services.{
+  DownloadResponse,
+  ExternalAttachmentError,
+  ExternalAttachmentService
+}
 import models.user.Role
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc._
@@ -31,7 +35,8 @@ class ExternalAttachmentController @Inject() (
       case DownloadResponse.Success(stream, contentType, headers) =>
         Ok.chunked(stream).as(contentType).withHeaders(headers.toSeq*)
 
-  private def toResult[T](result: Either[ExternalAttachmentError, T])(onSuccess: T => Result): Result =
+  private def toResult[T](result: Either[ExternalAttachmentError, T])(onSuccess: T => Result)
+      : Result =
     result match
       case Right(value)                                          => onSuccess(value)
       case Left(ExternalAttachmentError.ExternalExamNotFound)    => Results.NotFound
@@ -47,25 +52,33 @@ class ExternalAttachmentController @Inject() (
       case Left(ExternalAttachmentError.ExternalIdNotFound) => Results.NotFound
 
   def downloadExamAttachment(hash: String): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))).async { request =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       externalAttachmentService.downloadExamAttachment(hash, user).map {
         case Right(downloadResponse) => toDownloadResult(downloadResponse)
-        case Left(error)             => toResult(Left(error): Either[ExternalAttachmentError, Unit])(_ => NotFound)
+        case Left(error) =>
+          toResult(Left(error): Either[ExternalAttachmentError, Unit])(_ => NotFound)
       }
     }
 
   def downloadQuestionAttachment(hash: String, qid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))).async { request =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       externalAttachmentService.downloadQuestionAttachment(hash, qid, user).map {
         case Right(downloadResponse) => toDownloadResult(downloadResponse)
-        case Left(error)             => toResult(Left(error): Either[ExternalAttachmentError, Unit])(_ => NotFound)
+        case Left(error) =>
+          toResult(Left(error): Either[ExternalAttachmentError, Unit])(_ => NotFound)
       }
     }
 
   def addAttachmentToQuestionAnswer(): Action[MultipartFormData[TemporaryFile]] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.multipartFormData) {
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(
+      parse.multipartFormData
+    ) {
       request =>
         val user          = request.attrs(Auth.ATTR_USER)
         val formData      = request.body.asFormUrlEncoded
@@ -80,7 +93,8 @@ class ExternalAttachmentController @Inject() (
               .addAttachmentToQuestionAnswer(examHash, questionId, filePart, user)
               .map {
                 case Right((json, _)) => Results.Created(json)
-                case Left(error)      => toResult(Left(error): Either[ExternalAttachmentError, Result])(identity)
+                case Left(error) =>
+                  toResult(Left(error): Either[ExternalAttachmentError, Result])(identity)
               }
           case _ => Future.successful(Results.BadRequest("Missing examId or questionId"))
     }

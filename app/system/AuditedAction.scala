@@ -14,7 +14,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuditedAction @Inject() (parser: BodyParsers.Default)(implicit ec: ExecutionContext)
     extends ActionBuilderImpl(parser)
     with Logging:
-  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
+  override def invokeBlock[A](
+      request: Request[A],
+      block: Request[A] => Future[Result]
+  ): Future[Result] =
     log(request)
     block(request)
 

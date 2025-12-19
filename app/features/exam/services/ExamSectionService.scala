@@ -42,8 +42,10 @@ class ExamSectionService @Inject() (
       case Some(exam) =>
         // Not allowed to add a section if optional sections exist and there are upcoming reservations
         val optionalSectionsExist = exam.getExamSections.asScala.exists(_.isOptional)
-        if optionalSectionsExist && !examUpdater.isAllowedToUpdate(exam, user) then Left(FutureReservationsExist)
-        else if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+        if optionalSectionsExist && !examUpdater.isAllowedToUpdate(exam, user) then
+          Left(FutureReservationsExist)
+        else if exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
+        then
           val section = new ExamSection()
           section.setLotteryItemCount(1)
           section.setExam(exam)
@@ -62,7 +64,8 @@ class ExamSectionService @Inject() (
       case Right((exam, section)) =>
         // Not allowed to remove a section if optional sections exist and there are upcoming reservations
         val optionalSectionsExist = exam.getExamSections.asScala.exists(_.isOptional)
-        if optionalSectionsExist && !examUpdater.isAllowedToUpdate(exam, user) then Left(FutureReservationsExist)
+        if optionalSectionsExist && !examUpdater.isAllowedToUpdate(exam, user) then
+          Left(FutureReservationsExist)
         else
           exam.getExamSections.remove(section)
           // Decrease sequences for the entries above the inserted one
@@ -103,7 +106,12 @@ class ExamSectionService @Inject() (
           section.update()
           Right(section)
 
-  def reorderSections(examId: Long, from: Int, to: Int, user: User): Either[ExamSectionError, Unit] =
+  def reorderSections(
+      examId: Long,
+      from: Int,
+      to: Int,
+      user: User
+  ): Either[ExamSectionError, Unit] =
     DB.find(classOf[Exam]).fetch("examSections").where().idEq(examId).find match
       case None => Left(ExamNotFound)
       case Some(exam) =>
@@ -160,9 +168,11 @@ class ExamSectionService @Inject() (
     ) match
       case (None, _, _) | (_, None, _) | (_, _, None) => Left(ExamNotFound)
       case (Some(exam), Some(section), Some(question)) =>
-        if exam.getAutoEvaluationConfig != null && question.getType == Question.Type.EssayQuestion then
+        if exam.getAutoEvaluationConfig != null && question.getType == Question.Type.EssayQuestion
+        then
           Left(AutoEvaluationEssayQuestion)
-        else if !exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+        else if !exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
+        then
           Left(AccessForbidden)
         else
           insertQuestionInternal(exam, section, question, user, sequenceNumber) match
@@ -187,7 +197,9 @@ class ExamSectionService @Inject() (
               Option(DB.find(classOf[Question], qid)) match
                 case None => Left(QuestionNotFound)
                 case Some(question) =>
-                  if Option(exam.getAutoEvaluationConfig).isDefined && question.getType == Question.Type.EssayQuestion
+                  if Option(
+                      exam.getAutoEvaluationConfig
+                    ).isDefined && question.getType == Question.Type.EssayQuestion
                   then Left(AutoEvaluationEssayQuestion)
                   else insertQuestionInternal(exam, section, question, user, sequenceNumber)
             }
@@ -227,12 +239,17 @@ class ExamSectionService @Inject() (
               esq.update()
           }
           // Update the lottery item count if needed
-          if section.isLotteryOn && section.getLotteryItemCount > section.getSectionQuestions.size() then
+          if section.isLotteryOn && section.getLotteryItemCount > section.getSectionQuestions.size()
+          then
             section.setLotteryItemCount(section.getSectionQuestions.size())
           sectionQuestion.delete()
           Right(section)
 
-  def clearQuestions(examId: Long, sectionId: Long, user: User): Either[ExamSectionError, ExamSection] =
+  def clearQuestions(
+      examId: Long,
+      sectionId: Long,
+      user: User
+  ): Either[ExamSectionError, ExamSection] =
     DB.find(classOf[ExamSection])
       .fetch("exam.creator")
       .fetch("exam.examOwners")
@@ -243,7 +260,11 @@ class ExamSectionService @Inject() (
       .find match
       case None => Left(SectionNotFound)
       case Some(section) =>
-        if section.getExam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+        if section.getExam.isOwnedOrCreatedBy(user) || user.hasRole(
+            Role.Name.ADMIN,
+            Role.Name.SUPPORT
+          )
+        then
           section.getSectionQuestions.asScala.foreach { sq =>
             sq.getQuestion.getChildren.asScala.foreach { c =>
               c.setParent(null)
@@ -323,7 +344,8 @@ class ExamSectionService @Inject() (
     val query =
       if user.hasRole(Role.Name.TEACHER) then baseQuery.eq("examSection.exam.examOwners", user)
       else baseQuery
-    val pp = PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))")
+    val pp =
+      PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))")
     query.apply(pp)
     query.find match
       case None => Left(AccessForbidden)
@@ -358,7 +380,8 @@ class ExamSectionService @Inject() (
   ): List[ExamSection] =
     val baseQuery = DB.find(classOf[ExamSection]).where()
     val withCreatorFilter =
-      if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then baseQuery.where().eq("creator.id", user.getId)
+      if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
+        baseQuery.where().eq("creator.id", user.getId)
       else baseQuery
     val withFilter = filter.fold(withCreatorFilter) { f =>
       val condition = s"%$f%"
@@ -451,7 +474,9 @@ class ExamSectionService @Inject() (
       PlayJsonHelper.parseEnum("evaluationType", body, classOf[Question.EvaluationType]).orNull
     )
     sectionQuestion.setExpectedWordCount(
-      PlayJsonHelper.parse[Int]("expectedWordCount", body).map(_.asInstanceOf[java.lang.Integer]).orNull
+      PlayJsonHelper.parse[Int]("expectedWordCount", body).map(
+        _.asInstanceOf[java.lang.Integer]
+      ).orNull
     )
     sectionQuestion.setNegativeScoreAllowed(
       PlayJsonHelper.parseOrElse("negativeScoreAllowed", body, false)
@@ -474,7 +499,8 @@ class ExamSectionService @Inject() (
     option.setDefaultScore(
       PlayJsonHelper.parse[Double]("score", node).map(d => round(d)).orNull
     )
-    val correctOption = PlayJsonHelper.parseOrElse("correctOption", baseOptionNode.getOrElse(Json.obj()), false)
+    val correctOption =
+      PlayJsonHelper.parseOrElse("correctOption", baseOptionNode.getOrElse(Json.obj()), false)
     option.setCorrectOption(correctOption)
     saveOption(option, question, user)
     propagateOptionCreationToExamQuestions(question, esq, option)
@@ -505,7 +531,8 @@ class ExamSectionService @Inject() (
 
     // Additions
     node.value.foreach { o =>
-      if PlayJsonHelper.parse[Long]("id", o).isEmpty then createOptionBasedOnExamQuestion(question, esq, user, o)
+      if PlayJsonHelper.parse[Long]("id", o).isEmpty then
+        createOptionBasedOnExamQuestion(question, esq, user, o)
     }
 
     // Finally, update own option scores:
@@ -527,7 +554,11 @@ class ExamSectionService @Inject() (
     val hasCorrectOption = an.value.exists { n =>
       val optionNode = (n \ "option").asOpt[JsValue]
       val claimChoiceType =
-        optionNode.flatMap(PlayJsonHelper.parseEnum("claimChoiceType", _, classOf[ClaimChoiceOptionType]))
+        optionNode.flatMap(PlayJsonHelper.parseEnum(
+          "claimChoiceType",
+          _,
+          classOf[ClaimChoiceOptionType]
+        ))
       val score = (n \ "score").asOpt[Double].getOrElse(0.0)
       claimChoiceType.exists(_ != ClaimChoiceOptionType.SkipOption) && score > 0
     }
@@ -535,7 +566,11 @@ class ExamSectionService @Inject() (
     val hasIncorrectOption = an.value.exists { n =>
       val optionNode = (n \ "option").asOpt[JsValue]
       val claimChoiceType =
-        optionNode.flatMap(PlayJsonHelper.parseEnum("claimChoiceType", _, classOf[ClaimChoiceOptionType]))
+        optionNode.flatMap(PlayJsonHelper.parseEnum(
+          "claimChoiceType",
+          _,
+          classOf[ClaimChoiceOptionType]
+        ))
       val score = (n \ "score").asOpt[Double].getOrElse(0.0)
       claimChoiceType.exists(_ != ClaimChoiceOptionType.SkipOption) && score <= 0
     }
@@ -543,7 +578,11 @@ class ExamSectionService @Inject() (
     val hasSkipOption = an.value.exists { n =>
       val optionNode = (n \ "option").asOpt[JsValue]
       val claimChoiceType =
-        optionNode.flatMap(PlayJsonHelper.parseEnum("claimChoiceType", _, classOf[ClaimChoiceOptionType]))
+        optionNode.flatMap(PlayJsonHelper.parseEnum(
+          "claimChoiceType",
+          _,
+          classOf[ClaimChoiceOptionType]
+        ))
       val score = (n \ "score").asOpt[Double].getOrElse(0.0)
       claimChoiceType.contains(ClaimChoiceOptionType.SkipOption) && score == 0
     }

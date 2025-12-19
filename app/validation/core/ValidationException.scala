@@ -6,7 +6,8 @@ package validation.core
 
 import validation.core.SanitizingException
 
-/** Exception thrown when validation fails. Carries structured field-level errors that can be returned to the client.
+/** Exception thrown when validation fails. Carries structured field-level errors that can be
+  * returned to the client.
   */
 class ValidationException(val validationResult: ValidationResult)
     extends SanitizingException(ValidationException.buildMessage(validationResult)):

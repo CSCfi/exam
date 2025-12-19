@@ -32,7 +32,8 @@ trait EnrolmentValidator:
       requestData: RequestData,
       skipIpCheck: Boolean = false
   ): Future[Option[Result]] =
-    if Option(enrolment).isEmpty then Future.successful(Some(Forbidden("i18n_reservation_not_found")))
+    if Option(enrolment).isEmpty then
+      Future.successful(Some(Forbidden("i18n_reservation_not_found")))
     else if Option(enrolment.getReservation).isEmpty then
       Future.successful(Some(Forbidden("i18n_reservation_not_found")))
     else if Option(enrolment.getReservation.getMachine).isEmpty then

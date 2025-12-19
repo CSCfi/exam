@@ -69,7 +69,11 @@ class ExternalAttachmentLoaderImpl @Inject() (
       .distinct
 
     distinctQuestions.foreach { question =>
-      futures += createFromExternalAttachment(question.getAttachment, "question", question.getId.toString)
+      futures += createFromExternalAttachment(
+        question.getAttachment,
+        "question",
+        question.getId.toString
+      )
     }
 
     // Wait for all futures to complete
@@ -148,7 +152,10 @@ class ExternalAttachmentLoaderImpl @Inject() (
     // Wait for all futures to complete
     Future.sequence(futures.toSeq).map(_ => ())
 
-  private def createFromExternalAttachment(attachment: Attachment, pathParams: String*): Future[Unit] =
+  private def createFromExternalAttachment(
+      attachment: Attachment,
+      pathParams: String*
+  ): Future[Unit] =
     Option(attachment.getExternalId).filter(_.nonEmpty) match
       case None =>
         logger.error("Could not find external ID for an attachment")

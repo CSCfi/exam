@@ -66,7 +66,8 @@ class FacilityHandlerImpl @Inject() (
       case Some(room) =>
         val url = parseUrl(Option(room.getExternalRef))
 
-        if Option(room.getExternalRef).isEmpty && room.getState != ExamRoom.State.INACTIVE.toString then
+        if Option(room.getExternalRef).isEmpty && room.getState != ExamRoom.State.INACTIVE.toString
+        then
           // Add new
           wsClient
             .url(url)
@@ -74,7 +75,8 @@ class FacilityHandlerImpl @Inject() (
             .post(toJson(room))
             .map { response =>
               if response.status != CREATED then
-                val message = (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+                val message =
+                  (response.json \ "message").asOpt[String].getOrElse("Connection refused")
                 InternalServerError(message)
               else
                 val externalRef = (response.json \ "id").as[String]

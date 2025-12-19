@@ -5,7 +5,11 @@
 package features.examination.controllers
 
 import features.examination.services.ExaminationService.getPath
-import features.examination.services.{ExternalExaminationError, ExternalExaminationService, RequestData}
+import features.examination.services.{
+  ExternalExaminationError,
+  ExternalExaminationService,
+  RequestData
+}
 import io.ebean.text.PathProperties
 import database.EbeanJsonExtensions
 import models.user.Role
@@ -43,13 +47,13 @@ class ExternalExaminationController @Inject() (
 
   private def toResult(error: ExternalExaminationError): Result =
     error match
-      case ExternalExaminationError.ExternalExamNotFound     => Forbidden
-      case ExternalExaminationError.EnrolmentNotFound        => Forbidden
-      case ExternalExaminationError.QuestionNotFound         => Forbidden
-      case ExternalExaminationError.DeserializationFailed    => InternalServerError
-      case ExternalExaminationError.SerializationFailed      => InternalServerError
-      case ExternalExaminationError.ValidationFailed         => Forbidden
-      case ExternalExaminationError.VersionConflict          => Forbidden("i18n_error_data_has_changed")
+      case ExternalExaminationError.ExternalExamNotFound  => Forbidden
+      case ExternalExaminationError.EnrolmentNotFound     => Forbidden
+      case ExternalExaminationError.QuestionNotFound      => Forbidden
+      case ExternalExaminationError.DeserializationFailed => InternalServerError
+      case ExternalExaminationError.SerializationFailed   => InternalServerError
+      case ExternalExaminationError.ValidationFailed      => Forbidden
+      case ExternalExaminationError.VersionConflict => Forbidden("i18n_error_data_has_changed")
       case ExternalExaminationError.ValidationError(message) => Forbidden(message)
 
   def startExam(hash: String): Action[AnyContent] =
@@ -78,13 +82,20 @@ class ExternalExaminationController @Inject() (
     }
 
   def answerMultiChoice(hash: String, qid: Long): Action[JsValue] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) { request =>
-      val user      = request.attrs(Auth.ATTR_USER)
-      val optionIds = (request.body \ "oids").asOpt[Seq[Long]].getOrElse(Seq.empty)
-      externalExaminationService.answerMultiChoice(hash, qid, user, optionIds, extractRequestData(request)).map {
-        case Left(error) => toResult(error)
-        case Right(_)    => Ok
-      }
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.json) {
+      request =>
+        val user      = request.attrs(Auth.ATTR_USER)
+        val optionIds = (request.body \ "oids").asOpt[Seq[Long]].getOrElse(Seq.empty)
+        externalExaminationService.answerMultiChoice(
+          hash,
+          qid,
+          user,
+          optionIds,
+          extractRequestData(request)
+        ).map {
+          case Left(error) => toResult(error)
+          case Right(_)    => Ok
+        }
     }
 
   def answerEssay(hash: String, qid: Long): Action[JsValue] =
@@ -95,7 +106,13 @@ class ExternalExaminationController @Inject() (
       .async(parse.json) { request =>
         val user      = request.attrs(Auth.ATTR_USER)
         val answerDTO = request.attrs(EssayAnswerValidator.ESSAY_ANSWER_KEY)
-        externalExaminationService.answerEssay(hash, qid, user, answerDTO, extractRequestData(request)).map {
+        externalExaminationService.answerEssay(
+          hash,
+          qid,
+          user,
+          answerDTO,
+          extractRequestData(request)
+        ).map {
           case Left(error)   => toResult(error)
           case Right(answer) => Ok(answer.asJson)
         }
@@ -109,7 +126,13 @@ class ExternalExaminationController @Inject() (
       .async(parse.json) { request =>
         val user      = request.attrs(Auth.ATTR_USER)
         val answerDTO = request.attrs(ClozeTestAnswerValidator.CLOZE_TEST_ANSWER_KEY)
-        externalExaminationService.answerClozeTest(hash, qid, user, answerDTO, extractRequestData(request)).map {
+        externalExaminationService.answerClozeTest(
+          hash,
+          qid,
+          user,
+          answerDTO,
+          extractRequestData(request)
+        ).map {
           case Left(error) => toResult(error)
           case Right(answer) =>
             Ok(answer.asJson(PathProperties.parse("(id, objectVersion, answer)")))

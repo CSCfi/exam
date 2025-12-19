@@ -29,7 +29,8 @@ class ReviewControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions
         examInspection.save()
       case None => fail("No exam found")
 
-  private def examParentId: Long = exam.get.getParent.getId // Safe since we validate exam exists in setup
+  private def examParentId: Long =
+    exam.get.getParent.getId // Safe since we validate exam exists in setup
 
   // Custom login methods that automatically set up exam inspection
   private def loginAsTeacherWithExamInspection(): (User, Session) =

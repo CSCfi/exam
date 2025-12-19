@@ -52,7 +52,9 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
           case path if path == "/app/session" && request.method == "GET" =>
             s.get("upcomingExamHash") match {
               case Some(_) => // Don't let the session expire when awaiting the exam to start
-                response.withSession(s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now)))
+                response.withSession(
+                  s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now))
+                )
               case _ => response.withSession(s)
             }
           case path if path.contains("logout") => response.withSession(s)

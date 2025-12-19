@@ -55,7 +55,8 @@ trait SectionQuestionHandler:
       question.getExamSectionQuestions.asScala.foreach { examQuestion =>
         val esqo = new ExamSectionQuestionOption()
         // Preserve scores for the exam question that is under modification right now
-        val preserveScore = modifiedExamQuestion != null && modifiedExamQuestion.equals(examQuestion)
+        val preserveScore =
+          modifiedExamQuestion != null && modifiedExamQuestion.equals(examQuestion)
         val unroundedScore =
           if preserveScore then option.getDefaultScore
           else calculateOptionScore(question, option, examQuestion)
@@ -85,8 +86,10 @@ trait SectionQuestionHandler:
     if defaultScore == null || defaultScore == 0 then defaultScore
     else
       val result =
-        if defaultScore > 0 then (esq.getMaxAssessedScore / 100) * ((defaultScore / question.getMaxDefaultScore) * 100)
-        else if defaultScore < 0 then (esq.getMinScore / 100) * ((defaultScore / question.getMinDefaultScore) * 100)
+        if defaultScore > 0 then
+          (esq.getMaxAssessedScore / 100) * ((defaultScore / question.getMaxDefaultScore) * 100)
+        else if defaultScore < 0 then
+          (esq.getMinScore / 100) * ((defaultScore / question.getMinDefaultScore) * 100)
         else 0.0
       result
 

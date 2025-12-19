@@ -25,7 +25,10 @@ class AvailabilityService @Inject() (
     private val dateTimeHandler: DateTimeHandler
 ) extends EbeanQueryExtensions:
 
-  def getAvailability(roomId: Long, day: String): Either[AvailabilityError, Seq[AvailabilityService.Availability]] =
+  def getAvailability(
+      roomId: Long,
+      day: String
+  ): Either[AvailabilityError, Seq[AvailabilityService.Availability]] =
     Option(DB.find(classOf[ExamRoom], roomId)) match
       case None => Left(RoomNotFound)
       case Some(room) =>
@@ -69,7 +72,10 @@ class AvailabilityService @Inject() (
   private def getSearchEndDate(start: DateTime): DateTime =
     start.dayOfWeek().withMaximumValue().millisOfDay().withMaximumValue()
 
-  private def getReservationsDuring(reservations: Seq[Reservation], interval: Interval): Seq[Reservation] =
+  private def getReservationsDuring(
+      reservations: Seq[Reservation],
+      interval: Interval
+  ): Seq[Reservation] =
     reservations.filter(r => interval.overlaps(r.toInterval))
 
   private def toOneHourChunks(i: Interval): Seq[Interval] =
@@ -81,6 +87,6 @@ class AvailabilityService @Inject() (
 
   private def round(slot: Interval): Interval =
     val cleanedStart = slot.getStart.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0)
-    val newEnd       = if slot.getEnd.getMinuteOfHour != 0 then slot.getEnd.plusHours(1) else slot.getEnd
-    val cleanedEnd   = newEnd.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0)
+    val newEnd = if slot.getEnd.getMinuteOfHour != 0 then slot.getEnd.plusHours(1) else slot.getEnd
+    val cleanedEnd = newEnd.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0)
     slot.withStart(cleanedStart).withEnd(cleanedEnd)

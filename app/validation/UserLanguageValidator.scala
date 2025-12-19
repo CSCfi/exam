@@ -10,7 +10,10 @@ import validation.core.{PlayJsonValidator, ScalaAttrs}
 
 object UserLanguageValidator extends PlayJsonValidator:
 
-  override def sanitize(request: Request[AnyContent], json: JsValue): Either[Result, Request[AnyContent]] =
+  override def sanitize(
+      request: Request[AnyContent],
+      json: JsValue
+  ): Either[Result, Request[AnyContent]] =
     (json \ "lang").asOpt[String] match
       case Some(lang) => Right(request.addAttr(ScalaAttrs.LANG, lang))
       case None       => Left(Results.BadRequest("Missing language code"))

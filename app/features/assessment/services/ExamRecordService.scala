@@ -49,7 +49,10 @@ class ExamRecordService @Inject() (
           case None =>
             exam.setState(Exam.State.GRADED_LOGGED)
             exam.update()
-            DB.find(classOf[ExamParticipation]).fetch("user").where.eq("exam.id", exam.getId).find match
+            DB.find(classOf[ExamParticipation]).fetch("user").where.eq(
+              "exam.id",
+              exam.getId
+            ).find match
               case Some(participation) =>
                 val record = createRecord(exam, participation, gradeRequired)
                 val score  = createScore(record, participation.getEnded)
@@ -93,7 +96,10 @@ class ExamRecordService @Inject() (
         logger.error("Error creating CSV file", ex)
         Left(ExamRecordError.ErrorCreatingCsvFile)
 
-  def exportSelectedExamRecordsAsCsv(examId: Long, ids: List[Long]): Either[ExamRecordError, (String, String)] =
+  def exportSelectedExamRecordsAsCsv(
+      examId: Long,
+      ids: List[Long]
+  ): Either[ExamRecordError, (String, String)] =
     Try(csvBuilder.build(examId, ids)) match
       case Success(file) =>
         val contentDisposition = fileHandler.getContentDisposition(file)
@@ -103,7 +109,10 @@ class ExamRecordService @Inject() (
         logger.error("Error creating CSV file", ex)
         Left(ExamRecordError.ErrorCreatingCsvFile)
 
-  def exportSelectedExamRecordsAsExcel(examId: Long, ids: List[Long]): Either[ExamRecordError, String] =
+  def exportSelectedExamRecordsAsExcel(
+      examId: Long,
+      ids: List[Long]
+  ): Either[ExamRecordError, String] =
     Using(excelBuilder.build(examId, ids)) { bos =>
       Base64.getEncoder.encodeToString(bos.toByteArray)
     } match
@@ -112,7 +121,11 @@ class ExamRecordService @Inject() (
         logger.error("Error creating Excel file", ex)
         Left(ExamRecordError.ErrorCreatingExcelFile)
 
-  private def validateExamState(exam: Exam, gradeRequired: Boolean, user: User): Option[ExamRecordError] =
+  private def validateExamState(
+      exam: Exam,
+      gradeRequired: Boolean,
+      user: User
+  ): Option[ExamRecordError] =
     if !isAllowedToRegister(exam, user) then Some(ExamRecordError.AccessForbidden)
     else
       // Side effect: Set graded-by-user if auto-graded
@@ -163,7 +176,8 @@ class ExamRecordService @Inject() (
     score.setAdditionalInfo(exam.getAdditionalInfo)
     score.setStudent(record.getStudent.getEppn)
     score.setStudentId(record.getStudent.getUserIdentifier)
-    if Option(exam.getCustomCredit).isEmpty then score.setCredits(exam.getCourse.getCredits.toString)
+    if Option(exam.getCustomCredit).isEmpty then
+      score.setCredits(exam.getCourse.getCredits.toString)
     else score.setCredits(exam.getCustomCredit.toString)
     score.setExamScore(exam.getTotalScore.toString)
     score.setLecturer(record.getTeacher.getEppn)

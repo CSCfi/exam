@@ -8,4 +8,5 @@ import com.google.inject.AbstractModule
 import services.config.{ByodConfigHandler, ByodConfigHandlerImpl}
 
 class ByodConfigModule extends AbstractModule:
-  override def configure(): Unit = bind(classOf[ByodConfigHandler]).to(classOf[ByodConfigHandlerImpl])
+  override def configure(): Unit =
+    bind(classOf[ByodConfigHandler]).to(classOf[ByodConfigHandlerImpl])

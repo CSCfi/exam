@@ -36,7 +36,8 @@ class AutoEvaluationNotifierService @Inject() (
       case ReleaseType.GIVEN_DATE => Some(adjustReleaseDate(new DateTime(config.getReleaseDate)))
       case ReleaseType.GIVEN_AMOUNT_DAYS =>
         Some(adjustReleaseDate(new DateTime(exam.getGradedTime).plusDays(config.getAmountDays)))
-      case ReleaseType.AFTER_EXAM_PERIOD => Some(adjustReleaseDate(new DateTime(exam.getPeriodEnd).plusDays(1)))
+      case ReleaseType.AFTER_EXAM_PERIOD =>
+        Some(adjustReleaseDate(new DateTime(exam.getPeriodEnd).plusDays(1)))
       // Not handled at least by this service
       case _ => None
     releaseDate.exists(_.isBeforeNow)
@@ -73,6 +74,7 @@ class AutoEvaluationNotifierService @Inject() (
 
   def resource: Resource[IO, Unit] =
     val (delay, interval) = (60.seconds, 15.minutes)
-    val job: IO[Unit]     = runCheck().handleErrorWith(e => IO(logger.error("Error in auto evaluation notifier", e)))
+    val job: IO[Unit] =
+      runCheck().handleErrorWith(e => IO(logger.error("Error in auto evaluation notifier", e)))
     val program: IO[Unit] = IO.sleep(delay) *> (job *> IO.sleep(interval)).foreverM
     Resource.make(program.start)(_.cancel).void

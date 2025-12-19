@@ -40,7 +40,12 @@ class RoomController @Inject() (
 
   def getExamRooms: Action[AnyContent] =
     authenticated
-      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.SUPPORT, Role.Name.ADMIN, Role.Name.STUDENT)))
+      .andThen(authorized(Seq(
+        Role.Name.TEACHER,
+        Role.Name.SUPPORT,
+        Role.Name.ADMIN,
+        Role.Name.STUDENT
+      )))
       .andThen(sensitiveDataFilter(Set("internalPassword", "externalPassword"))) { request =>
         val user           = request.attrs(Auth.ATTR_USER)
         val (rooms, props) = roomService.getExamRooms(user)
@@ -61,26 +66,31 @@ class RoomController @Inject() (
     }
 
   def validatePassword(roomId: Long): Action[JsValue] =
-    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT))) { request =>
+    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(
+      Role.Name.ADMIN,
+      Role.Name.STUDENT
+    ))) { request =>
       roomService.validatePassword(roomId, request.body) match
         case Left(error) => toResult(error)
         case Right(_)    => Ok
     }
 
   def updateExamRoom(id: Long): Action[JsValue] =
-    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))).async { request =>
-      roomService.updateExamRoom(id, request.body).map {
-        case Left(error) => toResult(error)
-        case Right(_)    => Ok
-      }
+    audited.andThen(authenticated)(parse.json).andThen(authorized(Seq(Role.Name.ADMIN))).async {
+      request =>
+        roomService.updateExamRoom(id, request.body).map {
+          case Left(error) => toResult(error)
+          case Right(_)    => Ok
+        }
     }
 
   def updateExamRoomAddress(id: Long): Action[JsValue] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json).async { request =>
-      roomService.updateExamRoomAddress(id, request.body).map {
-        case Left(error) => toResult(error)
-        case Right(_)    => Ok
-      }
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json).async {
+      request =>
+        roomService.updateExamRoomAddress(id, request.body).map {
+          case Left(error) => toResult(error)
+          case Right(_)    => Ok
+        }
     }
 
   def updateExamRoomWorkingHours(): Action[JsValue] =
@@ -97,22 +107,25 @@ class RoomController @Inject() (
     }
 
   def updateExamStartingHours(): Action[JsValue] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json) { request =>
-      roomService.updateExamStartingHours(request.body)
-      Ok
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json) {
+      request =>
+        roomService.updateExamStartingHours(request.body)
+        Ok
     }
 
   def addRoomExceptionHours(): Action[JsValue] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json) { request =>
-      val exceptions = roomService.addRoomExceptionHours(request.body)
-      Ok(exceptions.asJson)
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json) {
+      request =>
+        val exceptions = roomService.addRoomExceptionHours(request.body)
+        Ok(exceptions.asJson)
     }
 
   def updateExamRoomAccessibility(id: Long): Action[JsValue] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json) { request =>
-      roomService.updateExamRoomAccessibility(id, request.body) match
-        case Left(error) => toResult(error)
-        case Right(_)    => Ok
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.ADMIN)))(parse.json) {
+      request =>
+        roomService.updateExamRoomAccessibility(id, request.body) match
+          case Left(error) => toResult(error)
+          case Right(_)    => Ok
     }
 
   def removeRoomExceptionHour(roomId: Long, exceptionId: Long): Action[AnyContent] =

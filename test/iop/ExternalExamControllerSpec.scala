@@ -51,7 +51,8 @@ class ExternalExamControllerSpec
   private val RESERVATION_REF   = "0e6d16c51f857a20ab578f57f105032e"
   private val RESERVATION_REF_2 = "0e6d16c51f857a20ab578f57f105032f"
   private val ROOM_REF          = "0e6d16c51f857a20ab578f57f1018456"
-  private val HASH = "7cf002da-4263-4843-99b1-e8af51e" // Has to match with the externalRef in the test JSON file
+  private val HASH =
+    "7cf002da-4263-4843-99b1-e8af51e" // Has to match with the externalRef in the test JSON file
   private val MAIL_TIMEOUT = 5000L
 
   // Server infrastructure - initialized once in beforeAll
@@ -104,13 +105,17 @@ class ExternalExamControllerSpec
     testUpload = Some(testUploadPath)
 
     val fileUploadServletHolder = new ServletHolder(new EnrolmentServlet())
-    fileUploadServletHolder.getRegistration.setMultipartConfig(new MultipartConfigElement(testUploadPath.toString))
+    fileUploadServletHolder.getRegistration.setMultipartConfig(
+      new MultipartConfigElement(testUploadPath.toString)
+    )
     context.addServlet(fileUploadServletHolder, "/enrolments/*")
 
     val attachmentServletInstance = new AttachmentServlet(testImage)
     attachmentServlet = Some(attachmentServletInstance)
     val attachmentServletHolder = new ServletHolder(attachmentServletInstance)
-    attachmentServletHolder.getRegistration.setMultipartConfig(new MultipartConfigElement(testUploadPath.toString))
+    attachmentServletHolder.getRegistration.setMultipartConfig(
+      new MultipartConfigElement(testUploadPath.toString)
+    )
     context.addServlet(attachmentServletHolder, "/attachments/*")
 
     serverInstance.setHandler(context)
@@ -293,7 +298,11 @@ class ExternalExamControllerSpec
         val mapper = new ObjectMapper()
         val node   = mapper.readTree(new File("test/resources/externalExamAttainment.json"))
         val result =
-          runIO(makeRequest(POST, s"/integration/iop/exams/$RESERVATION_REF", Some(Json.parse(node.toString))))
+          runIO(makeRequest(
+            POST,
+            s"/integration/iop/exams/$RESERVATION_REF",
+            Some(Json.parse(node.toString))
+          ))
         statusOf(result).must(be(Status.CREATED))
 
         greenMail.purgeEmailFromAllMailboxes()
@@ -362,10 +371,17 @@ class ExternalExamControllerSpec
         enrolment.update()
 
         val result =
-          runIO(makeRequest(POST, s"/integration/iop/reservations/$RESERVATION_REF_2/noshow", Some(Json.obj())))
+          runIO(makeRequest(
+            POST,
+            s"/integration/iop/reservations/$RESERVATION_REF_2/noshow",
+            Some(Json.obj())
+          ))
         statusOf(result).must(be(Status.OK))
 
-        val r = Option(DB.find(classOf[Reservation]).where().eq("externalRef", RESERVATION_REF_2).findOne()) match
+        val r = Option(DB.find(classOf[Reservation]).where().eq(
+          "externalRef",
+          RESERVATION_REF_2
+        ).findOne()) match
           case Some(res) => res
           case None      => fail("Reservation not found")
 
@@ -376,10 +392,11 @@ class ExternalExamControllerSpec
       "handle attachments successfully" in:
         val (exam, enrolment, reservation) = setupTestData()
 
-        val testFile           = getTestFile("test_files/test.txt")
-        val examAttachment     = createAttachment("test.txt", testFile.getAbsolutePath, "plain/text")
-        val testImageFile      = getTestFile("test_files/test_image.png")
-        val questionAttachment = createAttachment("test_image.png", testImageFile.getAbsolutePath, "image/png")
+        val testFile       = getTestFile("test_files/test.txt")
+        val examAttachment = createAttachment("test.txt", testFile.getAbsolutePath, "plain/text")
+        val testImageFile  = getTestFile("test_files/test_image.png")
+        val questionAttachment =
+          createAttachment("test_image.png", testImageFile.getAbsolutePath, "image/png")
 
         exam.setAttachment(examAttachment)
         exam.save()

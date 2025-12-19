@@ -55,11 +55,16 @@ class ExternalExamHandlerImpl @Inject() (
 
   private val logger = LoggerFactory.getLogger(classOf[ExternalExamHandlerImpl])
 
-  override def requestEnrolment(user: User, reservation: Reservation): Future[Option[ExamEnrolment]] =
+  override def requestEnrolment(
+      user: User,
+      reservation: Reservation
+  ): Future[Option[ExamEnrolment]] =
     val url = parseUrl(reservation.getExternalRef)
     wsClient.url(url).get().map { response =>
       if response.status != OK then
-        logger.warn(s"Bad status ${response.status} received while requesting external enrolment data")
+        logger.warn(
+          s"Bad status ${response.status} received while requesting external enrolment data"
+        )
         None
       else
         try
@@ -148,7 +153,9 @@ class ExternalExamHandlerImpl @Inject() (
     ep.setStarted(externalExam.getStarted)
     ep.setEnded(externalExam.getFinished)
     ep.setReservation(enrolment.getReservation)
-    ep.setDuration(new DateTime(externalExam.getFinished.getMillis - externalExam.getStarted.getMillis))
+    ep.setDuration(
+      new DateTime(externalExam.getFinished.getMillis - externalExam.getStarted.getMillis)
+    )
 
     if clone.getState == Exam.State.REVIEW then
       import scala.jdk.OptionConverters.*

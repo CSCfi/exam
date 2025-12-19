@@ -52,7 +52,10 @@ class ExternalAttachmentService @Inject() (
         logger.error("Can not deserialize external exam!")
         Left(ExternalAttachmentError.CouldNotDeserializeExam)
 
-  def downloadExamAttachment(hash: String, user: User): Future[Either[ExternalAttachmentError, DownloadResponse]] =
+  def downloadExamAttachment(
+      hash: String,
+      user: User
+  ): Future[Either[ExternalAttachmentError, DownloadResponse]] =
     getExternalExam(hash, user) match
       case None => Future.successful(Left(ExternalAttachmentError.ExternalExamNotFound))
       case Some(externalExam) =>
@@ -101,12 +104,15 @@ class ExternalAttachmentService @Inject() (
               case Left(error) => Future.successful(Left(error))
               case Right(exam) =>
                 findSectionQuestion(questionId, exam) match
-                  case None => Future.successful(Left(ExternalAttachmentError.SectionQuestionNotFound))
+                  case None =>
+                    Future.successful(Left(ExternalAttachmentError.SectionQuestionNotFound))
                   case Some(sq) =>
                     if Option(sq.getEssayAnswer).isEmpty then sq.setEssayAnswer(new EssayAnswer())
-                    val existingExternalId = Option(sq.getEssayAnswer.getAttachment).map(_.getExternalId)
+                    val existingExternalId =
+                      Option(sq.getEssayAnswer.getAttachment).map(_.getExternalId)
                     uploadAttachmentToExternalService(file, existingExternalId).flatMap {
-                      case None => Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
+                      case None =>
+                        Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
                       case Some(attachment) =>
                         sq.getEssayAnswer.setAttachment(attachment)
                         Try(externalExam.serialize(exam)) match
@@ -132,26 +138,33 @@ class ExternalAttachmentService @Inject() (
               case None => Future.successful(Left(ExternalAttachmentError.SectionQuestionNotFound))
               case Some(sq) =>
                 findEssayAnswerWithAttachment(sq) match
-                  case None => Future.successful(Left(ExternalAttachmentError.QuestionAnswerNotFound))
+                  case None =>
+                    Future.successful(Left(ExternalAttachmentError.QuestionAnswerNotFound))
                   case Some(ea) =>
                     val attachment = ea.getAttachment
                     Option(attachment.getExternalId).filter(_.nonEmpty) match
                       case None =>
-                        logger.warn(s"External id can not be found for attachment [id=${attachment.getId}]")
+                        logger.warn(
+                          s"External id can not be found for attachment [id=${attachment.getId}]"
+                        )
                         Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
                       case Some(externalId) =>
                         parseAttachmentUrl("/api/attachments/%s", externalId) match
-                          case None => Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
+                          case None =>
+                            Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
                           case Some(url) =>
                             wsClient.url(url.toString).delete().flatMap { response =>
                               if response.status != play.api.http.Status.OK && response.status != play.api.http.Status.NOT_FOUND
-                              then Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
+                              then
+                                Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
                               else
                                 ea.setAttachment(null)
                                 Try(externalExam.serialize(exam)) match
                                   case scala.util.Failure(e) =>
                                     logger.error("Failed to serialize exam", e)
-                                    Future.successful(Left(ExternalAttachmentError.CouldNotDeserializeExam))
+                                    Future.successful(
+                                      Left(ExternalAttachmentError.CouldNotDeserializeExam)
+                                    )
                                   case scala.util.Success(_) =>
                                     Future.successful(Right(externalExam))
                             }
@@ -167,7 +180,11 @@ class ExternalAttachmentService @Inject() (
           case Some(externalId) =>
             downloadAttachment(externalId, att.getMimeType, att.getFileName)
 
-  private def downloadAttachment(id: String, mimeType: String, fileName: String): Future[DownloadResponse] =
+  private def downloadAttachment(
+      id: String,
+      mimeType: String,
+      fileName: String
+  ): Future[DownloadResponse] =
     parseAttachmentUrl("/api/attachments/%s/download", id) match
       case None => Future.successful(DownloadResponse.InternalServerError)
       case Some(attachmentUrl) =>
@@ -187,7 +204,11 @@ class ExternalAttachmentService @Inject() (
                 ByteString.fromArray(encoded)
               }
 
-            DownloadResponse.Success(base64Stream, mimeType, Map("Content-Disposition" -> contentDisposition))
+            DownloadResponse.Success(
+              base64Stream,
+              mimeType,
+              Map("Content-Disposition" -> contentDisposition)
+            )
         }
 
   private def parseAttachmentUrl(format: String, args: String*): Option[URL] =
@@ -205,7 +226,8 @@ class ExternalAttachmentService @Inject() (
 
   private def findEssayAnswerWithAttachment(sq: ExamSectionQuestion): Option[EssayAnswer] =
     Option(sq.getEssayAnswer) match
-      case Some(ea) if Option(ea.getAttachment).flatMap(a => Option(a.getExternalId)).exists(_.nonEmpty) =>
+      case Some(ea)
+          if Option(ea.getAttachment).flatMap(a => Option(a.getExternalId)).exists(_.nonEmpty) =>
         Some(ea)
       case _ => None
 
@@ -256,7 +278,8 @@ class ExternalAttachmentService @Inject() (
             val request = wsClient.url(url.toString)
             val source  = createMultipartSource(filePart)
             request.post(source).map { response =>
-              if response.status != play.api.http.Status.CREATED && response.status != play.api.http.Status.OK then
+              if response.status != play.api.http.Status.CREATED && response.status != play.api.http.Status.OK
+              then
                 logger.error("Could not create external attachment to XM server!")
                 None
               else

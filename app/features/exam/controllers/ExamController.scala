@@ -32,20 +32,22 @@ class ExamController @Inject() (
 
   private def toResult(error: ExamError): Result =
     error match
-      case ExamError.NotFound                     => NotFound("i18n_error_exam_not_found")
-      case ExamError.AccessForbidden              => Forbidden("i18n_error_access_forbidden")
-      case ExamError.ExamRemovalNotPossible       => Forbidden("i18n_exam_removal_not_possible")
-      case ExamError.FutureReservationsExist      => Forbidden("i18n_error_future_reservations_exist")
-      case ExamError.CourseNotActive              => Forbidden("i18n_error_course_not_active")
-      case ExamError.NoRequiredSoftwares          => BadRequest("i18n_no_required_softwares")
-      case ExamError.ExecutionTypeNotFound        => NotFound("i18n_execution_type_not_found")
-      case ExamError.UnsupportedExecutionType     => BadRequest("Unsupported execution type")
+      case ExamError.NotFound                 => NotFound("i18n_error_exam_not_found")
+      case ExamError.AccessForbidden          => Forbidden("i18n_error_access_forbidden")
+      case ExamError.ExamRemovalNotPossible   => Forbidden("i18n_exam_removal_not_possible")
+      case ExamError.FutureReservationsExist  => Forbidden("i18n_error_future_reservations_exist")
+      case ExamError.CourseNotActive          => Forbidden("i18n_error_course_not_active")
+      case ExamError.NoRequiredSoftwares      => BadRequest("i18n_no_required_softwares")
+      case ExamError.ExecutionTypeNotFound    => NotFound("i18n_execution_type_not_found")
+      case ExamError.UnsupportedExecutionType => BadRequest("Unsupported execution type")
       case ExamError.NoPermissionToCreateByodExam => Forbidden("i18n_access_forbidden")
       case ExamError.ValidationError(message)     => BadRequest(message)
       case ExamError.UpdateError(result)          => result
 
   def searchExams(filter: Option[String]): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))
+    ).async { request =>
       val user  = request.attrs(Auth.ATTR_USER)
       val exams = examService.searchExams(filter, user)
       Future.successful(Ok(exams.asJson))
@@ -66,7 +68,9 @@ class ExamController @Inject() (
       tagIds: Option[List[Long]],
       ownerIds: Option[List[Long]]
   ): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))
+    ).async { request =>
       val user  = request.attrs(Auth.ATTR_USER)
       val exams = examService.listExams(user, courseIds, sectionIds, tagIds, ownerIds)
       val pp = PathProperties.parse(
@@ -91,7 +95,9 @@ class ExamController @Inject() (
     }
 
   def deleteExam(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))
+    ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       examService.deleteExam(id, user) match
         case Left(error) => Future.successful(toResult(error))
@@ -126,7 +132,9 @@ class ExamController @Inject() (
     }
 
   def getExamPreview(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))).async { request =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))
+    ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       examService.getExamPreview(id, user) match
         case Left(error) => Future.successful(toResult(error))

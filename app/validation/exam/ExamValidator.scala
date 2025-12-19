@@ -14,8 +14,8 @@ import java.util
 import java.util.Date
 import scala.jdk.CollectionConverters._
 
-/** Exam-specific validator using the generic Validator framework. Provides different validation profiles (forUpdate,
-  * forCreation) with different strictness levels.
+/** Exam-specific validator using the generic Validator framework. Provides different validation
+  * profiles (forUpdate, forCreation) with different strictness levels.
   */
 object ExamValidator:
 
@@ -52,7 +52,8 @@ object ExamValidator:
       .filter(_.nonEmpty)
       .map { sections =>
         val hasUnnamedSection = sections.exists(s => Option(s.getName).forall(_.trim.isEmpty))
-        if hasUnnamedSection then PlayValidator.invalid[Unit]("sections", "All exam sections must be named")
+        if hasUnnamedSection then
+          PlayValidator.invalid[Unit]("sections", "All exam sections must be named")
         else PlayValidator.valid(())
       }
       .getOrElse(PlayValidator.valid(()))
@@ -66,7 +67,8 @@ object ExamValidator:
   private def requireImplementation(exam: Exam): ValidatedNel[FieldError, Exam.Implementation] =
     PlayValidator.requirePresent("implementation", exam.getImplementation)
 
-  private def requireExecutionType(exam: Exam): ValidatedNel[FieldError, models.exam.ExamExecutionType] =
+  private def requireExecutionType(exam: Exam)
+      : ValidatedNel[FieldError, models.exam.ExamExecutionType] =
     PlayValidator.requirePresent("executionType", exam.getExecutionType)
 
   private def requirePublishedExamHasName(exam: Exam): ValidatedNel[FieldError, Unit] =
@@ -162,7 +164,11 @@ private object ExamParser:
         val config = new models.assessment.ExamFeedbackConfig()
         config.setReleaseType(
           PlayJsonHelper
-            .parseEnum("releaseType", obj, classOf[models.assessment.ExamFeedbackConfig.ReleaseType])
+            .parseEnum(
+              "releaseType",
+              obj,
+              classOf[models.assessment.ExamFeedbackConfig.ReleaseType]
+            )
             .getOrElse(throw SanitizingException("bad releaseType"))
         )
         PlayJsonHelper
@@ -178,7 +184,11 @@ private object ExamParser:
         val config = new models.assessment.AutoEvaluationConfig()
         config.setReleaseType(
           PlayJsonHelper
-            .parseEnum("releaseType", obj, classOf[models.assessment.AutoEvaluationConfig.ReleaseType])
+            .parseEnum(
+              "releaseType",
+              obj,
+              classOf[models.assessment.AutoEvaluationConfig.ReleaseType]
+            )
             .getOrElse(throw SanitizingException("bad releaseType"))
         )
         config.setAmountDays(

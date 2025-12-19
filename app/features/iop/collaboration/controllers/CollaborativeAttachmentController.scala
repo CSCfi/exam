@@ -87,7 +87,8 @@ class CollaborativeAttachmentController @Inject() (
         val request = wsClient.url(url.toString)
         val source  = createMultipartSource(filePart)
 
-        val responseFuture = if externalId.isBlank then request.post(source) else request.put(source)
+        val responseFuture =
+          if externalId.isBlank then request.post(source) else request.put(source)
 
         responseFuture.flatMap { response =>
           if response.status != CREATED && response.status != OK then Future.successful(None)
@@ -105,9 +106,10 @@ class CollaborativeAttachmentController @Inject() (
                   "mimeType"   -> mimeType,
                   "fileName"   -> displayName
                 )
-                val updatedFeedback   = feedback + ("attachment"                             -> attachment)
-                val updatedExam       = (assessment \ "exam").as[JsObject] + ("examFeedback" -> updatedFeedback)
-                val updatedAssessment = assessment.as[JsObject] + ("exam"                    -> updatedExam)
+                val updatedFeedback = feedback + ("attachment" -> attachment)
+                val updatedExam =
+                  (assessment \ "exam").as[JsObject] + ("examFeedback" -> updatedFeedback)
+                val updatedAssessment = assessment.as[JsObject] + ("exam" -> updatedExam)
                 Future.successful(Some(updatedAssessment))
               case None =>
                 Future.successful(None)
@@ -190,7 +192,8 @@ class CollaborativeAttachmentController @Inject() (
                   uploadAssessmentAttachment(filePart, assessment).flatMap {
                     case None => Future.successful(InternalServerError)
                     case Some(updatedAssessment) =>
-                      val attachmentJson = updatedAssessment \ "exam" \ "examFeedback" \ "attachment"
+                      val attachmentJson =
+                        updatedAssessment \ "exam" \ "examFeedback" \ "attachment"
 
                       examLoader.uploadAssessment(exam, assessmentRef, updatedAssessment).map {
                         case Some(revision) =>
@@ -218,9 +221,10 @@ class CollaborativeAttachmentController @Inject() (
                   val feedbackPath = assessment \ "exam" \ "examFeedback"
                   feedbackPath.asOpt[JsObject] match
                     case Some(feedback) =>
-                      val updatedFeedback   = feedback - "attachment"
-                      val updatedExam       = (assessment \ "exam").as[JsObject] + ("examFeedback" -> updatedFeedback)
-                      val updatedAssessment = assessment.as[JsObject] + ("exam"                    -> updatedExam)
+                      val updatedFeedback = feedback - "attachment"
+                      val updatedExam =
+                        (assessment \ "exam").as[JsObject] + ("examFeedback" -> updatedFeedback)
+                      val updatedAssessment = assessment.as[JsObject] + ("exam" -> updatedExam)
 
                       examLoader.uploadAssessment(exam, assessmentRef, updatedAssessment).map {
                         case Some(revision) => Ok(Json.obj("rev" -> revision))
@@ -233,7 +237,10 @@ class CollaborativeAttachmentController @Inject() (
     }
 
   // Assessment attachment methods - these call updateExternalAssessment/deleteExternalAssessment
-  def addAssessmentAttachment(id: Long, ref: String): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
+  def addAssessmentAttachment(
+      id: Long,
+      ref: String
+  ): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
     updateExternalAssessment(id, ref)
 
   def deleteAssessmentAttachment(id: Long, ref: String): Action[AnyContent] =
@@ -247,7 +254,8 @@ class CollaborativeAttachmentController @Inject() (
 
   private def findEssayAnswerWithAttachment(esq: ExamSectionQuestion): Option[EssayAnswer] =
     Option(esq.getEssayAnswer) match
-      case Some(ea) if Option(ea.getAttachment).flatMap(a => Option(a.getExternalId)).exists(_.nonEmpty) =>
+      case Some(ea)
+          if Option(ea.getAttachment).flatMap(a => Option(a.getExternalId)).exists(_.nonEmpty) =>
         Some(ea)
       case _ => None
 
@@ -266,7 +274,8 @@ class CollaborativeAttachmentController @Inject() (
         val source  = createMultipartSource(filePart)
 
         val responseFuture =
-          if externalId == null || externalId.isBlank then request.post(source) else request.put(source)
+          if externalId == null || externalId.isBlank then request.post(source)
+          else request.put(source)
 
         responseFuture.flatMap { response =>
           if response.status != CREATED && response.status != OK then
@@ -302,14 +311,17 @@ class CollaborativeAttachmentController @Inject() (
       case Some(attachment) =>
         val externalId = attachment.getExternalId
         if externalId == null || externalId.isBlank then
-          logger.warn(s"External id can not be found for attachment [id=${attachment.getExternalId}]")
+          logger.warn(
+            s"External id can not be found for attachment [id=${attachment.getExternalId}]"
+          )
           Future.successful(NotFound)
         else
           parseUrl("/api/attachments/%s", externalId) match
             case None => Future.successful(InternalServerError)
             case Some(url) =>
               wsClient.url(url.toString).delete().flatMap { response =>
-                if response.status != OK && response.status != NOT_FOUND then Future.successful(Status(response.status))
+                if response.status != OK && response.status != NOT_FOUND then
+                  Future.successful(Status(response.status))
                 else
                   container.setAttachment(null)
                   examLoader.uploadExam(ce, exam, user).map { result =>
@@ -322,36 +334,37 @@ class CollaborativeAttachmentController @Inject() (
   def downloadExternalAttachment(id: String): Action[AnyContent] =
     Action { _ => NotImplemented }
 
-  def addAttachmentToQuestion(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = audited
-    .andThen(authenticated)
-    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
-    .async(parse.multipartFormData) { request =>
-      val formData      = request.body.asFormUrlEncoded
-      val examIdOpt     = formData.get("examId").flatMap(_.headOption)
-      val questionIdOpt = formData.get("questionId").flatMap(_.headOption)
+  def addAttachmentToQuestion(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
+    audited
+      .andThen(authenticated)
+      .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
+      .async(parse.multipartFormData) { request =>
+        val formData      = request.body.asFormUrlEncoded
+        val examIdOpt     = formData.get("examId").flatMap(_.headOption)
+        val questionIdOpt = formData.get("questionId").flatMap(_.headOption)
 
-      (examIdOpt, questionIdOpt) match
-        case (Some(examIdStr), Some(questionIdStr)) =>
-          val examId     = examIdStr.toLong
-          val questionId = questionIdStr.toLong
+        (examIdOpt, questionIdOpt) match
+          case (Some(examIdStr), Some(questionIdStr)) =>
+            val examId     = examIdStr.toLong
+            val questionId = questionIdStr.toLong
 
-          getExternalExam(examId) match
-            case None => Future.successful(NotFound)
-            case Some(ce) =>
-              examLoader.downloadExam(ce).flatMap {
-                case None => Future.successful(NotFound)
-                case Some(exam) =>
-                  findSectionQuestion(questionId, exam) match
-                    case None => Future.successful(NotFound)
-                    case Some(sq) =>
-                      request.body.file("file") match
-                        case None => Future.successful(BadRequest("Missing file"))
-                        case Some(filePart) =>
-                          val user = request.attrs(Auth.ATTR_USER)
-                          uploadAttachment(filePart, ce, exam, sq.getQuestion, user)
-              }
-        case _ => Future.successful(BadRequest("Missing examId or questionId"))
-    }
+            getExternalExam(examId) match
+              case None => Future.successful(NotFound)
+              case Some(ce) =>
+                examLoader.downloadExam(ce).flatMap {
+                  case None => Future.successful(NotFound)
+                  case Some(exam) =>
+                    findSectionQuestion(questionId, exam) match
+                      case None => Future.successful(NotFound)
+                      case Some(sq) =>
+                        request.body.file("file") match
+                          case None => Future.successful(BadRequest("Missing file"))
+                          case Some(filePart) =>
+                            val user = request.attrs(Auth.ATTR_USER)
+                            uploadAttachment(filePart, ce, exam, sq.getQuestion, user)
+                }
+          case _ => Future.successful(BadRequest("Missing examId or questionId"))
+      }
 
   def deleteQuestionAttachment(eid: Long, qid: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
@@ -370,7 +383,9 @@ class CollaborativeAttachmentController @Inject() (
     }
 
   def downloadQuestionAttachment(eid: Long, qid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))).async { _ =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { _ =>
       getExternalExam(eid) match
         case None => Future.successful(NotFound)
         case Some(ce) =>
@@ -385,8 +400,11 @@ class CollaborativeAttachmentController @Inject() (
           }
     }
 
-  def addAttachmentToQuestionAnswer(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
-    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(parse.multipartFormData) {
+  def addAttachmentToQuestionAnswer()
+      : Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] =
+    audited.andThen(authenticated).andThen(authorized(Seq(Role.Name.STUDENT))).async(
+      parse.multipartFormData
+    ) {
       request =>
         val formData      = request.body.asFormUrlEncoded
         val examIdOpt     = formData.get("examId").flatMap(_.headOption)
@@ -436,7 +454,9 @@ class CollaborativeAttachmentController @Inject() (
     }
 
   def downloadQuestionAnswerAttachment(qid: Long, eid: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))).async { _ =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.STUDENT))
+    ).async { _ =>
       getExternalExam(eid) match
         case None => Future.successful(NotFound)
         case Some(ce) =>

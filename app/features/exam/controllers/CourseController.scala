@@ -23,7 +23,9 @@ class CourseController @Inject() (
     with EbeanJsonExtensions:
 
   def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))).async { request =>
+    authenticated.andThen(
+      authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT, Role.Name.TEACHER))
+    ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       courseService
         .listCourses(filterType, criteria, user)
@@ -36,10 +38,11 @@ class CourseController @Inject() (
     }
 
   def getCourse(id: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      courseService.getCourse(id) match
-        case Some(course) => Ok(course.asJson)
-        case None         => NotFound
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      _ =>
+        courseService.getCourse(id) match
+          case Some(course) => Ok(course.asJson)
+          case None         => NotFound
     }
 
   def listUsersCourses(
@@ -48,7 +51,8 @@ class CourseController @Inject() (
       tagIds: Option[List[Long]],
       ownerIds: Option[List[Long]]
   ): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      Ok(courseService.getUserCourses(user, examIds, sectionIds, tagIds, ownerIds).asJson)
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT))) {
+      request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        Ok(courseService.getUserCourses(user, examIds, sectionIds, tagIds, ownerIds).asJson)
     }

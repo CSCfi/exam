@@ -9,4 +9,8 @@ import io.ebean.ExpressionList
 
 @ImplementedBy(classOf[UserHandlerImpl])
 trait UserHandler:
-  def applyNameSearch[T](prefix: String, query: ExpressionList[T], filter: String): ExpressionList[T]
+  def applyNameSearch[T](
+      prefix: String,
+      query: ExpressionList[T],
+      filter: String
+  ): ExpressionList[T]

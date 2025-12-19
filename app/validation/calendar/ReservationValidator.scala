@@ -70,7 +70,10 @@ object ReservationValidator:
   private def requireEndDate(end: DateTime): ValidatedNel[FieldError, DateTime] =
     PlayValidator.requirePresent("end", end)
 
-  private def requireValidDateRange(start: DateTime, end: DateTime): ValidatedNel[FieldError, Unit] =
+  private def requireValidDateRange(
+      start: DateTime,
+      end: DateTime
+  ): ValidatedNel[FieldError, Unit] =
     val isStartInPast    = start.isBeforeNow
     val isEndBeforeStart = end.isBefore(start)
 
@@ -83,7 +86,8 @@ object ReservationValidator:
     PlayValidator.requirePositive("roomId", reservation.roomId)
 
   // ExternalReservationDTO-specific validators
-  private def requireRoomRef(reservation: ExternalReservationDTO): ValidatedNel[FieldError, String] =
+  private def requireRoomRef(reservation: ExternalReservationDTO)
+      : ValidatedNel[FieldError, String] =
     PlayValidator.requireField("roomId", reservation.roomRef)
 
   private def requireOrgRef(reservation: ExternalReservationDTO): ValidatedNel[FieldError, String] =

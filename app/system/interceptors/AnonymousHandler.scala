@@ -30,8 +30,8 @@ trait AnonymousHandler:
 
   /** Writes an anonymous result with ID-based filtering.
     *
-    * Stores anonymous IDs in the Result attributes and adds a header to signal filtering. The AnonymousJsonFilter will
-    * read these IDs and filter the response accordingly.
+    * Stores anonymous IDs in the Result attributes and adds a header to signal filtering. The
+    * AnonymousJsonFilter will read these IDs and filter the response accordingly.
     *
     * @param request
     *   the current request

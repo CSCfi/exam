@@ -76,7 +76,7 @@ class ExternalReservationHandlerImpl @Inject() (
       case Some(enrolment) =>
         // Removal is not permitted if the reservation is in the past or ongoing
         val reservation = enrolment.getReservation
-        val now         = dateTimeHandler.adjustDST(DateTime.now(), reservation.getExternalReservation)
+        val now = dateTimeHandler.adjustDST(DateTime.now(), reservation.getExternalReservation)
 
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Future.successful(Forbidden("i18n_reservation_in_effect"))
@@ -90,7 +90,8 @@ class ExternalReservationHandlerImpl @Inject() (
               .delete()
               .map { response =>
                 if response.status != OK then
-                  val msg = (response.json \ "message").asOpt[String].getOrElse("Connection refused")
+                  val msg =
+                    (response.json \ "message").asOpt[String].getOrElse("Connection refused")
                   InternalServerError(msg)
                 else
                   enrolment.setReservation(null)
@@ -118,6 +119,10 @@ class ExternalReservationHandlerImpl @Inject() (
               Future.successful(InternalServerError(e.getMessage))
 
   // remove reservation on the external side, initiated by the reservation holder
-  override def removeReservation(reservation: Reservation, user: User, msg: String): Future[Result] =
+  override def removeReservation(
+      reservation: Reservation,
+      user: User,
+      msg: String
+  ): Future[Result] =
     if Option(reservation.getExternalReservation).isEmpty then Future.successful(Ok)
     else requestRemoval(reservation.getExternalRef, user, msg)

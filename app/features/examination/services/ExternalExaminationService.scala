@@ -35,26 +35,34 @@ class ExternalExaminationService @Inject() (
     with EbeanJsonExtensions
     with Logging:
 
-  def startExam(hash: String, user: User, requestData: RequestData): Future[Either[ExternalExaminationError, Exam]] =
+  def startExam(
+      hash: String,
+      user: User,
+      requestData: RequestData
+  ): Future[Either[ExternalExaminationError, Exam]] =
     getExternalExam(hash, user)
-      .fold(Future.successful(Left(ExternalExamNotFound): Either[ExternalExaminationError, Exam])) { externalExam =>
-        getEnrolment(user, externalExam)
-          .fold(Future.successful(Left(EnrolmentNotFound): Either[ExternalExaminationError, Exam])) { enrolment =>
-            Try(externalExam.deserialize())
-              .fold(
-                _ => Future.successful(Left(DeserializationFailed)),
-                newExam =>
-                  validateBasicEnrolment(enrolment, requestData).map {
-                    case Some(error) => Left(ValidationError(error.header.status.toString))
-                    case None =>
-                      if newExam.getState == Exam.State.PUBLISHED then
-                        startExternalExam(externalExam, newExam, enrolment)
-                      else
-                        processExamForResponse(newExam)
-                        Right(newExam)
-                  }
-              )
-          }
+      .fold(Future.successful(Left(ExternalExamNotFound): Either[ExternalExaminationError, Exam])) {
+        externalExam =>
+          getEnrolment(user, externalExam)
+            .fold(Future.successful(Left(EnrolmentNotFound): Either[
+              ExternalExaminationError,
+              Exam
+            ])) { enrolment =>
+              Try(externalExam.deserialize())
+                .fold(
+                  _ => Future.successful(Left(DeserializationFailed)),
+                  newExam =>
+                    validateBasicEnrolment(enrolment, requestData).map {
+                      case Some(error) => Left(ValidationError(error.header.status.toString))
+                      case None =>
+                        if newExam.getState == Exam.State.PUBLISHED then
+                          startExternalExam(externalExam, newExam, enrolment)
+                        else
+                          processExamForResponse(newExam)
+                          Right(newExam)
+                    }
+                )
+            }
       }
 
   def turnExam(hash: String, user: User): Either[ExternalExaminationError, Unit] =
@@ -74,7 +82,10 @@ class ExternalExaminationService @Inject() (
       case Left(error) => Future.successful(Left(error))
       case Right(_) =>
         getExternalExam(hash, user)
-          .fold(Future.successful(Left(ExternalExamNotFound): Either[ExternalExaminationError, Unit])) { ee =>
+          .fold(Future.successful(Left(ExternalExamNotFound): Either[
+            ExternalExaminationError,
+            Unit
+          ])) { ee =>
             findSectionQuestion(ee, questionId) match
               case Left(error) => Future.successful(Left(error))
               case Right((content, esq)) =>
@@ -93,13 +104,19 @@ class ExternalExaminationService @Inject() (
       case Left(error) => Future.successful(Left(error))
       case Right(_) =>
         getExternalExam(hash, user)
-          .fold(Future.successful(Left(ExternalExamNotFound): Either[ExternalExaminationError, EssayAnswer])) { ee =>
+          .fold(Future.successful(Left(ExternalExamNotFound): Either[
+            ExternalExaminationError,
+            EssayAnswer
+          ])) { ee =>
             Try(ee.deserialize())
               .fold(
                 _ => Future.successful(Left(DeserializationFailed)),
                 content =>
                   findQuestion(questionId, content)
-                    .fold(Future.successful(Left(QuestionNotFound): Either[ExternalExaminationError, EssayAnswer])) {
+                    .fold(Future.successful(Left(QuestionNotFound): Either[
+                      ExternalExaminationError,
+                      EssayAnswer
+                    ])) {
                       question =>
                         val answer = Option(question.getEssayAnswer).getOrElse(new EssayAnswer())
                         // Handle optimistic locking
@@ -135,7 +152,10 @@ class ExternalExaminationService @Inject() (
       case Right(_) =>
         val objectVersion = answerDTO.objectVersion.getOrElse(0L)
         getExternalExam(hash, user)
-          .fold(Future.successful(Left(ExternalExamNotFound): Either[ExternalExaminationError, ClozeTestAnswer])) {
+          .fold(Future.successful(Left(ExternalExamNotFound): Either[
+            ExternalExaminationError,
+            ClozeTestAnswer
+          ])) {
             ee =>
               findSectionQuestion(ee, questionId) match
                 case Left(error) => Future.successful(Left(error))
@@ -146,7 +166,8 @@ class ExternalExaminationService @Inject() (
                     newAnswer
                   }
                   // Handle optimistic locking
-                  if answer.getObjectVersion > objectVersion then Future.successful(Left(VersionConflict))
+                  if answer.getObjectVersion > objectVersion then
+                    Future.successful(Left(VersionConflict))
                   else
                     answer.setObjectVersion(objectVersion + 1)
                     answer.setAnswer(answerDTO.answer)
@@ -209,7 +230,10 @@ class ExternalExaminationService @Inject() (
         _ => Left(DeserializationFailed),
         content =>
           findQuestion(qid, content)
-            .fold(Left(QuestionNotFound): Either[ExternalExaminationError, (Exam, ExamSectionQuestion)]) { esq =>
+            .fold(Left(QuestionNotFound): Either[
+              ExternalExaminationError,
+              (Exam, ExamSectionQuestion)
+            ]) { esq =>
               Right((content, esq))
             }
       )
@@ -272,7 +296,11 @@ class ExternalExaminationService @Inject() (
           case None        => Right(())
         }
 
-  private def terminateExam(hash: String, newState: Exam.State, user: User): Either[ExternalExaminationError, Unit] =
+  private def terminateExam(
+      hash: String,
+      newState: Exam.State,
+      user: User
+  ): Either[ExternalExaminationError, Unit] =
     DB.find(classOf[ExternalExam])
       .where()
       .eq("hash", hash)
@@ -283,7 +311,8 @@ class ExternalExaminationService @Inject() (
         getEnrolment(user, ee) match
           case None => Left(EnrolmentNotFound)
           case Some(enrolment) =>
-            val now = dateTimeHandler.adjustDST(DateTime.now(), enrolment.getReservation.getMachine.getRoom)
+            val now =
+              dateTimeHandler.adjustDST(DateTime.now(), enrolment.getReservation.getMachine.getRoom)
             ee.setFinished(now)
             Try(ee.deserialize())
               .fold(

@@ -11,7 +11,8 @@ import models.user.User
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserRepository @Inject() (databaseExecutionContext: DatabaseExecutionContext) extends EbeanQueryExtensions:
+class UserRepository @Inject() (databaseExecutionContext: DatabaseExecutionContext)
+    extends EbeanQueryExtensions:
 
   private val db: Database                  = DB.getDefault
   private implicit val ec: ExecutionContext = databaseExecutionContext

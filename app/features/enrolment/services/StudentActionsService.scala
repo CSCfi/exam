@@ -120,7 +120,8 @@ class StudentActionsService @Inject() (
       .endJunction()
       .endJunction()
       .find match
-      case Some(exam) if Option(exam.getExamParticipation).exists(p => Option(p.getUser).isDefined) =>
+      case Some(exam)
+          if Option(exam.getExamParticipation).exists(p => Option(p.getUser).isDefined) =>
         val student = exam.getExamParticipation.getUser
         Using(excelBuilder.buildStudentReport(exam, student, messagesApi.asJava)) { bos =>
           FileResponse(
@@ -259,7 +260,10 @@ class StudentActionsService @Inject() (
         val eec          = enrolment.getExaminationEventConfiguration
         val baseFileName = examName.replace(" ", "-")
         val quitPassword =
-          byodConfigHandler.getPlaintextPassword(eec.getEncryptedQuitPassword, eec.getQuitPasswordSalt)
+          byodConfigHandler.getPlaintextPassword(
+            eec.getEncryptedQuitPassword,
+            eec.getQuitPasswordSalt
+          )
 
         val file = File.createTempFile(baseFileName, ".seb")
         Try {
@@ -341,10 +345,11 @@ class StudentActionsService @Inject() (
       else baseQuery
 
     val query = filter.fold(withCourseFilter) { f =>
-      val condition           = s"%$f%"
-      val withDisjunction     = withCourseFilter.disjunction()
-      val withOwnerSearch     = userHandler.applyNameSearch("examOwners", withDisjunction, f)
-      val withInspectorSearch = userHandler.applyNameSearch("examInspections.user", withOwnerSearch, f)
+      val condition       = s"%$f%"
+      val withDisjunction = withCourseFilter.disjunction()
+      val withOwnerSearch = userHandler.applyNameSearch("examOwners", withDisjunction, f)
+      val withInspectorSearch =
+        userHandler.applyNameSearch("examInspections.user", withOwnerSearch, f)
       withInspectorSearch
         .ilike("name", condition)
         .ilike("course.code", condition)

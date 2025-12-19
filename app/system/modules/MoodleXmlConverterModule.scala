@@ -5,7 +5,12 @@
 package system.modules
 
 import com.google.inject.AbstractModule
-import services.xml.{MoodleXmlExporter, MoodleXmlExporterImpl, MoodleXmlImporter, MoodleXmlImporterImpl}
+import services.xml.{
+  MoodleXmlExporter,
+  MoodleXmlExporterImpl,
+  MoodleXmlImporter,
+  MoodleXmlImporterImpl
+}
 
 class MoodleXmlConverterModule extends AbstractModule:
   override def configure(): Unit =

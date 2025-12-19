@@ -66,7 +66,8 @@ class NoShowHandlerImpl @Inject (
           .url(parseUrl(ref).toString)
           .execute(Http.HttpVerbs.POST)
           .map(response =>
-            if response.status != OK then logger.error(s"No success in sending no-show reservation #$ref to XM")
+            if response.status != OK then
+              logger.error(s"No success in sending no-show reservation #$ref to XM")
             else
               r.setSentAsNoShow(true)
               r.update()
@@ -85,7 +86,9 @@ class NoShowHandlerImpl @Inject (
   private def isCollaborative(ee: ExamEnrolment) =
     Option(ee.getCollaborativeExam).nonEmpty && Option(ee.getExam).isEmpty
   private def isNoShow(enrolment: ExamEnrolment) =
-    (Option(enrolment.getReservation).nonEmpty && Option(enrolment.getReservation.getExternalRef).isEmpty) ||
+    (Option(enrolment.getReservation).nonEmpty && Option(
+      enrolment.getReservation.getExternalRef
+    ).isEmpty) ||
       Option(enrolment.getExaminationEventConfiguration).nonEmpty
 
   override def handleNoShows(noShows: List[ExamEnrolment], reservations: List[Reservation]): Unit =
@@ -94,25 +97,30 @@ class NoShowHandlerImpl @Inject (
     val externals = noShows.filter(ns =>
       val ref = Option(ns.getReservation).flatMap(r => Option(r.getExternalRef))
       ref.nonEmpty && !ns.getReservation.isSentAsNoShow &&
-      (Option(ns.getUser).isEmpty || Option(ns.getExternalExam).flatMap(e => Option(e.getStarted)).isEmpty)
+      (Option(ns.getUser).isEmpty || Option(ns.getExternalExam).flatMap(e =>
+        Option(e.getStarted)
+      ).isEmpty)
     )
 
     // Process externals and reservations with bounded concurrency
-    val io = (if externals.nonEmpty then
-                val count = externals.size
-                logger.info(s"Processing $count external no-shows with max concurrency of $maxConcurrency")
-                externals
-                  .parTraverseN(maxConcurrency)(sendEnrolmentNoShow)
-                  .handleErrorWith(e => IO(logger.error("Error processing external no-shows", e)))
-              else IO.unit)
-    *>
-      (if reservations.nonEmpty then
-         val count = reservations.size
-         logger.info(s"Processing $count reservation no-shows with max concurrency of $maxConcurrency")
-         reservations
-           .parTraverseN(maxConcurrency)(sendReservationNoShow)
-           .handleErrorWith(e => IO(logger.error("Error processing reservation no-shows", e)))
+    val io =
+      (if externals.nonEmpty then
+         val count = externals.size
+         logger.info(s"Processing $count external no-shows with max concurrency of $maxConcurrency")
+         externals
+           .parTraverseN(maxConcurrency)(sendEnrolmentNoShow)
+           .handleErrorWith(e => IO(logger.error("Error processing external no-shows", e)))
        else IO.unit)
+      *>
+        (if reservations.nonEmpty then
+           val count = reservations.size
+           logger.info(
+             s"Processing $count reservation no-shows with max concurrency of $maxConcurrency"
+           )
+           reservations
+             .parTraverseN(maxConcurrency)(sendReservationNoShow)
+             .handleErrorWith(e => IO(logger.error("Error processing reservation no-shows", e)))
+         else IO.unit)
 
     // Run the IO synchronously to maintain backward compatibility
     io.unsafeRunSync()
@@ -141,7 +149,8 @@ class NoShowHandlerImpl @Inject (
     composer.composeNoShowMessage(enrolment.getUser, examName, courseCode)
     if Option(exam).exists(_.isPrivate) then
       // Notify teachers
-      (exam.getExamOwners.asScala ++ exam.getExamInspections.asScala.map(_.getUser)).foreach(teacher =>
-        composer.composeNoShowMessage(teacher, enrolment.getUser, exam)
-        logger.info(s"Email sent to ${teacher.getEmail}")
+      (exam.getExamOwners.asScala ++ exam.getExamInspections.asScala.map(_.getUser)).foreach(
+        teacher =>
+          composer.composeNoShowMessage(teacher, enrolment.getUser, exam)
+          logger.info(s"Email sent to ${teacher.getEmail}")
       )

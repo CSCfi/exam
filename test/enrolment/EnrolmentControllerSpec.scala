@@ -134,13 +134,19 @@ class EnrolmentControllerSpec
 
         val enrollData = Json.obj("email" -> email)
         val result =
-          runIO(makeRequest(POST, s"/app/enrolments/student/${exam.getId}", Some(enrollData), session = session))
+          runIO(makeRequest(
+            POST,
+            s"/app/enrolments/student/${exam.getId}",
+            Some(enrollData),
+            session = session
+          ))
         statusOf(result) must be(Status.OK)
 
         DB.find(classOf[User]).where().eq("eppn", eppn).find must be(None)
 
         // Login as the pre-enrolled student
-        val (user, _) = runIO(login(eppn, Map("mail" -> java.net.URLEncoder.encode(email, "UTF-8"))))
+        val (user, _) =
+          runIO(login(eppn, Map("mail" -> java.net.URLEncoder.encode(email, "UTF-8"))))
         // Find the enrolment - it should be linked to the user after login
         // The association happens in SessionController.associateWithPreEnrolments
         val ee = DB
@@ -182,7 +188,12 @@ class EnrolmentControllerSpec
 
         val enrollData = Json.obj("email" -> eppn)
         val result =
-          runIO(makeRequest(POST, s"/app/enrolments/student/${exam.getId}", Some(enrollData), session = session))
+          runIO(makeRequest(
+            POST,
+            s"/app/enrolments/student/${exam.getId}",
+            Some(enrollData),
+            session = session
+          ))
         statusOf(result) must be(Status.OK)
 
         DB.find(classOf[User]).where().eq("eppn", eppn).find must be(None)
@@ -226,7 +237,10 @@ class EnrolmentControllerSpec
         ee.setCreator(user)
         ee.setContent(
           EJson.parseObject(
-            Files.asCharSource(new File("test/resources/enrolment.json"), Charset.forName("UTF-8")).read()
+            Files.asCharSource(
+              new File("test/resources/enrolment.json"),
+              Charset.forName("UTF-8")
+            ).read()
           )
         )
 
@@ -259,7 +273,12 @@ class EnrolmentControllerSpec
         val (exam, _, _, _) = setupTestData()
 
         val enrollData = Json.obj("code" -> exam.getCourse.getCode)
-        val result     = runIO(makeRequest(POST, s"/app/enrolments/${exam.getId}", Some(enrollData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          s"/app/enrolments/${exam.getId}",
+          Some(enrollData),
+          session = session
+        ))
         statusOf(result) must be(Status.OK)
 
         // Verify enrolment was created
@@ -287,7 +306,12 @@ class EnrolmentControllerSpec
           scala.concurrent.Future {
             try
               val enrollData = Json.obj("code" -> exam.getCourse.getCode)
-              runIO(makeRequest(POST, s"/app/enrolments/${exam.getId}", Some(enrollData), session = session))
+              runIO(makeRequest(
+                POST,
+                s"/app/enrolments/${exam.getId}",
+                Some(enrollData),
+                session = session
+              ))
             catch
               case e: Exception =>
                 println(s"Request failed: ${e.getMessage}")
@@ -318,7 +342,12 @@ class EnrolmentControllerSpec
         enrolment.save()
 
         val enrollData = Json.obj("code" -> exam.getCourse.getCode)
-        val result     = runIO(makeRequest(POST, s"/app/enrolments/${exam.getId}", Some(enrollData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          s"/app/enrolments/${exam.getId}",
+          Some(enrollData),
+          session = session
+        ))
         statusOf(result) must be(Status.FORBIDDEN)
         contentAsStringOf(result) must be("i18n_error_enrolment_exists")
 
@@ -344,7 +373,12 @@ class EnrolmentControllerSpec
         enrolment.save()
 
         val enrollData = Json.obj("code" -> exam.getCourse.getCode)
-        val result     = runIO(makeRequest(POST, s"/app/enrolments/${exam.getId}", Some(enrollData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          s"/app/enrolments/${exam.getId}",
+          Some(enrollData),
+          session = session
+        ))
         statusOf(result) must be(Status.OK)
 
         // Verify enrolment was recreated without reservation
@@ -370,7 +404,12 @@ class EnrolmentControllerSpec
         enrolment.save()
 
         val enrollData = Json.obj("code" -> exam.getCourse.getCode)
-        val result     = runIO(makeRequest(POST, s"/app/enrolments/${exam.getId}", Some(enrollData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          s"/app/enrolments/${exam.getId}",
+          Some(enrollData),
+          session = session
+        ))
         statusOf(result) must be(Status.FORBIDDEN)
         contentAsStringOf(result) must be("i18n_reservation_in_effect")
 
@@ -396,7 +435,12 @@ class EnrolmentControllerSpec
         enrolment.save()
 
         val enrollData = Json.obj("code" -> exam.getCourse.getCode)
-        val result     = runIO(makeRequest(POST, s"/app/enrolments/${exam.getId}", Some(enrollData), session = session))
+        val result = runIO(makeRequest(
+          POST,
+          s"/app/enrolments/${exam.getId}",
+          Some(enrollData),
+          session = session
+        ))
         statusOf(result) must be(Status.OK)
 
         // Verify new enrolment was created

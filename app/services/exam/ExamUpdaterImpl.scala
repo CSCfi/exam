@@ -29,7 +29,11 @@ class ExamUpdaterImpl @Inject() (
     with EbeanQueryExtensions
     with Logging:
 
-  override def updateTemporalFieldsAndValidate(exam: Exam, user: User, payload: Exam): Option[Result] =
+  override def updateTemporalFieldsAndValidate(
+      exam: Exam,
+      user: User,
+      payload: Exam
+  ): Option[Result] =
     val newDuration = Option(payload.getDuration)
     val newStart    = Option(payload.getPeriodStart)
     val newEnd      = Option(payload.getPeriodEnd)
@@ -45,7 +49,8 @@ class ExamUpdaterImpl @Inject() (
           val dates = exam.getExaminationEventConfigurations.asScala
             .map(_.getExaminationEvent.getStart)
             .toSet
-          if dates.exists(_.isAfter(newEnd.get)) then Some(Forbidden("i18n_error_future_reservations_exist"))
+          if dates.exists(_.isAfter(newEnd.get)) then
+            Some(Forbidden("i18n_error_future_reservations_exist"))
           else None
         else None
 
@@ -55,7 +60,12 @@ class ExamUpdaterImpl @Inject() (
 
         // Update start date
         val startDateCheck = newStart.flatMap { start =>
-          if isAdmin || !hasFutureRes || isNonRestrictingValidityChange(start, exam, isStartDate = true) then
+          if isAdmin || !hasFutureRes || isNonRestrictingValidityChange(
+              start,
+              exam,
+              isStartDate = true
+            )
+          then
             exam.setPeriodStart(start)
             None
           else Some(Forbidden("i18n_error_future_reservations_exist"))
@@ -64,7 +74,12 @@ class ExamUpdaterImpl @Inject() (
         startDateCheck.orElse {
           // Update end date
           val endDateCheck = newEnd.flatMap { end =>
-            if isAdmin || !hasFutureRes || isNonRestrictingValidityChange(end, exam, isStartDate = false) then
+            if isAdmin || !hasFutureRes || isNonRestrictingValidityChange(
+                end,
+                exam,
+                isStartDate = false
+              )
+            then
               exam.setPeriodEnd(end)
               None
             else Some(Forbidden("i18n_error_future_reservations_exist"))
@@ -117,7 +132,10 @@ class ExamUpdaterImpl @Inject() (
           .orElse {
             // Check SEB password configuration
             if exam.getImplementation == Exam.Implementation.CLIENT_AUTH then
-              if exam.getExaminationEventConfigurations.asScala.exists(_.getEncryptedSettingsPassword == null) then
+              if exam.getExaminationEventConfigurations.asScala.exists(
+                  _.getEncryptedSettingsPassword == null
+                )
+              then
                 Some(BadRequest("settings password not configured"))
               else None
             else None
@@ -163,7 +181,7 @@ class ExamUpdaterImpl @Inject() (
     val requiresLanguageInspection = payload.getSubjectToLanguageInspection
     val internalRef                = payload.getInternalRef
     val anonymous                  = payload.isAnonymous
-    val impl                       = Option(payload.getImplementation).getOrElse(Exam.Implementation.AQUARIUM)
+    val impl = Option(payload.getImplementation).getOrElse(Exam.Implementation.AQUARIUM)
 
     examName.foreach(exam.setName)
     exam.setShared(shared)
@@ -184,7 +202,9 @@ class ExamUpdaterImpl @Inject() (
           exam.setOrganisations(null)
 
     examType.foreach { typeStr =>
-      Option(DB.find(classOf[ExamType]).where().eq("type", typeStr).findOne()).foreach(exam.setExamType)
+      Option(DB.find(classOf[ExamType]).where().eq("type", typeStr).findOne()).foreach(
+        exam.setExamType
+      )
     }
 
     exam.setTrialCount(trialCount)
@@ -278,7 +298,10 @@ class ExamUpdaterImpl @Inject() (
           finalConfig.save()
           updateGradeEvaluations(exam, nc)
           exam.setAutoEvaluationConfig(finalConfig)
-        else logger.warn("Attempting to set auto evaluation config for maturity type. Refusing to do so")
+        else
+          logger.warn(
+            "Attempting to set auto evaluation config for maturity type. Refusing to do so"
+          )
 
   override def updateLanguage(exam: Exam, code: String, user: User): Option[Result] =
     if !isPermittedToUpdate(exam, user) then Some(Forbidden("i18n_error_access_forbidden"))
@@ -370,7 +393,11 @@ class ExamUpdaterImpl @Inject() (
         case _ =>
           None
 
-  private def isNonRestrictingValidityChange(newDate: DateTime, exam: Exam, isStartDate: Boolean): Boolean =
+  private def isNonRestrictingValidityChange(
+      newDate: DateTime,
+      exam: Exam,
+      isStartDate: Boolean
+  ): Boolean =
     val oldDate = if isStartDate then exam.getPeriodStart else exam.getPeriodEnd
     if isStartDate then !oldDate.isBefore(newDate)
     else !newDate.isBefore(oldDate)

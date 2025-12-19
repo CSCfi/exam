@@ -79,7 +79,12 @@ class CalendarHandlerImpl @Inject() (
                 .where()
                 .gt("endsAt", searchDate.toDate)
                 .list
-                .map(p => new Interval(normalizeMaintenanceTime(p.getStartsAt), normalizeMaintenanceTime(p.getEndsAt)))
+                .map(p =>
+                  new Interval(
+                    normalizeMaintenanceTime(p.getStartsAt),
+                    normalizeMaintenanceTime(p.getEndsAt)
+                  )
+                )
 
               val endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getPeriodEnd))
 
@@ -96,8 +101,9 @@ class CalendarHandlerImpl @Inject() (
         Right(Json.toJson(slots))
 
   override def isDoable(reservation: Reservation, aids: Seq[Long]): Boolean =
-    val dtz        = DateTimeZone.forID(reservation.getMachine.getRoom.getLocalTimezone)
-    val searchDate = dateTimeHandler.normalize(reservation.getStartAt.withZone(dtz), dtz).toLocalDate
+    val dtz = DateTimeZone.forID(reservation.getMachine.getRoom.getLocalTimezone)
+    val searchDate =
+      dateTimeHandler.normalize(reservation.getStartAt.withZone(dtz), dtz).toLocalDate
 
     // user's reservations starting from now
     val reservations = DB
@@ -109,7 +115,8 @@ class CalendarHandlerImpl @Inject() (
       .list
 
     // Resolve eligible machines
-    val machines = getEligibleMachines(reservation.getMachine.getRoom, aids, reservation.getEnrolment.getExam)
+    val machines =
+      getEligibleMachines(reservation.getMachine.getRoom, aids, reservation.getEnrolment.getExam)
 
     // Maintenance periods
     val periods = DB
@@ -117,7 +124,9 @@ class CalendarHandlerImpl @Inject() (
       .where()
       .gt("endsAt", searchDate.toDate)
       .list
-      .map(p => new Interval(normalizeMaintenanceTime(p.getStartsAt), normalizeMaintenanceTime(p.getEndsAt)))
+      .map(p =>
+        new Interval(normalizeMaintenanceTime(p.getStartsAt), normalizeMaintenanceTime(p.getEndsAt))
+      )
 
     val slots = getExamSlots(
       reservation.getUser,
@@ -132,26 +141,35 @@ class CalendarHandlerImpl @Inject() (
     slots.exists(_.interval.contains(reservation.toInterval))
 
   override def parseSearchDate(day: String, exam: Exam, room: Option[ExamRoom]): LocalDate =
-    val windowSize  = getReservationWindowSize
-    val dtz         = room.map(r => DateTimeZone.forID(r.getLocalTimezone)).getOrElse(configReader.getDefaultTimeZone)
-    val startOffset = dtz.getOffset(exam.getPeriodStart)
-    val offset      = dtz.getOffset(DateTime.now())
-    val now         = DateTime.now().plusMillis(offset).toLocalDate
+    val windowSize = getReservationWindowSize
+    val dtz = room.map(r => DateTimeZone.forID(r.getLocalTimezone)).getOrElse(
+      configReader.getDefaultTimeZone
+    )
+    val startOffset           = dtz.getOffset(exam.getPeriodStart)
+    val offset                = dtz.getOffset(DateTime.now())
+    val now                   = DateTime.now().plusMillis(offset).toLocalDate
     val reservationWindowDate = now.plusDays(windowSize)
 
-    val examEndDate   = new DateTime(exam.getPeriodEnd).plusMillis(offset).toLocalDate
-    val searchEndDate = if reservationWindowDate.isBefore(examEndDate) then reservationWindowDate else examEndDate
+    val examEndDate = new DateTime(exam.getPeriodEnd).plusMillis(offset).toLocalDate
+    val searchEndDate =
+      if reservationWindowDate.isBefore(examEndDate) then reservationWindowDate else examEndDate
     val examStartDate = new DateTime(exam.getPeriodStart).plusMillis(startOffset).toLocalDate
 
-    val initialDate = if day.isEmpty then now else ISODateTimeFormat.dateTimeParser().parseLocalDate(day)
-    val weekStart   = initialDate.withDayOfWeek(1)
-    val afterNow    = if weekStart.isBefore(now) then now else weekStart
+    val initialDate =
+      if day.isEmpty then now else ISODateTimeFormat.dateTimeParser().parseLocalDate(day)
+    val weekStart = initialDate.withDayOfWeek(1)
+    val afterNow  = if weekStart.isBefore(now) then now else weekStart
     // if searching for month(s) after exam's end month -> no can do
-    if afterNow.isAfter(searchEndDate) then throw new IllegalArgumentException("Search date is after exam end date")
+    if afterNow.isAfter(searchEndDate) then
+      throw new IllegalArgumentException("Search date is after exam end date")
     // Do not execute search before exam starts
     if afterNow.isBefore(examStartDate) then examStartDate else afterNow
 
-  private def getEligibleMachines(room: ExamRoom, access: Seq[Long], exam: Exam): List[ExamMachine] =
+  private def getEligibleMachines(
+      room: ExamRoom,
+      access: Seq[Long],
+      exam: Exam
+  ): List[ExamMachine] =
     val candidates = DB
       .find(classOf[ExamMachine])
       .fetch("room")
@@ -164,7 +182,9 @@ class CalendarHandlerImpl @Inject() (
       .list
 
     candidates.filter { em =>
-      isMachineAccessibilitySatisfied(em, access) && (Option(exam).isEmpty || em.hasRequiredSoftware(exam))
+      isMachineAccessibilitySatisfied(em, access) && (Option(
+        exam
+      ).isEmpty || em.hasRequiredSoftware(exam))
     }
 
   override def getRandomMachine(
@@ -178,7 +198,12 @@ class CalendarHandlerImpl @Inject() (
     val wantedTime = new Interval(start, end)
     Random.shuffle(machines).find(!_.isReservedDuring(wantedTime))
 
-  override def createReservation(start: DateTime, end: DateTime, machine: ExamMachine, user: User): Reservation =
+  override def createReservation(
+      start: DateTime,
+      end: DateTime,
+      machine: ExamMachine,
+      user: User
+  ): Reservation =
     val reservation = new Reservation()
     reservation.setEndAt(end)
     reservation.setStartAt(start)
@@ -190,7 +215,11 @@ class CalendarHandlerImpl @Inject() (
 
     reservation
 
-  override def gatherSuitableSlots(room: ExamRoom, date: LocalDate, examDuration: Integer): Seq[Interval] =
+  override def gatherSuitableSlots(
+      room: ExamRoom,
+      date: LocalDate,
+      examDuration: Integer
+  ): Seq[Interval] =
     // Resolve the opening hours for room and day
     val openingHours = dateTimeHandler.getWorkingHoursForDate(date, room)
 
@@ -275,7 +304,8 @@ class CalendarHandlerImpl @Inject() (
       case Nil => createDefaultStartingHours(room.getLocalTimezone)
       case hs  => hs.sorted
 
-    val now = DateTime.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone).getOffset(DateTime.now()))
+    val now =
+      DateTime.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone).getOffset(DateTime.now()))
 
     openingHours.flatMap { oh =>
       val tzOffset = oh.timezoneOffset
@@ -294,7 +324,10 @@ class CalendarHandlerImpl @Inject() (
                   Some((Some(new Interval(b.minusMillis(tzOffset), nb.minusMillis(tzOffset))), nb))
                 case _ if b.isBefore(slotEnd) =>
                   // We have some spare time in the end
-                  Some((Some(new Interval(b.minusMillis(tzOffset), slotEnd.minusMillis(tzOffset))), slotEnd))
+                  Some((
+                    Some(new Interval(b.minusMillis(tzOffset), slotEnd.minusMillis(tzOffset))),
+                    slotEnd
+                  ))
                 case _ => None
           }
         }
@@ -310,10 +343,16 @@ class CalendarHandlerImpl @Inject() (
   override def getEndSearchDate(searchDate: LocalDate, examEnd: LocalDate): LocalDate =
     val endOfWeek             = searchDate.dayOfWeek().withMaximumValue()
     val reservationWindowDate = LocalDate.now().plusDays(getReservationWindowSize)
-    val endOfSearchDate       = if examEnd.isBefore(reservationWindowDate) then examEnd else reservationWindowDate
+    val endOfSearchDate =
+      if examEnd.isBefore(reservationWindowDate) then examEnd else reservationWindowDate
     if endOfWeek.isBefore(endOfSearchDate) then endOfWeek else endOfSearchDate
 
-  override def postProcessSlots(node: JsValue, date: String, exam: Exam, user: User): Set[CalendarHandler.TimeSlot] =
+  override def postProcessSlots(
+      node: JsValue,
+      date: String,
+      exam: Exam,
+      user: User
+  ): Set[CalendarHandler.TimeSlot] =
     node match
       case JsArray(arr) =>
         val searchDate = LocalDate.parse(date, ISODateTimeFormat.dateParser())
@@ -341,7 +380,12 @@ class CalendarHandlerImpl @Inject() (
           .where()
           .ge("endsAt", searchDate.withDayOfWeek(DateTimeConstants.MONDAY).toDate)
           .list
-          .map(p => new Interval(normalizeMaintenanceTime(p.getStartsAt), normalizeMaintenanceTime(p.getEndsAt)))
+          .map(p =>
+            new Interval(
+              normalizeMaintenanceTime(p.getStartsAt),
+              normalizeMaintenanceTime(p.getEndsAt)
+            )
+          )
 
         // Filter out slots that overlap a local maintenance period
         val filteredMap = map.filter((k, _) => !periods.exists(_.overlaps(k)))
@@ -491,7 +535,12 @@ class CalendarHandlerImpl @Inject() (
       .endJunction()
       .findOne()
 
-  private def postProcessRemoval(reservation: Reservation, exam: Exam, user: User, node: JsValue): Unit =
+  private def postProcessRemoval(
+      reservation: Reservation,
+      exam: Exam,
+      user: User,
+      node: JsValue
+  ): Unit =
     // Attach the external machine data just so that email can be generated
     reservation.setMachine(parseExternalMachineData(node))
     // Send some emails asynchronously
@@ -543,7 +592,11 @@ class CalendarHandlerImpl @Inject() (
       Option(reservation.getExternalUserRef).isDefined && reservation.getExternalRef == user.getEppn
     externallyReserved || Option(reservation.getUser).contains(user)
 
-  private def isReservedByOthersDuring(machine: ExamMachine, interval: Interval, user: User): Boolean =
+  private def isReservedByOthersDuring(
+      machine: ExamMachine,
+      interval: Interval,
+      user: User
+  ): Boolean =
     machine.getReservations.asScala
       .filter(r => !isReservedByUser(r, user))
       .exists(r => interval.overlaps(r.toInterval))
@@ -554,7 +607,11 @@ class CalendarHandlerImpl @Inject() (
   ): List[Reservation] =
     reservations.filter(r => interval.overlaps(r.toInterval)).toList
 
-  private def nextStartingTime(instant: DateTime, startingHours: List[ExamStartingHour], offset: Int): DateTime =
+  private def nextStartingTime(
+      instant: DateTime,
+      startingHours: List[ExamStartingHour],
+      offset: Int
+  ): DateTime =
     startingHours
       .map { sh =>
         val timeMs = new LocalTime(sh.getStartingHour).plusMillis(offset).getMillisOfDay
@@ -580,8 +637,13 @@ class CalendarHandlerImpl @Inject() (
       }
       .toList
 
-  private def getEndOfOpeningHours(instant: DateTime, openingHours: List[DateTimeHandler.OpeningHours]): DateTime =
+  private def getEndOfOpeningHours(
+      instant: DateTime,
+      openingHours: List[DateTimeHandler.OpeningHours]
+  ): DateTime =
     openingHours
       .find(oh => oh.hours.contains(instant.plusMillis(oh.timezoneOffset)))
       .map(oh => oh.hours.getEnd.minusMillis(oh.timezoneOffset))
-      .getOrElse(throw new RuntimeException("slot not contained within opening hours, recheck logic!"))
+      .getOrElse(throw new RuntimeException(
+        "slot not contained within opening hours, recheck logic!"
+      ))

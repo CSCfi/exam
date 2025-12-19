@@ -117,7 +117,8 @@ class ExternalCourseHandlerSpec
         grades.count(_.getMarksRejection) must be(1)
 
         // Check that the imported course got into db
-        val savedCourse = DB.find(classOf[Course]).where().eq("code", "2121219_abcdefghijklmnop").find
+        val savedCourse =
+          DB.find(classOf[Course]).where().eq("code", "2121219_abcdefghijklmnop").find
         savedCourse must not be empty
 
       "return course with internal grade scale" in:
@@ -141,7 +142,8 @@ class ExternalCourseHandlerSpec
             course.getCreditsLanguage must be("fi")
           case None => fail("Course not found")
         // Check that the imported course got into db
-        val savedCourse = DB.find(classOf[Course]).where().eq("code", "2121219_abcdefghijklmnop").find
+        val savedCourse =
+          DB.find(classOf[Course]).where().eq("code", "2121219_abcdefghijklmnop").find
         savedCourse must not be empty
 
       "return course with organisation from external data" in:
@@ -175,10 +177,11 @@ class ExternalCourseHandlerSpec
         grades.count(_.getMarksRejection) must be(1)
 
         // Check that the imported course got into db
-        val savedCourse = DB.find(classOf[Course]).where().eq("code", "MAT21014_hy-CUR-138798147").find match
-          case Some(sc) =>
-            sc.getGradeScale.getGrades must have size 6
-          case None => fail("Course not found")
+        val savedCourse =
+          DB.find(classOf[Course]).where().eq("code", "MAT21014_hy-CUR-138798147").find match
+            case Some(sc) =>
+              sc.getGradeScale.getGrades must have size 6
+            case None => fail("Course not found")
 
     "updating courses" should:
       "update existing course with new data" in:
@@ -214,7 +217,8 @@ class ExternalCourseHandlerSpec
         localCourse.save()
 
         courseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"))
-        val result = runIO(get("/app/courses?filter=code&q=2121219_abcdefghijklmnop", session = session))
+        val result =
+          runIO(get("/app/courses?filter=code&q=2121219_abcdefghijklmnop", session = session))
         statusOf(result).must(be(Status.OK))
 
         val coursesJson = contentAsJsonOf(result).as[JsArray]
@@ -231,7 +235,8 @@ class ExternalCourseHandlerSpec
           case None          => fail("Course 2 not found")
 
         // check that a remote course was added to the database
-        val remoteCourse = DB.find(classOf[Course]).where().eq("code", "2121219_abcdefghijklmnop").find
+        val remoteCourse =
+          DB.find(classOf[Course]).where().eq("code", "2121219_abcdefghijklmnop").find
         remoteCourse must not be empty
 
       "get course from another organisation" in:

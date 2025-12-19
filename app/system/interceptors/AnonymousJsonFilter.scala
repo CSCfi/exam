@@ -26,7 +26,10 @@ class AnonymousJsonFilter @Inject() (implicit materializer: Materializer, ec: Ex
     new ActionFunction[Request, Request] {
       override def executionContext: ExecutionContext = ec
 
-      override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
+      override def invokeBlock[A](
+          request: Request[A],
+          block: Request[A] => Future[Result]
+      ): Future[Result] =
         block(request).flatMap { result =>
           if result.header.headers.contains(ANONYMOUS_HEADER) then
             // Read IDs from result attributes (stored by writeAnonymousResult)
@@ -36,9 +39,14 @@ class AnonymousJsonFilter @Inject() (implicit materializer: Materializer, ec: Ex
         }
     }
 
-  private def filterJsonResponse(result: Result, ids: Set[Long], properties: Set[String]): Future[Result] =
+  private def filterJsonResponse(
+      result: Result,
+      ids: Set[Long],
+      properties: Set[String]
+  ): Future[Result] =
     val contentType = result.body.contentType.getOrElse("")
-    if !contentType.equalsIgnoreCase("application/json") || properties.isEmpty then Future.successful(result)
+    if !contentType.equalsIgnoreCase("application/json") || properties.isEmpty then
+      Future.successful(result)
     result.body match
       case HttpEntity.Strict(data, _) => filterStrictBody(result, data, ids, properties)
       case _                          =>

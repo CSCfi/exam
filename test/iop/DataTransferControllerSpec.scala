@@ -151,10 +151,15 @@ class DataTransferControllerSpec
         val from   = new File("test/resources/questionImport.json")
         val json   = mapper.readTree(from)
 
-        val result = runIO(makeRequest(POST, "/integration/iop/import", body = Some(Json.parse(json.toString))))
+        val result = runIO(makeRequest(
+          POST,
+          "/integration/iop/import",
+          body = Some(Json.parse(json.toString))
+        ))
         statusOf(result) must be(Status.CREATED)
 
-        val importedCount = DB.find(classOf[Question]).where().like("question", "% **import").list.size
+        val importedCount =
+          DB.find(classOf[Question]).where().like("question", "% **import").list.size
         importedCount must be(22)
 
       "import question with tags successfully" in:
@@ -173,12 +178,17 @@ class DataTransferControllerSpec
         val from   = new File("test/resources/questionImportWithTags.json")
         val json   = mapper.readTree(from)
 
-        val result = runIO(makeRequest(POST, "/integration/iop/import", body = Some(Json.parse(json.toString))))
+        val result = runIO(makeRequest(
+          POST,
+          "/integration/iop/import",
+          body = Some(Json.parse(json.toString))
+        ))
         statusOf(result) must be(Status.CREATED)
 
-        val importedQuestion = DB.find(classOf[Question]).where().like("question", "% **import").find match
-          case Some(q) => q
-          case None    => fail("Imported question not found")
+        val importedQuestion =
+          DB.find(classOf[Question]).where().like("question", "% **import").find match
+            case Some(q) => q
+            case None    => fail("Imported question not found")
 
         importedQuestion.getTags.size must be(2)
 
@@ -187,11 +197,16 @@ class DataTransferControllerSpec
         val from   = new File("test/resources/questionImportWithAttachment.json")
         val json   = mapper.readTree(from)
 
-        val result = runIO(makeRequest(POST, "/integration/iop/import", body = Some(Json.parse(json.toString))))
+        val result = runIO(makeRequest(
+          POST,
+          "/integration/iop/import",
+          body = Some(Json.parse(json.toString))
+        ))
         statusOf(result) must be(Status.CREATED)
 
-        val importedQuestion = DB.find(classOf[Question]).where().like("question", "% **import").find match
-          case Some(q) => q
-          case None    => fail("Imported question not found")
+        val importedQuestion =
+          DB.find(classOf[Question]).where().like("question", "% **import").find match
+            case Some(q) => q
+            case None    => fail("Imported question not found")
 
         importedQuestion.getAttachment must not be null

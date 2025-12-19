@@ -49,10 +49,13 @@ class AttachmentServlet(private var testFile: File) extends BaseServlet:
   @throws[IOException]
   @throws[ServletException]
   override protected def doPost(req: HttpServletRequest, resp: HttpServletResponse): Unit =
-    if req.getHeader("Content-Type").toLowerCase.startsWith("multipart/form-data") then req.getPart("file")
+    if req.getHeader("Content-Type").toLowerCase.startsWith("multipart/form-data") then
+      req.getPart("file")
 
     resp.setStatus(HttpServletResponse.SC_CREATED)
-    resp.getWriter.write("""{"id": "abcdefg123456", "displayName": "test_image.png", "mimeType": "image/png"}""")
+    resp.getWriter.write(
+      """{"id": "abcdefg123456", "displayName": "test_image.png", "mimeType": "image/png"}"""
+    )
     resp.getWriter.flush()
 
   @throws[IOException]

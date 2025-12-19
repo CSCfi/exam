@@ -21,7 +21,8 @@ import javax.inject.Inject
 import scala.jdk.CollectionConverters._
 import scala.util.{Try, Using}
 
-class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJsonExtensions with Logging:
+class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJsonExtensions
+    with Logging:
 
   private val DTF = DateTimeFormat.forPattern("dd.MM.yyyy")
 
@@ -64,9 +65,11 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
       "Duration"         -> Option(exam.getDuration).map(_.toString).getOrElse("N/A"),
       "Grade scale"      -> Option(exam.getGradeScale).map(_.getDescription).getOrElse("N/A"),
       "State"            -> exam.getState.toString,
-      "Attachment"       -> Option(exam.getAttachment).map(a => s"${a.getFilePath}${a.getFileName}").getOrElse(""),
-      "Instructions"     -> forceNotNull(exam.getInstruction),
-      "Shared"           -> exam.isShared.toString
+      "Attachment" -> Option(exam.getAttachment).map(a =>
+        s"${a.getFilePath}${a.getFileName}"
+      ).getOrElse(""),
+      "Instructions" -> forceNotNull(exam.getInstruction),
+      "Shared"       -> exam.isShared.toString
     )
 
     Using(new XSSFWorkbook()) { wb =>
@@ -119,20 +122,23 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
       )
 
       exams.zipWithIndex.foreach { case (parent, idx) =>
-        val (inReview, graded, logged) = parent.getChildren.asScala.foldLeft((0, 0, 0)) { case ((ir, g, l), child) =>
-          child.getState match
-            case Exam.State.REVIEW | Exam.State.REVIEW_STARTED => (ir + 1, g, l)
-            case Exam.State.GRADED                             => (ir, g + 1, l)
-            case Exam.State.GRADED_LOGGED                      => (ir, g, l + 1)
-            case _                                             => (ir, g, l)
-        }
+        val (inReview, graded, logged) =
+          parent.getChildren.asScala.foldLeft((0, 0, 0)) { case ((ir, g, l), child) =>
+            child.getState match
+              case Exam.State.REVIEW | Exam.State.REVIEW_STARTED => (ir + 1, g, l)
+              case Exam.State.GRADED                             => (ir, g + 1, l)
+              case Exam.State.GRADED_LOGGED                      => (ir, g, l + 1)
+              case _                                             => (ir, g, l)
+          }
 
         val data = Array(
           parent.getName,
           ISODateTimeFormat.date().print(new DateTime(parent.getCreated)),
           parent.getState.toString,
           parent.getCourse.getCode,
-          s"${ISODateTimeFormat.date().print(new DateTime(parent.getPeriodStart))} - ${ISODateTimeFormat.date().print(new DateTime(parent.getPeriodEnd))}",
+          s"${ISODateTimeFormat.date().print(
+              new DateTime(parent.getPeriodStart)
+            )} - ${ISODateTimeFormat.date().print(new DateTime(parent.getPeriodEnd))}",
           Option(parent.getCourse.getCredits).map(_.toString).getOrElse(""),
           parent.getExamType.getType,
           inReview.toString,
@@ -160,7 +166,16 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
       case Some(proto) =>
         Using(new XSSFWorkbook()) { wb =>
           val sheet = wb.createSheet("enrolments")
-          addHeader(sheet, Array("student name", "student ID", "student EPPN", "reservation time", "enrolment time"))
+          addHeader(
+            sheet,
+            Array(
+              "student name",
+              "student ID",
+              "student EPPN",
+              "reservation time",
+              "enrolment time"
+            )
+          )
 
           proto.getExamEnrolments.asScala.zipWithIndex.foreach { case (e, idx) =>
             val data = Array(
@@ -364,7 +379,8 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
     val sheet = workbook.createSheet("participations")
 
     val headers =
-      (if includeStudentInfo then List("student id", "student first name", "student last name", "student email")
+      (if includeStudentInfo then
+         List("student id", "student first name", "student last name", "student email")
        else List.empty) ++
         List(
           "graded by teacher id",
@@ -439,7 +455,9 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
           .map(_.getDescription)
           .getOrElse(p.getExam.getCourse.getGradeScale.getDescription),
         Option(p.getExam.getGrade).map(_.getName).getOrElse(""),
-        Option(p.getExam.getGradedTime).map(t => ISODateTimeFormat.dateTime().print(new DateTime(t))).getOrElse(""),
+        Option(p.getExam.getGradedTime).map(t =>
+          ISODateTimeFormat.dateTime().print(new DateTime(t))
+        ).getOrElse(""),
         Option(p.getExam.getCreditType).map(_.getType).getOrElse("")
       )
 
@@ -470,4 +488,6 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
 
   private def addHeader(sheet: Sheet, headers: Array[String]): Unit =
     val headerRow = sheet.createRow(0)
-    headers.zipWithIndex.foreach { case (header, i) => headerRow.createCell(i).setCellValue(header) }
+    headers.zipWithIndex.foreach { case (header, i) =>
+      headerRow.createCell(i).setCellValue(header)
+    }

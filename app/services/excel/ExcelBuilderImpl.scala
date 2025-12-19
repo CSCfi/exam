@@ -55,7 +55,7 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       headers.indices.foreach(i => headerRow.createCell(i).setCellValue(headers(i)))
 
       examRecords.zipWithIndex.foreach { case (record, index) =>
-        val data    = record.getExamScore.asCells(record.getStudent, record.getTeacher, record.getExam)
+        val data = record.getExamScore.asCells(record.getStudent, record.getTeacher, record.getExam)
         val dataRow = sheet.createRow(index + 1)
 
         data.asScala.zipWithIndex.foreach { case (entry, cellIndex) =>
@@ -75,7 +75,11 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       bos
     }
 
-  override def buildStudentReport(exam: Exam, student: User, messages: MessagesApi): ByteArrayOutputStream =
+  override def buildStudentReport(
+      exam: Exam,
+      student: User,
+      messages: MessagesApi
+  ): ByteArrayOutputStream =
     val lang = Option(student.getLanguage)
       .flatMap(l => Option(l.getCode))
       .map(Lang.forCode)
@@ -95,21 +99,28 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
 
       // Add question scores
       exam.getExamSections.asScala.toList.sorted.foreach { es =>
-        es.getSectionQuestions.asScala.toList.sorted.zipWithIndex.foreach { case (esq, questionIndex) =>
-          val questionNumber = questionIndex + 1
-          val questionType = esq.getQuestion.getType match
-            case Question.Type.EssayQuestion          => messages.get(lang, "reports.question.type.essay")
-            case Question.Type.ClozeTestQuestion      => messages.get(lang, "reports.question.type.cloze")
-            case Question.Type.MultipleChoiceQuestion => messages.get(lang, "reports.question.type.multiplechoice")
-            case Question.Type.WeightedMultipleChoiceQuestion =>
-              messages.get(lang, "reports.question.type.weightedmultiplechoide")
-            case Question.Type.ClaimChoiceQuestion => messages.get(lang, "reports.question.type.claim")
+        es.getSectionQuestions.asScala.toList.sorted.zipWithIndex.foreach {
+          case (esq, questionIndex) =>
+            val questionNumber = questionIndex + 1
+            val questionType = esq.getQuestion.getType match
+              case Question.Type.EssayQuestion => messages.get(lang, "reports.question.type.essay")
+              case Question.Type.ClozeTestQuestion =>
+                messages.get(lang, "reports.question.type.cloze")
+              case Question.Type.MultipleChoiceQuestion =>
+                messages.get(lang, "reports.question.type.multiplechoice")
+              case Question.Type.WeightedMultipleChoiceQuestion =>
+                messages.get(lang, "reports.question.type.weightedmultiplechoide")
+              case Question.Type.ClaimChoiceQuestion =>
+                messages.get(lang, "reports.question.type.claim")
 
-          appendCell(headerRow, s"${messages.get(lang, "reports.question")} $questionNumber: $questionType")
+            appendCell(
+              headerRow,
+              s"${messages.get(lang, "reports.question")} $questionNumber: $questionType"
+            )
 
-          val (scoreValue, scoreType) = getScoreTuple(esq)
-          val valueCell               = valueRow.createCell(valueRow.getLastCellNum)
-          setValue(valueCell, scoreValue, scoreType)
+            val (scoreValue, scoreType) = getScoreTuple(esq)
+            val valueCell               = valueRow.createCell(valueRow.getLastCellNum)
+            setValue(valueCell, scoreValue, scoreType)
         }
 
         appendCell(headerRow, messages.get(lang, "reports.scores.sectionScore", es.getName))
@@ -180,7 +191,9 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
 
       // Create the header row
       val headerRow = sheet.createRow(0)
-      ScoreReportDefaultHeaders.indices.foreach(i => headerRow.createCell(i).setCellValue(ScoreReportDefaultHeaders(i)))
+      ScoreReportDefaultHeaders.indices.foreach(i =>
+        headerRow.createCell(i).setCellValue(ScoreReportDefaultHeaders(i))
+      )
 
       // Column index mappings
       val questionColumnIndexesBySectionName = collection.mutable.Map[String, Map[Long, Int]]()

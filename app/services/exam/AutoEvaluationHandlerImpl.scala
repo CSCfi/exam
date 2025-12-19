@@ -55,7 +55,8 @@ class AutoEvaluationHandlerImpl @Inject (
   private def getGradeBasedOnScore(exam: Exam) =
     val (score, maxScore) = (exam.getTotalScore, exam.getMaxScore)
     val percentage        = if maxScore == 0 then 0 else score * 100 / maxScore
-    val evaluations       = exam.getAutoEvaluationConfig.getGradeEvaluations.asScala.toList.sortBy(_.getPercentage)
+    val evaluations =
+      exam.getAutoEvaluationConfig.getGradeEvaluations.asScala.toList.sortBy(_.getPercentage)
     evaluations.findLast(_.getPercentage <= percentage) match
       case None => Left("Could not determine a grade")
       case Some(ge) =>
@@ -73,4 +74,6 @@ class AutoEvaluationHandlerImpl @Inject (
     case _ =>
       Option(exam.getCourse).flatMap(c => Option(c.getGradeScale)) match
         case scale @ Some(_) => scale
-        case _ => Option(exam.getParent).flatMap(p => Option(p.getCourse)).flatMap(c => Option(c.getGradeScale))
+        case _ => Option(exam.getParent).flatMap(p => Option(p.getCourse)).flatMap(c =>
+            Option(c.getGradeScale)
+          )
