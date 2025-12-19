@@ -352,7 +352,7 @@ class EmailComposerImpl @Inject() (
     val subject          = messaging("email.review.request.subject")(lang)
     val teacherName      = s"${fromUser.getFirstName} ${fromUser.getLastName} <${fromUser.getEmail}>"
     val examInfo         = s"${exam.getName} (${exam.getCourse.getCode.split("_")(0)})"
-    val linkToInspection = s"$hostName/staff/exams/${exam.getId}/4"
+    val linkToInspection = s"$hostName/staff/exams/${exam.getId}/5"
     val exams            = DB.find(classOf[Exam]).where.eq("parent.id", exam.getId).eq("state", Exam.State.REVIEW).list
     val values = Map(
       "new_reviewer"          -> messaging("email.template.inspector.new", teacherName)(lang),
