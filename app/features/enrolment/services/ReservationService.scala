@@ -467,7 +467,7 @@ class ReservationService @Inject() (
       else withExamFilter
     }
 
-    val query = if ownerId.isDefined && user.hasRole(Role.Name.ADMIN) then
+    val query = if ownerId.isDefined && user.isAdminOrSupport then
       val userId = ownerId.get
       withExternalRefFilter
         .disjunction()

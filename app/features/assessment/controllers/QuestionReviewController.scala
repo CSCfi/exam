@@ -28,7 +28,7 @@ class QuestionReviewController @Inject() (
     with AnonymousHandler:
 
   def listEssays(examId: Long, ids: Option[List[Long]]): Action[AnyContent] = authenticated
-    .andThen(authorized(Seq(Role.Name.TEACHER)))
+    .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))
     .andThen(anonymous(Set("user", "creator", "modifier"))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       questionReviewService.findExam(examId) match

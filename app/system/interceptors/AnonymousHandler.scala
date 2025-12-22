@@ -26,7 +26,12 @@ trait AnonymousHandler:
       anonymous: Boolean
   ): Result =
     val user = request.attrs(Auth.ATTR_USER)
-    writeAnonymousResult(request, result, anonymous, user.hasRole(Role.Name.ADMIN))
+    writeAnonymousResult(
+      request,
+      result,
+      anonymous,
+      user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
+    )
 
   /** Writes an anonymous result with ID-based filtering.
     *
@@ -48,7 +53,7 @@ trait AnonymousHandler:
       anonIds: Set[Long]
   ): Result =
     val user = request.attrs(Auth.ATTR_USER)
-    if anonIds.isEmpty || user.hasRole(Role.Name.ADMIN) then result
+    if anonIds.isEmpty || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then result
     else withAnonymousHeader(result.addAttr(AnonymousHandler.ANON_IDS_KEY, anonIds))
 
   private def withAnonymousHeader(result: Result): Result =

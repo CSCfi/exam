@@ -110,7 +110,7 @@ export class ReservationsComponent {
 
     query() {
         const currentSelection = this.selection();
-        if (this.somethingSelected(currentSelection)) {
+        if (this.isSomethingSelected(currentSelection)) {
             const params = this.createParams(currentSelection);
             this.Reservation.listReservations$(params).subscribe({
                 next: (reservations) => {
@@ -296,7 +296,7 @@ export class ReservationsComponent {
         return rooms.map((r) => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
     }
 
-    private somethingSelected(params: Selection) {
+    private isSomethingSelected(params: Selection) {
         const currentStudent = this.student();
         const currentOwner = this.owner();
         const currentExamId = this.examId();

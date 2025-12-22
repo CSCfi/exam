@@ -240,9 +240,9 @@ export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
     };
 
     listAllOwners$ = () => {
-        if (this.user.isAdmin) {
+        if (this.user.isAdmin || this.user.isSupport) {
             const owners = this.owners().filter((o) => o.filtered);
-            return this.User.listUsersByRoles$(['TEACHER', 'ADMIN'])
+            return this.User.listUsersByRoles$(['TEACHER', 'ADMIN', 'SUPPORT'])
                 .pipe(
                     tap((resp) => {
                         const newOwners = this.union(
