@@ -11,17 +11,23 @@ import miscellaneous.datetime.DateTimeHandler
 import miscellaneous.scala.DbApiHelper
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
-import org.apache.pekko.actor.AbstractActor
+import org.apache.pekko.actor.{AbstractActor, ActorSystem}
 import org.joda.time.DateTime
 import play.api.Logging
 
 import java.io.IOException
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters._
 import scala.util.control.Exception.catching
 
-class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private val dateTimeHandler: DateTimeHandler)
-    extends AbstractActor
+class ExamAutoSaverActor @Inject (
+    private val composer: EmailComposer,
+    private val dateTimeHandler: DateTimeHandler,
+    private val actorSystem: ActorSystem,
+    implicit val ec: ExecutionContext
+) extends AbstractActor
     with Logging
     with DbApiHelper:
 
@@ -85,8 +91,13 @@ class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private v
           // Notify teachers
           val recipients = exam.getParent.getExamOwners.asScala ++ exam.getExamInspections.asScala.map(_.getUser)
           recipients.foreach(r =>
-            composer.composePrivateExamEnded(r, exam)
-            logger.info(s"Email sent to ${r.getEmail}")
+            actorSystem.scheduler.scheduleOnce(
+              1.second,
+              () => {
+                composer.composePrivateExamEnded(r, exam)
+                logger.info(s"Email sent to ${r.getEmail}")
+              }
+            )
           )
       else logger.info(s"Exam ${exam.getId} is ongoing until $participationTimeLimit")
     )

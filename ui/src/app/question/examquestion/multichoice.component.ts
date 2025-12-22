@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { Component, inject, model, output } from '@angular/core';
+import { Component, inject, input, model, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -18,24 +18,25 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
     template: `
         @if (question(); as q) {
             <div ngModelGroup="unweightedMc" id="unweightedMc">
-                <div class="row my-2">
-                    <div class="col-md-12">
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                name="optionShuffling"
-                                type="checkbox"
-                                [ngModel]="q.optionShufflingOn"
-                                (ngModelChange)="updateShufflingSetting($event)"
-                                id="optionShuffling"
-                            />
-                            <label class="form-check-label" for="optionShuffling">{{
-                                'i18n_shuffle_options' | translate
-                            }}</label>
+                @if (multichoiceFeaturesOn()) {
+                    <div class="row my-2">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    name="optionShuffling"
+                                    type="checkbox"
+                                    [ngModel]="q.optionShufflingOn"
+                                    (ngModelChange)="updateShufflingSetting($event)"
+                                    id="optionShuffling"
+                                />
+                                <label class="form-check-label" for="optionShuffling">{{
+                                    'i18n_shuffle_options' | translate
+                                }}</label>
+                            </div>
                         </div>
                     </div>
-                </div>
-
+                }
                 @for (option of q.options; track option.id; let index = $index) {
                     <div class="row">
                         <div
@@ -96,6 +97,8 @@ export class MultiChoiceComponent {
     question = model.required<ExamSectionQuestion>();
     lotteryOn = model(false);
     isInPublishedExam = model(false);
+    multichoiceFeaturesOn = input(false);
+
     optionsChanged = output<ExamSectionQuestionOption[]>();
     shufflingSettingChanged = output<boolean>();
 

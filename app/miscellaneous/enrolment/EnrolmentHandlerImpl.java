@@ -15,6 +15,7 @@ import models.enrolment.Reservation;
 import models.exam.Exam;
 import models.user.User;
 import scala.jdk.javaapi.CollectionConverters;
+import scala.jdk.javaapi.FutureConverters;
 
 public class EnrolmentHandlerImpl implements EnrolmentHandler {
 
@@ -75,9 +76,16 @@ public class EnrolmentHandlerImpl implements EnrolmentHandler {
             .endOr()
             .isNull("reservation.externalReservation")
             .findList();
-        noShowHandler.handleNoShows(
-            CollectionConverters.asScala(enrolments).toList(),
-            CollectionConverters.asScala(new ArrayList<Reservation>()).toList()
-        );
+        // Fire-and-forget: process external no-shows asynchronously in background
+        // Local no-shows are processed synchronously inside handleNoShows
+        FutureConverters.asJava(
+            noShowHandler.handleNoShows(
+                CollectionConverters.asScala(enrolments).toList(),
+                CollectionConverters.asScala(new ArrayList<Reservation>()).toList()
+            )
+        ).exceptionally(ex -> {
+            // Errors are already logged in NoShowHandlerImpl, just prevent exception propagation
+            return null;
+        });
     }
 }
