@@ -3,12 +3,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, inject } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { format, parseISO } from 'date-fns';
-import { from } from 'rxjs';
+import { DateTime } from 'luxon';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import type { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FilterByPipe } from 'src/app/shared/filter/filter-by.pipe';
 import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.component';
 
@@ -71,7 +70,7 @@ export class ExceptionListComponent implements OnInit, OnChanges {
     orderedExceptions: ExceptionWorkingHours[] = [];
 
     private roomService = inject(RoomService);
-    private modal = inject(NgbModal);
+    private modal = inject(ModalService);
 
     constructor() {
         this.filter = () => true;
@@ -90,35 +89,28 @@ export class ExceptionListComponent implements OnInit, OnChanges {
             return;
         }
         const fmt = 'dd.MM.yyyy HH:mm';
-        const start = parseISO(exception.startDate);
-        const end = parseISO(exception.endDate);
+        const start = DateTime.fromISO(exception.startDate);
+        const end = DateTime.fromISO(exception.endDate);
         return (
-            format(start, fmt) +
+            start.toFormat(fmt) +
             ' - ' +
-            (format(start, 'dd.MM.yyyy') === format(end, 'dd.MM.yyyy') ? format(end, 'HH:mm') : format(end, fmt))
+            (start.toFormat('dd.MM.yyyy') === end.toFormat('dd.MM.yyyy') ? end.toFormat('HH:mm') : end.toFormat(fmt))
         );
     };
 
     addExceptionClosed = () =>
-        this.roomService.openExceptionDialog(this.createExceptionCallback, true, this.exceptions);
-    addExceptionOpen = () => this.roomService.openExceptionDialog(this.createExceptionCallback, false, this.exceptions);
-
-    createExceptionCallback = (exceptions: ExceptionWorkingHours[]) => this.created.emit(exceptions);
+        this.roomService.openExceptionDialog((exceptions) => this.created.emit(exceptions), true, this.exceptions);
+    addExceptionOpen = () =>
+        this.roomService.openExceptionDialog((exceptions) => this.created.emit(exceptions), false, this.exceptions);
 
     deleteException = (exception: ExceptionWorkingHours) => {
-        const modal = this.modal.open(ExceptionDeleteDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
+        const modal = this.modal.openRef(ExceptionDeleteDialogComponent, { size: 'lg' });
         modal.componentInstance.message = this.formatDate(exception);
         modal.componentInstance.exception = exception;
-        from(modal.result).subscribe({
-            next: () => {
-                this.exceptions.splice(this.exceptions.indexOf(exception), 1);
-                this.init();
-                this.removed.emit(exception);
-            },
+        this.modal.result$<void>(modal).subscribe(() => {
+            this.exceptions.splice(this.exceptions.indexOf(exception), 1);
+            this.init();
+            this.removed.emit(exception);
         });
     };
 

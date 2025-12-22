@@ -18,7 +18,7 @@ import { RoomService } from './room.service';
 type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
 
 @Component({
-    selector: 'xm-room-mass-edit',
+    selector: 'xm-room-exceptions-bulk',
     template: `
         <xm-page-header text="i18n_edit_all_rooms" />
         <xm-page-content [content]="content" />
@@ -112,7 +112,7 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
     ],
     styleUrl: './rooms.component.scss',
 })
-export class MultiRoomComponent implements OnInit {
+export class RoomExceptionsBulkComponent implements OnInit {
     rooms: SelectableRoom[] = [];
     roomIds: number[] = [];
     allSelected = false;
@@ -127,19 +127,14 @@ export class MultiRoomComponent implements OnInit {
 
     addExceptions = (exceptions: ExceptionWorkingHours[]) =>
         this.roomService
-            .addExceptions(
+            .addExceptions$(
                 this.rooms.filter((r) => r.selected).map((r) => r.id),
                 exceptions,
             )
-            .then(() => {
-                this.loadRooms();
-            });
+            .subscribe(() => this.loadRooms());
 
-    deleteException = (exception: ExceptionWorkingHours, room: ExamRoom) => {
-        this.roomService.deleteException(room.id, exception.id).then(() => {
-            this.loadRooms();
-        });
-    };
+    deleteException = (exception: ExceptionWorkingHours, room: ExamRoom) =>
+        this.roomService.deleteException$(room.id, exception.id).subscribe(() => this.loadRooms());
 
     addMultiRoomException = (outOfService: boolean) => {
         const allExceptions = this.rooms

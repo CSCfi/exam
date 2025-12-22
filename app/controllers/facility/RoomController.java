@@ -386,8 +386,8 @@ public class RoomController extends BaseController {
     }
 
     private ExceptionWorkingHours parse(JsonNode node) {
-        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("start").asText());
-        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("end").asText());
+        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("startDate").asText());
+        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("endDate").asText());
         ExceptionWorkingHours hours = new ExceptionWorkingHours();
         hours.setStartDate(startDate.toDate());
         hours.setEndDate(endDate.toDate());

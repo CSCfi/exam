@@ -8,7 +8,7 @@ import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { format, parseISO } from 'date-fns';
+import { DateTime } from 'luxon';
 import { WorkingHour } from 'src/app/facility/facility.model';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 
@@ -99,10 +99,10 @@ export class StartingTimeComponent implements OnInit {
             return { startingHour: i + ':00', selected: true };
         });
         if (this.startingHours && this.startingHours.length > 0) {
-            const startingHourDates = this.startingHours.map((hour) => parseISO(hour.startingHour));
+            const startingHourDates = this.startingHours.map((hour) => DateTime.fromISO(hour.startingHour));
 
-            this.examStartingHourOffset = startingHourDates[0].getMinutes();
-            const startingHours = startingHourDates.map((hour) => format(hour, 'H:mm'));
+            this.examStartingHourOffset = startingHourDates[0].minute;
+            const startingHours = startingHourDates.map((hour) => hour.toFormat('H:mm'));
 
             this.setStartingHourOffset();
             this.examStartingHours.forEach((hour) => {

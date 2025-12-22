@@ -5,14 +5,13 @@
 import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { addDays, areIntervalsOverlapping, eachDayOfInterval, getDate, getDay, getMonth, startOfMonth } from 'date-fns';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { groupBy } from 'ramda';
 import { RepetitionConfig } from 'src/app/facility/facility.model';
 import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { DateTimeService, REPEAT_OPTION } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetition-options.component';
 
 @Component({
@@ -77,14 +76,20 @@ export class ExceptionDialogComponent {
     };
 
     private repeatOnce() {
-        const result = [
+        const startDate = DateTime.fromJSDate(this.options.start);
+        const endDate = DateTime.fromJSDate(this.options.end);
+        const result: ExceptionWorkingHours[] = [
             {
-                start: this.options.start,
-                end: this.options.end,
+                id: 0,
+                startDate: startDate.toISO()!,
+                startDateTimezoneOffset: startDate.offset,
+                endDate: endDate.toISO()!,
+                endDateTimezoneOffset: endDate.offset,
                 outOfService: this.outOfService,
             },
         ];
-        if (this.isOverlapping(this.exceptions, result)) {
+        const overlapCheck = [{ start: this.options.start, end: this.options.end }];
+        if (this.isOverlapping(this.exceptions, overlapCheck)) {
             return;
         }
         this.activeModal.close(result);
@@ -92,8 +97,8 @@ export class ExceptionDialogComponent {
 
     private repeatWeekly() {
         const weekdays = this.options.weekdays.map((wd) => wd.ord);
-        const interval = eachDayOfInterval({ start: this.options.start, end: this.options.end });
-        const matches = interval.filter((d) => weekdays.includes(getDay(d)));
+        const interval = this.dateTime.eachDayOfInterval(this.options.start, this.options.end);
+        const matches = interval.filter((d) => weekdays.includes(d.weekday));
 
         const result = this.parseExceptionDays(matches);
         const translations = this.dateTime.getWeekdayNames(true).map((d, i) => {
@@ -104,11 +109,11 @@ export class ExceptionDialogComponent {
     }
 
     private repeatMonthly() {
-        const interval = eachDayOfInterval({ start: this.options.start, end: this.options.end });
+        const interval = this.dateTime.eachDayOfInterval(this.options.start, this.options.end);
         const matches = this.options.dayOfMonth
-            ? interval.filter((d) => getDate(d) === this.options.dayOfMonth) // day of month
+            ? interval.filter((d) => d.day === this.options.dayOfMonth) // day of month
             : this.groupByMonth(
-                  interval.filter((d) => getDay(d) === this.options.monthlyWeekday?.ord),
+                  interval.filter((d) => d.weekday === this.options.monthlyWeekday?.ord),
                   this.options.monthlyOrdinal?.ord as number,
                   this.options.start,
               );
@@ -127,16 +132,16 @@ export class ExceptionDialogComponent {
     }
 
     private repeatYearly() {
-        const interval = eachDayOfInterval({ start: this.options.start, end: this.options.end });
+        const interval = this.dateTime.eachDayOfInterval(this.options.start, this.options.end);
         const matches = this.options.dayOfMonth
             ? interval
-                  .filter((d) => getDate(d) === this.options.dayOfMonth)
-                  .filter((d) => getMonth(d) + 1 === this.options.yearlyMonth?.ord)
+                  .filter((d) => d.day === this.options.dayOfMonth)
+                  .filter((d) => d.month === this.options.yearlyMonth?.ord)
             : this.groupByMonth(
-                  interval.filter((d) => getDay(d) === this.options.monthlyWeekday?.ord),
+                  interval.filter((d) => d.weekday === this.options.monthlyWeekday?.ord),
                   this.options.monthlyOrdinal?.ord as number,
                   this.options.start,
-              ).filter((d) => getMonth(d) + 1 === this.options.yearlyMonth?.ord);
+              ).filter((d) => d.month === this.options.yearlyMonth?.ord);
         const message = [
             this.translate.instant('i18n_year').toLowerCase(),
             this.options.yearlyMonth?.name,
@@ -147,13 +152,14 @@ export class ExceptionDialogComponent {
         this.endDialogue(message, this.parseExceptionDays(matches));
     }
 
-    private groupByMonth(dates: Date[], ord: number, min: Date) {
+    private groupByMonth(dates: DateTime[], ord: number, min: Date) {
+        const minDateTime = DateTime.fromJSDate(min);
         const datesFromBeginningOfMonth = dates.concat(
-            eachDayOfInterval({ start: startOfMonth(min), end: addDays(min, -1) }).filter(
-                (d) => getDay(d) === this.options.monthlyWeekday?.ord,
-            ),
+            this.dateTime
+                .eachDayOfInterval(minDateTime.startOf('month').toJSDate(), minDateTime.minus({ days: 1 }).toJSDate())
+                .filter((d) => d.weekday === this.options.monthlyWeekday?.ord),
         );
-        const grouped = groupBy((d) => getMonth(d).toString(), datesFromBeginningOfMonth);
+        const grouped = groupBy(datesFromBeginningOfMonth, (d) => d.month.toString());
         const index = (xs: unknown[]) => {
             if (ord == 5) return xs.length - 1;
             else if (ord - 1 > xs.length - 1) return -1;
@@ -163,20 +169,16 @@ export class ExceptionDialogComponent {
             .filter((ds) => !!ds)
             .filter((ds) => index(ds as unknown[]) >= 0)
             .map((ds) => {
-                const ds2 = (ds as Date[]).sort();
+                const ds2 = (ds as DateTime[]).sort((a, b) => a.toMillis() - b.toMillis());
                 return ds2[index(ds2)];
             })
-            .filter((d) => d >= min);
+            .filter((d) => d && d.toJSDate() >= min);
     }
 
-    private parseExceptionDays = (exceptionDays: Date[]) =>
+    private parseExceptionDays = (exceptionDays: DateTime[]) =>
         exceptionDays.map((day) => ({
-            start: DateTime.fromJSDate(day)
-                .set({ hour: this.options.start.getHours(), minute: this.options.start.getMinutes() })
-                .toJSDate(),
-            end: DateTime.fromJSDate(day)
-                .set({ hour: this.options.end.getHours(), minute: this.options.end.getMinutes() })
-                .toJSDate(),
+            start: day.set({ hour: this.options.start.getHours(), minute: this.options.start.getMinutes() }).toJSDate(),
+            end: day.set({ hour: this.options.end.getHours(), minute: this.options.end.getMinutes() }).toJSDate(),
         }));
 
     private endDialogue(repetitionMessage: string, result: { start: Date; end: Date }[]) {
@@ -205,7 +207,12 @@ export class ExceptionDialogComponent {
     private isOverlapping = (existing: ExceptionWorkingHours[], fresh: { start: Date; end: Date }[]) => {
         const intervals = existing.map((oe) => ({ start: oe.startDate, end: oe.endDate }));
         const overlaps =
-            intervals.length > 0 && fresh.some((f) => intervals.some((i) => areIntervalsOverlapping(f, i)));
+            intervals.length > 0 &&
+            fresh.some((f) =>
+                intervals.some((i) =>
+                    this.dateTime.intervalsOverlap(f, { start: new Date(i.start), end: new Date(i.end) }),
+                ),
+            );
         if (overlaps) {
             this.toast.error(this.translate.instant('i18n_room_closed_overlap'));
             return true;
