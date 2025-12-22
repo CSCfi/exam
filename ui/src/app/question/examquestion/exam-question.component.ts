@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -49,6 +49,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     @Output() saved = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
     @Output() cancelled = new EventEmitter<{ dirty: boolean }>();
     @ViewChild('questionForm', { static: false }) questionForm?: NgForm;
+    multichoiceFeaturesOn = signal(false);
 
     question?: ReverseQuestion;
     examNames: string[] = [];
@@ -142,7 +143,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         this.examQuestion.question.type === 'ClaimChoiceQuestion' &&
         this.Question.getInvalidDistributedClaimOptionTypes(this.examQuestion.options).length > 0;
 
-    private init = () =>
+    private init = () => {
         this.http.get<ReverseQuestion>(`/app/questions/${this.examQuestion.question.id}`).subscribe((question) => {
             this.question = question;
             const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
@@ -158,6 +159,10 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
             this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
             window.addEventListener('beforeunload', this.onUnload);
         });
+        this.Question.areNewFeaturesEnabled$().subscribe((data) => {
+            this.multichoiceFeaturesOn.set(data.multichoiceFeaturesOn);
+        });
+    };
 
     private onUnload = (event: BeforeUnloadEvent) => {
         if (this.questionForm?.dirty) event.preventDefault();
