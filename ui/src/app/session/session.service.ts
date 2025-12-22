@@ -192,8 +192,13 @@ export class SessionService implements OnDestroy {
                     this.redirect(u);
                 }),
                 catchError((resp) => {
-                    if (resp) this.toast.error(this.i18n.instant(resp));
-                    this.logout();
+                    // case where we need to delay logout so error message can be shown for user to see.
+                    if (resp.headers.get('x-exam-delay-execution') === 'true') {
+                        this.toast.error(this.i18n.instant(resp.error), '', { timeOut: 5000 });
+                        setTimeout(() => this.logout(), 5000);
+                    } else {
+                        this.logout();
+                    }
                     return throwError(() => new Error(resp));
                 }),
             );

@@ -4,18 +4,18 @@
 
 package features.user.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.user.services.SessionError.*
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.facility.Organisation
-import models.user._
+import models.user.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, Minutes}
 import play.api.libs.json.{JsValue, Json}
 import play.api.{Environment, Logger}
 import repository.EnrolmentRepository
-import SessionError.*
 import services.config.ConfigReader
 import services.datetime.DateTimeHandler
 import services.exam.ExternalExamHandler
@@ -24,9 +24,9 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import javax.inject.Inject
-import javax.mail.internet.{AddressException, InternetAddress}
+import javax.mail.internet.InternetAddress
 import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
 class SessionService @Inject() (
@@ -373,20 +373,18 @@ class SessionService @Inject() (
         Map("permissions" -> user.getPermissions.asScala.map(_.getValue).mkString(","))
       else Map.empty[String, String]
 
-    val isLocal = isLocalUser(user.getEppn)
-    val roles =
-      if isTemporaryVisitor || !isLocal then
-        DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).list
-      else user.getRoles.asScala.toSeq
+    val roles = if isTemporaryVisitor then
+      DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).list
+    else user.getRoles.asScala.toSeq
 
     val (rolePayload, responseData) =
       if user.getRoles.size() == 1 && !isTemporaryVisitor then
         (Map("role" -> user.getRoles.asScala.head.getName), Map.empty[String, JsValue])
       else if isTemporaryVisitor then
         (Map("visitingStudent" -> "true", "role" -> roles.head.getName), Map.empty[String, JsValue])
-      else if !isLocal then
+      else if !isLocalUser(user.getEppn) then
         (
-          Map("role"            -> roles.head.getName),
+          Map.empty[String, String],
           Map("externalUserOrg" -> Json.toJson(user.getEppn.split("@")(1)))
         )
       else (Map.empty[String, String], Map.empty[String, JsValue])

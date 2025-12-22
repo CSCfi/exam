@@ -32,9 +32,10 @@ class SessionController @Inject() (
 
   private def toResult(error: SessionError): Result =
     error match
-      case SessionError.NoCredentials                     => BadRequest(error.message)
-      case SessionError.LoginTypeNotSupported             => BadRequest(error.message)
-      case SessionError.DisallowedLogin                   => BadRequest(error.message)
+      case SessionError.NoCredentials         => BadRequest(error.message)
+      case SessionError.LoginTypeNotSupported => BadRequest(error.message)
+      case SessionError.DisallowedLogin =>
+        BadRequest(error.message).withHeaders("x-exam-delay-execution" -> "true")
       case SessionError.Unauthenticated                   => Unauthorized(error.message)
       case SessionError.LoginFailed                       => BadRequest(error.message)
       case SessionError.FailedToHandleExternalReservation => InternalServerError(error.message)
