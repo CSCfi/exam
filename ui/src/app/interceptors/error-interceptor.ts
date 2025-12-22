@@ -21,6 +21,12 @@ export class ErrorInterceptor implements HttpInterceptor {
                 if (response.status === 0 || response.status === 504) {
                     // connection failure
                     return throwError(() => this.translate.instant('i18n_connection_refused'));
+                } else if (response.error?.status === 'validation_error') {
+                    // data validation error
+                    return throwError(() => this.translate.instant(response.error.message));
+                } else if (response.headers.get('x-exam-delay-execution') === 'true') {
+                    // pass to next for handling
+                    throw response;
                 } else if (typeof response.error === 'string') {
                     return throwError(() => this.translate.instant(response.error));
                 } else {
