@@ -52,7 +52,7 @@ public class QuestionReviewController extends BaseController {
     }
 
     @Authenticated
-    @Restrict({ @Group({ "TEACHER", "ADMIN", "SUPPORT" }) })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     @Anonymous(filteredProperties = { "user", "creator", "modifier" })
     public Result getEssays(Long examId, Optional<List<Long>> ids, Http.Request request) {
         Exam exam = DB.find(Exam.class, examId);

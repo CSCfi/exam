@@ -99,7 +99,7 @@ export class ReservationsComponent implements OnInit {
     }
 
     query() {
-        if (this.somethingSelected(this.selection)) {
+        if (this.isSomethingSelected(this.selection)) {
             const params = this.createParams(this.selection);
             this.Reservation.listReservations$(params).subscribe({
                 next: (reservations) => {
@@ -266,7 +266,7 @@ export class ReservationsComponent implements OnInit {
     private machinesForRooms = (rooms: ExamRoom[], machines: ExamMachine[]): Option<ExamMachine, number>[] =>
         rooms.map((r) => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
 
-    private somethingSelected(params: Selection) {
+    private isSomethingSelected(params: Selection) {
         if (this.student || this.owner) return true;
         if (this.examId || this.externalRef) return true;
         if (Object.keys(params).length > 0) return true;

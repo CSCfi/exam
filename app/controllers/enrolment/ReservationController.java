@@ -378,7 +378,7 @@ public class ReservationController extends BaseController {
                 .endJunction();
         }
 
-        if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
+        if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             var userId = ownerId.get();
             query = query
                 .disjunction()
@@ -510,7 +510,7 @@ public class ReservationController extends BaseController {
             query = query.eq("enrolment.collaborativeExam.externalRef", externalRef.get());
         }
 
-        if (ownerId.isPresent() && (user.hasRole(Role.Name.ADMIN) || user.hasRole(Role.Name.SUPPORT))) {
+        if (ownerId.isPresent() && (user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT))) {
             var userId = ownerId.get();
             query = query
                 .disjunction()

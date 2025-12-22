@@ -69,12 +69,12 @@ public class BaseController extends Controller {
 
     protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous) {
         var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return writeAnonymousResult(request, result, anonymous, user.hasRole(Role.Name.ADMIN));
+        return writeAnonymousResult(request, result, anonymous, user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT));
     }
 
     protected Result writeAnonymousResult(Http.Request request, Result result, Set<Long> anonIds) {
         var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (!anonIds.isEmpty() && !user.hasRole(Role.Name.ADMIN)) {
+        if (!anonIds.isEmpty() && !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)) {
             return withAnonymousHeader(result, request, anonIds);
         }
         return result;
