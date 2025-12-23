@@ -7,7 +7,6 @@ GET           /                                                               co
 # LTI
 GET     /integration/lti/start-login            controllers.examination.ExaminationController.startLogin(request: Request)
 GET     /integration/lti/oidc/login             controllers.examination.ExaminationController.handleOidcLogin(request: Request)
-GET     /integration/lti/launch-frame           controllers.examination.ExaminationController.renderIframeLaunch(request: Request)
 GET     /integration/lti/oidc/jwks              controllers.JwksController.jwks()
 
 

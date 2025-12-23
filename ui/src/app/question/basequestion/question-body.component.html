@@ -87,6 +87,24 @@ SPDX-License-Identifier: EUPL-1.2
                     </textarea>
                 </div>
             </div>
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    {{ 'i18n_evaluation_type' | translate }}
+                </div>
+                <div class="col-md-3">
+                    <select
+                        id="evaluationType"
+                        name="evaluationType"
+                        class="form-select w-75"
+                        [ngModel]="question.defaultEvaluationType"
+                        (ngModelChange)="updateEvaluationType($event)"
+                        [disabled]="lotteryOn"
+                        required="question.type == 'LtiQuestion'"
+                    >
+                        <option value="Points">{{ 'i18n_word_points' | translate }}</option>
+                    </select>
+                </div>
+            </div>
         }
     }
 

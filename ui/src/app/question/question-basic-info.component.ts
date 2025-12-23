@@ -62,6 +62,9 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
                     @case ('ClaimChoiceQuestion') {
                         {{ 'i18n_toolbar_claim_choice_question' | translate }}
                     }
+                    @case ('LtiQuestion') {
+                        {{ 'i18n_toolbar_lti' | translate }}
+                    }
                 }
             </div>
         </div>

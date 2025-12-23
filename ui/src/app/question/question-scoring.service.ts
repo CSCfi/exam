@@ -145,6 +145,11 @@ export class QuestionScoringService {
                 return { score: 0, rejected: false, approved: false };
             case 'ClaimChoiceQuestion':
                 return { score: this.scoreClaimChoiceAnswer(sq, false), rejected: false, approved: false };
+            case 'LtiQuestion':
+                if (sq.essayAnswer && sq.essayAnswer.evaluatedScore) {
+                    return { score: sq.essayAnswer.evaluatedScore, rejected: false, approved: false };
+                }
+                return { score: 0, rejected: false, approved: false };
             default:
                 throw Error('unknown question type');
         }
@@ -172,17 +177,28 @@ export class QuestionScoringService {
     };
 
     calculateMaxScore = (question: ExamSectionQuestion) => {
-        const evaluationType = question.evaluationType;
         const type = question.question.type;
+
+        // LTI: explicit max score handling
+        if (type === 'LtiQuestion') {
+            // prefer derivedMaxScore if it exists, otherwise fall back to maxScore
+            return question.derivedMaxScore ?? question.maxScore ?? 0;
+        }
+
+        const evaluationType = question.evaluationType;
+
         if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
             return question.maxScore;
         }
+
         if (type === 'WeightedMultipleChoiceQuestion') {
             return this.calculateWeightedMaxPoints(question);
         }
+
         if (type === 'ClaimChoiceQuestion') {
             return this.getCorrectClaimChoiceOptionScore(question);
         }
+
         return 0;
     };
 }

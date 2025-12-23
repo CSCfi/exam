@@ -376,7 +376,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
         String reason = null;
         if (nodeExists(node, "question")) {
             switch (type) {
-                case EssayQuestion -> {
+                case EssayQuestion, LtiQuestion -> {
                     if (!nodeExists(node, "defaultEvaluationType")) {
                         reason = "no evaluation type defined";
                     }
@@ -434,7 +434,6 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         }
                     }
                 }
-                case LtiQuestion -> {}
                 default -> reason = "unknown question type";
             }
         } else {

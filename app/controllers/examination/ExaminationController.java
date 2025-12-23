@@ -290,6 +290,8 @@ public class ExaminationController extends BaseController {
             );
     }
 
+    @Authenticated
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result startLogin(Http.Request request) {
         String toolInitiateLogin = config.getString("lti.tool.initiate-login-url");
         String platformIssuer = config.getString("lti.platform.issuer");
@@ -333,6 +335,7 @@ public class ExaminationController extends BaseController {
             .addingToSession(request, "lti_resource_id", resourceId);
     }
 
+    @Authenticated
     public Result handleOidcLogin(Http.Request request) throws Exception {
         // Read query params
         String loginHint = request.getQueryString("login_hint");
@@ -387,14 +390,20 @@ public class ExaminationController extends BaseController {
         Map<String, Object> custom = new HashMap<>();
         custom.put("id", resourceId);
 
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
             .issuer(issuer)
-            .subject("user12345555") // your LMS-specific stable user id
+            .subject(user.getEppn()) // your LMS-specific stable user id
             .audience(clientId)
             .expirationTime(exp)
             .issueTime(now)
             .jwtID(UUID.randomUUID().toString())
             .claim("nonce", nonce)
+            // Standard OIDC user identity claims
+            .claim("given_name", user.getFirstName())
+            .claim("family_name", user.getLastName())
+            .claim("name", user.getFirstName() + " " + user.getLastName())
+            .claim("email", user.getEmail())
             // LTI 1.3 claims
             .claim("https://purl.imsglobal.org/spec/lti/claim/message_type", "LtiResourceLinkRequest")
             .claim("https://purl.imsglobal.org/spec/lti/claim/version", "1.3.0")
@@ -560,44 +569,6 @@ public class ExaminationController extends BaseController {
             escapeHtml(idToken),
             escapeHtml(state)
         );
-    }
-
-    public Result renderIframeLaunch(Http.Request request) {
-        String idToken = request.getQueryString("id_token");
-        String state = request.getQueryString("state");
-        String targetLinkUri = config.getString("lti.platform.target-link-uri");
-
-        String html = String.format(
-            """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Launching Moodle</title>
-                <style>iframe { border: 1px solid; width:1024px }</style>
-            </head>
-            <body>
-            <h1>Exam Demo</h1>
-            <p>Tässä voi olla examin omaa sisältöä</p>
-
-            <iframe id="lti-frame" name="lti-frame" width="100%%" height="800" frameborder="0" allowfullscreen></iframe>
-
-            <form id="lti-form" action="%s" method="POST" target="lti-frame">
-                <input type="hidden" name="id_token" value="%s"/>
-                <input type="hidden" name="state" value="%s"/>
-            </form>
-
-            <script>
-                document.getElementById("lti-form").submit();
-            </script>
-            </body>
-            </html>
-            """,
-            targetLinkUri,
-            escapeHtml(idToken),
-            escapeHtml(state)
-        );
-
-        return ok(html).as("text/html");
     }
 
     private String escapeHtml(String input) {

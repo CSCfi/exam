@@ -131,6 +131,9 @@ export class QuestionService {
                 data.expectedWordCount = sectionQuestion.expectedWordCount;
                 data.evaluationType = sectionQuestion.evaluationType;
                 break;
+            case 'LtiQuestion':
+                data.evaluationType = sectionQuestion.evaluationType;
+                break;
         }
         return this.http
             .put<ExamSectionQuestion>(
@@ -327,6 +330,9 @@ export class QuestionService {
             case 'MultipleChoiceQuestion':
             case 'WeightedMultipleChoiceQuestion':
                 questionToUpdate.options = question.options;
+                break;
+            case 'LtiQuestion':
+                questionToUpdate.defaultEvaluationType = question.defaultEvaluationType;
                 break;
         }
         return questionToUpdate;

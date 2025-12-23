@@ -12,6 +12,7 @@ import {
     Output,
     inject,
 } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam, ExamSection } from 'src/app/exam/exam.model';
@@ -20,6 +21,7 @@ import { QuestionScoringService } from 'src/app/question/question-scoring.servic
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { ClozeTestComponent } from 'src/app/review/assessment/questions/cloze-test.component';
 import { EssayQuestionComponent } from 'src/app/review/assessment/questions/essay-question.component';
+import { LtiQuestionComponent } from 'src/app/review/assessment/questions/lti-question.component';
 import { MultiChoiceQuestionComponent } from 'src/app/review/assessment/questions/multi-choice-question.component';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -28,7 +30,16 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     selector: 'xm-r-section',
     templateUrl: './section.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    imports: [MultiChoiceQuestionComponent, EssayQuestionComponent, ClozeTestComponent, TranslateModule, OrderByPipe],
+    imports: [
+        MultiChoiceQuestionComponent,
+        EssayQuestionComponent,
+        ClozeTestComponent,
+        TranslateModule,
+        OrderByPipe,
+        FormsModule,
+        ReactiveFormsModule,
+        LtiQuestionComponent,
+    ],
 })
 export class ExamSectionComponent implements OnInit, AfterViewInit {
     @Input() section!: ExamSection;
@@ -62,7 +73,17 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
     // Since the essay questions are the only ones that need to be evaluated and the rest of the questions are evaluated automatically.
     getReviewProgress = () => {
         return this.section.sectionQuestions.filter((q: ExamSectionQuestion) => {
-            return q.question.type !== 'EssayQuestion' || isNumber(q.essayAnswer?.evaluatedScore);
+            if (q.question.type === 'EssayQuestion') {
+                // Essay is reviewed when evaluatedScore is set
+                return isNumber(q.essayAnswer?.evaluatedScore);
+            }
+            if (q.question.type === 'LtiQuestion') {
+                //return isNumber(q.forcedScore);
+                return isNumber(q.essayAnswer?.evaluatedScore);
+            }
+
+            // All other question types are automatically evaluated
+            return true;
         }).length;
     };
 

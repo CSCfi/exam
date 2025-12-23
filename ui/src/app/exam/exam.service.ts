@@ -272,11 +272,22 @@ export class ExamService {
             if (!sq || !sq.question) {
                 return n;
             }
+
+            // LTI: use its own max (same pattern as grading total/max)
+            if (sq.question.type === 'LtiQuestion') {
+                // console.log(sq);
+                const ltiMax = sq.derivedMaxScore ?? sq.maxScore ?? 0;
+                return n + ltiMax;
+            }
+
+            // All other question types use the existing calculation
             return n + this.QuestionScore.calculateMaxScore(sq);
         }, 0);
+
         if (section.lotteryOn) {
             maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
         }
+
         return Number.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
     };
 

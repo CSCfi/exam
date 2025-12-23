@@ -48,20 +48,9 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                     <div class="text col-md-8" [xmMathJax]="exam.instruction"></div>
                 </div>
             </div>
+
             <div class="row mt-4 ms-3">
-                <div class="col-md-12">
-                    @if (ltiUrl) {
-                        <iframe
-                            class="lti-frame"
-                            [src]="ltiUrl"
-                            title="LTI tool"
-                            referrerpolicy="no-referrer-when-downgrade"
-                            allow="clipboard-write *; camera *; microphone *"
-                        ></iframe>
-                    } @else {
-                        <div>NO LTI Tool loaded</div>
-                    }
-                </div>
+                <div class="col-md-12"></div>
             </div>
         </div>
     `,

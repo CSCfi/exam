@@ -20,9 +20,9 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
-    selector: 'xm-r-essay-question',
-    templateUrl: './essay-question.component.html',
-    styleUrls: ['../assessment.shared.scss', './essay-question.component.scss'],
+    selector: 'xm-r-lti-question',
+    templateUrl: './lti-question.component.html',
+    styleUrls: ['../assessment.shared.scss'],
     imports: [
         MathJaxDirective,
         NgbCollapse,
@@ -41,14 +41,16 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
         `,
     ],
 })
-export class EssayQuestionComponent implements OnInit {
+export class LtiQuestionComponent implements OnInit {
     @Input() participation!: ExamParticipation;
     @Input() exam!: Exam;
     @Input() sectionQuestion!: ExamSectionQuestion;
     @Input() isScorable = false;
     @Input() collaborative = false;
     @Output() scored = new EventEmitter<string>();
-    @ViewChild('essayPoints', { static: false }) form?: NgForm;
+    @ViewChild('ltiPoints', { static: false }) form?: NgForm;
+
+    essayQuestionAmounts = { rejected: 0, accepted: 0, total: 0 };
 
     id = 0;
     ref = '';
@@ -62,14 +64,17 @@ export class EssayQuestionComponent implements OnInit {
     private CommonExam = inject(CommonExamService);
     private Attachment = inject(AttachmentService);
 
-    get scoreValue(): number | undefined {
+    get scoreValue(): number | null | undefined {
         return this._score;
     }
 
     set scoreValue(value: number | undefined) {
         this._score = value;
         if (!this.form || this.form.valid) {
-            this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: value };
+            this.sectionQuestion.essayAnswer = {
+                ...this.sectionQuestion.essayAnswer,
+                evaluatedScore: value || undefined,
+            };
         } else {
             this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: undefined };
         }
@@ -81,7 +86,7 @@ export class EssayQuestionComponent implements OnInit {
         if (!this.sectionQuestion.essayAnswer) {
             this.sectionQuestion.essayAnswer = { id: 0 };
         }
-        console.log('init');
+        console.log('init lti-question');
         this.scoreValue = this.sectionQuestion.essayAnswer.evaluatedScore;
     }
 
@@ -105,19 +110,24 @@ export class EssayQuestionComponent implements OnInit {
         return this.Attachment.downloadQuestionAnswerAttachment(this.sectionQuestion as ReviewQuestion);
     };
 
-    insertEssayScore = () => {
+    // LTI questions are always manually graded; their score is stored in forcedScore.
+    insertLtiScore = (sectionQuestion: ExamSectionQuestion) => {
+        if (!this.isScorable) {
+            return;
+        }
+
         if (this.collaborative) {
-            this.Assessment.saveCollaborativeEssayScore$(
+            this.Assessment.saveCollaborativeLtiScore$(
                 this.sectionQuestion,
                 this.id,
                 this.ref,
                 this.participation._rev as string,
-            ).subscribe((resp) => {
+            ).subscribe(() => {
                 this.toast.info(this.translate.instant('i18n_graded'));
-                this.scored.emit(resp.rev);
+                this.scored.emit();
             });
         } else {
-            this.Assessment.saveEssayScore$(this.sectionQuestion).subscribe(() => {
+            this.Assessment.saveLtiScore$(sectionQuestion).subscribe(() => {
                 this.toast.info(this.translate.instant('i18n_graded'));
                 this.scored.emit();
             });

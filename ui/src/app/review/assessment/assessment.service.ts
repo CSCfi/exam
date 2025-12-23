@@ -173,6 +173,27 @@ export class AssessmentService {
         return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
     };
 
+    saveLtiScore$ = (question: ExamSectionQuestion): Observable<void> => {
+        if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
+            return throwError(() => new Error(this.translate.instant('i18n_error_score_input')));
+        }
+        const url = `/app/review/examquestion/${question.id}/score`;
+        return this.http.put<void>(url, { evaluatedScore: question.essayAnswer.evaluatedScore });
+    };
+
+    saveCollaborativeLtiScore$ = (
+        question: ExamSectionQuestion,
+        examId: number,
+        examRef: string,
+        rev: string,
+    ): Observable<{ rev: string }> => {
+        if (question.forcedScore == null || isNaN(question.forcedScore as number)) {
+            return throwError(() => new Error(this.translate.instant('i18n_error_score_input')));
+        }
+        const url = `/app/iop/reviews/${examId}/${examRef}/question/${question.id}`;
+        return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer?.evaluatedScore, rev });
+    };
+
     saveAssessmentInfo$ = (exam: Exam): Observable<void> => {
         if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED') {
             return this.http

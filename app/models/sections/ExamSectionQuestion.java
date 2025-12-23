@@ -407,7 +407,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     @Override
     public Double getAssessedScore() {
         switch (question.getType()) {
-            case EssayQuestion -> {
+            case EssayQuestion, LtiQuestion -> {
                 if (evaluationType == Question.EvaluationType.Points) {
                     return essayAnswer == null || essayAnswer.getEvaluatedScore() == null
                         ? 0
@@ -475,7 +475,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     @Override
     public Double getMaxAssessedScore() {
         switch (question.getType()) {
-            case EssayQuestion -> {
+            case EssayQuestion, LtiQuestion -> {
                 if (evaluationType == Question.EvaluationType.Points) {
                     return maxScore == null ? 0 : maxScore;
                 }

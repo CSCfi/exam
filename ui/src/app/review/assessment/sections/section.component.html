@@ -93,6 +93,19 @@ SPDX-License-Identifier: EUPL-1.2
                         </xm-r-multi-choice-question>
                     </div>
                 }
+                @if (sq.question.type === 'LtiQuestion') {
+                    <div>
+                        <xm-r-lti-question
+                            [sectionQuestion]="sq"
+                            [participation]="participation"
+                            [exam]="exam"
+                            [isScorable]="isScorable"
+                            [collaborative]="collaborative"
+                            (scored)="scoreSet($event)"
+                        >
+                        </xm-r-lti-question>
+                    </div>
+                }
             </div>
         </div>
     }
