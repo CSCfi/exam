@@ -4,375 +4,199 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<xm-page-header text="i18n_examination_location" />
-@if (room()) {
-    <xm-page-content [content]="content" />
-}
-<ng-template #content>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="row">
-                <span class="col font-6">
-                    <span class="me-2" [hidden]="!showName()" onclick="document.getElementById('name_field').select()">
-                        {{ room()?.name || 'i18n_no_name' | translate }}
-                        <button
-                            class="btn btn-link btn-lg text-body width-auto"
-                            (click)="toggleShowName()"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_edit' | translate }}"
-                        >
-                            <i class="bi-pencil ms-2"></i>
-                        </button>
-                        <button
-                            class="btn btn-link btn-lg width-auto"
-                            (click)="disableRoom()"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
-                        >
-                            <i class="text-danger bi-trash"></i>
-                        </button>
-                    </span>
-                    <span [hidden]="showName()">
-                        <div class="input-group">
-                            <input
-                                id="name_field"
-                                type="text"
-                                name="name"
-                                class="form-control input-lg"
-                                [ngModel]="room()?.name"
-                                (ngModelChange)="updateRoomName($event)"
-                                required
-                                (blur)="toggleShowName()"
-                            />
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" (click)="toggleShowName()">
-                                    <i class="bi-check"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </span>
-                </span>
-            </div>
-            <form
-                role="form"
-                #roomForm="ngForm"
-                name="roomForm"
-                novalidate
-                id="roomForm"
-                (ngSubmit)="validateAndUpdateRoom()"
+<div class="row mt-4" [ngClass]="{ 'text-muted': room().state === 'INACTIVE' }">
+    <div class="col-12">
+        <h4>
+            {{ room().name || 'i18n_no_name' | translate }}
+            <a
+                [hidden]="room().state === 'INACTIVE'"
+                (click)="onDisableRoom()"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
             >
-                <!-- Room Code & Building name -->
+                <i class="bi-trash ms-2 text-danger pointer"></i>
+            </a>
+            <a
+                [hidden]="room().state !== 'INACTIVE'"
+                (click)="onEnableRoom()"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                ngbPopover="{{ 'i18n_activate_room' | translate }}"
+            >
+                <i class="bi-plus text-success pointer"></i>
+            </a>
+        </h4>
+        <div class="toggleMessage col-md">
+            <div class="d-flex justify-content-between">
+                <div>
+                    {{ 'i18n_exam_basic_information_tab' | translate }}
+                    <a
+                        [routerLink]="['/staff/rooms', room().id]"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        ngbPopover="{{ 'i18n_edit' | translate }}"
+                    >
+                        <i class="bi-pencil"></i>
+                    </a>
+                </div>
+                <div>
+                    <span class="me-2">{{ room().roomCode }}, {{ room().buildingName }}, {{ room().campus }}</span>
+                    @if (room().addressVisible) {
+                        <i class="bi-chevron-down pointer" (click)="room().addressVisible = false"></i>
+                    } @else {
+                        <i class="bi-chevron-right pointer" (click)="room().addressVisible = true"></i>
+                    }
+                </div>
+            </div>
+            <div [hidden]="!room().addressVisible">
+                <!-- Room Code & Accessibility Info -->
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="facility-info-text">{{ 'i18n_room_code' | translate }}</div>
-                        <div class="input-group">
-                            <input
-                                type="text"
-                                name="roomCode"
-                                class="form-control"
-                                [ngModel]="room()?.roomCode"
-                                (ngModelChange)="updateRoomProperty('roomCode', $event)"
-                                required
-                            />
-                            <span class="input-group-append">
-                                <span class="input-group-text">
-                                    <i
-                                        class="bi-question-circle"
-                                        triggers="mouseenter:mouseleave"
-                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                        ngbPopover="{{ 'i18n_exam_room_unique_code' | translate }}"
-                                    ></i>
-                                </span>
-                            </span>
+                        <div class="facility-info-text">
+                            {{ 'i18n_room_code' | translate }}:
+                            <strong>{{ room().roomCode }}</strong>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="facility-info-text">{{ 'i18n_room_building_name' | translate }}</div>
-                        <div class="input-group">
-                            <input
-                                type="text"
-                                name="buildingName"
-                                class="form-control"
-                                [ngModel]="room()?.buildingName"
-                                (ngModelChange)="updateRoomProperty('buildingName', $event)"
-                            />
-                            <span class="input-group-append">
-                                <span class="input-group-text">
-                                    <i
-                                        class="bi-question-circle"
-                                        triggers="mouseenter:mouseleave"
-                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                        ngbPopover="{{ 'i18n_building_where_the_machine_is' | translate }}"
-                                    ></i>
-                                </span>
-                            </span>
+                        <div class="facility-info-text">
+                            {{ 'i18n_room_accessibility_info' | translate }}:
+                            @for (info of room().accessibilities; track info; let last = $last) {
+                                <strong> {{ info.name }}{{ last ? '' : ', ' }} </strong>
+                            }
                         </div>
                     </div>
                 </div>
+                <!-- Building name & Tilaohjeet -->
                 <div class="row">
-                    <!-- Campus name -->
                     <div class="col-md-6">
-                        <div class="facility-info-text">{{ 'i18n_room_campus' | translate }}</div>
-                        <div class="input-group">
-                            <input
-                                type="text"
-                                name="campus"
-                                class="form-control"
-                                [ngModel]="room()?.campus"
-                                (ngModelChange)="updateRoomProperty('campus', $event)"
-                            />
-                            <span class="input-group-append">
-                                <span class="input-group-text">
-                                    <i
-                                        class="bi-question-circle"
-                                        triggers="mouseenter:mouseleave"
-                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                        ngbPopover="{{ 'i18n_campus_where_room_is' | translate }}"
-                                    ></i>
-                                </span>
-                            </span>
+                        <div class="facility-info-text">
+                            {{ 'i18n_room_building_name' | translate }}:
+                            <strong>{{ room().buildingName }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="facility-info-text">
+                            {{ 'i18n_room_guidance' | translate }}:
+                            <strong>{{ room().roomInstruction }}</strong>
                         </div>
                     </div>
                 </div>
-                <!-- Passwords -->
+                <!-- Campus & Contact Person -->
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="facility-info-text">{{ 'i18n_internal_password' | translate }}</div>
-                        <div class="input-group">
-                            <input
-                                [type]="internalPasswordInputType()"
-                                name="internalPassword"
-                                class="form-control"
-                                [ngModel]="room()?.internalPassword"
-                                (ngModelChange)="updateRoomProperty('internalPassword', $event)"
-                            />
-                            <div class="input-group-append">
-                                <button
-                                    class="btn btn-success"
-                                    type="button"
-                                    (click)="toggleInternalPasswordInputType()"
-                                >
-                                    <i
-                                        [ngClass]="internalPasswordInputType() === 'text' ? 'bi-eye' : 'bi-eye-slash'"
-                                    ></i>
-                                </button>
+                        <div class="facility-info-text">
+                            {{ 'i18n_room_campus' | translate }}:
+                            <strong>{{ room().campus }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="facility-info-text">
+                            {{ 'i18n_room_contact_person' | translate }}:
+                            <strong>{{ room().contactPerson }}</strong>
+                        </div>
+                    </div>
+                </div>
+                <!-- Address -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="facility-info-text">
+                            {{ 'i18n_exam_room_address' | translate }}:
+                            <strong
+                                >{{ room().mailAddress.street }}, {{ room().mailAddress.zip }},
+                                {{ room().mailAddress.city }}
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="toggleMessage col-md border-top-none">
+            <div class="d-flex justify-content-between">
+                <div>
+                    {{ 'i18n_openinghours_exception_datetimes' | translate }}
+                </div>
+                <div class="d-flex justify-content-end">
+                    <span class="me-2 d-" [hidden]="room().availabilityVisible">
+                        @for (timetable of getWorkingHoursDisplayFormat(room().defaultWorkingHours); track timetable) {
+                            <div class="d-flex justify-content-end">
+                                @if (timetable.length > 0) {
+                                    <div class="bg-success custom-green-dot me-2"></div>
+                                }
+                                <div>{{ timetable }}</div>
+                            </div>
+                        }
+                    </span>
+                    <div>
+                        @if (room().availabilityVisible) {
+                            <i class="bi-chevron-down pointer" (click)="switchVisibility(room())"></i>
+                        }
+                        @if (!room().availabilityVisible) {
+                            <i class="bi-chevron-right pointer" (click)="switchVisibility(room())"></i>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row" [hidden]="room().availabilityVisible">
+                <div class="col-md mt-2 me-2">
+                    @for (exception of getNextExceptionEvent(room().calendarExceptionEvents); track exception.id) {
+                        <div class="row">
+                            <div class="col-md-2 offset-md-7">
+                                @if (exception?.outOfService) {
+                                    <div class="text-danger me-2 bi-exclamation-triangle-fill">
+                                        {{ 'i18n_room_out_of_service' | translate }}
+                                    </div>
+                                } @else {
+                                    <div class="text-success me-2">
+                                        {{ 'i18n_room_in_service' | translate }}
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-3">
+                                {{ formatDate(exception) }}
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="facility-info-text">{{ 'i18n_external_password' | translate }}</div>
-                        <div class="input-group">
-                            <input
-                                [type]="externalPasswordInputType()"
-                                name="externalPassword"
-                                class="form-control"
-                                [ngModel]="room()?.externalPassword"
-                                (ngModelChange)="updateRoomProperty('externalPassword', $event)"
-                            />
-                            <div class="input-group-append">
-                                <button
-                                    class="btn btn-success"
-                                    type="button"
-                                    (click)="toggleExternalPasswordInputType()"
-                                >
-                                    <i
-                                        [ngClass]="externalPasswordInputType() === 'text' ? 'bi-eye' : 'bi-eye-slash'"
-                                    ></i>
-                                </button>
+                    }
+                    @if (getFutureExceptionEvent(room().calendarExceptionEvents).length > 2) {
+                        <div class="d-flex justify-content-end flex-nowrap">
+                            <i class="bi-three-dots pointer me-2" (click)="room().availabilityVisible = true"></i>
+                            <div class="text-danger">
+                                ({{ getFutureExceptionEvent(room().calendarExceptionEvents).length }})
                             </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            @if (room().activate) {
+                <div class="row" [hidden]="!room().availabilityVisible">
+                    <div class="col-6">
+                        @if (room()) {
+                            <xm-opening-hours class="col-md-12" [room]="room()"></xm-opening-hours>
+                        }
+                    </div>
+                    <div class="col-6">
+                        <div class="row">
+                            <xm-exceptions
+                                class="col-12"
+                                [exceptions]="room().calendarExceptionEvents"
+                                (created)="onAddExceptions($event)"
+                                (removed)="onDeleteException($event)"
+                            ></xm-exceptions>
+                        </div>
+                        <div class="row">
+                            <xm-starting-time
+                                class="col-12 mt-2"
+                                [startingHours]="room().examStartingHours"
+                                [roomIds]="[room().id]"
+                            >
+                            </xm-starting-time>
                         </div>
                     </div>
                 </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <button type="submit" [disabled]="!roomForm.valid" class="btn btn-success">
-                            {{ 'i18n_save' | translate }}
-                        </button>
-                    </div>
-                </div>
-            </form>
+            }
+        </div>
+        <div class="toggleMessage col-md border-top-none">
+            <xm-machines [room]="room()"></xm-machines>
         </div>
     </div>
-    <!-- IOP -->
-    <div class="row mt-2" [hidden]="editingMultipleRooms() || !isInteroperable()">
-        <div class="col">
-            <div class="form-check">
-                <label>
-                    <input
-                        type="checkbox"
-                        class="form-check-input"
-                        [ngModel]="room()?.availableForExternals"
-                        (ngModelChange)="updateRoomProperty('availableForExternals', $event)"
-                        (change)="updateInteroperability()"
-                    />
-                    <strong>{{ 'i18n_interoperable' | translate }}</strong>
-                </label>
-            </div>
-        </div>
-    </div>
-    <!-- AVAILABILITY TODO: MOVE TO A TAB -->
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <xm-availability [room]="room()!"></xm-availability>
-        </div>
-    </div>
-
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <h3>{{ 'i18n_instructions' | translate }}</h3>
-        </div>
-    </div>
-    <!-- Accessibility information -->
-    <div class="row">
-        <xm-accessibility-picker [room]="room()!"></xm-accessibility-picker>
-    </div>
-    <!-- Guidance & Contact person information -->
-    <div class="row mt-2">
-        <div class="col-md-6">
-            <div class="facility-info-text">{{ 'i18n_room_guidance' | translate }}</div>
-            <div class="input-group">
-                <textarea
-                    class="form-control"
-                    [ngModel]="room()?.roomInstruction"
-                    (ngModelChange)="updateRoomProperty('roomInstruction', $event)"
-                    placeholder="fin"
-                >
-                </textarea>
-                <textarea
-                    class="form-control"
-                    [ngModel]="room()?.roomInstructionEN"
-                    (ngModelChange)="updateRoomProperty('roomInstructionEN', $event)"
-                    placeholder="eng"
-                >
-                </textarea>
-                <textarea
-                    class="form-control"
-                    [ngModel]="room()?.roomInstructionSV"
-                    (ngModelChange)="updateRoomProperty('roomInstructionSV', $event)"
-                    placeholder="swe"
-                >
-                </textarea>
-                <span class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            class="bi-question-circle"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_instructions_for_use_of_room' | translate }}"
-                        ></i>
-                    </span>
-                </span>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="facility-info-text">{{ 'i18n_room_contact_person' | translate }}</div>
-            <div class="input-group">
-                <input
-                    type="text"
-                    class="form-control"
-                    [ngModel]="room()?.contactPerson"
-                    (ngModelChange)="updateRoomProperty('contactPerson', $event)"
-                />
-                <span class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            class="bi-question-circle"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_person_to_contact_if_need_info' | translate }}"
-                        ></i>
-                    </span>
-                </span>
-            </div>
-        </div>
-    </div>
-    <!-- Video recordings URL -->
-    <div class="row mt-2">
-        <div class="col-md-6">
-            <div class="facility-info-text">{{ 'i18n_room_videorecordings_url' | translate }}</div>
-            <div class="input-group">
-                <input
-                    type="text"
-                    class="form-control"
-                    [ngModel]="room()?.videoRecordingsURL"
-                    (ngModelChange)="updateRoomProperty('videoRecordingsURL', $event)"
-                />
-                <span class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            class="bi-question-circle"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_address_for_camera_footage_from_this_room' | translate }}"
-                        ></i>
-                    </span>
-                </span>
-            </div>
-        </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <button class="btn btn-success" (click)="updateRoom()">{{ 'i18n_save' | translate }}</button>
-        </div>
-    </div>
-    <!-- Postal address-->
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <!-- Address -->
-            <h3>{{ 'i18n_exam_room_address' | translate }}</h3>
-            <xm-room-address [address]="room()!.mailAddress"></xm-room-address>
-        </div>
-    </div>
-    <!-- Service status -->
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <label>
-                <input
-                    class="me-2"
-                    type="checkbox"
-                    [ngModel]="room()?.outOfService"
-                    (ngModelChange)="updateOutOfService($event)"
-                />
-                <strong>{{ 'i18n_out_of_service' | translate }}</strong>
-            </label>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 facility-info-text">{{ 'i18n_reason' | translate }}</div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="input-group">
-                <textarea
-                    [disabled]="!room()?.outOfService"
-                    class="form-control"
-                    [ngModel]="room()?.statusComment"
-                    (ngModelChange)="updateRoomProperty('statusComment', $event)"
-                    (blur)="updateRoom()"
-                >
-                </textarea>
-                <span class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            class="bi-question-circle"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            ngbPopover="{{ 'i18n_room_accessibility_features' | translate }}"
-                        ></i>
-                    </span>
-                </span>
-            </div>
-        </div>
-    </div>
-    <!-- Button row -->
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <button [disabled]="!roomForm.valid" (click)="saveRoom()" class="btn btn-success">
-                {{ 'i18n_save' | translate }}
-            </button>
-        </div>
-    </div>
-</ng-template>
+</div>

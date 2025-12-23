@@ -86,15 +86,20 @@ export class ExceptionDialogComponent {
     }
 
     private repeatOnce() {
-        const currentOptions = this.options();
-        const result = [
+        const startDate = DateTime.fromJSDate(this.options().start);
+        const endDate = DateTime.fromJSDate(this.options().end);
+        const result: ExceptionWorkingHours[] = [
             {
-                start: currentOptions.start,
-                end: currentOptions.end,
+                id: 0,
+                startDate: startDate.toISO()!,
+                startDateTimezoneOffset: startDate.offset,
+                endDate: endDate.toISO()!,
+                endDateTimezoneOffset: endDate.offset,
                 outOfService: this.outOfService(),
             },
         ];
-        if (this.isOverlapping(this.exceptions(), result)) {
+        const overlapCheck = [{ start: this.options().start, end: this.options().end }];
+        if (this.isOverlapping(this.exceptions(), overlapCheck)) {
             return;
         }
         this.activeModal.close(result);

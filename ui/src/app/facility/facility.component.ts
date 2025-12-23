@@ -118,9 +118,7 @@ export class FacilityComponent {
         });
     }
 
-    editMultipleRooms() {
-        this.router.navigate(['/staff/multiroom']);
-    }
+    editMultipleRooms = () => this.router.navigate(['/staff/rooms/exceptions/bulk']);
 
     goBack(event: Event) {
         event.preventDefault();

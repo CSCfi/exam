@@ -17,7 +17,7 @@ import { RoomService } from './room.service';
 type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
 
 @Component({
-    selector: 'xm-room-mass-edit',
+    selector: 'xm-room-exceptions-bulk',
     template: `
         <xm-page-header text="i18n_edit_all_rooms" />
         <xm-page-content [content]="content" />
@@ -114,7 +114,7 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
     styleUrl: './rooms.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultiRoomComponent {
+export class RoomExceptionsBulkComponent {
     rooms = signal<SelectableRoom[]>([]);
     roomIds = signal<number[]>([]);
     allSelected = signal(false);

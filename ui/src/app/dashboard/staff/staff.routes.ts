@@ -29,8 +29,8 @@ import { ExaminationComponent } from 'src/app/examination/examination.component'
 import { FacilityComponent } from 'src/app/facility/facility.component';
 import { MachineComponent } from 'src/app/facility/machines/machine.component';
 import { AvailabilityComponent } from 'src/app/facility/rooms/availability.component';
-import { MultiRoomComponent } from 'src/app/facility/rooms/room-mass-edit.component';
-import { RoomComponent } from 'src/app/facility/rooms/room.component';
+import { RoomEditComponent } from 'src/app/facility/rooms/room-edit.component';
+import { RoomExceptionsBulkComponent } from 'src/app/facility/rooms/room-exceptions-bulk.component';
 import { LanguageInspectionsComponent } from 'src/app/maturity/language-inspections.component';
 import { MaturityReportingComponent } from 'src/app/maturity/reporting/maturity-reporting.component';
 import { QuestionComponent } from 'src/app/question/editor/base/question.component';
@@ -234,7 +234,7 @@ export const STAFF_ROUTES: Route[] = [
             },
             { path: 'reservations/:eid', component: ReservationsComponent },
             { path: 'rooms', component: FacilityComponent, title: () => buildTitle('i18n_exam_rooms_title') },
-            { path: 'rooms/:id', component: RoomComponent, title: () => buildTitle('i18n_exam_room_title') },
+            { path: 'rooms/:id', component: RoomEditComponent, title: () => buildTitle('i18n_exam_room_title') },
             {
                 path: 'rooms/:id/availability',
                 component: AvailabilityComponent,
@@ -242,7 +242,11 @@ export const STAFF_ROUTES: Route[] = [
             },
             { path: 'settings', component: SettingsComponent, title: () => buildTitle('i18n_settings_title') },
             { path: 'users', component: UsersComponent, title: () => buildTitle('i18n_users_title') },
-            { path: 'multiroom', component: MultiRoomComponent, title: () => buildTitle('i18n_multiroom_title') },
+            {
+                path: 'rooms/exceptions/bulk',
+                component: RoomExceptionsBulkComponent,
+                title: () => buildTitle('i18n_multiroom_title'),
+            },
             { path: 'machines/:id', component: MachineComponent, title: () => buildTitle('i18n_machine_title') },
             { path: 'reports', component: ReportsComponent, title: () => buildTitle('i18n_reports_title') },
             { path: 'statistics', component: StatisticsComponent, title: () => buildTitle('i18n_statistics_title') },

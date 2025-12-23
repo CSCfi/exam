@@ -106,11 +106,6 @@ export class RoomService {
             }),
         );
 
-    formatExceptionEvent = (event: ExceptionWorkingHours) => {
-        event.startDate = DateTime.fromISO(event.startDate).toISO() || '';
-        event.endDate = DateTime.fromISO(event.endDate).toISO() || '';
-    };
-
     updateStartingHours$ = (hours: WorkingHour[], offset: number, roomIds: number[]) => {
         const selected = hours.filter((hour) => hour.selected).map((hour) => this.formatTime(hour.startingHour));
         const data = { hours: selected, offset, roomIds };

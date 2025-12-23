@@ -6,18 +6,18 @@ package features.facility.services
 
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import RoomError.*
+import database.EbeanQueryExtensions
 import features.facility.impl.FacilityHandler
+import features.facility.services.RoomError.*
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.calendar.{DefaultWorkingHours, ExceptionWorkingHours}
 import models.facility.*
 import models.user.User
 import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logging
-import play.api.libs.json.{JsArray, JsValue, Json}
+import play.api.libs.json.{JsArray, JsValue}
 import services.cache.FacilityCache
 import services.config.ConfigReader
 import services.datetime.DateTimeHandler
@@ -261,8 +261,8 @@ class RoomService @Inject() (
     }
 
   private def parseException(node: JsValue): ExceptionWorkingHours =
-    val startDate = ISODateTimeFormat.dateTime().parseDateTime((node \ "start").as[String])
-    val endDate   = ISODateTimeFormat.dateTime().parseDateTime((node \ "ene").as[String])
+    val startDate = ISODateTimeFormat.dateTime().parseDateTime((node \ "startDate").as[String])
+    val endDate   = ISODateTimeFormat.dateTime().parseDateTime((node \ "endDate").as[String])
     val hours     = new ExceptionWorkingHours()
     hours.setStartDate(startDate.toDate)
     hours.setEndDate(endDate.toDate)

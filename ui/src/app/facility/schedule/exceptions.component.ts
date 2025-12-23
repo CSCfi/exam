@@ -91,17 +91,10 @@ export class ExceptionListComponent {
         );
     }
 
-    addExceptionClosed() {
-        this.roomService.openExceptionDialog(this.createExceptionCallback.bind(this), true, this.exceptions());
-    }
-
-    addExceptionOpen() {
-        this.roomService.openExceptionDialog(this.createExceptionCallback.bind(this), false, this.exceptions());
-    }
-
-    createExceptionCallback(exceptions: ExceptionWorkingHours[]) {
-        this.created.emit(exceptions);
-    }
+    addExceptionClosed = () =>
+        this.roomService.openExceptionDialog((exceptions) => this.created.emit(exceptions), true, this.exceptions());
+    addExceptionOpen = () =>
+        this.roomService.openExceptionDialog((exceptions) => this.created.emit(exceptions), false, this.exceptions());
 
     deleteException(exception: ExceptionWorkingHours) {
         const modal = this.modal.openRef(ExceptionDeleteDialogComponent, { size: 'lg' });
