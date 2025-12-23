@@ -231,61 +231,59 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <!-- Guidance & Contact person information -->
     <div class="row mt-2">
-        <div class="col-md-6">
-            <div class="facility-info-text">{{ 'i18n_room_guidance' | translate }}</div>
-            <div class="input-group">
-                <textarea
-                    class="form-control"
-                    [ngModel]="room()?.roomInstruction"
-                    (ngModelChange)="updateRoomProperty('roomInstruction', $event)"
-                    placeholder="fi"
-                >
-                </textarea>
-                <textarea
-                    class="form-control"
-                    [ngModel]="room()?.roomInstructionEN"
-                    (ngModelChange)="updateRoomProperty('roomInstructionEN', $event)"
-                    placeholder="en"
-                >
-                </textarea>
-                <textarea
-                    class="form-control"
-                    [ngModel]="room()?.roomInstructionSV"
-                    (ngModelChange)="updateRoomProperty('roomInstructionSV', $event)"
-                    placeholder="sv"
-                >
-                </textarea>
-                <span class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            class="bi-question-circle"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_instructions_for_use_of_room' | translate }}"
-                        ></i>
-                    </span>
-                </span>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="facility-info-text">{{ 'i18n_room_contact_person' | translate }}</div>
-            <div class="input-group">
-                <input
-                    type="text"
-                    class="form-control"
-                    [ngModel]="room()?.contactPerson"
-                    (ngModelChange)="updateRoomProperty('contactPerson', $event)"
-                />
-                <span class="input-group-append">
-                    <span class="input-group-text">
-                        <i
-                            class="bi-question-circle"
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_person_to_contact_if_need_info' | translate }}"
-                        ></i>
-                    </span>
-                </span>
+        <div class="col-md-12">
+            <strong>{{ 'i18n_room_guidance' | translate }}</strong>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="facility-info-text">FI</div>
+                    <textarea
+                        class="form-control"
+                        [ngModel]="room()?.roomInstruction"
+                        (ngModelChange)="updateRoomProperty('roomInstruction', $event)"
+                    >
+                    </textarea>
+                </div>
+                <div class="col-md-3">
+                    <div class="facility-info-text">SV</div>
+                    <textarea
+                        class="form-control"
+                        [ngModel]="room()?.roomInstructionSV"
+                        (ngModelChange)="updateRoomProperty('roomInstructionSV', $event)"
+                    >
+                    </textarea>
+                </div>
+                <div class="col-md-3">
+                    <div class="facility-info-text">EN</div>
+                    <div class="input-group">
+                        <textarea
+                            class="form-control"
+                            [ngModel]="room()?.roomInstructionEN"
+                            (ngModelChange)="updateRoomProperty('roomInstructionEN', $event)"
+                        >
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="facility-info-text">{{ 'i18n_room_contact_person' | translate }}</div>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            class="form-control"
+                            [ngModel]="room()?.contactPerson"
+                            (ngModelChange)="updateRoomProperty('contactPerson', $event)"
+                        />
+                        <span class="input-group-append">
+                            <span class="input-group-text">
+                                <i
+                                    class="bi-question-circle"
+                                    triggers="mouseenter:mouseleave"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                    ngbPopover="{{ 'i18n_person_to_contact_if_need_info' | translate }}"
+                                ></i>
+                            </span>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

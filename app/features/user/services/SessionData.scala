@@ -10,10 +10,7 @@ import play.api.libs.json.JsValue
 type SessionData = Map[String, String]
 
 /** Login response containing user data and session data */
-case class LoginResponse(
-    userData: JsValue,
-    sessionData: SessionData
-)
+case class LoginResponse(userData: JsValue, sessionData: SessionData)
 
 /** Check session status */
 enum CheckSessionStatus:
