@@ -80,9 +80,9 @@ export class QuestionBodyComponent implements OnInit {
         this.init();
     }
 
-  updateEvaluationType = ($event: string) => {
-    this.question.defaultEvaluationType = $event;
-  };
+    updateEvaluationType = ($event: string) => {
+        this.question.defaultEvaluationType = $event;
+    };
 
     setQuestionType = ($event: string) => {
         this.question.type = this.Question.getQuestionType($event);
