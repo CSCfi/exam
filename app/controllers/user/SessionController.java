@@ -113,9 +113,9 @@ public class SessionController extends BaseController {
         String eppn = id.get();
         Reservation externalReservation = getUpcomingExternalReservation(eppn, request.remoteAddress());
         boolean isTemporaryVisitor = externalReservation != null;
-        boolean isLocalUser = isLocalUser(eppn);
-        if (!isTemporaryVisitor && !isLocalUser && configReader.isHomeOrganisationRequired()) {
-            return wrapAsPromise(badRequest("i18n_error_disallowed_login_with_external_domain_credentials"));
+        Optional<Result> validationError = validateUserLoginEligibility(isTemporaryVisitor, eppn);
+        if (validationError.isPresent()) {
+            return wrapAsPromise(validationError.get());
         }
         User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
         try {
@@ -160,11 +160,15 @@ public class SessionController extends BaseController {
         if (user == null) {
             return wrapAsPromise(unauthorized("i18n_error_unauthenticated"));
         }
-        user.setLastLogin(new Date());
-        user.update();
-        // In the dev environment we will not fiddle with the role definitions here regarding visitor status
         Reservation externalReservation = getUpcomingExternalReservation(user.getEppn(), request.remoteAddress());
-        return handleExternalReservationAndCreateSession(user, externalReservation, request);
+        boolean isTemporaryVisitor = externalReservation != null;
+        return validateUserLoginEligibility(isTemporaryVisitor, user.getEppn())
+            .map(this::wrapAsPromise)
+            .orElseGet(() -> {
+                user.setLastLogin(new Date());
+                user.update();
+                return handleExternalReservationAndCreateSession(user, externalReservation, request);
+            });
     }
 
     private CompletionStage<Result> handleExternalReservationAndCreateSession(
@@ -377,6 +381,19 @@ public class SessionController extends BaseController {
         return user;
     }
 
+    private Optional<Result> validateUserLoginEligibility(boolean isTemporaryVisitor, String eppn) {
+        boolean isLocalUser = isLocalUser(eppn);
+        if (!isTemporaryVisitor && !isLocalUser && configReader.isHomeOrganisationRequired()) {
+            return Optional.of(
+                badRequest("i18n_error_disallowed_login_with_external_domain_credentials").withHeader(
+                    "x-exam-delay-execution",
+                    "true"
+                )
+            );
+        }
+        return Optional.empty();
+    }
+
     private boolean isLocalUser(String eppn) {
         var userDomain = eppn.split("@")[1];
         var homeDomains = CollectionConverters.asJava(configReader.getHomeOrganisations());
@@ -405,8 +422,7 @@ public class SessionController extends BaseController {
             );
         }
         // If a (regular) user has just one role, set it as the one used for logins
-        var isLocalUser = isLocalUser(user.getEppn());
-        List<Role> roles = isTemporaryVisitor || !isLocalUser
+        List<Role> roles = isTemporaryVisitor
             ? DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
             : user.getRoles();
         if (user.getRoles().size() == 1 && !isTemporaryVisitor) {
@@ -416,7 +432,6 @@ public class SessionController extends BaseController {
             payload.put("role", roles.getFirst().getName()); // forced login as a student
         } else if (!isLocalUser(user.getEppn())) {
             result.put("externalUserOrg", user.getEppn().split("@")[1]);
-            payload.put("role", roles.getFirst().getName()); // forced login as a student
         }
         result.set("roles", Json.toJson(roles));
         return checkStudentSession(request, new Http.Session(payload), ok(result));

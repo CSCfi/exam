@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass, UpperCasePipe } from '@angular/common';
-import { Component, inject, model, output } from '@angular/core';
+import { Component, inject, input, model, output } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -19,53 +19,55 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
     template: `
         @if (question(); as q) {
             <div ngModelGroup="weightedMcq" id="weightedMcq">
-                <div class="row mt-2 mx-2">
-                    <ul>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_1' | translate }}</li>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_2' | translate }}</li>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_3' | translate }}</li>
-                    </ul>
-                    {{ 'i18n_weighted_multiple_choice_description_4' | translate }}
-                    <ul>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_5' | translate }}</li>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_6' | translate }}</li>
-                        <li>{{ 'i18n_weighted_multiple_choice_description_7' | translate }}</li>
-                    </ul>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-12">
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                name="negativeScore"
-                                type="checkbox"
-                                [ngModel]="q.negativeScoreAllowed"
-                                (ngModelChange)="updateNegativeScoreSetting($event)"
-                                id="negativeScore"
-                            />
-                            <label class="form-check-label" for="negativeScore">{{
-                                'i18n_allow_negative_score' | translate
-                            }}</label>
+                @if (multichoiceFeaturesOn()) {
+                    <div class="row mt-2 mx-2">
+                        <ul>
+                            <li>{{ 'i18n_weighted_multiple_choice_description_1' | translate }}</li>
+                            <li>{{ 'i18n_weighted_multiple_choice_description_2' | translate }}</li>
+                            <li>{{ 'i18n_weighted_multiple_choice_description_3' | translate }}</li>
+                        </ul>
+                        {{ 'i18n_weighted_multiple_choice_description_4' | translate }}
+                        <ul>
+                            <li>{{ 'i18n_weighted_multiple_choice_description_5' | translate }}</li>
+                            <li>{{ 'i18n_weighted_multiple_choice_description_6' | translate }}</li>
+                            <li>{{ 'i18n_weighted_multiple_choice_description_7' | translate }}</li>
+                        </ul>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    name="negativeScore"
+                                    type="checkbox"
+                                    [ngModel]="q.negativeScoreAllowed"
+                                    (ngModelChange)="updateNegativeScoreSetting($event)"
+                                    id="negativeScore"
+                                />
+                                <label class="form-check-label" for="negativeScore">{{
+                                    'i18n_allow_negative_score' | translate
+                                }}</label>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-12">
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                name="optionShuffling"
-                                type="checkbox"
-                                [ngModel]="q.optionShufflingOn"
-                                (ngModelChange)="updateShufflingSetting($event)"
-                                id="optionShuffling"
-                            />
-                            <label class="form-check-label" for="optionShuffling">{{
-                                'i18n_shuffle_options' | translate
-                            }}</label>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    name="optionShuffling"
+                                    type="checkbox"
+                                    [ngModel]="q.optionShufflingOn"
+                                    (ngModelChange)="updateShufflingSetting($event)"
+                                    id="optionShuffling"
+                                />
+                                <label class="form-check-label" for="optionShuffling">{{
+                                    'i18n_shuffle_options' | translate
+                                }}</label>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
                 <div class="row">
                     <div class="col-6">
                         <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
@@ -160,6 +162,7 @@ export class WeightedMultiChoiceComponent {
     question = model.required<ExamSectionQuestion>();
     lotteryOn = model(false);
     isInPublishedExam = model(false);
+    multichoiceFeaturesOn = input(false);
     optionsChanged = output<ExamSectionQuestionOption[]>();
     negativeScoreSettingChanged = output<boolean>();
     shufflingSettingChanged = output<boolean>();
