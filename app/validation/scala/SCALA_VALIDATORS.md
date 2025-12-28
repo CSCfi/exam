@@ -30,7 +30,7 @@ import validation.scala.core.Validators
 
 class MyController @Inject()(
   validators: Validators,
-  implicit val ec: AuthExecutionContext
+  implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
 ```
 
@@ -228,7 +228,7 @@ To migrate an existing Java validator to Scala:
 ```scala
 class ReportController @Inject()(
                                   validators: Validators,
-                                  implicit val ec: AuthExecutionContext
+                                  implicit val ec: BlockingIOExecutionContext
                                 ) extends BaseController:
 
   def exportData(examId: Long): Action[AnyContent] =

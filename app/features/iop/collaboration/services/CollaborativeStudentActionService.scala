@@ -60,7 +60,7 @@ class CollaborativeStudentActionService @Inject() (
       .foreach { ep =>
         // Convert to Jackson for deserializer
         val examJson    = (ep \ "exam").get
-        val jacksonNode = play.libs.Json.parse(play.api.libs.json.Json.stringify(examJson))
+        val jacksonNode = toJacksonJson(examJson)
         val exam        = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
         exam.setMaxScore()
         exam.setApprovedAnswerCount()

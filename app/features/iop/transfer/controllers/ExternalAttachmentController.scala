@@ -11,20 +11,20 @@ import features.iop.transfer.services.{
 }
 import models.user.Role
 import play.api.libs.Files.TemporaryFile
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ExternalAttachmentController @Inject() (
     private val externalAttachmentService: ExternalAttachmentService,
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
     val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends BaseController:
 
   private def toDownloadResult(response: DownloadResponse): Result =

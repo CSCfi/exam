@@ -4,19 +4,19 @@
 
 package features.integration.controllers
 
+import database.EbeanJsonExtensions
 import features.integration.services.ExamAPIService
 import io.ebean.text.PathProperties
-import database.EbeanJsonExtensions
-import play.api.mvc._
+import play.api.mvc.*
 import security.Auth.subjectNotPresent
+import security.BlockingIOExecutionContext
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ExamAPIController @Inject() (
     private val examAPIService: ExamAPIService,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

@@ -19,7 +19,7 @@ object Auth:
   val ATTR_PERMISSIONS: TypedKey[Set[String]] = TypedKey[Set[String]]("userPermissions")
 
   case class AuthenticatedAction @Inject() (override val parser: BodyParsers.Default)(implicit
-      ec: AuthExecutionContext
+      ec: BlockingIOExecutionContext
   ) extends ActionBuilderImpl(parser):
     override def invokeBlock[A](
         request: Request[A],

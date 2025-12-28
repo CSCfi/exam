@@ -4,27 +4,27 @@
 
 package features.exam.controllers
 
-import features.exam.services.ExamSectionError._
+import database.EbeanJsonExtensions
+import features.exam.services.ExamSectionError.*
 import features.exam.services.{ExamSectionError, ExamSectionService}
 import io.ebean.text.PathProperties
-import database.EbeanJsonExtensions
 import models.user.Role
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 import validation.core.PlayJsonHelper
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ExamSectionController @Inject() (
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
     private val examSectionService: ExamSectionService,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

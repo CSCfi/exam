@@ -4,18 +4,17 @@
 
 package features.facility.controllers
 
-import features.facility.services.{RoomError, RoomService}
 import database.EbeanJsonExtensions
+import features.facility.services.{RoomError, RoomService}
 import models.user.Role
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 import system.interceptors.SensitiveDataFilter
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class RoomController @Inject() (
     private val roomService: RoomService,
@@ -23,7 +22,7 @@ class RoomController @Inject() (
     val audited: AuditedAction,
     val sensitiveDataFilter: SensitiveDataFilter,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

@@ -4,53 +4,49 @@
 
 package features.iop.collaboration.controllers
 
-import features.iop.collaboration.api.CollaborativeExamLoader
+import features.iop.collaboration.services.*
 import models.user.Role
 import play.api.Logging
 import play.api.libs.json.JsArray
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
 import services.exam.ExamUpdater
 
-import java.net.URI
-import java.net.URL
+import java.net.{URI, URL}
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.Try
 
 class CollaborativeStudentActionController @Inject() (
     wsClient: WSClient,
     examUpdater: ExamUpdater,
-    examLoader: CollaborativeExamLoader,
+    examLoader: CollaborativeExamLoaderService,
     configReader: ConfigReader,
+    collaborativeExamService: CollaborativeExamService,
+    collaborativeExamSearchService: CollaborativeExamSearchService,
+    collaborativeExamAuthorizationService: CollaborativeExamAuthorizationService,
     authenticated: AuthenticatedAction,
     override val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
-    extends CollaborationController(
-      wsClient,
-      examUpdater,
-      examLoader,
-      configReader,
-      controllerComponents
-    )
+)(implicit ec: BlockingIOExecutionContext)
+    extends BaseController
     with Logging:
 
-  def getFinishedExams(): Action[AnyContent] =
+  def getFinishedExams: Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       parseAssessmentUrl() match
-        case None => Future.successful(InternalServerError)
+        case None => Future.successful(Results.InternalServerError)
         case Some(url) =>
           val wsRequest = wsClient.url(url.toString + user.getEppn)
           wsRequest.get().map { response =>
-            if response.status != OK then Status(response.status)
+            if response.status != play.api.http.Status.OK then Results.Status(response.status)
             else
               val root = response.json.as[JsArray]
-              calculateScores(root)
-              Ok(root)
+              CollaborativeExamProcessingService.calculateScores(root)
+              Results.Ok(root)
           }
     }
 

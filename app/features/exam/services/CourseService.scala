@@ -4,21 +4,22 @@
 
 package features.exam.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.exam.Course
 import models.user.User
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.exam.ExternalCourseHandler
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
 class CourseService @Inject() (
     private val externalApi: ExternalCourseHandler,
     private val configReader: ConfigReader,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions:
 

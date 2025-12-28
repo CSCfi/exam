@@ -4,24 +4,23 @@
 
 package features.enrolment.controllers
 
-import features.enrolment.services.{ReservationError, ReservationService}
 import database.EbeanJsonExtensions
+import features.enrolment.services.{ReservationError, ReservationService}
 import models.user.Role
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ReservationController @Inject() (
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
     private val reservationService: ReservationService,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

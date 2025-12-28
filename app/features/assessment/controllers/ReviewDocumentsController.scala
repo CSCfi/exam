@@ -4,24 +4,23 @@
 
 package features.assessment.controllers
 
-import features.assessment.services.ReviewDocumentsService
 import database.EbeanJsonExtensions
+import features.assessment.services.ReviewDocumentsService
 import models.user.Role
 import play.api.libs.Files
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ReviewDocumentsController @Inject() (
     val controllerComponents: ControllerComponents,
     private val reviewDocumentsService: ReviewDocumentsService,
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

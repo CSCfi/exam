@@ -4,23 +4,22 @@
 
 package system.jobs
 
-import cats.effect.{IO, Resource}
 import cats.effect.syntax.all.concurrentParTraverseOps
-import cats.syntax.all._
-import io.ebean.DB
+import cats.effect.{IO, Resource}
+import cats.syntax.all.*
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.attachment.Attachment
 import models.iop.ExternalExam
 import play.api.Logging
 import play.api.libs.ws.WSClient
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
-import java.net.MalformedURLException
-import java.net.URI
+import java.net.{MalformedURLException, URI}
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.control.Exception.catching
 
 object ExternalExamExpirationService:
@@ -29,7 +28,7 @@ object ExternalExamExpirationService:
 class ExternalExamExpirationService @Inject() (
     private val configReader: ConfigReader,
     private val wsClient: WSClient,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions:

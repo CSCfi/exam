@@ -5,7 +5,7 @@
 package repository
 
 import features.exam.copy.ExamCopyContext
-import features.iop.collaboration.api.CollaborativeExamLoader
+import features.iop.collaboration.services.CollaborativeExamLoaderService
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Database, Query}
 import database.EbeanQueryExtensions
@@ -23,16 +23,17 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.util.Using
+import security.BlockingIOExecutionContext
 
 class ExaminationRepository @Inject() (
-    cel: CollaborativeExamLoader,
-    databaseExecutionContext: DatabaseExecutionContext,
+    cel: CollaborativeExamLoaderService,
+    blockingIOExecutionContext: BlockingIOExecutionContext,
     dateTimeHandler: DateTimeHandler
 ) extends Logging
     with EbeanQueryExtensions:
 
-  private val db: Database                          = DB.getDefault
-  private implicit val ec: DatabaseExecutionContext = databaseExecutionContext
+  private val db: Database                            = DB.getDefault
+  private implicit val ec: BlockingIOExecutionContext = blockingIOExecutionContext
 
   private def doCreateExam(prototype: Exam, user: User, enrolment: ExamEnrolment): Option[Exam] =
     Using(db.beginTransaction()) { tx =>
@@ -40,13 +41,13 @@ class ExaminationRepository @Inject() (
       val reservation     = enrolment.getReservation
       // TODO: support for optional sections in BYOD exams
       val ids = Option(reservation)
-        .map(_ => enrolment.getOptionalSections.asScala.map(_.getId).toSet)
-        .getOrElse(Set.empty[java.lang.Long])
+        .map(_ => enrolment.getOptionalSections.asScala.map(_.getId.longValue()).toSet)
+        .getOrElse(Set.empty[Long])
 
       val context =
         if isCollaborative then
-          ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids.asJava).build()
-        else ExamCopyContext.forStudentExam(user).withSelectedSections(ids.asJava).build()
+          ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids).build()
+        else ExamCopyContext.forStudentExam(user).withSelectedSections(ids).build()
 
       val studentExam = prototype.createCopy(context)
       studentExam.setState(Exam.State.INITIALIZED)

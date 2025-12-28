@@ -4,10 +4,8 @@
 
 package features.iop.collaboration.controllers
 
-import features.iop.collaboration.api.CollaborativeExamLoader
-import system.interceptors.AnonymousHandler
-import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.iop.collaboration.services.*
 import models.exam.{Exam, Grade}
 import models.iop.CollaborativeExam
 import models.questions.{ClozeTestAnswer, Question}
@@ -15,10 +13,10 @@ import models.user.{Role, User}
 import play.api.Logging
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws._
-import play.api.mvc._
-import security.Auth
+import play.api.libs.ws.*
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
 import services.csv.CsvBuilder
 import services.exam.ExamUpdater
@@ -26,35 +24,33 @@ import services.file.FileHandler
 import services.json.JsonDeserializer
 import services.mail.EmailComposer
 import system.AuditedAction
+import system.interceptors.AnonymousHandler
 
 import java.io.IOException
 import java.net.{URI, URL}
 import javax.inject.Inject
-import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Future
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 class CollaborativeReviewController @Inject() (
     wsClient: WSClient,
     examUpdater: ExamUpdater,
-    examLoader: CollaborativeExamLoader,
+    examLoader: CollaborativeExamLoaderService,
     configReader: ConfigReader,
     emailComposer: EmailComposer,
     csvBuilder: CsvBuilder,
     fileHandler: FileHandler,
+    collaborativeExamService: CollaborativeExamService,
+    collaborativeExamSearchService: CollaborativeExamSearchService,
+    collaborativeExamAuthorizationService: CollaborativeExamAuthorizationService,
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
     messagesApi: MessagesApi,
     override val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
-    extends CollaborationController(
-      wsClient,
-      examUpdater,
-      examLoader,
-      configReader,
-      controllerComponents
-    )
+)(implicit ec: BlockingIOExecutionContext)
+    extends BaseController
     with EbeanQueryExtensions
     with EbeanJsonExtensions
     with JsonBodyWritables
@@ -116,8 +112,8 @@ class CollaborativeReviewController @Inject() (
       InternalServerError((response.json \ "message").asOpt[String].getOrElse("Connection refused"))
     else
       val root  = response.json.as[play.api.libs.json.JsArray]
-      val valid = filterDeleted(root)
-      calculateScores(valid)
+      val valid = CollaborativeExamProcessingService.filterDeleted(root)
+      CollaborativeExamProcessingService.calculateScores(valid)
 
       val anonIds = if admin then Set.empty[Long] else Set(1L) // TODO: get actual anonymous IDs
       withAnonymousResult(request, Ok(valid), anonIds)
@@ -127,9 +123,8 @@ class CollaborativeReviewController @Inject() (
       node: com.fasterxml.jackson.databind.JsonNode
   ): java.util.stream.Stream[com.fasterxml.jackson.databind.JsonNode] =
     import scala.jdk.StreamConverters.*
-    Option(node).filter(_.isArray).map(_.elements().asScala.asJavaSeqStream).getOrElse(
-      java.util.stream.Stream.empty()
-    )
+    if Option(node).exists(_.isArray) then node.elements().asScala.asJavaSeqStream
+    else java.util.stream.Stream.empty()
 
   private def forceScoreAnswer(
       examNode: com.fasterxml.jackson.databind.JsonNode,
@@ -171,8 +166,8 @@ class CollaborativeReviewController @Inject() (
   def listAssessments(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      findCollaborativeExam(id) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           getRequest(ce, null) match
             case Left(errorFuture) => errorFuture
@@ -180,13 +175,14 @@ class CollaborativeReviewController @Inject() (
               wsRequest.get().map { response =>
                 handleMultipleAssessmentResponse(request, response, user.hasRole(Role.Name.ADMIN))
               }
+      }
     }
 
   def getParticipationsForExamAndUser(eid: Long, aid: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      findCollaborativeExam(eid) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(eid).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           parseUrl(ce.getExternalRef, null) match
             case None => Future.successful(InternalServerError("Invalid URL"))
@@ -212,6 +208,7 @@ class CollaborativeReviewController @Inject() (
                           if user.hasRole(Role.Name.ADMIN) then Set.empty[Long] else Set(1L)
                         withAnonymousResult(request, Ok(Json.toJson(filtered)), anonIds)
               }
+      }
     }
 
   private def isFinished(exam: JsValue): Boolean =
@@ -239,8 +236,8 @@ class CollaborativeReviewController @Inject() (
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
     .async(controllerComponents.parsers.json) { request =>
       val refs = (request.body \ "refs").asOpt[Seq[String]].getOrElse(Seq.empty)
-      findCollaborativeExam(id) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           getRequest(ce, null) match
             case Left(errorFuture) => errorFuture
@@ -254,22 +251,29 @@ class CollaborativeReviewController @Inject() (
                   val root          = response.json
                   val filtered      = filterFinished(root, refs)
                   val filteredArray = play.api.libs.json.JsArray(filtered)
-                  calculateScores(filteredArray)
+                  CollaborativeExamProcessingService.calculateScores(filteredArray)
 
-                  try
+                  Try {
                     val file               = csvBuilder.build(filteredArray)
                     val contentDisposition = fileHandler.getContentDisposition(file)
-                    Ok(fileHandler.encodeAndDelete(file))
-                      .withHeaders("Content-Disposition" -> contentDisposition)
-                  catch case _: IOException => InternalServerError("i18n_error_creating_csv_file")
+                    fileHandler.encodeAndDelete(file) match
+                      case Left(error) =>
+                        logger.error(s"Failed to encode and delete file: $error")
+                        throw new IOException("Failed to encode and delete file")
+                      case Right(content) =>
+                        Ok(content).withHeaders("Content-Disposition" -> contentDisposition)
+                  }.recover { case _: IOException =>
+                    InternalServerError("i18n_error_creating_csv_file")
+                  }.get
               }
+      }
     }
 
   def getAssessment(id: Long, ref: String): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      findCollaborativeExam(id) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           parseUrl(ce.getExternalRef, ref) match
             case None => Future.successful(InternalServerError("Invalid URL"))
@@ -278,6 +282,7 @@ class CollaborativeReviewController @Inject() (
               wsClient.url(url.toString).get().map { response =>
                 handleSingleAssessmentResponse(request, response, admin, user)
               }
+      }
     }
 
   private def upload(url: URL, payload: JsValue): Future[Result] =
@@ -293,8 +298,8 @@ class CollaborativeReviewController @Inject() (
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
     .async(controllerComponents.parsers.json) { request =>
-      findCollaborativeExam(id) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           getURL(ce, ref) match
             case Left(errorFuture) => errorFuture
@@ -322,6 +327,7 @@ class CollaborativeReviewController @Inject() (
                     ))
                   upload(url, updated)
               }
+      }
     }
 
   def sendInspectionMessage(id: Long, ref: String): Action[JsValue] = audited
@@ -333,8 +339,8 @@ class CollaborativeReviewController @Inject() (
       else
         val user    = request.attrs(Auth.ATTR_USER)
         val message = messageOpt.get
-        findCollaborativeExam(id) match
-          case Left(errorResult) => errorResult
+        collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+          case Left(errorResult) => Future.successful(errorResult)
           case Right(ce) =>
             getURL(ce, ref) match
               case Left(errorFuture) => errorFuture
@@ -349,7 +355,7 @@ class CollaborativeReviewController @Inject() (
                   else
                     val examNode = (response.json \ "exam").get
                     val exam = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
-                    if isUnauthorizedToAssess(exam, user) then
+                    if collaborativeExamAuthorizationService.isUnauthorizedToAssess(exam, user) then
                       Future.successful(Forbidden("You are not allowed to modify this object"))
                     else
                       val recipients = exam.getExamInspections.asScala
@@ -366,13 +372,14 @@ class CollaborativeReviewController @Inject() (
 
                       Future.successful(Ok)
                 }
+        }
     }
 
   def forceUpdateAnswerScore(id: Long, ref: String, qid: Long): Action[JsValue] = audited
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
     .async(controllerComponents.parsers.json) { request =>
-      Option(DB.find(classOf[CollaborativeExam], id)) match
+      collaborativeExamService.findById(id).flatMap {
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))
         case Some(ce) =>
           parseUrl(ce.getExternalRef, ref) match
@@ -401,20 +408,21 @@ class CollaborativeReviewController @Inject() (
                     ))
                   upload(url, updated)
               }
+      }
     }
 
   def updateAssessment(id: Long, ref: String): Action[JsValue] = audited
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
     .async(controllerComponents.parsers.json) { request =>
-      findCollaborativeExam(id) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           parseUrl(ce.getExternalRef, ref) match
             case None => Future.successful(InternalServerError("Invalid URL"))
             case Some(url) =>
               val user = request.attrs(Auth.ATTR_USER)
-              cleanUser(user)
+              CollaborativeExamProcessingService.cleanUser(user)
 
               wsClient.url(url.toString).get().flatMap { response =>
                 if response.status != OK then
@@ -428,7 +436,7 @@ class CollaborativeReviewController @Inject() (
                   val examNode = (root \ "exam").get
                   val exam = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
 
-                  if isUnauthorizedToAssess(exam, user) then
+                  if collaborativeExamAuthorizationService.isUnauthorizedToAssess(exam, user) then
                     Future.successful(Forbidden("You are not allowed to modify this object"))
                   else if exam.hasState(
                       Exam.State.ABORTED,
@@ -449,6 +457,7 @@ class CollaborativeReviewController @Inject() (
                         ] + ("rev" -> play.api.libs.json.JsString(revision.get))
                       upload(url, updated)
               }
+      }
     }
 
   private def getFeedback(body: JsValue, revision: String): JsValue =
@@ -460,8 +469,8 @@ class CollaborativeReviewController @Inject() (
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
     .async(controllerComponents.parsers.json) { request =>
-      findCollaborativeExam(id) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           getURL(ce, ref) match
             case Left(errorFuture) => errorFuture
@@ -481,14 +490,15 @@ class CollaborativeReviewController @Inject() (
                   // TODO: Update feedback node with comment
                   upload(url, root)
               }
+      }
     }
 
   def setFeedbackRead(examRef: String, assessmentRef: String): Action[JsValue] = audited
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.STUDENT)))
     .async(controllerComponents.parsers.json) { request =>
-      findCollaborativeExam(examRef) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(examRef).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           getURL(ce, assessmentRef) match
             case Left(errorFuture) => errorFuture
@@ -507,14 +517,15 @@ class CollaborativeReviewController @Inject() (
                   // TODO: Update feedback node with feedbackStatus = true
                   upload(url, root)
               }
+      }
     }
 
   def updateAssessmentInfo(id: Long, ref: String): Action[JsValue] = audited
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.TEACHER)))
     .async(controllerComponents.parsers.json) { request =>
-      findCollaborativeExam(id) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           parseUrl(ce.getExternalRef, ref) match
             case None => Future.successful(InternalServerError("Invalid URL"))
@@ -529,7 +540,7 @@ class CollaborativeReviewController @Inject() (
                     val examNode = (r.json \ "exam").get
                     val exam = JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
 
-                    if isUnauthorizedToAssess(exam, user) then
+                    if collaborativeExamAuthorizationService.isUnauthorizedToAssess(exam, user) then
                       Future.successful(Forbidden("You are not allowed to modify this object"))
                     else if !exam.hasState(Exam.State.GRADED_LOGGED) then
                       Future.successful(Forbidden("Not allowed to update grading of this exam"))
@@ -541,6 +552,7 @@ class CollaborativeReviewController @Inject() (
                         ] + ("rev" -> play.api.libs.json.JsString(revision))
                       upload(url, updated)
               }
+      }
     }
 
   private def validateExamState(
@@ -551,7 +563,7 @@ class CollaborativeReviewController @Inject() (
     Option(exam) match
       case None => Some(Future.successful(NotFound("Exam not found")))
       case Some(e) =>
-        if isUnauthorizedToAssess(e, user) then
+        if collaborativeExamAuthorizationService.isUnauthorizedToAssess(e, user) then
           Some(Future.successful(Forbidden("You are not allowed to modify this object")))
         else if (Option(e.getGrade).isEmpty && gradeRequired) || Option(
             e.getCreditType
@@ -572,10 +584,10 @@ class CollaborativeReviewController @Inject() (
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
     .async(controllerComponents.parsers.json) { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      cleanUser(user)
+      CollaborativeExamProcessingService.cleanUser(user)
 
-      findCollaborativeExam(id) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           getURL(ce, ref) match
             case Left(errorFuture) => errorFuture
@@ -605,6 +617,7 @@ class CollaborativeReviewController @Inject() (
                                   .JsString(revision.get))
                               upload(url, updated)
                     }
+      }
     }
 
   private def getResponse(wsr: WSResponse): Either[Future[Result], WSResponse] =
@@ -623,12 +636,3 @@ class CollaborativeReviewController @Inject() (
     parseUrl(ce.getExternalRef, ref) match
       case Some(url) => Right(wsClient.url(url.toString))
       case None      => Left(Future.successful(InternalServerError("Invalid URL")))
-
-  // Helper to convert Play JSON to Jackson JSON (for models that still use Jackson)
-  private def toJacksonJson(value: play.api.libs.json.JsValue)
-      : com.fasterxml.jackson.databind.JsonNode =
-    play.libs.Json.parse(play.api.libs.json.Json.stringify(value))
-
-  // Helper to convert Jackson JSON to Play JSON
-  private def toPlayJson(node: com.fasterxml.jackson.databind.JsonNode): JsValue =
-    Json.parse(play.libs.Json.stringify(node))

@@ -6,19 +6,19 @@ package features.iop.transfer.controllers
 
 import features.iop.transfer.services.FacilityService
 import models.user.Role
-import play.api.mvc._
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.BlockingIOExecutionContext
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class FacilityController @Inject() (
     private val facilityService: FacilityService,
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
     val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends BaseController:
 
   def updateFacility(id: Long): Action[AnyContent] =

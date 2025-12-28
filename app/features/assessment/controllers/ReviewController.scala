@@ -4,23 +4,21 @@
 
 package features.assessment.controllers
 
-import features.assessment.services.{ReviewError, ReviewService}
-import system.interceptors.AnonymousHandler
-import io.ebean.text.PathProperties
 import database.EbeanJsonExtensions
+import features.assessment.services.{ReviewError, ReviewService}
+import io.ebean.text.PathProperties
 import models.user.Role
-import play.api.libs.json._
-import play.api.mvc._
-import security.Auth
+import play.api.libs.json.*
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
-import system.interceptors.AnonymousJsonFilter
+import system.interceptors.{AnonymousHandler, AnonymousJsonFilter}
 import validation.CommaJoinedListValidator
 import validation.assessment.CommentValidator
 import validation.core.{ScalaAttrs, Validators}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ReviewController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -29,7 +27,7 @@ class ReviewController @Inject() (
     val audited: AuditedAction,
     val anonymous: AnonymousJsonFilter,
     private val reviewService: ReviewService,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with AnonymousHandler
     with EbeanJsonExtensions:

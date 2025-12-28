@@ -6,19 +6,19 @@ package features.iop.transfer.controllers
 
 import features.iop.transfer.services.OrganisationService
 import models.user.Role
-import play.api.mvc._
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.BlockingIOExecutionContext
 import system.interceptors.SensitiveDataFilter
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class OrganisationController @Inject() (
     private val organisationService: OrganisationService,
     authenticated: AuthenticatedAction,
     sensitiveDataFilter: SensitiveDataFilter,
     val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends BaseController:
 
   def listOrganisations: Action[AnyContent] =

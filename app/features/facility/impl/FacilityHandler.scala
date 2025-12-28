@@ -5,19 +5,20 @@
 package features.facility.impl
 
 import com.google.inject.ImplementedBy
+import database.EbeanJsonExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.EbeanJsonExtensions
 import models.facility.ExamRoom
 import play.api.http.Status.*
 import play.api.libs.json.{JsNull, Json}
 import play.api.libs.ws.{DefaultBodyWritables, WSClient}
 import play.api.mvc.Result
 import play.api.mvc.Results.*
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @ImplementedBy(classOf[FacilityHandlerImpl])
 trait FacilityHandler:
@@ -29,7 +30,7 @@ trait FacilityHandler:
 class FacilityHandlerImpl @Inject() (
     wsClient: WSClient,
     configReader: ConfigReader
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends FacilityHandler
     with DefaultBodyWritables
     with EbeanJsonExtensions:

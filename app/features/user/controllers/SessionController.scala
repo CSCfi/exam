@@ -4,17 +4,18 @@
 
 package features.user.controllers
 
-import features.user.services.*
 import database.EbeanJsonExtensions
+import features.user.services.*
 import play.api.libs.json.Json
 import play.api.mvc.*
 import play.api.{Environment, Logger}
 import repository.EnrolmentRepository
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.Try
 
 class SessionController @Inject() (
@@ -24,7 +25,7 @@ class SessionController @Inject() (
     environment: Environment,
     configReader: ConfigReader,
     val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends BaseController
     with EbeanJsonExtensions:
 

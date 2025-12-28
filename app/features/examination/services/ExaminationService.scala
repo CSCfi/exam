@@ -4,11 +4,11 @@
 
 package features.examination.services
 
-import ExaminationError._
-import features.iop.transfer.api.ExternalAttachmentLoader
+import database.EbeanQueryExtensions
+import features.examination.services.ExaminationError.*
+import features.iop.transfer.services.ExternalAttachmentLoaderService
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
 import models.iop.CollaborativeExam
@@ -18,25 +18,26 @@ import models.user.User
 import org.joda.time.DateTime
 import play.api.{Environment, Logging, Mode}
 import repository.ExaminationRepository
+import security.BlockingIOExecutionContext
 import services.config.{ByodConfigHandler, ConfigReader}
 import services.exam.AutoEvaluationHandler
 import services.mail.EmailComposer
 import validation.answer.{ClozeTestAnswerDTO, EssayAnswerDTO}
 
 import javax.inject.Inject
+import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
 
 class ExaminationService @Inject() (
     private val examinationRepository: ExaminationRepository,
     private val autoEvaluationHandler: AutoEvaluationHandler,
     private val emailComposer: EmailComposer,
-    private val externalAttachmentLoader: ExternalAttachmentLoader,
+    private val externalAttachmentLoader: ExternalAttachmentLoaderService,
     private val byodConfigHandler: ByodConfigHandler,
     private val configReader: ConfigReader,
     private val environment: Environment,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with Logging:
 

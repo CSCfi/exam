@@ -4,18 +4,18 @@
 
 package features.enrolment.controllers
 
+import database.EbeanJsonExtensions
 import features.enrolment.services.{ExaminationEventError, ExaminationEventService}
 import io.ebean.text.PathProperties
-import database.EbeanJsonExtensions
 import models.user.Role
-import play.api.mvc._
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.BlockingIOExecutionContext
 import system.AuditedAction
 import validation.core.{ScalaAttrs, Validators}
 import validation.exam.{ExaminationDateValidator, ExaminationEventValidator}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ExaminationEventController @Inject() (
     authenticated: AuthenticatedAction,
@@ -23,7 +23,7 @@ class ExaminationEventController @Inject() (
     private val examinationEventService: ExaminationEventService,
     private val validators: Validators,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

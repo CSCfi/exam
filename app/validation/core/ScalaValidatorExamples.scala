@@ -143,7 +143,7 @@ object ScalaValidatorExamples:
     * {{{
     * class MyController @Inject()(
     *   validators: Validators,
-    *   implicit val ec: AuthExecutionContext
+    *   implicit val ec: BlockingIOExecutionContext
     * ) extends BaseController:
     *
     *   def myAction: Action[AnyContent] =

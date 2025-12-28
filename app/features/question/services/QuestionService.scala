@@ -16,7 +16,6 @@ import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Role, User}
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue, Json}
-import play.libs.Json as PlayJson
 import services.exam.{OptionUpdateOptions, SectionQuestionHandler}
 import services.xml.{MoodleXmlExporter, MoodleXmlImporter}
 import validation.core.SanitizingHelper
@@ -276,9 +275,6 @@ class QuestionService @Inject() (
 
   private def parseHtml(fieldName: String, node: JsValue): Option[String] =
     SanitizingHelper.parseHtml(fieldName, node)
-
-  private def toJacksonJson(jsValue: JsValue): JsonNode =
-    PlayJson.parse(Json.stringify(jsValue))
 
   def createQuestion(
       body: JsValue,

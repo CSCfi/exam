@@ -4,27 +4,27 @@
 
 package features.enrolment.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.calendar.MaintenancePeriod
 import models.enrolment.{ExaminationEvent, ExaminationEventConfiguration}
 import models.exam.{Exam, ExaminationDate}
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, Interval, LocalDate}
 import play.api.Logging
+import security.BlockingIOExecutionContext
 import services.config.{ByodConfigHandler, ConfigReader}
 import validation.exam.ExaminationEventDTO
 
 import java.util.UUID
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 class ExaminationEventService @Inject() (
     private val byodConfigHandler: ByodConfigHandler,
     private val configReader: ConfigReader,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:

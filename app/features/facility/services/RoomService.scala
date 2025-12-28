@@ -18,13 +18,14 @@ import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue}
+import security.BlockingIOExecutionContext
 import services.cache.FacilityCache
 import services.config.ConfigReader
 import services.datetime.DateTimeHandler
 
 import javax.inject.Inject
+import scala.concurrent.Future
 import scala.concurrent.duration.*
-import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
 
 class RoomService @Inject() (
@@ -32,7 +33,7 @@ class RoomService @Inject() (
     private val configReader: ConfigReader,
     private val dateTimeHandler: DateTimeHandler,
     private val facilityCache: FacilityCache,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with Logging:
 

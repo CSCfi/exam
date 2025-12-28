@@ -4,9 +4,9 @@
 
 package features.enrolment.services
 
-import features.iop.transfer.api.ExternalReservationHandler
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.{DB, Transaction}
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.{ExamEnrolment, ExaminationEventConfiguration}
 import models.exam.{Exam, ExamExecutionType}
 import models.facility.ExamRoom
@@ -14,6 +14,7 @@ import models.user.{Role, User}
 import org.joda.time.DateTime
 import play.api.Logging
 import repository.EnrolmentRepository
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.datetime.DateTimeHandler
 import services.enrolment.EnrolmentHandler
@@ -22,20 +23,20 @@ import services.mail.EmailComposer
 
 import java.util.Date
 import javax.inject.Inject
-import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
-import scala.util.Try
+import scala.concurrent.Future
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
+import scala.util.{Failure, Success, Try}
 
 class EnrolmentService @Inject() (
     private val emailComposer: EmailComposer,
     private val externalCourseHandler: ExternalCourseHandler,
-    private val externalReservationHandler: ExternalReservationHandler,
+    private val externalReservationHandler: ExternalReservationHandlerService,
     private val enrolmentRepository: EnrolmentRepository,
     private val configReader: ConfigReader,
     private val dateTimeHandler: DateTimeHandler,
     private val enrolmentHandler: EnrolmentHandler,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:
@@ -345,8 +346,8 @@ class EnrolmentService @Inject() (
                 tx.commit()
                 Future.successful(Right(newEnrolment))
     } match
-      case scala.util.Success(future) => future
-      case scala.util.Failure(ex) =>
+      case Success(future) => future
+      case Failure(ex) =>
         logger.error("Error creating enrolment", ex)
         Future.successful(Left(EnrolmentError.InvalidEnrolment(ex.getMessage)))
 

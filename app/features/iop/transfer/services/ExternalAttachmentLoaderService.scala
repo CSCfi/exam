@@ -2,9 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-package features.iop.transfer.impl
+package features.iop.transfer.services
 
-import features.iop.transfer.api.ExternalAttachmentLoader
 import models.attachment.Attachment
 import models.exam.Exam
 import org.apache.pekko.actor.ActorSystem
@@ -14,27 +13,31 @@ import org.apache.pekko.util.ByteString
 import play.api.Logging
 import play.api.libs.ws.{WSBodyWritables, WSClient}
 import play.api.mvc.MultipartFormData
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.file.FileHandler
 
 import java.io.File
 import java.net.{URI, URL}
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
-class ExternalAttachmentLoaderImpl @Inject() (
+/** Service for loading and uploading external attachments
+  *
+  * Handles communication with external systems for attachment management.
+  */
+class ExternalAttachmentLoaderService @Inject() (
     actorSystem: ActorSystem,
     wsClient: WSClient,
     fileHandler: FileHandler,
     configReader: ConfigReader
-)(implicit ec: ExecutionContext, mat: Materializer)
-    extends ExternalAttachmentLoader
-    with WSBodyWritables
+)(implicit ec: BlockingIOExecutionContext, mat: Materializer)
+    extends WSBodyWritables
     with Logging:
 
-  override def fetchExternalAttachmentsAsLocal(exam: Exam): Future[Unit] =
+  def fetchExternalAttachmentsAsLocal(exam: Exam): Future[Unit] =
     val futures = scala.collection.mutable.ListBuffer[Future[Unit]]()
 
     // Add exam attachment if present
@@ -79,7 +82,7 @@ class ExternalAttachmentLoaderImpl @Inject() (
     // Wait for all futures to complete
     Future.sequence(futures.toSeq).map(_ => ())
 
-  override def createExternalAttachment(attachment: Attachment): Future[Unit] =
+  def createExternalAttachment(attachment: Attachment): Future[Unit] =
     Option(attachment).flatMap(a => Option(a.getFilePath).filter(_.nonEmpty)) match
       case None => Future.successful(())
       case Some(_) =>
@@ -123,7 +126,7 @@ class ExternalAttachmentLoaderImpl @Inject() (
                     }
             }
 
-  override def uploadAssessmentAttachments(exam: Exam): Future[Unit] =
+  def uploadAssessmentAttachments(exam: Exam): Future[Unit] =
     val futures = scala.collection.mutable.ListBuffer[Future[Unit]]()
 
     // Create external attachments

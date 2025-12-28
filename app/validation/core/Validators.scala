@@ -5,13 +5,13 @@
 package validation.core
 
 import play.api.mvc.ActionRefiner
-import security.AuthExecutionContext
+import security.BlockingIOExecutionContext
 
 import javax.inject.Inject
 
 /** Factory for creating validator filters that can be injected into controllers
   */
-class Validators @Inject() (implicit ec: AuthExecutionContext):
+class Validators @Inject() (implicit ec: BlockingIOExecutionContext):
 
   /** Create a validator refiner from a PlayJsonValidator instance
     */

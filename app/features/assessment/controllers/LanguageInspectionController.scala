@@ -4,21 +4,24 @@
 
 package features.assessment.controllers
 
-import features.assessment.services.{LanguageInspectionError, LanguageInspectionService}
 import database.EbeanJsonExtensions
+import features.assessment.services.{LanguageInspectionError, LanguageInspectionService}
 import models.user.Permission.Type
 import models.user.Role
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
-import security.{CombinedRoleAndPermissionFilter, PermissionFilter}
+import security.{
+  Auth,
+  BlockingIOExecutionContext,
+  CombinedRoleAndPermissionFilter,
+  PermissionFilter
+}
 import system.AuditedAction
 import validation.assessment.CommentValidator
 import validation.core.{ScalaAttrs, Validators}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class LanguageInspectionController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -26,7 +29,7 @@ class LanguageInspectionController @Inject() (
     val authenticated: AuthenticatedAction,
     val audited: AuditedAction,
     private val languageInspectionService: LanguageInspectionService,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

@@ -4,23 +4,23 @@
 
 package features.facility.controllers
 
-import features.facility.services.{AccessibilityError, AccessibilityService}
 import database.EbeanJsonExtensions
+import features.facility.services.{AccessibilityError, AccessibilityService}
 import models.user.Role
 import play.api.libs.json.JsValue
-import play.api.mvc._
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.BlockingIOExecutionContext
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class AccessibilityController @Inject() (
     private val accessibilityService: AccessibilityService,
     val authenticated: AuthenticatedAction,
     val audited: AuditedAction,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

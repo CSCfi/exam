@@ -4,20 +4,20 @@
 
 package features.user.controllers
 
-import features.user.services.LanguageService
 import database.EbeanJsonExtensions
+import features.user.services.LanguageService
 import models.user.Role
-import play.api.mvc._
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.BlockingIOExecutionContext
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class LanguageController @Inject() (
     private val languageService: LanguageService,
     authenticated: AuthenticatedAction,
     val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends BaseController
     with EbeanJsonExtensions:
 

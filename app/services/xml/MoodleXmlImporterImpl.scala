@@ -207,7 +207,7 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
         convertWeightedMultiChoice(src, question)
 
   private def convertQuestion(src: Node, user: User): ConversionResult =
-    try {
+    try
       src.attribute("type").get.text match
         case "essay" => ConversionResult(Some(convertEssay(src, user)), None, Some("essay"))
         case "multichoice" =>
@@ -218,11 +218,10 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
         case t =>
           logger.warn(s"unknown question type: $t")
           ConversionResult(None, Some(s"Unknown question type: $t"), Some(t))
-    } catch {
+    catch
       case e: Exception =>
         logger.error(s"Error converting question: ${e.getMessage}", e)
         ConversionResult(None, Some(e.getMessage), src.attribute("type").map(_.text))
-    }
 
   override def convert(data: String, user: User): (Seq[Question], Seq[ConversionResult]) =
     val results = (XML.loadString(data) \ "question").map(convertQuestion(_, user))

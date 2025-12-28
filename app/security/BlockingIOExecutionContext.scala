@@ -11,9 +11,9 @@ import play.api.libs.concurrent.CustomExecutionContext
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-@ImplementedBy(classOf[AuthExecutionContextImpl])
-trait AuthExecutionContext extends ExecutionContext
+@ImplementedBy(classOf[BlockingIOExecutionContextImpl])
+trait BlockingIOExecutionContext extends ExecutionContext
 
-class AuthExecutionContextImpl @Inject() (system: ActorSystem)
+class BlockingIOExecutionContextImpl @Inject() (system: ActorSystem)
     extends CustomExecutionContext(system, "database.dispatcher")
-    with AuthExecutionContext
+    with BlockingIOExecutionContext

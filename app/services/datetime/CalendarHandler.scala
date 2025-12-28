@@ -44,8 +44,7 @@ trait CalendarHandler:
 
   def gatherSuitableSlots(room: ExamRoom, date: LocalDate, examDuration: Integer): Seq[Interval]
 
-  @throws[IllegalArgumentException]
-  def parseSearchDate(day: String, exam: Exam, room: Option[ExamRoom]): LocalDate
+  def parseSearchDate(day: String, exam: Exam, room: Option[ExamRoom]): Option[LocalDate]
 
   def getRandomMachine(
       room: ExamRoom,

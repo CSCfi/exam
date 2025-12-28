@@ -4,20 +4,21 @@
 
 package features.iop.transfer.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.questions.{Question, Tag}
 import models.user.User
 import org.apache.pekko.NotUsed
-import org.apache.pekko.stream.scaladsl.{FileIO, Source => ScalaSource}
+import org.apache.pekko.stream.scaladsl.{FileIO, Source as ScalaSource}
 import org.apache.pekko.stream.{IOResult, Materializer}
 import org.apache.pekko.util.ByteString
 import play.api.Logging
 import play.api.libs.Files.TemporaryFile
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.libs.ws.{BodyWritable, InMemoryBody, WSClient}
 import play.api.mvc.MultipartFormData
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.file.FileHandler
 import services.json.JsonDeserializer
@@ -26,15 +27,15 @@ import java.io.File
 import java.net.URI
 import java.nio.file.Paths
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
 class DataTransferService @Inject() (
     wsClient: WSClient,
     configReader: ConfigReader,
     fileHandler: FileHandler
-)(implicit ec: ExecutionContext, mat: Materializer)
+)(implicit ec: BlockingIOExecutionContext, mat: Materializer)
     extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:

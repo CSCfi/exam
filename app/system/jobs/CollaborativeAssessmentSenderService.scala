@@ -4,24 +4,24 @@
 
 package system.jobs
 
-import cats.effect.{IO, Resource}
 import cats.effect.syntax.all.concurrentParTraverseOps
-import cats.syntax.all._
-import features.iop.collaboration.api.CollaborativeExamLoader
-import io.ebean.DB
+import cats.effect.{IO, Resource}
+import cats.syntax.all.*
 import database.EbeanQueryExtensions
+import features.iop.collaboration.services.CollaborativeExamLoaderService
+import io.ebean.DB
 import models.enrolment.ExamParticipation
 import models.exam.Exam
 import play.api.Logging
+import security.BlockingIOExecutionContext
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 // This service sends participations to collaborative exams back to the proxy server to be assessed further.
 class CollaborativeAssessmentSenderService @Inject() (
-    private val collaborativeExamLoader: CollaborativeExamLoader,
-    implicit val ec: ExecutionContext
+    private val collaborativeExamLoader: CollaborativeExamLoaderService,
+    implicit val ec: BlockingIOExecutionContext
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions:

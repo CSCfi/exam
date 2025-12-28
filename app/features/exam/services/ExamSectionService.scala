@@ -4,10 +4,10 @@
 
 package features.exam.services
 
-import ExamSectionError._
+import database.EbeanQueryExtensions
+import features.exam.services.ExamSectionError.*
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.exam.Exam
 import models.questions.MultipleChoiceOption.ClaimChoiceOptionType
 import models.questions.{MultipleChoiceOption, Question}
@@ -16,17 +16,17 @@ import models.user.{Role, User}
 import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue, Json}
+import security.BlockingIOExecutionContext
 import services.exam.{ExamUpdater, OptionUpdateOptions, SectionQuestionHandler}
 import validation.core.PlayJsonHelper
 import validation.section.SectionQuestionDTO
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters.*
 
 class ExamSectionService @Inject() (
     private val examUpdater: ExamUpdater,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with SectionQuestionHandler
     with Logging:

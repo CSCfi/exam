@@ -4,18 +4,19 @@
 
 package features.enrolment.services
 
-import features.iop.collaboration.api.CollaborativeExamLoader
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.iop.collaboration.services.CollaborativeExamLoaderService
 import io.ebean.text.PathProperties
 import io.ebean.{DB, FetchConfig, Model}
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.{Exam, ExamExecutionType}
 import models.user.User
 import org.joda.time.DateTime
+import play.api.Logging
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsValue, Json}
-import play.api.Logging
 import repository.EnrolmentRepository
+import security.BlockingIOExecutionContext
 import services.config.{ByodConfigHandler, ConfigReader}
 import services.exam.ExternalCourseHandler
 import services.excel.ExcelBuilder
@@ -25,21 +26,21 @@ import services.user.UserHandler
 import java.io.{File, FileOutputStream}
 import java.util.Base64
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.util.{Try, Using}
 
 class StudentActionsService @Inject() (
     private val externalCourseHandler: ExternalCourseHandler,
     private val enrolmentRepository: EnrolmentRepository,
-    private val collaborativeExamLoader: CollaborativeExamLoader,
+    private val collaborativeExamLoader: CollaborativeExamLoaderService,
     private val configReader: ConfigReader,
     private val byodConfigHandler: ByodConfigHandler,
     private val userHandler: UserHandler,
     private val fileHandler: FileHandler,
     private val excelBuilder: ExcelBuilder,
     private val messagesApi: MessagesApi,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:
@@ -277,28 +278,30 @@ class StudentActionsService @Inject() (
             fos.write(data)
           }.get
           val contentDisposition = fileHandler.getContentDisposition(file)
-          val data               = fileHandler.read(file)
-          val body               = Base64.getEncoder.encodeToString(data)
-          // Extract filename from Content-Disposition header (format: "attachment; filename=\"...\"")
-          val extractedFileName = contentDisposition
-            .split("filename=")
-            .lift(1)
-            .map(_.replace("\"", "").trim)
-            .getOrElse(s"$baseFileName.seb")
-          file.delete()
-          FileResponse(
-            content = body,
-            contentType = "application/octet-stream",
-            fileName = extractedFileName
-          )
-        }.fold(
-          ex =>
+          fileHandler.read(file).left.map { error =>
             file.delete()
-            logger.error("Error creating config file", ex)
-            Left(StudentActionsError.ErrorCreatingConfigFile)
-          ,
-          result => Right(result)
-        )
+            logger.error(s"Failed to read file: $error")
+            StudentActionsError.ErrorCreatingConfigFile
+          }.map { data =>
+            val body = Base64.getEncoder.encodeToString(data)
+            // Extract filename from Content-Disposition header (format: "attachment; filename=\"...\"")
+            val extractedFileName = contentDisposition
+              .split("filename=")
+              .lastOption
+              .map(_.replace("\"", "").trim)
+              .getOrElse(s"$baseFileName.seb")
+            file.delete()
+            FileResponse(
+              content = body,
+              contentType = "application/octet-stream",
+              fileName = extractedFileName
+            )
+          }
+        }.toEither.left.map { ex =>
+          file.delete()
+          logger.error("Error creating config file", ex)
+          StudentActionsError.ErrorCreatingConfigFile
+        }.flatMap(identity)
 
   def getExamInfo(examId: Long, user: User): Option[Exam] =
     DB.find(classOf[Exam])

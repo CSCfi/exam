@@ -15,14 +15,14 @@ import java.nio.charset.Charset
 import java.nio.file._
 import java.util.{Base64, UUID}
 import javax.inject.Inject
-import scala.util.Using
+import scala.util.{Try, Using}
 
 class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigReader)
     extends FileHandler with Logging:
 
   private val KB = 1024
 
-  override def read(file: File): Array[Byte] =
+  override def read(file: File): Either[String, Array[Byte]] =
     Using(new FileInputStream(file)) { fis =>
       val buffer = new Array[Byte](KB)
       val result = Iterator
@@ -33,27 +33,35 @@ class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigR
         }
         .toArray
       result
-    }.recover { case ex =>
-      logger.error(s"Failed to read file ${file.getAbsolutePath} from disk!", ex)
-      throw new RuntimeException(ex)
-    }.get
+    }.fold(
+      ex => {
+        logger.error(s"Failed to read file ${file.getAbsolutePath} from disk!", ex)
+        Left(s"Failed to read file: ${ex.getMessage}")
+      },
+      Right(_)
+    )
 
-  override def read(path: String): String =
-    try
+  override def read(path: String): Either[String, String] =
+    Try {
       val encoded = Files.readAllBytes(Paths.get(path))
       new String(encoded, Charset.defaultCharset())
-    catch
-      case ex: Exception =>
+    }.fold(
+      ex => {
         logger.error(s"Failed to read file $path from disk!", ex)
-        throw new RuntimeException(ex)
+        Left(s"Failed to read file: ${ex.getMessage}")
+      },
+      Right(_)
+    )
 
   override def getContentDisposition(file: File): String =
     s"""attachment; filename="${file.getName}""""
 
-  override def encodeAndDelete(file: File): String =
-    val content = Base64.getEncoder.encodeToString(read(file))
-    if !file.delete() then logger.warn(s"Failed to delete temporary file ${file.getAbsolutePath}")
-    content
+  override def encodeAndDelete(file: File): Either[String, String] =
+    read(file).map { content =>
+      val encoded = Base64.getEncoder.encodeToString(content)
+      if !file.delete() then logger.warn(s"Failed to delete temporary file ${file.getAbsolutePath}")
+      encoded
+    }
 
   override def createFilePath(pathParams: String*): String =
     val basePath = getAttachmentPath

@@ -4,24 +4,25 @@
 
 package features.admin.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.admin.GeneralSettings
 import models.enrolment.ExamEnrolment
 import models.user.{Language, User}
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.libs.ws.WSClient
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
 import java.net.URI
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.Try
 
 class SettingsService @Inject() (
     private val configReader: ConfigReader,
     private val wsClient: WSClient
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends EbeanQueryExtensions
     with EbeanJsonExtensions:
 

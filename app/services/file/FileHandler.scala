@@ -11,9 +11,9 @@ import java.io.File
 import java.nio.file.Path
 
 trait FileHandler:
-  def read(file: File): Array[Byte]
-  def read(path: String): String
-  def encodeAndDelete(file: File): String
+  def read(file: File): Either[String, Array[Byte]]
+  def read(path: String): Either[String, String]
+  def encodeAndDelete(file: File): Either[String, String]
   def getContentDisposition(file: File): String
   @annotation.varargs
   def createFilePath(pathParams: String*): String

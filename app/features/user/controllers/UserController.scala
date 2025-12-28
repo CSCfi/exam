@@ -4,19 +4,18 @@
 
 package features.user.controllers
 
-import features.user.services.{UserError, UserService}
 import database.EbeanJsonExtensions
+import features.user.services.{UserError, UserService}
 import models.user.Role
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 import validation.UserLanguageValidator
 import validation.core.{ScalaAttrs, Validators}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class UserController @Inject() (
     private val userService: UserService,
@@ -24,7 +23,7 @@ class UserController @Inject() (
     audited: AuditedAction,
     validators: Validators,
     val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends BaseController
     with EbeanJsonExtensions:
 

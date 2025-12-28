@@ -4,24 +4,23 @@
 
 package features.exam.controllers
 
+import database.EbeanJsonExtensions
 import features.exam.services.{ExamOwnerError, ExamOwnerService}
 import io.ebean.text.PathProperties
-import database.EbeanJsonExtensions
 import models.user.Role
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ExamOwnerController @Inject() (
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
     private val examOwnerService: ExamOwnerService,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

@@ -6,18 +6,18 @@ package features.iop.transfer.services
 
 import play.api.libs.json.*
 import play.api.libs.ws.WSClient
+import security.BlockingIOExecutionContext
 import services.cache.FacilityCache
 import services.config.ConfigReader
 
 import java.net.URI
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class OrganisationService @Inject() (
     wsClient: WSClient,
     configReader: ConfigReader,
     facilityCache: FacilityCache
-)(implicit ec: ExecutionContext):
+)(implicit ec: BlockingIOExecutionContext):
 
   private def parseUrl(): String =
     URI.create(s"${configReader.getIopHost}/api/organisations?withFacilities=true").toString

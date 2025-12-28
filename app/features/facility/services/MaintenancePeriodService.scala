@@ -4,23 +4,24 @@
 
 package features.facility.services
 
-import MaintenancePeriodError._
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.facility.services.MaintenancePeriodError.*
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.calendar.MaintenancePeriod
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSClient
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class MaintenancePeriodService @Inject() (
     private val configReader: ConfigReader,
     private val wsClient: WSClient,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions:
 

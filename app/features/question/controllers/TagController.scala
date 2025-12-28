@@ -4,24 +4,23 @@
 
 package features.question.controllers
 
-import features.question.services.{TagError, TagService}
 import database.EbeanJsonExtensions
+import features.question.services.{TagError, TagService}
 import models.user.Role
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class TagController @Inject() (
     private val tagService: TagService,
     val authenticated: AuthenticatedAction,
     val audited: AuditedAction,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

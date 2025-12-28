@@ -4,32 +4,32 @@
 
 package features.iop.transfer.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.examination.services.ExaminationService
-import features.iop.collaboration.api.CollaborativeExamLoader
-import features.iop.transfer.api.ExternalAttachmentLoader
+import features.iop.collaboration.services.CollaborativeExamLoaderService
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.ExamEnrolment
 import models.iop.ExternalExam
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.db.ebean.Transactional
-import play.libs.{Json => JavaJson}
+import play.libs.Json as JavaJson
+import security.BlockingIOExecutionContext
 import services.enrolment.NoShowHandler
 import services.exam.ExternalExamHandler
 import services.json.JsonDeserializer
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
 class ExternalExamService @Inject() (
     externalExamHandler: ExternalExamHandler,
     noShowHandler: NoShowHandler,
-    externalAttachmentLoader: ExternalAttachmentLoader,
-    collaborativeExamLoader: CollaborativeExamLoader
-)(implicit ec: ExecutionContext)
+    externalAttachmentLoader: ExternalAttachmentLoaderService,
+    collaborativeExamLoader: CollaborativeExamLoaderService
+)(implicit ec: BlockingIOExecutionContext)
     extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:

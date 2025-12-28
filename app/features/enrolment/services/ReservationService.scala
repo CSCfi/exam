@@ -4,11 +4,11 @@
 
 package features.enrolment.services
 
-import features.iop.collaboration.api.CollaborativeExamLoader
-import features.iop.transfer.api.ExternalReservationHandler
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.iop.collaboration.services.CollaborativeExamLoaderService
+import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.text.PathProperties
 import io.ebean.{DB, FetchConfig}
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
 import models.exam.Exam
 import models.facility.{ExamMachine, ExamRoom}
@@ -17,23 +17,24 @@ import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
 import org.joda.time.{DateTime, DateTimeZone, Interval}
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsNull, Json}
+import security.BlockingIOExecutionContext
 import services.datetime.{CalendarHandler, DateTimeHandler}
 import services.mail.EmailComposer
 import services.user.UserHandler
 
 import java.util.Date
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
 class ReservationService @Inject() (
     private val emailComposer: EmailComposer,
-    private val collaborativeExamLoader: CollaborativeExamLoader,
-    private val externalReservationHandler: ExternalReservationHandler,
+    private val collaborativeExamLoader: CollaborativeExamLoaderService,
+    private val externalReservationHandler: ExternalReservationHandlerService,
     private val dateTimeHandler: DateTimeHandler,
     private val userHandler: UserHandler,
     private val calendarHandler: CalendarHandler,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:

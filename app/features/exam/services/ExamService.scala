@@ -4,32 +4,32 @@
 
 package features.exam.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.exam.copy.ExamCopyContext
-import io.ebean._
+import io.ebean.*
 import io.ebean.text.PathProperties
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
-import models.exam._
+import models.exam.*
 import models.facility.{ExamMachine, Software}
 import models.sections.ExamSection
-import models.user._
+import models.user.*
 import org.joda.time.{DateTime, LocalDate}
 import play.api.Logging
 import play.api.libs.json.JsValue
+import security.BlockingIOExecutionContext
 import services.config.{ByodConfigHandler, ConfigReader}
 import services.exam.ExamUpdater
 import services.user.UserHandler
 import validation.exam.ExamValidator
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ExamService @Inject() (
     private val examUpdater: ExamUpdater,
     private val configReader: ConfigReader,
     private val byodConfigHandler: ByodConfigHandler,
     private val userHandler: UserHandler,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:

@@ -4,10 +4,10 @@
 
 package features.examination.services
 
-import ExternalExaminationError._
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.examination.EnrolmentValidator
+import features.examination.services.ExternalExaminationError.*
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.ExamEnrolment
 import models.exam.Exam
 import models.iop.ExternalExam
@@ -16,20 +16,21 @@ import models.sections.ExamSectionQuestion
 import models.user.User
 import org.joda.time.DateTime
 import play.api.{Environment, Logging}
+import security.BlockingIOExecutionContext
 import services.config.ByodConfigHandler
 import services.datetime.DateTimeHandler
 import validation.answer.{ClozeTestAnswerDTO, EssayAnswerDTO}
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 class ExternalExaminationService @Inject() (
     private val dateTimeHandler: DateTimeHandler,
     private val byodConfigHandler: ByodConfigHandler,
     override protected val environment: Environment,
-    implicit private val ec: ExecutionContext
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EnrolmentValidator
     with EbeanQueryExtensions
     with EbeanJsonExtensions

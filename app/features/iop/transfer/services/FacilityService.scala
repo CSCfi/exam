@@ -6,16 +6,17 @@ package features.iop.transfer.services
 
 import features.facility.impl.FacilityHandler
 import play.api.libs.ws.WSClient
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class FacilityService @Inject() (
     facilityHandler: FacilityHandler,
     wsClient: WSClient,
     configReader: ConfigReader
-)(implicit ec: ExecutionContext):
+)(implicit ec: BlockingIOExecutionContext):
 
   private def parseExternalUrl(orgRef: String): String =
     s"${configReader.getIopHost}/api/organisations/$orgRef/facilities"

@@ -7,8 +7,8 @@ package services.exam
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.inject.ImplementedBy
 import features.exam.copy.ExamCopyContext
-import features.iop.collaboration.api.CollaborativeExamLoader
-import features.iop.transfer.api.ExternalAttachmentLoader
+import features.iop.collaboration.services.CollaborativeExamLoaderService
+import features.iop.transfer.services.ExternalAttachmentLoaderService
 import io.ebean.DB
 import io.ebean.text.json.EJson
 import models.assessment.ExamInspection
@@ -25,6 +25,7 @@ import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.libs.Json as JavaJson
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.enrolment.NoShowHandler
 import services.json.JsonDeserializer
@@ -32,10 +33,10 @@ import services.mail.EmailComposer
 
 import java.util.UUID
 import javax.inject.Inject
+import scala.concurrent.Future
 import scala.concurrent.duration.*
-import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
-import scala.util.Random
+import scala.util.{Random, Try}
 
 @ImplementedBy(classOf[ExternalExamHandlerImpl])
 trait ExternalExamHandler:
@@ -46,11 +47,11 @@ class ExternalExamHandlerImpl @Inject() (
     wsClient: WSClient,
     autoEvaluationHandler: AutoEvaluationHandler,
     noShowHandler: NoShowHandler,
-    externalAttachmentLoader: ExternalAttachmentLoader,
+    externalAttachmentLoader: ExternalAttachmentLoaderService,
     emailComposer: EmailComposer,
-    collaborativeExamLoader: CollaborativeExamLoader,
+    collaborativeExamLoader: CollaborativeExamLoaderService,
     configReader: ConfigReader
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends ExternalExamHandler:
 
   private val logger = LoggerFactory.getLogger(classOf[ExternalExamHandlerImpl])
@@ -67,7 +68,7 @@ class ExternalExamHandlerImpl @Inject() (
         )
         None
       else
-        try
+        Try {
           // Convert Play JSON to Jackson JsonNode for JsonDeserializer
           val root = JavaJson.parse(Json.stringify(response.json))
           // Create external exam!
@@ -134,11 +135,14 @@ class ExternalExamHandlerImpl @Inject() (
           enrolment.setUser(user)
           enrolment.setRandomDelay()
           enrolment.save()
-          Some(enrolment)
-        catch
-          case e: Exception =>
+          enrolment
+        }.fold(
+          e => {
             logger.error("Failed to create enrolment", e)
             None
+          },
+          Some(_)
+        )
     }
 
   override def createCopyForAssessment(enrolment: ExamEnrolment, externalExam: ExternalExam): Exam =

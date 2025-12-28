@@ -4,25 +4,23 @@
 
 package features.assessment.controllers
 
-import features.assessment.services.QuestionReviewService
-import system.interceptors.AnonymousHandler
 import database.EbeanJsonExtensions
+import features.assessment.services.QuestionReviewService
 import models.user.Role
 import play.api.libs.json.Json
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
-import system.interceptors.AnonymousJsonFilter
+import security.{Auth, BlockingIOExecutionContext}
+import system.interceptors.{AnonymousHandler, AnonymousJsonFilter}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class QuestionReviewController @Inject() (
     val controllerComponents: ControllerComponents,
     val authenticated: AuthenticatedAction,
     val anonymous: AnonymousJsonFilter,
     private val questionReviewService: QuestionReviewService,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions
     with AnonymousHandler:

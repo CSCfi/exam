@@ -90,8 +90,10 @@ class ExamRecordService @Inject() (
     Try(csvBuilder.build(start, end)) match
       case Success(file) =>
         val contentDisposition = fileHandler.getContentDisposition(file)
-        val content            = fileHandler.encodeAndDelete(file)
-        Right((content, contentDisposition))
+        fileHandler.encodeAndDelete(file).left.map { error =>
+          logger.error(s"Failed to encode and delete file: $error")
+          ExamRecordError.ErrorCreatingCsvFile
+        }.map(content => (content, contentDisposition))
       case Failure(ex) =>
         logger.error("Error creating CSV file", ex)
         Left(ExamRecordError.ErrorCreatingCsvFile)
@@ -103,8 +105,10 @@ class ExamRecordService @Inject() (
     Try(csvBuilder.build(examId, ids)) match
       case Success(file) =>
         val contentDisposition = fileHandler.getContentDisposition(file)
-        val content            = fileHandler.encodeAndDelete(file)
-        Right((content, contentDisposition))
+        fileHandler.encodeAndDelete(file).left.map { error =>
+          logger.error(s"Failed to encode and delete file: $error")
+          ExamRecordError.ErrorCreatingCsvFile
+        }.map(content => (content, contentDisposition))
       case Failure(ex) =>
         logger.error("Error creating CSV file", ex)
         Left(ExamRecordError.ErrorCreatingCsvFile)

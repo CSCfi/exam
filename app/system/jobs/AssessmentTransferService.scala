@@ -4,13 +4,13 @@
 
 package system.jobs
 
-import cats.effect.{IO, Resource}
 import cats.effect.syntax.all.concurrentParTraverseOps
-import cats.syntax.all._
+import cats.effect.{IO, Resource}
+import cats.syntax.all.*
 import com.fasterxml.jackson.databind.ObjectMapper
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.ExamEnrolment
 import org.joda.time.DateTime
 import play.api.Logging
@@ -18,18 +18,18 @@ import play.api.libs.json.JsonParserSettings
 import play.api.libs.json.jackson.PlayJsonMapperModule
 import play.api.libs.ws.{WSClient, writeableOf_String}
 import play.mvc.Http
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
 import java.net.URI
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 // This service sends participations to external exams back to the proxy server.
 class AssessmentTransferService @Inject() (
     private val wsClient: WSClient,
     private val configReader: ConfigReader,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends ScheduledJob
     with Logging
     with EbeanQueryExtensions

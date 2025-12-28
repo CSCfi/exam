@@ -10,7 +10,7 @@ import models.user.Role
 import play.api.libs.json.Json
 import play.api.mvc._
 import security.Auth.authorized
-import security.AuthExecutionContext
+import security.BlockingIOExecutionContext
 import system.AuditedAction
 import validation.CommaJoinedListValidator
 import validation.core.{ScalaAttrs, Validators}
@@ -24,7 +24,7 @@ class ReportController @Inject() (
     private val reportService: ReportService,
     validators: Validators,
     audited: AuditedAction,
-    implicit val ec: AuthExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

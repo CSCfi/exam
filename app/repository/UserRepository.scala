@@ -7,15 +7,16 @@ package repository
 import io.ebean.{DB, Database}
 import database.EbeanQueryExtensions
 import models.user.User
+import security.BlockingIOExecutionContext
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserRepository @Inject() (databaseExecutionContext: DatabaseExecutionContext)
+class UserRepository @Inject() (blockingIOExecutionContext: BlockingIOExecutionContext)
     extends EbeanQueryExtensions:
 
   private val db: Database                  = DB.getDefault
-  private implicit val ec: ExecutionContext = databaseExecutionContext
+  private implicit val ec: ExecutionContext = blockingIOExecutionContext
 
   def getLoggedInUser(id: Long): Future[Option[User]] =
     Future(db.find(classOf[User]).where().idEq(id).find)

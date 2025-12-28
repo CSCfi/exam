@@ -4,26 +4,25 @@
 
 package features.calendar.controllers
 
-import features.calendar.services.{CalendarError, CalendarService}
 import database.EbeanJsonExtensions
+import features.calendar.services.{CalendarError, CalendarService}
 import models.user.Role
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 import validation.calendar.ReservationCreationFilter
 import validation.core.ScalaAttrs
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class CalendarController @Inject() (
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
     private val calendarService: CalendarService,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

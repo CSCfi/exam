@@ -4,20 +4,19 @@
 
 package features.exam.controllers
 
-import system.interceptors.AnonymousHandler
+import database.EbeanJsonExtensions
 import features.exam.services.{ExamError, ExamService}
 import io.ebean.text.PathProperties
-import database.EbeanJsonExtensions
 import models.user.Role
 import play.api.libs.json.{JsNumber, JsValue, Json}
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
-import system.interceptors.AnonymousJsonFilter
+import system.interceptors.{AnonymousHandler, AnonymousJsonFilter}
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ExamController @Inject() (
     authenticated: AuthenticatedAction,
@@ -25,7 +24,7 @@ class ExamController @Inject() (
     anonymousJsonFilter: AnonymousJsonFilter,
     private val examService: ExamService,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions
     with AnonymousHandler:

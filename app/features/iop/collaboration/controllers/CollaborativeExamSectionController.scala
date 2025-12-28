@@ -4,10 +4,10 @@
 
 package features.iop.collaboration.controllers
 
-import features.iop.collaboration.api.CollaborativeExamLoader
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.iop.collaboration.services.*
 import io.ebean.Model
 import io.ebean.text.PathProperties
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.exam.Exam
 import models.questions.Question
 import models.sections.{ExamSection, ExamSectionQuestion}
@@ -15,35 +15,33 @@ import models.user.{Role, User}
 import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
 import services.exam.{ExamUpdater, SectionQuestionHandler}
 import services.json.JsonDeserializer
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 
 class CollaborativeExamSectionController @Inject() (
     wsClient: play.api.libs.ws.WSClient,
     examUpdater: ExamUpdater,
-    examLoader: CollaborativeExamLoader,
+    examLoader: CollaborativeExamLoaderService,
     configReader: ConfigReader,
+    collaborativeExamService: CollaborativeExamService,
+    collaborativeExamSectionService: CollaborativeExamSectionService,
+    collaborativeExamSearchService: CollaborativeExamSearchService,
+    collaborativeExamAuthorizationService: CollaborativeExamAuthorizationService,
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
     override val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
-    extends CollaborationController(
-      wsClient,
-      examUpdater,
-      examLoader,
-      configReader,
-      controllerComponents
-    )
+)(implicit ec: BlockingIOExecutionContext)
+    extends BaseController
     with EbeanQueryExtensions
     with EbeanJsonExtensions
     with SectionQuestionHandler
@@ -53,20 +51,11 @@ class CollaborativeExamSectionController @Inject() (
     audited.andThen(authenticated).andThen(
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))
     ).async { request =>
-      val homeOrg = configReader.getHomeOrganisationRef
-      findCollaborativeExam(examId) match
-        case Left(errorResult) => errorResult
-        case Right(ce) =>
-          val user = request.attrs(Auth.ATTR_USER)
-          examLoader.downloadExam(ce).flatMap {
-            case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-            case Some(exam) if !isAuthorizedToView(exam, user, homeOrg) =>
-              Future.successful(Forbidden("i18n_error_access_forbidden"))
-            case Some(exam) =>
-              val section = createDraft(exam, user)
-              exam.getExamSections.add(section)
-              examLoader.uploadExam(ce, exam, user, section, null)
-          }
+      val user = request.attrs(Auth.ATTR_USER)
+      collaborativeExamSectionService.addSection(examId, user.getId).map {
+        case Left(error)    => Forbidden(error)
+        case Right(section) => Ok(section.asJson)
+      }
     }
 
   private def update(
@@ -75,14 +64,15 @@ class CollaborativeExamSectionController @Inject() (
       updater: (Exam, User) => Option[Result],
       resultProvider: Exam => Option[? <: Model]
   ): Future[Result] =
-    findCollaborativeExam(examId) match
-      case Left(errorResult) => errorResult
+    collaborativeExamAuthorizationService.findCollaborativeExam(examId).flatMap {
+      case Left(errorResult) => Future.successful(errorResult)
       case Right(ce) =>
         val user    = request.attrs(Auth.ATTR_USER)
         val homeOrg = configReader.getHomeOrganisationRef
         examLoader.downloadExam(ce).flatMap {
           case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-          case Some(exam) if !isAuthorizedToView(exam, user, homeOrg) =>
+          case Some(exam)
+              if !collaborativeExamAuthorizationService.isAuthorizedToView(exam, user, homeOrg) =>
             Future.successful(Forbidden("i18n_error_access_forbidden"))
           case Some(exam) =>
             updater(exam, user) match
@@ -93,6 +83,7 @@ class CollaborativeExamSectionController @Inject() (
                 )
                 examLoader.uploadExam(ce, exam, user, resultProvider(exam).orNull, pp)
         }
+    }
 
   def removeSection(examId: Long, sectionId: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
@@ -206,7 +197,7 @@ class CollaborativeExamSectionController @Inject() (
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
     .async(controllerComponents.parsers.json) { request =>
       val seq               = (request.body \ "sequenceNumber").as[Int]
-      val sectionQuestionId = newId()
+      val sectionQuestionId = CollaborativeExamProcessingService.newId()
 
       val updater = (exam: Exam, user: User) =>
         exam.getExamSections.asScala.find(_.getId == sectionId) match
@@ -215,21 +206,25 @@ class CollaborativeExamSectionController @Inject() (
             val questionBody = (request.body \ "question").get
             val question =
               JsonDeserializer.deserialize(classOf[Question], toJacksonJson(questionBody))
-            question.getQuestionOwners.asScala.foreach(cleanUser)
+            question.getQuestionOwners.asScala.foreach(CollaborativeExamProcessingService.cleanUser)
 
             // Validate question
             question.getValidationResult(toJacksonJson(questionBody)).toScala.map(_.asScala) match
               case Some(error) => Some(error)
               case None =>
                 val esq = new ExamSectionQuestion()
-                question.setId(newId())
+                question.setId(CollaborativeExamProcessingService.newId())
 
                 if question.getType == Question.Type.ClaimChoiceQuestion then
                   // Naturally order generated ids before saving them to question options
-                  val options      = question.getOptions.asScala.toSeq
-                  val generatedIds = options.indices.map(_ => newId()).sorted
+                  val options = question.getOptions.asScala.toSeq
+                  val generatedIds =
+                    options.indices.map(_ => CollaborativeExamProcessingService.newId()).sorted
                   options.zip(generatedIds).foreach { case (opt, id) => opt.setId(id) }
-                else question.getOptions.asScala.foreach(o => o.setId(newId()))
+                else
+                  question.getOptions.asScala.foreach(o =>
+                    o.setId(CollaborativeExamProcessingService.newId())
+                  )
 
                 esq.setId(sectionQuestionId)
                 esq.setQuestion(question)
@@ -250,8 +245,10 @@ class CollaborativeExamSectionController @Inject() (
                   esq.setCreator(user)
                   esq.setCreated(DateTime.now())
                   updateExamQuestion(esq, question)
-                  esq.getOptions.asScala.foreach(o => o.setId(newId()))
-                  cleanUser(user)
+                  esq.getOptions.asScala.foreach(o =>
+                    o.setId(CollaborativeExamProcessingService.newId())
+                  )
+                  CollaborativeExamProcessingService.cleanUser(user)
                   es.setModifierWithDate(user)
                   es.getSectionQuestions.add(esq)
                   None
@@ -320,14 +317,15 @@ class CollaborativeExamSectionController @Inject() (
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
     .async(controllerComponents.parsers.json) { request =>
-      findCollaborativeExam(examId) match
-        case Left(errorResult) => errorResult
+      collaborativeExamAuthorizationService.findCollaborativeExam(examId).flatMap {
+        case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
           val user    = request.attrs(Auth.ATTR_USER)
           val homeOrg = configReader.getHomeOrganisationRef
           examLoader.downloadExam(ce).flatMap {
             case None => Future.successful(NotFound("i18n_error_exam_not_found"))
-            case Some(exam) if !isAuthorizedToView(exam, user, homeOrg) =>
+            case Some(exam)
+                if !collaborativeExamAuthorizationService.isAuthorizedToView(exam, user, homeOrg) =>
               Future.successful(Forbidden("i18n_error_access_forbidden"))
             case Some(exam) =>
               exam.getExamSections.asScala.find(_.getId == sectionId) match
@@ -347,16 +345,19 @@ class CollaborativeExamSectionController @Inject() (
                         case None =>
                           questionBody.getOptions.asScala
                             .filter(_.getId == null)
-                            .foreach(o => o.setId(newId()))
+                            .foreach(o => o.setId(CollaborativeExamProcessingService.newId()))
 
                           updateExamQuestion(esq, questionBody)
-                          esq.getOptions.asScala.foreach(o => o.setId(newId()))
+                          esq.getOptions.asScala.foreach(o =>
+                            o.setId(CollaborativeExamProcessingService.newId())
+                          )
 
                           val pp = PathProperties.parse(
                             "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
                           )
                           examLoader.uploadExam(ce, exam, user, esq, pp)
           }
+      }
     }
 
   private def createDraft(exam: Exam, user: User): ExamSection =
@@ -365,12 +366,9 @@ class CollaborativeExamSectionController @Inject() (
     section.setSectionQuestions(Set.empty[ExamSectionQuestion].asJava)
     section.setSequenceNumber(exam.getExamSections.size())
     section.setExpanded(true)
-    section.setId(newId())
-    cleanUser(user)
+    section.setId(CollaborativeExamProcessingService.newId())
+    CollaborativeExamProcessingService.cleanUser(user)
     section.setCreatorWithDate(user)
     section
 
   // Helper to convert Play JSON to Jackson JSON (for models that still use Jackson)
-  private def toJacksonJson(value: play.api.libs.json.JsValue)
-      : com.fasterxml.jackson.databind.JsonNode =
-    play.libs.Json.parse(play.api.libs.json.Json.stringify(value))

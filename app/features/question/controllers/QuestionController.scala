@@ -4,20 +4,19 @@
 
 package features.question.controllers
 
-import features.question.services.{QuestionError, QuestionService}
 import database.EbeanJsonExtensions
+import features.question.services.{QuestionError, QuestionService}
 import models.user.Role
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.JsValue
 import play.api.mvc.*
-import security.Auth
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 import validation.core.Validators
 import validation.question.QuestionTextValidator
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 import scala.util.Using
 
 class QuestionController @Inject() (
@@ -26,7 +25,7 @@ class QuestionController @Inject() (
     val authenticated: AuthenticatedAction,
     val audited: AuditedAction,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

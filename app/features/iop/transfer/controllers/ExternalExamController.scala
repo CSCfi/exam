@@ -8,16 +8,16 @@ import features.iop.transfer.services.{ExternalExamError, ExternalExamService}
 import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.Auth.subjectNotPresent
+import security.BlockingIOExecutionContext
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ExternalExamController @Inject() (
     private val externalExamService: ExternalExamService,
     audited: AuditedAction,
     val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends BaseController:
 
   private def toResult[T](result: Either[ExternalExamError, T])(onSuccess: T => Result): Result =

@@ -9,7 +9,7 @@ import database.EbeanJsonExtensions
 import models.user.Role
 import play.api.mvc._
 import security.Auth.{AuthenticatedAction, authorized}
-import security.AuthExecutionContext
+import security.BlockingIOExecutionContext
 
 import javax.inject.Inject
 import scala.util.{Failure, Success}
@@ -18,7 +18,7 @@ class StatisticsController @Inject() (
     val controllerComponents: ControllerComponents,
     val authenticated: AuthenticatedAction,
     private val statisticsService: StatisticsService,
-    implicit val ec: AuthExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

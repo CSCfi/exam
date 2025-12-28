@@ -4,23 +4,22 @@
 
 package features.assessment.controllers
 
-import features.assessment.services.ExamAnswerService
 import database.EbeanJsonExtensions
+import features.assessment.services.ExamAnswerService
 import models.user.Role
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.interceptors.{SecureController, SensitiveDataFilter}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ExamAnswerController @Inject() (
     val controllerComponents: ControllerComponents,
     val authenticated: AuthenticatedAction,
     val sensitiveDataFilter: SensitiveDataFilter,
     private val examAnswerService: ExamAnswerService,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends SecureController
     with EbeanJsonExtensions:
 

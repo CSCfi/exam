@@ -4,30 +4,29 @@
 
 package features.attachment.controllers
 
-import features.attachment.services.AttachmentService
-import system.interceptors.AnonymousHandler
 import database.EbeanJsonExtensions
+import features.attachment.services.AttachmentService
 import models.user.{Permission, Role}
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.stream.{IOResult, Materializer}
 import org.apache.pekko.util.ByteString
 import play.api.libs.Files.TemporaryFile
+import play.api.mvc.*
 import play.api.mvc.MultipartFormData.FilePart
-import play.api.mvc._
-import security.Auth
 import security.Auth.{AuthenticatedAction, authorized}
-import security.PermissionFilter
+import security.{Auth, BlockingIOExecutionContext, PermissionFilter}
 import system.AuditedAction
+import system.interceptors.AnonymousHandler
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class AttachmentController @Inject() (
     val controllerComponents: ControllerComponents,
     val authenticated: AuthenticatedAction,
     val audited: AuditedAction,
     private val attachmentService: AttachmentService,
-    implicit val ec: ExecutionContext,
+    implicit val ec: BlockingIOExecutionContext,
     implicit val mat: Materializer
 ) extends BaseController
     with EbeanJsonExtensions

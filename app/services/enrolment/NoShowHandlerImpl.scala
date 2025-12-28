@@ -7,8 +7,6 @@ package services.enrolment
 import cats.effect.IO
 import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.effect.unsafe.implicits.global
-import cats.syntax.all._
-import io.ebean.Model
 import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
@@ -16,19 +14,19 @@ import play.api.Logging
 import play.api.http.Status.OK
 import play.api.libs.ws.WSClient
 import play.mvc.Http
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.mail.EmailComposer
 
 import java.net.URI
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters.*
 
 class NoShowHandlerImpl @Inject (
     private val composer: EmailComposer,
     private val wsClient: WSClient,
     private val configReader: ConfigReader,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends NoShowHandler
     with EbeanQueryExtensions
     with Logging:

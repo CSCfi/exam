@@ -4,7 +4,7 @@
 
 package features.iop.transfer.controllers
 
-import features.iop.transfer.api.ExternalReservationHandler
+import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.DB
 import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.calendar.MaintenancePeriod
@@ -19,7 +19,7 @@ import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.libs.ws.{JsonBodyWritables, WSClient}
 import play.api.mvc._
 import security.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
-import security.{Auth, AuthExecutionContext}
+import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
 import services.datetime.{CalendarHandler, DateTimeHandler}
 import services.mail.EmailComposer
@@ -30,6 +30,7 @@ import java.net.{MalformedURLException, URI, URL}
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 class ExternalCalendarController @Inject() (
     authenticated: AuthenticatedAction,
@@ -39,9 +40,9 @@ class ExternalCalendarController @Inject() (
     emailComposer: EmailComposer,
     configReader: ConfigReader,
     dateTimeHandler: DateTimeHandler,
-    externalReservationHandler: ExternalReservationHandler,
+    externalReservationHandler: ExternalReservationHandlerService,
     val controllerComponents: ControllerComponents,
-    implicit val ec: AuthExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanQueryExtensions
     with EbeanJsonExtensions
@@ -171,39 +172,39 @@ class ExternalCalendarController @Inject() (
           case Some(room) =>
             val slots =
               if !room.getOutOfService && room.getState != ExamRoom.State.INACTIVE.toString then
-                try
-                  val searchDate = parseSearchDate(d, s, e, room)
-                  val machines = DB
-                    .find(classOf[ExamMachine])
-                    .where()
-                    .eq("room.id", room.getId)
-                    .ne("outOfService", true)
-                    .ne("archived", true)
-                    .list
+                parseSearchDate(d, s, e, room) match
+                  case None => List.empty[CalendarHandler.TimeSlot]
+                  case Some(searchDate) =>
+                    val machines = DB
+                      .find(classOf[ExamMachine])
+                      .where()
+                      .eq("room.id", room.getId)
+                      .ne("outOfService", true)
+                      .ne("archived", true)
+                      .list
 
-                  // Maintenance periods
-                  val periods = DB
-                    .find(classOf[MaintenancePeriod])
-                    .where()
-                    .gt("endsAt", searchDate.toDate)
-                    .list
-                    .map(p =>
-                      new Interval(
-                        calendarHandler.normalizeMaintenanceTime(p.getStartsAt),
-                        calendarHandler.normalizeMaintenanceTime(p.getEndsAt)
+                    // Maintenance periods
+                    val periods = DB
+                      .find(classOf[MaintenancePeriod])
+                      .where()
+                      .gt("endsAt", searchDate.toDate)
+                      .list
+                      .map(p =>
+                        new Interval(
+                          calendarHandler.normalizeMaintenanceTime(p.getStartsAt),
+                          calendarHandler.normalizeMaintenanceTime(p.getEndsAt)
+                        )
                       )
-                    )
 
-                  val endOfSearch = getEndSearchDate(e, searchDate)
+                    val endOfSearch = getEndSearchDate(e, searchDate)
 
-                  Iterator
-                    .iterate(searchDate)(_.plusDays(1))
-                    .takeWhile(!_.isAfter(endOfSearch))
-                    .flatMap { date =>
-                      getExamSlots(room, dur, date, machines, periods)
-                    }
-                    .toList
-                catch case _: IllegalArgumentException => List.empty
+                    Iterator
+                      .iterate(searchDate)(_.plusDays(1))
+                      .takeWhile(!_.isAfter(endOfSearch))
+                      .flatMap { date =>
+                        getExamSlots(room, dur, date, machines, periods)
+                      }
+                      .toList
               else List.empty
 
             implicit val timeSlotWrites: Writes[CalendarHandler.TimeSlot] =
@@ -262,47 +263,50 @@ class ExternalCalendarController @Inject() (
               case Some(errorResult) => Future.successful(errorResult)
               case None              =>
                 // Let's do this
-                try
-                  val url        = parseUrl(orgRef, roomRef)
-                  val homeOrgRef = configReader.getHomeOrganisationRef
-                  val body = Json.obj(
-                    "requestingOrg"    -> homeOrgRef,
-                    "start"            -> ISODateTimeFormat.dateTime().print(start),
-                    "end"              -> ISODateTimeFormat.dateTime().print(end),
-                    "user"             -> user.getEppn,
-                    "optionalSections" -> Json.toJson(sectionIdsSeq)
-                  )
+                Try(parseUrl(orgRef, roomRef)).fold(
+                  {
+                    case e: MalformedURLException =>
+                      logger.error("Invalid URL", e)
+                      Future.successful(BadRequest("Invalid URL"))
+                    case e => throw e
+                  },
+                  url =>
+                    val homeOrgRef = configReader.getHomeOrganisationRef
+                    val body = Json.obj(
+                      "requestingOrg"    -> homeOrgRef,
+                      "start"            -> ISODateTimeFormat.dateTime().print(start),
+                      "end"              -> ISODateTimeFormat.dateTime().print(end),
+                      "user"             -> user.getEppn,
+                      "optionalSections" -> Json.toJson(sectionIdsSeq)
+                    )
 
-                  for
-                    response <- wsClient.url(url.toString).post(body)
-                    result <-
-                      if response.status != CREATED then
-                        val root = response.json.as[play.api.libs.json.JsObject]
-                        val msg  = (root \ "message").asOpt[String].getOrElse("Connection refused")
-                        Future.successful(InternalServerError(msg))
-                      else
-                        val root = response.json
-                        calendarHandler
-                          .handleExternalReservation(
-                            enrolment,
-                            enrolment.getExam,
-                            root,
-                            start,
-                            end,
-                            user,
-                            orgRef,
-                            roomRef,
-                            sectionIdsSeq
-                          )
-                          .map {
-                            case Some(_) => InternalServerError("Internal server error")
-                            case None    => Created((root \ "id").get)
-                          }
-                  yield result
-                catch
-                  case e: MalformedURLException =>
-                    logger.error("Invalid URL", e)
-                    Future.successful(BadRequest("Invalid URL"))
+                    for
+                      response <- wsClient.url(url.toString).post(body)
+                      result <-
+                        if response.status != CREATED then
+                          val root = response.json.as[play.api.libs.json.JsObject]
+                          val msg = (root \ "message").asOpt[String].getOrElse("Connection refused")
+                          Future.successful(InternalServerError(msg))
+                        else
+                          val root = response.json
+                          calendarHandler
+                            .handleExternalReservation(
+                              enrolment,
+                              enrolment.getExam,
+                              root,
+                              start,
+                              end,
+                              user,
+                              orgRef,
+                              roomRef,
+                              sectionIdsSeq
+                            )
+                            .map {
+                              case Some(_) => InternalServerError("Internal server error")
+                              case None    => Created((root \ "id").get)
+                            }
+                    yield result
+                )
     }
 
   def requestReservationRemoval(ref: String): Action[AnyContent] =
@@ -331,33 +335,35 @@ class ExternalCalendarController @Inject() (
           if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
             Future.successful(Forbidden("i18n_reservation_in_effect"))
           else
-            try
-              val roomRef = reservation.getMachine.getRoom.getExternalRef
-              val url =
-                parseUrl(configReader.getHomeOrganisationRef, roomRef, reservation.getExternalRef)
-
-              wsClient
-                .url(url.toString)
-                .delete()
-                .map { response =>
-                  if response.status != OK then
-                    val root = response.json.as[play.api.libs.json.JsObject]
-                    val msg  = (root \ "message").asOpt[String].getOrElse("Connection refused")
-                    InternalServerError(msg)
-                  else
-                    val msg =
-                      request.body.asJson.map(_ \ "msg").flatMap(_.asOpt[String]).getOrElse("")
-                    emailComposer.composeExternalReservationCancellationNotification(
-                      reservation,
-                      Some(msg)
-                    )
-                    reservation.delete()
-                    Ok
-                }
-            catch
-              case e: MalformedURLException =>
-                logger.error("Invalid URL", e)
-                Future.successful(BadRequest("Invalid URL"))
+            val roomRef = reservation.getMachine.getRoom.getExternalRef
+            Try(parseUrl(configReader.getHomeOrganisationRef, roomRef, reservation.getExternalRef))
+              .fold(
+                {
+                  case e: MalformedURLException =>
+                    logger.error("Invalid URL", e)
+                    Future.successful(BadRequest("Invalid URL"))
+                  case e => throw e
+                },
+                url =>
+                  wsClient
+                    .url(url.toString)
+                    .delete()
+                    .map { response =>
+                      if response.status != OK then
+                        val root = response.json.as[play.api.libs.json.JsObject]
+                        val msg  = (root \ "message").asOpt[String].getOrElse("Connection refused")
+                        InternalServerError(msg)
+                      else
+                        val msg =
+                          request.body.asJson.map(_ \ "msg").flatMap(_.asOpt[String]).getOrElse("")
+                        emailComposer.composeExternalReservationCancellationNotification(
+                          reservation,
+                          Some(msg)
+                        )
+                        reservation.delete()
+                        Ok
+                    }
+              )
     }
 
   def requestSlots(
@@ -378,42 +384,41 @@ class ExternalCalendarController @Inject() (
               val exam = ee.getExam
 
               // Sanity-check the provided search date
-              val isValidDate =
-                try
-                  calendarHandler.parseSearchDate(d, exam, None)
-                  true
-                catch case _: IllegalArgumentException => false
-
-              if !isValidDate then Future.successful(NotFound("Invalid search date"))
-              else
-                // Ready to shoot
-                try
-                  val start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart))
-                  val end   = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd))
+              calendarHandler.parseSearchDate(d, exam, None) match
+                case None => Future.successful(NotFound("Invalid search date"))
+                case _    =>
+                  // Ready to shoot
+                  val start =
+                    ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart))
+                  val end      = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd))
                   val duration = exam.getDuration
-                  val url      = parseUrl(orgRef, roomRef, d, start, end, duration)
-
-                  wsClient
-                    .url(url.toString.split("\\?")(0))
-                    .withQueryStringParameters(url.getQuery.split("&").map { kv =>
-                      val parts = kv.split("=")
-                      parts(0) -> parts(1)
-                    }*)
-                    .get()
-                    .map { response =>
-                      if response.status != OK then
-                        val root = response.json.as[play.api.libs.json.JsObject]
-                        val msg  = (root \ "message").asOpt[String].getOrElse("Connection refused")
-                        InternalServerError(msg)
-                      else
-                        val root  = response.json
-                        val slots = calendarHandler.postProcessSlots(root, d, exam, user)
-                        Ok(Json.toJson(slots))
-                    }
-                catch
-                  case e: MalformedURLException =>
-                    logger.error("Invalid URL", e)
-                    Future.successful(BadRequest("Invalid URL"))
+                  Try(parseUrl(orgRef, roomRef, d, start, end, duration)).fold(
+                    {
+                      case e: MalformedURLException =>
+                        logger.error("Invalid URL", e)
+                        Future.successful(BadRequest("Invalid URL"))
+                      case e => throw e
+                    },
+                    url =>
+                      wsClient
+                        .url(url.toString.split("\\?")(0))
+                        .withQueryStringParameters(url.getQuery.split("&").map { kv =>
+                          val parts = kv.split("=")
+                          parts(0) -> parts(1)
+                        }*)
+                        .get()
+                        .map { response =>
+                          if response.status != OK then
+                            val root = response.json.as[play.api.libs.json.JsObject]
+                            val msg =
+                              (root \ "message").asOpt[String].getOrElse("Connection refused")
+                            InternalServerError(msg)
+                          else
+                            val root  = response.json
+                            val slots = calendarHandler.postProcessSlots(root, d, exam, user)
+                            Ok(Json.toJson(slots))
+                        }
+                  )
         case _ => Future.successful(BadRequest("Missing required parameters"))
     }
 
@@ -441,7 +446,7 @@ class ExternalCalendarController @Inject() (
       startDate: String,
       endDate: String,
       room: ExamRoom
-  ): LocalDate =
+  ): Option[LocalDate] =
     val windowSize = calendarHandler.getReservationWindowSize
     val offset = Option(room)
       .map(r => DateTimeZone.forID(r.getLocalTimezone).getOffset(DateTime.now()))
@@ -468,12 +473,11 @@ class ExternalCalendarController @Inject() (
 
     // if searching for month(s) after exam's end month -> no can do
     if afterNow.isAfter(searchEndDate) then
-      throw new IllegalArgumentException("Search date is after exam end date")
-
-    // Do not execute search before exam starts
-    val searchDate = if afterNow.isBefore(examStartDate) then examStartDate else afterNow
-
-    searchDate
+      None
+    else
+      // Do not execute search before exam starts
+      val searchDate = if afterNow.isBefore(examStartDate) then examStartDate else afterNow
+      Some(searchDate)
 
   private def getEndSearchDate(endDate: String, searchDate: LocalDate): LocalDate =
     val examEnd = LocalDate.parse(endDate, ISODateTimeFormat.dateTimeParser())

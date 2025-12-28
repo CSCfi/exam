@@ -10,7 +10,7 @@ import models.user.Role
 import play.api.libs.json.JsValue
 import play.api.mvc._
 import security.Auth.{AuthenticatedAction, authorized}
-import security.AuthExecutionContext
+import security.BlockingIOExecutionContext
 import system.AuditedAction
 
 import javax.inject.Inject
@@ -20,7 +20,7 @@ class MaintenancePeriodController @Inject() (
     val authenticated: AuthenticatedAction,
     val audited: AuditedAction,
     val controllerComponents: ControllerComponents,
-    implicit val ec: AuthExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

@@ -6,7 +6,7 @@ package features.exam.copy
 
 import models.user.User
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** Configuration for exam copying operations.
   */
@@ -32,8 +32,7 @@ final class ExamCopyContext private (
   def getUser: User         = user.orNull
   def getCopyType: CopyType = copyType
   def getSelectedSections: java.util.Set[java.lang.Long] =
-    selectedSections.map(java.lang.Long.valueOf).asJava
-
+    selectedSections.map(x => java.lang.Long.valueOf(x)).asJava
   def isStudentExam: Boolean =
     copyType == CopyType.STUDENT_EXAM || copyType == CopyType.COLLABORATIVE_EXAM
 
@@ -71,9 +70,6 @@ object ExamCopyContext:
       private val selectedSections: Set[Long] = Set.empty
   ):
 
-    def withSelectedSections(sections: java.util.Set[java.lang.Long] | Null): Builder =
-      val newSections =
-        Option(sections).map(_.asScala.map(_.longValue()).toSet).getOrElse(Set.empty)
-      Builder(user, copyType, newSections)
+    def withSelectedSections(sections: Set[Long]): Builder = Builder(user, copyType, sections)
 
     def build(): ExamCopyContext = ExamCopyContext(user, copyType, selectedSections)

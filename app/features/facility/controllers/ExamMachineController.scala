@@ -4,23 +4,23 @@
 
 package features.facility.controllers
 
-import features.facility.services.{ExamMachineError, ExamMachineService}
 import database.EbeanJsonExtensions
+import features.facility.services.{ExamMachineError, ExamMachineService}
 import models.user.Role
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc._
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.BlockingIOExecutionContext
 import system.AuditedAction
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ExamMachineController @Inject() (
     private val examMachineService: ExamMachineService,
     val authenticated: AuthenticatedAction,
     val audited: AuditedAction,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

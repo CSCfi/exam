@@ -6,18 +6,17 @@ package features.examination.controllers
 
 import features.examination.services.{TimeError, TimeService}
 import models.user.Role
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class TimeController @Inject() (
     private val timeService: TimeService,
     val authenticated: AuthenticatedAction,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController:
 
   private def toResult(error: TimeError): Result =

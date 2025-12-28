@@ -4,8 +4,8 @@
 
 package services.exam
 
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.exam.{Course, Grade, GradeScale}
 import models.facility.Organisation
 import models.user.User
@@ -17,6 +17,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.mvc.Http
 import schema.ExternalCourseValidator.{CourseUnitInfo, GradeScale as ExtGradeScale}
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
 import java.net.*
@@ -24,13 +25,13 @@ import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import javax.inject.Inject
 import scala.collection.immutable.TreeSet
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
 class ExternalCourseHandlerImpl @Inject (
     private val wsClient: WSClient,
     private val configReader: ConfigReader,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends ExternalCourseHandler
     with EbeanQueryExtensions
     with Logging:

@@ -4,12 +4,12 @@
 
 package features.enrolment.controllers
 
-import features.enrolment.services.{EnrolmentError, EnrolmentService}
 import database.EbeanJsonExtensions
+import features.enrolment.services.{EnrolmentError, EnrolmentService}
 import models.user.Role
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 import validation.core.{ScalaAttrs, Validators}
 import validation.enrolment.{
@@ -19,7 +19,6 @@ import validation.enrolment.{
 }
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class EnrolmentController @Inject() (
     authenticated: AuthenticatedAction,
@@ -27,7 +26,7 @@ class EnrolmentController @Inject() (
     private val enrolmentService: EnrolmentService,
     private val validators: Validators,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

@@ -4,23 +4,22 @@
 
 package features.enrolment.controllers
 
-import features.enrolment.services.{FileResponse, StudentActionsError, StudentActionsService}
 import database.EbeanJsonExtensions
+import features.enrolment.services.{StudentActionsError, StudentActionsService}
 import models.user.Role
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.interceptors.SensitiveDataFilter
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class StudentActionsController @Inject() (
     authenticated: AuthenticatedAction,
     private val studentActionsService: StudentActionsService,
     private val sensitiveDataFilter: SensitiveDataFilter,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

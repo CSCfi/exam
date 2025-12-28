@@ -4,9 +4,9 @@
 
 package services.datetime
 
-import features.iop.transfer.api.ExternalReservationHandler
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import features.iop.transfer.services.ExternalReservationHandlerService
+import io.ebean.DB
 import models.calendar.MaintenancePeriod
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
 import models.exam.Exam
@@ -19,23 +19,24 @@ import play.api.Logging
 import play.api.libs.json.*
 import play.api.mvc.*
 import play.api.mvc.Results.*
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.enrolment.EnrolmentHandler
 import services.mail.EmailComposer
 
 import javax.inject.Inject
+import scala.concurrent.Future
 import scala.concurrent.duration.*
-import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
 import scala.util.Random
 
 class CalendarHandlerImpl @Inject() (
     configReader: ConfigReader,
-    externalReservationHandler: ExternalReservationHandler,
+    externalReservationHandler: ExternalReservationHandlerService,
     emailComposer: EmailComposer,
     dateTimeHandler: DateTimeHandler,
     enrolmentHandler: EnrolmentHandler,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends CalendarHandler
     with EbeanQueryExtensions
     with Logging:
@@ -59,43 +60,43 @@ class CalendarHandlerImpl @Inject() (
             isRoomAccessibilitySatisfied(room, aids) &&
             Option(exam.getDuration).isDefined
           then
-            try
-              val searchDate = parseSearchDate(day, exam, Some(room))
-              // user's reservations starting from now
-              val reservations = DB
-                .find(classOf[Reservation])
-                .fetch("enrolment.exam")
-                .where()
-                .eq("user", user)
-                .gt("startAt", searchDate.minusDays(1).toDate)
-                .list
+            parseSearchDate(day, exam, Some(room)) match
+              case None             => List.empty
+              case Some(searchDate) =>
+                // user's reservations starting from now
+                val reservations = DB
+                  .find(classOf[Reservation])
+                  .fetch("enrolment.exam")
+                  .where()
+                  .eq("user", user)
+                  .gt("startAt", searchDate.minusDays(1).toDate)
+                  .list
 
-              // Resolve eligible machines
-              val machines = getEligibleMachines(room, aids, exam)
+                // Resolve eligible machines
+                val machines = getEligibleMachines(room, aids, exam)
 
-              // Maintenance periods
-              val periods = DB
-                .find(classOf[MaintenancePeriod])
-                .where()
-                .gt("endsAt", searchDate.toDate)
-                .list
-                .map(p =>
-                  new Interval(
-                    normalizeMaintenanceTime(p.getStartsAt),
-                    normalizeMaintenanceTime(p.getEndsAt)
+                // Maintenance periods
+                val periods = DB
+                  .find(classOf[MaintenancePeriod])
+                  .where()
+                  .gt("endsAt", searchDate.toDate)
+                  .list
+                  .map(p =>
+                    new Interval(
+                      normalizeMaintenanceTime(p.getStartsAt),
+                      normalizeMaintenanceTime(p.getEndsAt)
+                    )
                   )
-                )
 
-              val endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getPeriodEnd))
+                val endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getPeriodEnd))
 
-              Iterator
-                .iterate(searchDate)(_.plusDays(1))
-                .takeWhile(!_.isAfter(endOfSearch))
-                .flatMap { date =>
-                  getExamSlots(user, room, exam, date, reservations, machines, periods)
-                }
-                .toList
-            catch case _: IllegalArgumentException => List.empty
+                Iterator
+                  .iterate(searchDate)(_.plusDays(1))
+                  .takeWhile(!_.isAfter(endOfSearch))
+                  .flatMap { date =>
+                    getExamSlots(user, room, exam, date, reservations, machines, periods)
+                  }
+                  .toList
           else List.empty
 
         Right(Json.toJson(slots))
@@ -140,7 +141,7 @@ class CalendarHandlerImpl @Inject() (
 
     slots.exists(_.interval.contains(reservation.toInterval))
 
-  override def parseSearchDate(day: String, exam: Exam, room: Option[ExamRoom]): LocalDate =
+  override def parseSearchDate(day: String, exam: Exam, room: Option[ExamRoom]): Option[LocalDate] =
     val windowSize = getReservationWindowSize
     val dtz = room.map(r => DateTimeZone.forID(r.getLocalTimezone)).getOrElse(
       configReader.getDefaultTimeZone
@@ -161,9 +162,11 @@ class CalendarHandlerImpl @Inject() (
     val afterNow  = if weekStart.isBefore(now) then now else weekStart
     // if searching for month(s) after exam's end month -> no can do
     if afterNow.isAfter(searchEndDate) then
-      throw new IllegalArgumentException("Search date is after exam end date")
-    // Do not execute search before exam starts
-    if afterNow.isBefore(examStartDate) then examStartDate else afterNow
+      None
+    else
+      // Do not execute search before exam starts
+      val searchDate = if afterNow.isBefore(examStartDate) then examStartDate else afterNow
+      Some(searchDate)
 
   private def getEligibleMachines(
       room: ExamRoom,

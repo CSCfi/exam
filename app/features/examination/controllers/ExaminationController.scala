@@ -4,21 +4,21 @@
 
 package features.examination.controllers
 
+import database.EbeanJsonExtensions
 import features.examination.services.ExaminationService.getPath
 import features.examination.services.{ExaminationError, ExaminationService, RequestData}
 import io.ebean.text.PathProperties
-import database.EbeanJsonExtensions
 import models.user.Role
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 import system.interceptors.{ExamActionRouter, SecureController, SensitiveDataFilter}
 import validation.answer.{ClozeTestAnswerValidator, EssayAnswerValidator}
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ExaminationController @Inject() (
     private val examinationService: ExaminationService,
@@ -27,7 +27,7 @@ class ExaminationController @Inject() (
     audited: AuditedAction,
     val sensitiveDataFilter: SensitiveDataFilter,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends SecureController
     with EbeanJsonExtensions:
 

@@ -2,39 +2,42 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-package features.iop.collaboration.controllers
+package features.iop.collaboration.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import features.iop.collaboration.api.CollaborativeExamLoader
-import features.iop.transfer.api.ExternalAttachmentLoader
+import database.EbeanJsonExtensions
+import features.iop.transfer.services.ExternalAttachmentLoaderService
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Model}
-import database.EbeanJsonExtensions
 import models.enrolment.ExamParticipation
 import models.exam.Exam
 import models.iop.CollaborativeExam
 import models.user.User
 import org.joda.time.DateTime
 import play.api.Logging
-import play.api.http.Status._
-import play.api.libs.json._
+import play.api.http.Status.*
+import play.api.libs.json.*
 import play.api.libs.ws.{WSBodyWritables, WSClient}
 import play.api.mvc.{Result, Results}
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 
 import java.net.{URI, URL}
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-class CollaborativeExamLoaderImpl @Inject() (
+/** Service for loading and uploading collaborative exams and assessments
+  *
+  * Handles communication with external exam management systems.
+  */
+class CollaborativeExamLoaderService @Inject() (
     wsClient: WSClient,
     configReader: ConfigReader,
-    externalAttachmentLoader: ExternalAttachmentLoader
-)(implicit ec: ExecutionContext)
-    extends CollaborativeExamLoader
-    with EbeanJsonExtensions
+    externalAttachmentLoader: ExternalAttachmentLoaderService
+)(implicit ec: BlockingIOExecutionContext)
+    extends EbeanJsonExtensions
     with WSBodyWritables
     with Logging:
 
@@ -82,7 +85,7 @@ class CollaborativeExamLoaderImpl @Inject() (
         logger.error("Unable to serialize exam", e)
         throw new RuntimeException(e)
 
-  override def getAssessmentPath: PathProperties =
+  def getAssessmentPath: PathProperties =
     val path = """(*,
                   |user(*),
                   |exam(*,
@@ -111,9 +114,7 @@ class CollaborativeExamLoaderImpl @Inject() (
                   |)""".stripMargin
     PathProperties.parse(path)
 
-  // override def getExamPath(): PathProperties = ???
-
-  override def createAssessmentWithAttachments(participation: ExamParticipation): Future[Boolean] =
+  def createAssessmentWithAttachments(participation: ExamParticipation): Future[Boolean] =
     val ref = participation.getCollaborativeExam.getExternalRef
     logger.debug(s"Sending back collaborative assessment for exam $ref")
 
@@ -124,7 +125,7 @@ class CollaborativeExamLoaderImpl @Inject() (
           .uploadAssessmentAttachments(participation.getExam)
           .flatMap(_ => createAssessment(participation))
 
-  override def createAssessment(participation: ExamParticipation): Future[Boolean] =
+  def createAssessment(participation: ExamParticipation): Future[Boolean] =
     val ref = participation.getCollaborativeExam.getExternalRef
     logger.debug(s"Sending back collaborative assessment for exam $ref")
 
@@ -152,7 +153,7 @@ class CollaborativeExamLoaderImpl @Inject() (
             false
           }
 
-  override def uploadAssessment(
+  def uploadAssessment(
       ce: CollaborativeExam,
       ref: String,
       payload: JsValue
@@ -174,7 +175,7 @@ class CollaborativeExamLoaderImpl @Inject() (
           else (response.json \ "rev").asOpt[String]
         }
 
-  override def downloadExam(ce: CollaborativeExam): Future[Option[Exam]] =
+  def downloadExam(ce: CollaborativeExam): Future[Option[Exam]] =
     parseUrl(Some(ce.getExternalRef)) match
       case None => Future.successful(None)
       case Some(url) =>
@@ -210,7 +211,7 @@ class CollaborativeExamLoaderImpl @Inject() (
             Some(exam)
         }
 
-  override def downloadExamJson(ce: CollaborativeExam): Future[Option[JsValue]] =
+  def downloadExamJson(ce: CollaborativeExam): Future[Option[JsValue]] =
     parseUrl(Some(ce.getExternalRef)) match
       case None => Future.successful(None)
       case Some(url) =>
@@ -228,7 +229,7 @@ class CollaborativeExamLoaderImpl @Inject() (
             Some(root)
         }
 
-  override def downloadAssessment(examRef: String, assessmentRef: String): Future[Option[JsValue]] =
+  def downloadAssessment(examRef: String, assessmentRef: String): Future[Option[JsValue]] =
     parseUrl(examRef, assessmentRef) match
       case None => Future.successful(None)
       case Some(url) =>
@@ -244,7 +245,7 @@ class CollaborativeExamLoaderImpl @Inject() (
           else Some(root)
         }
 
-  override def uploadExam(
+  def uploadExam(
       ce: CollaborativeExam,
       content: Exam,
       sender: User,
@@ -265,10 +266,10 @@ class CollaborativeExamLoaderImpl @Inject() (
           else ok(resultModel, pp)
         }
 
-  override def uploadExam(ce: CollaborativeExam, content: Exam, sender: User): Future[Result] =
+  def uploadExam(ce: CollaborativeExam, content: Exam, sender: User): Future[Result] =
     uploadExam(ce, content, sender, null, null)
 
-  override def deleteExam(ce: CollaborativeExam): Future[Result] =
+  def deleteExam(ce: CollaborativeExam): Future[Result] =
     parseUrl(Some(ce.getExternalRef)) match
       case None => Future.successful(Results.InternalServerError)
       case Some(url) =>

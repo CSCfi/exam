@@ -25,7 +25,7 @@ import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
-import scala.util.Using
+import scala.util.{Try, Using}
 
 class ReviewDocumentsService @Inject() (
     private val csvBuilder: CsvBuilder,
@@ -35,15 +35,14 @@ class ReviewDocumentsService @Inject() (
     with Logging:
 
   def importGrades(file: File, user: User): Either[String, Unit] =
-    try
+    Try {
       val role = if user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then Role.Name.ADMIN
       else Role.Name.TEACHER
       csvBuilder.parseGrades(file, user, role)
-      Right(())
-    catch
-      case e: Exception =>
-        logger.error("Failed to parse CSV file. Stack trace follows", e)
-        Left("i18n_internal_error")
+    }.toEither.left.map { e =>
+      logger.error("Failed to parse CSV file. Stack trace follows", e)
+      "i18n_internal_error"
+    }
 
   def findExam(examId: Long): Option[Exam] = Option(DB.find(classOf[Exam], examId))
 
@@ -57,7 +56,7 @@ class ReviewDocumentsService @Inject() (
       start.map(txt => new DateTime(df.parse(txt)).withTimeAtStartOfDay)
     val endDate = end.map(txt => new DateTime(df.parse(txt)).withTimeAtStartOfDay)
     val tarball = File.createTempFile(exam.getId.toString, ".tar.gz")
-    try
+    val result = Try {
       Using.resource(
         new TarArchiveOutputStream(
           new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(tarball)))
@@ -67,14 +66,16 @@ class ReviewDocumentsService @Inject() (
         createArchive(exam, stream, startDate, endDate)
       }
       val contentDisposition = fileHandler.getContentDisposition(tarball)
-      val data               = fileHandler.read(tarball)
-      val body               = Base64.getEncoder.encodeToString(data)
-      Right((body, contentDisposition))
-    catch
-      case e: Exception =>
-        logger.error("Error creating archive", e)
-        Left("i18n_internal_error")
-    finally if tarball.exists then tarball.delete()
+      fileHandler.read(tarball).map { data =>
+        val body = Base64.getEncoder.encodeToString(data)
+        (body, contentDisposition)
+      }
+    }.toEither.left.map { e =>
+      logger.error("Error creating archive", e)
+      "i18n_internal_error"
+    }.flatten
+    if tarball.exists then tarball.delete()
+    result
 
   private def isEligibleForArchiving(exam: Exam, start: Option[DateTime], end: Option[DateTime]) =
     exam.hasState(Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED) &&
@@ -135,26 +136,35 @@ class ReviewDocumentsService @Inject() (
       exam: Exam,
       questions: Map[Long, String]
   ): Unit =
-    val file = File.createTempFile("summary", ".txt")
-    try
-      Using.resource(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)))) {
-        writer =>
-          if start.isDefined || end.isDefined then
-            val dtf = DateTimeFormat.forPattern("dd.MM.yyyy")
-            val s   = start.map(dtf.print).getOrElse("")
-            val e   = end.map(dtf.print).getOrElse("")
-            writer.write(s"period: $s-$e")
-            writer.newLine()
-          writer.write(s"exam id: ${exam.getId}")
-          writer.newLine()
-          writer.write(s"exam name: ${exam.getName}")
-          writer.newLine()
-          writer.newLine()
-          writer.write("questions")
-          writer.newLine()
-          for ((k, v) <- questions)
-            writer.write(s"$k: ${Jsoup.parse(v).text}")
-            writer.newLine()
-      }
-      addFileEntry("summary.txt", file, aos)
-    finally if file.exists then file.delete()
+    Try(File.createTempFile("summary", ".txt")).fold(
+      e => throw e,
+      file =>
+        Try {
+          Using.resource(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)))) {
+            writer =>
+              if start.isDefined || end.isDefined then
+                val dtf = DateTimeFormat.forPattern("dd.MM.yyyy")
+                val s   = start.map(dtf.print).getOrElse("")
+                val e   = end.map(dtf.print).getOrElse("")
+                writer.write(s"period: $s-$e")
+                writer.newLine()
+              writer.write(s"exam id: ${exam.getId}")
+              writer.newLine()
+              writer.write(s"exam name: ${exam.getName}")
+              writer.newLine()
+              writer.newLine()
+              writer.write("questions")
+              writer.newLine()
+              for ((k, v) <- questions)
+                writer.write(s"$k: ${Jsoup.parse(v).text}")
+                writer.newLine()
+          }
+          addFileEntry("summary.txt", file, aos)
+        }.fold(
+          e => {
+            if file.exists then file.delete()
+            throw e
+          },
+          _ => if file.exists then file.delete()
+        )
+    )

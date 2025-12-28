@@ -4,9 +4,9 @@
 
 package features.calendar.services
 
-import features.iop.transfer.api.ExternalReservationHandler
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
+import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
 import models.sections.ExamSection
@@ -14,22 +14,23 @@ import models.user.User
 import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsValue
+import security.BlockingIOExecutionContext
 import services.datetime.{CalendarHandler, CalendarHandlerError, DateTimeHandler}
 import services.mail.EmailComposer
 import validation.calendar.ReservationDTO
 
 import javax.inject.Inject
-import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Future
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.Using
 
 class CalendarService @Inject() (
     private val calendarHandler: CalendarHandler,
     private val emailComposer: EmailComposer,
     private val dateTimeHandler: DateTimeHandler,
-    private val externalReservationHandler: ExternalReservationHandler,
-    implicit private val ec: ExecutionContext
+    private val externalReservationHandler: ExternalReservationHandlerService,
+    implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:

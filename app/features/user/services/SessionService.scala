@@ -16,6 +16,7 @@ import org.joda.time.{DateTime, Minutes}
 import play.api.libs.json.{JsValue, Json}
 import play.api.{Environment, Logger}
 import repository.EnrolmentRepository
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.datetime.DateTimeHandler
 import services.exam.ExternalExamHandler
@@ -25,7 +26,7 @@ import java.nio.charset.StandardCharsets
 import java.util.Date
 import javax.inject.Inject
 import javax.mail.internet.InternetAddress
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
@@ -35,7 +36,7 @@ class SessionService @Inject() (
     configReader: ConfigReader,
     enrolmentRepository: EnrolmentRepository,
     dateTimeHandler: DateTimeHandler
-)(implicit ec: ExecutionContext)
+)(implicit ec: BlockingIOExecutionContext)
     extends EbeanQueryExtensions
     with EbeanJsonExtensions:
 

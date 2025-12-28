@@ -4,8 +4,8 @@
 
 package features.attachment.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.assessment.{Comment, LanguageInspection}
 import models.attachment.{Attachment, AttachmentContainer}
 import models.exam.Exam
@@ -17,18 +17,19 @@ import org.apache.pekko.stream.{IOResult, Materializer}
 import org.apache.pekko.util.ByteString
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc.MultipartFormData.FilePart
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.file.FileHandler
 
 import java.io.File
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 class AttachmentService @Inject() (
     private val configReader: ConfigReader,
     private val fileHandler: FileHandler,
-    implicit private val ec: ExecutionContext,
+    implicit private val ec: BlockingIOExecutionContext,
     implicit private val mat: Materializer
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions:

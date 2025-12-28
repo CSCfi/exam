@@ -4,20 +4,19 @@
 
 package features.assessment.controllers
 
-import features.assessment.services.{ExamInspectionError, ExamInspectionService}
-import system.interceptors.AnonymousHandler
 import database.EbeanJsonExtensions
+import features.assessment.services.{ExamInspectionError, ExamInspectionService}
 import models.user.Role
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
+import system.interceptors.AnonymousHandler
 import validation.assessment.CommentValidator
 import validation.core.{ScalaAttrs, Validators}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ExamInspectionController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -25,7 +24,7 @@ class ExamInspectionController @Inject() (
     val authenticated: AuthenticatedAction,
     val audited: AuditedAction,
     private val examInspectionService: ExamInspectionService,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with AnonymousHandler
     with EbeanJsonExtensions:

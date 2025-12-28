@@ -4,21 +4,20 @@
 
 package features.exam.controllers
 
-import features.exam.services.CourseService
 import database.EbeanJsonExtensions
+import features.exam.services.CourseService
 import models.user.Role
-import play.api.mvc._
-import security.Auth
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
+import security.{Auth, BlockingIOExecutionContext}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class CourseController @Inject() (
     authenticated: AuthenticatedAction,
     private val courseService: CourseService,
     val controllerComponents: ControllerComponents,
-    implicit val ec: ExecutionContext
+    implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
     with EbeanJsonExtensions:
 

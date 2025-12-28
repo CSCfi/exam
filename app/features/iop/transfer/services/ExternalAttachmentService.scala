@@ -4,8 +4,8 @@
 
 package features.iop.transfer.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.attachment.Attachment
 import models.exam.Exam
 import models.iop.ExternalExam
@@ -20,6 +20,7 @@ import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.JsValue
 import play.api.libs.ws.{WSBodyWritables, WSClient}
 import play.api.mvc.MultipartFormData
+import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.file.ChunkMaker
 
@@ -27,14 +28,14 @@ import java.net.{URI, URL, URLEncoder}
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 class ExternalAttachmentService @Inject() (
     wsClient: WSClient,
     configReader: ConfigReader
-)(implicit ec: ExecutionContext, mat: Materializer)
+)(implicit ec: BlockingIOExecutionContext, mat: Materializer)
     extends EbeanQueryExtensions
     with EbeanJsonExtensions
     with WSBodyWritables

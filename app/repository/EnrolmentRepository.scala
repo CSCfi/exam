@@ -22,17 +22,18 @@ import services.datetime.DateTimeHandler
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
+import security.BlockingIOExecutionContext
 
 class EnrolmentRepository @Inject() (
     environment: Environment,
-    databaseExecutionContext: DatabaseExecutionContext,
+    blockingIOExecutionContext: BlockingIOExecutionContext,
     byodConfigHandler: ByodConfigHandler,
     dateTimeHandler: DateTimeHandler
 ) extends Logging
     with EbeanQueryExtensions:
 
   private val db: Database                  = DB.getDefault
-  private implicit val ec: ExecutionContext = databaseExecutionContext
+  private implicit val ec: ExecutionContext = blockingIOExecutionContext
 
   def getReservationHeaders(
       request: Request[AnyContent],
@@ -96,7 +97,7 @@ class EnrolmentRepository @Inject() (
         |)
         |)""".stripMargin
     )
-    val query = DB.find(classOf[ExamEnrolment])
+    val query = db.find(classOf[ExamEnrolment])
     pp.apply(query)
     val enrolments = query
       .where()

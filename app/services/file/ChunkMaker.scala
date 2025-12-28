@@ -4,8 +4,8 @@
 
 package services.file
 
-import org.apache.pekko.stream._
-import org.apache.pekko.stream.stage._
+import org.apache.pekko.stream.*
+import org.apache.pekko.stream.stage.*
 import org.apache.pekko.util.ByteString
 
 /** GraphStage that chunks incoming ByteStrings into fixed-size chunks
