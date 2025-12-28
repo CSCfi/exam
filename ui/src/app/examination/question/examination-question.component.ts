@@ -16,8 +16,6 @@ import { ExaminationEssayQuestionComponent } from './examination-essay-question.
 import { ExaminationMultiChoiceComponent } from './examination-multi-choice-question.component';
 import { ExaminationWeightedMultiChoiceComponent } from './examination-weighted-multi-choice-question.component';
 
-type ClozeTestAnswer = { [key: string]: string };
-
 @Component({
     selector: 'xm-examination-question',
     templateUrl: './examination-question.component.html',
@@ -81,7 +79,7 @@ export class ExaminationQuestionComponent {
         this.expanded.update((v) => !v);
     }
 
-    answered(answer: ClozeTestAnswer) {
+    answered(answer: { id: string; value: string }) {
         const { id, value } = answer;
         const currentSq = this.sq();
         if (currentSq.clozeTestAnswer) {

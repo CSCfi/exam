@@ -4,151 +4,152 @@
 
 import type { OnDestroy } from '@angular/core';
 import {
+    afterNextRender,
     AfterViewInit,
-    ComponentRef as AngularComponentRef,
     ChangeDetectionStrategy,
     Component,
+    computed,
     effect,
     ElementRef,
     inject,
     input,
     output,
+    Renderer2,
     ViewChild,
-    ViewContainerRef,
 } from '@angular/core';
-import { hashString } from 'src/app/shared/miscellaneous/helpers';
+import { DomSanitizer } from '@angular/platform-browser';
 
-type ClozeTestAnswer = { [key: string]: string };
+type ClozeTestAnswer = Record<string, string>;
 
 @Component({
     selector: 'xm-dynamic-cloze-test',
-    template: ` <div #clozeContainer></div> `,
+    template: `<div #clozeContainer [innerHTML]="sanitizedContent()"></div>`,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
-    private static componentCounter = 0;
-
-    @ViewChild('clozeContainer', { read: ViewContainerRef, static: true }) container?: ViewContainerRef;
+    @ViewChild('clozeContainer', { static: true }) container?: ElementRef<HTMLDivElement>;
 
     answer = input<ClozeTestAnswer>({});
     content = input('');
-    editable = input(false);
-    answerChanged = output<ClozeTestAnswer>();
+    answerChanged = output<{ id: string; value: string }>();
 
-    componentRef?: AngularComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
+    // Only recompute when content changes, not when answer changes
+    sanitizedContent = computed(() => {
+        const currentContent = this.content();
+        // html is already sanitized by the server
+        if (!currentContent) return this.sanitizer.bypassSecurityTrustHtml('');
 
-    private el = inject(ElementRef);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(currentContent, 'text/html');
+
+        // Use bypassSecurityTrustHtml to allow input elements
+        // Don't set answer values here - that would make this reactive to answer changes
+        return this.sanitizer.bypassSecurityTrustHtml(doc.body.innerHTML);
+    });
+
+    private renderer = inject(Renderer2);
+    private sanitizer = inject(DomSanitizer);
+    private inputListener?: () => void;
+    private focusInTracker?: () => void;
+    private focusOutTracker?: () => void;
+    private focusedInputId: string | null = null;
 
     constructor() {
-        // React to input changes and recreate component
+        // React to answer changes - update values without recreating HTML
+        effect(() => {
+            const currentAnswer = this.answer();
+            if (!this.container?.nativeElement) return;
+            this.updateInputValues(currentAnswer);
+        });
+
+        // React to content changes - re-setup when HTML is re-rendered
         effect(() => {
             const currentContent = this.content();
-            const currentAnswer = this.answer();
-            if (currentContent && this.container) {
-                this.createComponent(currentContent, currentAnswer);
-            }
+            if (!currentContent) return;
+
+            // afterNextRender is needed because effects run during change detection,
+            // before Angular has finished updating the [innerHTML] binding
+            afterNextRender(() => {
+                if (!this.container?.nativeElement) return;
+                this.setupInputs();
+            });
         });
     }
 
     ngAfterViewInit() {
-        // Initial creation will be handled by effect, but ensure it runs if container is ready
-        const currentContent = this.content();
-        const currentAnswer = this.answer();
-        if (currentContent && this.container) {
-            this.createComponent(currentContent, currentAnswer);
-        }
+        // Initial setup - afterNextRender ensures innerHTML has been processed
+        afterNextRender(() => {
+            if (!this.container?.nativeElement) return;
+            this.setupInputs();
+        });
     }
 
     ngOnDestroy() {
-        if (this.componentRef) this.componentRef.destroy();
-    }
-
-    handleInputChange(event: { target: HTMLInputElement }) {
-        const { id, value } = event.target;
-        this.answerChanged.emit({ id, value });
-    }
-
-    private createComponent(content: string, answer: ClozeTestAnswer) {
-        // Destroy existing component if any
-        if (this.componentRef) {
-            this.componentRef.destroy();
-            this.componentRef = undefined;
+        if (this.inputListener) {
+            this.inputListener();
         }
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(content, 'text/html');
-
-        // Set input values and temporary attributes for input events
-        const inputs = doc.getElementsByTagName('input');
-        Array.from(inputs).forEach((input) => {
-            const answerValue = answer[input.id] || '';
-            input.setAttribute('value', answerValue);
-            input.setAttribute('data-input-handler', 'handleChange($event)');
-        });
-        // Replace all left curly braces with urlencoded symbols to please angular compiler
-        this.getTextNodes(doc.body).forEach((n) => {
-            if (n.textContent) {
-                n.textContent = n.textContent.replace(/\{/g, '&#123;');
-                n.textContent = n.textContent.replace(/\}/g, '&#125;');
-            }
-        });
-
-        // Replace temporary input attributes with Angular input-directives
-        const clozeTemplate = doc.body.innerHTML.replace(/data-input-handler/g, '(input)');
-        // Compile component and module with formatted cloze template
-        const hash = hashString(clozeTemplate);
-        // Use a counter to ensure each component class is unique (Angular uses class name for component ID)
-        const componentId = DynamicClozeTestComponent.componentCounter++;
-
-        // Create a new class with a unique name to avoid component ID collisions
-        // Each class instance must be unique for Angular's component ID generation
-        const ClozeComponentClass = class {
-            static readonly __componentId = componentId;
-            el!: ElementRef;
-            onInput!: (_: { target: HTMLInputElement }) => void;
-            ngAfterViewInit() {
-                // this is ugly but I didn't find any other way
-                // see: https://github.com/angular/angular/issues/11859
-                Array.from(this.el.nativeElement.querySelectorAll('*') as Element[])
-                    .flatMap((e: Element) => Array.from(e.childNodes))
-                    .filter((n) => n.nodeName === '#text')
-                    .forEach((n) => {
-                        if (n.textContent) {
-                            n.textContent = n.textContent.replace(/&#123;/g, '{');
-                            n.textContent = n.textContent.replace(/&#125;/g, '}');
-                        }
-                    });
-                // Math content is now in MathLive format, no typesetting needed
-            }
-            handleChange(event: { target: HTMLInputElement }) {
-                this.onInput(event);
-            }
-        };
-
-        // Set unique name on the class to ensure Angular generates unique component IDs
-        Object.defineProperty(ClozeComponentClass, 'name', {
-            value: `ClozeComponent_${hash}_${componentId}`,
-            configurable: true,
-            writable: false,
-        });
-
-        const clozeComponent = Component({
-            template: clozeTemplate,
-            selector: `xm-dyn-ct-${hash}-${componentId}`,
-        })(ClozeComponentClass);
-
-        if (this.container) {
-            this.componentRef = this.container.createComponent(clozeComponent);
-            this.componentRef.instance.el = this.el;
-            this.componentRef.instance.onInput = this.handleInputChange;
+        if (this.focusInTracker) {
+            this.focusInTracker();
+        }
+        if (this.focusOutTracker) {
+            this.focusOutTracker();
         }
     }
 
-    private getTextNodes(el: Element) {
-        const a = [];
-        const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
-        let n;
-        while ((n = walk.nextNode())) a.push(n);
-        return a;
+    private setupInputs() {
+        this.updateInputValues();
+        this.attachListeners();
+    }
+
+    private updateInputValues(answer?: ClozeTestAnswer) {
+        if (!this.container?.nativeElement) return;
+        const currentAnswer = answer ?? this.answer();
+        const inputs = this.container.nativeElement.querySelectorAll('input');
+        inputs.forEach((input: HTMLInputElement) => {
+            if (input.id && currentAnswer[input.id] !== undefined) {
+                // Don't update if this input is currently focused (user is typing)
+                if (input.id === this.focusedInputId) return;
+                input.value = currentAnswer[input.id] || '';
+            }
+        });
+    }
+
+    private attachListeners() {
+        // Remove existing listener
+        if (this.inputListener) {
+            this.inputListener();
+            this.inputListener = undefined;
+        }
+
+        if (this.focusInTracker) {
+            this.focusInTracker();
+            this.focusInTracker = undefined;
+        }
+        if (this.focusOutTracker) {
+            this.focusOutTracker();
+            this.focusOutTracker = undefined;
+        }
+        if (!this.container?.nativeElement) return;
+
+        // Use event delegation on the container
+        this.inputListener = this.renderer.listen(this.container.nativeElement, 'input', (event: Event) => {
+            const target = event.target as HTMLInputElement;
+            if (target.tagName === 'INPUT' && target.id) {
+                this.answerChanged.emit({ id: target.id, value: target.value });
+            }
+        });
+
+        // Track which input has focus
+        this.focusInTracker = this.renderer.listen(this.container.nativeElement, 'focusin', (event: Event) => {
+            const target = event.target as HTMLInputElement;
+            if (target.tagName === 'INPUT' && target.id) {
+                this.focusedInputId = target.id;
+            }
+        });
+
+        this.focusOutTracker = this.renderer.listen(this.container.nativeElement, 'focusout', () => {
+            // Clear immediately - updateInputValues already checks for focused input
+            this.focusedInputId = null;
+        });
     }
 }
