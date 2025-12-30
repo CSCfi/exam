@@ -298,17 +298,14 @@ public class ReviewController extends BaseController {
             .fetch("parent.creator")
             .where()
             .idEq(id)
-            .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
+            .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.REJECTED)
             .findOneOrEmpty();
         if (option.isEmpty()) {
             return notFound("i18n_exam_not_found");
         }
         Exam exam = option.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (
-            !exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
-            isDisallowedToModify(exam, user, exam.getState())
-        ) {
+        if (isDisallowedToModify(exam, user, exam.getState())) {
             return forbidden("You are not allowed to modify this object");
         }
         exam.setAssessmentInfo(info);
