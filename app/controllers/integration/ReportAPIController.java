@@ -43,7 +43,10 @@ public class ReportAPIController extends BaseController {
 
         List<ExamEnrolment> participations = query
             .where()
+            .or()
             .ne("exam.state", Exam.State.PUBLISHED)
+            .eq("noShow", true)
+            .endOr()
             .or()
             .isNotNull("reservation.machine")
             .isNotNull("reservation.externalReservation")
