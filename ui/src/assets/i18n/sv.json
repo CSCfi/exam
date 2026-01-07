@@ -937,6 +937,8 @@
     "i18n_exam_feedback_config_warning": "Du har i tentamen tagit i bruk publicering av frågor och svar på Inställningar för bedömning-sidan. Efter att den första bedömningen har låsts kan du inte längre ändra att frågorna och svaren syns för studenterna.",
     "i18n_first": "Första",
     "i18n_second": "Andra",
+    "i18n_third": "Tredje",
+    "i18n_fourth": "Fjärde",
     "i18n_last": "Sista",
     "i18n_select_week": "Hela veckan",
     "i18n_once": "Upprepas inte",
