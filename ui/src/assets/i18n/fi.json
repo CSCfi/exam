@@ -937,6 +937,8 @@
     "i18n_exam_feedback_config_warning": "Olet ottanut tentissä käyttöön kysymysten ja vastausten julkaisun Arviointiasetukset -sivulla. Ensimmäisen arvioinnin lukitsemisen jälkeen et voi enää muuttaa kysymysten ja vastauksen näkymistä opiskelijoille.",
     "i18n_first": "Ensimmäinen",
     "i18n_second": "Toinen",
+    "i18n_third": "Kolmas",
+    "i18n_fourth": "Neljäs",
     "i18n_last": "Viimeinen",
     "i18n_select_week": "Koko viikko",
     "i18n_once": "Ei toistu",

@@ -937,6 +937,8 @@
     "i18n_exam_feedback_config_warning": "You have activated publishing questions and answers after locking assessment for exam on Assessment settings page. You can't change that selection after you have locked first assessment.",
     "i18n_first": "First",
     "i18n_second": "Second",
+    "i18n_third": "Third",
+    "i18n_fourth": "Fourth",
     "i18n_last": "Last",
     "i18n_select_week": "Whole week",
     "i18n_once": "Doesn't repeat",
