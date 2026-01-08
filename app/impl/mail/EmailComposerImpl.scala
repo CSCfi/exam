@@ -377,21 +377,14 @@ class EmailComposerImpl @Inject() (
       current: Reservation,
       previous: Reservation
   ): Unit =
-    val template  = fileHandler.read(s"${templateRoot}reservationChanged.html")
-    val lang      = getLang(current.getUser)
-    val enrolment = current.getEnrolment
-    val exam      = enrolment.getExam
-    val examInfo = Option(exam)
-      .map(e => s"${exam.getName} (${exam.getCourse.getCode.split("_")(0)})")
-      .getOrElse(enrolment.getCollaborativeExam.getName)
-    val teacherName =
-      if !exam.getExamOwners.isEmpty then getTeachers(exam)
-      else s"${exam.getCreator.getFirstName} ${exam.getCreator.getLastName}"
+    val template        = fileHandler.read(s"${templateRoot}reservationChanged.html")
+    val lang            = getLang(current.getUser)
+    val enrolment       = current.getEnrolment
     val startDate       = adjustDST(enrolment.getReservation.getStartAt)
     val endDate         = adjustDST(enrolment.getReservation.getEndAt)
     val reservationDate = s"${EmailComposerImpl.DTF.print(startDate)} - ${EmailComposerImpl.DTF.print(endDate)}"
-    val examName        = Option(exam).map(_.getName).nonNull.getOrElse(enrolment.getCollaborativeExam.getName)
-    val subject         = messaging("email.template.reservation.change.subject", examName)(using lang)
+    val examName = Option(enrolment.getExam).map(_.getName).nonNull.getOrElse(enrolment.getCollaborativeExam.getName)
+    val subject  = messaging("email.template.reservation.change.subject", examName)(using lang)
     val previousSlot = s"${DTF.print(adjustDST(previous.getStartAt))} - ${EmailComposerImpl.DTF
         .print(adjustDST(previous.getEndAt))}"
     val newSlot =
@@ -417,10 +410,6 @@ class EmailComposerImpl @Inject() (
       "currentBuilding" -> messaging("email.template.reservation.building", current.getMachine.getRoom.getBuildingName)(
         using lang
       ),
-      "examinationInfo"      -> messaging("email.template.reservation.exam.info")(using lang),
-      "examInfo"             -> messaging("email.template.reservation.exam", examInfo)(using lang),
-      "teachers"             -> messaging("email.template.reservation.teacher", teacherName)(using lang),
-      "reservationTime"      -> messaging("email.template.reservation.date", reservationDate)(using lang),
       "cancellationInfo"     -> messaging("email.template.reservation.cancel.info")(using lang),
       "cancellationLink"     -> hostName,
       "cancellationLinkText" -> messaging("email.template.reservation.cancel.link.text")(using lang)
