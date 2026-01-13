@@ -420,15 +420,21 @@ public class SessionController extends BaseController {
             );
         }
         // If a (regular) user has just one role, set it as the one used for logins
-        List<Role> roles = isTemporaryVisitor
-            ? DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
-            : user.getRoles();
-        if (user.getRoles().size() == 1 && !isTemporaryVisitor) {
-            payload.put("role", user.getRoles().getFirst().getName());
+        Role studentRole = DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne();
+        if (studentRole == null) {
+            throw new IllegalStateException("Student role not found");
+        }
+        List<Role> roles = isTemporaryVisitor ? List.of(studentRole) : user.getRoles();
+        if (roles.size() == 1 && !isTemporaryVisitor) {
+            // regular user with a single role, store role into session
+            payload.put("role", roles.getFirst().getName());
         } else if (isTemporaryVisitor) {
+            // external exam taker
             payload.put("visitingStudent", "true");
-            payload.put("role", roles.getFirst().getName()); // forced login as student
-        } else if (!isLocalUser(user.getEppn())) {
+            payload.put("role", studentRole.getName()); // forced login as a student
+        }
+        if (!isLocalUser(user.getEppn())) {
+            // visitor account
             result.put("externalUserOrg", user.getEppn().split("@")[1]);
         }
         result.set("roles", Json.toJson(roles));
