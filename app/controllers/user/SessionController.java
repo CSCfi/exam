@@ -419,24 +419,26 @@ public class SessionController extends BaseController {
                 user.getPermissions().stream().map(Permission::getValue).collect(Collectors.joining(","))
             );
         }
-        // If a (regular) user has just one role, set it as the one used for logins
+
         Role studentRole = DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne();
         if (studentRole == null) {
             throw new IllegalStateException("Student role not found");
         }
-        List<Role> roles = isTemporaryVisitor ? List.of(studentRole) : user.getRoles();
-        if (roles.size() == 1 && !isTemporaryVisitor) {
-            // regular user with a single role, store role into session
-            payload.put("role", roles.getFirst().getName());
-        } else if (isTemporaryVisitor) {
-            // external exam taker
+        boolean isLocalAccount = isLocalUser(user.getEppn());
+        List<Role> roles = isTemporaryVisitor || !isLocalAccount ? List.of(studentRole) : user.getRoles();
+        if (isTemporaryVisitor) {
+            // External exam taker
             payload.put("visitingStudent", "true");
-            payload.put("role", studentRole.getName()); // forced login as a student
-        }
-        if (!isLocalUser(user.getEppn())) {
-            // visitor account
+            payload.put("role", studentRole.getName());
+        } else if (!isLocalAccount) {
+            // External account
             result.put("externalUserOrg", user.getEppn().split("@")[1]);
+            payload.put("role", studentRole.getName());
+        } else if (user.getRoles().size() == 1) {
+            // Local account with a single role - automatically set it
+            payload.put("role", user.getRoles().getFirst().getName());
         }
+        // Local account with multiple roles: don't set role, let user choose via setLoginRole
         result.set("roles", Json.toJson(roles));
         return checkStudentSession(request, new Http.Session(payload), ok(result));
     }
