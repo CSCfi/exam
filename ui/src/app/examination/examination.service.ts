@@ -24,7 +24,7 @@ export class ExaminationService {
     getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
 
     getLtiInitiateUrl$() {
-        return 'http://localhost:9000/integration/lti/start-login';
+        return 'https://dev.exam.csc.fi/integration/lti/start-login';
     }
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {

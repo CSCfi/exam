@@ -65,7 +65,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
                 if (this.isPreview) {
                     console.log('preview');
                     this.ltiUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-                        'http://localhost:9000/integration/lti/start-login',
+                        'https://dev.exam.csc.fi/integration/lti/start-login',
                     );
                 }
 

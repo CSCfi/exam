@@ -11,9 +11,10 @@ import type { ExaminationQuestion } from 'src/app/examination/examination.model'
 @Component({
     selector: 'xm-examination-lti-question',
     template: `
-        <div class="pb-3">xm-examination-lti-question</div>
         @if (ltiUrl) {
             <iframe
+                width="100%"
+                height="500px"
                 class="lti-frame"
                 [src]="ltiUrl"
                 title="LTI tool"
@@ -44,8 +45,8 @@ export class ExaminationLtiComponent implements OnInit {
         console.log('ltiId ' + this.sq.question.ltiId);
         const id = this.sq?.question?.ltiId ?? '';
         this.ltiUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-            `http://localhost:9000/integration/lti/start-login?resourceId=${encodeURIComponent(id)}`,
+            `https://dev.exam.csc.fi/integration/lti/start-login?resourceId=${encodeURIComponent(id)}`,
         );
-        this.resourceUrl = 'http://localhost:9000/integration/lti/resource';
+        this.resourceUrl = 'https://dev.exam.csc.fi/integration/lti/resource';
     }
 }

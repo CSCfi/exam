@@ -130,7 +130,8 @@ SPDX-License-Identifier: EUPL-1.2
                             </span>
                         </div>
                         <div>
-                            @if (sectionQuestion.evaluationType === 'Points') {
+<!--                          pistemainen tyyppi on null, ja se voi aiheuttaa ongelmia pisteenlaskussa-->
+                            @if (true) {
                                 <span>
                                     <form #ltiPoints="ngForm" name="ltiPoints">
                                         <input
