@@ -14,7 +14,8 @@ import { User } from 'src/app/session/session.model';
             <h1 class="xm-modal-title">{{ 'i18n_status_notice' | translate }}</h1>
         </div>
         <div class="modal-body">
-            {{ 'i18n_external_organisation_login' | translate }} <strong>{{ user.externalUserOrg }}</strong>
+            {{ 'i18n_external_organisation_login' | translate }} <strong>{{ user.externalUserOrg }}</strong
+            >&period;
             {{ 'i18n_external_organisation_login_description' | translate }}
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
