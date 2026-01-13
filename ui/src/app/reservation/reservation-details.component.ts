@@ -105,9 +105,7 @@ export class ReservationDetailsComponent implements OnChanges {
             !this.reservationIsInPast(r);
 
         const canPermitRetrial =
-            r.enrolment.exam.state === 'ABORTED' &&
-            r.enrolment.exam.implementation === 'AQUARIUM' &&
-            r.enrolment.exam.executionType.type === 'PUBLIC';
+            r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.executionType.type === 'PUBLIC';
 
         const canChangeReservationMachine =
             r.enrolment.exam.state === 'PUBLISHED' &&

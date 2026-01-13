@@ -248,8 +248,14 @@ public class RoomController extends BaseController {
         existing.setStatusComment(room.getStatusComment());
         existing.setOutOfService(room.getOutOfService());
         existing.setState(room.getState());
-        existing.setInternalPassword(room.getInternalPassword());
-        existing.setExternalPassword(room.getExternalPassword());
+        String internalPassword = room.getInternalPassword();
+        existing.setInternalPassword(
+            internalPassword != null && !internalPassword.trim().isEmpty() ? internalPassword.trim() : null
+        );
+        String externalPassword = room.getExternalPassword();
+        existing.setExternalPassword(
+            externalPassword != null && !externalPassword.trim().isEmpty() ? externalPassword.trim() : null
+        );
 
         existing.update();
 
@@ -379,8 +385,8 @@ public class RoomController extends BaseController {
     }
 
     private ExceptionWorkingHours parse(JsonNode node) {
-        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("start").asText());
-        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("end").asText());
+        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("startDate").asText());
+        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("endDate").asText());
         ExceptionWorkingHours hours = new ExceptionWorkingHours();
         hours.setStartDate(startDate.toDate());
         hours.setEndDate(endDate.toDate());

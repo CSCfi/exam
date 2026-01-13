@@ -10,7 +10,7 @@ import miscellaneous.scala.DbApiHelper
 import models.attachment.Attachment
 import models.questions.{MultipleChoiceOption, Question, Tag}
 import models.user.User
-import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
+import org.apache.commons.compress.archivers.tar.*
 import org.apache.commons.compress.compressors.CompressorStreamFactory
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Element, TextNode}
@@ -211,6 +211,9 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
       src.attribute("type").get.text match
         case "essay"       => ConversionResult(Some(convertEssay(src, user)), None, Some("essay"))
         case "multichoice" => ConversionResult(Some(convertMultiChoice(src, user)), None, Some("multichoice"))
+        case "category" => // some moodle oddity
+          logger.debug("Skipping question of type \"category\" (not a question)")
+          ConversionResult(None, None, Some("category"))
         case t =>
           logger.warn(s"unknown question type: $t")
           ConversionResult(None, Some(s"Unknown question type: $t"), Some(t))
@@ -220,7 +223,6 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
         ConversionResult(None, Some(e.getMessage), src.attribute("type").map(_.text))
     }
 
-  override def convert(data: String, user: User): (Seq[Question], Seq[ConversionResult]) = {
+  override def convert(data: String, user: User): (Seq[Question], Seq[ConversionResult]) =
     val results = (XML.loadString(data) \ "question").map(convertQuestion(_, user))
     (results.flatMap(_.question), results.filter(_.error.isDefined))
-  }

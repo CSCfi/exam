@@ -105,7 +105,7 @@ export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
 
     getClasses = (option: Option<V, I>): string[] => {
         const classes: string[] = [];
-        if (this.selected && this.selected.id === option.id) {
+        if (this.selected && this.selected.id === option.id && !option.isHeader) {
             classes.push('active');
         }
         if (option.isHeader) {

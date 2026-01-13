@@ -24,6 +24,9 @@ export class ErrorInterceptor implements HttpInterceptor {
                 } else if (response.error?.status === 'validation_error') {
                     // data validation error
                     return throwError(() => this.translate.instant(response.error.message));
+                } else if (response.headers.get('x-exam-delay-execution') === 'true') {
+                    // pass to next for handling
+                    throw response;
                 } else if (typeof response.error === 'string') {
                     return throwError(() => this.translate.instant(response.error));
                 } else {

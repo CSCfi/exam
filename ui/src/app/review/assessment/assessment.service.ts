@@ -195,7 +195,7 @@ export class AssessmentService {
     };
 
     saveAssessmentInfo$ = (exam: Exam): Observable<void> => {
-        if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED') {
+        if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED' || exam.state === 'REJECTED') {
             return this.http
                 .put<void>(`/app/review/${exam.id}/info`, { assessmentInfo: exam.assessmentInfo })
                 .pipe(tap(() => this.toast.info(this.translate.instant('i18n_saved'))));

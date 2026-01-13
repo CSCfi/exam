@@ -5,17 +5,18 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 <div cdkDrag [cdkDragConstrainPosition]="fixPosition" class="wrapper" [hidden]="shouldHide">
     <div class="row align-items-center">
-        <div
-            class="col-1"
-            ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
-            triggers="mouseenter:mouseleave"
-        >
-            <i
+        <div class="col-1">
+            <button
+                type="button"
+                class="pointer border-none background-none"
                 (click)="toggleVisibility()"
-                class="pointer"
-                [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
+                [attr.aria-label]="(hideEditor ? 'i18n_show' : 'i18n_hide') | translate"
+                [attr.aria-expanded]="!hideEditor"
+                ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
+                triggers="mouseenter:mouseleave"
             >
-            </i>
+                <i [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"></i>
+            </button>
         </div>
         <div class="col-11">{{ title | translate }}</div>
     </div>

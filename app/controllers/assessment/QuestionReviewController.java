@@ -51,13 +51,20 @@ public class QuestionReviewController extends BaseController {
         );
     }
 
+    private boolean canView(User user, Exam exam) {
+        return (
+            exam != null &&
+            (exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT))
+        );
+    }
+
     @Authenticated
-    @Restrict({ @Group({ "TEACHER", "ADMIN", "SUPPORT" }) })
+    @Restrict({ @Group("ADMIN"), @Group("SUPPORT"), @Group("TEACHER") })
     @Anonymous(filteredProperties = { "user", "creator", "modifier" })
     public Result getEssays(Long examId, Optional<List<Long>> ids, Http.Request request) {
         Exam exam = DB.find(Exam.class, examId);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        if (exam == null || !canAssess(user, exam)) {
+        if (!canView(user, exam)) {
             return badRequest();
         }
         List<Long> questionIds = ids.orElse(Collections.emptyList());
