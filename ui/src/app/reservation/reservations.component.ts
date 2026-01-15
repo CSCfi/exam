@@ -3,14 +3,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { endOfDay, startOfDay } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import type { CollaborativeExam, Exam, ExamImpl } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -39,7 +40,7 @@ import { ReservationService, Selection } from './reservation.service';
     templateUrl: './reservations.component.html',
     styleUrl: './reservations.component.scss',
 })
-export class ReservationsComponent implements OnInit {
+export class ReservationsComponent implements OnInit, OnDestroy {
     @ViewChild('studentInput') studentInput!: ElementRef;
     @ViewChild('examInput') examInput!: ElementRef;
     @ViewChild('ownerInput') ownerInput!: ElementRef;
@@ -69,9 +70,9 @@ export class ReservationsComponent implements OnInit {
     rooms: ExamRoom[] = [];
     machines: ExamMachine[] = [];
     reservations: AnyReservation[] = [];
-    isInteroperable = false;
     externalReservationsOnly = false;
     byodExamsOnly = false;
+    isInteroperable$ = new BehaviorSubject<boolean>(false);
 
     private http = inject(HttpClient);
     private route = inject(ActivatedRoute);
@@ -96,6 +97,10 @@ export class ReservationsComponent implements OnInit {
         this.stateOptions = this.examStates.map((s) => {
             return { id: s, value: s, label: `i18n_exam_status_${s.toLowerCase()}` };
         });
+    }
+
+    ngOnDestroy() {
+        this.isInteroperable$.complete();
     }
 
     query() {
@@ -204,7 +209,14 @@ export class ReservationsComponent implements OnInit {
     protected searchOwners$ = (text$: Observable<string>) => this.Reservation.searchOwners$(text$);
 
     protected searchExams$ = (text$: Observable<string>) =>
-        this.Reservation.searchExams$(text$, this.isInteroperable && (this.isAdminView() || this.isSupportView()));
+        combineLatest([text$, this.isInteroperable$]).pipe(
+            switchMap(([text, isInteroperable]) =>
+                this.Reservation.searchExams$(
+                    of(text),
+                    isInteroperable && (this.isAdminView() || this.isSupportView()),
+                ),
+            ),
+        );
 
     protected nameFormatter = (item: { name: string }) => item.name;
 
@@ -227,7 +239,7 @@ export class ReservationsComponent implements OnInit {
 
     private initOptions() {
         this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit').subscribe((resp) => {
-            this.isInteroperable = resp.isExamVisitSupported;
+            this.isInteroperable$.next(resp.isExamVisitSupported);
         });
 
         if (this.isAdminView() || this.isSupportView()) {
