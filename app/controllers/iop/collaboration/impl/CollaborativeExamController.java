@@ -90,7 +90,7 @@ public class CollaborativeExamController extends CollaborationController {
     }
 
     @Authenticated
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("SUPPORT") })
     public CompletionStage<Result> searchExams(Http.Request request, Optional<String> filter) {
         WSRequest wsRequest = getSearchRequest(filter);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
