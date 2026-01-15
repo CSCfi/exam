@@ -52,7 +52,10 @@ import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
@@ -555,13 +558,13 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         User newUser = DB.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(newUser).isNotNull();
         assertThat(newUser.getRoles()).hasSize(1);
-        assertThat(newUser.getRoles().get(0).getName()).isEqualTo(Role.Name.TEACHER.toString());
+        assertThat(newUser.getRoles().getFirst().getName()).isEqualTo(Role.Name.TEACHER.toString());
 
         reservation = DB.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(reservation.getUser().getId()).isEqualTo(newUser.getId());
 
         // See that user is eventually directed to waiting room
-        Result result = get("/app/checkSession");
+        Result result = get("/app/session");
         assertThat(result.headers().containsKey("x-exam-upcoming-exam")).isTrue();
 
         // Try do some teacher stuff, see that it is not allowed
@@ -584,7 +587,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     }
 
     @Test
-    public void testLoginAsTemporalStudentVisitorWrongMachine() throws Exception {
+    public void testLoginAsTemporalStudentVisitorUnknownMachine() throws Exception {
         initialize(null);
         String eppn = "newuser@other.org";
         assertThat(user).isNull();
@@ -603,13 +606,13 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(startTime);
         reservation.setEndAt(endTime);
-        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setMachine(room.getExamMachines().getFirst());
         reservation.save();
 
         login(eppn);
 
         // See that user is informed of wrong ip
-        Result result = get("/app/checkSession");
+        Result result = get("/app/session");
         assertThat(result.headers().containsKey("x-exam-unknown-machine")).isTrue();
     }
 
