@@ -5,7 +5,6 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -13,7 +12,6 @@ import { catchError } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class ErrorInterceptor implements HttpInterceptor {
     private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
 
     intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
         return next.handle(req).pipe(

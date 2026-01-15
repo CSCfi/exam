@@ -29,10 +29,15 @@ export class ExaminationInterceptor implements HttpInterceptor {
                     const hash = response.headers.get('x-exam-start-exam');
                     const enrolmentId = response.headers.get('x-exam-upcoming-exam');
                     if (unknownMachine) {
-                        const location = this.b64ToUtf8(unknownMachine).split(':::');
-                        this.WrongLocation.display(location); // Show warning notice on screen
+                        const parts = this.b64ToUtf8(unknownMachine).split(':::');
+                        const isLocal = parts[parts.length - 1] === 'true';
+                        if (isLocal) {
+                            this.WrongLocation.display(parts); // Show warning notice on screen
+                        } else {
+                            this.ExaminationStatus.notifyWrongLocation();
+                            this.router.navigate(['/unknownlocation', parts[0]]);
+                        }
                     } else if (wrongRoom) {
-                        this.ExaminationStatus.notifyWrongLocation();
                         const parts = this.b64ToUtf8(wrongRoom).split(':::');
                         this.router.navigate(['/wrongroom', parts[0], parts[1]]);
                     } else if (wrongMachine) {

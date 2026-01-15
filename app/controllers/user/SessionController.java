@@ -49,7 +49,6 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.EnrolmentRepository;
-import scala.jdk.javaapi.CollectionConverters;
 import security.ActionMethod;
 
 public class SessionController extends BaseController {
@@ -382,7 +381,7 @@ public class SessionController extends BaseController {
     }
 
     private Optional<Result> validateUserLoginEligibility(boolean isTemporaryVisitor, String eppn) {
-        boolean isLocalUser = isLocalUser(eppn);
+        boolean isLocalUser = configReader.isLocalUser(eppn);
         if (!isTemporaryVisitor && !isLocalUser && configReader.isHomeOrganisationRequired()) {
             return Optional.of(
                 badRequest("i18n_error_disallowed_login_with_external_domain_credentials").withHeader(
@@ -392,12 +391,6 @@ public class SessionController extends BaseController {
             );
         }
         return Optional.empty();
-    }
-
-    private boolean isLocalUser(String eppn) {
-        var userDomain = eppn.split("@")[1];
-        var homeDomains = CollectionConverters.asJava(configReader.getHomeOrganisations());
-        return homeDomains.isEmpty() || homeDomains.stream().anyMatch(hd -> hd.equals(userDomain));
     }
 
     private CompletionStage<Result> createSession(User user, boolean isTemporaryVisitor, Http.Request request) {
@@ -415,18 +408,18 @@ public class SessionController extends BaseController {
         payload.put("since", ISODateTimeFormat.dateTime().print(DateTime.now()));
         payload.put("id", user.getId().toString());
         payload.put("email", user.getEmail());
+        payload.put("eppn", user.getEppn());
         if (!user.getPermissions().isEmpty()) {
             payload.put(
                 "permissions",
                 user.getPermissions().stream().map(Permission::getValue).collect(Collectors.joining(","))
             );
         }
-
         Role studentRole = DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne();
         if (studentRole == null) {
             throw new IllegalStateException("Student role not found");
         }
-        boolean isLocalAccount = isLocalUser(user.getEppn());
+        boolean isLocalAccount = configReader.isLocalUser(user.getEppn());
         List<Role> roles = isTemporaryVisitor || !isLocalAccount ? List.of(studentRole) : user.getRoles();
         if (isTemporaryVisitor) {
             // External exam taker
@@ -535,9 +528,11 @@ public class SessionController extends BaseController {
     }
 
     private CompletionStage<Result> checkStudentSession(Http.Request request, Http.Session session, Result result) {
-        if (isStudent(session) && session.get("id").isPresent()) {
+        var id = session.get("id").map(Long::parseLong);
+        var eppn = session.get("eppn");
+        if (isStudent(session) && id.isPresent() && eppn.isPresent()) {
             return enrolmentRepository
-                .getReservationHeaders(request, Long.parseLong(session.get("id").get()))
+                .getReservationHeaders(request, id.get(), eppn.get())
                 .thenApplyAsync(
                     headers -> {
                         Http.Session newSession = updateSession(session, headers);

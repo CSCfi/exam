@@ -1136,5 +1136,6 @@
     "i18n_dashboard_code": "Koodi",
     "i18n_dashboard_period": "Periodi",
     "i18n_dashboard_submissions": "Palautukset",
-    "i18n_dashboard_to_lock": "Lukittavat"
+    "i18n_dashboard_to_lock": "Lukittavat",
+    "i18n_unknown_machine": "Tuntematon kone"
 }
