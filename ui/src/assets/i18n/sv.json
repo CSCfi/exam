@@ -1136,5 +1136,6 @@
     "i18n_dashboard_code": "Kod",
     "i18n_dashboard_period": "Period",
     "i18n_dashboard_submissions": "Inlämningar",
-    "i18n_dashboard_to_lock": "Att låsa"
+    "i18n_dashboard_to_lock": "Att låsa",
+    "i18n_unknown_machine": "Okänd dator"
 }

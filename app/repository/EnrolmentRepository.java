@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import miscellaneous.config.ByodConfigHandler;
+import miscellaneous.config.ConfigReader;
 import miscellaneous.datetime.DateTimeHandler;
 import models.enrolment.ExamEnrolment;
 import models.enrolment.ExaminationEvent;
@@ -46,6 +47,7 @@ public class EnrolmentRepository {
     private final DatabaseExecutionContext ec;
     private final ByodConfigHandler byodConfigHandler;
     private final DateTimeHandler dateTimeHandler;
+    private final ConfigReader configReader;
     private final Database db;
 
     private final Logger logger = LoggerFactory.getLogger(EnrolmentRepository.class);
@@ -55,17 +57,19 @@ public class EnrolmentRepository {
         Environment environment,
         DatabaseExecutionContext databaseExecutionContext,
         ByodConfigHandler byodConfigHandler,
-        DateTimeHandler dateTimeHandler
+        DateTimeHandler dateTimeHandler,
+        ConfigReader configReader
     ) {
         this.environment = environment;
         this.db = DB.getDefault();
         this.ec = databaseExecutionContext;
         this.byodConfigHandler = byodConfigHandler;
         this.dateTimeHandler = dateTimeHandler;
+        this.configReader = configReader;
     }
 
-    public CompletionStage<Map<String, String>> getReservationHeaders(Http.Request request, Long userId) {
-        return CompletableFuture.supplyAsync(() -> doGetReservationHeaders(request, userId), ec);
+    public CompletionStage<Map<String, String>> getReservationHeaders(Http.Request request, Long userId, String eppn) {
+        return CompletableFuture.supplyAsync(() -> doGetReservationHeaders(request, userId, eppn), ec);
     }
 
     public CompletionStage<List<ExamEnrolment>> getStudentEnrolments(User user) {
@@ -158,17 +162,17 @@ public class EnrolmentRepository {
             .toList();
     }
 
-    private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Long userId) {
+    private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Long userId, String eppn) {
         Map<String, String> headers = new HashMap<>();
         Optional<ExamEnrolment> ongoingEnrolment = getNextEnrolment(userId, 0);
         if (ongoingEnrolment.isPresent()) {
-            handleOngoingEnrolment(ongoingEnrolment.get(), request, headers);
+            handleOngoingEnrolment(ongoingEnrolment.get(), request, headers, eppn);
         } else {
             DateTime now = new DateTime();
             int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
             Optional<ExamEnrolment> upcomingEnrolment = getNextEnrolment(userId, lookAheadMinutes);
             if (upcomingEnrolment.isPresent()) {
-                handleUpcomingEnrolment(upcomingEnrolment.get(), request, headers);
+                handleUpcomingEnrolment(upcomingEnrolment.get(), request, headers, eppn);
             } else if (isOnExamMachine(request)) {
                 // User is logged on an exam machine but has no exams for today
                 headers.put("x-exam-upcoming-exam", "none");
@@ -181,7 +185,12 @@ public class EnrolmentRepository {
         return db.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findOneOrEmpty().isPresent();
     }
 
-    private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
+    private boolean isMachineOk(
+        ExamEnrolment enrolment,
+        Http.RequestHeader request,
+        Map<String, String> headers,
+        String eppn
+    ) {
         boolean requiresReservation =
             enrolment.getExternalExam() != null ||
             enrolment.getCollaborativeExam() != null ||
@@ -226,19 +235,21 @@ public class EnrolmentRepository {
                 ExamMachine lookedUp = db.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
                 if (lookedUp == null) {
                     // IP is not known
+                    var local = configReader.isLocalUser(eppn);
                     header = "x-exam-unknown-machine";
                     DateTimeZone zone = DateTimeZone.forID(room.getLocalTimezone());
                     String start = ISODateTimeFormat.dateTime()
                         .withZone(zone)
                         .print(new DateTime(enrolment.getReservation().getStartAt()));
                     message = String.format(
-                        "%s:::%s:::%s:::%s:::%s:::%s",
+                        "%s:::%s:::%s:::%s:::%s:::%s:::%s",
                         room.getCampus(),
                         room.getBuildingName(),
                         room.getRoomCode(),
                         examMachine.getName(),
                         start,
-                        zone.getID()
+                        zone.getID(),
+                        local
                     );
                 } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                     // Right room, wrong machine
@@ -270,9 +281,10 @@ public class EnrolmentRepository {
     private void handleOngoingEnrolment(
         ExamEnrolment enrolment,
         Http.RequestHeader request,
-        Map<String, String> headers
+        Map<String, String> headers,
+        String eppn
     ) {
-        if (isMachineOk(enrolment, request, headers)) {
+        if (isMachineOk(enrolment, request, headers, eppn)) {
             String hash = getExamHash(enrolment);
             headers.put("x-exam-start-exam", hash);
         }
@@ -281,7 +293,8 @@ public class EnrolmentRepository {
     private void handleUpcomingEnrolment(
         ExamEnrolment enrolment,
         Http.RequestHeader request,
-        Map<String, String> headers
+        Map<String, String> headers,
+        String eppn
     ) {
         if (enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.WHATEVER) {
             // Home exam, don't set headers unless it starts in 5 minutes
@@ -293,7 +306,7 @@ public class EnrolmentRepository {
                     String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
                 );
             }
-        } else if (isMachineOk(enrolment, request, headers)) {
+        } else if (isMachineOk(enrolment, request, headers, eppn)) {
             if (
                 enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.AQUARIUM
             ) {

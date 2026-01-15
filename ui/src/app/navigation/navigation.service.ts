@@ -37,7 +37,7 @@ export class NavigationService {
         const languageInspector = user.isTeacher && user.isLanguageInspector;
 
         // Do not show if waiting for exam to begin
-        const hidden = /waitingroom|wrongmachine|wrongroom|early/.test(this.router.url);
+        const hidden = /waitingroom|wrongmachine|unknownlocation|wrongroom|early/.test(this.router.url);
 
         // Change the menu item title/route if student
         const dashboardTitle = student ? 'i18n_user_enrolled_exams_title' : 'i18n_dashboard';

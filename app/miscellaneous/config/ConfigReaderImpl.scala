@@ -109,3 +109,7 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
   override def areNewMultichoiceFeaturesEnabled: Boolean = config.getBoolean("exam.multichoice.features.640.on")
   override def hasPath(path: String): Boolean            = config.hasPath(path)
   override def getString(path: String): String           = config.getString(path)
+  override def isLocalUser(eppn: String): Boolean =
+    val userDomain  = eppn.split("@").last
+    val homeDomains = getHomeOrganisations
+    homeDomains.isEmpty || homeDomains.contains(userDomain)

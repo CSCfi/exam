@@ -64,3 +64,4 @@ trait ConfigReader:
   def areNewMultichoiceFeaturesEnabled: Boolean
   def hasPath(path: String): Boolean
   def getString(path: String): String
+  def isLocalUser(eppn: String): Boolean
