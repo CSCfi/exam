@@ -363,17 +363,20 @@ public class SessionController extends BaseController {
 
     private User createNewUser(String eppn, Http.Request request, boolean ignoreRoleNotFound)
         throws IllegalArgumentException, AddressException {
-        User user = new User();
-        user
-            .getRoles()
-            .addAll(
-                parseRoles(
-                    parse(request.header("unscoped-affiliation").orElse("")).orElseThrow(() ->
-                        new IllegalArgumentException("role not found")
-                    ),
-                    ignoreRoleNotFound
-                )
-            );
+        var user = new User();
+        var roles = parseRoles(
+            parse(request.header("unscoped-affiliation").orElse("")).orElseThrow(() ->
+                new IllegalArgumentException("role not found")
+            ),
+            ignoreRoleNotFound
+        );
+        var userRoles = configReader.isLocalUser(eppn)
+            ? roles
+            : roles
+                  .stream()
+                  .filter(r -> r.getName().equals(Role.Name.STUDENT.toString()))
+                  .toList();
+        user.getRoles().addAll(userRoles);
         user.setLanguage(getLanguage(parse(request.header("preferredLanguage").orElse("")).orElse(null)));
         user.setEppn(eppn);
         updateUser(user, request);
