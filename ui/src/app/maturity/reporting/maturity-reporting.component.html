@@ -113,9 +113,13 @@ SPDX-License-Identifier: EUPL-1.2
                                 }}</strong>
                             </td>
                             <td class="no-print">
-                                <a class="pointer" (click)="showStatement(inspection.statement)">{{
-                                    'i18n_view' | translate
-                                }}</a>
+                                <button
+                                    type="button"
+                                    class="btn btn-link"
+                                    (click)="showStatement(inspection.statement)"
+                                >
+                                    {{ 'i18n_view' | translate }}
+                                </button>
                             </td>
                         </tr>
                     }

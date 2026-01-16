@@ -194,9 +194,9 @@ SPDX-License-Identifier: EUPL-1.2
                             }
                             @if (!inspection.modifier && !user.isAdmin) {
                                 <td>
-                                    <a class="pointer" (click)="assignInspection(inspection)"
-                                        >{{ 'i18n_assign_to_me' | translate }}
-                                    </a>
+                                    <button type="button" class="btn btn-link" (click)="assignInspection(inspection)">
+                                        {{ 'i18n_assign_to_me' | translate }}
+                                    </button>
                                 </td>
                             }
                             @if (!inspection.modifier && user.isAdmin) {

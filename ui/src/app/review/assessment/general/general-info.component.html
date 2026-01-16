@@ -116,7 +116,14 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row mt-3">
         <div class="col-md-2">{{ 'i18n_exam_attachment' | translate }}:</div>
         <div class="col-md-10 xm-link">
-            <a class="pointer" (click)="downloadExamAttachment()">{{ exam.attachment?.fileName }}</a>
+            <button
+                type="button"
+                class="btn btn-link"
+                (click)="downloadExamAttachment()"
+                [attr.aria-label]="'i18n_download_attachment' | translate"
+            >
+                {{ exam.attachment?.fileName }}
+            </button>
         </div>
     </div>
 }
