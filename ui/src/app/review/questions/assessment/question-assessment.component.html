@@ -46,11 +46,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         @if (selectedReview && selectedReview.question.defaultAnswerInstructions) {
             <div class="col-md-1">
-                <button
-                    type="button"
-                    class="btn btn-link p-0"
-                    (click)="selectedReview.expanded = !selectedReview.expanded"
-                >
+                <button type="button" class="btn btn-link" (click)="selectedReview.expanded = !selectedReview.expanded">
                     @if (!selectedReview.expanded) {
                         <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
@@ -74,9 +70,9 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-10 col-md-offset-1">
                 <span>
                     <i class="bi-paperclip text-primary"></i>&nbsp;
-                    <a class="pointer" (click)="downloadQuestionAttachment()">
-                        {{ selectedReview.question.attachment?.fileName }}</a
-                    >
+                    <button type="button" class="btn btn-link" (click)="downloadQuestionAttachment()">
+                        {{ selectedReview.question.attachment?.fileName }}
+                    </button>
                 </span>
             </div>
         </div>

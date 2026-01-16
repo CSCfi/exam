@@ -82,10 +82,10 @@ import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question
                 }
                 <div class="row mt-2">
                     <div class="col-md-12">
-                        <a (click)="addNewOption()" class="attachment-link pointer">
+                        <button type="button" (click)="addNewOption()" class="btn btn-sm btn-link">
                             <i class="bi-plus"></i>
                             {{ 'i18n_question_add_new_option' | translate }}
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>

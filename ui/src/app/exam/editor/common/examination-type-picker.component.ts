@@ -31,19 +31,24 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                                 @for (type of executionTypes; track type) {
                                     <div>
                                         @if (type.examinationTypes.length > 0) {
-                                            <a
-                                                class="pointer"
+                                            <button
+                                                type="button"
+                                                class="btn btn-link"
                                                 [ngClass]="{ 'selected-type': selectedType === type }"
                                                 (click)="selectType(type)"
                                                 autofocus
                                             >
                                                 {{ type.name | translate }}
-                                            </a>
+                                            </button>
                                         }
                                         @if (type.examinationTypes.length === 0) {
-                                            <a class="pointer" (click)="selectConfig(type.type)">
+                                            <button
+                                                type="button"
+                                                class="btn btn-link"
+                                                (click)="selectConfig(type.type)"
+                                            >
                                                 {{ type.name | translate }}
-                                            </a>
+                                            </button>
                                         }
                                     </div>
                                 }
@@ -65,9 +70,13 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                             <ng-template>
                                 @for (et of selectedType.examinationTypes; track et) {
                                     <div>
-                                        <a class="pointer" (click)="selectConfig(selectedType.type, et.type)">
+                                        <button
+                                            type="button"
+                                            class="btn btn-link"
+                                            (click)="selectConfig(selectedType.type, et.type)"
+                                        >
                                             {{ et.name | translate }}
-                                        </a>
+                                        </button>
                                     </div>
                                 }
                             </ng-template>

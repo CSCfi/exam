@@ -49,9 +49,9 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
             <div class="row">
                 <div class="col-12">
-                    <a class="pointer" (click)="downloadAttachment()">
+                    <button type="button" class="btn btn-link" (click)="downloadAttachment()">
                         {{ answer.essayAnswer.attachment.fileName | uppercase }}
-                    </a>
+                    </button>
                 </div>
             </div>
         }
