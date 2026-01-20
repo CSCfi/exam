@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable, Unsubscribable } from 'rxjs';
 import { Subject, defer, from, interval, of, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, delay, map, switchMap, tap } from 'rxjs/operators';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { ExternalLoginConfirmationDialogComponent } from './eula/external-login-confirmation-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
@@ -145,6 +145,17 @@ export class SessionService implements OnDestroy {
         });
     };
 
+    loadCourseCodePrefix$ = (): Observable<void> =>
+        this.http.get<{ prefix: string }>('/app/settings/coursecodeprefix').pipe(
+            tap((data) => this.webStorageService.set('COURSE_CODE_PREFIX', data.prefix)),
+            map(() => undefined),
+            catchError(() => {
+                // If course code prefix fails (e.g., 403 due to session timing), continue without it
+                // The prefix is not critical for the application flow
+                return of(undefined);
+            }),
+        );
+
     login$ = (username: string, password: string): Observable<User> =>
         this.http
             .post<User>('/app/session', {
@@ -154,11 +165,23 @@ export class SessionService implements OnDestroy {
             .pipe(
                 switchMap((u) => this.prepareUser$(u)),
                 switchMap((u) => this.processLogin$(u)),
+                switchMap((u) =>
+                    // Add a small delay to ensure session cookie is fully established
+                    of(u).pipe(
+                        delay(100),
+                        switchMap(() =>
+                            this.loadCourseCodePrefix$().pipe(
+                                map(() => u),
+                                catchError(() => {
+                                    // If prefix fails, continue without it (not critical)
+                                    return of(u);
+                                }),
+                            ),
+                        ),
+                    ),
+                ),
                 tap((u) => {
                     this.webStorageService.set('EXAM_USER', u);
-                    this.http
-                        .get<{ prefix: string }>('/app/settings/coursecodeprefix')
-                        .subscribe((data) => this.webStorageService.set('COURSE_CODE_PREFIX', data.prefix));
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
                     if (u) {

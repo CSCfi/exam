@@ -645,7 +645,17 @@ public class CollaborativeReviewController extends CollaborationController {
                                 if (revision == null) {
                                     return wrapAsPromise(badRequest());
                                 }
-                                Grade.Type gradingType = Grade.Type.valueOf(body.path("gradingType").asText());
+                                String gradingTypeStr = body.path("gradingType").asText(null);
+                                if (gradingTypeStr == null || gradingTypeStr.isEmpty()) {
+                                    return wrapAsPromise(badRequest("gradingType is required"));
+                                }
+                                Grade.Type gradingType;
+                                try {
+                                    gradingType = Grade.Type.valueOf(gradingTypeStr);
+                                } catch (IllegalArgumentException e) {
+                                    logger.error("Invalid gradingType: {}", gradingTypeStr, e);
+                                    return wrapAsPromise(badRequest("Invalid gradingType: " + gradingTypeStr));
+                                }
                                 Function<WSResponse, CompletionStage<Result>> onSuccess = response ->
                                     getResponse(response)
                                         .map(r -> {
