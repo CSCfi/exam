@@ -9,7 +9,8 @@ project/project
 target
 default-drop-all.sql
 default-create-all.sql
-/data/
+data
+logs
 .angular
 dist
 ui/src/assets/components/vendor/mathjax

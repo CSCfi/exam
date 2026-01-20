@@ -93,6 +93,8 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             this.Session.translate$(user.lang).subscribe();
             this.Session.restartSessionCheck();
+            // Load course code prefix if not already loaded (e.g., after page refresh)
+            this.Session.loadCourseCodePrefix$().subscribe();
             this.user = user;
         } else {
             this.Session.switchLanguage('en');

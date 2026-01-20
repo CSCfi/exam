@@ -450,10 +450,10 @@ public class ReservationController extends BaseController {
                 .isNull("enrolment.externalExam") // Hide reservations of external students (just to be sure)
                 .isNull("enrolment.collaborativeExam") // Hide collaborative exams from teachers.
                 .ne("enrolment.exam.state", Exam.State.DELETED) // Hide deleted exams from teachers
-                .disjunction()
+                .or()
                 .eq("enrolment.exam.parent.examOwners", user)
                 .eq("enrolment.exam.examOwners", user)
-                .endJunction();
+                .endOr();
         }
 
         if (start.isPresent()) {
