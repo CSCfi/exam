@@ -99,7 +99,7 @@ SPDX-License-Identifier: EUPL-1.2
                     }
                     @if (!r.user && !r.externalUserRef) {
                         <span>
-                            <!-- i don't know what this is -->
+                            <!-- anonymized reservations -->
                             <br />
                             <span class="reservation">N/A</span>
                         </span>
@@ -130,8 +130,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <a [routerLink]="['/staff/assessments', r.enrolment.exam.id]">{{
                                 r.enrolment.exam.name
                             }}</a>
-                        }
-                        @if (r.enrolment.collaborativeExam || (!isAdminView && !isSupportView)) {
+                        } @else {
                             <span>{{ r.enrolment.exam.name }}</span>
                         }
                     </td>

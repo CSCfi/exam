@@ -163,6 +163,7 @@ export class ReviewListService {
                 id: exam.id,
                 state: state,
                 grade: exam.grade,
+                gradingType: exam.gradingType || (exam.grade ? 'GRADED' : 'NOT_GRADED'),
                 customCredit: exam.customCredit,
                 totalScore: exam.totalScore,
                 creditType: exam.creditType,

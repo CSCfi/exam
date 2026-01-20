@@ -825,6 +825,14 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             .findOne();
         logout();
 
+        // Update reservation times to ensure they're still in the future when DELETE is called
+        // This prevents 403 errors if login/logout took time or test runs slowly
+        reservation = DB.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
+        DateTime now = DateTime.now();
+        reservation.setStartAt(now.plusHours(2));
+        reservation.setEndAt(now.plusHours(3));
+        reservation.update();
+
         Result result = request(Helpers.DELETE, "/integration/iop/reservations/" + RESERVATION_REF, null);
         assertThat(result.status()).isEqualTo(200);
 
@@ -840,36 +848,26 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
      */
     private DateTime[] createSafeTimes() {
         DateTime now = DateTime.now();
-        DateTime startTime = now.plusMinutes(30); // Start in 30 minutes
-        DateTime endTime = now.plusMinutes(90); // End in 90 minutes
-
-        // If this would cross midnight, move it to a safe time today
         DateTime midnight = now.plusDays(1).withMillisOfDay(0);
-        if (startTime.isAfter(midnight) || endTime.isAfter(midnight)) {
-            // If we're close to midnight, schedule for a safe time earlier today
-            // But ensure it's still in the future
-            DateTime safeStart = now.withHourOfDay(10).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            DateTime safeEnd = safeStart.plusHours(1);
+        // Use 2 hours before midnight as the latest safe time to account for test execution
+        DateTime latestSafeTime = midnight.minusHours(2);
 
-            // If 10 AM is in the past, use the original future times but cap at 23:30
-            if (safeEnd.isBefore(now)) {
-                // Use original times but ensure they don't cross midnight
-                startTime = now.plusMinutes(30);
-                endTime = now.plusMinutes(90);
+        // Start 1 hour from now, end 2 hours from now
+        DateTime startTime = now.plusHours(1);
+        DateTime endTime = now.plusHours(2);
 
-                // If still crossing midnight, cap at 23:30
-                DateTime latestStart = now
-                    .withHourOfDay(23)
-                    .withMinuteOfHour(30)
-                    .withSecondOfMinute(0)
-                    .withMillisOfSecond(0);
-                if (startTime.isAfter(latestStart)) {
-                    startTime = latestStart;
-                    endTime = startTime.plusMinutes(30); // Short reservation to stay before midnight
-                }
-            } else {
-                startTime = safeStart;
-                endTime = safeEnd;
+        // If end time would be after latest safe time, cap it
+        if (endTime.isAfter(latestSafeTime)) {
+            endTime = latestSafeTime;
+            startTime = endTime.minusHours(1);
+        }
+
+        // Ensure start time is in the future (should always be true, but safety check)
+        if (startTime.isBefore(now)) {
+            startTime = now.plusMinutes(30);
+            endTime = startTime.plusHours(1);
+            if (endTime.isAfter(latestSafeTime)) {
+                endTime = latestSafeTime;
             }
         }
 
