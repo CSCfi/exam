@@ -32,7 +32,6 @@ import miscellaneous.config.ConfigReader;
 import miscellaneous.json.JsonDeserializer;
 import models.exam.Exam;
 import models.iop.CollaborativeExam;
-import models.user.Role;
 import models.user.User;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -142,7 +141,7 @@ public class CollaborationController extends BaseController {
             }
         }
         return (
-            user.getLoginRole() == Role.Name.ADMIN ||
+            user.isAdminOrSupport() ||
             (exam
                     .getExamOwners()
                     .stream()
@@ -157,7 +156,7 @@ public class CollaborationController extends BaseController {
 
     boolean isUnauthorizedToAssess(Exam exam, User user) {
         return (
-            user.getLoginRole() != Role.Name.ADMIN &&
+            !user.isAdminOrSupport() &&
             (exam
                     .getExamOwners()
                     .stream()
