@@ -1138,5 +1138,6 @@
     "i18n_dashboard_submissions": "Palautukset",
     "i18n_dashboard_to_lock": "Lukittavat",
     "i18n_unknown_machine": "Tuntematon kone",
-    "i18n_uploading": "Ladataan"
+    "i18n_uploading": "Ladataan",
+    "i18n_question_not_graded": "Arvioimatta"
 }
