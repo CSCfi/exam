@@ -50,6 +50,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.EnrolmentRepository;
+import scala.jdk.javaapi.CollectionConverters;
 
 public class SessionController extends BaseController {
 
@@ -110,9 +111,9 @@ public class SessionController extends BaseController {
             return wrapAsPromise(badRequest("No credentials!"));
         }
         String eppn = id.get();
-        Reservation externalReservation = getUpcomingExternalReservation(eppn, request.remoteAddress());
+        Reservation externalReservation = getUpcomingExternalReservation(eppn);
         boolean isTemporaryVisitor = externalReservation != null;
-        Optional<Result> validationError = validateUserLoginEligibility(isTemporaryVisitor, eppn);
+        Optional<Result> validationError = validateUserLoginEligibility(isTemporaryVisitor, eppn, request);
         if (validationError.isPresent()) {
             return wrapAsPromise(validationError.get());
         }
@@ -157,9 +158,9 @@ public class SessionController extends BaseController {
         if (user == null) {
             return wrapAsPromise(unauthorized("i18n_error_unauthenticated"));
         }
-        Reservation externalReservation = getUpcomingExternalReservation(user.getEppn(), request.remoteAddress());
+        Reservation externalReservation = getUpcomingExternalReservation(user.getEppn());
         boolean isTemporaryVisitor = externalReservation != null;
-        return validateUserLoginEligibility(isTemporaryVisitor, user.getEppn())
+        return validateUserLoginEligibility(isTemporaryVisitor, user.getEppn(), request)
             .map(this::wrapAsPromise)
             .orElseGet(() -> {
                 user.setLastLogin(new Date());
@@ -205,16 +206,7 @@ public class SessionController extends BaseController {
             });
     }
 
-    private Reservation getUpcomingExternalReservation(String eppn, String remoteAddress) {
-        // FIXME: Disable this check for now. It might bring unwanted functionality in some cases.
-        /*boolean onExamMachine = DB.find(ExamMachine.class)
-            .where()
-            .eq("ipAddress", remoteAddress)
-            .findOneOrEmpty()
-            .isPresent();
-        if (!onExamMachine) {
-            return null;
-        }*/
+    private Reservation getUpcomingExternalReservation(String eppn) {
         DateTime now = dateTimeHandler.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
         DateTime future = now.plusMinutes(lookAheadMinutes);
@@ -246,7 +238,7 @@ public class SessionController extends BaseController {
     private Language getLanguage(String code) {
         Language language = null;
         if (code != null) {
-            // for example: en-US -> en
+            // for example, en-US -> en
             String lcCode = code.split("-")[0].toLowerCase();
             var lang = configReader.getSupportedLanguages().contains(lcCode) ? lcCode : "en";
             language = DB.find(Language.class, lang);
@@ -277,7 +269,7 @@ public class SessionController extends BaseController {
     private String parseStudentIdValue(String src) {
         // urn:schac:personalUniqueCode:int:someID:xyz.fi:99999 => 9999
         String value = src.substring(src.lastIndexOf(":") + 1);
-        return value.isBlank() || value.isEmpty() ? "null" : value;
+        return value.isBlank() ? "null" : value;
     }
 
     private String parseUserIdentifier(String src) {
@@ -381,13 +373,23 @@ public class SessionController extends BaseController {
         return user;
     }
 
-    private Optional<Result> validateUserLoginEligibility(boolean isTemporaryVisitor, String eppn) {
+    private Optional<Result> validateUserLoginEligibility(
+        boolean isTemporaryVisitor,
+        String eppn,
+        Http.Request request
+    ) {
         boolean isLocalUser = configReader.isLocalUser(eppn);
-        if (!isTemporaryVisitor && !isLocalUser && configReader.isHomeOrganisationRequired()) {
+        boolean homeOrgRequired = configReader.isHomeOrganisationRequired();
+        // block external (non-local) users when home org required — only for non–temp-visitors
+        boolean blockExternal = !isTemporaryVisitor && !isLocalUser && homeOrgRequired;
+        // Temp visitor must be on an exam machine (when home org required and not local)
+        boolean blockTempVisitorWrongMachine =
+            isTemporaryVisitor && !enrolmentRepository.isOnExamMachine(request) && !isLocalUser && homeOrgRequired;
+        if (blockExternal || blockTempVisitorWrongMachine) {
             return Optional.of(
                 badRequest("i18n_error_disallowed_login_with_external_domain_credentials").withHeader(
                     "x-exam-delay-execution",
-                    "true"
+                    String.join(", ", CollectionConverters.asJava(configReader.getHomeOrganisations()))
                 )
             );
         }
@@ -429,12 +431,16 @@ public class SessionController extends BaseController {
         } else if (!isLocalAccount) {
             // External account
             result.put("externalUserOrg", user.getEppn().split("@")[1]);
+            result.put(
+                "homeOrganisations",
+                String.join(", ", CollectionConverters.asJava(configReader.getHomeOrganisations()))
+            );
             payload.put("role", studentRole.getName());
         } else if (user.getRoles().size() == 1) {
             // Local account with a single role - automatically set it
             payload.put("role", user.getRoles().getFirst().getName());
         }
-        // Local account with multiple roles: don't set role, let user choose via setLoginRole
+        // Local account with multiple roles: don't set a role, let user choose via setLoginRole
         result.set("roles", Json.toJson(roles));
         return checkStudentSession(request, new Http.Session(payload), ok(result));
     }

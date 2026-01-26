@@ -193,8 +193,12 @@ export class SessionService implements OnDestroy {
                 }),
                 catchError((resp) => {
                     // case where we need to delay logout so error message can be shown for user to see.
-                    if (resp.headers.get('x-exam-delay-execution') === 'true') {
-                        this.toast.error(this.i18n.instant(resp.error), '', { timeOut: 10000 });
+                    if (resp.headers.get('x-exam-delay-execution')) {
+                        const orgs = resp.headers.get('x-exam-delay-execution');
+                        this.toast.error(`${this.i18n.instant(resp.error)}: ${orgs}.`, 'Notice', {
+                            timeOut: 10000,
+                            positionClass: 'toast-center-center',
+                        });
                         setTimeout(() => this.logout(), 10000);
                     } else {
                         this.logout();
@@ -222,7 +226,7 @@ export class SessionService implements OnDestroy {
         const modalRef = this.modal.open(ExternalLoginConfirmationDialogComponent, {
             backdrop: 'static',
             keyboard: true,
-            size: 'm',
+            size: 'lg',
         });
         modalRef.componentInstance.user = user;
         return from(modalRef.result).pipe(map(() => user));

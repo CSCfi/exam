@@ -182,7 +182,7 @@ public class EnrolmentRepository {
         return headers;
     }
 
-    private boolean isOnExamMachine(Http.RequestHeader request) {
+    public boolean isOnExamMachine(Http.RequestHeader request) {
         return db.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findOneOrEmpty().isPresent();
     }
 
