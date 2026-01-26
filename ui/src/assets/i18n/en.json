@@ -1137,5 +1137,6 @@
     "i18n_dashboard_period": "Period",
     "i18n_dashboard_submissions": "Submissions",
     "i18n_dashboard_to_lock": "To lock",
-    "i18n_unknown_machine": "Unknown machine"
+    "i18n_unknown_machine": "Unknown machine",
+    "i18n_question_not_graded": "Not graded"
 }
