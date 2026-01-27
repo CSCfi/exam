@@ -446,7 +446,6 @@
     "i18n_begin": "Alkaa",
     "i18n_end": "Päättyy",
     "i18n_room_in_service": "Tila käytössä",
-    "i18n_canceled": "Peruttu",
     "i18n_already_enrolled": "Olet jo ilmoittautunut kyseiseen tenttiin. Voit muuttaa ajanvaraustasi Työpöydän kautta.",
     "i18n_exam_questions": "Tenttikysymykset",
     "i18n_minimum_of_two_options_required": "Kysymyksellä tulee olla vähintään kaksi vastausvaihtoehtoa",
