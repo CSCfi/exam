@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import type { OnDestroy } from '@angular/core';
 import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -11,7 +11,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable, Unsubscribable } from 'rxjs';
-import { Subject, defer, from, interval, of, throwError } from 'rxjs';
+import { EMPTY, Subject, defer, from, interval, of, throwError } from 'rxjs';
 import { catchError, delay, map, switchMap, tap } from 'rxjs/operators';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { ExternalLoginConfirmationDialogComponent } from './eula/external-login-confirmation-dialog.component';
@@ -191,9 +191,14 @@ export class SessionService implements OnDestroy {
                     }
                     this.redirect(u);
                 }),
-                catchError((resp) => {
+                catchError((resp: HttpErrorResponse | undefined) => {
+                    // If resp is undefined (e.g., user dismissed modal), complete without error
+                    if (!resp) {
+                        this.logout();
+                        return EMPTY;
+                    }
                     // case where we need to delay logout so error message can be shown for user to see.
-                    if (resp.headers.get('x-exam-delay-execution')) {
+                    else if (resp.headers.get('x-exam-delay-execution')) {
                         const orgs = resp.headers.get('x-exam-delay-execution');
                         this.toast.error(`${this.i18n.instant(resp.error)}: ${orgs}.`, 'Notice', {
                             timeOut: 10000,
@@ -203,7 +208,7 @@ export class SessionService implements OnDestroy {
                     } else {
                         this.logout();
                     }
-                    return throwError(() => new Error(resp));
+                    return throwError(() => resp);
                 }),
             );
 
