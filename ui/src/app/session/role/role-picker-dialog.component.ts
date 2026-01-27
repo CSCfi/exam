@@ -33,7 +33,7 @@ import type { User } from 'src/app/session/session.model';
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-danger" (click)="activeModal.dismiss('i18n_canceled')">
+            <button class="btn btn-danger" (click)="activeModal.dismiss()">
                 {{ 'i18n_button_decline' | translate }}
             </button>
         </div>
