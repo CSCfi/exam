@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import miscellaneous.json.JsonDeserializer;
 import models.admin.GeneralSettings;
 import models.assessment.AutoEvaluationConfig;
@@ -59,6 +58,7 @@ import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
@@ -212,8 +212,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         room = DB.find(ExamRoom.class, 1L);
         room.setExternalRef(ROOM_REF);
-        room.getExamMachines().get(0).setIpAddress("127.0.0.1");
-        room.getExamMachines().get(0).update();
+        room.getExamMachines().getFirst().setIpAddress("127.0.0.1");
+        room.getExamMachines().getFirst().update();
         room.update();
 
         enrolment = new ExamEnrolment();
@@ -223,7 +223,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         GeneralSettings gs = new GeneralSettings();
         gs.setName("reservation_window_size");
         gs.setValue("60");
-        gs.setId(3l);
+        gs.setId(3L);
         gs.save();
     }
 
@@ -244,7 +244,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             ISODateTimeFormat.date().print(LocalDate.now())
         );
         Result result = get(url);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(2);
         ArrayNode an = (ArrayNode) node;
@@ -262,7 +262,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.setUser(user);
         reservation.setStartAt(DateTime.now().plusMinutes(90));
         reservation.setEndAt(DateTime.now().plusHours(2));
-        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setMachine(room.getExamMachines().getFirst());
         reservation.save();
         ExamEnrolment enrolment2 = new ExamEnrolment();
         enrolment2.setExam(exam2);
@@ -279,7 +279,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             ISODateTimeFormat.date().print(LocalDate.now())
         );
         Result result = get(url);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(2);
         ArrayNode an = (ArrayNode) node;
@@ -299,13 +299,13 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             .getExamMachines()
             .stream()
             .filter(em -> !em.getOutOfService())
-            .collect(Collectors.toList())
+            .toList()
             .size();
 
         GeneralSettings gs = new GeneralSettings();
         gs.setName("reservation_window_size");
         gs.setValue("60");
-        gs.setId(3l);
+        gs.setId(3L);
         gs.save();
 
         String url = String.format(
@@ -317,7 +317,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             180
         );
         Result result = get(url);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode node = Json.parse(contentAsString(result));
         ArrayNode an = (ArrayNode) node;
         // This could be empty if we ran this on a Sunday after 13 PM :)
@@ -349,7 +349,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
                 .put("orgRef", "1234")
                 .put("orgName", "1234")
         );
-        assertThat(result.status()).isEqualTo(201);
+        assertThat(result.status()).isEqualTo(Http.Status.CREATED);
         Reservation reservation = DB.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(reservation).isNotNull();
         assertThat(reservation.getMachine().getRoom().getExternalRef()).isEqualTo(ROOM_REF);
@@ -367,11 +367,11 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(DateTime.now().plusHours(2));
         reservation.setEndAt(DateTime.now().plusHours(3));
-        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setMachine(room.getExamMachines().getFirst());
         reservation.save();
 
         Result result = request(Helpers.DELETE, "/integration/iop/reservations/" + RESERVATION_REF, null);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         Reservation removed = DB.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(removed).isNull();
     }
@@ -397,7 +397,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         enrolment.update();
 
         Result result = request(Helpers.DELETE, "/integration/iop/reservations/" + RESERVATION_REF + "/force", null);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
 
         ExamEnrolment ee = DB.find(ExamEnrolment.class, enrolment.getId());
         assertThat(ee.getReservation()).isNull();
@@ -425,7 +425,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         enrolment.update();
 
         Result result = request(Helpers.DELETE, "/integration/iop/reservations/" + RESERVATION_REF + "/force", null);
-        assertThat(result.status()).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(Http.Status.FORBIDDEN);
 
         ExamEnrolment ee = DB.find(ExamEnrolment.class, enrolment.getId());
         assertThat(ee.getReservation()).isNotNull();
@@ -443,7 +443,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.setExternalUserRef("testuser@test.org");
         reservation.setStartAt(DateTime.now().plusHours(2));
         reservation.setEndAt(DateTime.now().plusHours(3));
-        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setMachine(room.getExamMachines().getFirst());
 
         reservation.save();
 
@@ -452,7 +452,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             "/app/iop/reservations/external/" + RESERVATION_REF + "/force",
             Json.newObject().put("msg", "msg")
         );
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         Reservation removed = DB.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(removed).isNull();
     }
@@ -468,7 +468,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(DateTime.now().minusHours(1));
         reservation.setEndAt(DateTime.now().plusHours(2));
-        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setMachine(room.getExamMachines().getFirst());
 
         reservation.save();
 
@@ -477,7 +477,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             "/app/iop/reservations/external/" + RESERVATION_REF + "/force",
             Json.newObject().put("msg", "msg")
         );
-        assertThat(result.status()).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(Http.Status.FORBIDDEN);
         Reservation removed = DB.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(removed).isNotNull();
     }
@@ -507,14 +507,14 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(DateTime.now().plusHours(2));
         reservation.setEndAt(DateTime.now().plusHours(3));
-        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setMachine(room.getExamMachines().getFirst());
         reservation.save();
 
         enrolment.setReservation(reservation);
         enrolment.update();
 
         Result result = get("/integration/iop/reservations/" + RESERVATION_REF);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode body = Json.parse(contentAsString(result));
         Exam ee = deserialize(Exam.class, body);
         assertThat(ee.getId()).isEqualTo(exam.getId());
@@ -550,7 +550,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(startTime);
         reservation.setEndAt(endTime);
-        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setMachine(room.getExamMachines().getFirst());
         reservation.save();
 
         login(eppn);
@@ -569,7 +569,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         // Try do some teacher stuff, see that it is not allowed
         result = get("/app/reviewerexams");
-        assertThat(result.status()).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(Http.Status.FORBIDDEN);
 
         // see that enrolment was created for the user
         ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
@@ -587,12 +587,12 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     }
 
     @Test
-    public void testLoginAsTemporalStudentVisitorUnknownMachine() throws Exception {
+    public void testLoginAsTemporalStudentVisitorUnknownMachine() {
         initialize(null);
         String eppn = "newuser@other.org";
         assertThat(user).isNull();
 
-        ExamMachine machine = room.getExamMachines().get(0);
+        ExamMachine machine = room.getExamMachines().getFirst();
         machine.setIpAddress("128.2.2.2");
         machine.update();
 
@@ -609,11 +609,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.setMachine(room.getExamMachines().getFirst());
         reservation.save();
 
-        login(eppn);
-
-        // See that user is informed of wrong ip
-        Result result = get("/app/session");
-        assertThat(result.headers().containsKey("x-exam-unknown-machine")).isTrue();
+        loginExpectFailure(eppn);
     }
 
     @Test
@@ -631,7 +627,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.set("sectionIds", Json.newArray().add(1));
 
         Result result = request(Helpers.POST, "/app/iop/reservations/external", json);
-        assertThat(result.status()).isEqualTo(201);
+        assertThat(result.status()).isEqualTo(Http.Status.CREATED);
 
         JsonNode body = Json.parse(contentAsString(result));
         assertThat(body.asText()).isEqualTo(RESERVATION_REF);
@@ -656,7 +652,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testRequestReservationAndReEnrollBeforeAssessmentReturned() throws Exception {
+    public void testRequestReservationAndReEnrollBeforeAssessmentReturned() {
         initialize(null);
 
         ObjectNode json = Json.newObject();
@@ -682,7 +678,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             "/app/enrolments/" + this.exam.getId(),
             Json.newObject().put("code", this.exam.getCourse().getCode())
         );
-        assertThat(result2.status()).isEqualTo(403);
+        assertThat(result2.status()).isEqualTo(Http.Status.FORBIDDEN);
     }
 
     @Test
@@ -697,7 +693,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Reservation reservation = new Reservation();
         reservation.setStartAt(DateTime.now().minusMinutes(10));
         reservation.setEndAt(DateTime.now().plusMinutes(10));
-        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setMachine(room.getExamMachines().getFirst());
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
@@ -710,7 +706,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("roomId", ROOM_REF);
         Result result = request(Helpers.POST, "/app/iop/reservations/external", json);
 
-        assertThat(result.status()).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(Http.Status.FORBIDDEN);
         assertThat(contentAsString(result).equals("i18n_error_enrolment_not_found"));
 
         // Verify
@@ -751,7 +747,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("roomId", ROOM_REF);
         Result result = request(Helpers.POST, "/app/iop/reservations/external", json);
 
-        assertThat(result.status()).isEqualTo(201);
+        assertThat(result.status()).isEqualTo(Http.Status.CREATED);
         assertThat(contentAsString(result).equals("i18n_error_enrolment_not_found"));
 
         // Verify
@@ -784,7 +780,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         enrolment.update();
 
         Result result = request(Helpers.DELETE, "/app/iop/reservations/external/" + RESERVATION_REF, null);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
 
         ExamEnrolment ee = DB.find(ExamEnrolment.class, enrolment.getId());
         assertThat(ee.getReservation()).isNull();
@@ -800,7 +796,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     }
 
     @Test
-    public void testRequestReservationRemovalAfterRemoteLogin() throws Exception {
+    public void testRequestReservationRemovalAfterRemoteLogin() {
         initialize(null);
         String eppn = "newuser@test.org";
         assertThat(user).isNull();
@@ -815,7 +811,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(startTime);
         reservation.setEndAt(endTime);
-        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setMachine(room.getExamMachines().getFirst());
         reservation.save();
 
         login(eppn);
@@ -834,7 +830,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         reservation.update();
 
         Result result = request(Helpers.DELETE, "/integration/iop/reservations/" + RESERVATION_REF, null);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
 
         assertThat(DB.find(Reservation.class, reservation.getId())).isNull();
         assertThat(DB.find(ExamEnrolment.class, enrolment.getId())).isNull();
