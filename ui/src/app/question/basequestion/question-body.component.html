@@ -191,21 +191,30 @@ SPDX-License-Identifier: EUPL-1.2
             <button class="btn btn-success" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</button>
             @if (question.attachment && !question.attachment?.removed) {
                 <div class="make-inline ps-2">
-                    @if (hasUploadedAttachment()) {
-                        <!-- Uploaded -->
-                        <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
-                            <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
-                        </a>
-                    } @else {
-                        <!-- Not yet uploaded -->
-                        <span class="attachment-link">
-                            <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
-                            <small class="ps-2">{{ getFileSize() }}</small>
-                        </span>
-                    }
-                    <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
+                    <button
+                        type="button"
+                        class="btn btn-link"
+                        [disabled]="!hasUploadedAttachment()"
+                        (click)="downloadQuestionAttachment()"
+                        [attr.aria-label]="'i18n_download_attachment' | translate"
+                    >
+                        <i class="bi-paperclip" aria-hidden="true"></i>
+                        @if (!hasUploadedAttachment()) {
+                            {{ 'i18n_uploading' | translate }}:
+                        }
+                        {{ question.attachment?.fileName }}
+                        @if (!hasUploadedAttachment()) {
+                            <small>({{ getFileSize() }})</small>
+                        }
+                    </button>
+                    <button
+                        type="button"
+                        class="remove-attachment border-none background-none"
+                        (click)="removeQuestionAttachment()"
+                        [attr.aria-label]="'i18n_remove_attachment' | translate"
+                    >
                         <img src="/assets/images/icon_remove.svg" alt="{{ 'i18n_remove_attachment' | translate }}" />
-                    </span>
+                    </button>
                 </div>
             }
         </div>

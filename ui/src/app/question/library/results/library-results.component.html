@@ -178,8 +178,12 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <td>
                             @if (question.attachment) {
-                                <button class="btn btn-link btn-sm" (click)="downloadQuestionAttachment(question)">
-                                    <i class="bi-paperclip"></i>{{ question.attachment.fileName }}
+                                <button
+                                    class="btn btn-link btn-sm"
+                                    (click)="downloadQuestionAttachment(question)"
+                                    [attr.aria-label]="'i18n_download_attachment' | translate"
+                                >
+                                    <i class="bi-paperclip" aria-hidden="true"></i>{{ question.attachment.fileName }}
                                 </button>
                             }
                         </td>

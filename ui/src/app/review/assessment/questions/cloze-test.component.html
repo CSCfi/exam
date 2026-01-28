@@ -49,9 +49,14 @@ SPDX-License-Identifier: EUPL-1.2
             @if (reviewExpanded && sectionQuestion.question.attachment) {
                 <div class="ps-0 mt-2 mb-3 notice-text">
                     {{ 'i18n_question_attachment' | translate }}:
-                    <a class="pointer" (click)="downloadQuestionAttachment()">
-                        {{ sectionQuestion.question.attachment?.fileName }}</a
+                    <button
+                        type="button"
+                        class="btn btn-link"
+                        (click)="downloadQuestionAttachment()"
+                        [attr.aria-label]="'i18n_download_attachment' | translate"
                     >
+                        {{ sectionQuestion.question.attachment?.fileName }}
+                    </button>
                 </div>
             }
 
