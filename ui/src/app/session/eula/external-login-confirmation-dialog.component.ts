@@ -11,12 +11,12 @@ import { User } from 'src/app/session/session.model';
     imports: [TranslateModule],
     template: `
         <div class="modal-header">
-            <h1 class="xm-modal-title">{{ 'i18n_status_notice' | translate }}</h1>
+            <h1 class="xm-modal-title">
+                {{ 'i18n_external_organisation_login' | translate }} ({{ user.homeOrganisations }})
+            </h1>
         </div>
         <div class="modal-body">
-            {{ 'i18n_external_organisation_login' | translate }} <strong>{{ user.externalUserOrg }}</strong
-            >&period;
-            {{ 'i18n_external_organisation_login_description' | translate }}
+            {{ 'i18n_external_organisation_login_description' | translate }}: {{ user.externalUserOrg }}?
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-success" (click)="activeModal.close()" autofocus>

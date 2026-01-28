@@ -64,7 +64,7 @@ export class DevLoginComponent {
         if (blur) (event.target as HTMLElement).blur();
         this.Session.login$(this.username, this.password).subscribe({
             next: (user) => this.loggedIn.emit(user),
-            error: (err) => console.log(JSON.stringify(err)),
+            error: (err) => console.error(JSON.stringify(err)),
         });
     };
 }
