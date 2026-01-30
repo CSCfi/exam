@@ -1099,7 +1099,7 @@
     "i18n_minor_agreement_update": "Muutos jota ei tarvitse tiedottaa käyttäjille",
     "i18n_exam_reservation_canceled": "Tenttivaraus peruttu",
     "i18n_confirm_delete_exam_reservation": "Haluatko poistaa tenttiajanvarauksen?",
-    "i18n_error_disallowed_login_with_external_domain_credentials": "Voit kirjautua EXAM-järjestelmään vain seuraavilla käyttäjätunnuksilla:",
+    "i18n_error_disallowed_login_with_external_domain_credentials": "Voit kirjautua EXAM-järjestelmään vain seuraavilla käyttäjätunnuksilla",
     "i18n_external_organisation_login": "Olet kirjautumassa palveluun: EXAM",
     "i18n_external_organisation_login_description": "Oletko varma, että haluat kirjautua tunnuksella",
     "i18n_point_graded": "Vain pisteet (ei arvosanaa)",
