@@ -34,14 +34,6 @@ SPDX-License-Identifier: EUPL-1.2
         <strong class="col-md-9">{{ printExamDuration() }}</strong>
     </div>
     <div class="row">
-        <div class="col-md-3">{{ 'i18n_exam_room' | translate }}:</div>
-        <strong class="col-md-9"
-            >{{ reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; {{ reservation.machine.room.name }}({{
-                reservation.machine.room.roomCode
-            }})</strong
-        >
-    </div>
-    <div class="row">
         <div class="col-md-3">{{ 'i18n_reservation_time' | translate }}:</div>
         <strong class="col-md-9"
             >{{ reservation.startAt | date: 'dd.MM.yyyy' }} {{ occasion.startAt }} - {{ occasion.endAt }} ({{
