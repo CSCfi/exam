@@ -9,13 +9,10 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-12 alert alert-danger">
             <h4 class="alert-heading">{{ 'i18n_logged_on_wrong_machine' | translate }}</h4>
             {{ 'i18n_current_wrong_machine_title' | translate }}: {{ 'i18n_unknown_machine' | translate }}<br />
-            {{ 'i18n_reserved_machine' | translate }}: {{ reservation.machine.name }}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-3">{{ 'i18n_reserved_room' | translate }}:</div>
-        <div class="col-md-9 text-success">
-            {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
+            {{ 'i18n_reserved_machine' | translate }}: {{ reservation.machine.name }}<br />
+            {{ 'i18n_reserved_room' | translate }}: {{ reservation.machine.room.name }} ({{
+                reservation.machine.room.roomCode
+            }})
         </div>
     </div>
     <div class="row mt-2">
