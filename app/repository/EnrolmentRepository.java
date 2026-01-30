@@ -250,7 +250,7 @@ public class EnrolmentRepository {
                         examMachine.getName(),
                         start,
                         zone.getID(),
-                        local
+                        local ? "false" : enrolment.getId()
                     );
                 } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                     // Right room, wrong machine

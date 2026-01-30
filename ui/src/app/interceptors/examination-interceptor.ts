@@ -35,7 +35,7 @@ export class ExaminationInterceptor implements HttpInterceptor {
                             this.WrongLocation.display(parts); // Show warning notice on screen
                         } else {
                             this.ExaminationStatus.notifyWrongLocation();
-                            this.router.navigate(['/unknownlocation', parts[0]]);
+                            this.router.navigate(['/unknownlocation', parts[parts.length - 1]]);
                         }
                     } else if (wrongRoom) {
                         const parts = this.b64ToUtf8(wrongRoom).split(':::');
