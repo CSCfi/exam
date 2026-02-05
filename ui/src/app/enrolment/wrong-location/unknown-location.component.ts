@@ -21,16 +21,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     selector: 'xm-unknown-location',
     templateUrl: './unknown-location.component.html',
     imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
-    styles: [
-        `
-            .exams-list-title-text {
-                font-size: 1.4em;
-                font-weight: 400;
-                letter-spacing: 1px;
-                vertical-align: middle;
-            }
-        `,
-    ],
 })
 export class UnknownLocationComponent implements OnInit {
     enrolment!: ExamEnrolment;
