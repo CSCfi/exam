@@ -425,10 +425,9 @@ public class ExaminationController extends BaseController {
         if (ep.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             now = DateTime.now();
         } else {
-            now =
-                ep.getReservation() == null
-                    ? dateTimeHandler.adjustDST(DateTime.now())
-                    : dateTimeHandler.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
+            now = ep.getReservation() == null
+                ? dateTimeHandler.adjustDST(DateTime.now())
+                : dateTimeHandler.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
         }
         ep.setEnded(now);
         ep.setDuration(new DateTime(ep.getEnded().getMillis() - ep.getStarted().getMillis()));

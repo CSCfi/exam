@@ -176,8 +176,9 @@ public class CalendarHandlerImpl implements CalendarHandler {
     @Override
     public LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws IllegalArgumentException {
         int windowSize = getReservationWindowSize();
-        DateTimeZone dtz =
-            room != null ? DateTimeZone.forID(room.getLocalTimezone()) : configReader.getDefaultTimeZone();
+        DateTimeZone dtz = room != null
+            ? DateTimeZone.forID(room.getLocalTimezone())
+            : configReader.getDefaultTimeZone();
         int startOffset = dtz.getOffset((exam.getPeriodStart()));
         int offset = dtz.getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
@@ -305,10 +306,9 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 if (concernsAnotherExam.isPresent()) {
                     // User has a reservation to another exam, do not allow making overlapping reservations
                     Reservation reservation = concernsAnotherExam.get();
-                    String conflictingExam =
-                        reservation.getEnrolment().getExam() != null
-                            ? reservation.getEnrolment().getExam().getName()
-                            : reservation.getEnrolment().getCollaborativeExam().getName();
+                    String conflictingExam = reservation.getEnrolment().getExam() != null
+                        ? reservation.getEnrolment().getExam().getName()
+                        : reservation.getEnrolment().getCollaborativeExam().getName();
                     results.add(new TimeSlot(reservation.toInterval(), -1, conflictingExam));
                     continue;
                 } else {

@@ -33,8 +33,7 @@ import play.mvc.Results;
 
 public class CollaborativeAttachmentController
     extends CollaborationController
-    implements CollaborativeAttachmentInterface<Long, CollaborativeExam>
-{
+    implements CollaborativeAttachmentInterface<Long, CollaborativeExam> {
 
     @Inject
     private WSClient wsClient;

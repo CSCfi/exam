@@ -112,10 +112,9 @@ public class ReportController extends BaseController {
             if (!roomMap.containsKey(key)) {
                 roomMap.put(key, new ArrayList<>());
             }
-            DateTime examStart =
-                enrolment.getExternalExam() != null
-                    ? enrolment.getExternalExam().getStarted()
-                    : enrolment.getExam().getCreated();
+            DateTime examStart = enrolment.getExternalExam() != null
+                ? enrolment.getExternalExam().getStarted()
+                : enrolment.getExam().getCreated();
             roomMap.get(key).add(new Participation(examStart));
         }
         // Fill in the rooms that have no associated participations
