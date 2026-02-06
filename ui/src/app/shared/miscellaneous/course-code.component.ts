@@ -1,4 +1,8 @@
-import { Component, Input } from '@angular/core';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { Component, Input, inject } from '@angular/core';
 import type { Course } from 'src/app/exam/exam.model';
 import { CourseCodeService } from './course-code.service';
 
@@ -9,12 +13,12 @@ import { CourseCodeService } from './course-code.service';
             <span>{{ formatCode() }}</span>
         }
     `,
-    standalone: true,
     imports: [],
 })
 export class CourseCodeComponent {
     @Input() course!: Course;
-    constructor(private CodeService: CourseCodeService) {}
+
+    private CodeService = inject(CourseCodeService);
 
     formatCode = () => this.CodeService.formatCode(this.course.code);
 }

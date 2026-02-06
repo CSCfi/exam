@@ -1,19 +1,10 @@
-/*
- * Copyright (c) 2021 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { ComponentRef, OnDestroy, OnInit } from '@angular/core';
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewContainerRef, inject } from '@angular/core';
+import { MathJaxService } from 'src/app/shared/math/mathjax.service';
 import { hashString } from 'src/app/shared/miscellaneous/helpers';
 
 type ClozeTestAnswer = { [key: string]: string };
@@ -32,7 +23,8 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
 
     componentRef?: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
 
-    constructor(private el: ElementRef) {}
+    private el = inject(ElementRef);
+    private mathJaxService = inject(MathJaxService);
 
     ngOnInit() {
         const parser = new DOMParser();
@@ -56,6 +48,7 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
         // Replace temporary input attributes with Angular input-directives
         const clozeTemplate = doc.body.innerHTML.replace(/data-input-handler/g, '(input)');
         // Compile component and module with formatted cloze template
+        const mathJaxService = this.mathJaxService;
         const clozeComponent = Component({
             template: clozeTemplate,
             selector: `xm-dyn-ct-${hashString(clozeTemplate)}`,
@@ -75,7 +68,7 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
                                 n.textContent = n.textContent.replace(/&#125;/g, '}');
                             }
                         });
-                    MathJax.Hub.Queue(['Typeset', MathJax.Hub, this.el.nativeElement]);
+                    mathJaxService.typeset([this.el.nativeElement]);
                 }
                 handleChange(event: { target: HTMLInputElement }) {
                     this.onInput(event);

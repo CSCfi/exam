@@ -1,36 +1,21 @@
-import { formatDate, NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NgbActiveModal, NgbDropdownModule, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { Component, Input, inject } from '@angular/core';
+import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { areIntervalsOverlapping, eachDayOfInterval } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { range } from 'ramda';
+import { RepetitionConfig } from 'src/app/facility/facility.model';
 import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
-import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
-import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import { DateTimeService, REPEAT_OPTION } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-
-enum ORDINAL {
-    First = 'FIRST',
-    Second = 'SECOND',
-    Third = 'THIRD',
-    Fourth = 'FOURTH',
-    Last = 'LAST',
-}
+import { groupBy } from 'src/app/shared/miscellaneous/helpers';
+import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetition-options.component';
 
 @Component({
-    standalone: true,
-    imports: [
-        FormsModule,
-        TranslateModule,
-        NgClass,
-        DateTimePickerComponent,
-        DatePickerComponent,
-        NgbTimepickerModule,
-        NgbDropdownModule,
-    ],
+    imports: [TranslateModule, ExceptionDialogRepetitionOptionsComponent, NgbDropdownModule],
     templateUrl: './exception-dialog.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],
     styles: '.blue-shadow-hover:hover { box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1); }',
@@ -38,75 +23,32 @@ enum ORDINAL {
 export class ExceptionDialogComponent {
     @Input() outOfService = true;
     @Input() exceptions: ExceptionWorkingHours[] = [];
-    dateOptions = {
-        'starting-day': 1,
-    };
+
     dateFormat = 'yyyy.MM.dd HH:mm';
-    startDate: Date = new Date();
-    endDate: Date = new Date();
-    date: Date = new Date();
-    startTime: { hour: number; minute: number; second: number };
-    endTime: { hour: number; minute: number; second: number };
     wholeDay = false;
-    weekdayOfMonth: { selected: boolean; day: string; number: number };
-    monthOfYear: { selected: boolean; month: string; number: number };
-    dayOfMonth = 1;
-    selectableWeekDays: { selected: boolean; day: string; number: number }[];
-    selectableMonths: { selected: boolean; month: string; number: number }[];
     repeatOptions: REPEAT_OPTION[] = Object.values(REPEAT_OPTION);
     repeats: REPEAT_OPTION = REPEAT_OPTION.once;
-    isNumericNotWeekday = true;
-    weeks = [range(1, 8), range(8, 15), range(15, 22), range(22, 29)];
-    ordinals: { ordinal: string; number: number }[] = Object.values(ORDINAL).map((o, i) => ({ ordinal: o, number: i }));
-    selectedOrdinal: { ordinal: string; number: number };
+    options: RepetitionConfig = { start: new Date(), end: new Date(), weekdays: [] };
 
-    constructor(
-        private translate: TranslateService,
-        private activeModal: NgbActiveModal,
-        private toast: ToastrService,
-        private dateTime: DateTimeService,
-        private dialogs: ConfirmationDialogService,
-    ) {
-        this.startDate.setMinutes(60, 0);
-        this.endDate.setMinutes(60, 0);
-        this.selectableWeekDays = this.dateTime.getWeekdayNames(true).map((d, i) => {
-            return { selected: true, day: d, number: i === 6 ? 0 : i + 1 }; // 1-7 mo-su converted to 0-6 su-sa
-        });
-        this.weekdayOfMonth = this.selectableWeekDays[0];
-        this.selectableMonths = this.dateTime.getMonthNames().map((m, i) => {
-            return { selected: true, month: m, number: i + 1 };
-        });
-        this.monthOfYear = this.selectableMonths[0];
-        this.selectedOrdinal = this.ordinals[0];
-        this.startTime = { hour: this.date.getHours(), minute: 0, second: 0 };
-        this.endTime = { hour: this.date.getHours(), minute: 0, second: 0 };
-    }
+    readonly REPEAT_OPTION = REPEAT_OPTION;
+
+    private translate = inject(TranslateService);
+    private activeModal = inject(NgbActiveModal);
+    private toast = inject(ToastrService);
+    private dateTime = inject(DateTimeService);
+    private dialogs = inject(ConfirmationDialogService);
 
     ok = () => {
-        if (this.wholeDay) {
-            this.startDate.setHours(0, 0, 0);
-            this.endDate.setHours(23, 59, 59);
-            this.startTime.hour = 0;
-            this.startTime.minute = 0;
-            this.endTime.hour = 23;
-            this.endTime.minute = 59;
-        }
-        if (
-            this.repeats === REPEAT_OPTION.once
-                ? this.startDate >= this.endDate
-                : this.startTime.hour * 100 + this.startTime.minute >= this.endTime.hour * 100 + this.endTime.minute ||
-                  new Date(this.startDate.getFullYear(), this.startDate.getMonth() + 1, this.startDate.getDate()) >
-                      new Date(this.endDate.getFullYear(), this.endDate.getMonth() + 1, this.endDate.getDate())
-        ) {
+        if (this.options.start >= this.options.end) {
             this.toast.error(this.translate.instant('i18n_endtime_before_starttime'));
             return;
         }
-        switch (this.repeats.toString()) {
-            case 'ONCE': {
+        switch (this.repeats) {
+            case REPEAT_OPTION.once: {
                 this.repeatOnce();
                 break;
             }
-            case 'DAILY_WEEKLY': {
+            case REPEAT_OPTION.daily_weekly: {
                 this.repeatWeekly();
                 break;
             }
@@ -125,244 +67,156 @@ export class ExceptionDialogComponent {
         }
     };
 
-    repeatOnce() {
-        const result = [
-            {
-                startDate: this.startDate,
-                endDate: this.endDate,
-                outOfService: this.outOfService,
-            },
-        ];
-        if (this.isOverlapping(this.exceptions, result)) {
-            return;
-        }
-        this.activeModal.close(result);
-    }
-    repeatWeekly() {
-        const wkd = this.selectableWeekDays.filter((d) => d.selected).map((d) => d.number);
-        const weeklyExceptions = this.getFilteredExceptionDates(wkd);
-        const result = this.parseExceptionDays(weeklyExceptions);
-        const message =
-            this.selectableWeekDays
-                .filter((d) => d.selected)
-                .map((d) => ' ' + d.day)
-                .toString() + '.';
-        this.endDialogue(message, result);
-    }
-    repeatMonthly() {
-        const monthlyExceptions = this.getFilteredExceptionDates().filter((date) =>
-            this.isNumericNotWeekday ? true : this.weekdayOfMonth.number === date.getDay(),
-        );
-        const result = this.parseExceptionDays(monthlyExceptions);
-        const message =
-            this.translate.instant('i18n_of_month') +
-            ' ' +
-            (this.isNumericNotWeekday
-                ? this.dayOfMonth + '. ' + this.translate.instant('i18n_day')
-                : this.translate.instant('i18n_' + this.selectedOrdinal.ordinal.toLowerCase()) +
-                  ' ' +
-                  this.weekdayOfMonth.day) +
-            '.';
-        this.endDialogue(message, result);
-    }
-
-    repeatYearly() {
-        const yearlyExceptions = this.getFilteredExceptionDates()
-            .filter((date) => (this.isNumericNotWeekday ? true : this.weekdayOfMonth.number === date.getDay()))
-            .filter((date) => this.monthOfYear.number === date.getMonth() + 1);
-        const result = this.parseExceptionDays(yearlyExceptions);
-        const message =
-            this.translate.instant('i18n_year').toLowerCase() +
-            ' ' +
-            this.monthOfYear.month +
-            ' ' +
-            (this.isNumericNotWeekday
-                ? this.dayOfMonth + '. ' + this.translate.instant('i18n_day')
-                : this.translate.instant('i18n_' + this.selectedOrdinal.ordinal.toLowerCase()).toLowerCase() +
-                  ' ' +
-                  this.weekdayOfMonth.day) +
-            '.';
-        this.endDialogue(message, result);
-    }
-
-    isOverlapping(
-        oldExceptions: ExceptionWorkingHours[],
-        newExceptions: { startDate: Date; endDate: Date; outOfService: boolean }[],
-    ): boolean {
-        const overlapExceptions = oldExceptions.filter((exception) =>
-            newExceptions
-                .map((newException) =>
-                    areIntervalsOverlapping(
-                        { start: new Date(exception.startDate), end: new Date(exception.endDate) },
-                        { start: newException.startDate, end: newException.endDate },
-                    ),
-                )
-                .includes(true),
-        );
-        if (overlapExceptions.length > 0) {
-            const message =
-                this.translate.instant('i18n_room_closed_overlap') +
-                ': ' +
-                overlapExceptions
-                    .map(
-                        (e) =>
-                            e.ownerRoom ||
-                            this.translate.instant('i18n_this_room') +
-                                ': ' +
-                                formatDate(e.startDate, this.dateFormat, this.translate.currentLang) +
-                                '-' +
-                                formatDate(e.endDate, this.dateFormat, this.translate.currentLang),
-                    )
-                    .toString();
-            this.toast.error(message);
-            return true;
-        }
-        return false;
-    }
-
-    endDialogue(repetitionMessage: string, result: { startDate: Date; endDate: Date; outOfService: boolean }[]) {
-        if (this.isOverlapping(this.exceptions, result)) {
-            return;
-        }
-        this.dialogs
-            .open$(
-                this.translate.instant('i18n_confirm'),
-                this.translate.instant('i18n_confirm_adding_x') +
-                    ' ' +
-                    result.length +
-                    ' ' +
-                    this.translate.instant('i18n_x_exceptions') +
-                    ' ' +
-                    this.translate.instant('i18n_and_repeats_every_x') +
-                    ' ' +
-                    repetitionMessage +
-                    ' ' +
-                    this.translate.instant('i18n_exception_happens_at') +
-                    ' ' +
-                    this.startTime.hour +
-                    ':' +
-                    (this.startTime.minute.toString().length === 1 ? '0' : '') +
-                    this.startTime.minute +
-                    ' - ' +
-                    this.endTime.hour +
-                    ':' +
-                    (this.endTime.minute.toString().length === 1 ? '0' : '') +
-                    this.endTime.minute +
-                    '.',
-            )
-            .subscribe({
-                next: () => this.activeModal.close(result),
-                error: (err) => this.toast.error(err),
-            });
-    }
-
     cancel = () => {
         this.activeModal.dismiss();
     };
 
-    getFilteredExceptionDates(selectedWeekdays?: number[]): Date[] {
-        const suitableDays = this.isNumericNotWeekday ? [this.dayOfMonth] : this.weeks[this.selectedOrdinal.number];
-        return eachDayOfInterval({
-            start: this.startDate,
-            end: this.endDate,
-        }).filter((date) => {
-            if (selectedWeekdays) {
-                return [...selectedWeekdays].includes(date.getDay());
-            }
-            return this.selectedOrdinal.number === 4
-                ? this.calculateLastWeek(date).includes(date.getDate())
-                : suitableDays.includes(date.getDate());
-        });
-    }
-
-    calculateLastWeek = (date: Date): number[] => {
-        const d = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        const result: number[] = [];
-        for (let i = d.getDate(); i > d.getDate() - 7; i--) {
-            result.push(i);
-        }
-        return result;
+    optionChanged = (option: RepetitionConfig) => {
+        this.options = option;
     };
 
-    parseExceptionDays(exceptionDays: Date[]): {
-        startDate: Date;
-        endDate: Date;
-        outOfService: boolean;
-    }[] {
-        return exceptionDays.map((day) => {
-            const startDate = new Date(day);
-            startDate.setHours(this.startTime.hour, this.startTime.minute);
-            const endDate = new Date(day);
-            endDate.setHours(this.endTime.hour, this.endTime.minute);
-            return {
-                startDate: startDate,
-                endDate: endDate,
+    private repeatOnce() {
+        const startDate = DateTime.fromJSDate(this.options.start);
+        const endDate = DateTime.fromJSDate(this.options.end);
+        const result: ExceptionWorkingHours[] = [
+            {
+                id: 0,
+                startDate: startDate.toISO()!,
+                startDateTimezoneOffset: startDate.offset,
+                endDate: endDate.toISO()!,
+                endDateTimezoneOffset: endDate.offset,
                 outOfService: this.outOfService,
-            };
+            },
+        ];
+        const overlapCheck = [{ start: this.options.start, end: this.options.end }];
+        if (this.isOverlapping(this.exceptions, overlapCheck)) {
+            return;
+        }
+        this.activeModal.close(result);
+    }
+
+    private repeatWeekly() {
+        const weekdays = this.options.weekdays.map((wd) => wd.ord);
+        const interval = this.dateTime.eachDayOfInterval(this.options.start, this.options.end);
+        const matches = interval.filter((d) => weekdays.includes(d.weekday));
+
+        const result = this.parseExceptionDays(matches);
+        const translations = this.dateTime.getWeekdayNames(true).map((d, i) => {
+            return { name: d, number: i === 6 ? 0 : i + 1 }; // 1-7 mo-su converted to 0-6 su-sa
+        });
+        const message = translations.filter((d) => weekdays.includes(d.number)).map((d) => ' ' + d.name) + '.';
+        this.endDialogue(message, result);
+    }
+
+    private repeatMonthly() {
+        const interval = this.dateTime.eachDayOfInterval(this.options.start, this.options.end);
+        const matches = this.options.dayOfMonth
+            ? interval.filter((d) => d.day === this.options.dayOfMonth) // day of month
+            : this.groupByMonth(
+                  interval.filter((d) => d.weekday === this.options.monthlyWeekday?.ord),
+                  this.options.monthlyOrdinal?.ord as number,
+                  this.options.start,
+              );
+
+        const result = this.parseExceptionDays(matches);
+        const message =
+            this.translate.instant('i18n_of_month') +
+            ' ' +
+            (this.options.dayOfMonth
+                ? this.options.dayOfMonth + '. ' + this.translate.instant('i18n_day')
+                : this.translate.instant('i18n_' + this.options.monthlyOrdinal?.name.toLowerCase()) +
+                  ' ' +
+                  this.options.monthlyWeekday?.name) +
+            '.';
+        this.endDialogue(message, result);
+    }
+
+    private repeatYearly() {
+        const interval = this.dateTime.eachDayOfInterval(this.options.start, this.options.end);
+        const matches = this.options.dayOfMonth
+            ? interval
+                  .filter((d) => d.day === this.options.dayOfMonth)
+                  .filter((d) => d.month === this.options.yearlyMonth?.ord)
+            : this.groupByMonth(
+                  interval.filter((d) => d.weekday === this.options.monthlyWeekday?.ord),
+                  this.options.monthlyOrdinal?.ord as number,
+                  this.options.start,
+              ).filter((d) => d.month === this.options.yearlyMonth?.ord);
+        const message = [
+            this.translate.instant('i18n_year').toLowerCase(),
+            this.options.yearlyMonth?.name,
+            this.options.dayOfMonth
+                ? `${this.options.dayOfMonth}.${this.translate.instant('i18n_day')}`
+                : `${this.translate.instant('i18n_' + this.options.monthlyOrdinal?.name.toLowerCase()).toLowerCase()} ${this.options.monthlyWeekday?.name}`,
+        ].join(' ');
+        this.endDialogue(message, this.parseExceptionDays(matches));
+    }
+
+    private groupByMonth(dates: DateTime[], ord: number, min: Date) {
+        const minDateTime = DateTime.fromJSDate(min);
+        const datesFromBeginningOfMonth = dates.concat(
+            this.dateTime
+                .eachDayOfInterval(minDateTime.startOf('month').toJSDate(), minDateTime.minus({ days: 1 }).toJSDate())
+                .filter((d) => d.weekday === this.options.monthlyWeekday?.ord),
+        );
+        const grouped = groupBy(datesFromBeginningOfMonth, (d) => d.month.toString());
+        const index = (xs: unknown[]) => {
+            if (ord == 5) return xs.length - 1;
+            else if (ord - 1 > xs.length - 1) return -1;
+            else return ord - 1;
+        };
+        return Object.values(grouped)
+            .filter((ds) => !!ds)
+            .filter((ds) => index(ds as unknown[]) >= 0)
+            .map((ds) => {
+                const ds2 = (ds as DateTime[]).sort((a, b) => a.toMillis() - b.toMillis());
+                return ds2[index(ds2)];
+            })
+            .filter((d) => d && d.toJSDate() >= min);
+    }
+
+    private parseExceptionDays = (exceptionDays: DateTime[]) =>
+        exceptionDays.map((day) => ({
+            start: day.set({ hour: this.options.start.getHours(), minute: this.options.start.getMinutes() }).toJSDate(),
+            end: day.set({ hour: this.options.end.getHours(), minute: this.options.end.getMinutes() }).toJSDate(),
+        }));
+
+    private endDialogue(repetitionMessage: string, result: { start: Date; end: Date }[]) {
+        if (this.isOverlapping(this.exceptions, result)) {
+            return;
+        }
+        const results = result.map((r) => ({ startDate: r.start, endDate: r.end, outOfService: this.outOfService }));
+        const msg = [
+            this.translate.instant('i18n_confirm_adding_x'),
+            results.length,
+            this.outOfService
+                ? this.translate.instant('i18n_x_out_of_service_exceptions')
+                : this.translate.instant('i18n_x_in_service_exceptions'),
+            this.translate.instant('i18n_and_repeats_every_x'),
+            repetitionMessage,
+            this.translate.instant('i18n_exception_happens_at'),
+            DateTime.fromJSDate(this.options.start).toLocaleString(DateTime.TIME_24_SIMPLE),
+            '-',
+            DateTime.fromJSDate(this.options.end).toLocaleString(DateTime.TIME_24_SIMPLE),
+        ].join(' ');
+        this.dialogs.open$(this.translate.instant('i18n_confirm'), msg).subscribe({
+            next: () => this.activeModal.close(results),
         });
     }
 
-    onStartTimeDateChange = (e: { date: Date }) => {
-        this.startDate = new Date(e.date);
-        if (this.endDate < e.date) {
-            this.endDate = new Date(e.date);
+    private isOverlapping = (existing: ExceptionWorkingHours[], fresh: { start: Date; end: Date }[]) => {
+        const intervals = existing.map((oe) => ({ start: oe.startDate, end: oe.endDate }));
+        const overlaps =
+            intervals.length > 0 &&
+            fresh.some((f) =>
+                intervals.some((i) =>
+                    this.dateTime.intervalsOverlap(f, { start: new Date(i.start), end: new Date(i.end) }),
+                ),
+            );
+        if (overlaps) {
+            this.toast.error(this.translate.instant('i18n_room_closed_overlap'));
+            return true;
         }
+        return false;
     };
-    onEndTimeDateChange = (e: { date: Date }) => {
-        this.endDate = new Date(e.date);
-        if (this.startDate > e.date) {
-            this.startDate = new Date(e.date);
-        }
-    };
-
-    onStartDateChange(e: { date: Date | null }) {
-        if (e.date) {
-            this.startDate = new Date(e.date);
-            if (this.endDate < e.date) {
-                this.endDate = new Date(e.date);
-            }
-        }
-    }
-
-    onEndDateChange(e: { date: Date | null }) {
-        if (e.date) {
-            this.endDate = new Date(e.date);
-            if (this.startDate > e.date) {
-                this.startDate = new Date(e.date);
-            }
-        }
-    }
-
-    onStartTimeChange() {
-        if (this.startTime.hour * 100 + this.startTime.minute > this.endTime.hour * 100 + this.endTime.minute) {
-            this.endTime = this.startTime;
-        }
-    }
-
-    onEndTimeChange() {
-        if (this.startTime.hour * 100 + this.startTime.minute > this.endTime.hour * 100 + this.endTime.minute) {
-            this.startTime = this.endTime;
-        }
-    }
-
-    updateRepeatOption(select: REPEAT_OPTION) {
-        this.repeats = select;
-    }
-
-    selectWholeWeek() {
-        const toggle = !this.selectableWeekDays[0].selected;
-        this.selectableWeekDays.forEach((d) => {
-            d.selected = toggle;
-        });
-    }
-
-    updateDayOfMonth(selectedWeekday: { selected: boolean; day: string; number: number }) {
-        this.weekdayOfMonth = selectedWeekday;
-    }
-    updateMonthOfYear(selectedMonth: { selected: boolean; month: string; number: number }) {
-        this.monthOfYear = selectedMonth;
-    }
-    updateOrdinal(selectedOrdinal: { ordinal: string; number: number }) {
-        this.selectedOrdinal = selectedOrdinal;
-    }
 }

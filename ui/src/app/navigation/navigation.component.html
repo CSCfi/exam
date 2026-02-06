@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 @if (user) {
     <nav aria-label="side navigation" id="nav" class="hidden-print">
         <a class="skip skip-main" id="skip-button-main" [href]="getSkipLinkPath('#mainView')">{{
@@ -140,7 +146,10 @@
                             <div class="user-data">
                                 {{ user.firstName }}&nbsp;{{ user.lastName }}
                                 <br />
-                                <span [hidden]="!user.isStudent">{{ 'i18n_student' | translate }} </span>
+                                <span [hidden]="!user.isStudent">{{ 'i18n_student' | translate }}</span>
+                                @if (user.externalUserOrg) {
+                                    <small>(&commat;{{ user.externalUserOrg }})</small>
+                                }
                             </div>
                         </div>
                     </li>
@@ -167,6 +176,9 @@
                             {{ user.firstName }}&nbsp;{{ user.lastName }}
                             <br />
                             <span [hidden]="!user.isStudent">{{ 'i18n_student' | translate }} </span>
+                            @if (user.externalUserOrg) {
+                                <small>(&commat;{{ user.externalUserOrg }})</small>
+                            }
                         </div>
                     </div>
                 </div>

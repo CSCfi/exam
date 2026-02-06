@@ -3,10 +3,11 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { KeyValuePipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { groupBy } from 'ramda';
-import { QueryParams, StatisticsService } from 'src/app/administrative/statistics/statistics.service';
+import { QueryParams } from 'src/app/administrative/administrative.model';
+import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 import { Reservation } from 'src/app/reservation/reservation.model';
 
 @Component({
@@ -73,21 +74,20 @@ import { Reservation } from 'src/app/reservation/reservation.model';
         }
     `,
     selector: 'xm-iop-reservation-statistics',
-    standalone: true,
     imports: [KeyValuePipe, TranslateModule],
 })
 export class IopReservationStatisticsComponent {
     @Input() queryParams: QueryParams = {};
-
     reservations: Reservation[] = [];
     grouped: Record<string, Reservation[]> = {};
 
-    constructor(private Statistics: StatisticsService) {}
+    private Statistics = inject(StatisticsService);
 
     listReservations = () =>
         this.Statistics.listIopReservations$(this.queryParams).subscribe((resp) => {
             const byOrg = groupBy((r: Reservation) => r.externalOrgName || r.externalReservation?.orgName || '');
             this.grouped = byOrg(resp) as Record<string, Reservation[]>;
+            console.log(this.grouped);
         });
 
     incomingFrom = (org: keyof typeof this.grouped): number =>

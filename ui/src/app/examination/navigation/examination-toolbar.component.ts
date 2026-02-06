@@ -1,20 +1,10 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -34,7 +24,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     selector: 'xm-examination-toolbar',
     templateUrl: './examination-toolbar.component.html',
     styleUrls: ['../examination.shared.scss', './examination-toolbar.component.scss'],
-    standalone: true,
     imports: [NgClass, NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
 })
 export class ExaminationToolbarComponent implements OnInit {
@@ -47,18 +36,16 @@ export class ExaminationToolbarComponent implements OnInit {
     room?: ExamRoom;
     tab?: number;
 
-    constructor(
-        private http: HttpClient,
-        private router: Router,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Session: SessionService,
-        private Examination: ExaminationService,
-        private Attachment: AttachmentService,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private http = inject(HttpClient);
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Session = inject(SessionService);
+    private Examination = inject(ExaminationService);
+    private Attachment = inject(AttachmentService);
+    private Enrolment = inject(EnrolmentService);
 
     ngOnInit() {
         this.tab = this.route.snapshot.queryParams.tab;

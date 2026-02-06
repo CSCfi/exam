@@ -1,8 +1,13 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package impl;
 
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.forbidden;
 
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,21 +21,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.ExamFeedbackConfig;
-import models.ExamType;
-import models.Grade;
-import models.GradeEvaluation;
-import models.GradeScale;
-import models.Language;
-import models.Role;
-import models.User;
+import miscellaneous.config.ConfigReader;
+import models.assessment.AutoEvaluationConfig;
+import models.assessment.ExamFeedbackConfig;
+import models.assessment.GradeEvaluation;
+import models.enrolment.ExamEnrolment;
+import models.exam.Exam;
+import models.exam.ExamExecutionType;
+import models.exam.ExamType;
+import models.exam.Grade;
+import models.exam.GradeScale;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
 import models.sections.ExamSection;
+import models.user.Language;
+import models.user.Role;
+import models.user.User;
 import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -39,7 +45,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
 import scala.concurrent.duration.Duration;
-import util.config.ConfigReader;
 
 public class ExamUpdaterImpl implements ExamUpdater {
 
@@ -124,7 +129,12 @@ public class ExamUpdaterImpl implements ExamUpdater {
                     return err;
                 }
                 // no sections named
-                if (exam.getExamSections().stream().anyMatch(section -> section.getName() == null)) {
+                if (
+                    exam
+                        .getExamSections()
+                        .stream()
+                        .anyMatch(section -> section.getName() == null)
+                ) {
                     return Optional.of(badRequest("i18n_exam_contains_unnamed_sections"));
                 }
                 if (exam.getExamLanguages().isEmpty()) {
@@ -224,7 +234,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     @Override
     public boolean isPermittedToUpdate(Exam exam, User user) {
-        return user.hasRole(Role.Name.ADMIN) || exam.isOwnedOrCreatedBy(user);
+        return user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) || exam.isOwnedOrCreatedBy(user);
     }
 
     @Override
@@ -400,7 +410,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                 reason = "i18n_error_end_date";
             } else if (start.get().isAfter(end.get())) {
                 reason = "i18n_error_end_sooner_than_start";
-            }/*else if (end.get().isBeforeNow()) { // CSCEXAM-1127
+            } /*else if (end.get().isBeforeNow()) { // CSCEXAM-1127
                 reason = "i18n_error_end_sooner_than_now";
             }*/
         }

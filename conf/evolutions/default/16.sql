@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 ALTER TABLE exam_section_question ADD id BIGINT;
 ALTER TABLE exam_section_question DROP CONSTRAINT pk_exam_section_question;

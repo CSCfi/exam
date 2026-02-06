@@ -1,34 +1,25 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, inject, signal } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
-import type { ExamSectionQuestion, ReverseQuestion, Tag } from 'src/app/exam/exam.model';
-import type { QuestionDraft } from 'src/app/question/question.service';
+import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
+import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
+import type { QuestionDraft } from 'src/app/question/question.model';
+import { ExamSectionQuestion, ReverseQuestion, Tag } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { TagPickerComponent } from 'src/app/question/tags/tag-picker.component';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { ClaimChoiceEditorComponent } from './claim-choice.component';
 import { EssayEditorComponent } from './essay.component';
 import { MultipleChoiceEditorComponent } from './multiple-choice.component';
@@ -37,21 +28,20 @@ import { MultipleChoiceEditorComponent } from './multiple-choice.component';
     selector: 'xm-question-body',
     templateUrl: './question-body.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,
         NgClass,
-        CKEditorComponent,
         EssayEditorComponent,
         MultipleChoiceEditorComponent,
         ClaimChoiceEditorComponent,
+        QuestionBasicInfoComponent,
+        QuestionUsageComponent,
         NgbTypeahead,
         TagPickerComponent,
         TranslateModule,
     ],
     styleUrls: ['../question.shared.scss'],
-    styles: '.initial-width { width: initial !important; }',
 })
 export class QuestionBodyComponent implements OnInit {
     @Input() question!: ReverseQuestion | QuestionDraft;
@@ -69,14 +59,13 @@ export class QuestionBodyComponent implements OnInit {
     newType = '';
     questionTypes: { type: string; name: string }[] = [];
     hideRestExams = true;
+    multichoiceFeaturesOn = signal(false);
 
-    constructor(
-        private http: HttpClient,
-        private cdr: ChangeDetectorRef,
-        private Session: SessionService,
-        private Attachment: AttachmentService,
-        private Question: QuestionService,
-    ) {}
+    private http = inject(HttpClient);
+    private cdr = inject(ChangeDetectorRef);
+    private Session = inject(SessionService);
+    private Attachment = inject(AttachmentService);
+    private Question = inject(QuestionService);
 
     ngOnInit() {
         this.questionTypes = [
@@ -90,11 +79,12 @@ export class QuestionBodyComponent implements OnInit {
         this.init();
     }
 
-    setQuestionType = () => {
-        this.question.type = this.Question.getQuestionType(this.newType);
+    setQuestionType = ($event: string) => {
+        this.question.type = this.Question.getQuestionType($event);
         this.init();
         this.cdr.detectChanges();
     };
+    setText = ($event: string) => (this.question.question = $event);
 
     showWarning = () => this.examNames.length > 1;
 
@@ -112,9 +102,7 @@ export class QuestionBodyComponent implements OnInit {
             map((users) => users.filter((u) => this.currentOwners.map((o) => o.id).indexOf(u.id) === -1).slice(0, 15)),
         );
 
-    nameFormat = (u: User & { name: string }) => {
-        return u.name;
-    };
+    nameFormat = (u: User) => `${u.firstName} ${u.lastName} <${u.email}>`;
 
     setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) =>
         // Using template to store the selected user
@@ -178,12 +166,6 @@ export class QuestionBodyComponent implements OnInit {
         return a && (a.id || a.externalId);
     };
 
-    updateEvaluationType = () => {
-        if (this.question.defaultEvaluationType === 'Selection') {
-            delete this.question.defaultMaxScore;
-        }
-    };
-
     removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);
 
     isUserAllowedToModifyOwners = () => {
@@ -206,5 +188,8 @@ export class QuestionBodyComponent implements OnInit {
         // remove duplicates
         this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort();
         this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
+        this.Question.areNewFeaturesEnabled$().subscribe((data) => {
+            this.multichoiceFeaturesOn.set(data.multichoiceFeaturesOn);
+        });
     };
 }

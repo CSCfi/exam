@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <table class="table table-striped table-sm xm-data-table px-3 mt-4">
     <thead>
         <tr>
@@ -71,13 +77,8 @@
                 >
                 </xm-table-sort>
             </th>
-            @if (isAdminView) {
-                <th class="reservation-search wrap">{{ 'i18n_remove_reservation' | translate }}</th>
-            }
-            @if (isAdminView) {
-                <th class="reservation-search wrap">
-                    {{ 'i18n_change_reservation_machine' | translate }}
-                </th>
+            @if (isAdminView || isSupportView) {
+                <th class="reservation-search wrap">{{ 'i18n_actions' | translate }}</th>
             }
         </tr>
     </thead>
@@ -98,7 +99,7 @@
                     }
                     @if (!r.user && !r.externalUserRef) {
                         <span>
-                            <!-- i don't know what this is -->
+                            <!-- anonymized reservations -->
                             <br />
                             <span class="reservation">N/A</span>
                         </span>
@@ -119,25 +120,20 @@
                     <td class="reservation-search">
                         {{ r.enrolment.exam.name }}
                     </td>
-                } @else {
-                    @if (!r.enrolment.exam.external) {
-                        <td class="reservation-search">
-                            @if (
-                                !r.enrolment.collaborativeExam &&
-                                r.enrolment.exam.id &&
-                                (isAdminView || r.enrolment.exam.state !== 'ABORTED')
-                            ) {
-                                <a [routerLink]="['/staff/assessments', r.enrolment.exam.id]">{{
-                                    r.enrolment.exam.name
-                                }}</a>
-                            }
-                            @if (
-                                r.enrolment.collaborativeExam || (!isAdminView && r.enrolment.exam.state === 'ABORTED')
-                            ) {
-                                <span>{{ r.enrolment.exam.name }}</span>
-                            }
-                        </td>
-                    }
+                } @else if (!r.enrolment.exam.external) {
+                    <td class="reservation-search">
+                        @if (
+                            !r.enrolment.collaborativeExam &&
+                            r.enrolment.exam.id &&
+                            (isAdminView || isSupportView || r.enrolment.exam.state !== 'ABORTED')
+                        ) {
+                            <a [routerLink]="['/staff/assessments', r.enrolment.exam.id]">{{
+                                r.enrolment.exam.name
+                            }}</a>
+                        } @else {
+                            <span>{{ r.enrolment.exam.name }}</span>
+                        }
+                    </td>
                 }
                 @if (r.enrolment.exam.external) {
                     <td class="reservation-search text-primary">
@@ -189,13 +185,12 @@
                 }
                 <td class="reservation-search">
                     @if (r.externalUserRef || r.enrolment.exam.implementation === 'AQUARIUM') {
-                        <span>
+                        @if (r.org) {
+                            {{ r.machine?.room?.name }}, {{ r.org.name }} ({{ r.org.code }})
+                        } @else {
                             {{ r.machine?.room?.name }}
-                            @if (r.org) {
-                                <span>,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
-                            }
-                            <br />{{ r.machine?.name }}
-                        </span>
+                        }
+                        <br />{{ r.machine?.name }}
                     }
                     @if (!r.externalUserRef && r.enrolment.exam.implementation !== 'AQUARIUM') {
                         <span><strong class="text text-primary">BYOD</strong></span>
@@ -204,48 +199,60 @@
                 <td class="reservation-search" [ngClass]="getStateClass(r)">
                     {{ 'i18n_exam_status_' + printExamState(r) | lowercase | translate }}
                 </td>
-                @if (isAdminView) {
-                    <td class="reservation-search">
-                        @if (
-                            r.enrolment.exam.state === 'PUBLISHED' &&
-                            !r.enrolment.noShow &&
-                            r.enrolment.exam.implementation === 'AQUARIUM' &&
-                            !reservationIsInPast(r)
-                        ) {
-                            <button (click)="removeReservation(r)" class="btn btn-sm btn-primary float-start">
-                                {{ 'i18n_remove_reservation' | translate }}
-                            </button>
-                        }
-                        @if (
-                            r.enrolment.exam.state === 'ABORTED' &&
-                            r.enrolment.exam.implementation === 'AQUARIUM' &&
-                            r.enrolment.exam.executionType.type === 'PUBLIC'
-                        ) {
-                            <button
-                                (click)="permitRetrial(r.enrolment)"
-                                [disabled]="!r.enrolment.exam.trialCount || r.enrolment.retrialPermitted"
-                                class="btn btn-sm btn-primary float-start"
-                            >
-                                {{
-                                    !r.enrolment.exam.trialCount || r.enrolment.retrialPermitted
-                                        ? ('i18n_retrial_permitted' | translate)
-                                        : ('i18n_permit_retrial' | translate)
-                                }}
-                            </button>
-                        }
-                    </td>
-                }
-                @if (isAdminView) {
-                    <td class="reservation-search">
-                        @if (
-                            r.enrolment.exam.state === 'PUBLISHED' &&
-                            !r.enrolment.noShow &&
-                            !r.externalReservation &&
-                            r.enrolment.exam.implementation === 'AQUARIUM'
-                        ) {
-                            <button (click)="changeReservationMachine(r)" class="btn btn-sm btn-primary float-start">
-                                {{ 'i18n_change_reservation_machine' | translate }}
-                            </button>
+                @if (isAdminView || isSupportView) {
+                    <td class="reservation-search pt-2">
+                        @if (hasAvailableActions(r)) {
+                            <div ngbDropdown>
+                                <button
+                                    class="btn btn-sm btn-outline-secondary"
+                                    type="button"
+                                    [id]="'actionsDropdown' + r.id"
+                                    ngbDropdownToggle
+                                >
+                                    {{ 'i18n_choose' | translate }}
+                                </button>
+                                <div ngbDropdownMenu [attr.aria-labelledby]="'actionsDropdown' + r.id">
+                                    @if (
+                                        isAdminView &&
+                                        r.enrolment.exam.state === 'PUBLISHED' &&
+                                        !r.enrolment.noShow &&
+                                        r.enrolment.exam.implementation === 'AQUARIUM' &&
+                                        !reservationIsInPast(r)
+                                    ) {
+                                        <button ngbDropdownItem class="text-danger" (click)="removeReservation(r)">
+                                            {{ 'i18n_remove_reservation' | translate }}
+                                        </button>
+                                    }
+                                    @if (
+                                        r.enrolment.exam.state === 'ABORTED' &&
+                                        r.enrolment.exam.executionType.type === 'PUBLIC'
+                                    ) {
+                                        <button
+                                            ngbDropdownItem
+                                            (click)="permitRetrial(r.enrolment)"
+                                            [disabled]="!r.enrolment.exam.trialCount || r.enrolment.retrialPermitted"
+                                        >
+                                            {{
+                                                !r.enrolment.exam.trialCount || r.enrolment.retrialPermitted
+                                                    ? ('i18n_retrial_permitted' | translate)
+                                                    : ('i18n_permit_retrial' | translate)
+                                            }}
+                                        </button>
+                                    }
+                                    @if (
+                                        r.enrolment.exam.state === 'PUBLISHED' &&
+                                        !r.enrolment.noShow &&
+                                        !r.externalReservation &&
+                                        r.enrolment.exam.implementation === 'AQUARIUM'
+                                    ) {
+                                        <button ngbDropdownItem (click)="changeReservationMachine(r)">
+                                            {{ 'i18n_change_reservation_machine' | translate }}
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        } @else {
+                            <span class="text-muted">&ndash;</span>
                         }
                     </td>
                 }

@@ -1,30 +1,19 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-import { NgClass, NgForOf } from '@angular/common';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import type { Course, Exam, ExamSection, Tag } from 'src/app/exam/exam.model';
-import type { LibraryQuestion } from 'src/app/question/library/library.service';
+import type { Course, Exam, ExamSection } from 'src/app/exam/exam.model';
 import { LibraryService } from 'src/app/question/library/library.service';
-import type { User } from 'src/app/session/session.service';
+import { LibraryQuestion, Tag } from 'src/app/question/question.model';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import { UserService } from 'src/app/shared/user/user.service';
@@ -42,17 +31,7 @@ interface Filterable<T> {
 @Component({
     selector: 'xm-library-search',
     templateUrl: './library-search.component.html',
-    standalone: true,
-    imports: [
-        NgClass,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        FormsModule,
-        TranslateModule,
-        NgForOf,
-    ],
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, FormsModule, TranslateModule],
 })
 export class LibrarySearchComponent implements OnInit {
     @Output() updated: EventEmitter<LibraryQuestion[]> = new EventEmitter<LibraryQuestion[]>();
@@ -72,12 +51,12 @@ export class LibrarySearchComponent implements OnInit {
     filteredOwners = this.owners;
     questions: LibraryQuestion[] = [];
 
-    constructor(
-        private Library: LibraryService,
-        private Session: SessionService,
-        private CourseCode: CourseCodeService,
-        private User: UserService,
-    ) {
+    private Library = inject(LibraryService);
+    private Session = inject(SessionService);
+    private CourseCode = inject(CourseCodeService);
+    private User = inject(UserService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 
@@ -209,9 +188,9 @@ export class LibrarySearchComponent implements OnInit {
     };
 
     listAllOwners$ = () => {
-        if (this.user.isAdmin) {
+        if (this.user.isAdmin || this.user.isSupport) {
             const owners = this.owners.filter((o) => o.filtered);
-            return this.User.listUsersByRoles$(['TEACHER', 'ADMIN'])
+            return this.User.listUsersByRoles$(['TEACHER', 'ADMIN', 'SUPPORT'])
                 .pipe(
                     tap((resp) => {
                         this.owners = this.filteredOwners = this.union(

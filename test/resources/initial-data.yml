@@ -1,53 +1,53 @@
 role:
 
-    - &admin !!models.Role
+    - &admin !!models.user.Role
       name: ADMIN
-    - &student !!models.Role
+    - &student !!models.user.Role
       name: STUDENT
-    - &teacher !!models.Role
+    - &teacher !!models.user.Role
       name: TEACHER
 
 organisations:
 
-    - &OulunYliopisto !!models.Organisation
+    - &OulunYliopisto !!models.facility.Organisation
       name: Oulun Yliopisto
       nameAbbreviation: OY
       code: oulu.fi
 
 exam-type:
 
-    - &partial !!models.ExamType
+    - &partial !!models.exam.ExamType
       type: PARTIAL
       deprecated: false
-    - &final !!models.ExamType
+    - &final !!models.exam.ExamType
       type: FINAL
       deprecated: false
 
 exam-execution-type:
 
-    - &public !!models.ExamExecutionType
+    - &public !!models.exam.ExamExecutionType
       type: PUBLIC
-    - &private !!models.ExamExecutionType
+    - &private !!models.exam.ExamExecutionType
       type: PRIVATE
-    - &maturity !!models.ExamExecutionType
+    - &maturity !!models.exam.ExamExecutionType
       type: MATURITY
-    - &printout !!models.ExamExecutionType
+    - &printout !!models.exam.ExamExecutionType
       type: PRINTOUT
 
 ################################################################
 
 languages:
 
-    - &fi !!models.Language
+    - &fi !!models.user.Language
       code: fi
       name: suomi
-    - &sv !!models.Language
+    - &sv !!models.user.Language
       code: sv
       name: svenska
-    - &en !!models.Language
+    - &en !!models.user.Language
       code: en
       name: English
-    - &de !!models.Language
+    - &de !!models.user.Language
       code: de
       name: Deutsch
 
@@ -55,7 +55,7 @@ languages:
 
 users:
 
-    - &adminUser !!models.User
+    - &adminUser !!models.user.User
       email:      admin@funet.fi
       eppn:       admin@funet.fi
       firstName:  Admin
@@ -66,7 +66,7 @@ users:
       roles:
          - *admin
 
-    - &olli !!models.User
+    - &olli !!models.user.User
       email:      teacher@funet.fi
       eppn:       teacher@funet.fi
       firstName:  Olli
@@ -76,7 +76,7 @@ users:
       roles:
           - *teacher
 
-    - &sauli !!models.User
+    - &sauli !!models.user.User
       email:      student@funet.fi
       eppn:       student@funet.fi
       firstName:  Sauli
@@ -87,7 +87,7 @@ users:
       roles:
           - *student
 
-    - &arvo !!models.User
+    - &arvo !!models.user.User
       email:      teacher@b.funet.fi
       eppn:       teacher@b.funet.fi
       firstName:  Arvon
@@ -102,83 +102,83 @@ users:
 ################################################################
 grade-scales:
 
-  - &zerotofive !!models.GradeScale
+  - &zerotofive !!models.exam.GradeScale
     description: ZERO_TO_FIVE
 
-  - &latin !!models.GradeScale
+  - &latin !!models.exam.GradeScale
     description: LATIN
 
-  - &approvedrejected !!models.GradeScale
+  - &approvedrejected !!models.exam.GradeScale
     description: APPROVED_REJECTED
 
 
 grades:
 
-  - !!models.Grade
+  - !!models.exam.Grade
     name: 0
     gradeScale: *zerotofive
 
-  - !!models.Grade
+  - !!models.exam.Grade
     name: 1
     gradeScale: *zerotofive
 
-  - !!models.Grade
+  - !!models.exam.Grade
     name: 2
     gradeScale: *zerotofive
 
-  - !!models.Grade
+  - !!models.exam.Grade
     name: 3
     gradeScale: *zerotofive
 
-  - !!models.Grade
+  - !!models.exam.Grade
     name: 4
     gradeScale: *zerotofive
 
-  - !!models.Grade
+  - !!models.exam.Grade
     name: 5
     gradeScale: *zerotofive
 
-  - !!models.Grade
+  - !!models.exam.Grade
     name: I
     gradeScale: *latin
 
-  - !!models.Grade
+  - !!models.exam.Grade
       name: I
       gradeScale: *latin
 
-  - !!models.Grade
+  - !!models.exam.Grade
       name: A
       gradeScale: *latin
 
-  - !!models.Grade
+  - !!models.exam.Grade
       name: B
       gradeScale: *latin
 
-  - !!models.Grade
+  - !!models.exam.Grade
       name: N
       gradeScale: *latin
 
-  - !!models.Grade
+  - !!models.exam.Grade
       name: C
       gradeScale: *latin
 
-  - !!models.Grade
+  - !!models.exam.Grade
       name: M
       gradeScale: *latin
 
-  - !!models.Grade
+  - !!models.exam.Grade
       name: E
       gradeScale: *latin
 
-  - !!models.Grade
+  - !!models.exam.Grade
       name: L
       gradeScale: *latin
 
-  - !!models.Grade
+  - !!models.exam.Grade
     name: APPROVED
     gradeScale: *approvedrejected
 
-  - !!models.Grade
+  - !!models.exam.Grade
     name: REJECTED
     gradeScale: *approvedrejected
 
@@ -447,6 +447,7 @@ question-weighted-multiple-choice:
       question: Kumpi vai kampi
       creator: *olli
       created: 2014-01-18 12:30:05.123
+      defaultNegativeScoreAllowed: true
       options:
           - &kampi !!models.questions.MultipleChoiceOption {option: Kampi, defaultScore: 1}
           - &kumpi !!models.questions.MultipleChoiceOption {option: Kumpi, defaultScore: 1}
@@ -470,123 +471,123 @@ question-claim-choice:
 
 courses:
 
-  - &alkeet !!models.Course
+  - &alkeet !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: 810136P
     name: Johdatus alkeiden perusteisiin
     credits: 5
 
-  - &tietokannat !!models.Course
+  - &tietokannat !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: 811380A
     name: Tietokantojen perusteet
     credits: 7
 
-  - &765104P !!models.Course
+  - &765104P !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: 765104P
     name: Astronomian perusteet
     credits: 8
 
-  - &811386A !!models.Course
+  - &811386A !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: 811386A
     name: Algoritmit
     credits: 5
     gradeScale: *zerotofive
 
-  - &812346A !!models.Course
+  - &812346A !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: 812346A
     name: Oliosuuntautunut analyysi ja suunnittelu
     credits: 5
 
-  - &ay905061Y !!models.Course
+  - &ay905061Y !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ay905061Y
     name: Arabian peruskurssi II
 
-  - &ayA113801 !!models.Course
+  - &ayA113801 !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ayA113801
     name: Historia 25
     credits: 25
 
-  - &ayA113301 !!models.Course
+  - &ayA113301 !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ayA113301
     name: Elämänkatsomustieto 25
     credits: 25
 
-  - &A110102 !!models.Course
+  - &A110102 !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: A110102
     name: Englantilainen filologia aineopinnot
     credits: 35
 
-  - &ayA114001 !!models.Course
+  - &ayA114001 !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ayA114001
     name: Japani-opinnot perusopintoja
     credits: 27
 
-  - &ayA110401 !!models.Course
+  - &ayA110401 !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ayA110401
     name: Suomen kieli
     credits: 25
 
-  - &ayA111501 !!models.Course
+  - &ayA111501 !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ayA111501
     name: Valtio-oppi
     credits: 25
 
-  - &ayA250504 !!models.Course
+  - &ayA250504 !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ayA250504
     name: Kasvatustiede
     credits: 25
 
-  - &ay900060A !!models.Course
+  - &ay900060A !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ay900060A
     name: Tekniikan viestintä
     credits: 2
     gradeScale: *zerotofive
 
-  - &ay464085A !!models.Course
+  - &ay464085A !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ay464085A
     name: Tuotesuojaus
     credits: 3.5
     gradeScale: *zerotofive
 
-  - &5010107K !!models.Course
+  - &5010107K !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: 5010107K
     name: Tilastollisten menetelmien työpaja jatko-opiskelijoille
     credits: 5
 
-  - &5119161 !!models.Course
+  - &5119161 !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: 5119161
     name: Sustainability and Natural Resources
     credits: 5
 
-  - !!models.Course
+  - !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: EKTA170
     name: Hyvä elämä ja etiikka
     credits: 5
 
-  - !!models.Course
+  - !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ERIA279
     name: Kandidaatin kypsyysnäyte
     credits: 0
 
-  - !!models.Course
+  - !!models.exam.Course
     institutionName: "Testing Yliopisto"
     code: ITKS452
     name: Requirements Engineering
@@ -597,25 +598,25 @@ courses:
 
 comments:
 
-  - &comment_sauli !!models.Comment
+  - &comment_sauli !!models.assessment.Comment
     comment: "Hyvin se Sauli vetää!"
 
 ################################################################
 
 softwares:
-  - &Matematica !!models.Software
+  - &Matematica !!models.facility.Software
     name: Matematica
 
-  - &Firefox !!models.Software
+  - &Firefox !!models.facility.Software
     name: Firefox
 
-  - &Excel !!models.Software
+  - &Excel !!models.facility.Software
     name: Excel
 
-  - &Mathcad !!models.Software
+  - &Mathcad !!models.facility.Software
     name: Mathcad
 
-  - &Notepad !!models.Software
+  - &Notepad !!models.facility.Software
     name: Notepad
 
 
@@ -623,7 +624,7 @@ softwares:
 
 exams:
 
-  - &alkeidenperusteetGraded !!models.Exam
+  - &alkeidenperusteetGraded !!models.exam.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *alkeet
@@ -650,7 +651,7 @@ exams:
       - *Firefox
       - *Matematica
 
-  - &alkeidenperusteetReview !!models.Exam
+  - &alkeidenperusteetReview !!models.exam.Exam
     creator: *sauli
     created: 2014-01-01 12:30:05.123
     course: *alkeet
@@ -672,7 +673,7 @@ exams:
       - *sv
       - *en
 
-  - &astronomianPerusteet !!models.Exam
+  - &astronomianPerusteet !!models.exam.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *765104P
@@ -692,7 +693,7 @@ exams:
       - *fi
       - *sv
 
-  - &tietokannat2013 !!models.Exam
+  - &tietokannat2013 !!models.exam.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
@@ -711,7 +712,7 @@ exams:
     examLanguages:
       - *fi
 
-  - &tietokannat2014 !!models.Exam
+  - &tietokannat2014 !!models.exam.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
@@ -730,7 +731,7 @@ exams:
     examLanguages:
       - *fi
 
-  - &algoritmit !!models.Exam
+  - &algoritmit !!models.exam.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *811386A
@@ -749,7 +750,7 @@ exams:
     examLanguages:
       - *de
 
-  - &ooad !!models.Exam
+  - &ooad !!models.exam.Exam
     creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *812346A
@@ -767,7 +768,7 @@ exams:
     examLanguages:
       - *sv
 
-  - &algoritmit_graded !!models.Exam
+  - &algoritmit_graded !!models.exam.Exam
     creator: *olli
     created: 2015-01-01 12:30:05.123
     parent: *algoritmit
@@ -1209,6 +1210,7 @@ section-questions:
     examSection: *osio2
     question: *weighted1
     sequenceNumber: 2
+    negativeScoreAllowed: true
     options:
       - !!models.sections.ExamSectionQuestionOption {option: *kumpi, score: 2}
       - !!models.sections.ExamSectionQuestionOption {option: *kampi, score: 2}
@@ -1218,6 +1220,7 @@ section-questions:
     examSection: *claimsection
     question: *claim1
     sequenceNumber: 0
+    negativeScoreAllowed: true
     options:
       - !!models.sections.ExamSectionQuestionOption {option: *tosi, score: -1}
       - !!models.sections.ExamSectionQuestionOption {option: *epatosi, score: 1}
@@ -1227,7 +1230,7 @@ section-questions:
 
 exam-participations:
 
-  - !!models.ExamParticipation
+  - !!models.enrolment.ExamParticipation
     user: *sauli
     exam: *ooad
     started: 2014-05-23 08:00:00.575
@@ -1235,7 +1238,7 @@ exam-participations:
     duration: 1970-01-01 02:00:00.000
     deadline: 2014-12-23 10:00:00.575
 
-  - !!models.ExamParticipation
+  - !!models.enrolment.ExamParticipation
     user: *sauli
     exam: *alkeidenperusteetGraded
     started: 2014-05-24 08:00:00.575
@@ -1243,7 +1246,7 @@ exam-participations:
     duration: 1970-01-01 02:00:00.000
     deadline: 2014-12-23 10:00:00.575
 
-  - !!models.ExamParticipation
+  - !!models.enrolment.ExamParticipation
     user: *sauli
     exam: *alkeidenperusteetReview
     started: 2014-05-26 08:00:00.575
@@ -1251,7 +1254,7 @@ exam-participations:
     duration: 1970-01-01 02:00:00.000
     deadline: 2014-12-23 10:00:00.575
 
-  - !!models.ExamParticipation
+  - !!models.enrolment.ExamParticipation
       user: *sauli
       exam: *algoritmit_graded
       started: 2014-05-26 08:00:00.575
@@ -1263,42 +1266,42 @@ exam-participations:
 
 exam-inspections:
 
-  - !!models.ExamInspection
+  - !!models.assessment.ExamInspection
     user: *olli
     exam: *alkeidenperusteetReview
 
-  - !!models.ExamInspection
+  - !!models.assessment.ExamInspection
     user: *olli
     exam: *alkeidenperusteetGraded
 
-  - !!models.ExamInspection
+  - !!models.assessment.ExamInspection
     user: *arvo
     exam: *astronomianPerusteet
 
-  - !!models.ExamInspection
+  - !!models.assessment.ExamInspection
     user: *arvo
     exam: *algoritmit
 
-  - !!models.ExamInspection
+  - !!models.assessment.ExamInspection
     user: *arvo
     exam: *ooad
 
-  - !!models.ExamInspection
+  - !!models.assessment.ExamInspection
     user: *arvo
     exam: *tietokannat2013
 
-  - !!models.ExamInspection
+  - !!models.assessment.ExamInspection
     user: *arvo
     exam: *tietokannat2014
 
-  - !!models.ExamInspection
+  - !!models.assessment.ExamInspection
     user: *olli
     exam: *ooad
 
 ############### Tilavaraus ###############
 
 mail-addresses:
-  - &oulu-yo !!models.MailAddress
+  - &oulu-yo !!models.facility.MailAddress
     street: Yliopistokatu 1
     zip: 90570
     city: Oulu
@@ -1306,7 +1309,7 @@ mail-addresses:
 ################################################################
 
 exam-rooms:
-  - &room-pegasus !!models.ExamRoom
+  - &room-pegasus !!models.facility.ExamRoom
     name: Tenttiakvaario Pegasus
     roomCode: IT101
     buildingName: Oulun yliopiston päärakennus
@@ -1325,7 +1328,7 @@ exam-rooms:
 
 exam-machines:
 
-  - &exam-machine1 !!models.ExamMachine
+  - &exam-machine1 !!models.facility.ExamMachine
     name: Pegasus 01
     otherIdentifier: Huone, jonka tunnus on 1
     surveillanceCamera: CAM-001
@@ -1339,7 +1342,7 @@ exam-machines:
     reservations:
     outOfService: false
 
-  - &exam-machine2 !!models.ExamMachine
+  - &exam-machine2 !!models.facility.ExamMachine
     name: Pegasus 02
     otherIdentifier: Huone, jonka tunnus on 2
     surveillanceCamera: CAM-002
@@ -1354,7 +1357,7 @@ exam-machines:
     reservations:
     outOfService: false
 
-  - &exam-machine3 !!models.ExamMachine
+  - &exam-machine3 !!models.facility.ExamMachine
     name: Pegasus 03
     otherIdentifier: Huone, jonka tunnus on 3
     surveillanceCamera: CAM-003
@@ -1375,17 +1378,17 @@ exam-machines:
 
 exam-room-reservations:
 
-  - &reservation1 !!models.Reservation
+  - &reservation1 !!models.enrolment.Reservation
     startAt: 2014-06-10 08:00:00.000
     endAt: 2014-06-10 10:00:00.000
     machine: *exam-machine1
 
-  - &reservation2 !!models.Reservation
+  - &reservation2 !!models.enrolment.Reservation
     startAt: 2014-06-12 12:00:00.000
     endAt: 2014-06-12 14:00:00.000
     machine: *exam-machine2
 
-  - &reservation3 !!models.Reservation
+  - &reservation3 !!models.enrolment.Reservation
     startAt: 2014-06-16 14:00:00.000
     endAt: 2014-06-16 16:00:00.000
     machine: *exam-machine3
@@ -1394,24 +1397,24 @@ exam-room-reservations:
 
 exam-enrolments:
 
-  - &enrolment1 !!models.ExamEnrolment
+  - &enrolment1 !!models.enrolment.ExamEnrolment
     user: *sauli
     exam: *ooad
     reservation: *reservation1
     enrolledOn: 2014-05-03 20:32:04.575
 
-  - &enrolment2 !!models.ExamEnrolment
+  - &enrolment2 !!models.enrolment.ExamEnrolment
     user: *sauli
     exam: *algoritmit
     reservation: *reservation2
     enrolledOn: 2014-04-03 20:32:04.575
 
-  - &enrolment3 !!models.ExamEnrolment
+  - &enrolment3 !!models.enrolment.ExamEnrolment
     user: *sauli
     exam: *astronomianPerusteet
     enrolledOn: 2014-04-03 20:32:04.575
 
-  - &enrolment5 !!models.ExamEnrolment
+  - &enrolment5 !!models.enrolment.ExamEnrolment
     user: *sauli
     exam: *alkeidenperusteetGraded
     enrolledOn: 2014-05-03 20:32:04.575

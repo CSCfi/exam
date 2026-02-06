@@ -1,10 +1,14 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package system.modules
 
 import com.google.inject.AbstractModule
-import util.xml.MoodleXmlExporter
-import util.xml.MoodleXmlExporterImpl
-import util.xml.MoodleXmlImporter
-import util.xml.MoodleXmlImporterImpl
+import miscellaneous.xml.MoodleXmlExporter
+import miscellaneous.xml.MoodleXmlExporterImpl
+import miscellaneous.xml.MoodleXmlImporter
+import miscellaneous.xml.MoodleXmlImporterImpl
 
 class MoodleXmlConverterModule extends AbstractModule:
   override def configure(): Unit =

@@ -1,21 +1,10 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import {
     NgbCollapse,
     NgbDropdown,
@@ -30,10 +19,13 @@ import { ToastrService } from 'ngx-toastr';
 import { mergeDeepRight } from 'ramda';
 import { Observable, from, noop, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/exam/exam.model';
+import type { ExamSection } from 'src/app/exam/exam.model';
 import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
 import { ExamQuestionDialogComponent } from 'src/app/question/examquestion/exam-question-dialog.component';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
+import { ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
+import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -43,7 +35,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 @Component({
     selector: 'xm-section-question',
     templateUrl: './section-question.component.html',
-    standalone: true,
     imports: [
         CdkDragHandle,
         NgbPopover,
@@ -67,22 +58,21 @@ export class SectionQuestionComponent {
     @Output() updated = new EventEmitter<ExamSectionQuestion>();
     @Output() copied = new EventEmitter<ExamSectionQuestion>();
 
-    constructor(
-        private http: HttpClient,
-        private modal: NgbModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Question: QuestionService,
-        private Attachment: AttachmentService,
-        private Files: FileService,
-    ) {}
+    private http = inject(HttpClient);
+    private modal = inject(NgbModal);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Question = inject(QuestionService);
+    private QuestionScore = inject(QuestionScoringService);
+    private Attachment = inject(AttachmentService);
+    private Files = inject(FileService);
 
-    calculateWeightedMaxPoints = () => this.Question.calculateWeightedMaxPoints(this.sectionQuestion);
+    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion);
+    calculateWeightedMinPoints = () => this.QuestionScore.calculateWeightedMinPoints(this.sectionQuestion);
+    getCorrectClaimChoiceOptionScore = () => this.QuestionScore.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 
-    getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
-
-    getMinimumOptionScore = () => this.Question.getMinimumOptionScore(this.sectionQuestion);
+    getMinimumOptionScore = () => this.QuestionScore.getMinimumOptionScore(this.sectionQuestion);
 
     editQuestion = () => this.openExamQuestionEditor();
 
@@ -135,6 +125,7 @@ export class SectionQuestionComponent {
         const modal = this.modal.open(BaseQuestionEditorComponent, {
             backdrop: 'static',
             keyboard: true,
+            windowClass: 'xm-xxl-modal',
             size: 'xl',
         });
         modal.componentInstance.isPopup = true;
@@ -166,12 +157,12 @@ export class SectionQuestionComponent {
                                 return;
                             }
                             if (attachment.modified && attachment.file) {
-                                this.Files.upload(
-                                    '/app/iop/collab/attachment/question',
-                                    attachment.file,
-                                    { examId: this.examId.toString(), questionId: this.sectionQuestion.id.toString() },
-                                    this.sectionQuestion.question,
-                                );
+                                this.Files.upload<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
+                                    examId: this.examId.toString(),
+                                    questionId: this.sectionQuestion.id.toString(),
+                                }).then((resp) => {
+                                    this.sectionQuestion.question.attachment = resp;
+                                });
                             } else if (attachment.removed) {
                                 this.Attachment.eraseCollaborativeQuestionAttachment(
                                     this.examId,

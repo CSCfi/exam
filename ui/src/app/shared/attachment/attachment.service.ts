@@ -1,46 +1,31 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
-import type { Exam, ExamParticipation, ExamSectionQuestion, Question } from 'src/app/exam/exam.model';
+import type { ExamParticipation, ReviewedExam } from 'src/app/enrolment/enrolment.model';
+import type { Exam } from 'src/app/exam/exam.model';
 import type { Examination } from 'src/app/examination/examination.model';
+import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
 import type { ReviewQuestion } from 'src/app/review/review.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
-import type { FileResult } from './dialogs/attachment-picker.component';
+import { AnsweredQuestion, FileResult } from './attachment.model';
 import { AttachmentSelectorComponent } from './dialogs/attachment-picker.component';
 
-export interface AnsweredQuestion {
-    id: number;
-    essayAnswer: { objectVersion: number; attachment?: { fileName: string } };
-}
 @Injectable({ providedIn: 'root' })
 export class AttachmentService {
-    constructor(
-        private dialogs: ConfirmationDialogService,
-        private http: HttpClient,
-        private modal: NgbModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Files: FileService,
-    ) {}
+    private dialogs = inject(ConfirmationDialogService);
+    private http = inject(HttpClient);
+    private modal = inject(NgbModal);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Files = inject(FileService);
 
     removeQuestionAttachment(question: Partial<Question>) {
         if (question.attachment) {
@@ -122,7 +107,12 @@ export class AttachmentService {
 
     removeStatementAttachment = (exam: Exam) =>
         this.dialogs
-            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
+            .open$(
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_confirm_remove_attachment'),
+                this.translate.instant('i18n_remove'),
+                this.translate.instant('i18n_button_cancel'),
+            )
             .subscribe({
                 next: () => {
                     this.http.delete(this.statementAttachmentApi(exam.id)).subscribe({

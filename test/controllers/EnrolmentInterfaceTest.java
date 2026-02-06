@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -13,7 +17,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
-import models.Exam;
+import models.exam.Exam;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -42,11 +46,10 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server =
-            RemoteServerHelper.createAndStartServer(
-                31246,
-                ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments"))
-            );
+        server = RemoteServerHelper.createAndStartServer(
+            31246,
+            ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments"))
+        );
     }
 
     @Before
@@ -55,8 +58,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
         super.setUp();
         // Fake API shall return a course with code 810136P. Lets make a referenced exam active in the DB so it should
         // pop up in the search results
-        Exam exam = DB
-            .find(Exam.class)
+        Exam exam = DB.find(Exam.class)
             .where()
             .eq("course.code", "810136P")
             .eq("state", Exam.State.PUBLISHED)

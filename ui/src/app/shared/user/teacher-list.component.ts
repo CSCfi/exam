@@ -1,22 +1,10 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import type { ExamInspection } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 
 type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
 @Component({
@@ -29,25 +17,29 @@ type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
             }
         </span>
     `,
-    standalone: true,
     imports: [],
 })
-export class TeacherListComponent implements OnInit {
+export class TeacherListComponent {
     @Input() exam!: Personnel & { parent: Personnel | null };
     @Input() useParent = false;
+    @Input() key?: number; // Forces Angular to create unique component instances
 
-    owners = '';
-    inspectors = '';
+    get owners(): string {
+        if (!this.exam) return '';
+        const ownerList = this.useParent && this.exam.parent ? this.exam.parent.examOwners : this.exam.examOwners;
+        if (!ownerList || ownerList.length === 0) return '';
+        if (ownerList.filter((o) => o?.lastName).length > 0) {
+            return ownerList.map((o) => `${o.firstName} ${o.lastName}`).join(', ');
+        }
+        return '';
+    }
 
-    ngOnInit() {
-        const owners = this.useParent && this.exam.parent ? this.exam.parent.examOwners : this.exam.examOwners;
-        const inspectors = this.exam.examInspections ? this.exam.examInspections.map((ei) => ei.user) : [];
-        this.inspectors = inspectors
+    get inspectors(): string {
+        if (!this.exam) return '';
+        const inspectorList = this.exam.examInspections ? this.exam.examInspections.map((ei) => ei.user) : [];
+        return inspectorList
             .filter((i) => i)
             .map((i) => `${i.firstName} ${i.lastName}`)
             .join(', ');
-        if (owners.filter((o) => o.lastName).length > 0) {
-            this.owners = `${owners.map((o) => `${o.firstName} ${o.lastName}`).join(', ')}`;
-        }
     }
 }

@@ -1,27 +1,16 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 
 @Component({
@@ -62,20 +51,25 @@ import { SessionService } from 'src/app/session/session.service';
             <div class="col-md-9">
                 <!-- Owners for the exam -->
                 @for (owner of exam.examOwners; track owner) {
-                    {{ owner.email }}
-                    <button
-                        class="btn btn-sm btn-link px-0"
-                        [disabled]="!user.isAdmin"
-                        (click)="removeOwner(owner.id)"
-                        title="{{ 'i18n_remove' | translate }}"
-                    >
-                        <i class="bi bi-x-lg" [ngClass]="!user.isAdmin ? 'text-danger' : 'text-success'"></i>
-                    </button>
+                    <div class="ms-1 row" [ngClass]="{ 'hover-grey': !user.isAdmin }">
+                        <div class="row col-8">
+                            {{ owner.email }}
+                        </div>
+                        <!-- Remove button -->
+                        <button
+                            class="btn btn-danger btn-sm ms-1 w-auto m-1"
+                            (click)="removeOwner(owner.id)"
+                            [hidden]="!user.isAdmin"
+                            [attr.aria-label]="owner.email"
+                        >
+                            {{ 'i18n_remove' | translate }}
+                        </button>
+                    </div>
                 }
             </div>
         </div>`,
-    standalone: true,
     imports: [NgClass, NgbPopover, FormsModule, TranslateModule],
+    styleUrls: ['../../exam.shared.scss'],
 })
 export class CollaborativeExamOwnerSelectorComponent {
     @Input() exam!: Exam;
@@ -83,11 +77,11 @@ export class CollaborativeExamOwnerSelectorComponent {
     user: User;
     newOwner: { email: string | undefined } = { email: undefined };
 
-    constructor(
-        private http: HttpClient,
-        private toast: ToastrService,
-        private Session: SessionService,
-    ) {
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+    private Session = inject(SessionService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 

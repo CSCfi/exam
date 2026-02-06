@@ -1,26 +1,14 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 
 @Component({
-    standalone: true,
     imports: [TranslateModule, NgClass, NgbDropdownModule],
     template: `
         <div class="modal-header">
@@ -45,7 +33,7 @@ import type { User } from 'src/app/session/session.service';
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-danger" (click)="activeModal.dismiss('i18n_canceled')">
+            <button class="btn btn-danger" (click)="activeModal.dismiss()">
                 {{ 'i18n_button_decline' | translate }}
             </button>
         </div>
@@ -54,5 +42,5 @@ import type { User } from 'src/app/session/session.service';
 export class SelectRoleDialogComponent {
     @Input() user!: User;
 
-    constructor(public activeModal: NgbActiveModal) {}
+    activeModal = inject(NgbActiveModal);
 }

@@ -1,20 +1,10 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass, NgStyle } from '@angular/common';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import {
     NgbCollapse,
@@ -43,7 +33,6 @@ type AutoEvaluationConfigurationTemplate = {
     selector: 'xm-auto-evaluation',
     templateUrl: './auto-evaluation.component.html',
     styleUrls: ['./auto-evaluation.component.scss'],
-    standalone: true,
     imports: [
         NgbPopover,
         NgbCollapse,
@@ -71,10 +60,10 @@ export class AutoEvaluationComponent implements OnInit, OnChanges {
     config?: AutoEvaluationConfig;
     autoevaluationDisplay: { visible: boolean };
 
-    constructor(
-        private Exam: ExamService,
-        private CommonExam: CommonExamService,
-    ) {
+    private Exam = inject(ExamService);
+    private CommonExam = inject(CommonExamService);
+
+    constructor() {
         this.autoevaluation = {
             enabled: false,
             releaseTypes: [

@@ -1,19 +1,8 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbHighlight, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -29,7 +18,6 @@ import { CoursePickerService } from './course-picker.service';
     selector: 'xm-course-picker',
     templateUrl: './course-picker.component.html',
     styleUrls: ['../../exam.shared.scss'],
-    standalone: true,
     imports: [FormsModule, NgbTypeahead, NgbHighlight, NgbPopover, TranslateModule],
 })
 export class CoursePickerComponent implements OnInit {
@@ -43,12 +31,10 @@ export class CoursePickerComponent implements OnInit {
         code: { isOn: false },
     };
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Course: CoursePickerService,
-        private CourseCode: CourseCodeService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Course = inject(CoursePickerService);
+    private CourseCode = inject(CourseCodeService);
 
     ngOnInit() {
         this.nameFilter = this.course ? this.course.name : '';
@@ -77,7 +63,7 @@ export class CoursePickerComponent implements OnInit {
             }),
             debounceTime(200),
             distinctUntilChanged(),
-            exhaustMap((term) => (term.length < 2 ? from([]) : this.Course.getCourses$(category, term))),
+            exhaustMap((term) => (term.trim().length < 2 ? from([]) : this.Course.getCourses$(category, term))),
             tap((courses) => {
                 this.toggleLoadingIcon(category, false);
                 if (courses.length === 0) {

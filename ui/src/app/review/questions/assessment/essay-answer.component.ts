@@ -1,19 +1,9 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -26,7 +16,6 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
 @Component({
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
-    standalone: true,
     imports: [RouterLink, MathJaxDirective, FormsModule, UpperCasePipe, NgbCollapse, TranslateModule],
 })
 export class EssayAnswerComponent implements OnInit {
@@ -37,10 +26,8 @@ export class EssayAnswerComponent implements OnInit {
 
     name = '';
 
-    constructor(
-        private CommonExam: CommonExamService,
-        private Attachment: AttachmentService,
-    ) {}
+    private CommonExam = inject(CommonExamService);
+    private Attachment = inject(AttachmentService);
 
     ngOnInit() {
         this.name = this.answer.examSection.exam.creator

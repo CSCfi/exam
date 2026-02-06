@@ -1,0 +1,116 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+@if (question.type === 'WeightedMultipleChoiceQuestion' && multichoiceFeaturesOn) {
+    <div class="row mt-2 mx-2">
+        <ul>
+            <li>{{ 'i18n_weighted_multiple_choice_description_1' | translate }}</li>
+            <li>{{ 'i18n_weighted_multiple_choice_description_2' | translate }}</li>
+            <li>{{ 'i18n_weighted_multiple_choice_description_3' | translate }}</li>
+        </ul>
+        {{ 'i18n_weighted_multiple_choice_description_4' | translate }}
+        <ul>
+            <li>{{ 'i18n_weighted_multiple_choice_description_5' | translate }}</li>
+            <li>{{ 'i18n_weighted_multiple_choice_description_6' | translate }}</li>
+            <li>{{ 'i18n_weighted_multiple_choice_description_7' | translate }}</li>
+        </ul>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    name="negativeScore"
+                    type="checkbox"
+                    [(ngModel)]="question.defaultNegativeScoreAllowed"
+                    id="negativeScore"
+                />
+                <label class="form-check-label" for="negativeScore">{{
+                    'i18n_allow_negative_score' | translate
+                }}</label>
+            </div>
+        </div>
+    </div>
+}
+@if (multichoiceFeaturesOn) {
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    name="shuffleOptions"
+                    type="checkbox"
+                    [(ngModel)]="question.defaultOptionShufflingOn"
+                    id="shuffleOptions"
+                />
+                <label class="form-check-label" for="shuffleOptions">{{ 'i18n_shuffle_options' | translate }}</label>
+            </div>
+        </div>
+    </div>
+}
+<div class="row mt-2">
+    <div class="col-md-6">
+        <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
+        <span>
+            @if (showWarning) {
+                <div class="edit-warning-container">
+                    <i class="bi-exclamation-circle text-danger"></i>
+                    <small class="ps-2">{{ 'i18n_shared_question_property_info_multi_choice' | translate }}</small>
+                </div>
+            }
+        </span>
+    </div>
+    @if (question.type === 'WeightedMultipleChoiceQuestion') {
+        <div class="col-md-6 question-option-title">
+            {{ 'i18n_word_points' | translate | uppercase }}
+        </div>
+    } @else {
+        <div class="col-md-6 question-option-title">
+            {{ 'i18n_multiplechoice_question_correct' | translate | uppercase }}
+        </div>
+    }
+</div>
+
+@for (option of question.options; track option.id; let i = $index) {
+    <div class="row">
+        <div class="col-md-12">
+            @if (question.type === 'MultipleChoiceQuestion') {
+                <xm-mc-option-editor
+                    [option]="option"
+                    [question]="question"
+                    [index]="i"
+                    [allowRemoval]="!lotteryOn && allowOptionRemoval"
+                >
+                </xm-mc-option-editor>
+            }
+            @if (question.type === 'WeightedMultipleChoiceQuestion') {
+                <xm-wmc-option-editor
+                    [option]="option"
+                    [index]="i"
+                    [question]="question"
+                    [lotteryOn]="lotteryOn"
+                ></xm-wmc-option-editor>
+            }
+        </div>
+    </div>
+}
+@if (question.type === 'WeightedMultipleChoiceQuestion') {
+    <div class="row mt-3">
+        <div class="col-md-12 question-option-title">
+            {{ 'i18n_max_score' | translate | uppercase }}:
+            {{ calculateDefaultMaxPoints() }}
+            {{ 'i18n_min_score' | translate | uppercase }}:
+            {{ calculateDefaultMinPoints() }}
+        </div>
+    </div>
+}
+<div class="row mt-3">
+    <div class="col-md-12">
+        <button (click)="addNewOption()" class="attachment-link pointer btn btn-sm btn-link">
+            <i class="bi-plus"></i>
+            {{ 'i18n_question_add_new_option' | translate }}
+        </button>
+    </div>
+</div>

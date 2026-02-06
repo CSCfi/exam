@@ -1,18 +1,6 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop.collaboration.impl;
 
@@ -28,9 +16,10 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import javax.inject.Inject;
-import models.Exam;
-import models.User;
-import models.json.CollaborativeExam;
+import miscellaneous.config.ConfigReader;
+import models.exam.Exam;
+import models.iop.CollaborativeExam;
+import models.user.User;
 import org.apache.pekko.stream.javadsl.Source;
 import org.apache.pekko.util.ByteString;
 import play.libs.Files;
@@ -41,11 +30,11 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import util.config.ConfigReader;
 
 public class CollaborativeAttachmentController
     extends CollaborationController
-    implements CollaborativeAttachmentInterface<Long, CollaborativeExam> {
+    implements CollaborativeAttachmentInterface<Long, CollaborativeExam>
+{
 
     @Inject
     private WSClient wsClient;
@@ -95,9 +84,9 @@ public class CollaborativeAttachmentController
             String displayName = root.get("displayName").asText();
             JsonNode feedbackNode = assessment.get("exam").get("examFeedback");
             ((ObjectNode) feedbackNode).set(
-                    "attachment",
-                    Json.newObject().put("externalId", newId).put("mimeType", mimeType).put("fileName", displayName)
-                );
+                "attachment",
+                Json.newObject().put("externalId", newId).put("mimeType", mimeType).put("fileName", displayName)
+            );
             return CompletableFuture.completedFuture(Optional.of(assessment));
         };
         Source<Http.MultipartFormData.Part<? extends Source<ByteString, ?>>, ?> source = createSource(file);
@@ -128,55 +117,49 @@ public class CollaborativeAttachmentController
         String assessmentRef,
         Http.Request request
     ) {
-        return downloadAssessment(exam.getExternalRef(), assessmentRef)
-            .thenComposeAsync(optionalAssessment -> {
-                if (optionalAssessment.isPresent()) {
-                    MultipartForm mf = getForm(request);
-                    Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
-                    return uploadAssessmentAttachment(filePart, optionalAssessment.get())
-                        .thenComposeAsync(oa -> {
-                            if (oa.isEmpty()) {
-                                return CompletableFuture.completedFuture(Results.internalServerError());
-                            }
-                            JsonNode attachment = oa.get().get("exam").get("examFeedback").get("attachment");
-                            return uploadAssessment(exam, assessmentRef, oa.get())
-                                .thenApplyAsync(revision -> {
-                                    if (revision.isPresent()) {
-                                        ((ObjectNode) attachment).put("rev", revision.get());
-                                        return ok(attachment);
-                                    }
-                                    return internalServerError();
-                                });
-                        });
-                }
-                return wrapAsPromise(notFound());
-            });
+        return downloadAssessment(exam.getExternalRef(), assessmentRef).thenComposeAsync(optionalAssessment -> {
+            if (optionalAssessment.isPresent()) {
+                MultipartForm mf = getForm(request);
+                Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
+                return uploadAssessmentAttachment(filePart, optionalAssessment.get()).thenComposeAsync(oa -> {
+                    if (oa.isEmpty()) {
+                        return CompletableFuture.completedFuture(Results.internalServerError());
+                    }
+                    JsonNode attachment = oa.get().get("exam").get("examFeedback").get("attachment");
+                    return uploadAssessment(exam, assessmentRef, oa.get()).thenApplyAsync(revision -> {
+                        if (revision.isPresent()) {
+                            ((ObjectNode) attachment).put("rev", revision.get());
+                            return ok(attachment);
+                        }
+                        return internalServerError();
+                    });
+                });
+            }
+            return wrapAsPromise(notFound());
+        });
     }
 
     @Override
     public CompletionStage<Result> deleteExternalAssessment(CollaborativeExam exam, String assessmentRef) {
-        return downloadAssessment(exam.getExternalRef(), assessmentRef)
-            .thenComposeAsync(optionalAssessment -> {
-                if (optionalAssessment.isPresent()) {
-                    JsonNode assessment = optionalAssessment.get();
-                    return removeAssessmentAttachment(assessment)
-                        .thenComposeAsync(result -> {
-                            if (result.status() != OK) {
-                                return CompletableFuture.completedFuture(Results.internalServerError());
-                            }
-                            JsonNode feedbackNode = assessment.get("exam").get("examFeedback");
-                            ((ObjectNode) feedbackNode).remove("attachment");
-                            return uploadAssessment(exam, assessmentRef, assessment)
-                                .thenApplyAsync(revision -> {
-                                    if (revision.isPresent()) {
-                                        return ok(Json.newObject().put("rev", revision.get()));
-                                    }
-                                    return internalServerError();
-                                });
-                        });
-                }
-                return wrapAsPromise(notFound());
-            });
+        return downloadAssessment(exam.getExternalRef(), assessmentRef).thenComposeAsync(optionalAssessment -> {
+            if (optionalAssessment.isPresent()) {
+                JsonNode assessment = optionalAssessment.get();
+                return removeAssessmentAttachment(assessment).thenComposeAsync(result -> {
+                    if (result.status() != OK) {
+                        return CompletableFuture.completedFuture(Results.internalServerError());
+                    }
+                    JsonNode feedbackNode = assessment.get("exam").get("examFeedback");
+                    ((ObjectNode) feedbackNode).remove("attachment");
+                    return uploadAssessment(exam, assessmentRef, assessment).thenApplyAsync(revision -> {
+                        if (revision.isPresent()) {
+                            return ok(Json.newObject().put("rev", revision.get()));
+                        }
+                        return internalServerError();
+                    });
+                });
+            }
+            return wrapAsPromise(notFound());
+        });
     }
 
     @Override

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="xm-study-item-container review-view">
     <div class="col-md-12">
         <!-- question text -->
@@ -35,13 +41,14 @@
                         }
                         @if (!scoreValue && scoreValue !== 0) {
                             <div class="warning-no-hover border-none">
-                                {{ 'i18n_no_grading' | translate }}
+                                {{ 'i18n_question_not_graded' | translate }}
                             </div>
                         }
                     </div>
                 }
                 <!--chevron -->
-                <a
+                <button
+                    class="float-end btn btn-link"
                     (click)="reviewExpanded = !reviewExpanded"
                     [attr.aria-label]="reviewExpanded ? ('i18n_collapse' | translate) : ('i18n_expand' | translate)"
                 >
@@ -51,7 +58,7 @@
                     @if (reviewExpanded) {
                         <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
-                </a>
+                </button>
             </div>
         </div>
 

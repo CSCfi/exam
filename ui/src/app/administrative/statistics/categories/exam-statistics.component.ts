@@ -1,7 +1,11 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamInfo, QueryParams } from 'src/app/administrative/statistics/statistics.service';
+import { ExamInfo, QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({
@@ -52,16 +56,14 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
         }
     `,
     selector: 'xm-exam-statistics',
-    standalone: true,
     imports: [TranslateModule],
 })
 export class ExamStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};
-
     exams: ExamInfo[] = [];
     totalExams = 0;
 
-    constructor(private Statistics: StatisticsService) {}
+    private Statistics = inject(StatisticsService);
 
     ngOnInit() {
         this.listExams();

@@ -1,13 +1,16 @@
-import { Component, Input, OnInit } from '@angular/core';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { MaintenancePeriod } from 'src/app/exam/exam.model';
+import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 
 @Component({
-    standalone: true,
     imports: [FormsModule, TranslateModule, DateTimePickerComponent],
     template: `<div>
         <div class="modal-header">
@@ -55,10 +58,10 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
             </form>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-primary" [disabled]="periodForm.invalid" (click)="ok()">
+            <button class="btn btn-success" [disabled]="periodForm.invalid" (click)="ok()">
                 {{ 'i18n_button_save' | translate }}
             </button>
-            <button class="btn btn-danger float-end me-3" (click)="cancel()">
+            <button class="btn btn-outline-secondary float-end me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
@@ -66,19 +69,17 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
 })
 export class MaintenancePeriodDialogComponent implements OnInit {
     @Input() period?: MaintenancePeriod;
-    dateOptions = {
+    readonly DATE_OPTIONS = {
         'starting-day': 1,
     };
-    dateFormat = 'dd.MM.yyyy';
+    readonly DATE_FORMAT = 'dd.MM.yyyy';
     startsAt = new Date(new Date().setMinutes(60));
     endsAt = new Date(new Date().setMinutes(60));
     description = '';
 
-    constructor(
-        private translate: TranslateService,
-        private activeModal: NgbActiveModal,
-        private toast: ToastrService,
-    ) {}
+    private translate = inject(TranslateService);
+    private activeModal = inject(NgbActiveModal);
+    private toast = inject(ToastrService);
 
     ngOnInit() {
         if (this.period) {

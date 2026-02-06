@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop.transfer.impl;
 
@@ -27,11 +16,14 @@ import java.net.URL;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
+import miscellaneous.cache.FacilityCache;
+import miscellaneous.config.ConfigReader;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
-import util.config.ConfigReader;
+import system.interceptors.SensitiveDataPolicy;
 
 public class OrganisationController extends BaseController {
 
@@ -41,11 +33,15 @@ public class OrganisationController extends BaseController {
     @Inject
     private ConfigReader configReader;
 
+    @Inject
+    private FacilityCache facilityCache;
+
     private URL parseUrl() throws MalformedURLException {
         return URI.create(configReader.getIopHost() + "/api/organisations?withFacilities=true").toURL();
     }
 
     @Restrict({ @Group("STUDENT"), @Group("TEACHER"), @Group("ADMIN") })
+    @SensitiveDataPolicy(sensitiveFieldNames = { "internalPassword", "externalPassword" })
     public CompletionStage<Result> listOrganisations() throws MalformedURLException {
         URL url = parseUrl();
         WSRequest request = wsClient.url(url.toString());
@@ -53,12 +49,34 @@ public class OrganisationController extends BaseController {
 
         Function<WSResponse, Result> onSuccess = response -> {
             JsonNode root = response.asJson();
-            if (response.getStatus() != 200) {
+            if (response.getStatus() != Http.Status.OK) {
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
             if (root instanceof ArrayNode node) {
-                for (JsonNode n : node) {
-                    ((ObjectNode) n).put("homeOrg", n.get("_id").asText().equals(localRef));
+                for (JsonNode org : node) {
+                    ((ObjectNode) org).put("homeOrg", org.get("_id").asText().equals(localRef));
+
+                    // Cache facility data for external organizations and set password requirement flag
+                    if (org.has("facilities") && org.get("facilities").isArray()) {
+                        ArrayNode facilities = (ArrayNode) org.get("facilities");
+                        for (JsonNode facility : facilities) {
+                            ObjectNode facilityObj = (ObjectNode) facility;
+                            JsonNode passwordNode = facility.get("externalPassword");
+                            boolean hasPassword =
+                                passwordNode != null &&
+                                !passwordNode.isNull() &&
+                                !passwordNode.asText().trim().isEmpty();
+
+                            // Set flag for client to know if password is required
+                            facilityObj.put("externalPasswordRequired", hasPassword);
+
+                            if (facility.has("_id") && hasPassword) {
+                                String facilityId = facility.get("_id").asText();
+                                String password = facility.get("externalPassword").asText();
+                                facilityCache.storeFacilityPassword(facilityId, password);
+                            }
+                        }
+                    }
                 }
             }
             return ok(root);

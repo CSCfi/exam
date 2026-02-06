@@ -1,21 +1,11 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -25,26 +15,16 @@ import { Duration } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, from, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { ExaminationEventDialogComponent } from 'src/app/exam/editor/events/examination-event-dialog.component';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
-import type {
-    AutoEvaluationConfig,
-    Exam,
-    ExaminationDate,
-    ExaminationEventConfiguration,
-    MaintenancePeriod,
-} from 'src/app/exam/exam.model';
+import type { AutoEvaluationConfig, Exam, ExaminationDate } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
-import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
-import { CollaborativeExamOwnerSelectorComponent } from './collaborative-exam-owner-picker.component';
 import { CustomDurationPickerDialogComponent } from './custom-duration-picker-dialog.component';
-import { ExamParticipantSelectorComponent } from './exam-participant-picker.component';
-import { ExamPreParticipantSelectorComponent } from './exam-pre-participant-picker.component';
-import { OrganisationSelectorComponent } from './organisation-picker.component';
+import { ExamPublicationParticipantsComponent } from './exam-publication-participants.component';
+import { ExaminationEventsComponent } from './examination-events.component';
 import { PublicationDialogComponent } from './publication-dialog.component';
 import { PublicationErrorDialogComponent } from './publication-error-dialog.component';
 import { PublicationRevocationDialogComponent } from './publication-revocation-dialog.component';
@@ -52,16 +32,13 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
 @Component({
     selector: 'xm-exam-publication',
     templateUrl: './exam-publication.component.html',
-    standalone: true,
     imports: [
         DatePickerComponent,
         FormsModule,
         NgbPopover,
         NgClass,
-        ExamParticipantSelectorComponent,
-        ExamPreParticipantSelectorComponent,
-        CollaborativeExamOwnerSelectorComponent,
-        OrganisationSelectorComponent,
+        ExamPublicationParticipantsComponent,
+        ExaminationEventsComponent,
         UpperCasePipe,
         DatePipe,
         TranslateModule,
@@ -71,26 +48,23 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
 })
 export class ExamPublicationComponent implements OnInit {
     exam!: Exam;
-    maintenancePeriods: MaintenancePeriod[] = [];
 
     collaborative = signal(false);
     isAdmin = signal(false);
     hostName = signal('');
     examDurations = signal<number[]>([]);
-    visibleParticipantSelector = signal('participant');
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private toast: ToastrService,
-        private Session: SessionService,
-        private Exam: ExamService,
-        private Confirmation: ConfirmationDialogService,
-        private Tabs: ExamTabService,
-    ) {
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
+    private Session = inject(SessionService);
+    private Exam = inject(ExamService);
+    private Tabs = inject(ExamTabService);
+
+    constructor() {
         this.hostName.set(window.location.origin);
         this.isAdmin.set(this.Session.getUser().isAdmin);
     }
@@ -102,11 +76,6 @@ export class ExamPublicationComponent implements OnInit {
             next: (data) => this.examDurations.set(data.examDurations),
             error: (err) => this.toast.error(err),
         });
-        if (this.exam.implementation !== 'AQUARIUM') {
-            this.http
-                .get<MaintenancePeriod[]>('/app/maintenance')
-                .subscribe((periods) => (this.maintenancePeriods = periods));
-        }
         this.Tabs.notifyTabChange(4);
     }
 
@@ -252,73 +221,6 @@ export class ExamPublicationComponent implements OnInit {
         }
     };
 
-    isPeriodOver = () => new Date(this.exam.periodEnd as string) < new Date();
-
-    addExaminationEvent = () => {
-        const modalRef = this.modal.open(ExaminationEventDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
-        modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
-        modalRef.componentInstance.examMinDate = this.exam.periodStart;
-        modalRef.componentInstance.examMaxDate = this.exam.periodEnd;
-        modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
-        modalRef.componentInstance.examId = this.exam.id;
-        modalRef.componentInstance.duration = this.exam.duration;
-        modalRef.result
-            .then((data: ExaminationEventConfiguration) => this.exam.examinationEventConfigurations.push(data))
-            .catch((err) => {
-                if (err) this.toast.error(err);
-            });
-    };
-
-    modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
-        const modalRef = this.modal.open(ExaminationEventDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
-        modalRef.componentInstance.config = configuration;
-        modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
-        modalRef.componentInstance.examMaxDate = this.exam.periodEnd;
-        modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
-        modalRef.componentInstance.examId = this.exam.id;
-        modalRef.componentInstance.duration = this.exam.duration;
-        modalRef.result
-            .then((config: ExaminationEventConfiguration) => {
-                const index = this.exam.examinationEventConfigurations.indexOf(configuration);
-                this.exam.examinationEventConfigurations.splice(index, 1, config);
-            })
-            .catch((err) => {
-                if (err) this.toast.error(err);
-            });
-    };
-
-    removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
-        if (configuration.examEnrolments.length > 0) {
-            return;
-        }
-        this.Confirmation.open$(
-            this.translate.instant('i18n_remove_examination_event'),
-            this.translate.instant('i18n_are_you_sure'),
-        ).subscribe({
-            next: () =>
-                this.Exam.removeExaminationEvent$(this.exam.id, configuration).subscribe({
-                    next: () => {
-                        this.exam.examinationEventConfigurations.splice(
-                            this.exam.examinationEventConfigurations.indexOf(configuration),
-                            1,
-                        );
-                    },
-                    error: (err) => this.toast.error(err),
-                }),
-        });
-    };
-
-    sortByString = (prop: ExaminationEventConfiguration[]): Array<ExaminationEventConfiguration> =>
-        prop.sort((a, b) => Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start));
-
     private updateExam$ = (silent?: boolean, overrides?: Record<string, string>): Observable<Exam> => {
         return this.Exam.updateExam$(this.exam, overrides, this.collaborative()).pipe(
             tap(() => {
@@ -341,31 +243,22 @@ export class ExamPublicationComponent implements OnInit {
 
     private hasDuplicatePercentages = () => {
         if (!this.exam.autoEvaluationConfig) return false;
-        const percentages = this.exam.autoEvaluationConfig.gradeEvaluations.map((e) => e.percentage).sort();
-        for (let i = 0; i < percentages.length - 1; ++i) {
-            if (percentages[i + 1] === percentages[i]) {
-                return true;
-            }
-        }
-        return false;
+        const percentages = this.exam.autoEvaluationConfig.gradeEvaluations.map((e) => e.percentage);
+        return new Set(percentages).size !== percentages.length;
     };
 
     private errorsPreventingPrePublication(): string[] {
-        const errors: string[] = [];
-
+        const errors = [];
         if (!this.exam.name || this.exam.name.length < 2) {
             errors.push('i18n_exam_name_missing_or_too_short');
         }
-
         if (this.exam.examLanguages.length === 0) {
             errors.push('i18n_error_exam_empty_exam_language');
         }
-
         const isPrintout = this.exam.executionType.type === 'PRINTOUT';
         if (!isPrintout && !this.exam.periodStart) {
             errors.push('i18n_exam_start_date_missing');
         }
-
         if (!isPrintout && !this.exam.periodEnd) {
             errors.push('i18n_exam_end_date_missing');
         }
@@ -375,18 +268,15 @@ export class ExamPublicationComponent implements OnInit {
         if (!this.exam.duration) {
             errors.push('i18n_exam_duration_missing');
         }
-
         if (!this.exam.gradeScale) {
             errors.push('i18n_exam_grade_scale_missing');
         }
-
         if (!this.exam.examType) {
             errors.push('i18n_exam_credit_type_missing');
         }
         if (this.exam.examOwners.length == 0) {
             errors.push('i18n_exam_owner_missing');
         }
-
         return errors;
     }
 
@@ -395,24 +285,19 @@ export class ExamPublicationComponent implements OnInit {
         if (!this.exam.course && !this.collaborative()) {
             errors.push('i18n_course_missing');
         }
-
         if (this.countQuestions() === 0) {
             errors.push('i18n_exam_has_no_questions');
         }
-
         const allSectionsNamed = this.exam.examSections.every((section) => section.name?.length > 0);
         if (!allSectionsNamed) {
             errors.push('i18n_exam_contains_unnamed_sections');
         }
-
         if (['PRIVATE', 'MATURITY'].indexOf(this.exam.executionType.type) > -1 && this.exam.examEnrolments.length < 1) {
             errors.push('i18n_no_participants');
         }
-
         if (this.exam.executionType.type === 'MATURITY' && !isBoolean(this.exam.subjectToLanguageInspection)) {
             errors.push('i18n_language_inspection_setting_not_chosen');
         }
-
         if (this.hasDuplicatePercentages()) {
             errors.push('i18n_autoevaluation_percentages_not_unique');
         }

@@ -1,18 +1,7 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// Copyright (c) 2018 Exam Consortium
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop;
 
@@ -29,9 +18,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
-import models.Attachment;
-import models.Exam;
-import models.ExamExecutionType;
+import models.attachment.Attachment;
+import models.exam.Exam;
+import models.exam.ExamExecutionType;
 import models.questions.EssayAnswer;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
@@ -39,9 +28,9 @@ import net.jodah.concurrentunit.Waiter;
 import org.apache.commons.io.FileUtils;
 import org.apache.pekko.actor.ActorSystem;
 import org.apache.pekko.stream.Materializer;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -124,8 +113,9 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
     }
 
     void assertDownloadResult(Result result) throws IOException {
-        assertThat(result.header("Content-Disposition").orElse(null))
-            .isEqualTo("attachment; filename*=UTF-8''\"test_image.png\"");
+        assertThat(result.header("Content-Disposition").orElse(null)).isEqualTo(
+            "attachment; filename*=UTF-8''\"test_image.png\""
+        );
         ActorSystem actorSystem = ActorSystem.create("TestSystem");
         Materializer mat = Materializer.createMaterializer(actorSystem);
         final String content = Helpers.contentAsString(result, mat);

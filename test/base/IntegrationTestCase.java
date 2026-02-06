@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package base;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -9,7 +13,6 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import io.ebean.DB;
-import jakarta.persistence.PersistenceException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,15 +29,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
 import javax.validation.constraints.NotNull;
-import models.Attachment;
-import models.Exam;
-import models.ExamInspection;
-import models.Language;
-import models.User;
+import miscellaneous.json.JsonDeserializer;
+import models.assessment.ExamInspection;
+import models.attachment.Attachment;
+import models.exam.Exam;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
+import models.user.Language;
+import models.user.User;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -44,16 +48,12 @@ import org.junit.rules.TestName;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.inspector.TrustedTagInspector;
 import org.yaml.snakeyaml.representer.Representer;
-import play.Application;
-import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
-import util.json.JsonDeserializer;
 
 public class IntegrationTestCase extends WithApplication {
 
@@ -68,7 +68,6 @@ public class IntegrationTestCase extends WithApplication {
 
     public IntegrationTestCase() {
         HAKA_HEADERS.put("displayName", "George%20Lazenby");
-        HAKA_HEADERS.put("eppn", "george.lazenby@funet.fi");
         HAKA_HEADERS.put("sn", "Lazenby");
         HAKA_HEADERS.put("preferredLanguage", "de"); // use an unsupported UI language
         HAKA_HEADERS.put("Shib-Session-ID", "_5d9a583a894275c15edef02c5602c4d7");
@@ -78,8 +77,8 @@ public class IntegrationTestCase extends WithApplication {
         HAKA_HEADERS.put(
             "schacPersonalUniqueCode",
             "urn:schac:personalUniqueCode:int:peppiID:org3.org:33333;" +
-            "urn:schac:personalUniqueCode:int:sisuID:org2.org:22222;" +
-            "urn:schac:personalUniqueCode:int:oodiID:org1.org:11111"
+                "urn:schac:personalUniqueCode:int:sisuID:org2.org:22222;" +
+                "urn:schac:personalUniqueCode:int:oodiID:org1.org:11111"
         );
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
         HAKA_HEADERS.put("Csrf-Token", "nocheck");
@@ -87,7 +86,7 @@ public class IntegrationTestCase extends WithApplication {
             "logouturl",
             URLEncoder.encode(
                 "https://logout.foo.bar.com?returnUrl=" +
-                URLEncoder.encode("http://foo.bar.com", StandardCharsets.UTF_8),
+                    URLEncoder.encode("http://foo.bar.com", StandardCharsets.UTF_8),
                 StandardCharsets.UTF_8
             )
         );
@@ -98,11 +97,6 @@ public class IntegrationTestCase extends WithApplication {
     // Hook for having stuff done just before logging in a user.
     protected void onBeforeLogin() throws Exception {
         // Default does nothing
-    }
-
-    @Override
-    protected Application provideApplication() {
-        return new GuiceApplicationBuilder().build();
     }
 
     @Before
@@ -199,6 +193,12 @@ public class IntegrationTestCase extends WithApplication {
         login(eppn, Collections.emptyMap());
     }
 
+    protected void loginExpectFailure(String eppn) {
+        HAKA_HEADERS.put("eppn", eppn);
+        Result result = request(Helpers.POST, "/app/session", null, HAKA_HEADERS, false);
+        assertThat(result.status()).isEqualTo(Http.Status.BAD_REQUEST);
+    }
+
     protected void login(String eppn, Map<String, String> headers) {
         HAKA_HEADERS.put("eppn", eppn);
         HAKA_HEADERS.putAll(headers);
@@ -265,8 +265,11 @@ public class IntegrationTestCase extends WithApplication {
             .getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
-            .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
-            .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
+            .filter(
+                esq ->
+                    esq.getQuestion().getType() == Question.Type.MultipleChoiceQuestion ||
+                    esq.getQuestion().getType() == Question.Type.WeightedMultipleChoiceQuestion
+            )
             .forEach(esq -> {
                 for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
                     ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
@@ -302,54 +305,80 @@ public class IntegrationTestCase extends WithApplication {
     }
 
     private void addTestData() throws Exception {
-        int userCount;
-        try {
-            userCount = DB.find(User.class).findCount();
-        } catch (PersistenceException e) {
-            // Tables are likely not there yet, skip this.
-            return;
-        }
-        if (userCount == 0) {
-            LoaderOptions options = new LoaderOptions();
-            options.setMaxAliasesForCollections(400);
-            options.setTagInspector(new TrustedTagInspector());
-            Yaml yaml = new Yaml(new JodaPropertyConstructor(options), new Representer(new DumperOptions()));
-            //Yaml yaml = new Yaml(new JodaPropertyConstructor(), new Representer(new DumperOptions()), new DumperOptions(), options);
-            InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
+        LoaderOptions loaderOptions = new LoaderOptions();
+        loaderOptions.setMaxAliasesForCollections(400);
+        loaderOptions.setTagInspector(tag -> true);
+
+        DumperOptions dumperOptions = new DumperOptions();
+        Yaml yaml = new Yaml(
+            new JodaPropertyConstructor(loaderOptions),
+            new Representer(dumperOptions),
+            dumperOptions,
+            loaderOptions
+        );
+
+        try (InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"))) {
             Map<String, List<Object>> all = yaml.load(is);
-            is.close();
-            DB.saveAll(all.get("role"));
-            DB.saveAll(all.get("exam-type"));
-            DB.saveAll(all.get("exam-execution-type"));
-            DB.saveAll(all.get("languages"));
-            DB.saveAll(all.get("organisations"));
-            DB.saveAll(all.get("attachments"));
-            DB.saveAll(all.get("users"));
-            DB.saveAll(all.get("grade-scales"));
-            DB.saveAll(all.get("grades"));
-            DB.saveAll(all.get("question-essay"));
-            DB.saveAll(all.get("question-multiple-choice"));
-            DB.saveAll(all.get("question-weighted-multiple-choice"));
-            DB.saveAll(all.get("question-claim-choice"));
-            DB.saveAll(all.get("question-clozetest"));
-            DB.saveAll(all.get("softwares"));
-            DB.saveAll(all.get("courses"));
-            DB.saveAll(all.get("comments"));
-            for (Object o : all.get("exams")) {
-                Exam e = (Exam) o;
-                e.generateHash();
-                e.save();
+
+            // Load entities in dependency order
+            String[] entityTypes = {
+                "role",
+                "exam-type",
+                "exam-execution-type",
+                "languages",
+                "organisations",
+                "attachments",
+                "users",
+                "grade-scales",
+                "grades",
+                "question-essay",
+                "question-multiple-choice",
+                "question-weighted-multiple-choice",
+                "question-claim-choice",
+                "question-clozetest",
+                "softwares",
+                "courses",
+                "comments",
+            };
+
+            // Save all standard entities
+            for (String entityType : entityTypes) {
+                List<Object> entities = all.get(entityType);
+                if (entities != null) {
+                    DB.saveAll(entities);
+                }
             }
-            DB.saveAll(all.get("exam-sections"));
-            DB.saveAll(all.get("section-questions"));
-            DB.saveAll(all.get("exam-participations"));
-            DB.saveAll(all.get("exam-inspections"));
-            DB.saveAll(all.get("mail-addresses"));
-            DB.saveAll(all.get("calendar-events"));
-            DB.saveAll(all.get("exam-rooms"));
-            DB.saveAll(all.get("exam-machines"));
-            DB.saveAll(all.get("exam-room-reservations"));
-            DB.saveAll(all.get("exam-enrolments"));
+
+            // Special handling for exams (need hash generation)
+            List<Object> exams = all.get("exams");
+            if (exams != null) {
+                for (Object o : exams) {
+                    Exam e = (Exam) o;
+                    e.generateHash();
+                    e.save();
+                }
+            }
+
+            // Save remaining entities that depend on exams
+            String[] examDependentTypes = {
+                "exam-sections",
+                "section-questions",
+                "exam-participations",
+                "exam-inspections",
+                "mail-addresses",
+                "calendar-events",
+                "exam-rooms",
+                "exam-machines",
+                "exam-room-reservations",
+                "exam-enrolments",
+            };
+
+            for (String entityType : examDependentTypes) {
+                List<Object> entities = all.get(entityType);
+                if (entities != null) {
+                    DB.saveAll(entities);
+                }
+            }
         }
     }
 

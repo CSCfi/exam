@@ -1,11 +1,15 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import type { OpeningHours } from 'src/app/calendar/calendar.service';
+import type { OpeningHours } from 'src/app/calendar/calendar.model';
 import { CalendarService } from 'src/app/calendar/calendar.service';
-import { MaintenancePeriod } from 'src/app/exam/exam.model';
+import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
@@ -37,24 +41,6 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 }
             </div>
         </div>
-        @if (thisWeeksMaintenancePeriods().length > 0) {
-            <div class="row mt-2">
-                <div class="col-md-2 col-12">{{ 'i18n_maintenance_periods' | translate }}:</div>
-                <div class="col-md-10 col-12">
-                    @for (period of thisWeeksMaintenancePeriods() | orderBy: 'startsAt'; track period.id) {
-                        <div>
-                            {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
-                            {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
-                            {{ period.description }}
-                        </div>
-                    }
-                </div>
-            </div>
-        } @else {
-            <div class="row mt-2">
-                <div class="">{{ 'i18n_no_maintenance_periods_this_week' | translate }}</div>
-            </div>
-        }
         @if (exceptionHours().length > 0) {
             <div class="row mt-2">
                 <div class="col-md-2 col-12">{{ 'i18n_exception_datetimes' | translate }}:</div>
@@ -76,9 +62,30 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 <div class="">{{ 'i18n_no_exceptions_this_week' | translate }}</div>
             </div>
         }
+        @if (thisWeeksMaintenancePeriods().length > 0) {
+            <div class="row mt-2">
+                <div class="col-md-2 col-12">{{ 'i18n_maintenance_periods' | translate }}:</div>
+                <div class="col-md-10 col-12">
+                    @for (period of thisWeeksMaintenancePeriods() | orderBy: 'startsAt'; track period.id) {
+                        <div>
+                            {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
+                            {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+                            {{ period.description }}
+                            @if (period.org) {
+                                <span class="text-danger">({{ period.org }})</span>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        } @else {
+            <div class="row mt-2">
+                <div class="">{{ 'i18n_no_maintenance_periods_this_week' | translate }}</div>
+            </div>
+        }
         @if (getRoomInstructions()) {
             <div class="row mt-2">
-                <div class="col-md-2 col-12">{{ 'i18n_instructions' | translate }}:</div>
+                <div class="col-md-2 col-12">{{ 'i18n_room_guidance' | translate }}:</div>
                 <div class="col-md-10 col-12">{{ getRoomInstructions() }}</div>
             </div>
         }
@@ -90,22 +97,19 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         }
     `,
     styleUrls: ['../calendar.component.scss'],
-    standalone: true,
     imports: [NgClass, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
 })
 export class SelectedRoomComponent implements OnInit, OnChanges {
     @Input() room!: ExamRoom;
-    @Input() maintenancePeriods: MaintenancePeriod[] = [];
+    @Input() maintenancePeriods: (MaintenancePeriod & { org: string })[] = [];
     @Input() viewStart = DateTime.now();
 
     openingHours = signal<OpeningHours[]>([]);
     exceptionHours = signal<(ExceptionWorkingHours & { start: string; end: string; description: string })[]>([]);
     showAllMaintenancePeriods = false;
 
-    constructor(
-        private translate: TranslateService,
-        private Calendar: CalendarService,
-    ) {}
+    private translate = inject(TranslateService);
+    private Calendar = inject(CalendarService);
 
     ngOnInit() {
         this.translate.onLangChange.subscribe(() => {

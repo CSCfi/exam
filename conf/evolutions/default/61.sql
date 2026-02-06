@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 UPDATE exam_participation SET ended = ended + '1 hour', started = started + '1 hour'
 WHERE id IN (

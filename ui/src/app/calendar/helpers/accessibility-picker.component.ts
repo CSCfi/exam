@@ -1,7 +1,11 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { FilterableAccessibility } from './slot-picker.component';
+import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
 
 @Component({
     selector: 'xm-calendar-accessibility-picker',
@@ -59,7 +63,6 @@ import { FilterableAccessibility } from './slot-picker.component';
         </div>
     </div> `,
     styleUrls: ['../calendar.component.scss'],
-    standalone: true,
     imports: [NgbCollapse, TranslateModule],
 })
 export class AccessibilityPickerComponent {

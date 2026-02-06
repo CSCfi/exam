@@ -1,20 +1,10 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { AsyncPipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
 import { Observable, Subject, filter, interval, map, startWith, switchMap, take, takeUntil } from 'rxjs';
@@ -61,7 +51,6 @@ import { Observable, Subject, filter, interval, map, startWith, switchMap, take,
             </div>
         </div>
     </div>`,
-    standalone: true,
     imports: [NgClass, AsyncPipe, TranslateModule],
     styleUrl: './examination-clock.component.scss',
 })
@@ -74,12 +63,11 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
     isTimeScarce$?: Observable<boolean>;
     ariaLiveTime?: string;
 
+    private http = inject(HttpClient);
     private syncInterval = 60;
     private alarmThreshold = 300;
     private clock = new Subject<number>();
     private ngUnsubscribe = new Subject();
-
-    constructor(private http: HttpClient) {}
 
     ngOnInit() {
         const sync$ = this.http.get<number>(`/app/time/${this.examHash}`);

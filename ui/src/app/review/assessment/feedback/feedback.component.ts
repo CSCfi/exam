@@ -1,124 +1,102 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { NgClass } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamParticipation } from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Examination } from 'src/app/examination/examination.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { CollaborativeAssesmentService } from 'src/app/review/assessment/collaborative-assessment.service';
+import { Attachment, FileResult } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import type { FileResult } from 'src/app/shared/attachment/dialogs/attachment-picker.component';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-feedback',
-    template: `<div cdkDrag [cdkDragConstrainPosition]="fixPosition" class="wrapper">
-        <div class="row align-items-center">
-            <div
-                class="col-1"
-                ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
-                triggers="mouseenter:mouseleave"
-            >
-                <i
-                    (click)="toggleFeedbackVisibility()"
-                    class="pointer"
-                    [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
-                >
-                </i>
-            </div>
-            <div class="col-11">
-                {{ title | translate }}
-            </div>
-        </div>
-        <div [ngbCollapse]="hideEditor" class="body">
-            <div class="row mt-2 mb-1">
-                <div class="col-md-12">
-                    <xm-ckeditor
-                        id="feedback-editor"
-                        [enableClozeTest]="false"
-                        [(ngModel)]="exam.examFeedback.comment"
-                        #ck="ngModel"
-                        name="ck"
-                        rows="10"
-                        cols="80"
-                    ></xm-ckeditor>
-                </div>
-            </div>
-            @if (exam.examFeedback?.attachment) {
-                <div class="d-flex justify-content-end">
-                    <a class="pointer" (click)="downloadFeedbackAttachment()">{{
-                        exam.examFeedback?.attachment?.fileName
-                    }}</a>
-                    <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
-                        <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
-                    </span>
-                </div>
-            }
-            <div class="d-flex justify-content-between flex-row-reverse mt-2">
-                <button class="btn btn-outline-success" (click)="saveFeedback()">
-                    {{ 'i18n_save' | translate }}
-                </button>
-                <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
-                    {{ 'i18n_attach_file' | translate }}
-                </button>
-            </div>
-        </div>
-    </div>`,
-    standalone: true,
+    templateUrl: './feedback.template.html',
     imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
 export class FeedbackComponent implements OnInit {
     @Input() exam!: Examination;
     @Input() collaborative = false;
-    @Input() participation!: ExamParticipation;
-    feedbackComment = '';
-    title = '';
-    fixPosition = this.Assessment.fixPosition;
-    hideEditor = false;
+    @Input() participation?: ExamParticipation;
+    @Input() hidden = false;
 
+    hideEditor = true;
     private id = 0;
     private ref = '';
 
-    constructor(
-        private route: ActivatedRoute,
-        private Assessment: AssessmentService,
-        private CollaborativeAssessment: CollaborativeAssesmentService,
-        private Attachment: AttachmentService,
-        private Files: FileService,
-    ) {}
+    private route = inject(ActivatedRoute);
+    private Assessment = inject(AssessmentService);
+    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private Attachment = inject(AttachmentService);
+    private Files = inject(FileService);
+
+    get fixPosition() {
+        return this.Assessment.fixPosition;
+    }
+
+    get shouldHide() {
+        return this.hidden;
+    }
+
+    get title() {
+        return 'i18n_give_feedback';
+    }
+
+    get editorContent() {
+        return this.exam.examFeedback.comment || '';
+    }
+
+    get attachment() {
+        return this.exam.examFeedback?.attachment;
+    }
+
+    set editorContent(value: string) {
+        this.exam.examFeedback.comment = value;
+    }
 
     ngOnInit() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        this.title = this.exam.executionType.type === 'MATURITY' ? 'i18n_give_content_statement' : 'i18n_give_feedback';
+        if (this.exam.executionType.type === 'MATURITY') {
+            this.hideEditor = false;
+        }
     }
 
-    toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);
+    toggleVisibility = () => (this.hideEditor = !this.hideEditor);
 
-    saveFeedback = () => {
+    save = () => {
         if (this.collaborative) {
             this._saveCollaborativeFeedback$().subscribe();
         } else {
             this._saveFeedback$().subscribe();
+        }
+    };
+
+    downloadAttachment = () => {
+        const attachment = this.exam.examFeedback?.attachment;
+        if (!attachment) {
+            return;
+        }
+        if (this.collaborative && attachment.externalId)
+            this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+        else this.Attachment.downloadFeedbackAttachment(this.exam);
+    };
+
+    removeAttachment = () => {
+        if (this.collaborative) {
+            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, this.participation!);
+        } else {
+            this.Attachment.removeFeedbackAttachment(this.exam);
         }
     };
 
@@ -136,39 +114,20 @@ export class FeedbackComponent implements OnInit {
         });
     };
 
-    downloadFeedbackAttachment = () => {
-        const attachment = this.exam.examFeedback?.attachment;
-        if (!attachment) {
-            return;
-        }
-        if (this.collaborative && attachment.externalId)
-            this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
-        else this.Attachment.downloadFeedbackAttachment(this.exam);
-    };
-
-    removeFeedbackAttachment = () => {
-        if (this.collaborative) {
-            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, this.participation);
-        } else {
-            this.Attachment.removeFeedbackAttachment(this.exam);
-        }
-    };
-
     private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
 
     private _saveCollaborativeFeedback$ = () =>
-        this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation);
+        this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation!);
 
     private _upload = (res: FileResult, url: string) =>
-        this.Files.upload(
-            url,
-            res.$value.attachmentFile,
-            { examId: this.exam.id.toString() },
-            this.exam.examFeedback,
-            () => {
+        this.Files.upload<Attachment>(url, res.$value.attachmentFile, { examId: this.exam.id.toString() }).then(
+            (resp) => {
+                this.exam.examFeedback.attachment = resp;
                 // kinda hacky, but let's do this mangling for time being
-                this.participation._rev = this.exam.examFeedback?.attachment?.rev;
-                delete this.exam.examFeedback?.attachment?.rev;
+                if (this.participation) {
+                    this.participation._rev = this.exam.examFeedback?.attachment?.rev;
+                    delete this.exam.examFeedback?.attachment?.rev;
+                }
             },
         );
 }

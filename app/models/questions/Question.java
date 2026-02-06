@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package models.questions;
 
@@ -36,12 +25,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import models.Attachment;
-import models.Tag;
-import models.User;
-import models.api.AttachmentContainer;
+import models.attachment.Attachment;
+import models.attachment.AttachmentContainer;
 import models.base.OwnedModel;
 import models.sections.ExamSectionQuestion;
+import models.user.User;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
@@ -102,6 +90,12 @@ public class Question extends OwnedModel implements AttachmentContainer {
 
     @Column
     private Integer defaultExpectedWordCount;
+
+    @Column
+    private boolean defaultNegativeScoreAllowed;
+
+    @Column
+    private boolean defaultOptionShufflingOn;
 
     @ManyToOne
     private Question parent;
@@ -209,6 +203,22 @@ public class Question extends OwnedModel implements AttachmentContainer {
         this.defaultExpectedWordCount = defaultExpectedWordCount;
     }
 
+    public boolean isDefaultNegativeScoreAllowed() {
+        return defaultNegativeScoreAllowed;
+    }
+
+    public void setDefaultNegativeScoreAllowed(boolean defaultNegativeScoreAllowed) {
+        this.defaultNegativeScoreAllowed = defaultNegativeScoreAllowed;
+    }
+
+    public boolean isDefaultOptionShufflingOn() {
+        return defaultOptionShufflingOn;
+    }
+
+    public void setDefaultOptionShufflingOn(boolean defaultOptionShufflingOn) {
+        this.defaultOptionShufflingOn = defaultOptionShufflingOn;
+    }
+
     public Question getParent() {
         return parent;
     }
@@ -279,11 +289,17 @@ public class Question extends OwnedModel implements AttachmentContainer {
         } else {
             Document doc = Jsoup.parse(questionText);
             Elements answers = doc.select("span[cloze=true]");
-            Set<String> distinctIds = answers.stream().map(a -> a.attr("id")).collect(Collectors.toSet());
+            Set<String> distinctIds = answers
+                .stream()
+                .map(a -> a.attr("id"))
+                .collect(Collectors.toSet());
             if (answers.size() != distinctIds.size()) {
                 reason = "duplicate ids found";
             } else if (
-                answers.stream().map(a -> a.attr("precision")).anyMatch(p -> p.isEmpty() || !NumberUtils.isParsable(p))
+                answers
+                    .stream()
+                    .map(a -> a.attr("precision"))
+                    .anyMatch(p -> p.isEmpty() || !NumberUtils.isParsable(p))
             ) {
                 reason = "invalid precision found";
             } else if (
@@ -302,12 +318,13 @@ public class Question extends OwnedModel implements AttachmentContainer {
     private boolean getClaimChoiceOptionsValidationResult(ArrayNode options) {
         // Check that all required option conditions are met, discarding possible duplicates
         return (
-            StreamSupport
-                .stream(options.spliterator(), false)
+            StreamSupport.stream(options.spliterator(), false)
                 .filter(n -> {
-                    MultipleChoiceOption.ClaimChoiceOptionType type = SanitizingHelper
-                        .parseEnum("claimChoiceType", n, MultipleChoiceOption.ClaimChoiceOptionType.class)
-                        .orElse(null);
+                    MultipleChoiceOption.ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
+                        "claimChoiceType",
+                        n,
+                        MultipleChoiceOption.ClaimChoiceOptionType.class
+                    ).orElse(null);
                     double defaultScore = n.get("defaultScore").asDouble();
                     String option = n.get("option").asText();
 
@@ -328,9 +345,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     );
                 })
                 .map(n ->
-                    SanitizingHelper
-                        .parseEnum("claimChoiceType", n, MultipleChoiceOption.ClaimChoiceOptionType.class)
-                        .orElse(null)
+                    SanitizingHelper.parseEnum(
+                        "claimChoiceType",
+                        n,
+                        MultipleChoiceOption.ClaimChoiceOptionType.class
+                    ).orElse(null)
                 )
                 .filter(Objects::nonNull)
                 .distinct()
@@ -359,9 +378,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         if (an.size() < 2) {
                             reason = "i18n_minimum_of_two_options_required";
                         } else if (
-                            StreamSupport
-                                .stream(an.spliterator(), false)
-                                .noneMatch(n -> n.get("correctOption").asBoolean())
+                            StreamSupport.stream(an.spliterator(), false).noneMatch(n ->
+                                n.get("correctOption").asBoolean()
+                            )
                         ) {
                             reason = "i18n_correct_option_required";
                         }
@@ -375,9 +394,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     } else {
                         ArrayNode options = (ArrayNode) node.get("options");
                         if (
-                            StreamSupport
-                                .stream(options.spliterator(), false)
-                                .noneMatch(n -> n.get("defaultScore").asDouble() > 0)
+                            StreamSupport.stream(options.spliterator(), false).noneMatch(
+                                n -> n.get("defaultScore").asDouble() > 0
+                            )
                         ) {
                             reason = "i18n_correct_option_required";
                         }
@@ -429,8 +448,8 @@ public class Question extends OwnedModel implements AttachmentContainer {
             case WeightedMultipleChoiceQuestion -> {
                 return options
                     .stream()
+                    .filter(MultipleChoiceOption::isLegitMaxScore)
                     .map(MultipleChoiceOption::getDefaultScore)
-                    .filter(score -> score != null && score > 0)
                     .reduce(0.0, Double::sum);
             }
             case ClaimChoiceQuestion -> {
@@ -444,8 +463,8 @@ public class Question extends OwnedModel implements AttachmentContainer {
         if (getType() == Type.WeightedMultipleChoiceQuestion) {
             return options
                 .stream()
+                .filter(mco -> mco.isLegitMinScore(defaultNegativeScoreAllowed))
                 .map(MultipleChoiceOption::getDefaultScore)
-                .filter(score -> score != null && score < 0)
                 .reduce(0.0, Double::sum);
         } else if (getType() == Type.ClaimChoiceQuestion) {
             return options.stream().mapToDouble(MultipleChoiceOption::getDefaultScore).min().orElse(0.0);

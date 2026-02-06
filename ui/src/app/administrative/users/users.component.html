@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <xm-page-header text="i18n_user_administration" />
 <xm-page-content [content]="content" />
 <ng-template #content>
@@ -19,11 +25,7 @@
                         ngbPopover="{{ 'i18n_user_search_description' | translate }}"
                         aria-labelledby="userSearch"
                     />
-                    <div class="input-group-append">
-                        <span class="input-group-text rounded-0 rounded-end">
-                            <i class="bi-search"></i>
-                        </span>
-                    </div>
+                    <div class="input-group-append bi-search search-append"></div>
                 </div>
             </div>
         </div>
@@ -125,14 +127,8 @@
                             <td>{{ user.employeeNumber }}</td>
                             <td>{{ user.lastLogin | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
                             <td>
-                                @if (hasRole(user, 'ADMIN')) {
-                                    <i class="bi-gear pe-1"></i>
-                                }
-                                @if (hasRole(user, 'TEACHER')) {
-                                    <i class="bi-person pe-1"></i>
-                                }
-                                @if (hasRole(user, 'STUDENT')) {
-                                    <i class="bi-mortarboard pe-1"></i>
+                                @for (icon of getRoleIcons(user); track icon) {
+                                    <i [ngClass]="icon" class="pe-2"></i>
                                 }
                                 <div class="float-end">
                                     <span class="xm-no-caret pointer" ngbDropdown>
@@ -173,9 +169,9 @@
                                             type="button"
                                             ngbDropdownToggle
                                             aria-expanded="true"
-                                            [disabled]="user.removableRoles.length <= 1"
+                                            [disabled]="user.roles.length <= 1"
                                         >
-                                            @if (user.removableRoles.length > 1) {
+                                            @if (user.roles.length > 1) {
                                                 <i class="text-danger bi-dash"></i>
                                             } @else {
                                                 <i
@@ -186,7 +182,7 @@
                                                 ></i>
                                             }
                                         </button>
-                                        @if (user.removableRoles.length > 1) {
+                                        @if (user.roles.length > 1) {
                                             <div
                                                 ngbDropdownMenu
                                                 class="float-end"

@@ -1,19 +1,8 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
-import { Component, Input } from '@angular/core';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,7 +10,6 @@ import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-add-enrolment-information-dialog',
-    standalone: true,
     imports: [FormsModule, TranslateModule],
     template: `
         <div class="modal-header">
@@ -55,7 +43,7 @@ import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 export class AddEnrolmentInformationDialogComponent {
     @Input() information!: EnrolmentInfo;
 
-    constructor(public activeModal: NgbActiveModal) {}
+    activeModal = inject(NgbActiveModal);
 
     ok = () => this.activeModal.close(this.information);
     cancel = () => this.activeModal.dismiss();

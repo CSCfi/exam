@@ -1,7 +1,11 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-export interface ExamName {
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+
+interface ExamName {
     id: number;
     name: string;
     course: {
@@ -11,20 +15,9 @@ export interface ExamName {
     };
 }
 
-export enum FileType {
-    JSON = 'json',
-    XLSX = 'xlsx',
-}
-
-export enum UserRole {
-    TEACHER = 'TEACHER',
-    STUDENT = 'STUDENT',
-    ADMIN = 'ADMIN',
-}
-
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
-    constructor(private http: HttpClient) {}
+    private http = inject(HttpClient);
 
     examNames = () => this.http.get<ExamName[]>('/app/statistics/examnames');
 }

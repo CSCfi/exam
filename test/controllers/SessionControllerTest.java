@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -5,15 +9,15 @@ import static org.fest.assertions.Assertions.assertThat;
 import base.IntegrationTestCase;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.DB;
-import models.Role;
-import models.User;
+import models.user.Role;
+import models.user.User;
 import org.junit.Test;
 
 public class SessionControllerTest extends IntegrationTestCase {
 
     @Test
-    public void testLoginAsNewUser() {
-        String eppn = "newuser@test.org";
+    public void testLoginAsNewLocalUser() {
+        String eppn = "newuser@funet.fi";
         User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(user).isNull();
 
@@ -31,6 +35,18 @@ public class SessionControllerTest extends IntegrationTestCase {
     }
 
     @Test
+    public void testLoginAsNewExternalUser() {
+        String eppn = "newuser@other.org";
+        User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNull();
+
+        loginExpectFailure(eppn);
+
+        user = DB.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNull();
+    }
+
+    @Test
     public void testLoginWithDuplicateUserIdentifierKeys() {
         String eppn = "newuser@test.org";
         User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
@@ -41,9 +57,9 @@ public class SessionControllerTest extends IntegrationTestCase {
             ImmutableMap.of(
                 "schacPersonalUniqueCode",
                 "urn:schac:personalUniqueCode:int:studentID:org2.org:aaaaa;" +
-                "urn:schac:personalUniqueCode:int:studentID:org1.org:33333;" +
-                "urn:schac:personalUniqueCode:int:studentID:org1.org:22222;" +
-                "urn:schac:personalUniqueCode:int:studentID:org1.org:11111"
+                    "urn:schac:personalUniqueCode:int:studentID:org1.org:33333;" +
+                    "urn:schac:personalUniqueCode:int:studentID:org1.org:22222;" +
+                    "urn:schac:personalUniqueCode:int:studentID:org1.org:11111"
             )
         );
 
@@ -63,8 +79,8 @@ public class SessionControllerTest extends IntegrationTestCase {
             ImmutableMap.of(
                 "schacPersonalUniqueCode",
                 "urn:schac:personalUniqueCode:int:studentID:org2.org:aaaaa;" +
-                "urn:schac:personalUniqueCode:org:org1.org:dirid:33333;" +
-                "urn:schac:personalUniqueCode:org:org1.org:arturid:22222"
+                    "urn:schac:personalUniqueCode:org:org1.org:dirid:33333;" +
+                    "urn:schac:personalUniqueCode:org:org1.org:arturid:22222"
             )
         );
 
@@ -110,7 +126,7 @@ public class SessionControllerTest extends IntegrationTestCase {
             ImmutableMap.of(
                 "schacPersonalUniqueCode",
                 "urn:schac:personalUniqueCode:int:studentID:org2.org:111;" +
-                "urn:schac:personalUniqueCode:int:esi:FI:xxx"
+                    "urn:schac:personalUniqueCode:int:esi:FI:xxx"
             )
         );
 

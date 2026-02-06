@@ -1,151 +1,126 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-import type { OnInit } from '@angular/core';
-import { Component, ViewChild } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { NgClass } from '@angular/common';
+import { Component, Input, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
-import { AccessibilitySelectorComponent } from 'src/app/facility/accessibility/accessibility-picker.component';
-import { AddressComponent } from 'src/app/facility/address/address.component';
-import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
-import { PageContentComponent } from 'src/app/shared/components/page-content.component';
-import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { AvailabilityComponent } from './availability.component';
-import { InteroperabilityService } from './interoperability.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
+import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
+import { MachineListComponent } from 'src/app/facility/machines/machines.component';
+import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
+import { OpenHoursComponent } from 'src/app/facility/schedule/opening-hours.component';
+import { StartingTimeComponent } from 'src/app/facility/schedule/starting-time.component';
+import type { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
+import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 import { RoomService } from './room.service';
+
+interface ExtendedRoom extends ExamRoom {
+    addressVisible: boolean;
+    availabilityVisible: boolean;
+    extendedDwh: DefaultWorkingHoursWithEditing[];
+    activate: boolean;
+}
 
 @Component({
     templateUrl: './room.component.html',
-    styleUrls: ['./rooms.component.scss'],
     selector: 'xm-room',
-    standalone: true,
     imports: [
-        FormsModule,
+        NgClass,
         NgbPopover,
-        AvailabilityComponent,
-        AccessibilitySelectorComponent,
-        AddressComponent,
+        RouterLink,
+        OpenHoursComponent,
+        ExceptionListComponent,
+        StartingTimeComponent,
+        MachineListComponent,
         TranslateModule,
-        PageHeaderComponent,
-        PageContentComponent,
     ],
+    styleUrl: './rooms.component.scss',
 })
-export class RoomComponent implements OnInit {
-    @ViewChild('roomForm', { static: false }) roomForm!: NgForm;
+export class RoomComponent {
+    @Input({ required: true }) room!: ExtendedRoom;
 
-    room!: ExamRoom;
-    showName = false;
-    isInteroperable = false;
-    editingMultipleRooms = false;
+    private timeDateService = inject(DateTimeService);
+    private roomService = inject(RoomService);
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private roomService: RoomService,
-        private interoperability: InteroperabilityService,
-    ) {}
+    switchVisibility(room: ExtendedRoom) {
+        if (!room.activate) {
+            room.activate = !room.activate;
+        }
+        room.availabilityVisible = !room.availabilityVisible;
+    }
 
-    ngOnInit() {
-        this.showName = true;
-        this.roomService.examVisit().subscribe((data) => {
-            this.isInteroperable = data.isExamVisitSupported;
+    getNextExceptionEvent(ees: ExceptionWorkingHours[]): ExceptionWorkingHours[] {
+        return ees
+            .filter((ee) => new Date(ee.endDate) > new Date())
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+            .slice(0, 2);
+    }
+
+    getFutureExceptionEvent(ees: ExceptionWorkingHours[]): ExceptionWorkingHours[] {
+        return ees.filter((ee) => new Date(ee.endDate) > new Date());
+    }
+
+    getWorkingHoursDisplayFormat = (workingHours: DefaultWorkingHours[]): string[] => {
+        const sorter = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        const capitalize = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
+        const timePart = (s: string) => DateTime.fromISO(s).toFormat('HH:mm');
+        const mapping = groupBy(
+            workingHours,
+            (x: DefaultWorkingHours) => `${timePart(x.startTime)} - ${timePart(x.endTime)}`,
+        );
+        return Object.keys(mapping).map((k) => {
+            const days = mapping[k]
+                .sort((a, b) => {
+                    const day1 = a.weekday.toLowerCase();
+                    const day2 = b.weekday.toLowerCase();
+                    return sorter.indexOf(day1) - sorter.indexOf(day2);
+                })
+                .map((v) => capitalize(this.timeDateService.translateWeekdayName(v.weekday)))
+                .join(', ');
+            return `${days}: ${k}`;
         });
+    };
 
-        this.roomService.getRoom$(this.route.snapshot.params.id).subscribe({
-            next: (room: ExamRoom) => {
-                room.availableForExternals = room.externalRef !== null;
-                this.room = room;
-            },
-            error: (err) => this.toast.error(err),
+    formatDate = (exception: ExceptionWorkingHours) => {
+        if (!exception?.startDate || !exception?.endDate) {
+            return;
+        }
+        const fmt = 'dd.MM.yyyy HH:mm';
+        const start = DateTime.fromISO(exception.startDate);
+        const end = DateTime.fromISO(exception.endDate);
+        return (
+            start.toFormat(fmt) +
+            ' - ' +
+            (start.toFormat('dd.MM.yyyy') == end.toFormat('dd.MM.yyyy') ? end.toFormat('HH:mm') : end.toFormat(fmt))
+        );
+    };
+
+    onDisableRoom() {
+        this.roomService.disableRoom(this.room);
+    }
+
+    onEnableRoom() {
+        this.roomService.enableRoom(this.room);
+    }
+
+    onAddExceptions(exceptions: ExceptionWorkingHours[]) {
+        this.roomService.addExceptions$([this.room.id], exceptions).subscribe((data) => {
+            const dataList: ExceptionWorkingHours[] = [];
+            data.forEach((d) => {
+                if (!dataList.map((e) => e.id).includes(d.id)) {
+                    dataList.push(d);
+                }
+            });
+            this.room.calendarExceptionEvents = [...dataList];
         });
     }
 
-    addExceptions = (exceptions: ExceptionWorkingHours[]) => {
-        this.roomService.addExceptions([this.room.id], exceptions).then((data) => {
-            this.room.calendarExceptionEvents = [...this.room.calendarExceptionEvents, ...data];
-        });
-    };
-
-    deleteException = (exception: ExceptionWorkingHours) => {
-        this.roomService.deleteException(this.room.id, exception.id).then(() => {
-            this.room.calendarExceptionEvents = this.room.calendarExceptionEvents.splice(
-                this.room.calendarExceptionEvents.indexOf(exception),
-                1,
-            );
-        });
-    };
-
-    disableRoom = () => {
-        this.roomService.disableRoom(this.room);
-    };
-
-    enableRoom = () => {
-        this.roomService.enableRoom(this.room);
-    };
-
-    validateInputAndUpdateRoom = (event: FocusEvent & { target: HTMLInputElement | HTMLTextAreaElement }) => {
-        const { name } = event.target;
-        const ctrl = this.roomForm.controls[name];
-        if (ctrl.valid) {
-            this.updateRoom();
-        }
-    };
-
-    validateAndUpdateRoom = () => {
-        if (this.roomForm.valid) {
-            this.updateRoom();
-        }
-    };
-
-    updateRoom = () => {
-        this.roomService.updateRoom(this.room).subscribe({
-            next: () => {
-                this.toast.info(this.translate.instant('i18n_room_updated'));
-            },
-            error: (err) => this.toast.error(err),
-        });
-    };
-
-    saveRoom = () => {
-        if (!this.roomService.isAnyExamMachines(this.room))
-            this.toast.error(this.translate.instant('i18n_dont_forget_to_add_machines') + ' ' + this.room.name);
-
-        this.roomService.updateRoom(this.room).subscribe({
-            next: () => {
-                this.toast.info(this.translate.instant('i18n_room_saved'));
-                this.router.navigate(['/staff/rooms']);
-            },
-            error: (err) => this.toast.error(err),
-        });
-    };
-
-    updateInteroperability = () => {
-        this.interoperability.updateFacility$(this.room).subscribe({
-            next: (data) => {
-                this.room.externalRef = data.externalRef;
-                this.room.availableForExternals = data.externalRef !== null;
-            },
-            error: (err) => {
-                this.room.availableForExternals = !this.room.availableForExternals;
-                this.toast.error(err.data.message);
-            },
-        });
-    };
+    onDeleteException(exception: ExceptionWorkingHours) {
+        this.roomService.deleteException$(this.room.id, exception.id).subscribe();
+    }
 }

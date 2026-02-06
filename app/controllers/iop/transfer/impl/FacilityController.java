@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop.transfer.impl;
 
@@ -31,7 +20,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
-import models.ExamRoom;
+import miscellaneous.config.ConfigReader;
+import models.facility.ExamRoom;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -39,7 +29,6 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import util.config.ConfigReader;
 
 public class FacilityController extends BaseController implements ExternalFacilityAPI {
 
@@ -60,15 +49,15 @@ public class FacilityController extends BaseController implements ExternalFacili
     }
 
     private URL parseExternalUrl(String orgRef) throws MalformedURLException {
-        return URI
-            .create(configReader.getIopHost() + String.format("/api/organisations/%s/facilities", orgRef))
-            .toURL();
+        return URI.create(
+            configReader.getIopHost() + String.format("/api/organisations/%s/facilities", orgRef)
+        ).toURL();
     }
 
     private String toJson(ExamRoom room) {
         PathProperties pp = PathProperties.parse(
             "(*, defaultWorkingHours(*), calendarExceptionEvents(*), mailAddress(*), " +
-            "examStartingHours(*), accessibilities(*))"
+                "examStartingHours(*), accessibilities(*))"
         );
         return DB.json().toJson(room, pp);
     }

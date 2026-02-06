@@ -1,6 +1,10 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
     NgbDropdown,
@@ -13,13 +17,12 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import type { User } from 'src/app/session/session.service';
+import { PermissionType, type Permission, type User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
-import type { Permission } from './users.service';
-import { PermissionType, UserManagementService } from './users.service';
+import { UserManagementService } from './users.service';
 
 interface PermissionOption extends Permission {
     name?: string;
@@ -44,7 +47,6 @@ interface UserWithOptions extends User {
 @Component({
     templateUrl: './users.component.html',
     selector: 'xm-users',
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,
@@ -79,19 +81,22 @@ export class UsersComponent implements OnInit, OnDestroy {
     textChanged = new Subject<string>();
     ngUnsubscribe = new Subject();
     roles: RoleOption[] = [
-        { type: 'ADMIN', name: 'i18n_admin', icon: 'bi-gear' },
-        { type: 'TEACHER', name: 'i18n_teacher', icon: 'bi-person' },
+        { type: 'ADMIN', name: 'i18n_admin', icon: 'bi-shield-lock' },
+        { type: 'TEACHER', name: 'i18n_teacher', icon: 'bi-person-workspace' },
         { type: 'STUDENT', name: 'i18n_student', icon: 'bi-mortarboard' },
+        { type: 'SUPPORT', name: 'i18n_support_person', icon: 'bi-person-heart' },
     ];
     permissions: PermissionOption[] = [];
     loader = { loading: false };
+    appUser: User;
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private session: SessionService,
-        private userManagement: UserManagementService,
-    ) {
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private session = inject(SessionService);
+    private userManagement = inject(UserManagementService);
+
+    constructor() {
+        this.appUser = this.session.getUser();
         this.textChanged
             .pipe(debounceTime(1000), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((text) => {
@@ -129,6 +134,11 @@ export class UsersComponent implements OnInit, OnDestroy {
 
         this.loader = { loading: false };
     }
+
+    getRoleIcons = (user: User): string[] =>
+        user.roles
+            .map((ur) => this.roles.find((r) => ur.name === r.type)?.icon)
+            .filter((icon): icon is string => icon !== undefined);
 
     pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
@@ -238,9 +248,13 @@ export class UsersComponent implements OnInit, OnDestroy {
         user.removableRoles = [];
         this.roles.forEach((role) => {
             if (user.roles.map((r) => r.name).indexOf(role.type) === -1) {
-                user.availableRoles.push({ ...role });
+                if (role.type === 'STUDENT' || role.type === 'TEACHER' || this.appUser.isAdmin) {
+                    user.availableRoles.push({ ...role });
+                }
             } else {
-                user.removableRoles.push({ ...role });
+                if (role.type === 'STUDENT' || role.type === 'TEACHER' || this.appUser.isAdmin) {
+                    user.removableRoles.push({ ...role });
+                }
             }
         });
         user.availablePermissions = [];

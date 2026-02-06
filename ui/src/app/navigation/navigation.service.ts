@@ -1,39 +1,19 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import type { User } from 'src/app/session/session.service';
-import { SessionService } from 'src/app/session/session.service';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-export interface Link {
-    route: string;
-    visible: boolean;
-    name: string;
-    iconSvg?: string;
-    iconPng?: string;
-    submenu: { hidden: boolean; items: Link[] };
-}
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import type { User } from 'src/app/session/session.model';
+import { SessionService } from 'src/app/session/session.service';
+import { Link } from './navigation.model';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
-    constructor(
-        private http: HttpClient,
-        private router: Router,
-        private Session: SessionService,
-    ) {}
+    private http = inject(HttpClient);
+    private router = inject(Router);
+    private Session = inject(SessionService);
 
     getAppVersion$ = () => this.http.get<{ appVersion: string }>('/app/settings/appVersion');
 
@@ -53,50 +33,37 @@ export class NavigationService {
         const admin = user.isAdmin;
         const student = user.isStudent;
         const teacher = user.isTeacher;
+        const support = user.isSupport;
         const languageInspector = user.isTeacher && user.isLanguageInspector;
 
         // Do not show if waiting for exam to begin
-        const regex = /waitingroom|wrongmachine|wrongroom/;
-        const hideDashboard = regex.test(this.router.url);
+        const hidden = /waitingroom|wrongmachine|unknownlocation|wrongroom|early/.test(this.router.url);
 
-        // Change the menu item title if student
-        const nameForDashboard = student ? 'i18n_user_enrolled_exams_title' : 'i18n_dashboard';
+        // Change the menu item title/route if student
+        const dashboardTitle = student ? 'i18n_user_enrolled_exams_title' : 'i18n_dashboard';
+        const dashboardRoute = student ? 'dashboard' : admin || support ? 'staff/admin' : 'staff/teacher';
+
+        const emptySubmenu = { hidden: true, items: [] };
 
         const collaborativeExamsSubmenu = {
             hidden: true,
             items: [
                 {
-                    route: student ? 'exams/collaborative' : 'staff/collaborative',
+                    route: 'staff/collaborative',
                     visible: true,
                     name: 'i18n_collaborative_exams',
                     iconPng: 'icon_admin_exams.png',
-                    submenu: { hidden: true, items: [] },
+                    submenu: emptySubmenu,
                 },
             ],
         };
 
-        const teacherCollaborativeExamsSubmenu =
-            teacher && interoperable
-                ? collaborativeExamsSubmenu
-                : {
-                      hidden: true,
-                      items: [],
-                      submenu: { hidden: true, items: [] },
-                  };
-        const studentCollaborativeExamsSubmenu =
-            student && interoperable
-                ? collaborativeExamsSubmenu
-                : {
-                      hidden: true,
-                      items: [],
-                      submenu: { hidden: true, items: [] },
-                  };
-
+        const teacherCollaborativeExamsSubmenu = teacher && interoperable ? collaborativeExamsSubmenu : emptySubmenu;
         return [
             {
-                route: student ? 'dashboard' : admin ? 'staff/admin' : 'staff/teacher',
-                visible: !hideDashboard,
-                name: nameForDashboard,
+                route: dashboardRoute,
+                visible: !hidden,
+                name: dashboardTitle,
                 iconPng: 'icon_enrols.svg',
                 submenu: teacherCollaborativeExamsSubmenu,
             },
@@ -105,11 +72,11 @@ export class NavigationService {
                 visible: languageInspector,
                 name: 'i18n_language_inspections',
                 iconPng: 'icon_admin_lang_inspection.png',
-                submenu: { hidden: true, items: [] },
+                submenu: emptySubmenu,
             },
             {
-                route: 'staff/adminexams',
-                visible: admin,
+                route: 'staff/admin/exams',
+                visible: admin || support,
                 name: 'i18n_exams',
                 iconPng: 'icon_admin_exams.png',
                 submenu: {
@@ -117,38 +84,38 @@ export class NavigationService {
                     items: [
                         {
                             route: 'staff/inspections',
-                            visible: true,
+                            visible: admin,
                             name: 'i18n_language_inspections',
                             iconPng: 'icon_admin_lang_inspection.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/printouts',
-                            visible: true,
+                            visible: admin,
                             name: 'i18n_printout_exams',
                             iconPng: 'icon_printouts.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/collaborative',
-                            visible: interoperable,
+                            visible: admin && interoperable,
                             name: 'i18n_collaborative_exams',
                             iconPng: 'icon_admin_exams.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/examinationevents',
-                            visible: hasByod,
+                            visible: admin && hasByod,
                             name: 'i18n_byod_exams',
                             iconPng: 'icon_admin_exams.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/questions',
-                            visible: true,
+                            visible: admin,
                             name: 'i18n_library_new',
                             iconPng: 'icon_questions.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                     ],
                 },
@@ -166,44 +133,38 @@ export class NavigationService {
                             visible: true,
                             name: 'i18n_reports',
                             iconPng: 'icon_reports.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/statistics',
                             visible: true,
                             name: 'i18n_statistics',
                             iconPng: 'icon_statistics.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                         {
                             route: 'staff/settings',
                             visible: true,
                             name: 'i18n_settings',
                             iconPng: 'icon_settings.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                     ],
                 },
             },
             {
                 route: 'staff/users',
-                visible: admin,
+                visible: admin || support,
                 name: 'i18n_users',
                 iconPng: 'icon_users.png',
-                submenu: {
-                    hidden: true,
-                    items: [],
-                },
+                submenu: emptySubmenu,
             },
             {
                 route: 'staff/questions',
                 visible: teacher,
                 name: 'i18n_library_new',
                 iconPng: 'icon_questions.png',
-                submenu: {
-                    hidden: true,
-                    items: [],
-                },
+                submenu: emptySubmenu,
             },
             {
                 route: 'staff/reservations',
@@ -211,21 +172,18 @@ export class NavigationService {
                 name: 'i18n_reservations_new',
                 iconSvg: 'icon_reservations.svg',
                 iconPng: 'icon_reservations.png',
-                submenu: {
-                    hidden: true,
-                    items: [],
-                },
+                submenu: emptySubmenu,
             },
             {
                 route: 'exams',
-                visible: student && !hideDashboard,
+                visible: student && !hidden,
                 name: 'i18n_exams',
                 iconPng: 'icon_exams.png',
-                submenu: studentCollaborativeExamsSubmenu,
+                submenu: emptySubmenu,
             },
             {
                 route: 'participations',
-                visible: student && !hideDashboard,
+                visible: student && !hidden,
                 name: 'i18n_exam_responses',
                 iconPng: 'icon_finished.png',
                 submenu: {
@@ -233,10 +191,10 @@ export class NavigationService {
                     items: [
                         {
                             route: 'participations/collaborative',
-                            visible: true,
+                            visible: interoperable,
                             name: 'i18n_collaborative_exam_responses',
                             iconPng: 'icon_finished.png',
-                            submenu: { hidden: true, items: [] },
+                            submenu: emptySubmenu,
                         },
                     ],
                 },
@@ -246,10 +204,7 @@ export class NavigationService {
                 visible: true,
                 name: 'i18n_logout',
                 iconPng: 'icon_admin_logout.png',
-                submenu: {
-                    hidden: true,
-                    items: [],
-                },
+                submenu: emptySubmenu,
             },
         ];
     }

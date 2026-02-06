@@ -1,19 +1,9 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { CollaborativeExamInfo, EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
@@ -33,59 +23,66 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     >
         <div class="row">
             <div class="col">
-                <h2 class="student-exam-row-title-blue">
+                <h2>
                     @if (!collaborative) {
-                        <a
-                            class="xm-info-link"
+                        <button
+                            class="exam-title-button"
                             [routerLink]="['/enrolments', exam.id]"
                             [queryParams]="{ code: exam.course?.code }"
                         >
                             {{ exam.name }}
-                        </a>
+                            <img class="arrow_icon" alt="" src="/assets/images/arrow_right.svg" />
+                        </button>
                     }
                     @if (collaborative) {
-                        <span>{{ exam.name }}</span>
+                        <span class="exam-title-text">{{ exam.name }}</span>
                     }
                 </h2>
             </div>
         </div>
-        <div class="row mt-1">
-            @if (exam.alreadyEnrolled && !exam.reservationMade) {
-                <span class="mt-1 text-danger">
-                    {{ 'i18n_state_needs_reservation_title' | translate }}
-                </span>
+        @if (exam.alreadyEnrolled && !exam.reservationMade) {
+            <div class="row mt-1">
+                <div class="col">
+                    <span class="text-danger">
+                        {{ 'i18n_state_needs_reservation_title' | translate }}
+                    </span>
+                </div>
+            </div>
+        }
+        <div class="mt-3">
+            @if (!collaborative && exam.course) {
+                <div class="row mb-2">
+                    <div class="col-md-3">{{ 'i18n_course_name' | translate }}:</div>
+                    <div class="col-md-9">
+                        <span [attr.aria-label]="'i18n_course_code' | translate">
+                            <xm-course-code [course]="exam.course"></xm-course-code>
+                        </span>
+                        {{ exam.course.name }}
+                    </div>
+                </div>
             }
-        </div>
-        <div class="row mt-3">
-            <div class="col-md">
-                <span [hidden]="collaborative">{{ 'i18n_course_name' | translate }}:</span>
-                @if (!collaborative && exam.course) {
-                    <div><xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}</div>
-                }
+
+            <div class="row mb-2">
+                <div class="col-md-3">{{ 'i18n_exam_validity' | translate }}:</div>
+                <div class="col-md-9">
+                    {{ exam.periodStart | date: 'dd.MM.yyyy' }} &ndash; {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
+                </div>
             </div>
-            <div class="col">
-                <span [hidden]="collaborative">{{ 'i18n_teachers' | translate }}: </span>
-                <span [hidden]="collaborative">
-                    <xm-teacher-list [exam]="exam"></xm-teacher-list>
-                </span>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col">
-                <span>{{ 'i18n_exam_validity' | translate }}: </span>
-                <span
-                    >{{ exam.periodStart | date: 'dd.MM.yyyy' }} &ndash; {{ exam.periodEnd | date: 'dd.MM.yyyy' }}</span
-                >
+
+            @if (!collaborative) {
+                <div class="row mb-2">
+                    <div class="col-md-3">{{ 'i18n_teachers' | translate }}:</div>
+                    <div class="col-md-9"><xm-teacher-list [exam]="exam"></xm-teacher-list></div>
+                </div>
+            }
+
+            <div class="row mb-2">
+                <div class="col-md-3">{{ 'i18n_exam_language' | translate }}:</div>
+                <div class="col-md-9">{{ exam.languages.join(', ') }}</div>
             </div>
         </div>
         <div class="row mt-3">
             <div class="col">
-                <span>{{ 'i18n_exam_language' | translate }}: </span>
-                <span>{{ exam.languages.join(', ') }}</span>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col flex justify-content-end">
                 @if (!exam.alreadyEnrolled) {
                     <button class="btn btn-success" (click)="enrollForExam()" [disabled]="enrolling">
                         {{ 'i18n_enroll_to_exam' | translate }}
@@ -102,20 +99,17 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
             </div>
         </div>
     </div>`,
-    styleUrls: ['./exam-search.component.scss'],
-    standalone: true,
+    styleUrls: ['./exam-search.component.scss', '../enrolment.shared.scss'],
     imports: [NgClass, RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class ExamSearchResultComponent {
     @Input() exam!: EnrolmentInfo | CollaborativeExamInfo;
     @Input() collaborative = false;
 
-    enrolling = false; // DO WE NEED THIS?
+    enrolling = false;
 
-    constructor(
-        private router: Router,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private router = inject(Router);
+    private Enrolment = inject(EnrolmentService);
 
     enrollForExam = () => {
         if (this.enrolling) {

@@ -1,0 +1,60 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
+@if (enrolment) {
+    <div class="alert alert-danger mb-4">
+        <h4 class="alert-heading">{{ 'i18n_logged_on_wrong_machine' | translate }}</h4>
+        <ul class="list-unstyled mb-0">
+            <li>{{ 'i18n_current_wrong_machine_title' | translate }}: {{ 'i18n_unknown_machine' | translate }}</li>
+            <li>{{ 'i18n_reserved_machine' | translate }}: {{ reservation.machine.name }}</li>
+            <li>
+                {{ 'i18n_reserved_room' | translate }}: {{ reservation.machine.room.name }} ({{
+                    reservation.machine.room.roomCode
+                }})
+            </li>
+        </ul>
+    </div>
+
+    <p class="exams-list-title-text mb-3">
+        {{ 'i18n_reserved_exam' | translate }}: {{ enrolment.exam.name }}
+        @if (enrolment.exam.course) {
+            - <xm-course-code [course]="enrolment.exam.course"></xm-course-code>
+        }
+    </p>
+
+    <dl class="row mb-4">
+        <dt class="col-md-3 text-muted">{{ 'i18n_course_name' | translate }}:</dt>
+        <dd class="col-md-9 mb-2">{{ enrolment.exam.course?.name }}</dd>
+
+        <dt class="col-md-3 text-muted">{{ 'i18n_exam_duration' | translate }}:</dt>
+        <dd class="col-md-9 mb-2">{{ printExamDuration() }}</dd>
+
+        <dt class="col-md-3 text-muted">{{ 'i18n_reservation_time' | translate }}:</dt>
+        <dd class="col-md-9 mb-2">
+            {{ reservation.startAt | date: 'dd.MM.yyyy' }} {{ occasion.startAt }} - {{ occasion.endAt }} ({{
+                reservation.machine.room.localTimezone
+            }})
+        </dd>
+
+        @if (enrolment.exam.enrollInstruction) {
+            <dt class="col-md-3 text-muted">{{ 'i18n_instructions' | translate }}:</dt>
+            <dd class="col-md-9 mb-2">
+                <a class="xm-link pointer" (click)="showInstructions()">{{ 'i18n_view' | translate }}</a>
+            </dd>
+        }
+
+        <dt class="col-md-3 text-muted">{{ 'i18n_teachers' | translate }}:</dt>
+        <dd class="col-md-9 mb-0">
+            @if (enrolment.exam) {
+                <xm-teacher-list [exam]="enrolment.exam"></xm-teacher-list>
+            }
+        </dd>
+    </dl>
+
+    <div class="alert alert-info mb-0">
+        {{ 'i18n_logout_and_login_elsewhere' | translate }}
+    </div>
+}

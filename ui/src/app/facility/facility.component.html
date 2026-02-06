@@ -1,10 +1,16 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <xm-page-header text="i18n_exam_rooms_administration" [appendWide]="true" [appendTemplate]="buttons" />
 <xm-page-content [content]="content" />
 <ng-template #buttons>
-    <a class="float-end bi-building btn btn-success" (click)="editMultipleRooms()">
+    <a class="float-end bi-building btn btn-success ms-3 mb-3" (click)="editMultipleRooms()">
         <span class="ps-3">{{ 'i18n_edit_all_rooms' | translate }}</span>
     </a>
-    <a class="float-end me-4 bi-plus-square btn btn-success" (click)="createExamRoom()">
+    <a class="float-end bi-plus-square btn btn-success" (click)="createExamRoom()">
         <span class="ps-3">{{ 'i18n_add' | translate }}</span>
     </a>
 </ng-template>
@@ -28,7 +34,7 @@
 
     <div class="row mt-2">
         <div class="col-md-12">
-            <ul ngbNav #nav="ngbNav" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" class="nav-tabs" [keyboard]="false">
                 <li ngbNavItem>
                     <a ngbNavLink>
                         {{ getHeadingTranslation('i18n_exam_all_rooms') }}

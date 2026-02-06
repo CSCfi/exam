@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 CKEDITOR.plugins.add('clozetest', {
     requires: 'dialog,numericinput',
     icons: 'cloze',

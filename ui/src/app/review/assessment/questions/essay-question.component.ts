@@ -1,25 +1,17 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Exam, ExamParticipation, ExamSectionQuestion } from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import type { Exam } from 'src/app/exam/exam.model';
+import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import type { ReviewQuestion } from 'src/app/review/review.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
@@ -31,7 +23,6 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     selector: 'xm-r-essay-question',
     templateUrl: './essay-question.component.html',
     styleUrls: ['../assessment.shared.scss', './essay-question.component.scss'],
-    standalone: true,
     imports: [
         MathJaxDirective,
         NgbCollapse,
@@ -64,14 +55,12 @@ export class EssayQuestionComponent implements OnInit {
     reviewExpanded = true;
     _score: number | undefined = undefined;
 
-    constructor(
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Assessment: AssessmentService,
-        private CommonExam: CommonExamService,
-        private Attachment: AttachmentService,
-    ) {}
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Assessment = inject(AssessmentService);
+    private CommonExam = inject(CommonExamService);
+    private Attachment = inject(AttachmentService);
 
     get scoreValue(): number | undefined {
         return this._score;

@@ -1,26 +1,15 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamInspection } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 
 @Component({
     selector: 'xm-r-inspection',
@@ -57,7 +46,6 @@ import type { User } from 'src/app/session/session.service';
                 </div>
             </div>
         }`,
-    standalone: true,
     imports: [FormsModule, TranslateModule],
 })
 export class InspectionComponent implements OnInit {
@@ -68,11 +56,9 @@ export class InspectionComponent implements OnInit {
 
     reviewStatuses: { key: boolean; value: string }[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+    private translate = inject(TranslateService);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
 
     ngOnInit() {
         this.reviewStatuses = [

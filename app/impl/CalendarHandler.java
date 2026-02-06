@@ -1,19 +1,22 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.ImplementedBy;
-import exceptions.NotFoundException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.facility.ExamMachine;
+import models.facility.ExamRoom;
+import models.user.User;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
@@ -33,7 +36,7 @@ public interface CalendarHandler {
         User user
     );
     Collection<Interval> gatherSuitableSlots(ExamRoom room, LocalDate date, Integer examDuration);
-    LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException;
+    LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws IllegalArgumentException;
 
     Optional<ExamMachine> getRandomMachine(
         ExamRoom room,
@@ -62,6 +65,10 @@ public interface CalendarHandler {
     Set<CalendarHandler.TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user);
 
     DateTime normalizeMaintenanceTime(DateTime dateTime);
+
+    Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user, Collection<Long> sectionIds);
+
+    ExamEnrolment getEnrolment(Long examId, User user);
 
     class TimeSlot {
 

@@ -1,5 +1,10 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package repository;
 
+import controllers.exam.copy.ExamCopyContext;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import io.ebean.DB;
 import io.ebean.Database;
@@ -16,20 +21,20 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamParticipation;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
-import models.json.CollaborativeExam;
+import miscellaneous.datetime.DateTimeHandler;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExamParticipation;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.facility.ExamRoom;
+import models.iop.CollaborativeExam;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
 import models.sections.ExamSection;
+import models.user.User;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.datetime.DateTimeHandler;
 
 public class ExaminationRepository {
 
@@ -58,10 +63,14 @@ public class ExaminationRepository {
             boolean isCollaborative = enrolment.getCollaborativeExam() != null;
             Reservation reservation = enrolment.getReservation();
             // TODO: support for optional sections in BYOD exams
-            Set<Long> ids = reservation == null
-                ? Collections.emptySet()
-                : enrolment.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
-            Exam studentExam = prototype.copyForStudent(user, isCollaborative, ids);
+            Set<Long> ids =
+                reservation == null
+                    ? Collections.emptySet()
+                    : enrolment.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
+            ExamCopyContext context = isCollaborative
+                ? ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids).build()
+                : ExamCopyContext.forStudentExam(user).withSelectedSections(ids).build();
+            Exam studentExam = prototype.createCopy(context);
             studentExam.setState(Exam.State.INITIALIZED);
             studentExam.setCreator(user);
             if (!isCollaborative) {
@@ -123,9 +132,9 @@ public class ExaminationRepository {
                             reservation == null
                                 ? dateTimeHandler.adjustDST(DateTime.now())
                                 : dateTimeHandler.adjustDST(
-                                    DateTime.now(),
-                                    enrolment.getReservation().getMachine().getRoom()
-                                );
+                                      DateTime.now(),
+                                      enrolment.getReservation().getMachine().getRoom()
+                                  );
                     }
                     examParticipation.setStarted(now);
                     db.save(examParticipation);
@@ -201,9 +210,8 @@ public class ExaminationRepository {
     }
 
     private boolean isInEffect(ExamEnrolment ee) {
-        DateTime now = ee.getExaminationEventConfiguration() == null
-            ? dateTimeHandler.adjustDST(DateTime.now())
-            : DateTime.now();
+        DateTime now =
+            ee.getExaminationEventConfiguration() == null ? dateTimeHandler.adjustDST(DateTime.now()) : DateTime.now();
         if (ee.getReservation() != null) {
             return (ee.getReservation().getStartAt().isBefore(now) && ee.getReservation().getEndAt().isAfter(now));
         } else if (ee.getExaminationEventConfiguration() != null) {

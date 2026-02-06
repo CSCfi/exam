@@ -1,24 +1,13 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input } from '@angular/core';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { FileService } from 'src/app/shared/file/file.service';
-import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
+import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
+import { Option } from 'src/app/shared/select/select.model';
 
 @Component({
     template: `
@@ -48,19 +37,15 @@ import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-
         </div>
     `,
     selector: 'xm-exams-report',
-    standalone: true,
-    imports: [DropdownSelectComponent, NgbPopover, TranslateModule],
+    imports: [DropdownSelectComponent, TranslateModule],
 })
 export class ExamsReportComponent {
     @Input() examNames: Option<string, number>[] = [];
-
     exam?: number;
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private files: FileService,
-    ) {}
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private files = inject(FileService);
 
     examSelected = (event?: Option<string, number>) => (this.exam = event?.id);
 

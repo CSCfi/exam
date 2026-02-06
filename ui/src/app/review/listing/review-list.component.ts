@@ -1,26 +1,16 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnChanges, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
-import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import type { Exam } from 'src/app/exam/exam.model';
 import type { Review } from 'src/app/review/review.model';
 import { ArchivedReviewsComponent } from './categories/archived.component';
 import { GradedLoggedReviewsComponent } from './categories/graded-logged.component';
@@ -35,7 +25,6 @@ import { ReviewListService } from './review-list.service';
 @Component({
     selector: 'xm-review-list',
     templateUrl: './review-list.component.html',
-    standalone: true,
     imports: [
         NgbPopover,
         InProgressReviewsComponent,
@@ -63,13 +52,11 @@ export class ReviewListComponent implements OnInit, OnChanges {
     languageInspectedReviews: Review[] = [];
     rejectedReviews: Review[] = [];
 
-    constructor(
-        private modal: NgbModal,
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private ReviewList: ReviewListService,
-        private Tabs: ExamTabService,
-    ) {}
+    private modal = inject(NgbModal);
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private ReviewList = inject(ReviewListService);
+    private Tabs = inject(ExamTabService);
 
     ngOnInit() {
         this.route.data.subscribe((data) => {

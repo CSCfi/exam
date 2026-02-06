@@ -1,55 +1,45 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-import { NgClass, UpperCasePipe } from '@angular/common';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+import { TranslateModule } from '@ngx-translate/core';
+import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
+import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
+import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
 import type {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
-    MultipleChoiceOption,
     Question,
     ReverseQuestion,
-} from 'src/app/exam/exam.model';
-import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
+} from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
-import { PageContentComponent } from 'src/app/shared/components/page-content.component';
-import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
+import { ClaimChoiceComponent } from './claim-choice.component';
+import { EssayComponent } from './essay.component';
+import { MultiChoiceComponent } from './multichoice.component';
+import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
 
 // This component depicts a distributed exam question. Only used thru a modal.
 @Component({
     selector: 'xm-exam-question',
     templateUrl: './exam-question.component.html',
     styleUrls: ['../question.shared.scss'],
-    standalone: true,
     imports: [
         FormsModule,
         NgbPopover,
-        CKEditorComponent,
-        NgClass,
         FixedPrecisionValidatorDirective,
-        UpperCasePipe,
         TranslateModule,
-        PageHeaderComponent,
-        PageContentComponent,
+        QuestionBasicInfoComponent,
+        QuestionUsageComponent,
+        EssayComponent,
+        WeightedMultiChoiceComponent,
+        MultiChoiceComponent,
+        ClaimChoiceComponent,
     ],
 })
 export class ExamQuestionComponent implements OnInit, OnDestroy {
@@ -58,6 +48,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     @Output() saved = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
     @Output() cancelled = new EventEmitter<{ dirty: boolean }>();
     @ViewChild('questionForm', { static: false }) questionForm?: NgForm;
+    multichoiceFeaturesOn = signal(false);
 
     question?: ReverseQuestion;
     examNames: string[] = [];
@@ -66,14 +57,10 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     isInPublishedExam = false;
     hideRestExams = true;
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Question: QuestionService,
-        private Attachment: AttachmentService,
-        private modal: NgbModal,
-    ) {}
+    private http = inject(HttpClient);
+    private Question = inject(QuestionService);
+    private Attachment = inject(AttachmentService);
+    private modal = inject(NgbModal);
 
     ngOnInit() {
         this.init();
@@ -83,11 +70,27 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         window.removeEventListener('beforeunload', this.onUnload);
     }
 
-    save = () =>
+    save = () => {
+        // Clean up temporary negative IDs before sending to server
+        const cleanedExamQuestion = {
+            ...this.examQuestion,
+            options: this.examQuestion.options.map((opt) => ({
+                ...opt,
+                id: opt.id && opt.id < 0 ? undefined : opt.id,
+            })),
+        };
+
         this.saved.emit({
             question: this.question as ReverseQuestion,
-            examQuestion: this.examQuestion as ExamSectionQuestion,
+            examQuestion: cleanedExamQuestion as ExamSectionQuestion,
         });
+    };
+
+    optionsChanged = ($event: ExamSectionQuestionOption[]) => (this.examQuestion.options = [...$event]);
+
+    setText = ($event: string) => {
+        if (this.question) this.question.question = $event;
+    };
 
     cancel = () => this.cancelled.emit({ dirty: this.questionForm?.dirty || false });
 
@@ -102,60 +105,19 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     };
 
     showWarning = () => this.examNames && this.examNames.length > 1;
-    estimateCharacters = () => (this.examQuestion.expectedWordCount || 0) * 8;
 
-    removeOption = (selectedOption: ExamSectionQuestionOption) => {
-        if (this.lotteryOn) {
-            this.toast.error(this.translate.instant('i18n_action_disabled_lottery_on'));
-            return;
-        }
+    negativeScoreSettingChanged = ($event: boolean) => (this.examQuestion.negativeScoreAllowed = $event);
 
-        const hasCorrectAnswer =
-            this.examQuestion.options.filter(
-                (o) =>
-                    o.id !== selectedOption.id &&
-                    (o.option?.correctOption || (o.option?.defaultScore && o.option.defaultScore > 0)),
-            ).length > 0;
+    shufflingSettingChanged = ($event: boolean) => (this.examQuestion.optionShufflingOn = $event);
 
-        // Either not published exam or correct answer exists
-        if (!this.isInPublishedExam || hasCorrectAnswer) {
-            this.examQuestion.options.splice(this.examQuestion.options.indexOf(selectedOption), 1);
-        } else {
-            this.toast.error(this.translate.instant('i18n_action_disabled_minimum_options'));
-        }
-    };
-
-    addNewOption = () => {
-        if (this.lotteryOn) {
-            this.toast.error(this.translate.instant('i18n_action_disabled_lottery_on'));
-            return;
-        }
-        const newOption: ExamSectionQuestionOption = {
-            id: undefined,
-            option: {
-                correctOption: false,
-                option: '',
-                defaultScore: 0,
-            },
-            score: 0,
-            answered: false,
-        };
-        this.examQuestion.options.push(newOption);
-    };
-
-    correctAnswerToggled = (option: ExamSectionQuestionOption) =>
-        this.Question.toggleCorrectOption(
-            option.option,
-            this.examQuestion.options.map((o) => o.option) as MultipleChoiceOption[],
-        );
-
-    optionDisabled = (option: ExamSectionQuestionOption) => option.option.correctOption;
-
-    updateEvaluationType = () => {
-        if (this.examQuestion.evaluationType && this.examQuestion.evaluationType === 'Selection') {
+    updateEvaluationType = ($event: string) => {
+        this.examQuestion.evaluationType = $event;
+        if ($event === 'Selection') {
             this.examQuestion.maxScore = 0;
         }
     };
+    updateWordCount = ($event: number) => (this.examQuestion.expectedWordCount = $event);
+    updateEvaluationCriteria = ($event: string) => (this.examQuestion.evaluationCriteria = $event);
 
     selectFile = () =>
         this.Attachment.selectFile(true).then((data) => {
@@ -179,42 +141,11 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     getFileSize = () =>
         !this.question?.attachment?.file ? 0 : this.Attachment.getFileSize(this.question.attachment.file.size);
 
-    calculateWeightedMaxPoints = () =>
-        this.Question.calculateWeightedMaxPoints(this.examQuestion as ExamSectionQuestion);
-
-    returnOptionClass = (option: ExamSectionQuestionOption) => {
-        const optionType = this.determineOptionType(option);
-        if (!optionType) {
-            return '';
-        }
-        return this.Question.determineClaimChoiceOptionClass(optionType);
-    };
-
-    determineOptionType = (option: ExamSectionQuestionOption) =>
-        this.Question.determineClaimOptionTypeForExamQuestionOption(option);
-
-    returnOptionDescriptionTranslation = (option: ExamSectionQuestionOption) => {
-        const optionType = this.determineOptionType(option);
-        if (!optionType) {
-            return;
-        }
-        return this.Question.determineOptionDescriptionTranslation(optionType);
-    };
-
-    validate = () => {
-        this.missingOptions = this.Question.getInvalidDistributedClaimOptionTypes(
-            this.examQuestion.options as ExamSectionQuestionOption[],
-        )
-            .filter((type) => type !== 'SkipOption')
-            .map((optionType) => this.Question.getOptionTypeTranslation(optionType));
-    };
-
     hasInvalidClaimChoiceOptions = () =>
         this.examQuestion.question.type === 'ClaimChoiceQuestion' &&
-        this.Question.getInvalidDistributedClaimOptionTypes(this.examQuestion.options as ExamSectionQuestionOption[])
-            .length > 0;
+        this.Question.getInvalidDistributedClaimOptionTypes(this.examQuestion.options).length > 0;
 
-    private init = () =>
+    private init = () => {
         this.http.get<ReverseQuestion>(`/app/questions/${this.examQuestion.question.id}`).subscribe((question) => {
             this.question = question;
             const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
@@ -228,9 +159,14 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
             // remove duplicates
             this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort();
             this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
-            this.validate();
             window.addEventListener('beforeunload', this.onUnload);
         });
+        this.Question.areNewFeaturesEnabled$().subscribe((data) => {
+            this.multichoiceFeaturesOn.set(data.multichoiceFeaturesOn);
+        });
+    };
 
-    private onUnload = (event: BeforeUnloadEvent) => event.preventDefault();
+    private onUnload = (event: BeforeUnloadEvent) => {
+        if (this.questionForm?.dirty) event.preventDefault();
+    };
 }

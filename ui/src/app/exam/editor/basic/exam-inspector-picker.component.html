@@ -1,69 +1,72 @@
-<div class="row">
-    <div class="col-md-12 mt-3">
-        <div class="row">
-            <div class="col-md-3">
-                {{ 'i18n_exam_instructor' | translate }}
-                <sup
-                    ngbPopover="{{ 'i18n_exam_instructor_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                    ><img src="/assets/images/icon_tooltip.svg" alt=""
-                /></sup>
-            </div>
-            <div class="col-md-9">
-                <input
-                    type="text"
-                    class="form-control w-50 make-inline"
-                    [(ngModel)]="newInspector.name"
-                    [ngbTypeahead]="listInspectors$"
-                    (selectItem)="setInspector($event)"
-                    [inputFormatter]="nameFormatter"
-                    [resultFormatter]="nameFormatter"
-                    placeholder="{{ 'i18n_name' | translate }}"
-                />
-                <label class="ms-2">
-                    <input type="checkbox" [(ngModel)]="newInspector.sendMessage" [disabled]="!newInspector.id" />
-                    <span class="ps-1">{{ 'i18n_write_message' | translate }}</span>
-                </label>
-            </div>
-        </div>
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
+<div class="row mt-3">
+    <div class="col-md-3">
+        {{ 'i18n_exam_instructor' | translate }}
+        <sup
+            ngbPopover="{{ 'i18n_exam_instructor_description' | translate }}"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+            ><img src="/assets/images/icon_tooltip.svg" alt=""
+        /></sup>
+    </div>
+    <div class="col-md-9">
+        <input
+            type="text"
+            class="form-control w-50 make-inline"
+            [(ngModel)]="newInspector.name"
+            [ngbTypeahead]="listInspectors$"
+            (selectItem)="setInspector($event)"
+            [inputFormatter]="nameFormatter"
+            [resultFormatter]="nameFormatter"
+            placeholder="{{ 'i18n_name' | translate }}"
+        />
+        <label class="ms-2">
+            <input type="checkbox" [(ngModel)]="newInspector.sendMessage" [disabled]="!newInspector.id" />
+            <span class="ps-1">{{ 'i18n_write_message' | translate }}</span>
+        </label>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12 mt-3">
-        <div class="row">
-            <div class="col-md-9 offset-md-3">
-                <textarea
-                    class="form-control w-50 make-inline"
-                    placeholder="{{ 'i18n_message' | translate }}"
-                    [(ngModel)]="newInspector.comment"
-                    [disabled]="!newInspector.sendMessage"
-                >
-                </textarea>
-                <span class="ms-2"
-                    ><button (click)="addInspector()" class="btn btn-success vbottom mb-1">
-                        {{ 'i18n_add' | translate }}
-                    </button>
-                </span>
-            </div>
-        </div>
+<div class="row mt-3">
+    <div class="col-md-9 offset-md-3">
+        <textarea
+            class="form-control w-50 make-inline"
+            placeholder="{{ 'i18n_message' | translate }}"
+            [(ngModel)]="newInspector.comment"
+            [disabled]="!newInspector.sendMessage"
+        >
+        </textarea>
+        <span class="ms-2"
+            ><button (click)="addInspector()" class="btn btn-success vbottom mb-2">
+                {{ 'i18n_add' | translate }}
+            </button>
+        </span>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12 mt-3">
-        <div class="row">
-            <div class="col-md-9 offset-md-3">
-                @for (inspection of examInspections; track inspection) {
-                    {{ inspection.user.firstName }} {{ inspection.user.lastName }} ({{ inspection.user.email }})
-                    <button
-                        class="btn btn-sm btn-link px-0"
-                        (click)="removeInspector(inspection.id)"
-                        title="{{ 'i18n_remove' | translate }}"
+<div class="row mt-3">
+    <div class="col-md-5 offset-md-3">
+        @for (inspection of examInspections; track inspection) {
+            <div class="d-flex align-items-center mt-1">
+                <div class="w-50">
+                    <small
+                        >{{ inspection.user.firstName }} {{ inspection.user.lastName }} ({{
+                            inspection.user.email
+                        }})</small
                     >
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                }
+                </div>
+                <!-- Remove button -->
+                <button
+                    class="btn btn-danger btn-sm ms-2"
+                    (click)="removeInspector(inspection.id)"
+                    [attr.aria-label]="inspection.user.firstName + ' ' + inspection.user.lastName"
+                >
+                    {{ 'i18n_remove' | translate }}
+                </button>
             </div>
-        </div>
+        }
     </div>
 </div>

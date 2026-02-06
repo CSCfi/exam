@@ -1,28 +1,16 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, inject } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
-import type { ParticipationLike } from 'src/app/enrolment/enrolment.service';
+import type { CollaborativeParticipation, ParticipationLike, ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
-import type { CollaborativeParticipation } from 'src/app/exam/collaborative/collaborative-exam.service';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
@@ -40,7 +28,6 @@ type Scores = {
 @Component({
     selector: 'xm-exam-participation',
     templateUrl: './exam-participation.component.html',
-    standalone: true,
     imports: [
         NgClass,
         CourseCodeComponent,
@@ -63,11 +50,9 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
     gradeDisplayName = '';
     private ngUnsubscribe = new Subject();
 
-    constructor(
-        private translate: TranslateService,
-        private Exam: CommonExamService,
-        private Enrolment: EnrolmentService,
-    ) {}
+    private translate = inject(TranslateService);
+    private Exam = inject(CommonExamService);
+    private Enrolment = inject(EnrolmentService);
 
     ngOnInit() {
         const state = this.participation.exam.state;
@@ -118,20 +103,26 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
     private loadReview = (exam: Exam) => this.Enrolment.loadFeedback$(exam.id).subscribe(this.prepareReview);
 
     private prepareReview = (exam: ReviewedExam) => {
-        if (!exam.grade) {
+        if (exam.gradingType === 'NOT_GRADED') {
             exam.grade = {
-                name: 'NONE',
-                displayName: '',
+                name: 'NOT_GRADED',
+                displayName: this.translate.instant('i18n_not_graded'),
+            };
+        }
+        if (exam.gradingType === 'POINT_GRADED') {
+            exam.grade = {
+                name: 'POINT_GRADED',
+                displayName: this.translate.instant('i18n_point_graded'),
             };
         }
         if (exam.languageInspection) {
-            exam.grade.displayName = this.translate.instant(
+            exam.grade!.displayName = this.translate.instant(
                 exam.languageInspection.approved ? 'i18n_approved' : 'i18n_rejected',
             );
-            exam.contentGrade = this.Exam.getExamGradeDisplayName(exam.grade.name);
+            exam.contentGrade = this.Exam.getExamGradeDisplayName(exam.grade!.name);
             exam.gradedTime = exam.languageInspection.finishedAt;
         } else {
-            exam.grade.displayName = this.Exam.getExamGradeDisplayName(exam.grade.name);
+            exam.grade!.displayName = this.Exam.getExamGradeDisplayName(exam.grade!.name);
         }
         const credit = this.Exam.getCredit(exam);
         exam.credit = credit;

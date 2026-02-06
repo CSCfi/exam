@@ -1,20 +1,10 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -29,7 +19,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 
 @Component({
     selector: 'xm-aborted-exams',
-    standalone: true,
     imports: [
         TranslateModule,
         DatePipe,
@@ -49,13 +38,11 @@ export class AbortedExamsComponent {
     abortedPredicate = 'started';
     reverse = false;
 
-    constructor(
-        private modal: NgbActiveModal,
-        private translate: TranslateService,
-        private http: HttpClient,
-        private toast: ToastrService,
-        private Session: SessionService,
-    ) {}
+    private modal = inject(NgbActiveModal);
+    private translate = inject(TranslateService);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+    private Session = inject(SessionService);
 
     showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
 

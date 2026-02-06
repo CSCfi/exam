@@ -1,20 +1,10 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -24,19 +14,12 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin, noop, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-import type {
-    Course,
-    Exam,
-    ExamParticipation,
-    Grade,
-    GradeScale,
-    NoGrade,
-    SelectableGrade,
-} from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import type { Course, Exam, Grade, GradeScale, NoGrade, SelectableGrade } from 'src/app/exam/exam.model';
 import { isRealGrade } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Review } from 'src/app/review/review.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
@@ -46,7 +29,6 @@ import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
 import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
-import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
@@ -58,9 +40,7 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 @Component({
     selector: 'xm-speed-review',
     templateUrl: './speed-review.component.html',
-    standalone: true,
     imports: [
-        HistoryBackComponent,
         TableSortComponent,
         RouterLink,
         NgClass,
@@ -91,21 +71,19 @@ export class SpeedReviewComponent implements OnInit {
     toggleReviews = false;
     examReviews: Review[] = [];
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private toast: ToastrService,
-        private Exam: ExamService,
-        private CommonExam: CommonExamService,
-        private Confirmation: ConfirmationDialogService,
-        private Files: FileService,
-        private Attachment: AttachmentService,
-        private DateTime: DateTimeService,
-        private CourseCode: CourseCodeService,
-    ) {}
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
+    private Exam = inject(ExamService);
+    private CommonExam = inject(CommonExamService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Files = inject(FileService);
+    private Attachment = inject(AttachmentService);
+    private DateTime = inject(DateTimeService);
+    private CourseCode = inject(CourseCodeService);
 
     ngOnInit() {
         this.examId = this.route.snapshot.params.id;
@@ -161,7 +139,7 @@ export class SpeedReviewComponent implements OnInit {
                 this.examReviews.filter(
                     (r) =>
                         r.selectedGrade &&
-                        (isRealGrade(r.selectedGrade) || r.selectedGrade.type === 'NONE') &&
+                        (isRealGrade(r.selectedGrade) || r.selectedGrade.type === 'NOT_GRADED') &&
                         this.isGradeable(r),
                 ).length > 0
             );
@@ -196,15 +174,17 @@ export class SpeedReviewComponent implements OnInit {
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, {}, 'i18n_import_grades_from_csv')
-            .then((result) => {
-                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, () => this.reload());
-                this.toast.success(`${this.translate.instant('i18n_csv_uploaded_successfully')}`);
-            })
-            .catch(() => {
-                this.toast.error(`${this.translate.instant('i18n_csv_uploading_failed')}`);
-                return noop;
-            });
+        this.Attachment.selectFile(false, {}, 'i18n_import_grades_from_csv').then((result) => {
+            this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {})
+                .then(() => {
+                    this.toast.success(`${this.translate.instant('i18n_csv_uploaded_successfully')}`);
+                    this.reload();
+                })
+                .catch(() => {
+                    this.toast.info(`${this.translate.instant('i18n_csv_uploading_cancelled')}`);
+                    return noop;
+                });
+        });
     };
 
     createGradingTemplate = () => {
@@ -255,13 +235,19 @@ export class SpeedReviewComponent implements OnInit {
                 };
             })
             .filter(isRealGrade);
-        // The "no grade" option
-        const noGrade: NoGrade = {
-            name: this.CommonExam.getExamGradeDisplayName('NONE'),
-            type: 'NONE',
+        // The "point graded" option
+        const pointGraded: NoGrade = {
+            name: this.CommonExam.getExamGradeDisplayName('POINT_GRADED'),
+            type: 'POINT_GRADED',
             marksRejection: false,
         };
-        return [...grades, noGrade];
+        // The "not graded" option
+        const notGraded: NoGrade = {
+            name: this.CommonExam.getExamGradeDisplayName('NOT_GRADED'),
+            type: 'NOT_GRADED',
+            marksRejection: false,
+        };
+        return [...grades, pointGraded, notGraded];
     };
 
     private getErrors = (review: Review) => {
@@ -292,20 +278,22 @@ export class SpeedReviewComponent implements OnInit {
         messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
         if (messages.length === 0) {
             let grade: SelectableGrade | undefined;
-            if (review.selectedGrade?.type === 'NONE') {
-                exam.gradeless = true;
+            if (review.selectedGrade?.type === 'NOT_GRADED') {
+                exam.gradingType = 'NOT_GRADED';
+            } else if (review.selectedGrade?.type === 'POINT_GRADED') {
+                exam.gradingType = 'POINT_GRADED';
             } else {
                 grade = review.selectedGrade?.id ? review.selectedGrade : exam.grade;
-                exam.gradeless = false;
+                exam.gradingType = 'GRADED';
             }
             const data = {
                 id: exam.id,
                 state: 'GRADED',
-                gradeless: exam.gradeless,
                 grade: grade ? grade.id : undefined,
                 customCredit: exam.customCredit,
                 creditType: exam.creditType ? exam.creditType.type : exam.examType.type,
                 answerLanguage: this.getAnswerLanguage(review),
+                gradingType: exam.gradingType,
             };
             return this.http.put<void>(`/app/review/${exam.id}`, data).pipe(
                 tap(() => {

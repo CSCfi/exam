@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="row">
     <div class="col-md-8 essay-question-review-column">
         <!-- answers column -->
@@ -96,7 +102,7 @@
     </div>
     <div class="row pt-4">
         <div class="col-md-12">
-            <ul ngbNav #nav="ngbNav" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" class="nav-tabs" [keyboard]="false">
                 <li ngbNavItem>
                     <a ngbNavLink>
                         {{ 'i18n_unassessed_exams' | translate }}

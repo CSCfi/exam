@@ -1,5 +1,9 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { PipeTransform } from '@angular/core';
-import { Pipe } from '@angular/core';
+import { Pipe, inject } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Pipe({
@@ -7,7 +11,7 @@ import { DomSanitizer } from '@angular/platform-browser';
     standalone: true,
 })
 export class SanitizedHtmlPipe implements PipeTransform {
-    constructor(private sanitizer: DomSanitizer) {}
+    private sanitizer = inject(DomSanitizer);
 
     transform(html: string) {
         return this.sanitizer.bypassSecurityTrustHtml(html);

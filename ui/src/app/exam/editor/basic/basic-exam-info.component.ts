@@ -1,21 +1,11 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy, OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -26,8 +16,9 @@ import { LanguageSelectorComponent } from 'src/app/exam/editor/common/language-p
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { Exam, ExamType, GradeScale } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
+import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -40,7 +31,6 @@ import { SoftwareSelectorComponent } from './software-picker.component';
     selector: 'xm-basic-exam-info',
     templateUrl: './basic-exam-info.component.html',
     styleUrls: ['../../exam.shared.scss'],
-    standalone: true,
     imports: [
         ExamCourseComponent,
         NgbPopover,
@@ -67,19 +57,19 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
 
     unsubscribe = new Subject<unknown>();
 
-    constructor(
-        private http: HttpClient,
-        private route: ActivatedRoute,
-        private router: Router,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Exam: ExamService,
-        private ExamTabs: ExamTabService,
-        private Attachment: AttachmentService,
-        private Files: FileService,
-        private Session: SessionService,
-        private Tabs: ExamTabService,
-    ) {
+    private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Exam = inject(ExamService);
+    private ExamTabs = inject(ExamTabService);
+    private Attachment = inject(AttachmentService);
+    private Files = inject(FileService);
+    private Session = inject(SessionService);
+    private Tabs = inject(ExamTabService);
+
+    constructor() {
         this.user = this.Session.getUser();
     }
 
@@ -159,7 +149,11 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
     selectAttachmentFile = () => {
         this.Attachment.selectFile(true, {}).then((data) => {
             const url = this.collaborative ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
-            this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }, this.exam);
+            this.Files.upload<Attachment>(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }).then(
+                (resp) => {
+                    this.exam.attachment = resp;
+                },
+            );
         });
     };
 

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="row">
     <div class="col-md-12">
         <div class="xm-paragraph-title pb-3">
@@ -219,7 +225,7 @@
             <div cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="p-0 mb-2">
                 @for (
                     sectionQuestion of section.sectionQuestions | orderBy: 'sequenceNumber';
-                    track sectionQuestion.sequenceNumber
+                    track sectionQuestion.id
                 ) {
                     <div cdkDrag cdkDragLockAxis="y" class="mb-4">
                         <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>

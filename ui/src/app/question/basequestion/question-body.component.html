@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <!--style>
     #questionBody.ng-invalid {
         border-color: transparent;
@@ -6,391 +12,237 @@
         border-color: transparent;
     }
 </style-->
-<div ngModelGroup="questionBody" id="questionBody" class="exclude">
-    <div class="xm-study-item-container--warning mt-3">
-        <!-- Exam contexts -->
-        <div class="row">
-            <div class="col-auto p-1">
-                <img src="/assets/images/icon_warning.png" />
-            </div>
-            <div class="col warning-text">
-                @if (examNames.length > 1) {
-                    <div class="col warning-text">
-                        {{ 'i18n_exam_question_edit_instructions' | translate }}
-                    </div>
-                }
-                @if (examNames.length === 1) {
-                    <div class="col warning-text">
-                        {{ 'i18n_exam_question_edit_instructions_for_one' | translate }}
-                    </div>
-                }
-                @if (examNames.length < 1) {
-                    <div class="col warning-text">
-                        {{ 'i18n_exam_question_edit_instructions_for_none' | translate }}
-                    </div>
-                }
-                @if (examNames.length > 0) {
-                    <div class="col-12 justify-content-center m-4">
-                        <ul class="list-inline row">
-                            <li class="list-inline-item relation-text mb-3 col-12">
-                                <span class="text-nowrap">
-                                    {{ 'i18n_exam_question_in_use' | translate }}: {{ examNames.length }}
-                                </span>
-                            </li>
-
-                            @for (name of examNames.slice(0, 5); track name) {
-                                <li class="list-inline-item relation-text col-12">
-                                    <span class="text-nowrap">
-                                        {{ name }}
-                                    </span>
-                                </li>
-                            }
-
-                            @for (name of examNames.slice(5); track name) {
-                                <li [hidden]="hideRestExams" class="list-inline-item relation-text col-12">
-                                    <span class="text-nowrap">
-                                        {{ name }}
-                                    </span>
-                                </li>
-                            }
-
-                            @if (examNames.length > 5 && hideRestExams) {
-                                <li>
-                                    <i
-                                        class="bi-three-dots"
-                                        alt=""
-                                        [attr.aria-label]="'i18n_more_hidden' | translate"
-                                    ></i>
-                                </li>
-                            }
-
-                            @if (examNames.length > 5) {
-                                <li>
-                                    <button (click)="hideRestExams = !hideRestExams" class="btn btn-secondary">
-                                        {{
-                                            !hideRestExams
-                                                ? ('i18n_hide' | translate)
-                                                : ('i18n_open_list_of_exams' | translate)
-                                        }}
-                                    </button>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-
-    <!-- Question editor -->
-    <div class="row mt-3">
+<div ngModelGroup="questionBody" id="questionBody">
+    <xm-question-usage [examNames]="examNames" />
+    <xm-question-basic-info
+        [question]="question"
+        [questionTypes]="questionTypes"
+        [questionId]="question.id"
+        (newText)="setText($event)"
+        (newType)="setQuestionType($event)"
+    />
+    <div class="row mt-2">
         <div class="col-md-12">
-            @if (showWarning()) {
-                <div class="xm-paragraph-title edit-warning-container">
-                    {{ 'i18n_exam_basic_information_tab' | translate }}
-                    <i class="bi-exclamation-circle ps-4 text-danger"></i>
-                    <span class="warning-text-small ps-2">
-                        {{ 'i18n_shared_question_property_info' | translate }}
-                    </span>
-                </div>
-            } @else {
-                <div class="xm-paragraph-title">
-                    {{ 'i18n_exam_basic_information_tab' | translate }}
-                </div>
+            @if (question.type === 'EssayQuestion') {
+                <!-- Evaluation -->
+                <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
+            } @else if (
+                question.type === 'MultipleChoiceQuestion' ||
+                question.type === 'WeightedMultipleChoiceQuestion' ||
+                question.type === 'ClaimChoiceQuestion'
+            ) {
+                <!-- Multiple choices -->
+                <div class="xm-paragraph-title">{{ 'i18n_question_options' | translate }}</div>
             }
         </div>
     </div>
 
-    @if (question.id) {
+    <!-- Type specific content -->
+    @switch (question.type) {
+        @case ('EssayQuestion') {
+            <xm-essay-editor [question]="question" [lotteryOn]="lotteryOn" />
+        }
+        @case ('MultipleChoiceQuestion') {
+            <xm-multiple-choice-editor
+                [question]="question"
+                [showWarning]="showWarning()"
+                [lotteryOn]="lotteryOn"
+                [allowOptionRemoval]="!isInPublishedExam"
+                [multichoiceFeaturesOn]="multichoiceFeaturesOn()"
+            />
+        }
+        @case ('WeightedMultipleChoiceQuestion') {
+            <xm-multiple-choice-editor
+                [question]="question"
+                [showWarning]="showWarning()"
+                [lotteryOn]="lotteryOn"
+                [allowOptionRemoval]="!isInPublishedExam"
+                [multichoiceFeaturesOn]="multichoiceFeaturesOn()"
+            />
+        }
+        @case ('ClaimChoiceQuestion') {
+            <xm-claim-choice-editor [question]="question" [lotteryOn]="lotteryOn" [showWarning]="showWarning()" />
+        }
+    }
+
+    @if (
+        question.type === 'MultipleChoiceQuestion' ||
+        question.type === 'ClozeTestQuestion' ||
+        question.defaultEvaluationType === 'Points'
+    ) {
+        <!-- Max score -->
         <div class="row mt-3">
             <div class="col-md-3">
-                {{ 'i18n_question_id' | translate }}
+                {{ 'i18n_max_score' | translate }}
             </div>
-            <div class="col-md-9 pe-0">#{{ question.id }}</div>
+            <div class="col-md-2">
+                <input
+                    id="defaultMaxScore"
+                    name="defaultMaxScore"
+                    type="number"
+                    lang="en"
+                    class="form-control xm-numeric-input"
+                    [(ngModel)]="question.defaultMaxScore"
+                    [min]="0"
+                    [max]="1000"
+                    required
+                    [disabled]="lotteryOn"
+                />
+            </div>
         </div>
     }
+
+    <!-- Additional info -->
     <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="xm-paragraph-title">{{ 'i18n_additional_info' | translate }}</div>
+        </div>
+    </div>
+
+    <!-- Exam owners -->
+    <div class="row mt-3 align-items-center">
         <div class="col-md-3">
-            {{ 'i18n_new_question_type' | translate }}
+            {{ 'i18n_question_owners' | translate }}
             <sup
-                ngbPopover="{{ 'i18n_question_type_description' | translate }}"
+                ngbPopover="{{ 'i18n_question_owners_description' | translate }}"
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
-                <img src="/assets/images/icon_tooltip.svg" />
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
             </sup>
         </div>
         <div class="col-md-9">
-            <select
-                [hidden]="question.type"
-                id="newQuestion"
-                name="newQuestion"
-                class="form-select initial-width"
-                [(ngModel)]="newType"
-                (change)="setQuestionType()"
-            >
-                @for (type of questionTypes; track type.name) {
-                    <option value="{{ type.type }}">{{ type.name | translate }}</option>
-                }
-            </select>
-            @switch (question.type) {
-                @case ('EssayQuestion') {
-                    {{ 'i18n_toolbar_essay_question' | translate }}
-                }
-                @case ('ClozeTestQuestion') {
-                    {{ 'i18n_toolbar_cloze_test_question' | translate }}
-                }
-                @case ('MultipleChoiceQuestion') {
-                    {{ 'i18n_toolbar_multiplechoice_question' | translate }}
-                }
-                @case ('WeightedMultipleChoiceQuestion') {
-                    {{ 'i18n_toolbar_weighted_multiplechoice_question' | translate }}
-                }
-                @case ('ClaimChoiceQuestion') {
-                    {{ 'i18n_toolbar_claim_choice_question' | translate }}
+            @if (isUserAllowedToModifyOwners()) {
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                name="questionOnwers"
+                                class="form-control"
+                                [(ngModel)]="newOwner.name"
+                                [ngbTypeahead]="listQuestionOwners$"
+                                [editable]="false"
+                                [inputFormatter]="nameFormat"
+                                [resultFormatter]="nameFormat"
+                                (selectItem)="setQuestionOwner($event)"
+                            />
+                            <button
+                                (click)="addQuestionOwner()"
+                                [disabled]="!newOwner?.name"
+                                class="btn btn-success input-group-text"
+                            >
+                                {{ 'i18n_add' | translate }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="ms-1 row" [hidden]="currentOwners.length !== 1">
+                        {{ 'i18n_exam_last_owner_info' | translate }}
+                    </div>
+                    <div class="col-md-12 mt-3">
+                        @for (user of currentOwners; track user.id) {
+                            <div class="ms-1 row" [ngClass]="{ 'hover-grey': currentOwners.length !== 1 }">
+                                <div class="row col-8">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</div>
+                                <!-- Remove button -->
+                                <button
+                                    class="btn btn-danger btn-sm ms-1 w-auto m-1"
+                                    (click)="removeOwner(user)"
+                                    [hidden]="currentOwners.length === 1"
+                                    [disabled]="removeOwnerDisabled(user)"
+                                    [attr.aria-label]="user.firstName + ' ' + user.lastName"
+                                >
+                                    {{ 'i18n_remove' | translate }}
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            } @else {
+                @for (user of currentOwners; track user.id) {
+                    <div class="ms-1 row">
+                        <div class="row col-8">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</div>
+                    </div>
                 }
             }
         </div>
     </div>
-    @if (question.type) {
-        <div class="row mt-3">
-            <div class="col-md-3">
-                {{ 'i18n_question_text' | translate }}
-                <sup
-                    ngbPopover="{{ 'i18n_question_text_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            <div class="col-md-9" [ngClass]="ck.invalid ? 'ng-invalid py-2' : ''">
-                <xm-ckeditor
-                    id="editor"
-                    name="editor"
-                    rows="10"
-                    cols="50"
-                    #ck="ngModel"
-                    [enableClozeTest]="question.type === 'ClozeTestQuestion'"
-                    [(ngModel)]="question.question"
-                    [required]="true"
-                >
-                </xm-ckeditor>
-            </div>
+
+    <!-- Attachment -->
+    <div class="row mt-3 align-items-center">
+        <div class="col-md-3">
+            {{ 'i18n_question_attachment' | translate }}
+            <sup
+                ngbPopover="{{ 'i18n_attachment_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
         </div>
-
-        <div class="row mt-2">
-            <div class="col-md-12">
-                @if (question.type === 'EssayQuestion') {
-                    <!-- Evaluation -->
-                    <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
-                } @else if (
-                    question.type === 'MultipleChoiceQuestion' ||
-                    question.type === 'WeightedMultipleChoiceQuestion' ||
-                    question.type === 'ClaimChoiceQuestion'
-                ) {
-                    <!-- Multiple choices -->
-                    <div class="xm-paragraph-title">{{ 'i18n_question_options' | translate }}</div>
-                }
-            </div>
-        </div>
-
-        <!-- Type specific content -->
-        @switch (question.type) {
-            @case ('EssayQuestion') {
-                <xm-essay-editor [question]="question" />
-            }
-            @case ('MultipleChoiceQuestion') {
-                <xm-multiple-choice-editor
-                    [question]="question"
-                    [showWarning]="showWarning()"
-                    [lotteryOn]="lotteryOn"
-                    [allowOptionRemoval]="!isInPublishedExam"
-                />
-            }
-            @case ('WeightedMultipleChoiceQuestion') {
-                <xm-multiple-choice-editor
-                    [question]="question"
-                    [showWarning]="showWarning()"
-                    [lotteryOn]="lotteryOn"
-                    [allowOptionRemoval]="!isInPublishedExam"
-                />
-            }
-            @case ('ClaimChoiceQuestion') {
-                <xm-claim-choice-editor [question]="question" [lotteryOn]="lotteryOn" [showWarning]="showWarning()" />
-            }
-        }
-
-        @if (question.type === 'EssayQuestion') {
-            <!-- Evaluation type - not allowed if question is in use in other published exam. -->
-            <div class="row mt-3">
-                <div class="col-md-3">
-                    {{ 'i18n_evaluation_type' | translate }}
+        <div class="col-md-9" id="attachment">
+            @if (showWarning()) {
+                <div class="mt-1 edit-warning-container">
+                    <i class="bi-exclamation-circle text-danger me-2"></i>
+                    <span class="warning-text-small">{{ 'i18n_shared_question_property_info' | translate }}</span>
                 </div>
-                <div class="col-md-2">
-                    <select
-                        id="evaluationType"
-                        name="evaluationType"
-                        class="form-select w-75"
-                        [(ngModel)]="question.defaultEvaluationType"
-                        (change)="updateEvaluationType()"
-                        required="question.type == 'EssayQuestion'"
-                    >
-                        <option value="Points">{{ 'i18n_word_points' | translate }}</option>
-                        <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
-                    </select>
-                </div>
-            </div>
-        }
-        @if (
-            question.type === 'MultipleChoiceQuestion' ||
-            question.type === 'ClozeTestQuestion' ||
-            question.defaultEvaluationType === 'Points'
-        ) {
-            <!-- Max score -->
-            <div class="row mt-3">
-                <div class="col-md-3">
-                    {{ 'i18n_max_score' | translate }}
-                </div>
-                <div class="col-md-2">
-                    <input
-                        id="defaultMaxScore"
-                        name="defaultMaxScore"
-                        type="number"
-                        lang="en"
-                        class="form-control xm-numeric-input"
-                        [(ngModel)]="question.defaultMaxScore"
-                        [min]="0"
-                        [max]="1000"
-                        required
-                        [disabled]="lotteryOn"
-                    />
-                </div>
-            </div>
-        }
-
-        <!-- Additional info -->
-        <div class="row mt-3">
-            <div class="col-md-12">
-                <div class="xm-paragraph-title">{{ 'i18n_additional_info' | translate }}</div>
-            </div>
-        </div>
-
-        <!-- Exam owners -->
-        <div class="row mt-3 align-items-center">
-            <div class="col-md-3">
-                {{ 'i18n_question_owners' | translate }}
-                <sup
-                    ngbPopover="{{ 'i18n_question_owners_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            <div class="col-md-9">
-                @if (isUserAllowedToModifyOwners()) {
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="input-group">
-                                <input
-                                    type="text"
-                                    name="questionOnwers"
-                                    class="form-control"
-                                    [(ngModel)]="newOwner.name"
-                                    [ngbTypeahead]="listQuestionOwners$"
-                                    [editable]="false"
-                                    [inputFormatter]="nameFormat"
-                                    [resultFormatter]="nameFormat"
-                                    (selectItem)="setQuestionOwner($event)"
-                                />
-                                <button
-                                    (click)="addQuestionOwner()"
-                                    [disabled]="!newOwner?.name"
-                                    class="btn btn-success input-group-text"
-                                >
-                                    {{ 'i18n_add' | translate }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            @for (user of currentOwners; track user.id) {
-                                {{ user.firstName }} {{ user.lastName }}
-                                <button
-                                    class="btn btn-sm btn-link"
-                                    [disabled]="removeOwnerDisabled(user)"
-                                    (click)="removeOwner(user)"
-                                    title="{{ 'i18n_remove' | translate }}"
-                                >
-                                    <i
-                                        class="bi bi-x"
-                                        [ngClass]="removeOwnerDisabled(user) ? 'text-danger' : 'text-success'"
-                                    ></i>
-                                </button>
-                            }
-                        </div>
-                    </div>
-                } @else {
-                    @for (user of currentOwners; track user.id) {
-                        <span class="label label-default pe-2">{{ user.firstName }} {{ user.lastName }}</span>
-                    }
-                }
-            </div>
-        </div>
-
-        <!-- Attachment -->
-        <div class="row mt-3 align-items-center">
-            <div class="col-md-3">
-                {{ 'i18n_question_attachment' | translate }}
-                <sup
-                    ngbPopover="{{ 'i18n_attachment_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                </sup>
-            </div>
-            <div class="col-md-9" id="attachment">
-                @if (showWarning()) {
-                    <div class="mt-1 edit-warning-container">
-                        <i class="bi-exclamation-circle text-danger me-2"></i>
-                        <span class="warning-text-small">{{ 'i18n_shared_question_property_info' | translate }}</span>
-                    </div>
-                }
-                <button class="btn btn-success" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</button>
-                @if (question.attachment && !question.attachment?.removed) {
-                    <div class="make-inline ps-2">
-                        @if (hasUploadedAttachment()) {
-                            <!-- Uploaded -->
-                            <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
-                                <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
-                            </a>
-                        } @else {
-                            <!-- Not yet uploaded -->
-                            <span class="attachment-link">
-                                <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
-                                <small class="ps-2">{{ getFileSize() }}</small>
-                            </span>
-                        }
-                        <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
-                            <img
-                                src="/assets/images/icon_remove.svg"
-                                alt="{{ 'i18n_remove_attachment' | translate }}"
-                            />
+            }
+            <button class="btn btn-success" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</button>
+            @if (question.attachment && !question.attachment?.removed) {
+                <div class="make-inline ps-2">
+                    @if (hasUploadedAttachment()) {
+                        <!-- Uploaded -->
+                        <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
+                            <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
+                        </a>
+                    } @else {
+                        <!-- Not yet uploaded -->
+                        <span class="attachment-link">
+                            <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
+                            <small class="ps-2">{{ getFileSize() }}</small>
                         </span>
-                    </div>
-                }
-            </div>
+                    }
+                    <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
+                        <img src="/assets/images/icon_remove.svg" alt="{{ 'i18n_remove_attachment' | translate }}" />
+                    </span>
+                </div>
+            }
         </div>
+    </div>
 
-        <!-- Instructions -->
+    <!-- Instructions -->
+    <div class="row mt-3">
+        <div class="col-md-3">
+            {{ 'i18n_question_instruction' | translate }}
+            <sup
+                ngbPopover="{{ 'i18n_question_instruction_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+        <div class="col-md-9 pe-0">
+            <textarea
+                id="defaultInstructions"
+                name="defaultInstructions"
+                class="form-control"
+                rows="3"
+                [(ngModel)]="question.defaultAnswerInstructions"
+                placeholder="{{ 'i18n_question_instruction' | translate }}"
+            >
+            </textarea>
+        </div>
+    </div>
+
+    @if (question.type === 'EssayQuestion') {
+        <!-- Evaluation criteria -->
         <div class="row mt-3">
             <div class="col-md-3">
-                {{ 'i18n_question_instruction' | translate }}
+                {{ 'i18n_exam_evaluation_criteria' | translate }}
                 <sup
-                    ngbPopover="{{ 'i18n_question_instruction_description' | translate }}"
+                    ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
@@ -399,59 +251,32 @@
             </div>
             <div class="col-md-9 pe-0">
                 <textarea
-                    id="defaultInstructions"
-                    name="defaultInstructions"
+                    id="defaultEvaluationCriteria"
+                    name="defaultEvaluationCriteria"
                     class="form-control"
                     rows="3"
-                    [(ngModel)]="question.defaultAnswerInstructions"
-                    placeholder="{{ 'i18n_question_instruction' | translate }}"
+                    [(ngModel)]="question.defaultEvaluationCriteria"
+                    placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
                 >
                 </textarea>
             </div>
         </div>
+    }
 
-        @if (question.type === 'EssayQuestion') {
-            <!-- Evaluation criteria -->
-            <div class="row mt-3">
-                <div class="col-md-3">
-                    {{ 'i18n_exam_evaluation_criteria' | translate }}
-                    <sup
-                        ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    >
-                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                    </sup>
-                </div>
-                <div class="col-md-9 pe-0">
-                    <textarea
-                        id="defaultEvaluationCriteria"
-                        name="defaultEvaluationCriteria"
-                        class="form-control"
-                        rows="3"
-                        [(ngModel)]="question.defaultEvaluationCriteria"
-                        placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
-                    >
-                    </textarea>
-                </div>
+    @if (!collaborative) {
+        <!-- Tags -->
+        <xm-tag-picker [question]="question"></xm-tag-picker>
+    }
+
+    @if (sectionNames.length > 0) {
+        <!-- Categories -->
+        <div class="row mt-3">
+            <div class="col-md-3">
+                {{ 'i18n_added_to_sections' | translate }}
             </div>
-        }
-
-        @if (!collaborative) {
-            <!-- Tags -->
-            <xm-tag-picker [question]="question"></xm-tag-picker>
-        }
-
-        @if (sectionNames.length > 0) {
-            <!-- Categories -->
-            <div class="row mt-3">
-                <div class="col-md-3">
-                    {{ 'i18n_added_to_sections' | translate }}
-                </div>
-                <div class="col-md-9">
-                    {{ sectionNames.join(', ') }}
-                </div>
+            <div class="col-md-9">
+                {{ sectionNames.join(', ') }}
             </div>
-        }
+        </div>
     }
 </div>

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -23,14 +27,15 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
-import models.json.ExternalExam;
+import miscellaneous.json.JsonDeserializer;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.exam.ExamExecutionType;
+import models.facility.ExamMachine;
+import models.facility.ExamRoom;
+import models.iop.ExternalExam;
+import models.user.User;
 import net.jodah.concurrentunit.Waiter;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
@@ -42,7 +47,6 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.json.JsonDeserializer;
 
 public class EnrolmentControllerTest extends IntegrationTestCase {
 
@@ -55,8 +59,9 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     private static Server server;
 
     @Rule
-    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
-        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
+    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(
+        ServerSetupTest.SMTP
+    ).withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     public static class CourseInfoServlet extends HttpServlet {
 
@@ -68,11 +73,10 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server =
-            RemoteServerHelper.createAndStartServer(
-                31246,
-                ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments"))
-            );
+        server = RemoteServerHelper.createAndStartServer(
+            31246,
+            ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments"))
+        );
     }
 
     @AfterClass
@@ -98,7 +102,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testPreEnrollWithEmail() throws Exception {
-        String eppn = "student@uni.org";
+        String eppn = "student@test.org";
         String email = "student@foo.bar";
         exam.setExecutionType(
             DB.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
@@ -127,7 +131,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testPreEnrollWithEppn() throws Exception {
-        String eppn = "student@uni.org";
+        String eppn = "student@test.org";
         exam.setExecutionType(
             DB.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
         );
@@ -198,8 +202,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
-        ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .where()
             .eq("exam.id", exam.getId())
             .eq("user.id", user.getId())
@@ -213,8 +216,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         final int callCount = 10;
         final Waiter waiter = new Waiter();
 
-        IntStream
-            .range(0, callCount)
+        IntStream.range(0, callCount)
             .parallel()
             .forEach(i ->
                 new Thread(() -> {
@@ -229,8 +231,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
             );
 
         waiter.await(5000, callCount);
-        final int count = DB
-            .find(ExamEnrolment.class)
+        final int count = DB.find(ExamEnrolment.class)
             .where()
             .eq("exam.id", exam.getId())
             .eq("user.id", user.getId())

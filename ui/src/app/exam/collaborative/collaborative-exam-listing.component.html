@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <xm-page-header text="i18n_collaborative_exams" [appendTemplate]="button" />
 <xm-page-content [content]="content" />
 <ng-template #button>
@@ -10,7 +16,7 @@
 <ng-template #content>
     <div class="row">
         <div class="col-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs" [keyboard]="false">
                 <li [ngbNavItem]="'PUBLISHED'">
                     <a ngbNavLink>
                         {{ 'i18n_published_joint_exams' | translate }}
@@ -45,9 +51,7 @@
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 />
-                <div class="input-group-append search">
-                    <img src="/assets/images/icon_search.png" alt="search-icon" width="49" height="40" />
-                </div>
+                <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
         <div class="col" [hidden]="!loader.loading">
@@ -131,7 +135,7 @@
                             <td
                                 [ngClass]="{
                                     'text-success': exam.state === 'PUBLISHED',
-                                    'text-danger': exam.state === 'PRE_PUBLISHED'
+                                    'text-danger': exam.state === 'PRE_PUBLISHED',
                                 }"
                             >
                                 {{ getStateTranslation(exam) }}

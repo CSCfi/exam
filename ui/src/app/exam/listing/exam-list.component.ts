@@ -1,25 +1,15 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, from } from 'rxjs';
+import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ExaminationTypeSelectorComponent } from 'src/app/exam/editor/common/examination-type-picker.component';
 import type { Exam, Implementation } from 'src/app/exam/exam.model';
@@ -27,6 +17,7 @@ import { ExamService } from 'src/app/exam/exam.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
@@ -37,7 +28,6 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 @Component({
     selector: 'xm-exam-list',
     templateUrl: './exam-list.component.html',
-    standalone: true,
     imports: [
         NgbNav,
         NgbNavItem,
@@ -71,15 +61,13 @@ export class ExamListingComponent implements OnInit, OnDestroy {
     subject = new Subject<string>();
     ngUnsubscribe = new Subject();
 
-    constructor(
-        private translate: TranslateService,
-        private router: Router,
-        private http: HttpClient,
-        private modal: NgbModal,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Exam: ExamService,
-    ) {}
+    private translate = inject(TranslateService);
+    private router = inject(Router);
+    private http = inject(HttpClient);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Exam = inject(ExamService);
+    private Modal = inject(ModalService);
 
     ngOnDestroy() {
         this.ngUnsubscribe.next(undefined);
@@ -123,12 +111,10 @@ export class ExamListingComponent implements OnInit, OnDestroy {
     createExam = (executionType: Implementation) => this.Exam.createExam(executionType);
 
     copyExam = (exam: Exam) =>
-        from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
-            .pipe(
-                switchMap((data: { type: string; examinationType: string }) =>
-                    this.http.post<Exam>(`/app/exams/${exam.id}`, data),
-                ),
-            )
+        this.Modal.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent, {
+            backdrop: 'static',
+        })
+            .pipe(switchMap((data) => this.http.post<Exam>(`/app/exams/${exam.id}`, data)))
             .subscribe({
                 next: (resp) => {
                     this.toast.success(this.translate.instant('i18n_exam_copied'));

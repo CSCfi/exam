@@ -1,10 +1,16 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <xm-page-header text="i18n_statistics" />
 <xm-page-content [content]="content" />
 <ng-template #content>
     <!-- TAB NAVIGATION -->
     <div class="row">
         <div class="col-12">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs" [keyboard]="false">
                 <li [ngbNavItem]="'RESPONSES'">
                     <a ngbNavLink>{{ 'i18n_exam_responses' | translate }}</a>
                 </li>
@@ -66,11 +72,7 @@
                             class="form-control"
                             placeholder="{{ 'i18n_search' | translate }}"
                         />
-                        <div class="input-group-append">
-                            <span class="input-group-text">
-                                <i class="bi-search"></i>
-                            </span>
-                        </div>
+                        <div class="input-group-append bi-search search-append"></div>
                     </div>
                     @for (department of filteredDepartments; track department) {
                         <button

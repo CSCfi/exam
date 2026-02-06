@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package controllers;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -13,16 +17,17 @@ import io.ebean.DB;
 import jakarta.mail.internet.MimeMessage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.ExamRoom;
-import models.Language;
-import models.Reservation;
-import models.User;
 import models.calendar.DefaultWorkingHours;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.exam.ExamExecutionType;
+import models.facility.ExamRoom;
+import models.user.Language;
+import models.user.User;
 import net.jodah.concurrentunit.Waiter;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -30,6 +35,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
@@ -42,22 +48,21 @@ public class CalendarControllerTest extends IntegrationTestCase {
     private Reservation reservation;
 
     @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
-        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
+    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP).withConfiguration(
+        new GreenMailConfiguration().withDisabledAuthentication()
+    );
 
     private void setWorkingHours() {
         String[] dates = { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" };
-        Arrays
-            .stream(dates)
-            .forEach(d -> {
-                DefaultWorkingHours dwh = new DefaultWorkingHours();
-                dwh.setWeekday(d);
-                dwh.setRoom(room);
-                dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
-                dwh.setEndTime(dwh.getStartTime().withTime(20, 59, 59, 999));
-                dwh.setTimezoneOffset(7200000);
-                dwh.save();
-            });
+        Arrays.stream(dates).forEach(d -> {
+            DefaultWorkingHours dwh = new DefaultWorkingHours();
+            dwh.setWeekday(d);
+            dwh.setRoom(room);
+            dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
+            dwh.setEndTime(dwh.getStartTime().withTime(20, 59, 59, 999));
+            dwh.setTimezoneOffset(7200000);
+            dwh.save();
+        });
     }
 
     @Override
@@ -88,48 +93,74 @@ public class CalendarControllerTest extends IntegrationTestCase {
         exam.setExecutionType(DB.find(ExamExecutionType.class, 2));
         exam.getExamOwners().add(DB.find(User.class, 4));
         exam.save();
-        DateTime start = DateTime
-            .now()
+        DateTime start = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
             .plusDays(1)
             .withHourOfDay(12);
-        DateTime end = DateTime
-            .now()
+        DateTime end = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
             .plusDays(1)
             .withHourOfDay(13);
-        final int callCount = 10;
-        final Waiter waiter = new Waiter();
-        List<Integer> status = new ArrayList<>();
-        IntStream
-            .range(0, callCount)
+        int callCount = 10;
+        Waiter waiter = new Waiter();
+
+        // Use thread-safe collections for concurrent access
+        List<Integer> statuses = Collections.synchronizedList(new ArrayList<>());
+        // Clear any emails from previous tests
+        greenMail.purgeEmailFromAllMailboxes();
+
+        System.out.println("Starting " + callCount + " concurrent reservation requests...");
+
+        IntStream.range(0, callCount)
             .parallel()
             .forEach(i ->
                 new Thread(() -> {
-                    final Result result = request(
-                        Helpers.POST,
-                        "/app/calendar/reservation",
-                        Json
-                            .newObject()
-                            .put("roomId", room.getId())
-                            .put("examId", exam.getId())
-                            .put("start", ISODateTimeFormat.dateTime().print(start))
-                            .put("end", ISODateTimeFormat.dateTime().print(end))
-                    );
-                    status.add(result.status());
-                    waiter.resume();
+                    try {
+                        final Result result = request(
+                            Helpers.POST,
+                            "/app/calendar/reservation",
+                            Json.newObject()
+                                .put("roomId", room.getId())
+                                .put("examId", exam.getId())
+                                .put("start", ISODateTimeFormat.dateTime().print(start))
+                                .put("end", ISODateTimeFormat.dateTime().print(end))
+                        );
+                        statuses.add(result.status());
+                        waiter.resume();
+                    } catch (Exception e) {
+                        System.err.println("Request failed: " + e.getMessage());
+                        waiter.resume(); // Resume even on failure to avoid hanging
+                    }
                 })
                     .start()
             );
+
         waiter.await(MAIL_TIMEOUT + 1000, callCount);
-        assertThat(status).containsOnly(200);
-        greenMail.purgeEmailFromAllMailboxes();
-        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, callCount)).isTrue();
-        final int count = DB.find(Reservation.class).where().eq("user.id", 3L).findCount();
+        System.out.println("All HTTP requests completed. Status codes: " + statuses);
+        assertThat(statuses).containsOnly(Http.Status.OK);
+
+        // Wait for email scheduling delay (emails are delayed 1 second) + processing time
+        System.out.println("Waiting for all emails to be scheduled and sent...");
+        try {
+            Thread.sleep(2500); // Increased to 2.5 seconds for more buffer
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // Check how many emails we have (including early arrivals + delayed ones)
+        int currentEmails = greenMail.getReceivedMessages().length;
+        System.out.println("Total emails received: " + currentEmails + "/" + callCount);
+
+        // Wait for remaining emails if needed
+        boolean emailsReceived =
+            currentEmails >= callCount || greenMail.waitForIncomingEmail(MAIL_TIMEOUT, callCount - currentEmails);
+
+        assertThat(emailsReceived).isTrue();
+        final int count = DB.find(Reservation.class).where().eq("user.id", userId).findCount();
         assertThat(count).isEqualTo(1);
     }
 
@@ -141,15 +172,13 @@ public class CalendarControllerTest extends IntegrationTestCase {
         exam.setExecutionType(DB.find(ExamExecutionType.class, 2));
         exam.getExamOwners().add(DB.find(User.class, 4));
         exam.save();
-        DateTime start = DateTime
-            .now()
+        DateTime start = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
             .plusDays(1)
             .withHourOfDay(12);
-        DateTime end = DateTime
-            .now()
+        DateTime end = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
@@ -160,8 +189,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -194,15 +222,13 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationPreviousInFuture() throws Exception {
         // Setup
-        DateTime start = DateTime
-            .now()
+        DateTime start = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
             .plusDays(1)
             .withHourOfDay(12);
-        DateTime end = DateTime
-            .now()
+        DateTime end = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
@@ -220,8 +246,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -253,15 +278,13 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationPreviousInPast() throws Exception {
         // Setup
-        DateTime start = DateTime
-            .now()
+        DateTime start = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
             .plusDays(1)
             .withHourOfDay(12);
-        DateTime end = DateTime
-            .now()
+        DateTime end = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
@@ -287,8 +310,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -327,8 +349,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -352,8 +373,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -384,8 +404,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))

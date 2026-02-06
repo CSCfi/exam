@@ -1,4 +1,10 @@
-@import '../shared/definitions.scss';
+/*
+ * SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+@use '../shared/definitions.scss' as shared;
 
 .btn-cancel {
     color: #fff !important;
@@ -20,7 +26,6 @@
 }
 
 .question-option-input {
-    height: 40px;
     border-radius: 4px;
     border: 1px solid #e0e0df;
     padding-left: 10px;
@@ -62,10 +67,10 @@
 }
 
 .question-correct-option {
-    border-top: 1px solid $exam-medium-green !important;
-    border-left: 1px solid $exam-medium-green;
-    border-right: 1px solid $exam-medium-green;
-    border-bottom: 1px solid $exam-medium-green;
+    border-top: 1px solid shared.$exam-medium-green !important;
+    border-left: 1px solid shared.$exam-medium-green;
+    border-right: 1px solid shared.$exam-medium-green;
+    border-bottom: 1px solid shared.$exam-medium-green;
     background-color: #f3fff5;
     padding: 10px 10px 0 10px;
     border-top-left-radius: 4px;
@@ -84,9 +89,9 @@
 }
 
 .question-correct-option-radio {
-    border-top: 1px solid $exam-medium-green;
-    border-right: 1px solid $exam-medium-green;
-    border-bottom: 1px solid $exam-medium-green;
+    border-top: 1px solid shared.$exam-medium-green;
+    border-right: 1px solid shared.$exam-medium-green;
+    border-bottom: 1px solid shared.$exam-medium-green;
     box-shadow: -2px 0px 0px -1px #f3fff5;
     padding-left: 15px;
     background-color: #f3fff5;
@@ -168,11 +173,11 @@
 .claim-choice-warning-wrapper {
     min-height: 40px;
 }
-
 .claim-choice-warning {
     background-color: rgba($color: red, $alpha: 0.1);
     border-left: 6px solid red;
     padding: 10px;
+    color: #e8172f;
 }
 .edit-warning-container {
     display: flex;
@@ -194,4 +199,8 @@
 }
 .warning-text-small {
     font-size: 14px;
+}
+
+textarea {
+  field-sizing: content;
 }

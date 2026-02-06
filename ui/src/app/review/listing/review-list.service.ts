@@ -1,47 +1,27 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { ExamParticipation } from 'src/app/exam/exam.model';
-import type { Review } from 'src/app/review/review.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import { Exam } from 'src/app/exam/exam.model';
+import type { Review, ReviewListView } from 'src/app/review/review.model';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 type Selection = { [k: string]: boolean };
 
-export type ReviewListView = {
-    items: Review[];
-    filtered: Review[];
-    toggle: boolean;
-    pageSize: number;
-    predicate: string;
-    reverse: boolean;
-    page: number;
-    filter: string;
-};
-
 @Injectable({ providedIn: 'root' })
 export class ReviewListService {
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private CommonExam = inject(CommonExamService);
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
         if (review.user) return `${review.user.lastName} ${review.user.firstName}`;
@@ -143,6 +123,17 @@ export class ReviewListService {
         return Math.round(diff);
     };
 
+    translateGrade = (exam: Exam) => {
+        if (exam.gradingType === 'GRADED' && exam.grade?.name) {
+            return this.CommonExam.getExamGradeDisplayName(exam.grade.name);
+        } else if (exam.gradingType === 'NOT_GRADED') {
+            return this.translate.instant('i18n_no_grading');
+        } else if (exam.gradingType === 'POINT_GRADED') {
+            return this.translate.instant('i18n_point_graded');
+        }
+        return '';
+    };
+
     private resetSelections = (scope: Selection, view: string) => {
         let [prev, next] = [false, false];
         for (const k in scope) {
@@ -163,11 +154,16 @@ export class ReviewListService {
 
     private send$ = (review: ExamParticipation, state: string, examId?: number): Observable<ExamParticipation> => {
         const exam = review.exam;
-        if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
+        if (
+            (exam.grade || exam.gradingType === 'NOT_GRADED' || exam.gradingType === 'POINT_GRADED') &&
+            exam.creditType &&
+            exam.answerLanguage
+        ) {
             const examToRecord = {
                 id: exam.id,
                 state: state,
                 grade: exam.grade,
+                gradingType: exam.gradingType || (exam.grade ? 'GRADED' : 'NOT_GRADED'),
                 customCredit: exam.customCredit,
                 totalScore: exam.totalScore,
                 creditType: exam.creditType,
@@ -180,7 +176,7 @@ export class ReviewListService {
                     .put<ExamParticipation & { rev: string }>(url, examToRecord)
                     .pipe(map((resp) => ({ ...review, _rev: resp.rev })));
             } else {
-                const resource = exam.gradeless ? '/app/exam/register' : 'app/exam/record';
+                const resource = exam.gradingType === 'NOT_GRADED' ? '/app/exam/register' : 'app/exam/record';
                 return this.http.post<ExamParticipation>(resource, examToRecord);
             }
         } else {

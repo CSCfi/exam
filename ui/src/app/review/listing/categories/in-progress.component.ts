@@ -1,19 +1,9 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-import { DatePipe, LowerCasePipe, NgClass, NgStyle, SlicePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -21,10 +11,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { noop } from 'rxjs';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ArchiveDownloadComponent } from 'src/app/review/listing/dialogs/archive-download.component';
-import type { ReviewListView } from 'src/app/review/listing/review-list.service';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
-import type { Review } from 'src/app/review/review.model';
-import type { User } from 'src/app/session/session.service';
+import type { Review, ReviewListView } from 'src/app/review/review.model';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
@@ -37,14 +26,12 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 @Component({
     selector: 'xm-rl-in-progress',
     templateUrl: './in-progress.component.html',
-    standalone: true,
     imports: [
         NgbPopover,
         FormsModule,
         RouterLink,
         TableSortComponent,
         NgClass,
-        NgStyle,
         PaginatorComponent,
         LowerCasePipe,
         SlicePipe,
@@ -63,12 +50,10 @@ export class InProgressReviewsComponent implements OnInit {
     @Input() collaborative = false;
     view!: ReviewListView;
 
-    constructor(
-        private modal: NgbModal,
-        private ReviewList: ReviewListService,
-        private Session: SessionService,
-        private Files: FileService,
-    ) {}
+    private modal = inject(NgbModal);
+    private ReviewList = inject(ReviewListService);
+    private Session = inject(SessionService);
+    private Files = inject(FileService);
 
     ngOnInit() {
         this.view = this.ReviewList.prepareView(this.reviews, (r) => r, 'examParticipation.deadline');

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <xm-page-header text="i18n_byod_exam_search" />
 <xm-page-content [content]="content" />
 <ng-template #content>
@@ -42,9 +48,7 @@
                     triggers="mouseenter:mouseleave"
                 />
 
-                <div class="input-group-append search">
-                    <img src="/assets/images/icon_search.png" width="49" height="40" />
-                </div>
+                <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
     </form>

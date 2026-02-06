@@ -1,19 +1,9 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
@@ -55,7 +45,6 @@ import { SessionService } from 'src/app/session/session.service';
                 </div>
             }
         </div>`,
-    standalone: true,
     imports: [NgClass, UpperCasePipe, SlicePipe, TranslateModule, NgbCollapse],
 })
 export class QuestionFlowCategoryComponent {
@@ -66,10 +55,8 @@ export class QuestionFlowCategoryComponent {
 
     hideCategory = false;
 
-    constructor(
-        private QuestionReview: QuestionReviewService,
-        private Session: SessionService,
-    ) {}
+    private QuestionReview = inject(QuestionReviewService);
+    private Session = inject(SessionService);
 
     isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 

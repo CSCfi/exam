@@ -1,49 +1,45 @@
-/*
- *
- *  * Copyright (c) 2024 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *  *
- *  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- *  * versions of the EUPL (the "Licence");
- *  * You may not use this work except in compliance with the Licence.
- *  * You may obtain a copy of the Licence at:
- *  *
- *  * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *  *
- *  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- *  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package system.actors
 
-import impl.EmailComposer
+import impl.mail.EmailComposer
 import io.ebean.DB
-
-import javax.inject.Inject
-import models.Reservation
-import org.apache.pekko.actor.AbstractActor
+import miscellaneous.datetime.DateTimeHandler
+import miscellaneous.scala.DbApiHelper
+import models.enrolment.Reservation
+import org.apache.pekko.actor.{AbstractActor, ActorSystem}
 import org.joda.time.DateTime
 import play.api.Logging
-import util.datetime.DateTimeHandler
-import util.scala.DbApiHelper
+
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.*
 
 class ReservationReminderActor @Inject (
     private val emailComposer: EmailComposer,
-    private val dateTimeHandler: DateTimeHandler
+    private val dateTimeHandler: DateTimeHandler,
+    private val actorSystem: ActorSystem,
+    implicit val ec: ExecutionContext
 ) extends AbstractActor
     with DbApiHelper
     with Logging:
 
   private def remind(r: Reservation): Unit =
-    emailComposer.composeReservationNotification(r.getUser, r, r.getEnrolment.getExam, true)
+    // Update database synchronously
     r.setReminderSent(true)
     r.update()
+    // Schedule email sending asynchronously
+    actorSystem.scheduler.scheduleOnce(
+      1.second,
+      () => emailComposer.composeReservationNotification(r.getUser, r, r.getEnrolment.getExam, true)
+    )
 
   override def createReceive(): AbstractActor.Receive = receiveBuilder()
     .`match`(
       classOf[String],
-      (s: String) =>
+      (_: String) =>
         logger.debug("Starting reservation reminder task ->")
         val now      = dateTimeHandler.adjustDST(DateTime.now)
         val tomorrow = now.plusDays(1)

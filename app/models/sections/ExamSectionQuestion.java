@@ -1,22 +1,12 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package models.sections;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import controllers.exam.copy.ExamCopyContext;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,13 +14,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Transient;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,13 +33,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import javax.annotation.Nonnull;
-import models.api.Scorable;
-import models.api.Sortable;
 import models.base.OwnedModel;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
+import models.user.User;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -68,7 +61,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     private Question question;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "examSectionQuestion")
-    private Set<ExamSectionQuestionOption> options;
+    @OrderBy("option.id")
+    private List<ExamSectionQuestionOption> options;
 
     @Column
     private int sequenceNumber;
@@ -78,6 +72,13 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Column
     private Double maxScore;
+
+    // applies to weighted multiple choice questions
+    @Column
+    private boolean negativeScoreAllowed;
+
+    @Column
+    private boolean optionShufflingOn;
 
     @Column
     private Double forcedScore;
@@ -122,11 +123,11 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.question = question;
     }
 
-    public Set<ExamSectionQuestionOption> getOptions() {
+    public List<ExamSectionQuestionOption> getOptions() {
         return options;
     }
 
-    public void setOptions(Set<ExamSectionQuestionOption> options) {
+    public void setOptions(List<ExamSectionQuestionOption> options) {
         this.options = options;
     }
 
@@ -152,6 +153,22 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     public void setForcedScore(Double forcedScore) {
         this.forcedScore = forcedScore;
+    }
+
+    public boolean isNegativeScoreAllowed() {
+        return negativeScoreAllowed;
+    }
+
+    public void setNegativeScoreAllowed(boolean negativeScoreAllowed) {
+        this.negativeScoreAllowed = negativeScoreAllowed;
+    }
+
+    public boolean isOptionShufflingOn() {
+        return optionShufflingOn;
+    }
+
+    public void setOptionShufflingOn(boolean optionShufflingOn) {
+        this.optionShufflingOn = optionShufflingOn;
     }
 
     public Double getDerivedMaxScore() {
@@ -222,29 +239,78 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.expectedWordCount = expectedWordCount;
     }
 
-    ExamSectionQuestion copyWithAnswers(Boolean hasParent) {
+    public ExamSectionQuestion copy(ExamCopyContext context) {
         ExamSectionQuestion esqCopy = new ExamSectionQuestion();
-        BeanUtils.copyProperties(this, esqCopy, "id", "options", "essayAnswer", "clozeTestAnswer");
+
+        if (context.shouldCopyAnswers()) {
+            // When copying with answers, exclude essay and cloze test answers from BeanUtils
+            BeanUtils.copyProperties(this, esqCopy, "id", "options", "essayAnswer", "clozeTestAnswer");
+
+            // Copy the question and its options
+            copyQuestionWithAnswers(esqCopy, context);
+
+            // Copy essay and cloze test answers
+            if (essayAnswer != null) {
+                esqCopy.setEssayAnswer(essayAnswer.copy());
+            }
+            if (clozeTestAnswer != null) {
+                esqCopy.setClozeTestAnswer(clozeTestAnswer.copy());
+            }
+        } else {
+            // Normal copy: exclude creator and modifier
+            BeanUtils.copyProperties(this, esqCopy, "id", "options", "creator", "modifier");
+
+            if (context.isStudentExam()) {
+                // Student exam: copy the question and options (create independent copy)
+                copyQuestionWithOptions(esqCopy, context);
+
+                // Shuffle options if needed
+                if (optionShufflingOn && question.getType() != Question.Type.ClaimChoiceQuestion) {
+                    esqCopy.shuffleOptions();
+                }
+            } else {
+                // Teacher/template copy: use existing question references (preserve original)
+                esqCopy.setQuestion(question);
+                options.forEach(o -> esqCopy.getOptions().add(o.copy()));
+            }
+        }
+
+        return esqCopy;
+    }
+
+    private void persistQuestionOwners(Question blueprint, ExamCopyContext context) {
+        // Persist ManyToMany associations (questionOwners) when copying with setParent
+        // BeanUtils.copyProperties copies the collection but doesn't trigger Ebean's change tracking
+        // Re-setting forces Ebean to recognize the association and persist join table entries
+        if (context.shouldSetParent() && !blueprint.getQuestionOwners().isEmpty()) {
+            Set<User> owners = new HashSet<>(blueprint.getQuestionOwners());
+            blueprint.setQuestionOwners(owners);
+            blueprint.save();
+        }
+    }
+
+    private void copyQuestionWithAnswers(ExamSectionQuestion esqCopy, ExamCopyContext context) {
         // This is a little bit tricky. Need to map the original question options with copied ones, so they can be
         // associated with both question and exam section question options :)
-
         Map<Long, MultipleChoiceOption> optionMap;
-
-        if (question.getType() == Question.Type.ClaimChoiceQuestion) {
+        if (question.getType() == Question.Type.ClaimChoiceQuestion || optionShufflingOn) {
             optionMap = new TreeMap<>();
         } else {
             optionMap = new HashMap<>();
         }
 
-        Question blueprint = question.copy(optionMap, hasParent);
-        if (hasParent) {
+        Question blueprint = question.copy(optionMap, context.shouldSetParent());
+        if (context.shouldSetParent()) {
             blueprint.setParent(question);
         }
         blueprint.save();
+        persistQuestionOwners(blueprint, context);
+
+        // Copy options with their answers
         options.forEach(option -> {
-            Optional<MultipleChoiceOption> parentOption = Optional
-                .ofNullable(option.getOption())
-                .filter(opt -> opt.getId() != null);
+            Optional<MultipleChoiceOption> parentOption = Optional.ofNullable(option.getOption()).filter(
+                opt -> opt.getId() != null
+            );
             if (parentOption.isPresent()) {
                 MultipleChoiceOption optionCopy = optionMap.get(parentOption.get().getId());
                 optionCopy.setQuestion(blueprint);
@@ -259,62 +325,47 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         });
 
         esqCopy.setQuestion(blueprint);
-        // Essay Answer
-        if (essayAnswer != null) {
-            esqCopy.setEssayAnswer(essayAnswer.copy());
-        }
-        if (clozeTestAnswer != null) {
-            esqCopy.setClozeTestAnswer(clozeTestAnswer.copy());
-        }
-        return esqCopy;
     }
 
-    ExamSectionQuestion copy(boolean preserveOriginalQuestion, boolean setParent) {
-        ExamSectionQuestion esqCopy = new ExamSectionQuestion();
-        BeanUtils.copyProperties(this, esqCopy, "id", "options", "creator", "modifier");
-        Question blueprint;
-        if (preserveOriginalQuestion) {
-            // Use the existing question references, no copying
-            blueprint = question;
-            options.forEach(o -> esqCopy.getOptions().add(o.copy()));
-        } else {
-            // This is a little bit tricky. Need to map the original question options with copied ones, so they can be
-            // associated with both question and exam section question options :)
-            Map<Long, MultipleChoiceOption> optionMap;
-
-            if (question.getType() == Question.Type.ClaimChoiceQuestion) {
-                optionMap = new TreeMap<>();
-            } else {
-                optionMap = new HashMap<>();
-            }
-
-            blueprint = question.copy(optionMap, setParent);
-            if (setParent) {
-                blueprint.setParent(question);
-            }
-            blueprint.save();
-            optionMap.forEach((k, optionCopy) -> {
-                optionCopy.setQuestion(blueprint);
-                optionCopy.save();
-                options
-                    .stream()
-                    .filter(o -> o.getOption().getId().equals(k))
-                    .findFirst()
-                    .ifPresentOrElse(
-                        esqo -> {
-                            ExamSectionQuestionOption esqoCopy = esqo.copy();
-                            esqoCopy.setOption(optionCopy);
-                            esqCopy.getOptions().add(esqoCopy);
-                        },
-                        () -> {
-                            logger.error("Failed to copy a multi-choice question option!");
-                            throw new RuntimeException();
-                        }
-                    );
-            });
+    private void copyQuestionWithOptions(ExamSectionQuestion esqCopy, ExamCopyContext context) {
+        // This is a little bit tricky. Need to map the original question options with copied ones, so they can be
+        // associated with both question and exam section question options :)
+        Map<Long, MultipleChoiceOption> optionMap = new TreeMap<>();
+        Question blueprint = question.copy(optionMap, context.shouldSetParent());
+        if (context.shouldSetParent()) {
+            blueprint.setParent(question);
         }
+        blueprint.save();
+        persistQuestionOwners(blueprint, context);
+
+        // Copy options without answers
+        optionMap.forEach((k, optionCopy) -> {
+            optionCopy.setQuestion(blueprint);
+            optionCopy.save();
+            options
+                .stream()
+                .filter(o -> o.getOption().getId().equals(k))
+                .findFirst()
+                .ifPresentOrElse(
+                    esqo -> {
+                        ExamSectionQuestionOption esqoCopy = esqo.copy();
+                        esqoCopy.setOption(optionCopy);
+                        esqCopy.getOptions().add(esqoCopy);
+                    },
+                    () -> {
+                        logger.error("Failed to copy a multi-choice question option!");
+                        throw new RuntimeException();
+                    }
+                );
+        });
+
         esqCopy.setQuestion(blueprint);
-        return esqCopy;
+    }
+
+    public void shuffleOptions() {
+        List<ExamSectionQuestionOption> options = new ArrayList<>(this.options);
+        Collections.shuffle(options);
+        this.options = options;
     }
 
     @Override
@@ -384,8 +435,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                     .filter(esq -> esq.isAnswered() && esq.getScore() != null)
                     .map(ExamSectionQuestionOption::getScore)
                     .reduce(0.0, Double::sum);
-                // ATM minimum score is zero
-                return Math.max(0.0, evaluation);
+                return negativeScoreAllowed ? evaluation : Math.max(0.0, evaluation);
             }
             case ClozeTestQuestion -> {
                 if (forcedScore != null) {
@@ -436,8 +486,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             case WeightedMultipleChoiceQuestion -> {
                 return options
                     .stream()
+                    .filter(esqo -> esqo.isLegitScore(negativeScoreAllowed))
                     .map(ExamSectionQuestionOption::getScore)
-                    .filter(score -> score != null && score > 0)
+                    .filter(s -> s >= 0)
                     .reduce(0.0, Double::sum);
             }
             case ClaimChoiceQuestion -> {
@@ -456,8 +507,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         if (question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
             return options
                 .stream()
+                .filter(esqo -> esqo.isLegitScore(negativeScoreAllowed))
                 .map(ExamSectionQuestionOption::getScore)
-                .filter(score -> score != null && score < 0)
+                .filter(s -> s <= 0)
                 .reduce(0.0, Double::sum);
         } else if (question.getType() == Question.Type.ClaimChoiceQuestion) {
             return options
@@ -493,8 +545,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     }
 
     /**
-     * Adds new answer option.
-     * If question type equals WeightedMultiChoiceQuestion, recalculates scores for old options so that max assessed
+     * Adds a new answer option.
+     * If the question type equals WeightedMultiChoiceQuestion, recalculates scores for old options so that max assessed
      * score won't change.
      *
      * @param option New option to add.

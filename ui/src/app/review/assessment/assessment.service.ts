@@ -1,20 +1,10 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { Point } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -22,8 +12,10 @@ import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
-import type { Exam, ExamLanguage, ExamSectionQuestion, Feedback } from 'src/app/exam/exam.model';
+import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
 import { isRealGrade } from 'src/app/exam/exam.model';
+import { ExamSectionQuestion } from 'src/app/question/question.model';
+import { Feedback } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
@@ -32,29 +24,27 @@ type Payload = {
     id: number;
     state: string;
     grade?: number;
-    gradeless: boolean;
     customCredit: number;
     creditType?: string;
     answerLanguage?: string;
     additionalInfo: string;
+    gradingType?: string;
 };
 
-export type Link = {
+type Link = {
     fragments: string[];
     params?: { [key: string]: unknown };
 };
 
 @Injectable({ providedIn: 'root' })
 export class AssessmentService {
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private router: Router,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Session: SessionService,
-        private Exam: CommonExamService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private router = inject(Router);
+    private toast = inject(ToastrService);
+    private Confirmation = inject(ConfirmationDialogService);
+    private Session = inject(SessionService);
+    private Exam = inject(CommonExamService);
 
     saveFeedback$ = (exam: Exam, silent = false): Observable<Feedback> => {
         const data = {
@@ -134,10 +124,14 @@ export class AssessmentService {
             messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
             return of();
         } else {
-            const content = exam.gradeless
-                ? this.translate.instant('i18n_confirm_archiving_without_grade')
-                : this.getRecordReviewConfirmationDialogContent((exam.examFeedback as Feedback).comment, needsWarning);
-            const resource = exam.gradeless ? '/app/exam/register' : '/app/exam/record';
+            const content =
+                exam.gradingType === 'NOT_GRADED'
+                    ? this.translate.instant('i18n_confirm_archiving_without_grade')
+                    : this.getRecordReviewConfirmationDialogContent(
+                          (exam.examFeedback as Feedback).comment,
+                          needsWarning,
+                      );
+            const resource = exam.gradingType === 'NOT_GRADED' ? '/app/exam/register' : '/app/exam/record';
             const payload = this.getPayload(exam, 'GRADED');
             if (needsConfirmation) {
                 return this.Confirmation.open$(this.translate.instant('i18n_confirm'), content).pipe(
@@ -180,7 +174,7 @@ export class AssessmentService {
     };
 
     saveAssessmentInfo$ = (exam: Exam): Observable<void> => {
-        if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED') {
+        if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED' || exam.state === 'REJECTED') {
             return this.http
                 .put<void>(`/app/review/${exam.id}/info`, { assessmentInfo: exam.assessmentInfo })
                 .pipe(tap(() => this.toast.info(this.translate.instant('i18n_saved'))));
@@ -249,11 +243,11 @@ export class AssessmentService {
         id: exam.id,
         state: state || exam.state,
         grade: exam.grade && isRealGrade(exam.grade) ? exam.grade.id : undefined,
-        gradeless: exam.gradeless,
         customCredit: exam.customCredit,
         creditType: exam.creditType ? exam.creditType.type : undefined,
         answerLanguage: exam.answerLanguage,
         additionalInfo: exam.additionalInfo,
+        gradingType: exam.gradingType,
     });
 
     sendAssessment = (newState: string, payload: Payload, messages: string[], exam: Exam) => {
@@ -278,7 +272,7 @@ export class AssessmentService {
 
     getErrors = (exam: Exam) => {
         const messages: string[] = [];
-        if (!exam.grade?.id && !exam.gradeless) {
+        if (!exam.grade?.id && exam.gradingType === 'GRADED') {
             messages.push('i18n_participation_unreviewed');
         }
         if (!exam.creditType?.type) {

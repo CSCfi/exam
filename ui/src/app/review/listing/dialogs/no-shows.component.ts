@@ -1,19 +1,9 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
@@ -23,7 +13,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
 
 @Component({
     selector: 'xm-no-shows-component',
-    standalone: true,
     imports: [TranslateModule, ApplyDstPipe, OrderByPipe, DatePipe, TableSortComponent],
     templateUrl: './no-shows.component.html',
     styleUrls: ['../review-list.component.scss'],
@@ -34,7 +23,7 @@ export class NoShowsComponent implements OnInit {
     noShowPredicate = 'reservation.startAt';
     reverse = false;
 
-    constructor(private modal: NgbActiveModal) {}
+    private modal = inject(NgbActiveModal);
 
     //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
     ngOnInit() {

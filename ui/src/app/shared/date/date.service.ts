@@ -1,18 +1,8 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
-import { Injectable } from '@angular/core';
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime, WeekdayNumbers } from 'luxon';
 import { range } from 'ramda';
@@ -26,7 +16,7 @@ export enum REPEAT_OPTION {
 
 @Injectable({ providedIn: 'root' })
 export class DateTimeService {
-    constructor(private translate: TranslateService) {}
+    private translate = inject(TranslateService);
 
     printExamDuration(exam: { duration: number }): string {
         if (exam.duration) {
@@ -47,9 +37,9 @@ export class DateTimeService {
 
     formatInTimeZone = (date: Date, tz: string) => DateTime.fromJSDate(date, { zone: tz }).toISO();
 
-    getDateForWeekday(ordinal: number): Date {
+    getDateForWeekday(weekday: number): Date {
         const now = new Date();
-        const distance = ordinal - now.getDay();
+        const distance = weekday - now.getDay();
         return new Date(now.setDate(now.getDate() + distance));
     }
 
@@ -59,42 +49,38 @@ export class DateTimeService {
     getLocalizedDateForDay = (ordinal: WeekdayNumbers, locale: string): DateTime =>
         DateTime.now().set({ weekday: ordinal }).setLocale(locale);
 
-    getWeekdayNames(long = false): string[] {
+    getWeekdayNames = (long = false): string[] => {
         const length = long ? 'long' : 'short';
-        const lang = this.translate.currentLang;
+        const lang = this.translate.getCurrentLang();
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         const options: Intl.DateTimeFormatOptions = { weekday: length };
         return range(1, 7)
             .concat(0)
-            .map((d) => this.getDateForWeekday(d).toLocaleDateString(locale, options));
-    }
+            .map(this.getDateForWeekday)
+            .map((d) => d.toLocaleDateString(locale, options));
+    };
 
-    translateWeekdayName(weekDay: string, long = false): string {
+    translateWeekdayName = (weekDay: string, long = false): string => {
+        const weekdayMap: Record<string, number> = {
+            MONDAY: 1,
+            TUESDAY: 2,
+            WEDNESDAY: 3,
+            THURSDAY: 4,
+            FRIDAY: 5,
+            SATURDAY: 6,
+            SUNDAY: 7,
+        };
+        const ordinal = weekdayMap[weekDay];
+        if (!ordinal) return '';
         const length = long ? 'long' : 'short';
-        const lang = this.translate.currentLang;
+        const lang = this.translate.getCurrentLang();
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         const options: Intl.DateTimeFormatOptions = { weekday: length };
-        switch (weekDay) {
-            case 'MONDAY':
-                return this.getDateForWeekday(1).toLocaleDateString(locale, options);
-            case 'TUESDAY':
-                return this.getDateForWeekday(2).toLocaleDateString(locale, options);
-            case 'WEDNESDAY':
-                return this.getDateForWeekday(3).toLocaleDateString(locale, options);
-            case 'THURSDAY':
-                return this.getDateForWeekday(4).toLocaleDateString(locale, options);
-            case 'FRIDAY':
-                return this.getDateForWeekday(5).toLocaleDateString(locale, options);
-            case 'SATURDAY':
-                return this.getDateForWeekday(6).toLocaleDateString(locale, options);
-            case 'SUNDAY':
-                return this.getDateForWeekday(7).toLocaleDateString(locale, options);
-        }
-        return '';
-    }
+        return this.getDateForWeekday(ordinal).toLocaleDateString(locale, options);
+    };
 
     getMonthNames = (): string[] => {
-        const lang = this.translate.currentLang;
+        const lang = this.translate.getCurrentLang();
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         return range(1, 12)
             .concat(0)
@@ -108,4 +94,18 @@ export class DateTimeService {
         const offset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
         return d.getTimezoneOffset() < offset;
     };
+
+    eachDayOfInterval = (start: Date, end: Date): DateTime[] => {
+        const startDate = DateTime.fromJSDate(start).startOf('day');
+        const endDate = DateTime.fromJSDate(end).startOf('day');
+        const daysDiff = Math.floor(endDate.diff(startDate, 'days').days) + 1;
+
+        return Array.from({ length: Math.max(0, daysDiff) }, (_, index) => startDate.plus({ days: index }));
+    };
+
+    intervalsOverlap = (a: { start: Date; end: Date }, b: { start: Date; end: Date }): boolean =>
+        a.start <= b.end && b.start <= a.end;
+
+    mapDateRange = <T>(start: Date, end: Date, mapFn: (date: DateTime, index: number) => T): T[] =>
+        this.eachDayOfInterval(start, end).map(mapFn);
 }

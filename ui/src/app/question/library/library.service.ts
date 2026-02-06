@@ -1,43 +1,24 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { Course, Exam, ExamSection, ReverseQuestion, Tag } from 'src/app/exam/exam.model';
-import { QuestionService } from 'src/app/question/question.service';
-import { User } from 'src/app/session/session.service';
+import type { Course, Exam, ExamSection } from 'src/app/exam/exam.model';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
+import { LibraryQuestion, Tag } from 'src/app/question/question.model';
+import { User } from 'src/app/session/session.model';
 import { UserService } from 'src/app/shared/user/user.service';
-
-export interface LibraryQuestion extends ReverseQuestion {
-    icon: string;
-    displayedMaxScore: number | string;
-    typeOrd: number;
-    ownerAggregate: string;
-    allowedToRemove: boolean;
-}
 
 @Injectable({ providedIn: 'root' })
 export class LibraryService {
-    constructor(
-        private http: HttpClient,
-        @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
-        private Question: QuestionService,
-        private User: UserService,
-    ) {}
+    private http = inject(HttpClient);
+    private webStorageService = inject<WebStorageService>(SESSION_STORAGE);
+    private QuestionScore = inject(QuestionScoringService);
+    private User = inject(UserService);
 
     listExams$ = (
         courseIds: number[],
@@ -180,19 +161,19 @@ export class LibraryService {
         };
 
         if (courseIds.length > 0) {
-            params = append('course', courseIds, params);
+            params = append('courseIds', courseIds, params);
         }
         if (sectionIds.length > 0) {
-            params = append('section', sectionIds, params);
+            params = append('sectionIds', sectionIds, params);
         }
         if (tagIds.length > 0) {
-            params = append('tag', tagIds, params);
+            params = append('tagIds', tagIds, params);
         }
         if (examIds.length > 0) {
-            params = append('exam', examIds, params);
+            params = append('examIds', examIds, params);
         }
         if (ownerIds.length > 0) {
-            params = append('owner', ownerIds, params);
+            params = append('ownerIds', ownerIds, params);
         }
 
         return params;
@@ -225,9 +206,9 @@ export class LibraryService {
         } else if (q.defaultEvaluationType === 'Selection') {
             return 'i18n_evaluation_select';
         } else if (q.type === 'WeightedMultipleChoiceQuestion') {
-            return this.Question.calculateDefaultMaxPoints(q);
+            return this.QuestionScore.calculateDefaultMaxPoints(q);
         } else if (q.type === 'ClaimChoiceQuestion') {
-            return this.Question.getCorrectClaimChoiceOptionDefaultScore(q);
+            return this.QuestionScore.getCorrectClaimChoiceOptionDefaultScore(q);
         }
         return '';
     };

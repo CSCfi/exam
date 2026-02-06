@@ -1,24 +1,13 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamParticipation } from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Examination } from 'src/app/examination/examination.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
@@ -80,7 +69,6 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
                 </button>
             </div>
         </div>`,
-    standalone: true,
     imports: [RouterLink, NgbPopover, TranslateModule],
 })
 export class ToolbarComponent implements OnInit {
@@ -92,15 +80,13 @@ export class ToolbarComponent implements OnInit {
     id = 0;
     ref = '';
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Assessment: AssessmentService,
-        private CollaborativeAssessment: CollaborativeAssesmentService,
-        private Exam: ExamService,
-    ) {}
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Assessment = inject(AssessmentService);
+    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private Exam = inject(ExamService);
 
     ngOnInit() {
         this.id = this.route.snapshot.params.id;

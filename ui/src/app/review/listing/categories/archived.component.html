@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div>
     <div class="xm-paragraph-title">
         {{ 'i18n_archived_exams' | translate }}
@@ -26,6 +32,23 @@
         <table class="table table-striped xm-data-table">
             <thead>
                 <tr>
+                    <th class="dropdown" ngbDropdown>
+                        <button class="btn btn-sm btn-outline-secondary align-items-center" ngbDropdownToggle>
+                            <i class="bi-square"></i>
+                        </button>
+                        <ul ngbDropdownMenu role="menu">
+                            <li ngbDropdownItem role="presentation" [ngClass]="selections.page ? 'active' : ''">
+                                <a role="menuitem" class="unstyled-link pointer" (click)="selectPage('selectionBox')">
+                                    {{ 'i18n_choose_visible' | translate }}
+                                </a>
+                            </li>
+                            <li ngbDropdownItem role="presentation" [ngClass]="selections.all ? 'active' : ''">
+                                <a role="menuitem" class="unstyled-link pointer" (click)="selectAll()">
+                                    {{ 'i18n_choose_all' | translate }}
+                                </a>
+                            </li>
+                        </ul>
+                    </th>
                     @if (exam && showId()) {
                         <th class="with-top">Id</th>
                     }
@@ -102,6 +125,14 @@
                     track review
                 ) {
                     <tr>
+                        <td class="table-column-checkbox">
+                            <input
+                                type="checkbox"
+                                [(ngModel)]="review.selected"
+                                class="selectionBox"
+                                [value]="review.examParticipation.id"
+                            />
+                        </td>
                         @if (showId()) {
                             <td>{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
                         }
@@ -172,3 +203,19 @@
         }
     </div>
 </div>
+@if (view.toggle && view.filtered.length > 0) {
+    <div>
+        <!-- Buttons -->
+        <div class="ps-0 pe-0 mb-3 w-100 d-flex justify-content-between align-items-center">
+            <div>
+                @if (!collaborative) {
+                    <div class="speed-review-csv mb-2">
+                        <button class="btn btn-sm btn-outline-primary" (click)="printSelected()">
+                            {{ 'i18n_print_selected_to_excel' | translate }}
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { Component, Input, TemplateRef } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -5,7 +9,6 @@ import { HistoryBackComponent } from 'src/app/shared/history/history-back.compon
 
 @Component({
     selector: 'xm-page-header',
-    standalone: true,
     imports: [NgTemplateOutlet, NgClass, TranslateModule, HistoryBackComponent],
     template: `
         <div class="row mx-3 mt-4 mb-2 align-items-center">

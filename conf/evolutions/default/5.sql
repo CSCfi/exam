@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 ALTER TABLE answer DROP COLUMN ebean_timestamp;
 ALTER TABLE question DROP COLUMN ebean_timestamp;

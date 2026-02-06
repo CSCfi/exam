@@ -1,45 +1,52 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { DashboardEnrolment } from 'src/app/dashboard/dashboard.model';
 import { ActiveEnrolmentComponent } from 'src/app/enrolment/active/active-enrolment.component';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
-import type { DashboardEnrolment } from './student-dashboard.service';
 import { StudentDashboardService } from './student-dashboard.service';
 
 @Component({
     selector: 'xm-student-dashboard',
-    templateUrl: './student-dashboard.component.html',
-    standalone: true,
     imports: [ActiveEnrolmentComponent, TranslateModule, OrderByPipe, PageHeaderComponent, PageContentComponent],
+    template: `<xm-page-header text="i18n_user_enrolled_exams_title" />
+        <xm-page-content [content]="content"></xm-page-content>
+        <ng-template #content>
+            @for (enrolment of enrolments() | orderBy: 'startAtAggregate'; track enrolment) {
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <xm-active-enrolment
+                            [enrolment]="enrolment"
+                            (removed)="enrolmentRemoved($event)"
+                        ></xm-active-enrolment>
+                    </div>
+                </div>
+            } @empty {
+                <div class="row">
+                    <div class="col-12" role="note">
+                        <img src="/assets/images/icon_info.png" alt="" />&nbsp;
+                        {{ 'i18n_no_enrolments' | translate }}
+                    </div>
+                </div>
+            }
+        </ng-template>`,
 })
 export class StudentDashboardComponent implements OnInit {
-    userEnrolments: DashboardEnrolment[] = [];
+    enrolments = signal<DashboardEnrolment[]>([]);
 
-    constructor(private StudentDashboard: StudentDashboardService) {}
+    private StudentDashboard = inject(StudentDashboardService);
 
     ngOnInit() {
-        this.StudentDashboard.listEnrolments().subscribe((data) => (this.userEnrolments = data));
+        this.StudentDashboard.listEnrolments$().subscribe((data) => this.enrolments.set(data));
     }
 
     enrolmentRemoved = (id: number) => {
-        const index = this.userEnrolments.map((e) => e.id).indexOf(id);
-        this.userEnrolments.splice(index, 1);
+        this.enrolments.update((es) => es.filter((e) => e.id !== id));
     };
 }

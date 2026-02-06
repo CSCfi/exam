@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="row my-4">
     <div class="col-md-7">
         <div class="input-group">
@@ -8,9 +14,7 @@
                 placeholder="{{ 'i18n_exam_search_description' | translate }}"
                 (ngModelChange)="search($event)"
             />
-            <div class="input-group-text p-0 search">
-                <img src="/assets/images/icon_search.png" width="49" height="40" />
-            </div>
+            <div class="input-group-append bi-search search-append"></div>
         </div>
     </div>
 </div>
@@ -24,14 +28,14 @@
                             [reverse]="sorting.reverse"
                             [predicate]="sorting.predicate"
                             by="name"
-                            text="i18n_exam_name"
+                            text="i18n_dashboard_exam"
                             (click)="setPredicate('name')"
                         ></xm-table-sort>
                     </th>
                     <th class="with-top">
                         <xm-table-sort
                             by="course.code"
-                            text="i18n_course_code"
+                            text="i18n_dashboard_code"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('course.code')"
@@ -49,7 +53,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="periodEnd"
-                            text="i18n_exam_validity"
+                            text="i18n_dashboard_period"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('periodEnd')"
@@ -61,6 +65,7 @@
                             <xm-table-sort
                                 by="{{ column.property }}"
                                 text="{{ column.text }}"
+                                [sliced]="!!column.sliced"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate(column.property)"
@@ -76,8 +81,8 @@
                             (click)="setPredicate('ownerAggregate')"
                         ></xm-table-sort>
                     </th>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
+                    <th class="with-top">{{ 'i18n_remove' | translate }}</th>
+                    <th class="with-top">{{ 'i18n_copy' | translate }}</th>
                 </tr>
             </thead>
 
@@ -154,25 +159,23 @@
                         </td>
                         <td class="text-center">
                             @if (isOwner(exam)) {
-                                <a (click)="deleteExam(exam)" class="pointer">
-                                    <i
-                                        class="bi-trash text-dark"
-                                        ngbPopover="{{ 'i18n_exam_remove' | translate }}"
-                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                        triggers="mouseenter:mouseleave"
-                                    ></i>
-                                </a>
+                                <button
+                                    (click)="deleteExam(exam)"
+                                    class="pointer btn btn-link"
+                                    [attr.aria-label]="'i18n_exam_remove' | translate"
+                                >
+                                    <i class="bi-trash text-dark" aria-hidden="true"></i>
+                                </button>
                             }
                         </td>
                         <td class="text-center">
-                            <a class="pointer" (click)="copyExam(exam)">
-                                <i
-                                    class="bi-files text-dark"
-                                    ngbPopover="{{ 'i18n_copy' | translate }}"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                ></i>
-                            </a>
+                            <button
+                                class="pointer btn btn-link"
+                                (click)="copyExam(exam)"
+                                [attr.aria-label]="'i18n_copy' | translate"
+                            >
+                                <i class="bi-files text-dark" aria-hidden="true"></i>
+                            </button>
                         </td>
                     </tr>
                 }

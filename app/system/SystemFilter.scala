@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package system
 
 import org.apache.pekko.stream.Materializer
@@ -8,14 +12,7 @@ import play.api.mvc.{Filter, RequestHeader, Result}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-object ResultImplicits {
-  implicit class EnhancedResult(result: Result) {
-    def discardingHeaders(headers: String*): Result =
-      result.copy(header = result.header.copy(headers = result.header.headers -- headers))
-  }
-}
-
-class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
+class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext) extends Filter:
 
   val Headers: Seq[(String, String)] = Seq(
     ("x-exam-start-exam", "ongoingExamHash"),
@@ -23,33 +20,35 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
     ("x-exam-wrong-machine", "wrongMachineData"),
     ("x-exam-unknown-machine", "unknownMachineData"),
     ("x-exam-wrong-room", "wrongRoomData"),
-    ("x-exam-wrong-agent-config", "wrongAgent")
+    ("x-exam-wrong-agent-config", "wrongAgent"),
+    ("x-exam-aquarium-login", "aquariumLogin")
   )
 
-  import ResultImplicits._
+  extension (result: Result)
+    private def discardingHeaders(headers: String*): Result =
+      result.copy(header = result.header.copy(headers = result.header.headers -- headers))
 
-  private def processResult(src: Result)(implicit request: RequestHeader): Result = {
-    val session = src.session match {
+  private def processResult(src: Result)(implicit request: RequestHeader): Result =
+    val session = src.session match
       case s if s.isEmpty =>
         request.session match {
           case rs if rs.isEmpty => None
           case rs               => Some(rs)
         }
       case s => Some(s)
-    }
     val result = src.withHeaders(
       ("Cache-Control", "no-cache;no-store"),
       ("Pragma", "no-cache"),
       ("Expires", "0")
     )
-    session match {
+    session match
       case None => result.withNewSession
       case Some(s) =>
         val (remaining, discarded) = Headers.partition(h => s.get(h._2).isDefined)
         val response = result
-          .withHeaders(remaining.map(h => (h._1, s.get(h._2).get)): _*)
-          .discardingHeaders(discarded.map(_._1): _*)
-        request.path match {
+          .withHeaders(remaining.map(h => (h._1, s.get(h._2).get))*)
+          .discardingHeaders(discarded.map(_._1)*)
+        request.path match
           case path if path == "/app/session" && request.method == "GET" =>
             s.get("upcomingExamHash") match {
               case Some(_) => // Don't let session expire when awaiting exam to start
@@ -59,17 +58,11 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
           case path if path.contains("logout") => response.withSession(s)
           case _ =>
             response.withSession(s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now)))
-        }
-    }
-  }
 
   override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
-    rh.path match {
+    rh.path match
       case "/app/logout" => next.apply(rh)
       // Disable caching for index page so that CSRF cookie can be injected without worries
       case p if p.startsWith("/app") | p.startsWith("/integration") =>
         next.apply(rh).map(processResult(_)(rh))
       case _ => next.apply(rh).map(_.withHeaders(("Cache-Control", "no-cache")))
-    }
-
-}

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <xm-page-header text="i18n_calendar" [history]="true" />
 <xm-page-content [content]="content" />
 <ng-template #content>
@@ -60,7 +66,10 @@
 
     <div class="row mb-4">
         <div class="col-md-8 col-12 p-0">
-            <div class="row m-2" [ngClass]="'xm-study-item-container' ? '' : 'xm-study-item-container--inactive'">
+            <div
+                class="row m-2"
+                [ngClass]="reservation ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+            >
                 <div class="col-md-12">
                     <div class="row">
                         <span class="col-md-6 mb-3">

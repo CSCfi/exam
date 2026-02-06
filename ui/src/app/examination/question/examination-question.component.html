@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="row">
     <div class="col-md-12">
         <div class="guide-wrapper" [ngClass]="isAnswered() ? 'active' : 'notactive'">
@@ -14,8 +20,21 @@
                         </div>
                     }
                 </div>
+                <!-- Expand button -->
+                <div class="col-auto order-2">
+                    <button
+                        tabindex="0"
+                        class="pointer section-box-title arrow border-none background-none"
+                        [attr.aria-label]="parseAriaLabel(expanded ? 'i18n_collapse' : 'i18n_expand')"
+                        [attr.aria-expanded]="expanded"
+                        (click)="expanded = !expanded"
+                        (keydown.enter)="expanded = !expanded"
+                    >
+                        <i [ngClass]="expanded ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                    </button>
+                </div>
                 <!-- question text -->
-                <div class="col mt-3">
+                <div class="col mt-3 order-1">
                     @if (sq.question.type !== 'ClozeTestQuestion') {
                         @if (expanded) {
                             <div class="section-box-title" [xmMathJax]="sq.question.question"></div>
@@ -31,18 +50,6 @@
                             />
                         </div>
                     }
-                </div>
-                <!-- Expand button -->
-                <div class="col-auto">
-                    <div
-                        tabindex="0"
-                        class="pointer section-box-title arrow"
-                        [attr.aria-label]="expanded ? ('i18n_collapse' | translate) : ('i18n_expand' | translate)"
-                        (click)="expanded = !expanded"
-                        (keydown.enter)="expanded = !expanded"
-                    >
-                        <i [ngClass]="expanded ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
-                    </div>
                 </div>
             </div>
             <!-- instruction -->

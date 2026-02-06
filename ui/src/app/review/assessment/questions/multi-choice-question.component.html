@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 <div class="xm-study-item-container review-view">
     <div class="col-md-12">
         <!-- question text -->
@@ -44,14 +50,14 @@
                         / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
                     </div>
                 }
-                <a class="d-inline-block" (click)="reviewExpanded = !reviewExpanded">
+                <button class="d-inline-block btn btn-link" (click)="reviewExpanded = !reviewExpanded">
                     @if (!reviewExpanded) {
                         <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
                     @if (reviewExpanded) {
                         <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
-                </a>
+                </button>
             </div>
         </div>
 

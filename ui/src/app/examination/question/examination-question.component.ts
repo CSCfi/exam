@@ -1,24 +1,14 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import type { AfterViewInit } from '@angular/core';
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import type { EssayAnswer } from 'src/app/exam/exam.model';
+import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
+import { EssayAnswer } from 'src/app/question/question.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { DynamicClozeTestComponent } from './dynamic-cloze-test.component';
@@ -32,7 +22,6 @@ type ClozeTestAnswer = { [key: string]: string };
 @Component({
     selector: 'xm-examination-question',
     templateUrl: './examination-question.component.html',
-    standalone: true,
     imports: [
         NgClass,
         MathJaxDirective,
@@ -58,11 +47,10 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
     questionTitle!: string;
 
-    constructor(
-        private cdr: ChangeDetectorRef,
-        private Examination: ExaminationService,
-        private Attachment: AttachmentService,
-    ) {}
+    private cdr = inject(ChangeDetectorRef);
+    private Examination = inject(ExaminationService);
+    private Attachment = inject(AttachmentService);
+    private translate = inject(TranslateService);
 
     ngOnInit() {
         this.sq = this.question as Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }; // FIXME
@@ -71,6 +59,27 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
             const { answer } = this.sq.clozeTestAnswer;
             this.clozeAnswer = JSON.parse(answer);
         }
+        this.questionTitle = this.removeParagraphTags(this.sq.question.question);
+    }
+
+    removeParagraphTags(input: string): string {
+        const openTag = '<p>';
+        const closeTag = '</p>';
+        let result = input;
+
+        while (result.includes(openTag)) {
+            result = result.replace(openTag, '');
+        }
+
+        while (result.includes(closeTag)) {
+            result = result.replace(closeTag, '');
+        }
+
+        return result;
+    }
+
+    parseAriaLabel(expanded: string): string {
+        return `${this.translate.instant(expanded)} ${this.translate.instant('i18n_question')} ${this.questionTitle}`;
     }
 
     ngAfterViewInit() {

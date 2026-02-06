@@ -1,20 +1,10 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { HttpResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { WrongLocationService } from 'src/app/enrolment/wrong-location/wrong-location.service';
@@ -22,17 +12,16 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
 
 @Injectable({ providedIn: 'root' })
 export class ExaminationInterceptor implements HttpInterceptor {
-    constructor(
-        private router: Router,
-        private WrongLocation: WrongLocationService,
-        private ExaminationStatus: ExaminationStatusService,
-    ) {}
+    private router = inject(Router);
+    private WrongLocation = inject(WrongLocationService);
+    private ExaminationStatus = inject(ExaminationStatusService);
 
     intercept(req: HttpRequest<unknown>, next: HttpHandler) {
         return next.handle(req).pipe(
             tap((event: HttpEvent<unknown>) => {
                 if (event instanceof HttpResponse) {
                     const response = event as HttpResponse<unknown>;
+                    const earlyLogin = response.headers.get('x-exam-aquarium-login');
                     const unknownMachine = response.headers.get('x-exam-unknown-machine');
                     const wrongRoom = response.headers.get('x-exam-wrong-room');
                     const wrongMachine = response.headers.get('x-exam-wrong-machine');
@@ -40,10 +29,15 @@ export class ExaminationInterceptor implements HttpInterceptor {
                     const hash = response.headers.get('x-exam-start-exam');
                     const enrolmentId = response.headers.get('x-exam-upcoming-exam');
                     if (unknownMachine) {
-                        const location = this.b64ToUtf8(unknownMachine).split(':::');
-                        this.WrongLocation.display(location); // Show warning notice on screen
+                        const parts = this.b64ToUtf8(unknownMachine).split(':::');
+                        const isLocal = parts[parts.length - 1] === 'true';
+                        if (isLocal) {
+                            this.WrongLocation.display(parts); // Show warning notice on screen
+                        } else {
+                            this.ExaminationStatus.notifyWrongLocation();
+                            this.router.navigate(['/unknownlocation', parts[parts.length - 1]]);
+                        }
                     } else if (wrongRoom) {
-                        this.ExaminationStatus.notifyWrongLocation();
                         const parts = this.b64ToUtf8(wrongRoom).split(':::');
                         this.router.navigate(['/wrongroom', parts[0], parts[1]]);
                     } else if (wrongMachine) {
@@ -67,6 +61,11 @@ export class ExaminationInterceptor implements HttpInterceptor {
                         // Start/continue exam
                         this.ExaminationStatus.notifyStartOfExamination();
                         this.router.navigate(['/exam', hash]);
+                    } else if (earlyLogin) {
+                        const parts = earlyLogin.split(':::');
+                        const id = earlyLogin === 'none' ? '' : parts[1];
+                        this.ExaminationStatus.notifyAquariumLogin();
+                        this.router.navigate(['/early', id, parts[0]]);
                     }
                 }
             }),

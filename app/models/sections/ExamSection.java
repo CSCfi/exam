@@ -1,22 +1,12 @@
-/*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 
 package models.sections;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import controllers.exam.copy.ExamCopyContext;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -31,11 +21,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import models.Exam;
-import models.ExamEnrolment;
-import models.User;
-import models.api.Sortable;
 import models.base.OwnedModel;
+import models.enrolment.ExamEnrolment;
+import models.exam.Exam;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -171,38 +159,74 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         sectionQuestions = new HashSet<>(questions.subList(0, lotteryItemCount));
     }
 
-    public ExamSection copyWithAnswers(Exam exam, boolean hasParent) {
-        ExamSection section = new ExamSection();
-        BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
-        section.setExam(exam);
+    /**
+     * Copies section questions with student answers.
+     * Used for assessment/review scenarios.
+     */
+    private void copySectionQuestionsWithAnswers(ExamSection section, ExamCopyContext context) {
         for (ExamSectionQuestion esq : sectionQuestions) {
-            section.getSectionQuestions().add(esq.copyWithAnswers(hasParent));
+            section.getSectionQuestions().add(esq.copy(context));
         }
-        return section;
     }
 
-    public ExamSection copy(Exam exam, boolean produceStudentExamSection, boolean setParents, User user) {
-        ExamSection section = new ExamSection();
-        BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions", "examMaterials");
-        section.setExam(exam);
-        for (ExamSectionQuestion esq : sectionQuestions) {
-            ExamSectionQuestion esqCopy = esq.copy(!produceStudentExamSection, setParents);
-            esqCopy.setCreatorWithDate(user);
-            esqCopy.setModifierWithDate(user);
-            section.getSectionQuestions().add(esqCopy);
-        }
-        if (produceStudentExamSection) {
+    /**
+     * Copies exam materials for student exams.
+     * For teacher copies, materials are shared by reference.
+     */
+    private void copyMaterials(ExamSection section, ExamCopyContext context) {
+        if (context.isStudentExam()) {
             for (ExamMaterial em : examMaterials) {
-                ExamMaterial emCopy = em.copy(user);
+                ExamMaterial emCopy = em.copy(context.getUser());
                 emCopy.save();
                 section.getExamMaterials().add(emCopy);
             }
         } else {
             section.setExamMaterials(examMaterials);
         }
-        if (produceStudentExamSection && lotteryOn) {
-            section.shuffleQuestions();
+    }
+
+    /**
+     * Copies section questions based on context.
+     * Note: For student exams, we copy questions (use existing references).
+     * For teacher copies, we copy questions fully (create new question copies).
+     */
+    private void copySectionQuestions(ExamSection section, ExamCopyContext context) {
+        for (ExamSectionQuestion esq : sectionQuestions) {
+            ExamSectionQuestion esqCopy = esq.copy(context);
+            esqCopy.setCreatorWithDate(context.getUser());
+            esqCopy.setModifierWithDate(context.getUser());
+            section.getSectionQuestions().add(esqCopy);
         }
+    }
+
+    public ExamSection copy(Exam exam, ExamCopyContext context) {
+        ExamSection section = new ExamSection();
+
+        if (context.shouldCopyAnswers()) {
+            // When copying with answers, don't exclude examMaterials from BeanUtils
+            // (they won't be copied separately, so they'll get the reference)
+            BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
+            section.setExam(exam);
+
+            // Copy section questions with their answers
+            copySectionQuestionsWithAnswers(section, context);
+        } else {
+            // Normal copy: exclude examMaterials and handle them separately
+            BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions", "examMaterials");
+            section.setExam(exam);
+
+            // Copy section questions
+            copySectionQuestions(section, context);
+
+            // Copy or reference materials
+            copyMaterials(section, context);
+
+            // Shuffle questions for student exams with lottery enabled
+            if (context.isStudentExam() && lotteryOn) {
+                section.shuffleQuestions();
+            }
+        }
+
         return section;
     }
 
@@ -231,7 +255,10 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     }
 
     public boolean hasQuestion(Question question) {
-        return sectionQuestions.stream().map(ExamSectionQuestion::getQuestion).anyMatch(q -> q.equals(question));
+        return sectionQuestions
+            .stream()
+            .map(ExamSectionQuestion::getQuestion)
+            .anyMatch(q -> q.equals(question));
     }
 
     @Override

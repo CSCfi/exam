@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import {
     CdkDrag,
     CdkDragDrop,
@@ -22,7 +12,7 @@ import {
 } from '@angular/cdk/drag-drop';
 
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
     NgbCollapse,
@@ -36,11 +26,13 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from, noop } from 'rxjs';
-import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from 'src/app/exam/exam.model';
+import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
 import { QuestionSelectorComponent } from 'src/app/question/picker/question-picker.component';
-import { QuestionService } from 'src/app/question/question.service';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
+import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
+import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -50,7 +42,6 @@ import { SectionQuestionComponent } from './section-question.component';
     selector: 'xm-section',
     encapsulation: ViewEncapsulation.None,
     templateUrl: './section.component.html',
-    standalone: true,
     imports: [
         NgbPopover,
         NgbDropdown,
@@ -80,16 +71,14 @@ export class SectionComponent {
     @Output() removed = new EventEmitter<ExamSection>();
     @Output() materialsChanged = new EventEmitter<void>();
 
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private toast: ToastrService,
-        private dialogs: ConfirmationDialogService,
-        private Question: QuestionService,
-        private Files: FileService,
-        private Exam: ExamService,
-    ) {}
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private modal = inject(NgbModal);
+    private toast = inject(ToastrService);
+    private dialogs = inject(ConfirmationDialogService);
+    private QuestionScore = inject(QuestionScoringService);
+    private Files = inject(FileService);
+    private Exam = inject(ExamService);
 
     questionPointsMatch = () => {
         const sectionQuestions = this.section.sectionQuestions;
@@ -287,7 +276,7 @@ export class SectionComponent {
         optional: this.section.optional,
     });
 
-    private getQuestionScore = (question: ExamSectionQuestion) => this.Question.calculateMaxScore(question);
+    private getQuestionScore = (question: ExamSectionQuestion) => this.QuestionScore.calculateMaxScore(question);
 
     private insertExamQuestion = (question: Question, seq: number) => {
         const resource = this.collaborative
@@ -326,13 +315,13 @@ export class SectionComponent {
         }
 
         if (attachment.modified && attachment.file) {
-            this.Files.upload(
-                '/app/iop/collab/attachment/question',
-                attachment.file,
-                { examId: this.examId.toString(), questionId: data.id.toString() },
-                question,
-                callback,
-            );
+            this.Files.upload<Attachment>('/app/iop/collab/attachment/question', attachment.file, {
+                examId: this.examId.toString(),
+                questionId: data.id.toString(),
+            }).then((resp) => {
+                question.attachment = resp;
+                callback();
+            });
         }
     };
 

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package repository;
 
 import io.ebean.DB;
@@ -12,18 +16,22 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.ExaminationEvent;
-import models.ExaminationEventConfiguration;
-import models.Reservation;
-import models.Role;
-import models.User;
-import models.json.CollaborativeExam;
+import miscellaneous.config.ByodConfigHandler;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.datetime.DateTimeHandler;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExaminationEvent;
+import models.enrolment.ExaminationEventConfiguration;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.facility.ExamMachine;
+import models.facility.ExamRoom;
+import models.iop.CollaborativeExam;
 import models.sections.ExamSection;
+import models.user.Role;
+import models.user.User;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.pekko.util.OptionConverters;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Minutes;
@@ -33,8 +41,6 @@ import org.slf4j.LoggerFactory;
 import play.Environment;
 import play.mvc.Http;
 import play.mvc.Result;
-import util.config.ByodConfigHandler;
-import util.datetime.DateTimeHandler;
 
 public class EnrolmentRepository {
 
@@ -42,6 +48,7 @@ public class EnrolmentRepository {
     private final DatabaseExecutionContext ec;
     private final ByodConfigHandler byodConfigHandler;
     private final DateTimeHandler dateTimeHandler;
+    private final ConfigReader configReader;
     private final Database db;
 
     private final Logger logger = LoggerFactory.getLogger(EnrolmentRepository.class);
@@ -51,17 +58,19 @@ public class EnrolmentRepository {
         Environment environment,
         DatabaseExecutionContext databaseExecutionContext,
         ByodConfigHandler byodConfigHandler,
-        DateTimeHandler dateTimeHandler
+        DateTimeHandler dateTimeHandler,
+        ConfigReader configReader
     ) {
         this.environment = environment;
         this.db = DB.getDefault();
         this.ec = databaseExecutionContext;
         this.byodConfigHandler = byodConfigHandler;
         this.dateTimeHandler = dateTimeHandler;
+        this.configReader = configReader;
     }
 
-    public CompletionStage<Map<String, String>> getReservationHeaders(Http.Request request, Long userId) {
-        return CompletableFuture.supplyAsync(() -> doGetReservationHeaders(request, userId), ec);
+    public CompletionStage<Map<String, String>> getReservationHeaders(Http.Request request, Long userId, String eppn) {
+        return CompletableFuture.supplyAsync(() -> doGetReservationHeaders(request, userId, eppn), ec);
     }
 
     public CompletionStage<List<ExamEnrolment>> getStudentEnrolments(User user) {
@@ -71,8 +80,7 @@ public class EnrolmentRepository {
     public CompletionStage<ExamRoom> getRoomInfoForEnrolment(String hash, User user) {
         return CompletableFuture.supplyAsync(
             () -> {
-                ExpressionList<ExamEnrolment> query = DB
-                    .find(ExamEnrolment.class)
+                ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class)
                     .fetch("user", "id")
                     .fetch("user.language")
                     .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
@@ -94,8 +102,7 @@ public class EnrolmentRepository {
 
     private List<ExamEnrolment> doGetStudentEnrolments(User user) {
         DateTime now = dateTimeHandler.adjustDST(new DateTime());
-        List<ExamEnrolment> enrolments = DB
-            .find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
             .fetch("examinationEventConfiguration")
             .fetch("examinationEventConfiguration.examinationEvent")
             .fetch("collaborativeExam")
@@ -156,17 +163,17 @@ public class EnrolmentRepository {
             .toList();
     }
 
-    private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Long userId) {
+    private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Long userId, String eppn) {
         Map<String, String> headers = new HashMap<>();
         Optional<ExamEnrolment> ongoingEnrolment = getNextEnrolment(userId, 0);
         if (ongoingEnrolment.isPresent()) {
-            handleOngoingEnrolment(ongoingEnrolment.get(), request, headers);
+            handleOngoingEnrolment(ongoingEnrolment.get(), request, headers, eppn);
         } else {
             DateTime now = new DateTime();
             int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
             Optional<ExamEnrolment> upcomingEnrolment = getNextEnrolment(userId, lookAheadMinutes);
             if (upcomingEnrolment.isPresent()) {
-                handleUpcomingEnrolment(upcomingEnrolment.get(), request, headers);
+                handleUpcomingEnrolment(upcomingEnrolment.get(), request, headers, eppn);
             } else if (isOnExamMachine(request)) {
                 // User is logged on an exam machine but has no exams for today
                 headers.put("x-exam-upcoming-exam", "none");
@@ -175,11 +182,16 @@ public class EnrolmentRepository {
         return headers;
     }
 
-    private boolean isOnExamMachine(Http.RequestHeader request) {
+    public boolean isOnExamMachine(Http.RequestHeader request) {
         return db.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findOneOrEmpty().isPresent();
     }
 
-    private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
+    private boolean isMachineOk(
+        ExamEnrolment enrolment,
+        Http.RequestHeader request,
+        Map<String, String> headers,
+        String eppn
+    ) {
         boolean requiresReservation =
             enrolment.getExternalExam() != null ||
             enrolment.getCollaborativeExam() != null ||
@@ -192,13 +204,22 @@ public class EnrolmentRepository {
             enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH;
 
         if (requiresClientAuth) {
+            logger.info("Checking SEB config...");
             // SEB examination
             ExaminationEventConfiguration config = enrolment.getExaminationEventConfiguration();
-            Optional<Result> error = byodConfigHandler.checkUserAgent(request, config.getConfigKey());
+            Optional<Result> error = OptionConverters.toJava(
+                byodConfigHandler
+                    .checkUserAgent(request.asScala(), config.getConfigKey())
+                    .map(play.api.mvc.Result::asJava)
+            );
+
             if (error.isPresent()) {
                 String msg = ISODateTimeFormat.dateTime().print(new DateTime(config.getExaminationEvent().getStart()));
                 headers.put("x-exam-wrong-agent-config", msg);
+                logger.warn("Wrong agent config for SEB");
                 return false;
+            } else {
+                logger.info("SEB config OK");
             }
         } else if (requiresReservation) {
             // Aquarium examination
@@ -214,23 +235,23 @@ public class EnrolmentRepository {
                 // Is this a known machine?
                 ExamMachine lookedUp = db.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
                 if (lookedUp == null) {
-                    // IP not known
+                    // IP is not known
+                    var local = configReader.isLocalUser(eppn);
                     header = "x-exam-unknown-machine";
                     DateTimeZone zone = DateTimeZone.forID(room.getLocalTimezone());
-                    String start = ISODateTimeFormat
-                        .dateTime()
+                    String start = ISODateTimeFormat.dateTime()
                         .withZone(zone)
                         .print(new DateTime(enrolment.getReservation().getStartAt()));
-                    message =
-                        String.format(
-                            "%s:::%s:::%s:::%s:::%s:::%s",
-                            room.getCampus(),
-                            room.getBuildingName(),
-                            room.getRoomCode(),
-                            examMachine.getName(),
-                            start,
-                            zone.getID()
-                        );
+                    message = String.format(
+                        "%s:::%s:::%s:::%s:::%s:::%s:::%s",
+                        room.getCampus(),
+                        room.getBuildingName(),
+                        room.getRoomCode(),
+                        examMachine.getName(),
+                        start,
+                        zone.getID(),
+                        local ? "false" : enrolment.getId()
+                    );
                 } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                     // Right room, wrong machine
                     header = "x-exam-wrong-machine";
@@ -261,9 +282,10 @@ public class EnrolmentRepository {
     private void handleOngoingEnrolment(
         ExamEnrolment enrolment,
         Http.RequestHeader request,
-        Map<String, String> headers
+        Map<String, String> headers,
+        String eppn
     ) {
-        if (isMachineOk(enrolment, request, headers)) {
+        if (isMachineOk(enrolment, request, headers, eppn)) {
             String hash = getExamHash(enrolment);
             headers.put("x-exam-start-exam", hash);
         }
@@ -272,7 +294,8 @@ public class EnrolmentRepository {
     private void handleUpcomingEnrolment(
         ExamEnrolment enrolment,
         Http.RequestHeader request,
-        Map<String, String> headers
+        Map<String, String> headers,
+        String eppn
     ) {
         if (enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.WHATEVER) {
             // Home exam, don't set headers unless it starts in 5 minutes
@@ -284,19 +307,28 @@ public class EnrolmentRepository {
                     String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
                 );
             }
-        } else if (isMachineOk(enrolment, request, headers)) {
+        } else if (isMachineOk(enrolment, request, headers, eppn)) {
             if (
                 enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.AQUARIUM
             ) {
-                // Aquarium exam, don't set headers unless it starts in 5 minutes
+                // Aquarium exam
                 DateTime threshold = DateTime.now().plusMinutes(5);
+                DateTime thresholdEarly = DateTime.now().withTimeAtStartOfDay().plusDays(1);
                 DateTime start = dateTimeHandler.normalize(
                     enrolment.getReservation().getStartAt(),
                     enrolment.getReservation()
                 );
+                // if start is within 5 minutes, set upcoming exam header
                 if (start.isBefore(threshold)) {
                     headers.put(
                         "x-exam-upcoming-exam",
+                        String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
+                    );
+                    // otherwise set early login header if start is within today. For dev puprposes skip
+                    // requirement
+                } else if (start.isBefore(thresholdEarly) && start.isAfterNow() && !environment.isDev()) {
+                    headers.put(
+                        "x-exam-aquarium-login",
                         String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
                     );
                 }
@@ -311,33 +343,33 @@ public class EnrolmentRepository {
     }
 
     private boolean isInsideBounds(ExamEnrolment ee, int minutesToFuture) {
-        DateTime earliest = ee.getExaminationEventConfiguration() == null
-            ? dateTimeHandler.adjustDST(new DateTime())
-            : DateTime.now();
+        DateTime earliest =
+            ee.getExaminationEventConfiguration() == null ? dateTimeHandler.adjustDST(new DateTime()) : DateTime.now();
         DateTime latest = earliest.plusMinutes(minutesToFuture);
         Reservation reservation = ee.getReservation();
-        ExaminationEvent event = ee.getExaminationEventConfiguration() != null
-            ? ee.getExaminationEventConfiguration().getExaminationEvent()
-            : null;
+        ExaminationEvent event =
+            ee.getExaminationEventConfiguration() != null
+                ? ee.getExaminationEventConfiguration().getExaminationEvent()
+                : null;
         int delay = ee.getDelay();
         return (
             (reservation != null &&
-                reservation.getStartAt().plusSeconds(delay).isBefore(latest) &&
+                reservation.getStartAt().plusMillis(delay).isBefore(latest) &&
                 reservation.getEndAt().isAfter(earliest)) ||
             (event != null &&
-                event.getStart().plusSeconds(delay).isBefore(latest) &&
+                event.getStart().plusMillis(delay).isBefore(latest) &&
                 event.getStart().plusMinutes(ee.getExam().getDuration()).isAfter(earliest))
         );
     }
 
     private DateTime getStartTime(ExamEnrolment enrolment) {
         return enrolment.getReservation() != null
-            ? enrolment.getReservation().getStartAt().plusSeconds(enrolment.getDelay())
+            ? enrolment.getReservation().getStartAt().plusMillis(enrolment.getDelay())
             : enrolment
-                .getExaminationEventConfiguration()
-                .getExaminationEvent()
-                .getStart()
-                .plusSeconds(enrolment.getDelay());
+                  .getExaminationEventConfiguration()
+                  .getExaminationEvent()
+                  .getStart()
+                  .plusMillis(enrolment.getDelay());
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {

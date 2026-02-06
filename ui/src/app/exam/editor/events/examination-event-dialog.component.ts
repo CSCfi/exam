@@ -1,34 +1,24 @@
-/*
- * Copyright (c) 2018 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
- */
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, Input, computed, effect, signal } from '@angular/core';
+import { Component, Input, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExaminationEvent, ExaminationEventConfiguration, MaintenancePeriod } from 'src/app/exam/exam.model';
+import { take } from 'rxjs';
+import type { ExaminationEvent, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-examination-event-dialog',
-    standalone: true,
     imports: [NgClass, FormsModule, DatePipe, TranslateModule, DateTimePickerComponent, OrderByPipe],
     templateUrl: './examination-event-dialog.component.html',
 })
@@ -40,6 +30,7 @@ export class ExaminationEventDialogComponent implements OnInit {
     @Input() requiresPassword = false;
     @Input() examMinDate = '';
     @Input() examMaxDate = '';
+
     start = signal(new Date(new Date().getTime() + 60 * 1000));
     description = signal('');
     capacity = signal(0);
@@ -53,22 +44,27 @@ export class ExaminationEventDialogComponent implements OnInit {
     hasEnrolments = signal(false);
     settingsPasswordInputType = signal('password');
     quitPasswordInputType = signal('password');
+
+    private activeModal = inject(NgbActiveModal);
+    private http = inject(HttpClient);
+    private translate = inject(TranslateService);
+    private toast = inject(ToastrService);
+    private Exam = inject(ExamService);
+
     private now = new Date();
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private http: HttpClient,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Exam: ExamService,
-    ) {
-        effect(() =>
+    constructor() {
+        effect(() => {
+            const start = this.start().toISOString();
             this.http
                 .get<ExaminationEvent[]>('/app/examinationevents/conflicting', {
-                    params: { start: this.start().toISOString(), duration: this.duration },
+                    params: { start: start, duration: this.duration },
                 })
-                .subscribe((events) => this.conflictingEvents.set(events)),
-        );
+                .pipe(take(1))
+                .subscribe((events) => {
+                    this.conflictingEvents.set(events.filter((e) => e.id !== this.config?.examinationEvent.id));
+                });
+        });
     }
 
     ngOnInit() {
@@ -80,10 +76,12 @@ export class ExaminationEventDialogComponent implements OnInit {
             this.settingsPassword.set(this.config.settingsPassword);
             this.hasEnrolments.set(this.config.examEnrolments.length > 0);
         } else {
+            // set start to next full hour
             this.start.update((d) => {
-                const d2 = d;
-                d2.setMinutes(60);
-                return d;
+                const nextHour = new Date(d.getTime());
+                nextHour.setMinutes(0, 0, 0);
+                nextHour.setHours(nextHour.getHours() + 1);
+                return nextHour;
             });
         }
         this.http
@@ -100,7 +98,9 @@ export class ExaminationEventDialogComponent implements OnInit {
         if (this.now > event.date) {
             this.toast.error(this.translate.instant('i18n_select_time_in_future'));
         }
-        this.start.set(event.date);
+        // date needs copying for signal to upate
+        const newDate = new Date(event.date.getTime());
+        this.start.set(newDate);
     };
 
     ok() {
