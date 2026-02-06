@@ -343,14 +343,14 @@ public class EnrolmentRepository {
     }
 
     private boolean isInsideBounds(ExamEnrolment ee, int minutesToFuture) {
-        DateTime earliest =
-            ee.getExaminationEventConfiguration() == null ? dateTimeHandler.adjustDST(new DateTime()) : DateTime.now();
+        DateTime earliest = ee.getExaminationEventConfiguration() == null
+            ? dateTimeHandler.adjustDST(new DateTime())
+            : DateTime.now();
         DateTime latest = earliest.plusMinutes(minutesToFuture);
         Reservation reservation = ee.getReservation();
-        ExaminationEvent event =
-            ee.getExaminationEventConfiguration() != null
-                ? ee.getExaminationEventConfiguration().getExaminationEvent()
-                : null;
+        ExaminationEvent event = ee.getExaminationEventConfiguration() != null
+            ? ee.getExaminationEventConfiguration().getExaminationEvent()
+            : null;
         int delay = ee.getDelay();
         return (
             (reservation != null &&

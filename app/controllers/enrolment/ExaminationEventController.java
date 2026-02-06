@@ -248,13 +248,12 @@ public class ExaminationEventController extends BaseController {
 
     private void encryptSettingsPassword(ExaminationEventConfiguration eec, String password, String quitPassword) {
         try {
-            String oldPwd =
-                eec.getEncryptedSettingsPassword() != null
-                    ? byodConfigHandler.getPlaintextPassword(
-                          eec.getEncryptedSettingsPassword(),
-                          eec.getSettingsPasswordSalt()
-                      )
-                    : null;
+            String oldPwd = eec.getEncryptedSettingsPassword() != null
+                ? byodConfigHandler.getPlaintextPassword(
+                      eec.getEncryptedSettingsPassword(),
+                      eec.getSettingsPasswordSalt()
+                  )
+                : null;
 
             if (!password.equals(oldPwd)) {
                 String newSalt = UUID.randomUUID().toString();
@@ -271,10 +270,9 @@ public class ExaminationEventController extends BaseController {
 
     private void encryptQuitPassword(ExaminationEventConfiguration eec, String password) {
         try {
-            String oldPwd =
-                eec.getEncryptedQuitPassword() != null
-                    ? byodConfigHandler.getPlaintextPassword(eec.getEncryptedQuitPassword(), eec.getQuitPasswordSalt())
-                    : null;
+            String oldPwd = eec.getEncryptedQuitPassword() != null
+                ? byodConfigHandler.getPlaintextPassword(eec.getEncryptedQuitPassword(), eec.getQuitPasswordSalt())
+                : null;
 
             if (!password.equals(oldPwd)) {
                 String newSalt = UUID.randomUUID().toString();
