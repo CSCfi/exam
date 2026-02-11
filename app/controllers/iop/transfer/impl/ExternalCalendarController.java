@@ -478,9 +478,10 @@ public class ExternalCalendarController extends BaseController {
     private LocalDate parseSearchDate(String day, String startDate, String endDate, ExamRoom room)
         throws IllegalArgumentException {
         int windowSize = calendarHandler.getReservationWindowSize();
-        int offset = room != null
-            ? DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now())
-            : configReader.getDefaultTimeZone().getOffset(DateTime.now());
+        int offset =
+            room != null
+                ? DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now())
+                : configReader.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
         LocalDate examEndDate = DateTime.parse(endDate, ISODateTimeFormat.dateTimeParser())
