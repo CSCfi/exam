@@ -193,7 +193,10 @@ SPDX-License-Identifier: EUPL-1.2
                         </td>
                         <!-- 3 -->
                         <td>
-                            <a [routerLink]="['/staff/assessments', inspection.exam.id]">
+                            <a
+                                [routerLink]="['/staff/assessments', inspection.exam.id]"
+                                [attr.aria-label]="'Open inspection for ' + inspection.exam.name"
+                            >
                                 {{ inspection.exam.name }}
                             </a>
                         </td>

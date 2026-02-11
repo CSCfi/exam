@@ -4,7 +4,7 @@
 
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { NgbAccordionDirective, NgbAccordionModule, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -15,7 +15,9 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
     imports: [TranslateModule, NgbAccordionModule, NgClass],
     template: `
         <div class="modal-header">
-            <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_choose' | translate }}</h4>
+            <h4 class="modal-title">
+                <i class="bi-person me-2" aria-hidden="true"></i>{{ 'i18n_choose' | translate }}
+            </h4>
         </div>
         <div class="modal-body">
             <div ngbAccordion #acc="ngbAccordion">
@@ -35,6 +37,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                                                 type="button"
                                                 class="btn btn-link"
                                                 [ngClass]="{ 'selected-type': selectedType === type }"
+                                                [attr.aria-pressed]="selectedType === type"
                                                 (click)="selectType(type)"
                                                 autofocus
                                             >
@@ -58,6 +61,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                 </div>
                 <div
                     ngbAccordionItem="examinationType"
+                    #examTypePanel
                     [disabled]="!selectedType || selectedType.examinationTypes.length === 0"
                 >
                     <h2 ngbAccordionHeader>
@@ -103,6 +107,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
 })
 export class ExaminationTypeSelectorComponent implements OnInit {
     @ViewChild('acc', { static: false }) acc!: NgbAccordionDirective;
+    @ViewChild('examTypePanel', { read: ElementRef }) examTypePanel!: ElementRef;
     executionTypes: ExamConfig[] = [];
     selectedType!: ExamConfig;
 
@@ -135,7 +140,12 @@ export class ExaminationTypeSelectorComponent implements OnInit {
 
     selectType = (type: ExamConfig) => {
         this.selectedType = type;
-        setTimeout(() => this.acc.expand('examinationType'), 100);
+        setTimeout(() => {
+            this.acc.expand('examinationType');
+            const body = this.examTypePanel?.nativeElement?.querySelector('.accordion-body');
+            const firstButton = body?.querySelector('button');
+            if (firstButton instanceof HTMLElement) firstButton.focus();
+        }, 100);
     };
 
     selectConfig = (type: string, examinationType = 'AQUARIUM') =>

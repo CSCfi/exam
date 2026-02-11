@@ -127,9 +127,11 @@ SPDX-License-Identifier: EUPL-1.2
                             r.enrolment.exam.id &&
                             (isAdminView || isSupportView || r.enrolment.exam.state !== 'ABORTED')
                         ) {
-                            <a [routerLink]="['/staff/assessments', r.enrolment.exam.id]">{{
-                                r.enrolment.exam.name
-                            }}</a>
+                            <a
+                                [routerLink]="['/staff/assessments', r.enrolment.exam.id]"
+                                [attr.aria-label]="'Open exam named ' + r.enrolment.exam.name"
+                                >{{ r.enrolment.exam.name }}</a
+                            >
                         } @else {
                             <span>{{ r.enrolment.exam.name }}</span>
                         }
