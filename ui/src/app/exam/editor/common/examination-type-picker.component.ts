@@ -117,6 +117,9 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                 font-weight: bold;
                 color: black;
             }
+            :host ::ng-deep .accordion-body button.btn-link {
+                display: block;
+            }
         `,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,

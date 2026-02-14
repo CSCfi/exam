@@ -22,7 +22,6 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
         <xm-page-content [content]="content" />
         <ng-template #content>
             <div class="tab-wrapper-exams">
-                <xm-math-editor></xm-math-editor>
                 <!-- Under review language inspection -->
                 @if (ongoingInspections().length > 0) {
                     <xm-unfinished-inspections [inspections]="ongoingInspections()" />
