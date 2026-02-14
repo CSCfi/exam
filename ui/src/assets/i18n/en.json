@@ -1017,6 +1017,7 @@
     "i18n_wrong_room_title": "Wrong room",
     "i18n_wrong_machine_title": "Wrong computer",
     "i18n_unknown_machine": "Unknown machine",
+    "i18n_question_not_graded": "Not graded",
     "i18n_examination_logout_title": "Examination logout",
     "i18n_tag_questions": "Add tags to selected question(s)",
     "i18n_actions": "Actions",
