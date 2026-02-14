@@ -224,7 +224,7 @@ class EnrolmentRepository @Inject() (
                     enrolment.getReservation.getStartAt
                   ))
                 val msg =
-                  s"${enrolment.getId}:::${room.getCampus}:::${room.getBuildingName}:::${room.getRoomCode}:::${examMachine.getName}:::$start:::${zone.getID}:::$local"
+                  s"${enrolment.getId}:::${room.getCampus}:::${room.getBuildingName}:::${room.getRoomCode}:::${examMachine.getName}:::$start:::${zone.getID}:::${if local then "false" else enrolment.getId}"
                 ("x-exam-unknown-machine", msg)
               case Some(lookedUp) if lookedUp.getRoom.getId == room.getId =>
                 // Right room, wrong machine

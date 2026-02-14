@@ -37,7 +37,7 @@ export const examinationInterceptor: HttpInterceptorFn = (
                         WrongLocation.display(parts.slice(1, 7)); // campus, building, room, machine, start, zone
                     } else {
                         ExaminationStatus.notifyWrongLocation();
-                        router.navigate(['/unknownlocation', parts[0]]);
+                        router.navigate(['/unknownlocation', parts[parts.length - 1]]);
                     }
                 } else if (wrongRoom) {
                     const parts = b64ToUtf8(wrongRoom).split(':::');

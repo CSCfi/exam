@@ -1103,7 +1103,7 @@
     "i18n_minor_agreement_update": "Ändring som användare inte behöver informeras om",
     "i18n_exam_reservation_canceled": "Tentamensbokning avbokad",
     "i18n_confirm_delete_exam_reservation": "Vill du ta bort tentamensbokningen?",
-    "i18n_error_disallowed_login_with_external_domain_credentials": "Du kan logga in i EXAM-systemet endast med följande användarnamn:",
+    "i18n_error_disallowed_login_with_external_domain_credentials": "Du kan logga in i EXAM-systemet endast med följande användarnamn",
     "i18n_external_organisation_login": "Du håller på att logga in i tjänsten: EXAM",
     "i18n_external_organisation_login_description": "Är du säker på att du vill logga in med användarnamnet",
     "i18n_point_graded": "Endast poäng (inget vitsord)",
