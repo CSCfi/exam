@@ -333,7 +333,10 @@ class SessionService @Inject() (
       .flatMap(parseRoles(_, ignoreRoleNotFound))
 
     rolesResult.flatMap { roles =>
-      user.getRoles.addAll(roles.asJava)
+      val userRoles =
+        if isLocalUser(eppn) then roles
+        else roles.filter(_.getName == Role.Name.STUDENT.toString)
+      user.getRoles.addAll(userRoles.asJava)
       user.setLanguage(
         getLanguage(parse(headers.get("preferredLanguage").flatMap(_.headOption)).orNull)
       )
