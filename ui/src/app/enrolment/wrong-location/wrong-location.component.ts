@@ -21,16 +21,6 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     templateUrl: './wrong-location.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
-    styles: [
-        `
-            .exams-list-title-text {
-                font-size: 1.4em;
-                font-weight: 400;
-                letter-spacing: 1px;
-                vertical-align: middle;
-            }
-        `,
-    ],
 })
 export class WrongLocationComponent {
     cause = signal('');
