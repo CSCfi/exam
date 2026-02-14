@@ -16,7 +16,7 @@ import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone, Minutes}
 import play.api.mvc.{AnyContent, Request, RequestHeader}
 import play.api.{Environment, Logging, Mode}
-import services.config.ByodConfigHandler
+import services.config.{ByodConfigHandler, ConfigReader}
 import services.datetime.DateTimeHandler
 
 import javax.inject.Inject
@@ -28,7 +28,8 @@ class EnrolmentRepository @Inject() (
     environment: Environment,
     blockingIOExecutionContext: BlockingIOExecutionContext,
     byodConfigHandler: ByodConfigHandler,
-    dateTimeHandler: DateTimeHandler
+    dateTimeHandler: DateTimeHandler,
+    configReader: ConfigReader
 ) extends Logging
     with EbeanQueryExtensions:
 
@@ -37,9 +38,10 @@ class EnrolmentRepository @Inject() (
 
   def getReservationHeaders(
       request: Request[AnyContent],
-      userId: Long
+      userId: Long,
+      eppn: String
   ): Future[Map[String, String]] =
-    Future(doGetReservationHeaders(request, userId))
+    Future(doGetReservationHeaders(request, userId, eppn))
 
   def getStudentEnrolments(user: User): Future[List[ExamEnrolment]] =
     Future(doGetStudentEnrolments(user))
@@ -133,18 +135,22 @@ class EnrolmentRepository @Inject() (
           Option(ee.getCollaborativeExam).exists(_.getPeriodEnd.isAfterNow)
     }
 
-  private def doGetReservationHeaders(request: RequestHeader, userId: Long): Map[String, String] =
+  private def doGetReservationHeaders(
+      request: RequestHeader,
+      userId: Long,
+      eppn: String
+  ): Map[String, String] =
     val headers = scala.collection.mutable.Map[String, String]()
     getNextEnrolment(userId, 0) match
       case Some(ongoingEnrolment) =>
-        handleOngoingEnrolment(ongoingEnrolment, request, headers)
+        handleOngoingEnrolment(ongoingEnrolment, request, headers, eppn)
       case None =>
         val now = DateTime.now()
         val lookAheadMinutes =
           Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes
         getNextEnrolment(userId, lookAheadMinutes) match
           case Some(upcomingEnrolment) =>
-            handleUpcomingEnrolment(upcomingEnrolment, request, headers)
+            handleUpcomingEnrolment(upcomingEnrolment, request, headers, eppn)
           case None if isOnExamMachine(request) =>
             // User is logged on an exam machine but has no exams for today
             headers.put("x-exam-upcoming-exam", "none")
@@ -158,7 +164,8 @@ class EnrolmentRepository @Inject() (
   private def isMachineOk(
       enrolment: ExamEnrolment,
       request: RequestHeader,
-      headers: scala.collection.mutable.Map[String, String]
+      headers: scala.collection.mutable.Map[String, String],
+      eppn: String
   ): Boolean =
     val requiresReservation =
       Option(enrolment.getExternalExam).isDefined ||
@@ -205,13 +212,14 @@ class EnrolmentRepository @Inject() (
           Option(db.find(classOf[ExamMachine]).where().eq("ipAddress", remoteIp).findOne()) match
             case None =>
               // IP is not known
-              val zone = DateTimeZone.forID(room.getLocalTimezone)
+              val local = configReader.isLocalUser(eppn)
+              val zone  = DateTimeZone.forID(room.getLocalTimezone)
               val start =
                 ISODateTimeFormat.dateTime().withZone(zone).print(new DateTime(
                   enrolment.getReservation.getStartAt
                 ))
               val msg =
-                s"${room.getCampus}:::${room.getBuildingName}:::${room.getRoomCode}:::${examMachine.getName}:::$start:::${zone.getID}"
+                s"${enrolment.getId}:::${room.getCampus}:::${room.getBuildingName}:::${room.getRoomCode}:::${examMachine.getName}:::$start:::${zone.getID}:::$local"
               ("x-exam-unknown-machine", msg)
             case Some(lookedUp) if lookedUp.getRoom.getId == room.getId =>
               // Right room, wrong machine
@@ -237,16 +245,18 @@ class EnrolmentRepository @Inject() (
   private def handleOngoingEnrolment(
       enrolment: ExamEnrolment,
       request: RequestHeader,
-      headers: scala.collection.mutable.Map[String, String]
+      headers: scala.collection.mutable.Map[String, String],
+      eppn: String
   ): Unit =
-    if isMachineOk(enrolment, request, headers) then
+    if isMachineOk(enrolment, request, headers, eppn) then
       val hash = getExamHash(enrolment)
       headers.put("x-exam-start-exam", hash)
 
   private def handleUpcomingEnrolment(
       enrolment: ExamEnrolment,
       request: RequestHeader,
-      headers: scala.collection.mutable.Map[String, String]
+      headers: scala.collection.mutable.Map[String, String],
+      eppn: String
   ): Unit =
     if Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.WHATEVER) then
       // Home exam, don't set headers unless it starts in 5 minutes
@@ -254,7 +264,7 @@ class EnrolmentRepository @Inject() (
       val start     = enrolment.getExaminationEventConfiguration.getExaminationEvent.getStart
       if start.isBefore(threshold) then
         headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.getId}")
-    else if isMachineOk(enrolment, request, headers) then
+    else if isMachineOk(enrolment, request, headers, eppn) then
       if Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.AQUARIUM) then
         // Aquarium exam
         val threshold      = DateTime.now().plusMinutes(5)

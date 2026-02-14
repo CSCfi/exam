@@ -62,6 +62,12 @@ export const APP_ROUTES: Route[] = [
         title: () => buildTitle('i18n_waiting_room_title'),
     },
     {
+        path: 'unknownlocation/:eid',
+        loadComponent: () =>
+            import('./enrolment/wrong-location/unknown-location.component').then((mod) => mod.UnknownLocationComponent),
+        title: () => buildTitle('i18n_wrong_machine_title'),
+    },
+    {
         path: 'wrongroom/:eid/:mid',
         loadComponent: () =>
             import('./enrolment/wrong-location/wrong-location.component').then((mod) => mod.WrongLocationComponent),

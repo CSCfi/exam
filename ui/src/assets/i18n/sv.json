@@ -1016,6 +1016,7 @@
     "i18n_waiting_room_title": "Väntrum för tentamen",
     "i18n_wrong_room_title": "Fel tentamensrum",
     "i18n_wrong_machine_title": "Fel dator",
+    "i18n_unknown_machine": "Okänd dator",
     "i18n_examination_logout_title": "Utloggning från tentamen",
     "i18n_tag_questions": "Lägg till nyckelord till frågorna",
     "i18n_actions": "Åtgärder",

@@ -95,14 +95,21 @@ class SessionController @Inject() (
                     // Update session with reservation headers if student
                     val newSessionData: SessionData = request.session.data + ("role" -> roleName)
                     if sessionService.isStudent(newSessionData) then
-                      enrolmentRepository.getReservationHeaders(request, userId).map { headers =>
-                        val updatedSessionData =
-                          sessionService.updateSessionWithReservationHeaders(
-                            newSessionData,
-                            headers
+                      request.session.get("eppn") match
+                        case Some(eppn) =>
+                          enrolmentRepository.getReservationHeaders(request, userId, eppn).map {
+                            headers =>
+                              val updatedSessionData =
+                                sessionService.updateSessionWithReservationHeaders(
+                                  newSessionData,
+                                  headers
+                                )
+                              Ok(role.asJson).withSession(play.api.mvc.Session(updatedSessionData))
+                          }
+                        case None =>
+                          Future.successful(
+                            Ok(role.asJson).withSession(play.api.mvc.Session(newSessionData))
                           )
-                        Ok(role.asJson).withSession(play.api.mvc.Session(updatedSessionData))
-                      }
                     else
                       Future.successful(
                         Ok(role.asJson).withSession(play.api.mvc.Session(newSessionData))
@@ -126,10 +133,10 @@ class SessionController @Inject() (
             case CheckSessionStatus.Alarm     => "alarm"
             case CheckSessionStatus.Valid     => ""
           // Update session with reservation headers if student
-          request.session.get("id") match
-            case Some(id) if sessionService.isStudent(request.session.data) =>
+          (request.session.get("id"), request.session.get("eppn")) match
+            case (Some(id), Some(eppn)) if sessionService.isStudent(request.session.data) =>
               val userId = id.toLong
-              enrolmentRepository.getReservationHeaders(request, userId).map { headers =>
+              enrolmentRepository.getReservationHeaders(request, userId, eppn).map { headers =>
                 val updatedSessionData =
                   sessionService.updateSessionWithReservationHeaders(request.session.data, headers)
                 Ok(responseText).withSession(play.api.mvc.Session(updatedSessionData))

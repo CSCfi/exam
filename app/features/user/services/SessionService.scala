@@ -74,10 +74,9 @@ class SessionService @Inject() (
       case Some(eppn) =>
         val externalReservation = getUpcomingExternalReservation(eppn, remoteAddress)
         val isTemporaryVisitor  = externalReservation.isDefined
-        val userIsLocal         = isLocalUser(eppn)
         val homeOrgRequired     = configReader.isHomeOrganisationRequired
 
-        if !isTemporaryVisitor && !userIsLocal && homeOrgRequired then
+        if !isTemporaryVisitor && !configReader.isLocalUser(eppn) && homeOrgRequired then
           Future.successful(Left(DisallowedLogin))
         else
           val userResult = DB.find(classOf[User]).where().eq("eppn", eppn).find match
@@ -334,7 +333,7 @@ class SessionService @Inject() (
 
     rolesResult.flatMap { roles =>
       val userRoles =
-        if isLocalUser(eppn) then roles
+        if configReader.isLocalUser(eppn) then roles
         else roles.filter(_.getName == Role.Name.STUDENT.toString)
       user.getRoles.addAll(userRoles.asJava)
       user.setLanguage(
@@ -343,11 +342,6 @@ class SessionService @Inject() (
       user.setEppn(eppn)
       updateUser(user, headers).map(_ => user)
     }
-
-  private def isLocalUser(eppn: String): Boolean =
-    val userDomain  = eppn.split("@").last
-    val homeDomains = configReader.getHomeOrganisations
-    homeDomains.isEmpty || homeDomains.contains(userDomain)
 
   private def createSession(
       user: User,
@@ -369,7 +363,8 @@ class SessionService @Inject() (
     val basePayload = Map(
       "since" -> ISODateTimeFormat.dateTime().print(DateTime.now()),
       "id"    -> user.getId.toString,
-      "email" -> user.getEmail
+      "email" -> user.getEmail,
+      "eppn"  -> user.getEppn
     )
 
     val permissionsPayload =
@@ -380,7 +375,7 @@ class SessionService @Inject() (
     val studentRole =
       Option(DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).findOne)
         .getOrElse(throw new IllegalStateException("Student role not found"))
-    val isLocalAccount = isLocalUser(user.getEppn)
+    val isLocalAccount = configReader.isLocalUser(user.getEppn)
     val roles =
       if isTemporaryVisitor || !isLocalAccount then Seq(studentRole)
       else user.getRoles.asScala.toSeq

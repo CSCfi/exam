@@ -1016,6 +1016,7 @@
     "i18n_waiting_room_title": "Tentin odotushuone",
     "i18n_wrong_room_title": "Väärä tenttitila",
     "i18n_wrong_machine_title": "Väärä tenttikone",
+    "i18n_unknown_machine": "Tuntematon kone",
     "i18n_examination_logout_title": "Tentin uloskirjautuminen",
     "i18n_tag_questions": "Lisää kysymyksille avainsanoja",
     "i18n_actions": "Toimenpiteet",

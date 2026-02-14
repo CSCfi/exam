@@ -1,0 +1,75 @@
+<!--
+SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
+@if (enrolment() && reservation()) {
+    <div class="row">
+        <div class="col-md-12 alert alert-danger">
+            <h4 class="alert-heading">{{ 'i18n_logged_on_wrong_machine' | translate }}</h4>
+            {{ 'i18n_current_wrong_machine_title' | translate }}: {{ 'i18n_unknown_machine' | translate }}<br />
+            {{ 'i18n_reserved_machine' | translate }}: {{ reservation()!.machine.name }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">{{ 'i18n_reserved_room' | translate }}:</div>
+        <div class="col-md-9 text-success">
+            {{ reservation()!.machine.room.name }} ({{ reservation()!.machine.room.roomCode }})
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <span class="exams-list-title-text"
+                >{{ 'i18n_reserved_exam' | translate }}:&nbsp; {{ enrolment()!.exam.name }} -
+                @if (enrolment()?.exam?.course) {
+                    <xm-course-code [course]="enrolment()!.exam.course!"></xm-course-code>
+                }
+            </span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">{{ 'i18n_course_name' | translate }}:</div>
+        <strong class="col-md-9">{{ enrolment()!.exam.course?.name }}</strong>
+    </div>
+    <div class="row">
+        <div class="col-md-3">{{ 'i18n_exam_duration' | translate }}:</div>
+        <strong class="col-md-9">{{ printExamDuration() }}</strong>
+    </div>
+    <div class="row">
+        <div class="col-md-3">{{ 'i18n_exam_room' | translate }}:</div>
+        <strong class="col-md-9"
+            >{{ reservation()!.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+            {{ reservation()!.machine.room.name }}({{ reservation()!.machine.room.roomCode }})</strong
+        >
+    </div>
+    <div class="row">
+        <div class="col-md-3">{{ 'i18n_reservation_time' | translate }}:</div>
+        <strong class="col-md-9"
+            >{{ reservation()!.startAt | date: 'dd.MM.yyyy' }} {{ occasion().startAt }} - {{ occasion().endAt }} ({{
+                reservation()!.machine.room.localTimezone
+            }})
+        </strong>
+    </div>
+    @if (enrolment()!.exam.enrollInstruction) {
+        <div class="row">
+            <div class="col-md-3">{{ 'i18n_instructions' | translate }}:</div>
+            <div class="col-md-9">
+                <a class="xm-link pointer" (click)="showInstructions()">{{ 'i18n_view' | translate }}</a>
+            </div>
+        </div>
+    }
+    <div class="row">
+        <div class="col-md-3">{{ 'i18n_teachers' | translate }}:</div>
+        <div class="col-md-9">
+            @if (enrolment()!.exam) {
+                <xm-teacher-list [exam]="enrolment()!.exam"></xm-teacher-list>
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 alert alert-info">
+            {{ 'i18n_logout_and_login_elsewhere' | translate }}
+        </div>
+    </div>
+}

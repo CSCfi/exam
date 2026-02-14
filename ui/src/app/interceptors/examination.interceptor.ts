@@ -31,10 +31,15 @@ export const examinationInterceptor: HttpInterceptorFn = (
                 const hash = response.headers.get('x-exam-start-exam');
                 const enrolmentId = response.headers.get('x-exam-upcoming-exam');
                 if (unknownMachine) {
-                    const location = b64ToUtf8(unknownMachine).split(':::');
-                    WrongLocation.display(location); // Show warning notice on screen
+                    const parts = b64ToUtf8(unknownMachine).split(':::');
+                    const isLocal = parts[parts.length - 1] === 'true';
+                    if (isLocal) {
+                        WrongLocation.display(parts.slice(1, 7)); // campus, building, room, machine, start, zone
+                    } else {
+                        ExaminationStatus.notifyWrongLocation();
+                        router.navigate(['/unknownlocation', parts[0]]);
+                    }
                 } else if (wrongRoom) {
-                    ExaminationStatus.notifyWrongLocation();
                     const parts = b64ToUtf8(wrongRoom).split(':::');
                     router.navigate(['/wrongroom', parts[0], parts[1]]);
                 } else if (wrongMachine) {
