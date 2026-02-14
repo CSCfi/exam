@@ -619,7 +619,7 @@
     "i18n_add_question_owner": "Lisää kysymyksille omistajia",
     "i18n_question_owner_added": "Omistaja lisätty",
     "i18n_error_drop_disabled_lottery_on": "Kysymyksen lisääminen ei ole sallittu aihealueeseen, jossa on kysymysten arvonta käytössä.",
-    "i18n_no_grading": "Suoritusta ei arvioinda",
+    "i18n_no_grading": "Suoritusta ei arvioida",
     "i18n_confirm_archiving_without_grade": "Lukitse suoritus ilman kokonaisarviointia (vain pisteet). Toimenpidettä ei voi perua.",
     "i18n_no_grading_description": "Suoritusta ei loppuarvioitu EXAM-sovelluksessa",
     "i18n_question_already_in_section": "Kysymys on jo lisätty tähän aihealueeseen",

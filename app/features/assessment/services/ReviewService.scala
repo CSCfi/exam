@@ -230,12 +230,11 @@ class ReviewService @Inject() (
       .fetch("parent.creator")
       .where()
       .idEq(id)
-      .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
+      .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.REJECTED)
       .find match
       case Some(exam) =>
-        if !exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
-          isDisallowedToModify(exam, user, exam.getState)
-        then Left(ReviewError.ModificationForbidden)
+        if isDisallowedToModify(exam, user, exam.getState) then
+          Left(ReviewError.ModificationForbidden)
         else
           exam.setAssessmentInfo(info.orNull)
           exam.update()
