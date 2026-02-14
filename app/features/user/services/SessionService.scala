@@ -75,9 +75,17 @@ class SessionService @Inject() (
         val externalReservation = getUpcomingExternalReservation(eppn, remoteAddress)
         val isTemporaryVisitor  = externalReservation.isDefined
         val homeOrgRequired     = configReader.isHomeOrganisationRequired
+        val isLocalUser         = configReader.isLocalUser(eppn)
 
-        if !isTemporaryVisitor && !configReader.isLocalUser(eppn) && homeOrgRequired then
-          Future.successful(Left(DisallowedLogin))
+        val blockExternal =
+          !isTemporaryVisitor && !isLocalUser && homeOrgRequired
+        val blockTempVisitorWrongMachine =
+          isTemporaryVisitor && !enrolmentRepository.isOnExamMachine(
+            remoteAddress
+          ) && !isLocalUser && homeOrgRequired
+
+        if blockExternal || blockTempVisitorWrongMachine then
+          Future.successful(Left(DisallowedLogin(configReader.getHomeOrganisations)))
         else
           val userResult = DB.find(classOf[User]).where().eq("eppn", eppn).find match
             case Some(u) => updateUser(u, headers).map(_ => u)
@@ -389,9 +397,13 @@ class SessionService @Inject() (
         )
       else if !isLocalAccount then
         // External account - may only login as students
+        val homeOrgs = configReader.getHomeOrganisations.mkString(", ")
         (
-          Map("role"            -> studentRole.getName),
-          Map("externalUserOrg" -> Json.toJson(user.getEppn.split("@")(1)))
+          Map("role" -> studentRole.getName),
+          Map(
+            "externalUserOrg"   -> Json.toJson(user.getEppn.split("@")(1)),
+            "homeOrganisations" -> Json.toJson(homeOrgs)
+          )
         )
       else if user.getRoles.size() == 1 then
         // Local account with a single role - automatically set it

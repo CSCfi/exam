@@ -24,7 +24,7 @@ export const errorInterceptor: HttpInterceptorFn = (
             } else if (response.error?.status === 'validation_error') {
                 // data validation error
                 return throwError(() => translate.instant(response.error.message));
-            } else if (response.headers.get('x-exam-delay-execution') === 'true') {
+            } else if (response.headers.get('x-exam-delay-execution')) {
                 // pass to next for handling
                 throw response;
             } else if (typeof response.error === 'string') {

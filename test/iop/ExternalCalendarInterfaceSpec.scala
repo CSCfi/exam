@@ -210,8 +210,8 @@ class ExternalCalendarInterfaceSpec
       case Some(r) => r
       case None    => fail("Test room not found")
     room.setExternalRef(ROOM_REF)
-    room.getExamMachines.get(0).setIpAddress("127.0.0.1")
-    room.getExamMachines.get(0).update()
+    room.getExamMachines.asScala.head.setIpAddress("127.0.0.1")
+    room.getExamMachines.asScala.head.update()
     room.update()
 
     val enrolment = new ExamEnrolment()
@@ -591,7 +591,7 @@ class ExternalCalendarInterfaceSpec
         // Create a reservation within the same day to avoid midnight boundary issues
         val (start, end) = createSafeTimes
 
-        val machine = room.getExamMachines.get(0)
+        val machine = room.getExamMachines.asScala.head
         machine.setIpAddress("128.2.2.2")
         machine.update()
         val reservation = new Reservation()
@@ -599,13 +599,11 @@ class ExternalCalendarInterfaceSpec
         reservation.setExternalRef(RESERVATION_REF)
         reservation.setStartAt(start)
         reservation.setEndAt(end)
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.setMachine(room.getExamMachines.asScala.head)
         reservation.save()
 
-        val (user, session) = runIO(login(eppn))
-        // See that user is informed of wrong ip
-        val result = runIO(get("/app/session", session = session))
-        result.header.headers.get("x-exam-unknown-machine") must be(defined)
+        // Login is rejected when temp visitor is on unknown machine and home org required
+        runIO(loginExpectFailure(eppn))
 
     "requesting external reservations as student" should:
       "create reservation with email notification" in:

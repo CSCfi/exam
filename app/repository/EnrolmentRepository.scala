@@ -158,8 +158,11 @@ class EnrolmentRepository @Inject() (
 
     headers.toMap
 
+  def isOnExamMachine(remoteAddress: String): Boolean =
+    db.find(classOf[ExamMachine]).where().eq("ipAddress", remoteAddress).find.isDefined
+
   private def isOnExamMachine(request: RequestHeader): Boolean =
-    db.find(classOf[ExamMachine]).where().eq("ipAddress", request.remoteAddress).find.isDefined
+    isOnExamMachine(request.remoteAddress)
 
   private def isMachineOk(
       enrolment: ExamEnrolment,
@@ -173,66 +176,68 @@ class EnrolmentRepository @Inject() (
         Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.AQUARIUM)
 
     // Lose the checks for dev usage to facilitate for easier testing
-    if environment.mode == Mode.Dev && requiresReservation then return true
+    if environment.mode == Mode.Dev && requiresReservation then true
+    else
+      val requiresClientAuth =
+        Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.CLIENT_AUTH)
 
-    val requiresClientAuth =
-      Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.CLIENT_AUTH)
+      if requiresClientAuth then
+        logger.info("Checking SEB config...")
+        // SEB examination
+        val config = enrolment.getExaminationEventConfiguration
+        val error =
+          byodConfigHandler.checkUserAgent(
+            request.headers.toMap,
+            request.uri,
+            request.host,
+            config.getConfigKey
+          )
 
-    if requiresClientAuth then
-      logger.info("Checking SEB config...")
-      // SEB examination
-      val config = enrolment.getExaminationEventConfiguration
-      val error =
-        byodConfigHandler.checkUserAgent(
-          request.headers.toMap,
-          request.uri,
-          request.host,
-          config.getConfigKey
-        )
+        if error.isDefined then
+          val msg =
+            ISODateTimeFormat.dateTime().print(new DateTime(config.getExaminationEvent.getStart))
+          headers.put("x-exam-wrong-agent-config", msg)
+          logger.warn("Wrong agent config for SEB")
+          false
+        else
+          logger.info("SEB config OK")
+          true
+      else if requiresReservation then
+        // Aquarium examination
+        val examMachine = enrolment.getReservation.getMachine
+        val room        = examMachine.getRoom
+        val machineIp   = examMachine.getIpAddress
+        val remoteIp    = request.remoteAddress
 
-      if error.isDefined then
-        val msg =
-          ISODateTimeFormat.dateTime().print(new DateTime(config.getExaminationEvent.getStart))
-        headers.put("x-exam-wrong-agent-config", msg)
-        logger.warn("Wrong agent config for SEB")
-        return false
-      else logger.info("SEB config OK")
-    else if requiresReservation then
-      // Aquarium examination
-      val examMachine = enrolment.getReservation.getMachine
-      val room        = examMachine.getRoom
-      val machineIp   = examMachine.getIpAddress
-      val remoteIp    = request.remoteAddress
+        logger.debug(s"User is on IP: $remoteIp <-> Should be on IP: $machineIp")
 
-      logger.debug(s"User is on IP: $remoteIp <-> Should be on IP: $machineIp")
+        if remoteIp != machineIp then
+          val (header, message) =
+            // Is this a known machine?
+            Option(db.find(classOf[ExamMachine]).where().eq("ipAddress", remoteIp).findOne()) match
+              case None =>
+                // IP is not known
+                val local = configReader.isLocalUser(eppn)
+                val zone  = DateTimeZone.forID(room.getLocalTimezone)
+                val start =
+                  ISODateTimeFormat.dateTime().withZone(zone).print(new DateTime(
+                    enrolment.getReservation.getStartAt
+                  ))
+                val msg =
+                  s"${enrolment.getId}:::${room.getCampus}:::${room.getBuildingName}:::${room.getRoomCode}:::${examMachine.getName}:::$start:::${zone.getID}:::$local"
+                ("x-exam-unknown-machine", msg)
+              case Some(lookedUp) if lookedUp.getRoom.getId == room.getId =>
+                // Right room, wrong machine
+                ("x-exam-wrong-machine", s"${enrolment.getId}:::${lookedUp.getId}")
+              case Some(lookedUp) =>
+                // Wrong room
+                ("x-exam-wrong-room", s"${enrolment.getId}:::${lookedUp.getId}")
 
-      if remoteIp != machineIp then
-        val (header, message) =
-          // Is this a known machine?
-          Option(db.find(classOf[ExamMachine]).where().eq("ipAddress", remoteIp).findOne()) match
-            case None =>
-              // IP is not known
-              val local = configReader.isLocalUser(eppn)
-              val zone  = DateTimeZone.forID(room.getLocalTimezone)
-              val start =
-                ISODateTimeFormat.dateTime().withZone(zone).print(new DateTime(
-                  enrolment.getReservation.getStartAt
-                ))
-              val msg =
-                s"${enrolment.getId}:::${room.getCampus}:::${room.getBuildingName}:::${room.getRoomCode}:::${examMachine.getName}:::$start:::${zone.getID}:::$local"
-              ("x-exam-unknown-machine", msg)
-            case Some(lookedUp) if lookedUp.getRoom.getId == room.getId =>
-              // Right room, wrong machine
-              ("x-exam-wrong-machine", s"${enrolment.getId}:::${lookedUp.getId}")
-            case Some(lookedUp) =>
-              // Wrong room
-              ("x-exam-wrong-room", s"${enrolment.getId}:::${lookedUp.getId}")
-
-        headers.put(header, Base64.encodeBase64String(message.getBytes))
-        logger.debug(s"room and machine not ok. $message")
-        return false
-
-    true
+          headers.put(header, Base64.encodeBase64String(message.getBytes))
+          logger.debug(s"room and machine not ok. $message")
+          false
+        else true
+      else true
 
   private def getExamHash(enrolment: ExamEnrolment): String =
     Option(enrolment.getExternalExam)

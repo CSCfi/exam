@@ -35,8 +35,10 @@ class SessionController @Inject() (
     error match
       case SessionError.NoCredentials         => BadRequest(error.message)
       case SessionError.LoginTypeNotSupported => BadRequest(error.message)
-      case SessionError.DisallowedLogin =>
-        BadRequest(error.message).withHeaders("x-exam-delay-execution" -> "true")
+      case disallowed: SessionError.DisallowedLogin =>
+        val headerValue =
+          if disallowed.homeOrgs.isEmpty then "true" else disallowed.homeOrgs.mkString(", ")
+        BadRequest(error.message).withHeaders("x-exam-delay-execution" -> headerValue)
       case SessionError.Unauthenticated                   => Unauthorized(error.message)
       case SessionError.LoginFailed                       => BadRequest(error.message)
       case SessionError.FailedToHandleExternalReservation => InternalServerError(error.message)

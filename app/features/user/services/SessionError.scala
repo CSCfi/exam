@@ -12,7 +12,7 @@ object SessionError:
     val message = "No credentials!"
   case object LoginTypeNotSupported extends SessionError:
     val message = "login type not supported"
-  case object DisallowedLogin extends SessionError:
+  case class DisallowedLogin(homeOrgs: List[String] = Nil) extends SessionError:
     val message = "i18n_error_disallowed_login_with_external_domain_credentials"
   case object Unauthenticated extends SessionError:
     val message = "i18n_error_unauthenticated"

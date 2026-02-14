@@ -39,4 +39,5 @@ export interface User {
     lastLogin: string | null;
     canCreateByodExam: boolean;
     externalUserOrg?: string;
+    homeOrganisations?: string;
 }
