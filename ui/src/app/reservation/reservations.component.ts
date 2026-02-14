@@ -4,13 +4,15 @@
 
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
+import { combineLatest, Observable, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import type { CollaborativeExam, Exam, ExamImpl } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -225,7 +227,14 @@ export class ReservationsComponent {
     protected searchOwners$ = (text$: Observable<string>) => this.Reservation.searchOwners$(text$);
 
     protected searchExams$ = (text$: Observable<string>) =>
-        this.Reservation.searchExams$(text$, this.isInteroperable() && (this.isAdminView() || this.isSupportView()));
+        combineLatest([text$, toObservable(this.isInteroperable)]).pipe(
+            switchMap(([text, isInteroperable]) =>
+                this.Reservation.searchExams$(
+                    of(text),
+                    isInteroperable && (this.isAdminView() || this.isSupportView()),
+                ),
+            ),
+        );
 
     protected nameFormatter = (item: { name: string }) => item.name;
 

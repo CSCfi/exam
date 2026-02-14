@@ -88,7 +88,7 @@ class CollaborativeExamController @Inject() (
     exam
 
   def searchExams(filter: Option[String]): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))).async { request =>
       val user      = request.attrs(Auth.ATTR_USER)
       val homeOrg   = configReader.getHomeOrganisationRef
       val wsRequest = collaborativeExamSearchService.buildSearchRequest(filter)
