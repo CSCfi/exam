@@ -26,7 +26,7 @@ export const errorInterceptor: HttpInterceptorFn = (
                 return throwError(() => translate.instant(response.error.message));
             } else if (response.headers.get('x-exam-delay-execution')) {
                 // pass to next for handling
-                throw response;
+                return throwError(() => response);
             } else if (typeof response.error === 'string') {
                 return throwError(() => translate.instant(response.error));
             } else {
