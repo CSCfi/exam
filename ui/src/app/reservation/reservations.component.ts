@@ -66,6 +66,7 @@ export class ReservationsComponent {
     externalReservationsOnly = signal(false);
     byodExamsOnly = signal(false);
 
+    private isInteroperable$ = toObservable(this.isInteroperable);
     private http = inject(HttpClient);
     private route = inject(ActivatedRoute);
     private toast = inject(ToastrService);
@@ -227,7 +228,7 @@ export class ReservationsComponent {
     protected searchOwners$ = (text$: Observable<string>) => this.Reservation.searchOwners$(text$);
 
     protected searchExams$ = (text$: Observable<string>) =>
-        combineLatest([text$, toObservable(this.isInteroperable)]).pipe(
+        combineLatest([text$, this.isInteroperable$]).pipe(
             switchMap(([text, isInteroperable]) =>
                 this.Reservation.searchExams$(
                     of(text),

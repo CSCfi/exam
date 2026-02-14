@@ -8,7 +8,6 @@ import { DateTime } from 'luxon';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { LanguageService } from 'src/app/shared/language/language.service';
-import { MathEditorComponent } from 'src/app/shared/math/math-editor.component';
 import { LanguageInspectionService } from './language-inspections.service';
 import { ReviewedInspectionsComponent } from './listing/reviewed-inspections.component';
 import { UnfinishedInspectionsComponent } from './listing/unfinished-inspections.component';
@@ -45,7 +44,6 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
         TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
-        MathEditorComponent,
     ],
 })
 export class LanguageInspectionsComponent {
