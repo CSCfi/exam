@@ -374,24 +374,31 @@ class SessionService @Inject() (
         Map("permissions" -> user.getPermissions.asScala.map(_.getValue).mkString(","))
       else Map.empty[String, String]
 
-    val roles = if isTemporaryVisitor then
-      DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).list
-    else user.getRoles.asScala.toSeq
+    val studentRole =
+      Option(DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).findOne)
+        .getOrElse(throw new IllegalStateException("Student role not found"))
+    val roles = if isTemporaryVisitor then Seq(studentRole) else user.getRoles.asScala.toSeq
 
     val (rolePayload, responseData) =
-      if user.getRoles.size() == 1 && !isTemporaryVisitor then
-        (Map("role" -> user.getRoles.asScala.head.getName), Map.empty[String, JsValue])
+      if roles.size == 1 && !isTemporaryVisitor then
+        // regular user with a single role, store role into session
+        (Map("role" -> roles.head.getName), Map.empty[String, JsValue])
       else if isTemporaryVisitor then
-        (Map("visitingStudent" -> "true", "role" -> roles.head.getName), Map.empty[String, JsValue])
-      else if !isLocalUser(user.getEppn) then
+        // external exam taker
         (
-          Map.empty[String, String],
-          Map("externalUserOrg" -> Json.toJson(user.getEppn.split("@")(1)))
+          Map("visitingStudent" -> "true", "role" -> studentRole.getName),
+          Map.empty[String, JsValue]
         )
       else (Map.empty[String, String], Map.empty[String, JsValue])
 
+    val visitorOrgData =
+      if !isLocalUser(user.getEppn) then
+        // visitor account
+        Map("externalUserOrg" -> Json.toJson(user.getEppn.split("@")(1)))
+      else Map.empty[String, JsValue]
+
     val sessionData = basePayload ++ permissionsPayload ++ rolePayload
-    val finalUserData = responseData
+    val finalUserData = (responseData ++ visitorOrgData)
       .foldLeft(userData) { case (acc, (k, v)) => acc + (k -> v) } + ("roles" -> Json.toJson(
       roles.map(_.asJson)
     ))
