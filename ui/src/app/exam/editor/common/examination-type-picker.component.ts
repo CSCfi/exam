@@ -25,7 +25,9 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
     imports: [TranslateModule, NgbAccordionModule, NgClass],
     template: `
         <div class="modal-header">
-            <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_choose' | translate }}</h4>
+            <h4 class="modal-title">
+                <i class="bi-person me-2" aria-hidden="true"></i>{{ 'i18n_choose' | translate }}
+            </h4>
         </div>
         <div class="modal-body">
             <div ngbAccordion #acc="ngbAccordion">
@@ -45,6 +47,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                                             class="btn btn-link"
                                             [ngClass]="{ 'selected-type': selectedType() === type }"
                                             [attr.aria-current]="selectedType() === type ? 'true' : 'false'"
+                                            [attr.aria-pressed]="selectedType() === type"
                                             (click)="selectType(type)"
                                             (keydown)="onKeyDown($event, 0)"
                                         >
@@ -71,6 +74,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                 <!-- Second Panel: Examination Types -->
                 <div
                     ngbAccordionItem="examinationType"
+                    #examTypePanel
                     [disabled]="!selectedType() || selectedType()!.examinationTypes.length === 0"
                 >
                     <h2 ngbAccordionHeader>
@@ -119,6 +123,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
 })
 export class ExaminationTypeSelectorComponent {
     @ViewChild('acc', { static: false }) acc!: NgbAccordionDirective;
+    @ViewChild('examTypePanel', { read: ElementRef }) examTypePanel!: ElementRef;
     @ViewChildren('link') links!: QueryList<ElementRef>;
 
     executionTypes = signal<ExamConfig[]>([]);
@@ -221,11 +226,10 @@ export class ExaminationTypeSelectorComponent {
         // Expand second panel
         setTimeout(() => {
             this.acc.expand('examinationType');
-
-            // Focus first link of second panel
-            const nextPanelLinks = this.getCurrentPanelLinks(1);
+            const body = this.examTypePanel?.nativeElement?.querySelector('.accordion-body');
+            const firstButton = body?.querySelector('button');
+            if (firstButton instanceof HTMLElement) firstButton.focus();
             this.focusedIndex.set(0);
-            if (nextPanelLinks.length) nextPanelLinks[0].nativeElement.focus();
             this.changeDetector.markForCheck();
         }, 100);
     }
