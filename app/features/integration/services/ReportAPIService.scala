@@ -17,45 +17,51 @@ import scala.jdk.CollectionConverters.*
 
 class ReportAPIService @Inject() () extends EbeanQueryExtensions:
 
-  def getExamEnrolments(start: Option[String], end: Option[String]): List[ExamEnrolment] =
-    val pp = PathProperties.parse(
-      """(id, enrolledOn, noShow,
-        |reservation(id,
-        |  machine(id, name,
-        |    room(name, roomCode)
-        |  ),
-        |  startAt, endAt,
-        |  externalReservation(orgName)
-        |),
-        |examinationEventConfiguration(
-        |  examinationEvent(start)
-        |),
-        |exam(id,
-        |  course(name, code, credits, identifier, courseImplementation,
-        |    gradeScale(description, displayName),
-        |    organisation(code, name)
-        |  ),
-        |  softwares(name),
-        |  duration,
-        |  examType(type),
-        |  creditType(type),
-        |  executionType(type),
-        |  implementation,
-        |  trialCount,
-        |  answerLanguage,
-        |  periodStart,
-        |  periodEnd,
-        |  examParticipation(started, ended, id)
-        |)
-        |)""".stripMargin
-    )
+  private val pathProperties = PathProperties.parse(
+    """(id, enrolledOn, noShow,
+      |reservation(id,
+      |  machine(id, name,
+      |    room(name, roomCode)
+      |  ),
+      |  startAt, endAt,
+      |  externalReservation(orgName)
+      |),
+      |examinationEventConfiguration(
+      |  examinationEvent(start)
+      |),
+      |exam(id,
+      |  course(name, code, credits, identifier, courseImplementation,
+      |    gradeScale(description, displayName),
+      |    organisation(code, name)
+      |  ),
+      |  softwares(name),
+      |  duration,
+      |  examType(type),
+      |  creditType(type),
+      |  executionType(type),
+      |  implementation,
+      |  trialCount,
+      |  answerLanguage,
+      |  periodStart,
+      |  periodEnd,
+      |  examParticipation(started, ended, id)
+      |)
+      |)""".stripMargin
+  )
 
+  def getExamEnrolments(
+      start: Option[String],
+      end: Option[String]
+  ): (List[ExamEnrolment], PathProperties) =
     val query = DB.find(classOf[ExamEnrolment])
-    pp.apply(query)
+    pathProperties.apply(query)
 
     val participations = query
       .where()
+      .or()
       .ne("exam.state", Exam.State.PUBLISHED)
+      .eq("noShow", true)
+      .endOr()
       .or()
       .isNotNull("reservation.machine")
       .isNotNull("reservation.externalReservation")
@@ -89,7 +95,7 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
       do exam.setSoftwareInfo(software.asJava)
     }
 
-    participations
+    (participations, pathProperties)
 
   private def filterByDate(
       enrolment: ExamEnrolment,

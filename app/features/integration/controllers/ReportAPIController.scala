@@ -6,7 +6,6 @@ package features.integration.controllers
 
 import database.EbeanJsonExtensions
 import features.integration.services.ReportAPIService
-import io.ebean.text.PathProperties
 import play.api.mvc.*
 import security.Auth.subjectNotPresent
 import security.BlockingIOExecutionContext
@@ -22,37 +21,6 @@ class ReportAPIController @Inject() (
 
   def getExamEnrolments(start: Option[String], end: Option[String]): Action[AnyContent] =
     Action.andThen(subjectNotPresent) { _ =>
-      val pp = PathProperties.parse(
-        """(id, enrolledOn, noShow,
-          |reservation(id,
-          |  machine(id, name,
-          |    room(name, roomCode)
-          |  ),
-          |  startAt, endAt,
-          |  externalReservation(orgName)
-          |),
-          |examinationEventConfiguration(
-          |  examinationEvent(start)
-          |),
-          |exam(id,
-          |  course(name, code, credits, identifier, courseImplementation,
-          |    gradeScale(description, displayName),
-          |    organisation(code, name)
-          |  ),
-          |  softwares(name),
-          |  duration,
-          |  examType(type),
-          |  creditType(type),
-          |  executionType(type),
-          |  implementation,
-          |  trialCount,
-          |  answerLanguage,
-          |  periodStart,
-          |  periodEnd,
-          |  examParticipation(started, ended, id)
-          |)
-          |)""".stripMargin
-      )
-      val participations = reportAPIService.getExamEnrolments(start, end)
+      val (participations, pp) = reportAPIService.getExamEnrolments(start, end)
       Ok(participations.asJson(pp))
     }
