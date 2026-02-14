@@ -7,138 +7,158 @@ name: Build
 on: [push]
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        services:
-            postgres:
-                image: postgres
-                env:
-                    POSTGRES_DB: exam_test
-                    POSTGRES_USER: exam
-                    POSTGRES_PASSWORD: exam
-                options: >-
-                    --health-cmd pg_isready
-                    --health-interval 10s
-                    --health-timeout 5s
-                    --health-retries 5
-                ports:
-                    - 5432:5432
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: exam_test
+          POSTGRES_USER: exam
+          POSTGRES_PASSWORD: exam
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Set up JDK
-              uses: actions/setup-java@v4
-              with:
-                  java-version: 25
-                  distribution: temurin
-                  cache: sbt
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 25
+          distribution: temurin
+          cache: sbt
 
-            - name: Set up SBT
-              uses: sbt/setup-sbt@v1
+      - name: Set up SBT
+        uses: sbt/setup-sbt@v1
 
-            - name: Set up Node
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 24.x
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
 
-            - name: Check REUSE compliance
-              uses: fsfe/reuse-action@v4
+      - name: Check REUSE compliance
+        uses: fsfe/reuse-action@v6
 
-            - name: Build UI and run tests
-              run: |
-                  npm ci --ignore-scripts
-                  npm run check-format
-                  npm run check-lint
-                  npm run build
-                  npm test -- --no-watch
+      - name: Build UI and run tests
+        run: |
+          npm ci --ignore-scripts
+          npm run check-format
+          npm run check-lint
+          npm run build
+          npm test -- --no-watch
 
-            - name: Build backend and run tests
-              run: |
-                  sed -i 's/\/var\/log\/exam/logs/g' $GITHUB_WORKSPACE/conf/logback.xml
-                  sbt test
+      - name: Build backend and run tests
+        run: |
+          sed -i 's/\/var\/log\/exam/logs/g' $GITHUB_WORKSPACE/conf/logback.xml
+          sbt test
 
-    docker-build:
-        runs-on: ubuntu-latest
-        needs: build
-        timeout-minutes: 20
+      - name: Generate SPDX Bill of Rights
+        # Using pipx run ensures the file is created on the host filesystem
+        # with the correct permissions for the upload step.
+        run: pipx run reuse spdx -o bill-of-rights.spdx
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+      - name: Upload SBOM as CI Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bill-of-rights
+          path: bill-of-rights.spdx
+          retention-days: 7
 
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
+      - name: Publish Bill of Rights to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: bill-of-rights.spdx
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Build Docker images
-              run: docker compose build
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 20
 
-            - name: Start containers
-              env:
-                  NGINX_CONFIG: nginx.conf  # Use HTTP config (no SSL certs in CI)
-              run: |
-                  docker compose up -d
-                  echo "Containers starting..."
-                  sleep 5
-                  docker compose ps
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Wait for postgres to be healthy
-              run: |
-                  echo "Waiting for postgres..."
-                  timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U exam; do sleep 2; done'
-                  echo "✓ Postgres is ready"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-            - name: Wait for exam backend to be healthy
-              run: |
-                  echo "Waiting for exam backend..."
-                  timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" exam-app)" == "healthy" ]; do sleep 5; echo "Still waiting..."; done'
-                  echo "✓ Backend is ready"
+      - name: Build Docker images
+        run: docker compose build
 
-            - name: Start and wait for nginx
-              run: |
-                  echo "Starting nginx (depends on exam being healthy)..."
-                  docker compose up -d nginx
-                  
-                  echo "Waiting for nginx container to start..."
-                  timeout 30 bash -c 'until docker compose ps nginx | grep -q "Up"; do sleep 2; echo "Still waiting for nginx..."; done'
-                  echo "✓ Nginx container is up"
-                  
-                  echo "Waiting for nginx to be ready (testing endpoint)..."
-                  timeout 60 bash -c 'until curl -f -s http://localhost/ > /dev/null 2>&1; do echo "Nginx not ready yet..."; sleep 5; done'
-                  echo "✓ Nginx is responding"
+      - name: Start containers
+        env:
+          NGINX_CONFIG: nginx.conf  # Use HTTP config (no SSL certs in CI)
+        run: |
+          docker compose up -d
+          echo "Containers starting..."
+          sleep 5
+          docker compose ps
 
-            - name: Test application endpoints
-              run: |
-                  echo "Testing root endpoint..."
-                  curl -f http://localhost/ || (echo "Failed to access root endpoint" && docker compose logs nginx && exit 1)
-                  echo "✓ Root endpoint works"
-                  
-                  echo "Testing API health check..."
-                  curl -f http://localhost/app/attributes || exit 1
-                  echo "✓ API endpoint works"
-                  
-                  echo "Testing CSRF token..."
-                  curl -v http://localhost/ 2>&1 | grep -q "XSRF-TOKEN" || exit 1
-                  echo "✓ CSRF token is set"
-                  
-                  echo "✓ All endpoint tests passed!"
+      - name: Wait for postgres to be healthy
+        run: |
+          echo "Waiting for postgres..."
+          timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U exam; do sleep 2; done'
+          echo "✓ Postgres is ready"
 
-            - name: Show container status
-              if: always()
-              run: docker compose ps
+      - name: Wait for exam backend to be healthy
+        run: |
+          echo "Waiting for exam backend..."
+          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" exam-app)" == "healthy" ]; do sleep 5; echo "Still waiting..."; done'
+          echo "✓ Backend is ready"
 
-            - name: Show logs on failure
-              if: failure()
-              run: |
-                  echo "=== Postgres logs ==="
-                  docker compose logs postgres
-                  echo "=== Exam logs ==="
-                  docker compose logs exam
-                  echo "=== Nginx logs ==="
-                  docker compose logs nginx
+      - name: Start and wait for nginx
+        run: |
+          echo "Starting nginx (depends on exam being healthy)..."
+          docker compose up -d nginx
+          
+          echo "Waiting for nginx container to start..."
+          timeout 30 bash -c 'until docker compose ps nginx | grep -q "Up"; do sleep 2; echo "Still waiting for nginx..."; done'
+          echo "✓ Nginx container is up"
+          
+          echo "Waiting for nginx to be ready (testing endpoint)..."
+          timeout 60 bash -c 'until curl -f -s http://localhost/ > /dev/null 2>&1; do echo "Nginx not ready yet..."; sleep 5; done'
+          echo "✓ Nginx is responding"
 
-            - name: Cleanup
-              if: always()
-              run: docker compose down -v
+      - name: Test application endpoints
+        run: |
+          echo "Testing root endpoint..."
+          curl -f http://localhost/ || (echo "Failed to access root endpoint" && docker compose logs nginx && exit 1)
+          echo "✓ Root endpoint works"
+          
+          echo "Testing API health check..."
+          curl -f http://localhost/app/attributes || exit 1
+          echo "✓ API endpoint works"
+          
+          echo "Testing CSRF token..."
+          curl -v http://localhost/ 2>&1 | grep -q "XSRF-TOKEN" || exit 1
+          echo "✓ CSRF token is set"
+          
+          echo "✓ All endpoint tests passed!"
+
+      - name: Show container status
+        if: always()
+        run: docker compose ps
+
+      - name: Show logs on failure
+        if: failure()
+        run: |
+          echo "=== Postgres logs ==="
+          docker compose logs postgres
+          echo "=== Exam logs ==="
+          docker compose logs exam
+          echo "=== Nginx logs ==="
+          docker compose logs nginx
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v

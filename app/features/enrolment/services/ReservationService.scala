@@ -404,10 +404,10 @@ class ReservationService @Inject() (
           .isNull("enrolment.externalExam")
           .isNull("enrolment.collaborativeExam")
           .ne("enrolment.exam.state", Exam.State.DELETED)
-          .disjunction()
+          .or()
           .eq("enrolment.exam.parent.examOwners", user)
           .eq("enrolment.exam.examOwners", user)
-          .endJunction()
+          .endOr()
       else baseQuery
 
     val withStartFilter = start.fold(withTeacherFilter) { s =>

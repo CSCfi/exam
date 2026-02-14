@@ -596,9 +596,18 @@ class CollaborativeReviewController @Inject() (
                 case Left(errorFuture) => errorFuture
                 case Right(wsr) =>
                   val revision = (request.body \ "rev").asOpt[String]
+                  val gradingTypeStr =
+                    (request.body \ "gradingType").asOpt[String].filter(_.nonEmpty)
+                  val gradingTypeOpt =
+                    gradingTypeStr.flatMap(s => Try(Grade.Type.valueOf(s)).toOption)
                   if revision.isEmpty then Future.successful(BadRequest("Missing revision"))
+                  else if gradingTypeStr.isEmpty then
+                    Future.successful(BadRequest("gradingType is required"))
+                  else if gradingTypeOpt.isEmpty then
+                    logger.error(s"Invalid gradingType: ${gradingTypeStr.get}")
+                    Future.successful(BadRequest(s"Invalid gradingType: ${gradingTypeStr.get}"))
                   else
-                    val gradingType = Grade.Type.valueOf((request.body \ "gradingType").as[String])
+                    val gradingType = gradingTypeOpt.get
 
                     wsr.get().flatMap { response =>
                       getResponse(response) match

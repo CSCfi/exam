@@ -10,7 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable, Unsubscribable } from 'rxjs';
 import { defer, interval, of, throwError } from 'rxjs';
-import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { catchError, delay, map, switchMap, tap } from 'rxjs/operators';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { StorageService } from 'src/app/shared/storage/storage.service';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
@@ -165,6 +165,17 @@ export class SessionService implements OnDestroy {
         });
     };
 
+    loadCourseCodePrefix$ = (): Observable<void> =>
+        this.http.get<{ prefix: string }>('/app/settings/coursecodeprefix').pipe(
+            tap((data) => this.Storage.set('COURSE_CODE_PREFIX', data.prefix)),
+            map(() => undefined),
+            catchError(() => {
+                // If course code prefix fails (e.g., 403 due to session timing), continue without it
+                // The prefix is not critical for the application flow
+                return of(undefined);
+            }),
+        );
+
     login$ = (username: string, password: string): Observable<User> =>
         this.http
             .post<User>('/app/session', {
@@ -174,10 +185,15 @@ export class SessionService implements OnDestroy {
             .pipe(
                 switchMap((u) => this.prepareUser$(u)),
                 switchMap((u) => this.processLogin$(u)),
-                mergeMap((u) =>
-                    this.http.get<{ prefix: string }>('/app/settings/coursecodeprefix').pipe(
-                        tap((data) => this.Storage.set('COURSE_CODE_PREFIX', data.prefix)),
-                        map(() => u),
+                switchMap((u) =>
+                    of(u).pipe(
+                        delay(100),
+                        switchMap(() =>
+                            this.loadCourseCodePrefix$().pipe(
+                                map(() => u),
+                                catchError(() => of(u)),
+                            ),
+                        ),
                     ),
                 ),
                 tap((u) => {
