@@ -71,7 +71,7 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
       .filter(q => ids.isEmpty || ids.contains(q.getId))
 
     val answers = exam.getChildren.asScala.toList
-      .filter(canAssess(user, _))
+      .filter(canView(user, _))
       .filter(e => VALID_STATES.contains(e.getState))
       .flatMap(_.getExamSections.asScala)
       .flatMap(_.getSectionQuestions.asScala)
@@ -86,7 +86,7 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
           Option(esq.getEvaluationCriteria).isDefined &&
           Option(esq.getQuestion).isDefined
       )
-      .distinctBy(_.getQuestion) // Keep first occurrence (like Java's merge function)
+      .distinctBy(_.getQuestion)
       .map(esq => esq.getQuestion -> esq.getEvaluationCriteria)
       .toMap
 
@@ -96,10 +96,8 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
       )
       .toList
 
-  private def canAssess(user: User, exam: Exam) =
-    user.isAdminOrSupport ||
-      exam.getParent.getExamOwners.contains(user) ||
-      exam.getExamInspections.asScala.exists(_.getUser.equals(user))
+  private def canView(user: User, exam: Exam) =
+    exam.isInspectedOrCreatedOrOwnedBy(user) || user.isAdminOrSupport
 
   private def createMapping(
       answers: Seq[ExamSectionQuestion],
