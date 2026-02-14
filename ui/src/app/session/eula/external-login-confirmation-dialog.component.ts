@@ -15,7 +15,8 @@ import { User } from 'src/app/session/session.model';
         </div>
         <div class="modal-body">
             @if (user) {
-                {{ 'i18n_external_organisation_login' | translate }} <strong>{{ user.externalUserOrg }}</strong>
+                {{ 'i18n_external_organisation_login' | translate }} <strong>{{ user.externalUserOrg }}</strong
+                >&period;
                 {{ 'i18n_external_organisation_login_description' | translate }}
             }
         </div>

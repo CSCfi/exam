@@ -377,28 +377,33 @@ class SessionService @Inject() (
     val studentRole =
       Option(DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).findOne)
         .getOrElse(throw new IllegalStateException("Student role not found"))
-    val roles = if isTemporaryVisitor then Seq(studentRole) else user.getRoles.asScala.toSeq
+    val isLocalAccount = isLocalUser(user.getEppn)
+    val roles =
+      if isTemporaryVisitor || !isLocalAccount then Seq(studentRole)
+      else user.getRoles.asScala.toSeq
 
     val (rolePayload, responseData) =
-      if roles.size == 1 && !isTemporaryVisitor then
-        // regular user with a single role, store role into session
-        (Map("role" -> roles.head.getName), Map.empty[String, JsValue])
-      else if isTemporaryVisitor then
-        // external exam taker
+      if isTemporaryVisitor then
+        // External exam taker
         (
           Map("visitingStudent" -> "true", "role" -> studentRole.getName),
           Map.empty[String, JsValue]
         )
-      else (Map.empty[String, String], Map.empty[String, JsValue])
-
-    val visitorOrgData =
-      if !isLocalUser(user.getEppn) then
-        // visitor account
-        Map("externalUserOrg" -> Json.toJson(user.getEppn.split("@")(1)))
-      else Map.empty[String, JsValue]
+      else if !isLocalAccount then
+        // External account - may only login as students
+        (
+          Map("role"            -> studentRole.getName),
+          Map("externalUserOrg" -> Json.toJson(user.getEppn.split("@")(1)))
+        )
+      else if user.getRoles.size() == 1 then
+        // Local account with a single role - automatically set it
+        (Map("role" -> user.getRoles.asScala.head.getName), Map.empty[String, JsValue])
+      else
+        // Local account with multiple roles: don't set role, let user choose via setLoginRole
+        (Map.empty[String, String], Map.empty[String, JsValue])
 
     val sessionData = basePayload ++ permissionsPayload ++ rolePayload
-    val finalUserData = (responseData ++ visitorOrgData)
+    val finalUserData = responseData
       .foldLeft(userData) { case (acc, (k, v)) => acc + (k -> v) } + ("roles" -> Json.toJson(
       roles.map(_.asJson)
     ))
