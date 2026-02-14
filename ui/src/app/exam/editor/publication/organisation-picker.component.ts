@@ -68,11 +68,13 @@ type Organisation = {
                             class="btn btn-sm btn-link px-0"
                             [disabled]="exam().state === 'PUBLISHED'"
                             (click)="removeOrganisation(org)"
+                            [attr.aria-label]="'i18n_remove' | translate"
                             title="{{ 'i18n_remove' | translate }}"
                         >
                             <i
                                 class="bi bi-x-lg"
                                 [ngClass]="exam().state === 'PUBLISHED' ? 'text-danger' : 'text-success'"
+                                aria-hidden="true"
                             ></i>
                         </button>
                     }

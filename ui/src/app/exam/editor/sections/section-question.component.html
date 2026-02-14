@@ -45,15 +45,17 @@ SPDX-License-Identifier: EUPL-1.2
                 }
                 @if (sectionQuestion().question.attachment?.id || sectionQuestion().question.attachment?.externalId) {
                     <span class="ms-3">
-                        <a
-                            class="pointer text-dark"
+                        <button
+                            type="button"
+                            class="btn btn-link text-dark"
                             ngbPopover="{{ sectionQuestion().question.attachment?.fileName }}"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"
                             (click)="downloadQuestionAttachment()"
+                            [attr.aria-label]="'i18n_download_attachment' | translate"
                         >
-                            <i class="bi-paperclip"></i>
-                        </a>
+                            <i class="bi-paperclip" aria-hidden="true"></i>
+                        </button>
                     </span>
                 }
             </span>

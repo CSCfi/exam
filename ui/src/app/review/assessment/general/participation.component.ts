@@ -25,7 +25,9 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
         </div>
         @if (!hideAnswerLink()) {
             <div class="col-md-4 xm-link">
-                <a class="pointer" (click)="viewAnswers()">{{ 'i18n_view_answers' | translate }}</a>
+                <button type="button" class="btn btn-link" (click)="viewAnswers()">
+                    {{ 'i18n_view_answers' | translate }}
+                </button>
             </div>
         }
     `,

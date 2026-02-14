@@ -39,28 +39,28 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                             <ng-template>
                                 @for (type of executionTypes(); track type) {
                                     @if (type.examinationTypes.length > 0) {
-                                        <a
+                                        <button
+                                            type="button"
                                             #link
-                                            tabindex="0"
-                                            class="pointer"
+                                            class="btn btn-link"
                                             [ngClass]="{ 'selected-type': selectedType() === type }"
                                             [attr.aria-current]="selectedType() === type ? 'true' : 'false'"
                                             (click)="selectType(type)"
                                             (keydown)="onKeyDown($event, 0)"
                                         >
                                             {{ type.name | translate }}
-                                        </a>
+                                        </button>
                                     }
                                     @if (type.examinationTypes.length === 0) {
-                                        <a
+                                        <button
+                                            type="button"
                                             #link
-                                            tabindex="0"
-                                            class="pointer"
+                                            class="btn btn-link"
                                             (click)="selectConfig(type.type)"
                                             (keydown)="onKeyDown($event, 0)"
                                         >
                                             {{ type.name | translate }}
-                                        </a>
+                                        </button>
                                     }
                                 }
                             </ng-template>
@@ -80,15 +80,15 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                         <div ngbAccordionBody>
                             <ng-template>
                                 @for (et of selectedType()?.examinationTypes; track et) {
-                                    <a
+                                    <button
+                                        type="button"
                                         #link
-                                        tabindex="0"
-                                        class="pointer"
+                                        class="btn btn-link"
                                         (click)="selectConfig(selectedType()!.type, et.type)"
                                         (keydown)="onKeyDown($event, 1)"
                                     >
                                         {{ et.name | translate }}
-                                    </a>
+                                    </button>
                                 }
                             </ng-template>
                         </div>
@@ -108,7 +108,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                 font-weight: bold;
                 text-decoration: none;
             }
-            a.pointer:focus {
+            button.btn-link:focus {
                 outline: none;
                 font-weight: bold;
                 color: black;

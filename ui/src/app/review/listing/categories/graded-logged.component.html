@@ -7,14 +7,14 @@ SPDX-License-Identifier: EUPL-1.2
 @if (view()) {
     <div class="xm-paragraph-title">
         {{ 'i18n_exam_graded_logged' | translate }}
-        <a (click)="toggleView()" class="pointer">
+        <button type="button" class="btn btn-link" (click)="toggleView()">
             @if (!view()!.toggle) {
                 <img src="/assets/images/icon_list_show_right.svg" />
             }
             @if (view()!.toggle) {
                 <img src="/assets/images/icon_list_show_down.svg" />
             }
-        </a>
+        </button>
         <sup
             class="ps-1"
             ngbPopover="{{ 'i18n_graded_logged_description' | translate }}"
@@ -281,13 +281,15 @@ SPDX-License-Identifier: EUPL-1.2
         <!-- Buttons -->
         <div class="ps-0 pe-0 mb-3 w-100 d-flex justify-content-between align-items-center">
             <div class="speed-review-csv mb-2">
-                <a class="pointer" (click)="printSelected(false)">{{ 'i18n_print_selected_to_file' | translate }}</a>
+                <button type="button" class="btn btn-link" (click)="printSelected(false)">
+                    {{ 'i18n_print_selected_to_file' | translate }}
+                </button>
             </div>
             @if (!collaborative()) {
                 <div class="speed-review-csv mb-2">
-                    <a class="pointer" (click)="printSelected(true)">{{
-                        'i18n_print_selected_to_excel' | translate
-                    }}</a>
+                    <button type="button" class="btn btn-link" (click)="printSelected(true)">
+                        {{ 'i18n_print_selected_to_excel' | translate }}
+                    </button>
                 </div>
             }
 

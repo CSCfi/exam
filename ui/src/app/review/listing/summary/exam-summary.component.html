@@ -279,9 +279,9 @@ SPDX-License-Identifier: EUPL-1.2
     @if (reviews.length > 0) {
         <div class="row">
             <div class="col-md-12 mt-3">
-                <a class="pointer" (click)="printQuestionScoresReport()">
+                <button type="button" class="btn btn-link" (click)="printQuestionScoresReport()">
                     {{ 'i18n_exam_print_question_scores_report' | translate }}
-                </a>
+                </button>
             </div>
         </div>
     }

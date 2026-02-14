@@ -197,7 +197,9 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- Buttons -->
     <div class="d-flex justify-content-between">
         <div class="speed-review-csv">
-            <a class="pointer" (click)="importGrades()">{{ 'i18n_import_grades_from_csv' | translate }}</a>
+            <button type="button" class="btn btn-link" (click)="importGrades()">
+                {{ 'i18n_import_grades_from_csv' | translate }}
+            </button>
             <sup
                 ngbPopover="{{ 'i18n_grade_import_file_description' | translate }}"
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -208,7 +210,9 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
 
         <div class="speed-review-csv ms-3">
-            <a class="pointer" (click)="createGradingTemplate()">{{ 'i18n_create_grading_template' | translate }}</a>
+            <button type="button" class="btn btn-link" (click)="createGradingTemplate()">
+                {{ 'i18n_create_grading_template' | translate }}
+            </button>
             <sup
                 ngbPopover="{{ 'i18n_create_grading_template_description' | translate }}"
                 popoverTitle="{{ 'i18n_instructions' | translate }}"

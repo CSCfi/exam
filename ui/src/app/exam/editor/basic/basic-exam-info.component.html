@@ -217,15 +217,27 @@ SPDX-License-Identifier: EUPL-1.2
                                     </button>
                                     @if (exam().attachment) {
                                         <div class="make-inline">
-                                            <a class="pointer" (click)="downloadExamAttachment()">
-                                                <i class="bi-paperclip ps-2"></i>{{ exam().attachment?.fileName }}</a
+                                            <button
+                                                type="button"
+                                                class="btn btn-link"
+                                                (click)="downloadExamAttachment()"
+                                                [attr.aria-label]="'i18n_download_attachment' | translate"
                                             >
-                                            <span class="pointer ms-2" (click)="removeExamAttachment()">
+                                                <i class="bi-paperclip ps-2" aria-hidden="true"></i
+                                                >{{ exam().attachment?.fileName }}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="ms-2 border-none background-none"
+                                                (click)="removeExamAttachment()"
+                                                [attr.aria-label]="'i18n_remove' | translate"
+                                            >
                                                 <i
                                                     class="bi bi-x-lg text-danger"
+                                                    aria-hidden="true"
                                                     title="{{ 'i18n_remove' | translate }}"
                                                 ></i>
-                                            </span>
+                                            </button>
                                         </div>
                                     }
                                 </div>
