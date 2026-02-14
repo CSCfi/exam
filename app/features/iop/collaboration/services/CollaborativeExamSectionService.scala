@@ -9,7 +9,7 @@ import io.ebean.Model
 import io.ebean.text.PathProperties
 import models.exam.Exam
 import models.sections.ExamSection
-import models.user.{Role, User}
+import models.user.User
 import play.api.Logging
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
@@ -39,7 +39,7 @@ class CollaborativeExamSectionService @Inject() (
       val organisations = exam.getOrganisations.split(";")
       if !organisations.contains(homeOrg) then return false
 
-    user.getLoginRole == Role.Name.ADMIN ||
+    user.isAdminOrSupport ||
     (exam.getExamOwners.asScala.exists { u =>
       u.getEmail.equalsIgnoreCase(user.getEmail) ||
       u.getEmail.equalsIgnoreCase(user.getEppn)

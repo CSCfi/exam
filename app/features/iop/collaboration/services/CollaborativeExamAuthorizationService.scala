@@ -6,7 +6,7 @@ package features.iop.collaboration.services
 
 import models.exam.Exam
 import models.iop.CollaborativeExam
-import models.user.{Role, User}
+import models.user.User
 import play.api.Logging
 import play.api.mvc.{Result, Results}
 import security.BlockingIOExecutionContext
@@ -41,7 +41,7 @@ class CollaborativeExamAuthorizationService @Inject() (
       val organisations = exam.getOrganisations.split(";")
       if !organisations.contains(homeOrg) then return false
 
-    user.getLoginRole == Role.Name.ADMIN ||
+    user.isAdminOrSupport ||
     (exam.getExamOwners.asScala.exists { u =>
       u.getEmail.equalsIgnoreCase(user.getEmail) ||
       u.getEmail.equalsIgnoreCase(user.getEppn)
@@ -57,7 +57,7 @@ class CollaborativeExamAuthorizationService @Inject() (
     *   true if unauthorized, false if authorized
     */
   def isUnauthorizedToAssess(exam: Exam, user: User): Boolean =
-    user.getLoginRole != Role.Name.ADMIN &&
+    !user.isAdminOrSupport &&
       (exam.getExamOwners.asScala.forall { u =>
         !u.getEmail.equalsIgnoreCase(user.getEmail) &&
         !u.getEmail.equalsIgnoreCase(user.getEppn)
