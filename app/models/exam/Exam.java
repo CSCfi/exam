@@ -874,6 +874,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public boolean isViewableForLanguageInspector(User user) {
         return (
+            executionType != null &&
             executionType.getType().equals(ExamExecutionType.Type.MATURITY.toString()) &&
             user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE) &&
             languageInspection != null &&
@@ -882,14 +883,23 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     public boolean isPrivate() {
+        if (executionType == null) {
+            return false;
+        }
         return !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString()) && !isPrintout();
     }
 
     public boolean isPrintout() {
+        if (executionType == null) {
+            return false;
+        }
         return executionType.getType().equals(ExamExecutionType.Type.PRINTOUT.toString());
     }
 
     public boolean isUnsupervised() {
+        if (executionType == null) {
+            return true; // Default to unsupervised if executionType is not set
+        }
         return !executionType.getType().equals(Implementation.AQUARIUM.toString());
     }
 
