@@ -59,7 +59,7 @@
     "@angular-eslint/schematics": "^20.2.0",
     "@angular-eslint/template-parser": "^20.2.0",
     "@angular/build": "^20.3.0",
-    "@angular/cli": "^20.3.0",
+    "@angular/cli": "^20.3.16",
     "@angular/compiler-cli": "^20.3.0",
     "@types/ckeditor": "^4.9.10",
     "@types/file-saver-es": "^2.0.1",
