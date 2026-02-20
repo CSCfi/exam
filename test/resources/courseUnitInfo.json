@@ -7,11 +7,7 @@
     "courseUnitType" : 1,
     "courseImplementation": "abcdefghijklmnop",
     "credits" : 3,
-    "creditsLanguage" : [
-      {
-        "name" : "fi"
-      }
-    ],
+    "creditsLanguage" : "fi",
     "gradeScale": [
       {
         "name" : "0-5",
