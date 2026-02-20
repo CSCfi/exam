@@ -73,6 +73,10 @@ object ExternalCourseValidator:
     private val asScales: Reads[Seq[GradeScale]] = implicitly[Reads[GradeScale]].map(Seq(_))
     private val readScale: Reads[Seq[GradeScale]] =
       implicitly[Reads[Seq[GradeScale]]].orElse(asScales)
+    private val creditsLanguageAsString: Reads[Seq[CreditLanguage]] =
+      implicitly[Reads[String]].map(lang => Seq(CreditLanguage(lang)))
+    private val readCreditsLanguage: Reads[Seq[CreditLanguage]] =
+      creditsLanguageAsString.orElse(implicitly[Reads[Seq[CreditLanguage]]])
     implicit val cuiReads: Reads[CourseUnitInfo] = (
       (JsPath \ "identifier").read[String](using readInt) and
         (JsPath \ "courseUnitCode").read[String] and
@@ -91,7 +95,9 @@ object ExternalCourseValidator:
         (JsPath \ "department").readNullable[Seq[Department]] and
         (JsPath \ "lecturerResponsible").readNullable[Seq[LecturerResponsible]] and
         (JsPath \ "lecturer").readNullable[Seq[Lecturer]] and
-        (JsPath \ "creditsLanguage").readNullable[Seq[CreditLanguage]] and
+        (JsPath \ "creditsLanguage").readNullable[Seq[CreditLanguage]](using
+          readCreditsLanguage
+        ) and
         (JsPath \ "gradeScale").readNullable[Seq[GradeScale]](using readScale)
     )(CourseUnitInfo.apply)
   case class CourseUnitInfo(

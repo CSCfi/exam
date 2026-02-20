@@ -13,7 +13,7 @@ import org.apache.pekko.util.ByteString
 import org.joda.time.DateTime
 import org.springframework.beans.BeanUtils
 import play.api.Logging
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsResultException, JsValue, Json}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.mvc.Http
 import schema.ExternalCourseValidator.{CourseUnitInfo, GradeScale as ExtGradeScale}
@@ -27,6 +27,7 @@ import javax.inject.Inject
 import scala.collection.immutable.TreeSet
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
+import scala.util.Try
 
 class ExternalCourseHandlerImpl @Inject (
     private val wsClient: WSClient,
@@ -101,12 +102,23 @@ class ExternalCourseHandlerImpl @Inject (
         external.setId(local.getId)
       case _ => external.save()
 
-  private def stripBom(response: WSResponse) =
-    val bomCandidate = response.bodyAsBytes.splitAt(3)
-    if bomCandidate._1 == BOM then
-      logger.warn("BOM character detected in the beginning of response body")
-      Json.parse(bomCandidate._2.toArray)
-    else response.json
+  private def parseResponseBody(response: WSResponse): Option[JsValue] =
+    val bytes = response.bodyAsBytes
+    val bodyBytes =
+      if bytes.length >= 3 && bytes.splitAt(3)._1 == BOM then
+        logger.warn("BOM character detected in the beginning of response body")
+        bytes.drop(3)
+      else bytes
+    val body = bodyBytes.utf8String.trim
+    if body.startsWith("<") then
+      logger.warn("Response is not JSON (e.g. HTML error page). Body starts with '<'.")
+      None
+    else
+      Try(Json.parse(bodyBytes.toArray)).toOption match
+        case None =>
+          logger.warn("Response was not valid JSON (e.g. HTML error page).")
+          None
+        case some => some
 
   private def downloadCourses(url: URL) =
     queryRequest(url)
@@ -114,21 +126,29 @@ class ExternalCourseHandlerImpl @Inject (
       .map(response =>
         val status = response.status
         if status == Http.Status.OK then
-          val root = stripBom(response)
-          parseCourses(root).flatMap(parseCourse)
+          parseResponseBody(response) match
+            case Some(root) => parseCourses(root).flatMap(parseCourse)
+            case None       => Seq.empty
         else
           logger.info(s"Non-OK response received for URL: %url. Status: $status")
           Seq.empty
       )
-      .recover { case e: Exception =>
-        logger.error("Unable to download course data due to exception in network connection", e)
-        Seq.empty
+      .recover {
+        case e: JsResultException =>
+          logger.error(
+            "Unable to parse course data: JSON structure did not match expected format",
+            e
+          )
+          Seq.empty
+        case e: Exception =>
+          logger.error("Unable to download course data due to exception in network connection", e)
+          Seq.empty
       }
 
   private def parseCourses(root: JsValue): Seq[CourseUnitInfo] =
-    val single = (root \\ "CourseUnitInfo").map(_.asOpt[CourseUnitInfo])
-    if single.head.nonEmpty then single.flatten.toSeq
-    else (root \\ "CourseUnitInfo").flatMap(_.as[Seq[CourseUnitInfo]]).toSeq
+    (root \\ "CourseUnitInfo").flatMap { node =>
+      node.asOpt[CourseUnitInfo].toSeq ++ node.asOpt[Seq[CourseUnitInfo]].getOrElse(Seq.empty)
+    }.toSeq
 
   private def parseCourse(cui: CourseUnitInfo): Option[Course] =
     (validateStart(cui.startDate), validateEnd(cui.endDate)) match
