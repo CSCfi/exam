@@ -71,13 +71,25 @@ class ExternalCourseHandlerImpl @Inject (
     queryRequest(url)
       .get()
       .map(response =>
-        val root  = response.json
-        val nodes = root \ "data" \\ "course_code" ++ root \ "data" \\ "courseUnitCode"
-        nodes.map(_.as[String]).toSet
+        parseResponseBody(response) match
+          case Some(root) =>
+            val nodes = root \ "data" \\ "course_code" ++ root \ "data" \\ "courseUnitCode"
+            nodes.map(_.as[String]).toSet
+          case None => Set.empty
       )
-      .recover { case e: Exception =>
-        logger.error("Unable to check for permitted courses due to exception in network connection", e)
-        Set.empty
+      .recover {
+        case e: JsResultException =>
+          logger.error(
+            "Unable to parse permitted courses data: JSON structure did not match expected format",
+            e
+          )
+          Set.empty
+        case e: Exception =>
+          logger.error(
+            "Unable to check for permitted courses due to exception in network connection",
+            e
+          )
+          Set.empty
       }
 
   private def saveOrUpdate(external: Course): Unit =
@@ -161,12 +173,12 @@ class ExternalCourseHandlerImpl @Inject (
           case Some(org) => org
 
         model.setOrganisation(org)
-        model.setCampus(cui.campus.map(_.head.name).orNull)
-        model.setDegreeProgramme(cui.programme.map(_.head.name).orNull)
-        model.setDepartment(cui.department.map(_.head.name).orNull)
-        model.setLecturerResponsible(cui.responsible.map(_.head.name).orNull)
-        model.setLecturer(cui.lecturer.map(_.head.name).orNull)
-        model.setCreditsLanguage(cui.language.map(_.head.name).orNull)
+        model.setCampus(cui.campus.flatMap(_.headOption).map(_.name).orNull)
+        model.setDegreeProgramme(cui.programme.flatMap(_.headOption).map(_.name).orNull)
+        model.setDepartment(cui.department.flatMap(_.headOption).map(_.name).orNull)
+        model.setLecturerResponsible(cui.responsible.flatMap(_.headOption).map(_.name).orNull)
+        model.setLecturer(cui.lecturer.flatMap(_.headOption).map(_.name).orNull)
+        model.setCreditsLanguage(cui.language.flatMap(_.headOption).map(_.name).orNull)
         model.setGradeScale(importScales(cui).headOption.orNull)
         Some(model)
       case _ => None
@@ -216,11 +228,19 @@ class ExternalCourseHandlerImpl @Inject (
 
   private def queryRequest(url: URL) =
     val host = url.toString.split("\\?").head
-    val query =
-      url.getQuery.split("&").collectFirst { case s"$k=$v" => k -> URLDecoder.decode(v, StandardCharsets.UTF_8) }
-    val request = query match
-      case None     => wsClient.url(host)
-      case Some(qp) => wsClient.url(host).withQueryStringParameters(qp)
+    val queryString = Option(url.getQuery).getOrElse("")
+    val params = queryString
+      .split("&")
+      .flatMap { part =>
+        part.split("=", 2) match
+          case Array(k, v) =>
+            Some(URLDecoder.decode(k.trim, StandardCharsets.UTF_8) -> URLDecoder.decode(v, StandardCharsets.UTF_8))
+          case _ => None
+      }
+      .toSeq
+    val request =
+      if params.isEmpty then wsClient.url(host)
+      else wsClient.url(host).withQueryStringParameters(params*)
     if configReader.isApiKeyUsed then
       val header = (configReader.getApiKeyName, configReader.getApiKeyValue)
       request.addHttpHeaders(header)

@@ -64,13 +64,20 @@ object ExternalCourseValidator:
   case class CreditLanguage(name: String)
 
   object CourseUnitInfo:
+    private def readNameFieldSeq[A](fromName: String => A)(using r: Reads[A]): Reads[Seq[A]] =
+      implicitly[Reads[String]].map(s => Seq(fromName(s)))
+        .orElse(r.map(Seq(_)))
+        .orElse(implicitly[Reads[Seq[A]]])
     private val asScales: Reads[Seq[GradeScale]] = implicitly[Reads[GradeScale]].map(Seq(_))
     private val readScale: Reads[Seq[GradeScale]] =
       implicitly[Reads[Seq[GradeScale]]].orElse(asScales)
-    private val creditsLanguageAsString: Reads[Seq[CreditLanguage]] =
-      implicitly[Reads[String]].map(lang => Seq(CreditLanguage(lang)))
-    private val readCreditsLanguage: Reads[Seq[CreditLanguage]] =
-      creditsLanguageAsString.orElse(implicitly[Reads[Seq[CreditLanguage]]])
+    private val readCreditsLanguage: Reads[Seq[CreditLanguage]] = readNameFieldSeq(CreditLanguage.apply)
+    private val readCampus: Reads[Seq[Campus]]                   = readNameFieldSeq(Campus.apply)
+    private val readDegreeProgramme: Reads[Seq[DegreeProgramme]] = readNameFieldSeq(DegreeProgramme.apply)
+    private val readDepartment: Reads[Seq[Department]]            = readNameFieldSeq(Department.apply)
+    private val readLecturerResponsible: Reads[Seq[LecturerResponsible]] =
+      readNameFieldSeq(LecturerResponsible.apply)
+    private val readLecturer: Reads[Seq[Lecturer]] = readNameFieldSeq(Lecturer.apply)
     implicit val cuiReads: Reads[CourseUnitInfo] = (
       (JsPath \ "identifier").read[String](using readInt) and
         (JsPath \ "courseUnitCode").read[String] and
@@ -84,11 +91,11 @@ object ExternalCourseValidator:
         (JsPath \ "endDate").readNullable[String](using readInt) and
         (JsPath \ "credits").readNullable[Double] and
         (JsPath \ "organisation").readNullable[Organisation] and
-        (JsPath \ "campus").readNullable[Seq[Campus]] and
-        (JsPath \ "degreeProgramme").readNullable[Seq[DegreeProgramme]] and
-        (JsPath \ "department").readNullable[Seq[Department]] and
-        (JsPath \ "lecturerResponsible").readNullable[Seq[LecturerResponsible]] and
-        (JsPath \ "lecturer").readNullable[Seq[Lecturer]] and
+        (JsPath \ "campus").readNullable[Seq[Campus]](using readCampus) and
+        (JsPath \ "degreeProgramme").readNullable[Seq[DegreeProgramme]](using readDegreeProgramme) and
+        (JsPath \ "department").readNullable[Seq[Department]](using readDepartment) and
+        (JsPath \ "lecturerResponsible").readNullable[Seq[LecturerResponsible]](using readLecturerResponsible) and
+        (JsPath \ "lecturer").readNullable[Seq[Lecturer]](using readLecturer) and
         (JsPath \ "creditsLanguage").readNullable[Seq[CreditLanguage]](using readCreditsLanguage) and
         (JsPath \ "gradeScale").readNullable[Seq[GradeScale]](using readScale)
     )(CourseUnitInfo.apply)
