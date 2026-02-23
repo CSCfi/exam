@@ -33,7 +33,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 </div>
 
-<div class="row ms-2" [ngbCollapse]="!panelOpen()" [attr.aria-expanded]="panelOpen()">
+<div class="row ms-2" [ngbCollapse]="!panelOpen()" [ariaExpanded]="panelOpen()">
     <div class="col-md-12 my-3">
         <span class="autoevaluation-info">
             {{ 'i18n_autoevaluation_instructions' | translate }}

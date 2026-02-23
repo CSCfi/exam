@@ -96,7 +96,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="col-md-3">{{ 'i18n_course_name' | translate }}:</div>
                 <div class="col-md-9">
                     @if (exam.course) {
-                        <span class="exam-code" [attr.aria-label]="'i18n_course_code' | translate">
+                        <span class="exam-code" [ariaLabel]="'i18n_course_code' | translate">
                             <strong><xm-course-code [course]="exam.course"></xm-course-code></strong>
                         </span>
                         {{ exam.course.name }}
@@ -232,20 +232,23 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col">
                 <button
                     class="btn btn-outline-secondary"
-                    [attr.aria-expanded]="showInstructions()"
                     [hidden]="!exam?.enrollInstruction && !collabExam?.enrollInstruction"
                     (click)="showInstructions.set(!showInstructions())"
-                    [attr.aria-expanded]="showInstructions()"
+                    [ariaExpanded]="showInstructions()"
+                    [attr.aria-controls]="'instructions-' + enrolment().id"
                 >
                     {{ 'i18n_view_instructions' | translate }}
-                    <i [hidden]="showInstructions()" class="bi bi-chevron-right"></i>
-                    <i [hidden]="!showInstructions()" class="bi bi-chevron-down"></i>
+                    <i [hidden]="showInstructions()" class="bi bi-chevron-right" aria-hidden="true"></i>
+                    <i [hidden]="!showInstructions()" class="bi bi-chevron-down" aria-hidden="true"></i>
                 </button>
             </div>
-            <div aria-live="polite" class="row mb-3 mt-3">
-                @if (showInstructions()) {
-                    <div [xmMath]="exam?.enrollInstruction || collabExam?.enrollInstruction || ''"></div>
-                }
+            <div
+                [id]="'instructions-' + enrolment().id"
+                aria-live="polite"
+                class="row mb-3 mt-3 instructions-collapse"
+                [ngbCollapse]="!showInstructions()"
+            >
+                <div [xmMath]="exam?.enrollInstruction || collabExam?.enrollInstruction || ''"></div>
             </div>
         </div>
     }

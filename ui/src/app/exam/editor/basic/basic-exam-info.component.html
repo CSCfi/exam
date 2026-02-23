@@ -221,7 +221,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                 type="button"
                                                 class="btn btn-link"
                                                 (click)="downloadExamAttachment()"
-                                                [attr.aria-label]="'i18n_download_attachment' | translate"
+                                                [ariaLabel]="'i18n_download_attachment' | translate"
                                             >
                                                 <i class="bi-paperclip ps-2" aria-hidden="true"></i
                                                 >{{ exam().attachment?.fileName }}
@@ -230,7 +230,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                 type="button"
                                                 class="ms-2 border-none background-none"
                                                 (click)="removeExamAttachment()"
-                                                [attr.aria-label]="'i18n_remove' | translate"
+                                                [ariaLabel]="'i18n_remove' | translate"
                                             >
                                                 <i
                                                     class="bi bi-x-lg text-danger"

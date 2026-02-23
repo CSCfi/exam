@@ -53,7 +53,7 @@ SPDX-License-Identifier: EUPL-1.2
                         type="button"
                         class="btn btn-link"
                         (click)="downloadAttachment()"
-                        [attr.aria-label]="'i18n_download_attachment' | translate"
+                        [ariaLabel]="'i18n_download_attachment' | translate"
                     >
                         {{ answer().essayAnswer.attachment.fileName | uppercase }}
                     </button>

@@ -37,7 +37,7 @@ SPDX-License-Identifier: EUPL-1.2
                     @if (isInFuture(eh.startDate)) {
                         <i
                             class="bi-dot w-auto"
-                            [attr.aria-label]="'i18n_coming_exception' | translate"
+                            [ariaLabel]="'i18n_coming_exception' | translate"
                             ngbPopover="{{ 'i18n_coming_exception' | translate }}"
                             triggers="mouseenter:mouseleave"
                         ></i>
@@ -45,7 +45,7 @@ SPDX-License-Identifier: EUPL-1.2
                     @if (isNow(eh.startDate, eh.endDate)) {
                         <i
                             class="bi-exclamation-circle w-auto"
-                            [attr.aria-label]="'i18n_ongoing_exception' | translate"
+                            [ariaLabel]="'i18n_ongoing_exception' | translate"
                             ngbPopover="{{ 'i18n_ongoing_exception' | translate }}"
                             triggers="mouseenter:mouseleave"
                         ></i>

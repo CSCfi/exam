@@ -46,8 +46,8 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                                             #link
                                             class="btn btn-link"
                                             [ngClass]="{ 'selected-type': selectedType() === type }"
-                                            [attr.aria-current]="selectedType() === type ? 'true' : 'false'"
-                                            [attr.aria-pressed]="selectedType() === type"
+                                            [ariaCurrent]="selectedType() === type ? 'true' : 'false'"
+                                            [ariaPressed]="selectedType() === type"
                                             (click)="selectType(type)"
                                             (keydown)="onKeyDown($event, 0)"
                                         >

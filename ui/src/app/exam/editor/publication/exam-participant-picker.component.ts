@@ -64,7 +64,7 @@ import type { User } from 'src/app/session/session.model';
                             class="btn btn-danger btn-sm ms-1 w-auto m-1"
                             (click)="removeParticipant(enrolment.id)"
                             [hidden]="exam().state === 'PUBLISHED'"
-                            [attr.aria-label]="renderParticipantLabel(enrolment)"
+                            [ariaLabel]="renderParticipantLabel(enrolment)"
                         >
                             {{ 'i18n_remove' | translate }}
                         </button>

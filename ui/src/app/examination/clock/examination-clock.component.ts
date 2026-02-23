@@ -34,7 +34,7 @@ import { Observable, Subject, filter, interval, map, startWith, switchMap, take,
                             >
                         }
                         @if (ariaLiveTime()) {
-                            <span class="exam-clock skip" role="region" [attr.aria-live]="'polite'">{{
+                            <span class="exam-clock skip" role="region" [ariaLive]="'polite'">{{
                                 ('i18n_examination_time_warning' | translate) + ': ' + ariaLiveTime
                             }}</span>
                         }

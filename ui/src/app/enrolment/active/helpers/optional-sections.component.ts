@@ -17,7 +17,7 @@ import { ExamSection } from 'src/app/exam/exam.model';
                 class="btn btn-outline-secondary"
                 (click)="showSections.set(!showSections())"
                 (keydown.enter)="showSections.set(!showSections())"
-                [attr.aria-expanded]="showSections()"
+                [ariaExpanded]="showSections()"
             >
                 {{ 'i18n_selected_sections' | translate }}
                 <img class="arrow_icon" [hidden]="showSections()" alt="" src="/assets/images/arrow_right.png" />

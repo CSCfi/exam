@@ -12,7 +12,7 @@ import { ExaminationService } from 'src/app/examination/examination.service';
     selector: 'xm-examination-multi-choice-question',
     template: `
         <div class="pb-3">
-            <fieldset [attr.aria-label]="questionTitle()">
+            <fieldset [ariaLabel]="questionTitle()">
                 <legend [hidden]="true">answer options for multiple choice question</legend>
                 @for (sqo of sq().options; track sqo) {
                     <div class="exam-answer-options">

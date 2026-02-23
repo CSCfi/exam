@@ -74,7 +74,7 @@ SPDX-License-Identifier: EUPL-1.2
                     type="button"
                     class="btn btn-link"
                     (click)="downloadQuestionAttachment()"
-                    [attr.aria-label]="'i18n_download_attachment' | translate"
+                    [ariaLabel]="'i18n_download_attachment' | translate"
                 >
                     <i class="bi-paperclip text-primary" aria-hidden="true"></i>&nbsp;{{
                         selectedReview()!.question.attachment?.fileName

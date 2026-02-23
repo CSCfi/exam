@@ -60,7 +60,7 @@ import { SessionService } from 'src/app/session/session.service';
                             class="btn btn-danger btn-sm ms-1 w-auto m-1"
                             (click)="removeOwner(owner.id)"
                             [hidden]="!user.isAdmin"
-                            [attr.aria-label]="owner.email"
+                            [ariaLabel]="owner.email"
                         >
                             {{ 'i18n_remove' | translate }}
                         </button>

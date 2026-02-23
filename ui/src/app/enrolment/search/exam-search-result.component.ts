@@ -55,7 +55,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
                 <div class="row mb-2">
                     <div class="col-md-3">{{ 'i18n_course_name' | translate }}:</div>
                     <div class="col-md-9">
-                        <span [attr.aria-label]="'i18n_course_code' | translate">
+                        <span [ariaLabel]="'i18n_course_code' | translate">
                             <xm-course-code [course]="exam().course!"></xm-course-code>
                         </span>
                         {{ exam().course?.name }}

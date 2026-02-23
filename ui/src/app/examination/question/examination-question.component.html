@@ -10,12 +10,12 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="row align-items-center">
                 <div class="col-auto">
                     @if (isAnswered()) {
-                        <div [attr.aria-label]="'i18n_all_questions_answered' | translate">
+                        <div [ariaLabel]="'i18n_all_questions_answered' | translate">
                             <img class="mt-05" src="/assets/images/icon_question_type_ready_grey.png" alt="" />
                         </div>
                     }
                     @if (!isAnswered()) {
-                        <div [attr.aria-label]="'i18n_questions_unanswered' | translate">
+                        <div [ariaLabel]="'i18n_questions_unanswered' | translate">
                             <img class="mt-05" src="/assets/images/icon_question_type_waiting.svg" alt="" />
                         </div>
                     }
@@ -25,8 +25,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <button
                         tabindex="0"
                         class="pointer section-box-title arrow border-none background-none"
-                        [attr.aria-label]="parseAriaLabel(expanded() ? 'i18n_collapse' : 'i18n_expand')"
-                        [attr.aria-expanded]="expanded()"
+                        [ariaLabel]="parseAriaLabel(expanded() ? 'i18n_collapse' : 'i18n_expand')"
+                        [ariaExpanded]="expanded()"
                         (click)="toggleExpanded()"
                         (keydown.enter)="toggleExpanded()"
                     >

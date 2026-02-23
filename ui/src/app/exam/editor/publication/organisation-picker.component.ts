@@ -37,13 +37,13 @@ type Organisation = {
                     [disabled]="exam().state === 'PUBLISHED'"
                     class="btn btn-outline-dark"
                     type="button"
-                    id="dropDownMenu21"
+                    id="dd1"
                     aria-haspopup="true"
                     aria-expanded="true"
                 >
                     {{ 'i18n_faculty_name' | translate }}&nbsp;
                 </button>
-                <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
+                <ul ngbDropdownMenu role="menu" aria-labelledby="dd1">
                     @for (org of organisations(); track org) {
                         <li role="presentation">
                             <button
@@ -68,7 +68,7 @@ type Organisation = {
                             class="btn btn-sm btn-link px-0"
                             [disabled]="exam().state === 'PUBLISHED'"
                             (click)="removeOrganisation(org)"
-                            [attr.aria-label]="'i18n_remove' | translate"
+                            [ariaLabel]="'i18n_remove' | translate"
                             title="{{ 'i18n_remove' | translate }}"
                         >
                             <i

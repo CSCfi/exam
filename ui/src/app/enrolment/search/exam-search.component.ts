@@ -52,7 +52,7 @@ interface LoadingState {
                             [(ngModel)]="filterText"
                             type="text"
                             class="form-control"
-                            [attr.aria-label]="'i18n_search' | translate"
+                            [ariaLabel]="'i18n_search' | translate"
                             placeholder="{{ 'i18n_search' | translate }}"
                             [disabled]="loader().loading"
                         />

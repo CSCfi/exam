@@ -18,11 +18,11 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="row">
         <div class="col-md-12">
             @if (isPreview()) {
-                <xm-ckeditor name="essayAnswer" [attr.aria-label]="questionTitle()" [id]="sq().id.toString()" />
+                <xm-ckeditor name="essayAnswer" [ariaLabel]="questionTitle()" [id]="sq().id.toString()" />
             } @else {
                 <xm-ckeditor
                     name="essayAnswer"
-                    [attr.aria-label]="questionTitle()"
+                    [ariaLabel]="questionTitle()"
                     [id]="sq().id.toString()"
                     [data]="isPreview() ? '' : sq().essayAnswer.answer"
                     [ngModel]="isPreview() ? '' : sq().essayAnswer.answer"

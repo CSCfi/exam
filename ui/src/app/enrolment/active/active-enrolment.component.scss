@@ -36,3 +36,19 @@
     color: #2c7639; //green-new
     font-size: 16px !important; // TODO: remove importance
 }
+
+// Collapsed state: no margin so layout doesn't jump when collapse finishes
+.instructions-collapse.collapse:not(.show) {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+// Animate margin with height so the closing transition has no final jump
+.instructions-collapse.collapsing {
+    transition-property: height, margin-top, margin-bottom;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-in-out;
+    overflow: hidden;
+    margin-top: 0;
+    margin-bottom: 0;
+}

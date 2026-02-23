@@ -12,7 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
             class="btn btn-link"
             (click)="goBack($event)"
             (keydown)="onKeyDown($event)"
-            [attr.aria-label]="'i18n_go_back' | translate"
+            [ariaLabel]="'i18n_go_back' | translate"
         >
             <img class="pointer arrow_icon h-80 align-self-center" src="/assets/images/icon_history.png" alt="" />
         </button>

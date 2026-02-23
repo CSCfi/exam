@@ -15,7 +15,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             <div class="col-md-12">
                 <h2
                     aria-live="polite"
-                    [attr.aria-label]="
+                    [ariaLabel]="
                         ('i18n_exam_section' | translate) + ' ' + (index() ? index() + '. ' : '') + section().name
                     "
                     id="examination-section"

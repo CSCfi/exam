@@ -66,7 +66,7 @@ SPDX-License-Identifier: EUPL-1.2
                             class="btn btn-outline-secondary"
                             (click)="toggleEvaluation()"
                             (ngEnter)="toggleEvaluation()"
-                            [attr.aria-expanded]="showEvaluation()"
+                            [ariaExpanded]="showEvaluation()"
                         >
                             <span [hidden]="showEvaluation()">{{ 'i18n_comments_open' | translate }}</span>
                             <span [hidden]="!showEvaluation()">{{ 'i18n_comments_hide' | translate }}</span>

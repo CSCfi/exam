@@ -19,7 +19,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                             @if (option.answered) {
                                 <img
                                     src="/assets/images/icon_correct_answer_radio.svg"
-                                    [attr.aria-label]="'i18n_correct_answer' | translate"
+                                    [ariaLabel]="'i18n_correct_answer' | translate"
                                     alt=""
                                 />
                             }
@@ -35,7 +35,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                             @if (option.answered) {
                                 <img
                                     src="/assets/images/icon_wrong_answer_radio.svg"
-                                    [attr.aria-label]="'i18n_incorrect_answer' | translate"
+                                    [ariaLabel]="'i18n_incorrect_answer' | translate"
                                     alt=""
                                 />
                             }
@@ -51,14 +51,14 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                         @if (option.option.correctOption) {
                             <img
                                 src="/assets/images/icon_correct_answer_radio.svg"
-                                [attr.aria-label]="'i18n_correct_answer' | translate"
+                                [ariaLabel]="'i18n_correct_answer' | translate"
                                 alt=""
                             />
                         }
                         @if (!option.option.correctOption) {
                             <img
                                 src="/assets/images/icon_wrong_answer.png"
-                                [attr.aria-label]="'i18n_incorrect_answer' | translate"
+                                [ariaLabel]="'i18n_incorrect_answer' | translate"
                                 alt=""
                             />
                         }

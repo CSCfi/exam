@@ -9,7 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'xm-table-sort',
     template: `
-        <span class="pointer" [attr.arial-label]="text() | translate" [title]="text() | translate">
+        <span class="pointer" [ariaLabel]="text() | translate" [title]="text() | translate">
             {{ sliced() ? (text() | translate).slice(0, 3) + '.' : (text() | translate) }}&nbsp;
             <i [ngClass]="getSortClass()"></i>
         </span>

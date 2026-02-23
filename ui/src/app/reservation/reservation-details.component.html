@@ -129,7 +129,7 @@ SPDX-License-Identifier: EUPL-1.2
                         ) {
                             <a
                                 [routerLink]="['/staff/assessments', r.enrolment.exam.id]"
-                                [attr.aria-label]="'Open exam named ' + r.enrolment.exam.name"
+                                [ariaLabel]="'Open exam named ' + r.enrolment.exam.name"
                                 >{{ r.enrolment.exam.name }}</a
                             >
                         } @else {
@@ -206,14 +206,14 @@ SPDX-License-Identifier: EUPL-1.2
                         @if (hasAvailableActions(r)) {
                             <div ngbDropdown>
                                 <button
+                                    #actionsTrigger
                                     class="btn btn-sm btn-outline-secondary"
                                     type="button"
-                                    [id]="'actionsDropdown' + r.id"
                                     ngbDropdownToggle
                                 >
                                     {{ 'i18n_choose' | translate }}
                                 </button>
-                                <div ngbDropdownMenu [attr.aria-labelledby]="'actionsDropdown' + r.id">
+                                <div ngbDropdownMenu [ariaLabelledByElements]="[actionsTrigger]">
                                     @if (
                                         isAdminView() &&
                                         r.enrolment.exam.state === 'PUBLISHED' &&

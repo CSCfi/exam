@@ -4,7 +4,6 @@
 
 import { AfterViewInit, Component, inject, OnDestroy, output, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
@@ -15,6 +14,8 @@ import { LibraryQuestion, Tag } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
+import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
+import type { Option } from 'src/app/shared/select/select.model';
 import { UserService } from 'src/app/shared/user/user.service';
 
 interface Filterable<T> {
@@ -30,15 +31,7 @@ interface Filterable<T> {
 @Component({
     selector: 'xm-library-search',
     templateUrl: './library-search.component.html',
-    imports: [
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        FormsModule,
-        ReactiveFormsModule,
-        TranslateModule,
-    ],
+    imports: [DropdownSelectComponent, FormsModule, ReactiveFormsModule, TranslateModule],
 })
 export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
     updated = output<LibraryQuestion[]>();
@@ -287,6 +280,41 @@ export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
             this.filteredOwners.set(result);
             return result;
         }
+    };
+
+    courseOptions = (): Option<Filterable<Course>, number>[] =>
+        this.filteredCourses()
+            .filter((c) => !c.filtered)
+            .map((c) => ({ id: c.id, label: (this.formatCourse(c) + ' ' + c.name).trim(), value: c }));
+    examOptions = (): Option<Filterable<Exam>, number>[] =>
+        this.filteredExams()
+            .filter((e) => !e.filtered)
+            .map((e) => ({
+                id: e.id,
+                label: (this.formatCourse(e) + ' ' + e.name + (e.period ? ' (' + e.period + ')' : '')).trim(),
+                value: e,
+            }));
+    sectionOptions = (): Option<Filterable<ExamSection>, number>[] =>
+        this.filteredSections()
+            .filter((s) => !s.filtered)
+            .map((s) => ({ id: s.id, label: s.name, value: s }));
+    tagOptions = (): Option<Filterable<Tag>, number>[] =>
+        this.filteredTags()
+            .filter((t) => t.filtered === false && t.usage != null && t.usage > 0)
+            .map((t) => ({ id: t.id, label: t.name + (t.usage != null ? ' (' + t.usage + ')' : ''), value: t }));
+    ownerOptions = (): Option<Filterable<User>, number>[] =>
+        this.filteredOwners()
+            .filter((o) => !o.filtered)
+            .map((o) => ({ id: o.id, label: o.name, value: o }));
+
+    onCourseOpen = (open: boolean) => open && this.listCourses();
+    onExamOpen = (open: boolean) => open && this.listExams$().subscribe();
+    onSectionOpen = (open: boolean) => open && this.listSections$().subscribe();
+    onTagOpen = (open: boolean) => open && this.listTags$().subscribe();
+    onOwnerOpen = (open: boolean) => open && this.listAllOwners$();
+
+    onFilterOptionSelected = (option: Option<Filterable<unknown>, number> | undefined) => {
+        if (option?.value) this.applyFilter(option.value);
     };
 
     getFilters = () => {

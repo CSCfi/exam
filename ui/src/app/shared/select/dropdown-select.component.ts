@@ -11,19 +11,19 @@ import { Option } from './select.model';
 
 @Component({
     selector: 'xm-dropdown-select',
-    template: `<div ngbDropdown #d="ngbDropdown" autoClose="outside">
+    template: `<div ngbDropdown #d="ngbDropdown" autoClose="outside" (openChange)="dropdownOpenChange.emit($event)">
         <button
             ngbDropdownToggle
             class="btn btn-outline-secondary"
             [ngClass]="{ 'dropdown-select-full-width': fullWidth() }"
             type="button"
-            aria-haspopup="true"
-            aria-expanded="true"
-            id="dd1"
+            [ariaHasPopup]="true"
+            [ariaExpanded]="d.isOpen()"
+            [id]="menuTriggerId"
         >
             {{ selected()?.label || placeholder() | translate }}
         </button>
-        <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" aria-labelledby="dd1">
+        <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" [attr.aria-labelledby]="menuTriggerId">
             @if (!noSearch()) {
                 <div class="input-group p-1">
                     <input
@@ -63,6 +63,9 @@ import { Option } from './select.model';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DropdownSelectComponent<V, I> {
+    private static instanceCount = 0;
+    readonly menuTriggerId = `xm-dropdown-select-${++DropdownSelectComponent.instanceCount}`;
+
     options = input<Option<V, I>[]>([]);
     initial = input<Option<V, I> | undefined>(undefined);
     placeholder = input('i18n_choose');
@@ -70,7 +73,11 @@ export class DropdownSelectComponent<V, I> {
     fullWidth = input(false);
     noSearch = input(false);
     allowClearing = input(true);
+    /** When true, selection is cleared after each option select (for filter-style multi-select). */
+    clearAfterSelect = input(false);
     optionSelected = output<Option<V, I> | undefined>();
+    /** Emits when the dropdown opens or closes (payload is open: boolean). Use to load data on open. */
+    dropdownOpenChange = output<boolean>();
 
     searchFilter = signal('');
     selected = signal<Option<V, I> | undefined>(undefined);
@@ -111,6 +118,10 @@ export class DropdownSelectComponent<V, I> {
         }
         this.selected.set(option);
         this.optionSelected.emit(option);
+        if (this.clearAfterSelect()) {
+            this.selected.set(undefined);
+            this.searchFilter.set('');
+        }
     }
 
     getClasses(option: Option<V, I>): string[] {

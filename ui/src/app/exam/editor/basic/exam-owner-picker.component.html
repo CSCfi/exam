@@ -48,7 +48,7 @@ SPDX-License-Identifier: EUPL-1.2
                     class="btn btn-danger btn-sm"
                     (click)="removeOwner(user.id)"
                     [hidden]="examOwners().length === 1"
-                    [attr.aria-label]="user.firstName + ' ' + user.lastName"
+                    [ariaLabel]="user.firstName + ' ' + user.lastName"
                 >
                     {{ 'i18n_remove' | translate }}
                 </button>

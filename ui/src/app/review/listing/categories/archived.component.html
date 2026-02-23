@@ -7,7 +7,7 @@ SPDX-License-Identifier: EUPL-1.2
 @if (view()) {
     <div class="xm-paragraph-title">
         {{ 'i18n_archived_exams' | translate }}
-        <a (click)="toggleView()" class="pointer" [attr.aria-expanded]="view()!.toggle">
+        <a (click)="toggleView()" class="pointer" [ariaExpanded]="view()!.toggle">
             @if (!view()!.toggle) {
                 <img src="/assets/images/icon_list_show_right.svg" alt="" />
             }

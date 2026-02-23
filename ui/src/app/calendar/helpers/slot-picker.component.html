@@ -42,7 +42,7 @@ SPDX-License-Identifier: EUPL-1.2
                             role="menuitem"
                             (click)="selectRoom(room)"
                             title="{{ room.name }}"
-                            [attr.aria-disabled]="room.outOfService"
+                            [ariaDisabled]="room.outOfService"
                         >
                             <a> {{ room.name }}</a>
                         </button>

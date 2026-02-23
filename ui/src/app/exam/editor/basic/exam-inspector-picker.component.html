@@ -62,7 +62,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <button
                     class="btn btn-danger btn-sm ms-2"
                     (click)="removeInspector(inspection.id)"
-                    [attr.aria-label]="inspection.user.firstName + ' ' + inspection.user.lastName"
+                    [ariaLabel]="inspection.user.firstName + ' ' + inspection.user.lastName"
                 >
                     {{ 'i18n_remove' | translate }}
                 </button>

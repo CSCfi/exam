@@ -43,7 +43,7 @@ SPDX-License-Identifier: EUPL-1.2
             <button
                 class="float-end btn btn-link"
                 (click)="toggleReviewExpanded()"
-                [attr.aria-label]="reviewExpanded() ? ('i18n_collapse' | translate) : ('i18n_expand' | translate)"
+                [ariaLabel]="reviewExpanded() ? ('i18n_collapse' | translate) : ('i18n_expand' | translate)"
             >
                 @if (!reviewExpanded()) {
                     <img src="/assets/images/icon_list_show_right.svg" alt="" />
@@ -54,7 +54,7 @@ SPDX-License-Identifier: EUPL-1.2
             </button>
         </div>
 
-        <div class="row" [ngbCollapse]="!reviewExpanded()" [attr.aria-expanded]="reviewExpanded()">
+        <div class="row" [ngbCollapse]="!reviewExpanded()" [ariaExpanded]="reviewExpanded()">
             <div class="col-12">
                 <!-- question attachment -->
                 @if (sectionQuestion().question.attachment) {
@@ -64,7 +64,7 @@ SPDX-License-Identifier: EUPL-1.2
                             type="button"
                             class="btn btn-link"
                             (click)="downloadQuestionAttachment()"
-                            [attr.aria-label]="'i18n_download_attachment' | translate"
+                            [ariaLabel]="'i18n_download_attachment' | translate"
                         >
                             {{ sectionQuestion().question.attachment?.fileName }}
                         </button>

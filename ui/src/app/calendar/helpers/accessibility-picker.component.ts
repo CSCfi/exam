@@ -19,7 +19,7 @@ import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
                             class="btn btn-outline-secondary"
                             (click)="showMenu.set(!showMenu())"
                             (keydown.enter)="showMenu.set(!showMenu())"
-                            [attr.aria-expanded]="showMenu()"
+                            [ariaExpanded]="showMenu()"
                         >
                             {{ 'i18n_calendar_room_accessibility_info' | translate }}
                             @if (!showMenu()) {

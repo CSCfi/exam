@@ -61,7 +61,7 @@ import { TranslateModule } from '@ngx-translate/core';
                                         <i
                                             class="bi-three-dots"
                                             alt=""
-                                            [attr.aria-label]="'i18n_more_hidden' | translate"
+                                            [ariaLabel]="'i18n_more_hidden' | translate"
                                         ></i>
                                     </li>
                                 }

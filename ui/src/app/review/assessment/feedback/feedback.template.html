@@ -10,8 +10,8 @@ SPDX-License-Identifier: EUPL-1.2
                 type="button"
                 class="border-none background-none"
                 (click)="toggleVisibility()"
-                [attr.aria-label]="(hideEditor() ? 'i18n_show' : 'i18n_hide') | translate"
-                [attr.aria-expanded]="!hideEditor()"
+                [ariaLabel]="(hideEditor() ? 'i18n_show' : 'i18n_hide') | translate"
+                [ariaExpanded]="!hideEditor()"
                 ngbPopover="{{ (hideEditor() ? 'i18n_show' : 'i18n_hide') | translate }}"
                 triggers="mouseenter:mouseleave"
             >
@@ -37,7 +37,7 @@ SPDX-License-Identifier: EUPL-1.2
                 type="button"
                 class="btn btn-link"
                 (click)="downloadAttachment()"
-                [attr.aria-label]="'i18n_download_attachment' | translate"
+                [ariaLabel]="'i18n_download_attachment' | translate"
             >
                 {{ attachment()?.fileName }}
             </button>
@@ -45,7 +45,7 @@ SPDX-License-Identifier: EUPL-1.2
                 type="button"
                 class="border-none background-none"
                 (click)="removeAttachment()"
-                [attr.aria-label]="'i18n_remove_attachment' | translate"
+                [ariaLabel]="'i18n_remove_attachment' | translate"
             >
                 <i class="bi-x text-danger" aria-hidden="true" title="{{ 'i18n_remove_attachment' | translate }}"></i>
             </button>

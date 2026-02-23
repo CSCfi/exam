@@ -20,9 +20,9 @@ import { WaitingEnrolment, WaitingReservation } from './waiting-room.component';
         <xm-page-header text="i18n_exam_is_about_to_begin" />
         <xm-page-content [content]="content" />
         <ng-template #content>
-            <div class="alert alert-secondary" [attr.aria-live]="'polite'">
+            <div class="alert alert-secondary" [ariaLive]="'polite'">
                 <i class="bi bi-exclamation-circle-fill me-2"></i>
-                <span [attr.aria-live]="'polite'">{{ 'i18n_you_are_early_for_examination' | translate }}</span>
+                <span [ariaLive]="'polite'">{{ 'i18n_you_are_early_for_examination' | translate }}</span>
                 @if (enrolment()) {
                     {{ enrolment()!.reservation.startAt | date: 'HH:mm' }}
                 }

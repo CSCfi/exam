@@ -18,9 +18,9 @@ SPDX-License-Identifier: EUPL-1.2
                 {{ delayCounter$ | async }} {{ 'i18n_seconds_until_examination_starts' | translate }}
             </div>
         } @else if (isUpcoming()) {
-            <div class="alert alert-secondary" [attr.aria-live]="'polite'">
+            <div class="alert alert-secondary" [ariaLive]="'polite'">
                 <i class="bi bi-exclamation-circle-fill me-2"></i>
-                <span [attr.aria-live]="'polite'">{{ 'i18n_redirect_to_exam_notice' | translate }}</span>
+                <span [ariaLive]="'polite'">{{ 'i18n_redirect_to_exam_notice' | translate }}</span>
             </div>
         }
     </div>

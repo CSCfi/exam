@@ -43,7 +43,7 @@ import { TranslateModule } from '@ngx-translate/core';
                                     ? 'password-error'
                                     : 'password-help'
                             "
-                            [attr.aria-invalid]="
+                            [ariaInvalid]="
                                 passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched
                             "
                             placeholder="{{ 'i18n_enter_password' | translate }}"

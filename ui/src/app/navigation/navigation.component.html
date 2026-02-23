@@ -21,8 +21,8 @@ SPDX-License-Identifier: EUPL-1.2
                             class="mobile-menu"
                             (click)="openMenu()"
                             [hidden]="!user()"
-                            [attr.aria-expanded]="mobileMenuOpen()"
-                            [attr.aria-label]="'i18n_open_main_menu' | translate"
+                            [ariaExpanded]="mobileMenuOpen()"
+                            [ariaLabel]="'i18n_open_main_menu' | translate"
                         >
                             <img src="/assets/images/icon_menu_mobile.svg" alt="" />
                         </button>
@@ -40,8 +40,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 class="btn important-clear-focus"
                                 [routerLink]="link.route"
                                 routerLinkActive="selected"
-                                [attr.aria-current]="isActive(link)"
-                                [attr.aria-expanded]="link.submenu.items.length > 0 ? !link.submenu.hidden : null"
+                                [ariaCurrent]="isActive(link)"
+                                [ariaExpanded]="link.submenu.items.length > 0 ? !link.submenu.hidden : null"
                                 (click)="link.submenu.hidden = !link.submenu.hidden"
                             >
                                 <img aria-hidden="true" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
@@ -94,7 +94,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 [routerLink]="link.route"
                                 routerLinkActive="selected"
                                 (click)="link.submenu.hidden = !link.submenu.hidden"
-                                [attr.aria-expanded]="link.submenu.items.length > 0 ? !link.submenu.hidden : null"
+                                [ariaExpanded]="link.submenu.items.length > 0 ? !link.submenu.hidden : null"
                             >
                                 <img aria-hidden="true" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
                                 <span class="menu-item">{{ link.name | translate }}</span>

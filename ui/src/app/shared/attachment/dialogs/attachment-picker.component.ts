@@ -38,7 +38,7 @@ import { FileService } from 'src/app/shared/file/file.service';
                         autofocus
                         #file
                         (change)="onFilesAdded()"
-                        attr.aria-label="{{ 'i18n_choose_file' | translate }}"
+                        ariaLabel="{{ 'i18n_choose_file' | translate }}"
                     />
                 </div>
                 <div class="col-9 attachment-file">

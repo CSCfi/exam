@@ -52,7 +52,7 @@ SPDX-License-Identifier: EUPL-1.2
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"
                             (click)="downloadQuestionAttachment()"
-                            [attr.aria-label]="'i18n_download_attachment' | translate"
+                            [ariaLabel]="'i18n_download_attachment' | translate"
                         >
                             <i class="bi-paperclip" aria-hidden="true"></i>
                         </button>
@@ -81,7 +81,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row mt-2">
             <div class="col-md-12">
                 @if (sectionQuestion().answerInstructions || sectionQuestion().options.length > 0) {
-                    <button (click)="toggleExpanded()" class="btn btn-outline-dark" [attr.aria-expanded]="expanded()">
+                    <button (click)="toggleExpanded()" class="btn btn-outline-dark" [ariaExpanded]="expanded()">
                         <span [hidden]="expanded()">{{ 'i18n_show_more' | translate }}</span>
                         <span [hidden]="!expanded()">{{ 'i18n_hide' | translate }}</span>
                         <i [hidden]="expanded()" class="bi bi-chevron-right ms-2" alt=""></i>

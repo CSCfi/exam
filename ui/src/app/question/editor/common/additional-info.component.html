@@ -44,7 +44,7 @@ SPDX-License-Identifier: EUPL-1.2
                     class="btn btn-link"
                     [disabled]="!hasUploadedAttachment()"
                     (click)="downloadQuestionAttachment()"
-                    [attr.aria-label]="'i18n_download_attachment' | translate"
+                    [ariaLabel]="'i18n_download_attachment' | translate"
                 >
                     <i class="bi-paperclip" aria-hidden="true"></i>
                     @if (!hasUploadedAttachment()) {
@@ -59,7 +59,7 @@ SPDX-License-Identifier: EUPL-1.2
                     type="button"
                     class="remove-attachment border-none background-none"
                     (click)="removeQuestionAttachment()"
-                    [attr.aria-label]="'i18n_remove_attachment' | translate"
+                    [ariaLabel]="'i18n_remove_attachment' | translate"
                 >
                     <img src="/assets/images/icon_remove.svg" alt="{{ 'i18n_remove_attachment' | translate }}" />
                 </button>

@@ -112,7 +112,7 @@ SPDX-License-Identifier: EUPL-1.2
                         class="btn btn-success"
                         (click)="selectSection(section)"
                         (keydown.enter)="selectSection(section)"
-                        [attr.aria-current]="activeSection()?.sequenceNumber === i"
+                        [ariaCurrent]="activeSection()?.sequenceNumber === i"
                     >
                         {{ 'i18n_move_to' | translate }}
                     </button>
