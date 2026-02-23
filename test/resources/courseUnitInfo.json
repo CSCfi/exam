@@ -53,22 +53,17 @@
         }
       }
     ],
-    "lecturer" : [
-      {
-        "name" : "Eskelinen-Leppänen Elisa Tuulikki"
-      }
-    ],
+    "lecturer" : "Eskelinen-Leppänen Elisa Tuulikki",
     "institutionName" : "Itä-Suomen yliopisto",
     "department" : [
       {
         "name" : "Suomen kieli ja kulttuuritieteet (J)"
       }
     ],
-    "campus" : [
+    "campus" :
       {
         "name" : "Joensuu"
-      }
-    ],
+      },
     "startDate" : "20110101",
     "endDate" : "20991228"
   },
