@@ -49,6 +49,7 @@ import models.user.User;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.AfterClass;
@@ -325,6 +326,51 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             assertThat(slot.get("availableMachines").asInt()).isEqualTo(machineCount);
             assertThat(slot.get("ownReservation").asBoolean()).isFalse();
             assertThat(slot.get("conflictingExam").isNull()).isTrue();
+        }
+    }
+
+    /**
+     * When the exam period starts April 2nd (in the room's timezone) and the requested week
+     * includes April 1st, provideSlots must not return slots for April 1st. This guards
+     * against DST bugs where the wrong offset was used to derive the exam start date.
+     */
+    @Test
+    public void testProvideSlotsExcludesDayBeforeExamStartAfterDstChange() {
+        room = DB.find(ExamRoom.class, 1L);
+        room.setExternalRef(ROOM_REF);
+        room.setLocalTimezone("Europe/Helsinki");
+        room.update();
+
+        GeneralSettings gs = new GeneralSettings();
+        gs.setName("reservation_window_size");
+        gs.setValue("60");
+        gs.setId(3L);
+        gs.save();
+
+        // Exam period: April 2–5 in room's timezone. Use UTC instants so the URL has no '+' (e.g. +03:00).
+        // April 2 00:00 Helsinki (EEST) = 2026-04-01T21:00:00Z, April 5 23:59 Helsinki = 2026-04-05T20:59:59Z.
+        DateTime examStartUtc = new DateTime(2026, 4, 1, 21, 0, 0, DateTimeZone.UTC);
+        DateTime examEndUtc = new DateTime(2026, 4, 5, 20, 59, 59, DateTimeZone.UTC);
+
+        // Request slots for the week containing April 1 (Monday 2026-03-31).
+        // Without the DST fix, search could start on April 1 and return slots for that day.
+        String url = String.format(
+            "/integration/iop/slots?roomId=%s&date=2026-03-31&start=%s&end=%s&duration=%d",
+            room.getExternalRef(),
+            ISODateTimeFormat.dateTime().print(examStartUtc),
+            ISODateTimeFormat.dateTime().print(examEndUtc),
+            180
+        );
+        Result result = get(url);
+        assertThat(result.status()).isEqualTo(Http.Status.OK);
+        JsonNode node = Json.parse(contentAsString(result));
+        ArrayNode slots = (ArrayNode) node;
+
+        LocalDate examStartDate = new LocalDate(2026, 4, 2);
+        for (JsonNode slot : slots) {
+            String startIso = slot.get("start").asText();
+            LocalDate slotDate = ISODateTimeFormat.dateTimeParser().parseDateTime(startIso).toLocalDate();
+            assertThat(slotDate.isBefore(examStartDate)).isFalse();
         }
     }
 
