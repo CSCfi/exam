@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { Editor, findAttributeRange, ModelWriter, ViewElement } from 'ckeditor5';
+import { ClozeUI } from './ui';
 
 /**
  * Type for CKEditor view elements with common properties
@@ -108,14 +109,19 @@ export class ClozeElementHelperService {
     }
 
     /**
-     * Get ClozeUI plugin from editor
+     * Get ClozeUI plugin from editor.
+     * Uses the plugin class reference so it works with minified production builds
+     * (constructor.name is mangled there).
      */
     getClozeUI(editor: Editor): { showUI: () => void } | null {
-        // Try to find the ClozeUI plugin by iterating through all plugins
-        for (const [, plugin] of editor.plugins) {
-            if (plugin.constructor.name === 'ClozeUI' && 'showUI' in plugin && typeof plugin.showUI === 'function') {
+        try {
+            // CKEditor's plugins.get() accepts Plugin class at runtime; typings are string-only
+            const plugin = (editor.plugins as { get(key: unknown): unknown }).get(ClozeUI);
+            if (plugin && typeof (plugin as { showUI?: () => void }).showUI === 'function') {
                 return plugin as { showUI: () => void };
             }
+        } catch {
+            // ClozeUI plugin not loaded
         }
         return null;
     }
