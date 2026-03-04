@@ -25,7 +25,7 @@ import models.user.{Language, Role, User}
 import org.apache.commons.io.IOUtils
 import org.eclipse.jetty.server.Server
 import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.{DateTime, DateTimeZone, LocalDate}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.Application
@@ -332,6 +332,34 @@ class ExternalCalendarInterfaceSpec
           (slot \ "availableMachines").as[Int] must be(machineCount)
           (slot \ "ownReservation").as[Boolean] must be(false)
           (slot \ "conflictingExam").asOpt[String] must be(None)
+        }
+
+      "exclude day before exam start after DST change" in:
+        val (_, _, room, _) = setupTestData()
+        room.setLocalTimezone("Europe/Helsinki")
+        room.update()
+        // reservation_window_size=60 already set by setupTestData()
+
+        // Exam period: April 2–5 in room's timezone. Use UTC instants so the URL has no '+' (e.g. +03:00).
+        // April 2 00:00 Helsinki (EEST) = 2026-04-01T21:00:00Z, April 5 23:59 Helsinki = 2026-04-05T20:59:59Z.
+        val examStartUtc = new DateTime(2026, 4, 1, 21, 0, 0, DateTimeZone.UTC)
+        val examEndUtc   = new DateTime(2026, 4, 5, 20, 59, 59, DateTimeZone.UTC)
+
+        // Request slots for the week containing April 1 (date=2026-03-31).
+        // Without the DST fix, search could start on April 1 and return slots for that day.
+        val url =
+          s"/integration/iop/slots?roomId=${room.getExternalRef}&date=2026-03-31&start=${ISODateTimeFormat.dateTime().print(
+              examStartUtc
+            )}&end=${ISODateTimeFormat.dateTime().print(examEndUtc)}&duration=180"
+        val result = runIO(get(url))
+        statusOf(result) must be(Status.OK)
+        val node          = contentAsJsonOf(result)
+        val slots         = node.as[JsArray]
+        val examStartDate = new LocalDate(2026, 4, 2)
+        slots.value.foreach { slot =>
+          val startIso = (slot \ "start").as[String]
+          val slotDate = ISODateTimeFormat.dateTimeParser().parseDateTime(startIso).toLocalDate
+          slotDate.isBefore(examStartDate) must be(false)
         }
 
     "providing reservations" should:

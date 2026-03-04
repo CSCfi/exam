@@ -448,22 +448,22 @@ class ExternalCalendarController @Inject() (
       room: ExamRoom
   ): Option[LocalDate] =
     val windowSize = calendarHandler.getReservationWindowSize
-    val offset = Option(room)
-      .map(r => DateTimeZone.forID(r.getLocalTimezone).getOffset(DateTime.now()))
-      .getOrElse(configReader.getDefaultTimeZone.getOffset(DateTime.now()))
+    val zone = Option(room)
+      .map(r => DateTimeZone.forID(r.getLocalTimezone))
+      .getOrElse(configReader.getDefaultTimeZone)
 
-    val now                   = DateTime.now().plusMillis(offset).toLocalDate
+    val now                   = DateTime.now().withZone(zone).toLocalDate
     val reservationWindowDate = now.plusDays(windowSize)
     val examEndDate = DateTime
       .parse(endDate, ISODateTimeFormat.dateTimeParser())
-      .plusMillis(offset)
+      .withZone(zone)
       .toLocalDate
     val searchEndDate =
       if reservationWindowDate.isBefore(examEndDate) then reservationWindowDate else examEndDate
 
     val examStartDate = DateTime
       .parse(startDate, ISODateTimeFormat.dateTimeParser())
-      .plusMillis(offset)
+      .withZone(zone)
       .toLocalDate
 
     val initialDate =
