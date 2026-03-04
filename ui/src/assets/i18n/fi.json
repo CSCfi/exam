@@ -112,6 +112,7 @@
     "i18n_library": "Kysymyspankki",
     "i18n_library_new": "Kysymyspankki",
     "i18n_login": "Kirjaudu sisään",
+    "i18n_loading": "Ladataan…",
     "i18n_logout": "Kirjaudu ulos",
     "i18n_logout_success": "Uloskirjautuminen onnistui",
     "i18n_lottery_questions": "Arvottuja kysymyksiä",

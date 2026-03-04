@@ -8,6 +8,7 @@ import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ExaminationStatusService } from './examination/examination-status.service';
 import { NavigationComponent } from './navigation/navigation.component';
 import { DevLoginComponent } from './session/dev/dev-login.component';
@@ -17,7 +18,10 @@ import { SessionService } from './session/session.service';
 @Component({
     selector: 'xm-app',
     template: `
-        @if (!user && devLoginRequired()) {
+        @if (initializing()) {
+            <div class="app-initializing" aria-live="polite">{{ 'i18n_loading' | translate }}</div>
+        }
+        @if (!initializing() && !user && devLoginRequired()) {
             <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
         }
         @if (user) {
@@ -29,6 +33,10 @@ import { SessionService } from './session/session.service';
     `,
     styles: [
         `
+            .app-initializing {
+                padding: 2rem;
+                text-align: center;
+            }
             #mainView {
                 width: auto !important;
                 @media print {
@@ -52,12 +60,13 @@ import { SessionService } from './session/session.service';
             }
         `,
     ],
-    imports: [DevLoginComponent, NavigationComponent, NgClass, RouterOutlet],
+    imports: [DevLoginComponent, NavigationComponent, NgClass, RouterOutlet, TranslateModule],
 })
 export class AppComponent implements OnInit {
     user?: User;
     hideNavBar = signal(false);
     devLoginRequired = signal(false);
+    initializing = signal(true);
 
     private router = inject(Router);
     private Session = inject(SessionService);
@@ -91,6 +100,7 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         const user = this.Session.getOptionalUser();
         if (user) {
+            this.initializing.set(false);
             if (!user.loginRole) {
                 // This happens if user refreshes the tab before having selected a login role,
                 // lets just throw him out.
@@ -107,16 +117,41 @@ export class AppComponent implements OnInit {
             this.Session.getEnv$().subscribe({
                 next: (value: 'DEV' | 'PROD') => {
                     if (value === 'PROD') {
-                        this.Session.login$('', '').subscribe((user) => (this.user = user));
+                        this.tryProdLogin();
+                    } else {
+                        this.devLoginRequired.set(true);
+                        this.initializing.set(false);
                     }
-                    this.devLoginRequired.set(value === 'DEV');
                 },
-                error: () => console.log('no env found'),
+                error: () => {
+                    console.log('no env found');
+                    this.initializing.set(false);
+                },
             });
         }
     }
 
     setUser(user: User) {
         this.user = user;
+    }
+
+    /**
+     * Try PROD (SSO) login. Retries once after a short delay to handle Shibboleth/session
+     * timing on initial load (first request may run before the IdP session is fully established).
+     */
+    private tryProdLogin(retry = false) {
+        this.Session.login$('', '').subscribe({
+            next: (user) => {
+                this.user = user;
+                this.initializing.set(false);
+            },
+            error: () => {
+                if (!retry) {
+                    setTimeout(() => this.tryProdLogin(true), 800);
+                } else {
+                    this.initializing.set(false);
+                }
+            },
+        });
     }
 }

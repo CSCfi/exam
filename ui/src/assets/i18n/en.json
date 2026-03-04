@@ -112,6 +112,7 @@
     "i18n_library": "Question bank",
     "i18n_library_new": "Question library",
     "i18n_login": "Log in",
+    "i18n_loading": "Loading…",
     "i18n_logout": "Log out",
     "i18n_logout_success": "Successfully logged out",
     "i18n_lottery_questions": "Randomized questions",
