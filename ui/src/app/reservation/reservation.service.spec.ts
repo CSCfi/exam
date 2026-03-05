@@ -17,12 +17,15 @@ describe('ReservationService', () => {
     let service: ReservationService;
     let httpMock: HttpTestingController;
     let modalResultSubject: Subject<unknown>;
-    let mockModalRef: { componentInstance: { reservation: Reservation | null }; result: Subject<unknown> };
+    let mockModalRef: {
+        componentInstance: { reservation: { set: (v: Reservation) => void } };
+        result: Subject<unknown>;
+    };
 
     beforeEach(() => {
         modalResultSubject = new Subject<unknown>();
         mockModalRef = {
-            componentInstance: { reservation: null },
+            componentInstance: { reservation: { set: vi.fn() } },
             result: modalResultSubject,
         };
         const modalSpy = {
@@ -125,9 +128,9 @@ describe('ReservationService', () => {
                 startAt: 'oldStart',
                 endAt: 'oldEnd',
             } as unknown as Reservation;
-            service.changeMachine(reservation);
+            service.changeMachine$(reservation).subscribe();
             expect(modalService.openRef).toHaveBeenCalled();
-            expect(mockModalRef.componentInstance.reservation).toBe(reservation);
+            expect(mockModalRef.componentInstance.reservation.set).toHaveBeenCalledWith(reservation);
             // Service subscribes to result$(ref); our mock returns ref.result (modalResultSubject)
             modalResultSubject.next({
                 machine: { name: 'new' },

@@ -219,12 +219,21 @@ class EnrolmentRepository @Inject() (
                 // IP is not known
                 val local = configReader.isLocalUser(eppn)
                 val zone  = DateTimeZone.forID(room.getLocalTimezone)
-                val start =
+                val start = {
                   ISODateTimeFormat.dateTime().withZone(zone).print(new DateTime(
                     enrolment.getReservation.getStartAt
                   ))
-                val msg =
-                  s"${enrolment.getId}:::${room.getCampus}:::${room.getBuildingName}:::${room.getRoomCode}:::${examMachine.getName}:::$start:::${zone.getID}:::${if local then "false" else enrolment.getId}"
+                }
+                val msg = Seq(
+                  enrolment.getId,
+                  room.getCampus,
+                  room.getBuildingName,
+                  room.getRoomCode,
+                  examMachine.getName,
+                  start,
+                  zone.getID,
+                  if local then "true" else enrolment.getId
+                ).mkString(":::")
                 ("x-exam-unknown-machine", msg)
               case Some(lookedUp) if lookedUp.getRoom.getId == room.getId =>
                 // Right room, wrong machine

@@ -4,6 +4,11 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+/* Labels above form controls in report categories (labels live in child components) */
+:host ::ng-deep .report-category label {
+    display: block;
+}
+
 .report-category {
     border: 1px solid lightgrey;
     border-radius: 4pt;
