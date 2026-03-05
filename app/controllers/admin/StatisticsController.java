@@ -173,7 +173,8 @@ public class StatisticsController extends BaseController {
                     case REVIEW, REVIEW_STARTED -> inReview++;
                     case GRADED -> graded++;
                     case GRADED_LOGGED -> logged++;
-                    default -> {}
+                    default -> {
+                    }
                 }
             }
             String[] data = new String[10];
@@ -223,9 +224,10 @@ public class StatisticsController extends BaseController {
             data[0] = String.format("%s %s", e.getUser().getFirstName(), e.getUser().getLastName());
             data[1] = forceNotNull(e.getUser().getIdentifier());
             data[2] = e.getUser().getEppn();
-            data[3] = e.getReservation() == null
-                ? ""
-                : ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getReservation().getStartAt()));
+            data[3] =
+                e.getReservation() == null
+                    ? ""
+                    : ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getReservation().getStartAt()));
             data[4] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getEnrolledOn()));
             Row dataRow = sheet.createRow(proto.getExamEnrolments().indexOf(e) + 1);
             for (int i = 0; i < data.length; ++i) {

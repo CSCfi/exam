@@ -216,9 +216,10 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
 
     @Override
     public DateTime normalize(DateTime dateTime, Reservation reservation) {
-        DateTimeZone dtz = reservation.getMachine() == null
-            ? configReader.getDefaultTimeZone()
-            : DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
+        DateTimeZone dtz =
+            reservation.getMachine() == null
+                ? configReader.getDefaultTimeZone()
+                : DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
         return !dtz.isStandardOffset(dateTime.getMillis()) ? dateTime.minusHours(1) : dateTime;
     }
 
