@@ -354,7 +354,7 @@
     "i18n_review_graded": "The assessment has been saved and marked as ready",
     "i18n_confirm_grade_review": "After grading this submission other evaluators cannot make any changes. Do you want to proceed?",
     "i18n_choose_atleast_one": "Select at least one",
-    "i18n_send_results_to_registry": "Lock the selected assignments and inform students",
+    "i18n_send_results_to_registry": "Lock the selected submissions and inform students",
     "i18n_check_uncheck_all": "Select all / deselect all",
     "i18n_results_send_ok": "Results have been sent succesfully",
     "i18n_autosaved": "The exam paper is automatically saved",
