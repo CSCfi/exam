@@ -63,15 +63,11 @@ import { TranslateModule } from '@ngx-translate/core';
                         <div id="password-help" class="form-text visually-hidden">
                             {{ 'i18n_enter_password' | translate }}
                         </div>
-                        <div
-                            id="password-error"
-                            class="invalid-feedback"
-                            role="alert"
-                            aria-live="polite"
-                            *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched"
-                        >
-                            {{ 'i18n_password_required' | translate }}
-                        </div>
+                        @if (passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched) {
+                            <div id="password-error" class="invalid-feedback" role="alert" aria-live="polite">
+                                {{ 'i18n_password_required' | translate }}
+                            </div>
+                        }
                     </div>
                     <div class="col-md-6">
                         <button

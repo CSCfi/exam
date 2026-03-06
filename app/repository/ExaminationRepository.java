@@ -63,10 +63,9 @@ public class ExaminationRepository {
             boolean isCollaborative = enrolment.getCollaborativeExam() != null;
             Reservation reservation = enrolment.getReservation();
             // TODO: support for optional sections in BYOD exams
-            Set<Long> ids =
-                reservation == null
-                    ? Collections.emptySet()
-                    : enrolment.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
+            Set<Long> ids = reservation == null
+                ? Collections.emptySet()
+                : enrolment.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
             ExamCopyContext context = isCollaborative
                 ? ExamCopyContext.forCollaborativeExam(user).withSelectedSections(ids).build()
                 : ExamCopyContext.forStudentExam(user).withSelectedSections(ids).build();
@@ -128,13 +127,12 @@ public class ExaminationRepository {
                     }
                     DateTime now = DateTime.now();
                     if (enrolment.getExaminationEventConfiguration() == null) {
-                        now =
-                            reservation == null
-                                ? dateTimeHandler.adjustDST(DateTime.now())
-                                : dateTimeHandler.adjustDST(
-                                      DateTime.now(),
-                                      enrolment.getReservation().getMachine().getRoom()
-                                  );
+                        now = reservation == null
+                            ? dateTimeHandler.adjustDST(DateTime.now())
+                            : dateTimeHandler.adjustDST(
+                                  DateTime.now(),
+                                  enrolment.getReservation().getMachine().getRoom()
+                              );
                     }
                     examParticipation.setStarted(now);
                     db.save(examParticipation);
@@ -210,8 +208,9 @@ public class ExaminationRepository {
     }
 
     private boolean isInEffect(ExamEnrolment ee) {
-        DateTime now =
-            ee.getExaminationEventConfiguration() == null ? dateTimeHandler.adjustDST(DateTime.now()) : DateTime.now();
+        DateTime now = ee.getExaminationEventConfiguration() == null
+            ? dateTimeHandler.adjustDST(DateTime.now())
+            : DateTime.now();
         if (ee.getReservation() != null) {
             return (ee.getReservation().getStartAt().isBefore(now) && ee.getReservation().getEndAt().isAfter(now));
         } else if (ee.getExaminationEventConfiguration() != null) {
