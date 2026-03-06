@@ -4,8 +4,8 @@
 
 package features.user.services
 
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.user.Language
 
 import javax.inject.Inject

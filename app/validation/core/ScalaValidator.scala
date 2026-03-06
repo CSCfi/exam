@@ -7,7 +7,7 @@ package validation.core
 import org.jsoup.safety.Safelist
 import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json.JsValue
-import play.api.mvc._
+import play.api.mvc.*
 
 import scala.concurrent.{ExecutionContext, Future}
 

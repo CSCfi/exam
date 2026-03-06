@@ -10,7 +10,7 @@ import models.calendar.ExceptionWorkingHours
 import models.facility.ExamRoom
 import org.joda.time.DateTime
 import play.api.http.Status
-import play.api.libs.json._
+import play.api.libs.json.*
 
 class ReservationInterfaceSpec extends BaseIntegrationSpec:
 

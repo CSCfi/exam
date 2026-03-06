@@ -8,7 +8,7 @@ package json
 import org.apache.commons.io.FileUtils
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json._
+import play.api.libs.json.*
 import services.json.JsonFilter
 
 import java.io.File

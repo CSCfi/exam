@@ -101,22 +101,22 @@ class CollaborativeExamSearchService @Inject() (
     val root = response.json
     if response.status != Http.Status.OK then
       val message = (root \ "message").asOpt[String].getOrElse("Connection refused")
-      return Future.successful(Left(Results.InternalServerError(message)))
+      Future.successful(Left(Results.InternalServerError(message)))
+    else
+      collaborativeExamService.findAllByExternalRef().flatMap { locals =>
+        root match
+          case arr: JsArray =>
+            extractAndUpdateLocalReferences(arr, locals).map { updatedLocals =>
+              val localToExternal = arr.value
+                .collect { case obj: JsObject => obj }
+                .map { node =>
+                  val ref = (node \ "_id").as[String]
+                  updatedLocals(ref) -> (node: JsValue)
+                }
+                .toMap
 
-    collaborativeExamService.findAllByExternalRef().flatMap { locals =>
-      root match
-        case arr: JsArray =>
-          extractAndUpdateLocalReferences(arr, locals).map { updatedLocals =>
-            val localToExternal = arr.value
-              .collect { case obj: JsObject => obj }
-              .map { node =>
-                val ref = (node \ "_id").as[String]
-                updatedLocals(ref) -> (node: JsValue)
-              }
-              .toMap
-
-            Right(localToExternal)
-          }
-        case _ =>
-          Future.successful(Left(Results.InternalServerError("Expected array response")))
-    }
+              Right(localToExternal)
+            }
+          case _ =>
+            Future.successful(Left(Results.InternalServerError("Expected array response")))
+      }

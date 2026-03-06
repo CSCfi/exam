@@ -5,11 +5,11 @@
 package services.mail
 
 import com.typesafe.config.Config
-import org.apache.commons.mail._
+import org.apache.commons.mail.*
 import play.api.Logging
 
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.control.Exception.catching
 
 class EmailSenderImpl @Inject() (private val config: Config) extends EmailSender with Logging:

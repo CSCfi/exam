@@ -4,16 +4,16 @@
 
 package features.assessment.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.assessment.{Comment, ExamInspection}
 import models.exam.Exam
 import models.user.User
 import services.mail.EmailComposer
 
 import javax.inject.Inject
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 class ExamInspectionService @Inject() (
     private val emailComposer: EmailComposer

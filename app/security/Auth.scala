@@ -7,8 +7,8 @@ package security
 import io.ebean.DB
 import models.user.{Role, User}
 import play.api.libs.typedmap.TypedKey
-import play.api.mvc.Results._
-import play.api.mvc._
+import play.api.mvc.*
+import play.api.mvc.Results.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

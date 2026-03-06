@@ -5,9 +5,9 @@
 package integration
 
 import base.BaseIntegrationSpec
+import database.EbeanQueryExtensions
 import io.ebean.DB
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import database.EbeanQueryExtensions
 import models.exam.{Course, Grade, GradeScale}
 import models.facility.Organisation
 import models.user.User

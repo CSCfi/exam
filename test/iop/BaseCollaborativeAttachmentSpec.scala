@@ -6,7 +6,7 @@
 package iop
 
 import base.BaseIntegrationSpec
-import helpers._
+import helpers.*
 import io.ebean.DB
 import jakarta.servlet.MultipartConfigElement
 import models.attachment.Attachment
@@ -29,8 +29,8 @@ import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
 import java.util.{Base64, Objects}
 import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 trait BaseCollaborativeAttachmentSpec[T]
     extends BaseIntegrationSpec

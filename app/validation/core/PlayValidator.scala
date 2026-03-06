@@ -5,10 +5,10 @@
 package validation.core
 
 import cats.data.{NonEmptyList, ValidatedNel}
-import cats.implicits._
+import cats.implicits.*
 import play.api.libs.json.JsValue
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** Play JSON-based validator for any type T.
   *

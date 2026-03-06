@@ -5,7 +5,7 @@
 package validation.core
 
 import org.jsoup.Jsoup
-import play.api.libs.json._
+import play.api.libs.json.*
 
 import scala.reflect.ClassTag
 import scala.util.Try

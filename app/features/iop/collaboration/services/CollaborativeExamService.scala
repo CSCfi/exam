@@ -12,7 +12,7 @@ import security.BlockingIOExecutionContext
 
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** Service for CollaborativeExam database operations
   *

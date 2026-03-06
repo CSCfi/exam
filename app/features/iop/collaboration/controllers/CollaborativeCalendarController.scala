@@ -4,13 +4,13 @@
 
 package features.iop.collaboration.controllers
 
-import features.iop.collaboration.services.CollaborativeCalendarService
 import database.EbeanJsonExtensions
+import features.iop.collaboration.services.CollaborativeCalendarService
 import models.user.Role
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import security.Auth.{AuthenticatedAction, authorized}
+import play.api.mvc.*
 import security.Auth
+import security.Auth.{AuthenticatedAction, authorized}
 import security.BlockingIOExecutionContext
 import system.AuditedAction
 import validation.calendar.{ReservationCreationFilter, ReservationDTO}

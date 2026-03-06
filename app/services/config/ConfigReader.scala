@@ -10,7 +10,7 @@ import models.user.Role
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @ImplementedBy(classOf[ConfigReaderImpl])
 trait ConfigReader:

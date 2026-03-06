@@ -4,17 +4,18 @@
 
 package services.datetime
 
-import DateTimeHandler.{OpeningHours, RestrictionType}
 import models.calendar.ExceptionWorkingHours
 import models.enrolment.{ExternalReservation, Reservation}
 import models.facility.ExamRoom
-import org.joda.time._
+import org.joda.time.*
 import services.config.ConfigReader
 
 import java.util.Locale
 import javax.inject.Inject
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
+
+import DateTimeHandler.{OpeningHours, RestrictionType}
 
 class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTimeHandler:
   import org.joda.time.DateTimeConstants.MILLIS_PER_DAY
@@ -98,25 +99,25 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
     }
 
   override def mergeSlots(intervals: List[Interval]): List[Interval] =
-    if intervals.size <= 1 then return intervals
+    if intervals.size <= 1 then intervals
+    else
+      @tailrec
+      def helper(slots: List[Interval]): List[Interval] =
+        val sorted = slots.sortBy(_.getStart.getMillis)
+        val (merged, wasMerged) =
+          sorted.tail.foldLeft((List(sorted.head), false)) { case ((acc, isMerged), current) =>
+            acc.lastOption match
+              case Some(prev) if !current.getStart.isAfter(prev.getEnd) =>
+                val laterEnding =
+                  if prev.getEnd.isAfter(current.getEnd) then prev.getEnd else current.getEnd
+                val newInterval = new Interval(prev.getStart, laterEnding)
+                (acc.init :+ newInterval, true)
+              case _ =>
+                (acc :+ current, isMerged)
+          }
+        if wasMerged then helper(merged) else merged
 
-    @tailrec
-    def helper(slots: List[Interval]): List[Interval] =
-      val sorted = slots.sortBy(_.getStart.getMillis)
-      val (merged, wasMerged) =
-        sorted.tail.foldLeft((List(sorted.head), false)) { case ((acc, isMerged), current) =>
-          acc.lastOption match
-            case Some(prev) if !current.getStart.isAfter(prev.getEnd) =>
-              val laterEnding =
-                if prev.getEnd.isAfter(current.getEnd) then prev.getEnd else current.getEnd
-              val newInterval = new Interval(prev.getStart, laterEnding)
-              (acc.init :+ newInterval, true)
-            case _ =>
-              (acc :+ current, isMerged)
-        }
-      if wasMerged then helper(merged) else merged
-
-    helper(intervals)
+      helper(intervals)
 
   override def resolveStartWorkingHourMillis(startTime: DateTime, timeZoneOffset: Int): Int =
     resolveMillisOfDay(startTime, timeZoneOffset)

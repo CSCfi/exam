@@ -12,7 +12,7 @@ import services.config.ConfigReader
 
 import java.io.{File, FileInputStream}
 import java.nio.charset.Charset
-import java.nio.file._
+import java.nio.file.*
 import java.util.{Base64, UUID}
 import javax.inject.Inject
 import scala.util.{Try, Using}

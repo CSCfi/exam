@@ -4,8 +4,8 @@
 
 package features.assessment.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.exam.Exam
 import models.questions.Question
 import models.user.{Role, User}
@@ -17,13 +17,13 @@ import org.jsoup.Jsoup
 import play.api.Logging
 import services.csv.CsvBuilder
 
-import java.io._
+import java.io.*
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)

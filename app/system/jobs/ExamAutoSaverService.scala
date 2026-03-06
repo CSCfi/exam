@@ -5,9 +5,9 @@
 package system.jobs
 
 import cats.effect.{IO, Resource}
-import cats.syntax.all._
-import io.ebean.DB
+import cats.syntax.all.*
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
 import org.joda.time.DateTime
@@ -18,8 +18,8 @@ import services.mail.EmailComposer
 
 import java.io.IOException
 import javax.inject.Inject
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.control.Exception.catching
 
 class ExamAutoSaverService @Inject() (

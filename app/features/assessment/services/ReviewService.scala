@@ -4,10 +4,10 @@
 
 package features.assessment.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Query}
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
-import models.assessment._
+import models.assessment.*
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.{Exam, ExamType, Grade}
 import models.questions.{ClozeTestAnswer, EssayAnswer, Question}
@@ -16,12 +16,12 @@ import models.user.{Permission, Role, User}
 import org.joda.time.DateTime
 import play.api.Logging
 import play.api.i18n.{Lang, MessagesApi}
-import play.api.libs.json._
+import play.api.libs.json.*
 import services.mail.EmailComposer
 
 import javax.inject.Inject
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 class ReviewService @Inject() (
     private val emailComposer: EmailComposer,
@@ -254,9 +254,12 @@ class ReviewService @Inject() (
           )
         then Left(ReviewError.NotAllowedToUpdateGrading)
         else
-          if isRejectedInLanguageInspection(exam, user, newState) then
-            // Just update state, do not allow other modifications here
+          def justUpdateState(): Either[ReviewError, Unit] =
             updateReviewState(user, exam, newState, true)
+            Right(())
+
+          if isRejectedInLanguageInspection(exam, user, newState) then
+            justUpdateState()
           else
             val grade          = (body \ "grade").asOpt[Int]
             val additionalInfo = (body \ "additionalInfo").asOpt[String].orNull
@@ -265,7 +268,7 @@ class ReviewService @Inject() (
               DB.find(classOf[ExamType]).where().eq("type", creditType).find
             }
             exam.setCreditType(examType.orNull)
-            grade match
+            val gradeError = grade match
               case Some(g) =>
                 val examGrade = DB.find(classOf[Grade], g)
                 val scale =
@@ -274,7 +277,8 @@ class ReviewService @Inject() (
                 if scale.getGrades.contains(examGrade) then
                   exam.setGrade(examGrade)
                   exam.setGradingType(Grade.Type.GRADED)
-                else return Left(ReviewError.InvalidGradeForScale)
+                  None
+                else Some(ReviewError.InvalidGradeForScale)
               case None =>
                 exam.setGrade(null)
                 if gradingType == Grade.Type.NOT_GRADED then
@@ -288,11 +292,15 @@ class ReviewService @Inject() (
                     "type",
                     "PARTIAL"
                   ).find.orNull)
-            exam.setAdditionalInfo(additionalInfo)
-            exam.setAnswerLanguage((body \ "answerLanguage").asOpt[String].orNull)
-            exam.setCustomCredit((body \ "customCredit").asOpt[Double].map(Double.box).orNull)
-            updateReviewState(user, exam, newState, false)
-          Right(())
+                None
+            gradeError match
+              case Some(e) => Left(e)
+              case None =>
+                exam.setAdditionalInfo(additionalInfo)
+                exam.setAnswerLanguage((body \ "answerLanguage").asOpt[String].orNull)
+                exam.setCustomCredit((body \ "customCredit").asOpt[Double].map(Double.box).orNull)
+                updateReviewState(user, exam, newState, false)
+                Right(())
       case None => Left(ReviewError.ExamNotFound)
 
   def sendInspectionMessage(

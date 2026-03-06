@@ -8,11 +8,11 @@ import base.BaseIntegrationSpec
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.util.{GreenMail, GreenMailUtil, ServerSetupTest}
+import database.EbeanQueryExtensions
 import helpers.RemoteServerHelper.ServletDef
 import helpers.{AttachmentServlet, RemoteServerHelper}
 import io.ebean.DB
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import database.EbeanQueryExtensions
 import models.admin.GeneralSettings
 import models.assessment.{AutoEvaluationConfig, GradeEvaluation}
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
@@ -32,12 +32,12 @@ import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsArray, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.json.JsonDeserializer
 
 import java.io.{File, FileInputStream, IOException}
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ExternalCalendarInterfaceSpec
     extends BaseIntegrationSpec

@@ -4,9 +4,9 @@
 
 package features.assessment.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.annotation.Transactional
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.assessment.{ExamRecord, ExamScore}
 import models.enrolment.ExamParticipation
 import models.exam.{Exam, Grade}
@@ -21,8 +21,8 @@ import services.mail.EmailComposer
 
 import java.io.OutputStream
 import javax.inject.Inject
-import scala.concurrent.duration._
-import scala.util._
+import scala.concurrent.duration.*
+import scala.util.*
 
 class ExamRecordService @Inject() (
     private val emailComposer: EmailComposer,

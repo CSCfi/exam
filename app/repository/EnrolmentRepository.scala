@@ -4,9 +4,9 @@
 
 package repository
 
+import database.EbeanQueryExtensions
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Database}
-import database.EbeanQueryExtensions
 import models.enrolment.ExamEnrolment
 import models.exam.Exam
 import models.facility.{ExamMachine, ExamRoom}
@@ -16,13 +16,13 @@ import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone, Minutes}
 import play.api.mvc.{AnyContent, Request, RequestHeader}
 import play.api.{Environment, Logging, Mode}
+import security.BlockingIOExecutionContext
 import services.config.{ByodConfigHandler, ConfigReader}
 import services.datetime.DateTimeHandler
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
-import security.BlockingIOExecutionContext
+import scala.jdk.CollectionConverters.*
 
 class EnrolmentRepository @Inject() (
     environment: Environment,

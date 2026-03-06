@@ -58,11 +58,19 @@ export class QuestionService {
             tap(() => this.toast.info(this.translate.instant('i18n_question_added'))),
             switchMap((response) => {
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
+                    const formFileName = question.attachment.fileName;
                     return this.Files.upload$<Question>('/app/attachment/question', question.attachment.file, {
                         questionId: response.id.toString(),
                     }).pipe(
-                        tap((resp) => (question.attachment = resp.attachment)),
-                        map(() => response),
+                        tap((resp) => {
+                            if (resp?.attachment) {
+                                question.attachment = {
+                                    ...resp.attachment,
+                                    fileName: resp.attachment.fileName ?? formFileName,
+                                };
+                            }
+                        }),
+                        map(() => ({ ...response, attachment: question.attachment })),
                     );
                 }
                 return of(response);
@@ -74,11 +82,19 @@ export class QuestionService {
             tap(() => this.toast.info(this.translate.instant('i18n_question_saved'))),
             switchMap((response) => {
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
+                    const formFileName = question.attachment.fileName;
                     return this.Files.upload$<Question>('/app/attachment/question', question.attachment.file, {
                         questionId: question.id.toString(),
                     }).pipe(
-                        tap((resp) => (question.attachment = resp.attachment)),
-                        map(() => response),
+                        tap((resp) => {
+                            if (resp?.attachment) {
+                                question.attachment = {
+                                    ...resp.attachment,
+                                    fileName: resp.attachment.fileName ?? formFileName,
+                                };
+                            }
+                        }),
+                        map(() => ({ ...response, attachment: question.attachment })),
                     );
                 } else if (question.attachment && question.attachment.removed) {
                     return this.Attachment.eraseQuestionAttachment$(question).pipe(map(() => response));

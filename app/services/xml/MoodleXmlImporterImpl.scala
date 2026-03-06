@@ -4,12 +4,12 @@
 
 package services.xml
 
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.attachment.Attachment
 import models.questions.{MultipleChoiceOption, Question, Tag}
 import models.user.User
-import org.apache.commons.compress.archivers.tar._
+import org.apache.commons.compress.archivers.tar.*
 import org.apache.commons.compress.compressors.CompressorStreamFactory
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Element, TextNode}
@@ -20,7 +20,7 @@ import java.io.{BufferedOutputStream, File}
 import java.nio.file.{Files, Path}
 import java.util.Base64
 import javax.inject.Inject
-import scala.xml._
+import scala.xml.*
 
 class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
     extends MoodleXmlImporter

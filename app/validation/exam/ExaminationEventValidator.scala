@@ -6,9 +6,9 @@ package validation.exam
 
 import cats.data.ValidatedNel
 import org.joda.time.DateTime
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.mvc.{Request, Result, Results}
-import validation.core._
+import validation.core.*
 
 case class ExaminationEventDTO(
     start: DateTime,

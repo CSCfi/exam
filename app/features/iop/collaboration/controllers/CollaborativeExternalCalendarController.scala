@@ -4,22 +4,21 @@
 
 package features.iop.collaboration.controllers
 
-import features.iop.collaboration.services.CollaborativeExternalCalendarService
 import database.EbeanJsonExtensions
+import features.iop.collaboration.services.CollaborativeExternalCalendarService
 import models.user.Role
 import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.{JsArray, JsValue, Json}
 import play.api.libs.ws.JsonBodyWritables
 import play.api.mvc.*
-import security.Auth.{AuthenticatedAction, authorized}
 import security.Auth
+import security.Auth.{AuthenticatedAction, authorized}
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import system.AuditedAction
 import validation.calendar.{ExternalReservationDTO, ReservationCreationFilter}
 import validation.core.ScalaAttrs
 
-import java.net.{URI, URL}
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}

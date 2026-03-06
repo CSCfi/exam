@@ -5,12 +5,12 @@
 package session
 
 import base.BaseIntegrationSpec
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.user.{Role, User}
 import play.api.http.Status
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class SessionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions:
 

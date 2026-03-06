@@ -6,8 +6,8 @@ package database
 
 import io.ebean.{ExpressionList, Model, Query}
 
-import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
+import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 
 trait EbeanQueryExtensions:
   extension [T <: Model](el: ExpressionList[T])

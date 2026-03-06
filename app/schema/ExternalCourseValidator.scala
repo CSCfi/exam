@@ -4,9 +4,9 @@
 
 package schema
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
-import play.api.libs.json._
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
+import play.api.libs.json.Reads.*
 
 object ExternalCourseValidator:
   private val asInt: Reads[Int]       = implicitly[Reads[String]].map(_.toInt)

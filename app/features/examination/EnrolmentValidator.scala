@@ -7,8 +7,8 @@ package features.examination
 import features.examination.services.RequestData
 import models.enrolment.ExamEnrolment
 import play.api.Mode
-import play.api.mvc.Results.Forbidden
 import play.api.mvc.Result
+import play.api.mvc.Results.Forbidden
 
 import scala.concurrent.Future
 

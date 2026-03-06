@@ -4,20 +4,20 @@
 
 package features.iop.transfer.controllers
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.calendar.MaintenancePeriod
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.Role
-import org.joda.time._
+import org.joda.time.*
 import org.joda.time.format.ISODateTimeFormat
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.libs.ws.{JsonBodyWritables, WSClient}
-import play.api.mvc._
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
 import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
@@ -29,7 +29,7 @@ import validation.calendar.ExternalCalendarReservationValidator
 import java.net.{MalformedURLException, URI, URL}
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 class ExternalCalendarController @Inject() (

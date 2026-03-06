@@ -5,8 +5,8 @@
 package validation.exam
 
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import validation.core._
+import play.api.mvc.*
+import validation.core.*
 
 object ExamUpdateValidator extends PlayJsonValidator:
 

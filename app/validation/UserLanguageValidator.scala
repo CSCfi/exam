@@ -5,7 +5,7 @@
 package validation
 
 import play.api.libs.json.JsValue
-import play.api.mvc._
+import play.api.mvc.*
 import validation.core.{PlayJsonValidator, ScalaAttrs}
 
 object UserLanguageValidator extends PlayJsonValidator:

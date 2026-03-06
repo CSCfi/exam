@@ -4,7 +4,7 @@
 
 package validation.core
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 /** Helper functions for parsing and validating Play JSON values
   */

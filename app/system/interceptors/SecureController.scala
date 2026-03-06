@@ -4,7 +4,7 @@
 
 package system.interceptors
 
-import play.api.mvc._
+import play.api.mvc.*
 import security.Auth.AuthenticatedAction
 
 /** Trait for controllers that need automatic sensitive data filtering on all actions

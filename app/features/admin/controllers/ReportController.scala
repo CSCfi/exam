@@ -4,12 +4,12 @@
 
 package features.admin.controllers
 
-import features.admin.services.ReportService
 import database.EbeanJsonExtensions
+import features.admin.services.ReportService
 import models.user.Role
 import org.apache.pekko.stream.scaladsl.StreamConverters
 import play.api.libs.json.Json
-import play.api.mvc._
+import play.api.mvc.*
 import security.Auth.authorized
 import security.BlockingIOExecutionContext
 import system.AuditedAction

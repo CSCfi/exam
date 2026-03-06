@@ -5,7 +5,7 @@
 package security
 
 import models.user.{Permission, Role}
-import play.api.mvc._
+import play.api.mvc.*
 
 import scala.concurrent.{ExecutionContext, Future}
 

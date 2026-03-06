@@ -5,7 +5,6 @@
 package services.excel
 
 import io.ebean.DB
-import ExcelBuilder.CellType
 import models.assessment
 import models.assessment.{ExamRecord, ExamScore}
 import models.exam.Exam
@@ -13,14 +12,16 @@ import models.questions.Question
 import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.User
 import org.apache.poi.common.usermodel.HyperlinkType
-import org.apache.poi.ss.usermodel._
+import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.streaming.SXSSFWorkbook
 import play.i18n.{Lang, MessagesApi}
 import services.config.ConfigReader
 
 import java.io.OutputStream
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
+
+import ExcelBuilder.CellType
 
 class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuilder:
 

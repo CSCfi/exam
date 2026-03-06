@@ -10,7 +10,6 @@ import {
     CdkDropList,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-
 import { HttpClient } from '@angular/common/http';
 import {
     ChangeDetectionStrategy,
@@ -418,8 +417,20 @@ export class SectionComponent {
                 // Add new section question to existing section
                 if (!this.collaborative()) {
                     const section = resp as ExamSection;
-                    const examSectionQuestion = section.sectionQuestions.find((esq) => esq.question.id === question.id);
+                    let examSectionQuestion = section.sectionQuestions.find((esq) => esq.question.id === question.id);
                     if (examSectionQuestion) {
+                        if (examSectionQuestion.question.attachment && question.attachment?.fileName) {
+                            examSectionQuestion = {
+                                ...examSectionQuestion,
+                                question: {
+                                    ...examSectionQuestion.question,
+                                    attachment: {
+                                        ...examSectionQuestion.question.attachment,
+                                        fileName: question.attachment.fileName,
+                                    },
+                                },
+                            };
+                        }
                         const updated = {
                             ...currentSection,
                             sectionQuestions: [...currentSection.sectionQuestions, examSectionQuestion],

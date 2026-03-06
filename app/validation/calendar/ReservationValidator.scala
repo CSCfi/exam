@@ -6,11 +6,11 @@ package validation.calendar
 
 import cats.data.ValidatedNel
 import org.joda.time.DateTime
-import play.api.libs.json._
+import play.api.libs.json.*
+import validation.core.*
 import validation.core.SanitizingException
-import validation.core._
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 case class ReservationDTO(
     roomId: Long,

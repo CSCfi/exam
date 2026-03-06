@@ -6,6 +6,7 @@ package features.attachment.controllers
 
 import database.EbeanJsonExtensions
 import features.attachment.services.AttachmentService
+import models.attachment.Attachment
 import models.user.{Permission, Role}
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.stream.{IOResult, Materializer}
@@ -238,12 +239,8 @@ class AttachmentController @Inject() (
       (filePart, request.body.dataParts)
     }
 
-  private def serveAsStream(
-      attachment: models.attachment.Attachment,
-      source: Source[ByteString, Future[IOResult]]
-  ): Result = {
+  private def serveAsStream(attachment: Attachment, source: Source[ByteString, Future[IOResult]]) =
     val mimeType = Option(attachment.getMimeType).getOrElse("application/octet-stream")
     Ok.chunked(source)
       .as(mimeType)
       .withHeaders("Content-Disposition" -> s"attachment; filename=\"${attachment.getFileName}\"")
-  }

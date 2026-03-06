@@ -7,7 +7,7 @@ package services.datetime
 import models.calendar.ExceptionWorkingHours
 import models.enrolment.{ExternalReservation, Reservation}
 import models.facility.ExamRoom
-import org.joda.time._
+import org.joda.time.*
 
 trait DateTimeHandler:
   import DateTimeHandler.*

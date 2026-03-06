@@ -10,13 +10,8 @@ import models.user.Permission.Type
 import models.user.Role
 import play.api.libs.json.JsValue
 import play.api.mvc.*
+import security.*
 import security.Auth.{AuthenticatedAction, authorized}
-import security.{
-  Auth,
-  BlockingIOExecutionContext,
-  CombinedRoleAndPermissionFilter,
-  PermissionFilter
-}
 import system.AuditedAction
 import validation.assessment.CommentValidator
 import validation.core.{ScalaAttrs, Validators}

@@ -9,7 +9,7 @@ import io.ebean.text.PathProperties
 import io.ebean.{DB, Model}
 import play.api.libs.json.{JsValue, Json}
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 trait EbeanJsonExtensions:
 

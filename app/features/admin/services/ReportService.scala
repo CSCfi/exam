@@ -4,9 +4,9 @@
 
 package features.admin.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.text.PathProperties
 import io.ebean.{DB, ExpressionList}
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.{Course, Exam}
 import models.facility.ExamRoom
@@ -16,7 +16,7 @@ import play.api.libs.json.{Json, Writes}
 import services.excel.ExcelBuilder
 
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ReportService @Inject() (
     private val excelBuilder: ExcelBuilder

@@ -6,10 +6,10 @@ package system
 
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import cats.syntax.all._
+import cats.syntax.all.*
 import play.api.inject.ApplicationLifecycle
 import play.api.{Environment, Logging, Mode}
-import system.jobs._
+import system.jobs.*
 
 import javax.inject.{Inject, Singleton}
 

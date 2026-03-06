@@ -4,7 +4,7 @@
 
 package validation.core
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** Result of validation, containing zero or more field errors.
   */

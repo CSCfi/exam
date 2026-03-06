@@ -5,8 +5,8 @@
 package enrolment
 
 import base.BaseIntegrationSpec
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
 import models.exam.Exam
 import models.facility.ExamRoom

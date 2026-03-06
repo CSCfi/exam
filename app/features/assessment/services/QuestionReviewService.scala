@@ -4,9 +4,9 @@
 
 package features.assessment.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.exam.Exam
 import models.questions.Question
 import models.sections.ExamSectionQuestion
@@ -14,7 +14,7 @@ import models.user.User
 import play.api.libs.json.{JsValue, Json, Writes}
 
 import scala.collection.immutable.TreeMap
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtensions:
 

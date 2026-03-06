@@ -5,7 +5,7 @@
 package validation.calendar
 
 import play.api.libs.json.JsValue
-import play.api.mvc._
+import play.api.mvc.*
 import validation.core.ScalaAttrs
 
 import scala.concurrent.{ExecutionContext, Future}

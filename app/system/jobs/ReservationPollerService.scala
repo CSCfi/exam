@@ -5,9 +5,9 @@
 package system.jobs
 
 import cats.effect.{IO, Resource}
-import cats.syntax.all._
-import io.ebean.DB
+import cats.syntax.all.*
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
 import org.joda.time.DateTime
 import play.api.Logging
@@ -15,7 +15,7 @@ import services.datetime.DateTimeHandler
 import services.enrolment.NoShowHandler
 
 import javax.inject.Inject
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class ReservationPollerService @Inject() (
     private val noShowHandler: NoShowHandler,

@@ -21,12 +21,10 @@ SPDX-License-Identifier: EUPL-1.2
                 <xm-ckeditor name="essayAnswer" [ariaLabel]="questionTitle()" [id]="sq().id.toString()" />
             } @else {
                 <xm-ckeditor
-                    name="essayAnswer"
                     [ariaLabel]="questionTitle()"
                     [id]="sq().id.toString()"
                     [data]="isPreview() ? '' : sq().essayAnswer.answer"
-                    [ngModel]="isPreview() ? '' : sq().essayAnswer.answer"
-                    (ngModelChange)="answerChanged($event)"
+                    (dataChange)="answerChanged($event)"
                 />
             }
         </div>

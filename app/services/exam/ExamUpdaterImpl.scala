@@ -4,8 +4,8 @@
 
 package services.exam
 
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.assessment.{AutoEvaluationConfig, ExamFeedbackConfig, GradeEvaluation}
 import models.exam.*
 import models.questions.{ClozeTestAnswer, Question}

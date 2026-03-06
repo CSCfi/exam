@@ -99,6 +99,7 @@ export class BasicExamInfoComponent implements OnDestroy {
         this.Exam.updateExam$(currentExam, {}, this.collaborative()).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_exam_saved'));
+                this.ExamTabs.setExam(currentExam);
                 const code = currentExam.course ? currentExam.course.code : null;
                 this.ExamTabs.notifyExamUpdate({
                     name: currentExam.name,

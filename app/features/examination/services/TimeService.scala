@@ -4,9 +4,8 @@
 
 package features.examination.services
 
-import TimeError._
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.enrolment.ExamEnrolment
 import models.user.User
 import org.joda.time.{DateTime, Seconds}
@@ -14,6 +13,8 @@ import services.datetime.DateTimeHandler
 
 import javax.inject.Inject
 import scala.util.Try
+
+import TimeError.*
 
 class TimeService @Inject() (
     private val dateTimeHandler: DateTimeHandler

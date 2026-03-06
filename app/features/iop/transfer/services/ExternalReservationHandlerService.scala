@@ -19,7 +19,7 @@ import services.config.ConfigReader
 import services.datetime.DateTimeHandler
 import services.mail.EmailComposer
 
-import java.net.{MalformedURLException, URI}
+import java.net.URI
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.duration.*

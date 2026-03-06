@@ -5,10 +5,10 @@
 package validation.answer
 
 import cats.data.ValidatedNel
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.libs.typedmap.TypedKey
-import play.api.mvc._
-import validation.core._
+import play.api.mvc.*
+import validation.core.*
 
 case class ClozeTestAnswerDTO(answer: String, objectVersion: Option[Long]):
   def getObjectVersionAsJava: java.util.Optional[java.lang.Long] =

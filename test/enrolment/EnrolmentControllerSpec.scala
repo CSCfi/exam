@@ -8,12 +8,12 @@ import base.BaseIntegrationSpec
 import com.google.common.io.Files
 import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.util.{GreenMail, ServerSetupTest}
+import database.EbeanQueryExtensions
 import helpers.RemoteServerHelper
 import helpers.RemoteServerHelper.ServletDef
 import io.ebean.DB
 import io.ebean.text.json.EJson
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.{Exam, ExamExecutionType}
 import models.facility.ExamRoom
@@ -24,7 +24,7 @@ import org.joda.time.DateTime
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.http.Status
 import play.api.libs.json.Json
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.json.JsonDeserializer
 
 import java.io.File

@@ -4,7 +4,7 @@
 
 package features.iop.collaboration.services
 
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import models.exam.Exam
 import models.user.User
 import play.api.Logging

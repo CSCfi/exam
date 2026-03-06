@@ -8,7 +8,7 @@ import org.apache.pekko.stream.Materializer
 import org.apache.pekko.util.ByteString
 import play.api.http.HttpEntity
 import play.api.libs.json.Json
-import play.api.mvc._
+import play.api.mvc.*
 import services.json.JsonFilter
 
 import javax.inject.Inject
@@ -35,16 +35,16 @@ class SensitiveDataFilter @Inject() (implicit materializer: Materializer, ec: Ex
 
     // Only filter JSON responses with non-empty field list
     if !contentType.equalsIgnoreCase("application/json") || sensitiveFields.isEmpty then
-      return Future.successful(result)
-
-    result.body match
-      case HttpEntity.Strict(data, _) =>
-        filterStrictBody(result, data, sensitiveFields)
-      case _ =>
-        // For streamed or chunked bodies, consume the stream first
-        result.body.consumeData.flatMap { data =>
+      Future.successful(result)
+    else
+      result.body match
+        case HttpEntity.Strict(data, _) =>
           filterStrictBody(result, data, sensitiveFields)
-        }
+        case _ =>
+          // For streamed or chunked bodies, consume the stream first
+          result.body.consumeData.flatMap { data =>
+            filterStrictBody(result, data, sensitiveFields)
+          }
 
   private def filterStrictBody(
       result: Result,

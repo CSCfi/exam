@@ -12,8 +12,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.Base64
 import scala.io.Source
-import scala.jdk.CollectionConverters._
-import scala.xml._
+import scala.jdk.CollectionConverters.*
+import scala.xml.*
 import scala.xml.parsing.ConstructingParser
 
 class MoodleXmlExporterImpl extends MoodleXmlExporter:

@@ -4,8 +4,8 @@
 
 package features.exam.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.exam.Exam
 import models.user.User
 

@@ -4,11 +4,11 @@
 
 package repository
 
+import database.EbeanQueryExtensions
 import features.exam.copy.ExamCopyContext
 import features.iop.collaboration.services.CollaborativeExamLoaderService
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Database, Query}
-import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
 import models.facility.ExamRoom
@@ -17,13 +17,13 @@ import models.questions.{ClozeTestAnswer, Question}
 import models.user.User
 import org.joda.time.DateTime
 import play.api.Logging
+import security.BlockingIOExecutionContext
 import services.datetime.DateTimeHandler
 
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Using
-import security.BlockingIOExecutionContext
 
 class ExaminationRepository @Inject() (
     cel: CollaborativeExamLoaderService,

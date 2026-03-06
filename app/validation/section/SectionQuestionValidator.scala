@@ -4,9 +4,9 @@
 
 package validation.section
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.mvc.{AnyContent, Request, Result}
-import validation.core._
+import validation.core.*
 
 case class SectionQuestionDTO(
     answerInstructions: Option[String],

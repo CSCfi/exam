@@ -5,8 +5,8 @@
 package services.config
 
 import com.typesafe.config.Config
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.admin.GeneralSettings
 import models.exam.ExamExecutionType
 import models.user.Role
@@ -14,7 +14,7 @@ import org.joda.time.{DateTime, DateTimeZone, Period}
 
 import java.util.UUID
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
     with EbeanQueryExtensions:

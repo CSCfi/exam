@@ -4,16 +4,17 @@
 
 package features.user.services
 
+import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.EbeanQueryExtensions
 import models.enrolment.ExamEnrolment
 import models.user.*
-import UserError.*
 import services.user.UserHandler
 
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
+
+import UserError.*
 
 class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensions:
 

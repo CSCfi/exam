@@ -8,7 +8,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.cryptonode.jncryptor.AES256JNCryptor
 import play.Environment
 import play.api.Logging
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.mvc.{Result, Results}
 
 import java.io.ByteArrayOutputStream

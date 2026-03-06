@@ -37,15 +37,17 @@ class CollaborativeExamAuthorizationService @Inject() (
     *   true if authorized, false otherwise
     */
   def isAuthorizedToView(exam: Exam, user: User, homeOrg: String): Boolean =
-    if exam.getOrganisations != null then
-      val organisations = exam.getOrganisations.split(";")
-      if !organisations.contains(homeOrg) then return false
-
-    user.isAdminOrSupport ||
-    (exam.getExamOwners.asScala.exists { u =>
-      u.getEmail.equalsIgnoreCase(user.getEmail) ||
-      u.getEmail.equalsIgnoreCase(user.getEppn)
-    } && exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED))
+    val hasAccess =
+      user.isAdminOrSupport ||
+        (exam.getExamOwners.asScala.exists { u =>
+          u.getEmail.equalsIgnoreCase(user.getEmail) ||
+          u.getEmail.equalsIgnoreCase(user.getEppn)
+        } && exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED))
+    Option(exam.getOrganisations) match
+      case None => hasAccess
+      case Some(orgs) =>
+        val organisations = orgs.split(";")
+        if organisations.contains(homeOrg) then hasAccess else false
 
   /** Check if a user is unauthorized to assess an exam
     *

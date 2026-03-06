@@ -10,8 +10,7 @@ licenses += "EUPL 1.2" -> url("https://joinup.ec.europa.eu/software/page/eupl/li
 
 scalaVersion := "3.7.3"
 
-scalacOptions ++= Seq("-deprecation", "-feature")
-// use -Wunused:imports for unused imports checking
+scalacOptions ++= Seq("-deprecation", "-feature", "-Wunused:imports")
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayEbean)
 

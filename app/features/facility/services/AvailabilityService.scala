@@ -4,9 +4,8 @@
 
 package features.facility.services
 
-import AvailabilityError._
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.enrolment.Reservation
 import models.facility.ExamRoom
 import org.joda.time.format.ISODateTimeFormat
@@ -14,7 +13,9 @@ import org.joda.time.{DateTime, Interval}
 import services.datetime.DateTimeHandler
 
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
+
+import AvailabilityError.*
 
 object AvailabilityService:
   case class Availability(interval: Interval, total: Int, reserved: Int):

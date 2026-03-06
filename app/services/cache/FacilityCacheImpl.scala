@@ -7,7 +7,7 @@ package services.cache
 import play.api.cache.SyncCacheApi
 
 import javax.inject.Inject
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class FacilityCacheImpl @Inject() (cache: SyncCacheApi) extends FacilityCache:
 

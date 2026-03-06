@@ -8,11 +8,11 @@ import base.BaseIntegrationSpec
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.util.{GreenMail, ServerSetupTest}
+import database.EbeanQueryExtensions
 import helpers.{AttachmentServlet, RemoteServerHelper}
 import io.ebean.DB
 import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import database.EbeanQueryExtensions
 import models.attachment.Attachment
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
 import models.exam.Exam
@@ -30,7 +30,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.Logging
 import play.api.http.Status
 import play.api.libs.json.Json
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.file.FileHandler
 
 import java.io.{File, FileInputStream, IOException}
@@ -38,7 +38,7 @@ import java.nio.file.{FileSystems, Files, Path}
 import java.util
 import java.util.UUID
 import java.util.stream.StreamSupport
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ExternalExamControllerSpec
     extends BaseIntegrationSpec

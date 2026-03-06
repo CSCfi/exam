@@ -5,11 +5,11 @@
 package validation.core
 
 import cats.data.{NonEmptyList, ValidatedNel}
-import cats.implicits._
+import cats.implicits.*
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import validation.core.{FieldError, ValidationException, ValidationResult}
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 /** Generic validator for any type T.

@@ -12,9 +12,11 @@ import {
     effect,
     ElementRef,
     inject,
+    Injector,
     input,
     output,
     Renderer2,
+    runInInjectionContext,
     ViewChild,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -47,6 +49,7 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
         return this.sanitizer.bypassSecurityTrustHtml(doc.body.innerHTML);
     });
 
+    private injector = inject(Injector);
     private renderer = inject(Renderer2);
     private sanitizer = inject(DomSanitizer);
     private inputListener?: () => void;
@@ -67,20 +70,24 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
             const currentContent = this.content();
             if (!currentContent) return;
 
-            // afterNextRender is needed because effects run during change detection,
-            // before Angular has finished updating the [innerHTML] binding
-            afterNextRender(() => {
-                if (!this.container?.nativeElement) return;
-                this.setupInputs();
+            // afterNextRender requires injection context; effect runs outside it
+            runInInjectionContext(this.injector, () => {
+                afterNextRender(() => {
+                    if (!this.container?.nativeElement) return;
+                    this.setupInputs();
+                });
             });
         });
     }
 
     ngAfterViewInit() {
-        // Initial setup - afterNextRender ensures innerHTML has been processed
-        afterNextRender(() => {
-            if (!this.container?.nativeElement) return;
-            this.setupInputs();
+        // Initial setup - afterNextRender ensures innerHTML has been processed.
+        // Lifecycle hooks run outside injection context, so use runInInjectionContext.
+        runInInjectionContext(this.injector, () => {
+            afterNextRender(() => {
+                if (!this.container?.nativeElement) return;
+                this.setupInputs();
+            });
         });
     }
 

@@ -4,8 +4,8 @@
 
 package features.assessment.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.{DB, FetchConfig}
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.assessment.ExamFeedbackConfig.ReleaseType.{GIVEN_DATE, ONCE_LOCKED}
 import models.exam.{Exam, Grade}
 import models.questions.{ClozeTestAnswer, Question}

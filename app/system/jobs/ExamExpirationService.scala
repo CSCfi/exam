@@ -5,9 +5,9 @@
 package system.jobs
 
 import cats.effect.{IO, Resource}
-import cats.syntax.all._
-import io.ebean.DB
+import cats.syntax.all.*
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.assessment.ExamRecord
 import models.exam.Exam
 import org.joda.time.DateTime
@@ -15,7 +15,7 @@ import play.api.Logging
 import services.config.ConfigReader
 
 import javax.inject.Inject
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class ExamExpirationService @Inject() (private val configReader: ConfigReader)
     extends ScheduledJob

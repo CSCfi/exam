@@ -4,9 +4,9 @@
 
 package validation
 
-import play.api.libs.json._
-import play.api.mvc._
-import validation.core._
+import play.api.libs.json.*
+import play.api.mvc.*
+import validation.core.*
 
 object CommaJoinedListValidator extends PlayJsonValidator:
 

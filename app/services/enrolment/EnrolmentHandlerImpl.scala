@@ -4,8 +4,8 @@
 
 package services.enrolment
 
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
 import models.user.User

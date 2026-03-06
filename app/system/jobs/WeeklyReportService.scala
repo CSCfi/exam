@@ -5,9 +5,9 @@
 package system.jobs
 
 import cats.effect.{IO, Resource}
-import cats.syntax.all._
-import io.ebean.DB
+import cats.syntax.all.*
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.user.User
 import org.joda.time.{DateTime, DateTimeConstants, Seconds}
 import play.api.Logging
@@ -15,7 +15,7 @@ import services.config.ConfigReader
 import services.mail.EmailComposer
 
 import javax.inject.Inject
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.Try
 
 class WeeklyReportService @Inject() (

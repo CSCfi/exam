@@ -10,11 +10,11 @@ import models.exam.{Exam, Grade}
 import models.iop.CollaborativeExam
 import models.questions.{ClozeTestAnswer, Question}
 import models.user.{Role, User}
+import org.apache.pekko.stream.scaladsl.StreamConverters
 import play.api.Logging
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.*
-import org.apache.pekko.stream.scaladsl.StreamConverters
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
 import security.{Auth, BlockingIOExecutionContext}
@@ -27,7 +27,7 @@ import services.mail.EmailComposer
 import system.AuditedAction
 import system.interceptors.AnonymousHandler
 
-import java.io.{IOException, PipedInputStream, PipedOutputStream}
+import java.io.{PipedInputStream, PipedOutputStream}
 import java.net.{URI, URL}
 import javax.inject.Inject
 import scala.concurrent.Future

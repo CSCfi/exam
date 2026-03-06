@@ -7,7 +7,7 @@ package integration
 import base.BaseIntegrationSpec
 import org.joda.time.DateTime
 import play.api.http.Status
-import play.api.libs.json._
+import play.api.libs.json.*
 
 class ExamRecordInterfaceSpec extends BaseIntegrationSpec:
 

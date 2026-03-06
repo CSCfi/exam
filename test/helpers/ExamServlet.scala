@@ -14,7 +14,7 @@ import services.json.JsonDeserializer
 
 import java.io.IOException
 import scala.compiletime.uninitialized
-import scala.jdk.StreamConverters._
+import scala.jdk.StreamConverters.*
 
 class ExamServlet extends BaseServlet:
 
@@ -30,16 +30,15 @@ class ExamServlet extends BaseServlet:
   override protected def doGet(request: HttpServletRequest, response: HttpServletResponse): Unit =
     if exam == null then
       response.setStatus(HttpServletResponse.SC_NOT_FOUND)
-      return
-
-    val json = play.libs.Json.toJson(exam).asInstanceOf[ObjectNode]
-    json.put("_rev", 1)
-    RemoteServerHelper.writeJsonResponse(
-      response,
-      Json.parse(json.toString),
-      HttpServletResponse.SC_OK
-    )
-    waiter.resume()
+    else
+      val json = play.libs.Json.toJson(exam).asInstanceOf[ObjectNode]
+      json.put("_rev", 1)
+      RemoteServerHelper.writeJsonResponse(
+        response,
+        Json.parse(json.toString),
+        HttpServletResponse.SC_OK
+      )
+      waiter.resume()
 
   override protected def doPost(req: HttpServletRequest, resp: HttpServletResponse): Unit =
     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST)

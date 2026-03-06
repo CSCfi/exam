@@ -4,9 +4,9 @@
 
 package features.question.services
 
+import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
-import database.EbeanQueryExtensions
 import models.sections.{ExamMaterial, ExamSection}
 import models.user.User
 import play.api.libs.json.JsValue

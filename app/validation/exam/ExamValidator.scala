@@ -5,14 +5,14 @@
 package validation.exam
 
 import cats.data.ValidatedNel
-import cats.implicits._
+import cats.implicits.*
 import models.exam.Exam
-import play.api.libs.json._
-import validation.core._
+import play.api.libs.json.*
+import validation.core.*
 
 import java.util
 import java.util.Date
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** Exam-specific validator using the generic Validator framework. Provides different validation
   * profiles (forUpdate, forCreation) with different strictness levels.

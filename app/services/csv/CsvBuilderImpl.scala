@@ -4,9 +4,9 @@
 
 package services.csv
 
-import com.opencsv._
-import io.ebean.DB
+import com.opencsv.*
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.assessment.{Comment, ExamRecord, ExamScore}
 import models.exam.{Exam, Grade, GradeScale}
 import models.user.{Role, User}
@@ -17,10 +17,10 @@ import org.jsoup.safety.Safelist
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue}
 
-import java.io.{File, FileReader, OutputStream, OutputStreamWriter}
+import java.io.*
 import java.nio.charset.StandardCharsets
 import java.util.Date
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.{Try, Using}
 
 class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:

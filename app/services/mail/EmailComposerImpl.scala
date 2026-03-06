@@ -8,11 +8,10 @@ import biweekly.component.VEvent
 import biweekly.{Biweekly, ICalVersion, ICalendar}
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import EmailComposerImpl.DTF
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.assessment.LanguageInspection
-import models.enrolment._
+import models.enrolment.*
 import models.exam.{Exam, ExamExecutionType}
 import models.iop.CollaborativeExam
 import models.user.User
@@ -27,8 +26,8 @@ import services.file.FileHandler
 import java.io.{File, FileOutputStream, IOException}
 import java.util.Date
 import javax.inject.Inject
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.Using
 import scala.util.control.Exception.catching
 

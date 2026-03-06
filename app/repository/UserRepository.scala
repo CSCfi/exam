@@ -4,8 +4,8 @@
 
 package repository
 
-import io.ebean.{DB, Database}
 import database.EbeanQueryExtensions
+import io.ebean.{DB, Database}
 import models.user.User
 import security.BlockingIOExecutionContext
 

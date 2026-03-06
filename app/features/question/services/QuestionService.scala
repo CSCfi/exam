@@ -4,7 +4,6 @@
 
 package features.question.services
 
-import com.fasterxml.jackson.databind.JsonNode
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.question.services.QuestionError.*
 import io.ebean.text.PathProperties

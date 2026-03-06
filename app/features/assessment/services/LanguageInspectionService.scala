@@ -4,8 +4,8 @@
 
 package features.assessment.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.{DB, ExpressionList, FetchConfig}
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.assessment.{Comment, LanguageInspection}
 import models.exam.Exam
 import models.user.User
@@ -17,8 +17,8 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import javax.inject.Inject
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 class LanguageInspectionService @Inject() (
     private val emailComposer: EmailComposer

@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.io.Files
 import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.util.{GreenMail, ServerSetupTest}
+import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.json.EJson
-import database.EbeanQueryExtensions
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
 import models.facility.{ExamMachine, ExamRoom}
@@ -24,13 +24,13 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.http.Status
 import play.api.libs.json.{JsArray, JsObject, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.json.JsonDeserializer
 
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.UUID
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ExternalExaminationControllerSpec
     extends BaseIntegrationSpec

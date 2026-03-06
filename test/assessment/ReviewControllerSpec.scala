@@ -6,13 +6,13 @@
 package assessment
 
 import base.BaseIntegrationSpec
-import io.ebean.DB
 import database.EbeanQueryExtensions
+import io.ebean.DB
 import models.assessment.ExamInspection
 import models.exam.Exam
 import models.user.User
 import play.api.http.Status
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.mvc.Session
 
 class ReviewControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions:

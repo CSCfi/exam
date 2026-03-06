@@ -4,8 +4,8 @@
 
 package features.admin.services
 
+import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
-import database.{EbeanQueryExtensions, EbeanJsonExtensions}
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
 import models.user.User
@@ -17,7 +17,7 @@ import services.excel.ExcelBuilder
 
 import java.io.OutputStream
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)

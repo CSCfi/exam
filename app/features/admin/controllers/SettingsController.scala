@@ -4,11 +4,11 @@
 
 package features.admin.controllers
 
-import features.admin.services.SettingsService
 import database.EbeanJsonExtensions
+import features.admin.services.SettingsService
 import models.user.Role
-import play.api.libs.json._
-import play.api.mvc._
+import play.api.libs.json.*
+import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
 import security.BlockingIOExecutionContext
 import system.AuditedAction

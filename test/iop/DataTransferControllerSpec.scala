@@ -6,12 +6,12 @@ package iop
 
 import base.BaseIntegrationSpec
 import com.fasterxml.jackson.databind.ObjectMapper
+import database.EbeanQueryExtensions
 import helpers.RemoteServerHelper
 import helpers.RemoteServerHelper.ServletDef
 import io.ebean.DB
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import database.EbeanQueryExtensions
 import models.attachment.Attachment
 import models.questions.{Question, Tag}
 import models.user.User
@@ -21,7 +21,7 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.http.Status
 import play.api.libs.json.{JsArray, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
 import java.io.{File, IOException}
 import java.util.Objects
