@@ -41,7 +41,7 @@ SPDX-License-Identifier: EUPL-1.2
 
     <!-- Sections -->
     @if (exam()?.examSections) {
-        @for (section of exam()!.examSections | orderBy: 'sequenceNumber'; track section; let index = $index) {
+        @for (section of exam()!.examSections | orderBy: 'sequenceNumber'; track section.id; let index = $index) {
             <xm-r-section
                 [section]="section"
                 [participation]="participation()!"

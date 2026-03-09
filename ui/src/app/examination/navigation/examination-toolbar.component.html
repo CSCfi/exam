@@ -82,7 +82,7 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
 
-        @for (section of exam().examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
+        @for (section of exam().examSections | orderBy: 'sequenceNumber'; track section.id; let i = $index) {
             <div
                 class="row mt-3 ms-2 align-items-center phase-box"
                 [ngClass]="activeSection()?.sequenceNumber === i ? '' : 'notactive'"
