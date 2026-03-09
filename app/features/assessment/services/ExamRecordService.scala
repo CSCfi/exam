@@ -19,7 +19,7 @@ import services.excel.ExcelBuilder
 import services.file.FileHandler
 import services.mail.EmailComposer
 
-import java.util.Base64
+import java.io.OutputStream
 import javax.inject.Inject
 import scala.concurrent.duration._
 import scala.util._
@@ -86,44 +86,19 @@ class ExamRecordService @Inject() (
             Right(())
       case None => Left(ExamRecordError.ExamNotFound)
 
-  def exportExamRecordsAsCsv(start: Long, end: Long): Either[ExamRecordError, (String, String)] =
-    Try(csvBuilder.build(start, end)) match
-      case Success(file) =>
-        val contentDisposition = fileHandler.getContentDisposition(file)
-        fileHandler.encodeAndDelete(file).left.map { error =>
-          logger.error(s"Failed to encode and delete file: $error")
-          ExamRecordError.ErrorCreatingCsvFile
-        }.map(content => (content, contentDisposition))
-      case Failure(ex) =>
-        logger.error("Error creating CSV file", ex)
-        Left(ExamRecordError.ErrorCreatingCsvFile)
+  /** Streams exam records CSV (by date range) to the given output stream. Caller must close the
+    * stream.
+    */
+  def streamExamRecordsAsCsvByDate(start: Long, end: Long)(os: OutputStream): Unit =
+    csvBuilder.streamExamRecordsByDate(start, end)(os)
 
-  def exportSelectedExamRecordsAsCsv(
-      examId: Long,
-      ids: List[Long]
-  ): Either[ExamRecordError, (String, String)] =
-    Try(csvBuilder.build(examId, ids)) match
-      case Success(file) =>
-        val contentDisposition = fileHandler.getContentDisposition(file)
-        fileHandler.encodeAndDelete(file).left.map { error =>
-          logger.error(s"Failed to encode and delete file: $error")
-          ExamRecordError.ErrorCreatingCsvFile
-        }.map(content => (content, contentDisposition))
-      case Failure(ex) =>
-        logger.error("Error creating CSV file", ex)
-        Left(ExamRecordError.ErrorCreatingCsvFile)
+  /** Streams selected exam records CSV to the given output stream. Caller must close the stream. */
+  def streamSelectedExamRecordsAsCsv(examId: Long, ids: List[Long])(os: OutputStream): Unit =
+    csvBuilder.streamExamRecords(examId, ids)(os)
 
-  def exportSelectedExamRecordsAsExcel(
-      examId: Long,
-      ids: List[Long]
-  ): Either[ExamRecordError, String] =
-    Using(excelBuilder.build(examId, ids)) { bos =>
-      Base64.getEncoder.encodeToString(bos.toByteArray)
-    } match
-      case Success(content) => Right(content)
-      case Failure(ex) =>
-        logger.error("Error creating Excel file", ex)
-        Left(ExamRecordError.ErrorCreatingExcelFile)
+  /** Streams the exam records Excel to the given output stream. Caller must close the stream. */
+  def streamSelectedExamRecordsAsExcel(examId: Long, ids: List[Long])(os: OutputStream): Unit =
+    excelBuilder.streamExamRecords(examId, ids)(os)
 
   private def validateExamState(
       exam: Exam,

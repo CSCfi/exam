@@ -51,8 +51,7 @@ export class RecordsReportComponent {
             ? new Date(this.endDate()!).setHours(23, 59, 59, 999)
             : new Date().setHours(23, 59, 59, 999);
         this.files.download('/app/exam/record', 'examrecords.csv', {
-            start: start.toString(),
-            end: end.toString(),
+            params: { start: start.toString(), end: end.toString() },
         });
     }
 

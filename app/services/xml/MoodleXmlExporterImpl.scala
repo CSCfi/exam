@@ -7,7 +7,8 @@ package services.xml
 import models.questions.{MultipleChoiceOption, Question, Tag}
 import org.jsoup.Jsoup
 
-import java.io.File
+import java.io.{File, OutputStream, OutputStreamWriter}
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.Base64
 import scala.io.Source
@@ -134,3 +135,12 @@ class MoodleXmlExporterImpl extends MoodleXmlExporter:
     XML.write(writer, doc, "utf-8", xmlDecl = true, doctype = null)
     writer.close()
     writer.toString
+
+  override def writeToStream(questions: Seq[Question])(os: OutputStream): Unit =
+    val quiz: Node =
+      <quiz>
+          {questions.map(convert)}
+      </quiz>
+    val writer = new OutputStreamWriter(os, StandardCharsets.UTF_8)
+    XML.write(writer, quiz, "utf-8", xmlDecl = true, doctype = null)
+    writer.flush()

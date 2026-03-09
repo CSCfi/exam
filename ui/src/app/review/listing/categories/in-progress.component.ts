@@ -110,11 +110,9 @@ export class InProgressReviewsComponent {
         return this.modal
             .open$<{ $value: { start: string; end: string } }>(ArchiveDownloadComponent)
             .subscribe((params) =>
-                this.Files.download(
-                    `/app/exam/${currentExam.id}/attachments`,
-                    `${currentExam.id}.tar.gz`,
-                    params.$value,
-                ),
+                this.Files.download(`/app/exam/${currentExam.id}/attachments`, `${currentExam.id}.tar.gz`, {
+                    params: params.$value,
+                }),
             );
     }
 

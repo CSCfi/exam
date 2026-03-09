@@ -82,6 +82,6 @@ export class ExamFeedbackComponent {
     downloadScoreReport() {
         const assessment = this.assessment();
         const url = `/app/feedback/exams/${assessment.id}/report`;
-        this.Files.download(url, `${assessment.name}_${DateTime.now().toFormat('dd-LL-yyyy')}.xlsx`, undefined, false);
+        this.Files.download(url, `${assessment.name}_${DateTime.now().toFormat('dd-LL-yyyy')}.xlsx`);
     }
 }

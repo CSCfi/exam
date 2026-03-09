@@ -90,7 +90,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         return `${effectiveCount} (${totalCount})`;
     };
 
-    calcAverage = (ns?: number[]) => (ns || []).reduce((a, b) => a + b, 0) / (ns?.length || 1);
+    calculateAverage = (ns?: number[]) => (ns || []).reduce((a, b) => a + b, 0) / (ns?.length || 1);
 
     getAverageTime = () => {
         const durations = this.reviews.map((r) => this.ReviewList.diffInMinutes(r.started, r.ended));
@@ -104,8 +104,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
             this.Files.download(
                 url,
                 this.translate.instant('i18n_grading_info') + '_' + DateTime.now().toFormat('dd-MM-yyyy') + '.xlsx',
-                { ids: ids },
-                true,
+                { params: { ids: ids }, method: 'POST' },
             );
         }
     };

@@ -153,7 +153,8 @@ export class AttachmentService {
     }
 
     downloadCollaborativeAttachment(id: string, fileName: string) {
-        this.Files.download(`/app/iop/collab/attachment/${id}`, fileName);
+        // Backend streams Base64-encoded chunks (proxy to external API); must decode as text
+        this.Files.download(`/app/iop/collab/attachment/${id}`, fileName, { asBlob: false });
     }
 
     downloadExamAttachment(exam: Exam, collaborative = false) {

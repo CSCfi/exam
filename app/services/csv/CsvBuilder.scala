@@ -9,18 +9,24 @@ import com.opencsv.exceptions.CsvException
 import models.user.{Role, User}
 import play.api.libs.json.JsValue
 
-import java.io.File
+import java.io.{File, OutputStream}
 
 @ImplementedBy(classOf[CsvBuilderImpl])
 trait CsvBuilder:
-  @throws[java.io.IOException]
-  def build(startDate: Long, endDate: Long): File
+  /** Streams CSV (exam records by date range) to the given output stream. Caller must close the
+    * stream.
+    */
+  def streamExamRecordsByDate(startDate: Long, endDate: Long)(os: OutputStream): Unit
 
-  @throws[java.io.IOException]
-  def build(examId: Long, childIds: List[Long]): File
+  /** Streams CSV (exam records for given exam/children) to the given output stream. Caller must
+    * close the stream.
+    */
+  def streamExamRecords(examId: Long, childIds: List[Long])(os: OutputStream): Unit
 
-  @throws[java.io.IOException]
-  def build(node: JsValue): File
+  /** Streams CSV (assessments from JSON array) to the given output stream. Caller must close the
+    * stream.
+    */
+  def streamAssessments(node: JsValue)(os: OutputStream): Unit
 
   @throws[java.io.IOException]
   @throws[CsvException]

@@ -135,8 +135,7 @@ export class ArchivedReviewsComponent {
         this.Files.download(
             url + this.exam().id,
             `${this.Translate.instant('i18n_grading_info')}_${DateTime.now().toFormat('dd-MM-yyyy')}.xlsx`,
-            { ids: ids },
-            true,
+            { params: { ids: ids }, method: 'POST' },
         );
     }
 

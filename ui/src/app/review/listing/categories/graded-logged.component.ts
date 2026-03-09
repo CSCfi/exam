@@ -166,8 +166,7 @@ export class GradedLoggedReviewsComponent {
         this.Files.download(
             url + this.exam().id,
             `${this.translate.instant('i18n_grading_info')}_${DateTime.now().toFormat('dd-MM-yyyy')}.${fileType}`,
-            { ids: ids },
-            true,
+            { params: { ids: ids }, method: 'POST' },
         );
     }
 

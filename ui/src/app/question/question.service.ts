@@ -8,7 +8,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import {
@@ -59,10 +58,10 @@ export class QuestionService {
             tap(() => this.toast.info(this.translate.instant('i18n_question_added'))),
             switchMap((response) => {
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
-                    return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
+                    return this.Files.upload$<Question>('/app/attachment/question', question.attachment.file, {
                         questionId: response.id.toString(),
                     }).pipe(
-                        tap((resp) => (question.attachment = resp)),
+                        tap((resp) => (question.attachment = resp.attachment)),
                         map(() => response),
                     );
                 }
@@ -75,10 +74,10 @@ export class QuestionService {
             tap(() => this.toast.info(this.translate.instant('i18n_question_saved'))),
             switchMap((response) => {
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
-                    return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
+                    return this.Files.upload$<Question>('/app/attachment/question', question.attachment.file, {
                         questionId: question.id.toString(),
                     }).pipe(
-                        tap((resp) => (question.attachment = resp)),
+                        tap((resp) => (question.attachment = resp.attachment)),
                         map(() => response),
                     );
                 } else if (question.attachment && question.attachment.removed) {
@@ -121,11 +120,11 @@ export class QuestionService {
                 tap((response) => Object.assign(response.question, question)),
                 switchMap((response) => {
                     if (question.attachment && question.attachment.modified && question.attachment.file) {
-                        return this.Files.upload$<Attachment>('/app/attachment/question', question.attachment.file, {
+                        return this.Files.upload$<Question>('/app/attachment/question', question.attachment.file, {
                             questionId: question.id.toString(),
                         }).pipe(
                             tap((resp) => {
-                                question.attachment = resp;
+                                question.attachment = resp.attachment;
                                 response.question.attachment = question.attachment;
                             }),
                             map(() => response),

@@ -3,7 +3,15 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { NgClass } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    effect,
+    inject,
+    input,
+} from '@angular/core';
 import { ControlContainer, FormControl, FormGroup, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,6 +32,7 @@ export class AdditionalInfoComponent implements AfterViewInit {
     additionalInfoForm: FormGroup;
     private parentForm = inject(FormGroupDirective);
     private Attachment = inject(AttachmentService);
+    private cdr = inject(ChangeDetectorRef);
 
     constructor() {
         // Create form group for additional info
@@ -62,6 +71,7 @@ export class AdditionalInfoComponent implements AfterViewInit {
                     file: data.$value.attachmentFile,
                     removed: false,
                 };
+                this.cdr.markForCheck();
             }
         });
     }

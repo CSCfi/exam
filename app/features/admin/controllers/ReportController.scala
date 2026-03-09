@@ -7,6 +7,7 @@ package features.admin.controllers
 import features.admin.services.ReportService
 import database.EbeanJsonExtensions
 import models.user.Role
+import org.apache.pekko.stream.scaladsl.StreamConverters
 import play.api.libs.json.Json
 import play.api.mvc._
 import security.Auth.authorized
@@ -15,9 +16,9 @@ import system.AuditedAction
 import validation.CommaJoinedListValidator
 import validation.core.{ScalaAttrs, Validators}
 
-import java.util.Base64
+import java.io.{PipedInputStream, PipedOutputStream}
 import javax.inject.Inject
-import scala.util.{Failure, Success}
+import scala.concurrent.Future
 
 class ReportController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -90,14 +91,18 @@ class ReportController @Inject() (
     Action
       .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER)))
       .andThen(validators.validated(CommaJoinedListValidator))
-      .andThen(audited) { request =>
+      .andThen(audited)
+      .async { request =>
         val childIds = request.attrs(ScalaAttrs.ID_LIST)
-        reportService.exportExamQuestionScoresAsExcel(examId, childIds) match
-          case Success(data) =>
-            val encoded = Base64.getEncoder.encodeToString(data)
-            Ok(encoded)
-              .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.xlsx\"")
-              .as(XLSX_MIME)
-          case Failure(_) =>
-            InternalServerError("i18n_error_creating_csv_file")
+        val pos      = new PipedOutputStream()
+        val pis      = new PipedInputStream(pos)
+        Future {
+          try reportService.streamExamQuestionScoresAsExcel(examId, childIds)(pos)
+          finally pos.close()
+        }(using ec)
+        Future.successful(
+          Ok.chunked(StreamConverters.fromInputStream(() => pis))
+            .as(XLSX_MIME)
+            .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.xlsx\"")
+        )
       }

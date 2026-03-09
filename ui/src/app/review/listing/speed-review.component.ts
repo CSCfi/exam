@@ -9,7 +9,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin, throwError } from 'rxjs';
@@ -214,7 +213,7 @@ export class SpeedReviewComponent {
 
         const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
         const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
-        saveAs(blob, 'grading.csv', { autoBom: false });
+        this.Files.downloadBlob(blob, 'grading.csv');
     }
 
     private reload() {

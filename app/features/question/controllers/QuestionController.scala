@@ -7,6 +7,7 @@ package features.question.controllers
 import database.EbeanJsonExtensions
 import features.question.services.{QuestionError, QuestionService}
 import models.user.Role
+import org.apache.pekko.stream.scaladsl.StreamConverters
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.JsValue
 import play.api.mvc.*
@@ -16,7 +17,9 @@ import system.AuditedAction
 import validation.core.Validators
 import validation.question.QuestionTextValidator
 
+import java.io.{PipedInputStream, PipedOutputStream}
 import javax.inject.Inject
+import scala.concurrent.Future
 import scala.util.Using
 
 class QuestionController @Inject() (
@@ -129,11 +132,19 @@ class QuestionController @Inject() (
       .andThen(authenticated)
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN, Role.Name.SUPPORT)))(
         parse.json
-      ) { request =>
-        val document = questionService.exportQuestions(request.body)
-        Ok(document)
-          .withHeaders("Content-Disposition" -> "attachment; filename=\"moodle-quiz.xml\"")
-          .as("application/xml")
+      )
+      .async { request =>
+        val pos = new PipedOutputStream()
+        val pis = new PipedInputStream(pos)
+        Future {
+          try questionService.streamExportQuestions(request.body)(pos)
+          finally pos.close()
+        }(using ec)
+        Future.successful(
+          Ok.chunked(StreamConverters.fromInputStream(() => pis))
+            .as("application/xml")
+            .withHeaders("Content-Disposition" -> "attachment; filename=\"moodle-quiz.xml\"")
+        )
       }
 
   def importQuestions(): Action[MultipartFormData[TemporaryFile]] =

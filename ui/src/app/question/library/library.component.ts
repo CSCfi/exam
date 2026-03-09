@@ -198,12 +198,10 @@ export class LibraryComponent {
         if (selectionsValue.length === 0) {
             this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
         } else {
-            this.Files.download(
-                '/app/questions/export',
-                'moodle-export.xml',
-                { ids: selectionsValue.map((s) => s.toString()) },
-                true,
-            );
+            this.Files.download('/app/questions/export', 'moodle-export.xml', {
+                params: { ids: selectionsValue.map((s) => s.toString()) },
+                method: 'POST',
+            });
         }
     }
 

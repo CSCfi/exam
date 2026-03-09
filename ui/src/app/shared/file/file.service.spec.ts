@@ -59,49 +59,66 @@ describe('FileService', () => {
     });
 
     describe('download', () => {
-        /**
-         * NOTE: These two tests are skipped due to jsdom limitations with URL.createObjectURL.
-         *
-         * The download method uses file-saver-es which internally calls URL.createObjectURL
-         * when a successful response with Content-Type is received. jsdom doesn't support this
-         * API, causing unhandled errors in async callbacks after tests complete.
-         *
-         * The download functionality is tested indirectly through integration tests.
-         * To re-enable these tests, either:
-         * 1. Use a test environment with better File API support (e.g., happy-dom)
-         * 2. Properly mock file-saver-es at the module level before bundling
-         * 3. Wait for jsdom to implement URL.createObjectURL support
-         */
-        it.skip('should download file using GET method', () => {
+        let createObjectURL: ReturnType<typeof vi.fn>;
+        let revokeObjectURL: ReturnType<typeof vi.fn>;
+
+        beforeEach(() => {
+            createObjectURL = vi.fn(() => 'blob:mock-url');
+            revokeObjectURL = vi.fn();
+            vi.stubGlobal('URL', {
+                createObjectURL,
+                revokeObjectURL,
+            });
+            vi.spyOn(console, 'log').mockImplementation(() => {});
+            const realCreateElement = document.createElement.bind(document);
+            vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+                const el = realCreateElement(tagName);
+                if (tagName.toLowerCase() === 'a') {
+                    (el as HTMLAnchorElement).click = vi.fn();
+                }
+                return el;
+            });
+        });
+
+        afterEach(() => {
+            vi.restoreAllMocks();
+            vi.unstubAllGlobals();
+        });
+
+        it('should download file using GET method', () => {
             const url = '/api/files/download';
             const filename = 'test.pdf';
             const params = { id: '123' };
             const mockData = btoa('test file content');
 
-            service.download(url, filename, params, false);
+            service.download(url, filename, { params });
 
             const req = httpMock.expectOne((request) => request.url === url && request.method === 'GET');
             expect(req.request.params.get('id')).toBe('123');
 
-            req.flush(mockData, {
+            req.flush(new Blob([mockData]), {
                 headers: { 'Content-Type': 'application/pdf; charset=utf-8' },
             });
+
+            expect(createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
         });
 
-        it.skip('should download file using POST method', () => {
+        it('should download file using POST method', () => {
             const url = '/api/files/download';
             const filename = 'test.pdf';
             const params = { id: '123' };
             const mockData = btoa('test file content');
 
-            service.download(url, filename, params, true);
+            service.download(url, filename, { params, method: 'POST' });
 
             const req = httpMock.expectOne((request) => request.url === url && request.method === 'POST');
             expect(req.request.body).toEqual({ params });
 
-            req.flush(mockData, {
+            req.flush(new Blob([mockData]), {
                 headers: { 'Content-Type': 'application/pdf' },
             });
+
+            expect(createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
         });
 
         it('should handle download error', () => {
@@ -111,7 +128,7 @@ describe('FileService', () => {
             service.download(url, filename);
 
             const req = httpMock.expectOne(url);
-            req.flush('Error message', { status: 500, statusText: 'Server Error' });
+            req.flush(new Blob(['Error message']), { status: 500, statusText: 'Server Error' });
 
             expect(toastService.error).toHaveBeenCalled();
         });
@@ -125,7 +142,6 @@ describe('FileService', () => {
             const req = httpMock.expectOne(url);
             req.flush(null);
 
-            // Should not throw error
             expect(toastService.error).not.toHaveBeenCalled();
         });
 
@@ -137,10 +153,10 @@ describe('FileService', () => {
             service.download(url, filename);
 
             const req = httpMock.expectOne(url);
-            req.flush(mockData);
+            req.flush(new Blob([mockData]));
 
-            // Should not throw error
             expect(toastService.error).not.toHaveBeenCalled();
+            expect(createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
         });
     });
 

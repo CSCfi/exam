@@ -14,6 +14,7 @@ import play.api.Logging
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.*
+import org.apache.pekko.stream.scaladsl.StreamConverters
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
 import security.{Auth, BlockingIOExecutionContext}
@@ -26,7 +27,7 @@ import services.mail.EmailComposer
 import system.AuditedAction
 import system.interceptors.AnonymousHandler
 
-import java.io.IOException
+import java.io.{IOException, PipedInputStream, PipedOutputStream}
 import java.net.{URI, URL}
 import javax.inject.Inject
 import scala.concurrent.Future
@@ -253,18 +254,17 @@ class CollaborativeReviewController @Inject() (
                   val filteredArray = play.api.libs.json.JsArray(filtered)
                   CollaborativeExamProcessingService.calculateScores(filteredArray)
 
-                  Try {
-                    val file               = csvBuilder.build(filteredArray)
-                    val contentDisposition = fileHandler.getContentDisposition(file)
-                    fileHandler.encodeAndDelete(file) match
-                      case Left(error) =>
-                        logger.error(s"Failed to encode and delete file: $error")
-                        throw new IOException("Failed to encode and delete file")
-                      case Right(content) =>
-                        Ok(content).withHeaders("Content-Disposition" -> contentDisposition)
-                  }.recover { case _: IOException =>
-                    InternalServerError("i18n_error_creating_csv_file")
-                  }.get
+                  val pos = new PipedOutputStream()
+                  val pis = new PipedInputStream(pos)
+                  Future {
+                    try csvBuilder.streamAssessments(filteredArray)(pos)
+                    finally pos.close()
+                  }(using ec)
+                  Ok.chunked(StreamConverters.fromInputStream(() => pis))
+                    .as("text/csv")
+                    .withHeaders(
+                      "Content-Disposition" -> "attachment; filename=\"assessments.csv\""
+                    )
               }
       }
     }

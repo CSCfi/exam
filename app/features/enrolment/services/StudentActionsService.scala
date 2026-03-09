@@ -20,15 +20,12 @@ import security.BlockingIOExecutionContext
 import services.config.{ByodConfigHandler, ConfigReader}
 import services.exam.ExternalCourseHandler
 import services.excel.ExcelBuilder
-import services.file.FileHandler
 import services.user.UserHandler
 
-import java.io.{File, FileOutputStream}
-import java.util.Base64
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
-import scala.util.{Try, Using}
+import scala.util.Try
 
 class StudentActionsService @Inject() (
     private val externalCourseHandler: ExternalCourseHandler,
@@ -37,7 +34,6 @@ class StudentActionsService @Inject() (
     private val configReader: ConfigReader,
     private val byodConfigHandler: ByodConfigHandler,
     private val userHandler: UserHandler,
-    private val fileHandler: FileHandler,
     private val excelBuilder: ExcelBuilder,
     private val messagesApi: MessagesApi,
     implicit private val ec: BlockingIOExecutionContext
@@ -46,7 +42,6 @@ class StudentActionsService @Inject() (
     with Logging:
 
   private val permCheckActive = configReader.isEnrolmentPermissionCheckActive
-  private val XLSX_MIME       = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
   def getExamFeedback(examId: Long, user: User): Option[Exam] =
     DB.find(classOf[Exam])
@@ -103,7 +98,13 @@ class StudentActionsService @Inject() (
         exam
       }
 
-  def getExamScoreReport(examId: Long, user: User): Either[StudentActionsError, FileResponse] =
+  /** Returns a writer that streams the student score report to the given output stream, or Left if
+    * exam/student not found.
+    */
+  def streamExamScoreReport(
+      examId: Long,
+      user: User
+  ): Either[StudentActionsError.ExamNotFound.type, java.io.OutputStream => Unit] =
     DB.find(classOf[Exam])
       .fetch("examParticipation.user")
       .fetch("examSections.sectionQuestions.question")
@@ -124,16 +125,7 @@ class StudentActionsService @Inject() (
       case Some(exam)
           if Option(exam.getExamParticipation).exists(p => Option(p.getUser).isDefined) =>
         val student = exam.getExamParticipation.getUser
-        Using(excelBuilder.buildStudentReport(exam, student, messagesApi.asJava)) { bos =>
-          FileResponse(
-            content = Base64.getEncoder.encodeToString(bos.toByteArray),
-            contentType = XLSX_MIME,
-            fileName = "exam_records.xlsx"
-          )
-        }.fold(
-          _ => Left(StudentActionsError.ErrorCreatingExcelFile),
-          result => Right(result)
-        )
+        Right(os => excelBuilder.streamStudentReport(exam, student, messagesApi.asJava)(os))
       case _ => Left(StudentActionsError.ExamNotFound)
 
   private def getNoShows(user: User, filter: Option[String]): Set[ExamEnrolment] =
@@ -246,7 +238,13 @@ class StudentActionsService @Inject() (
   def getEnrolmentsForUser(user: User): Future[List[ExamEnrolment]] =
     enrolmentRepository.getStudentEnrolments(user)
 
-  def getExamConfigFile(enrolmentId: Long, user: User): Either[StudentActionsError, FileResponse] =
+  /** Returns a writer that streams the exam config (.seb) to the given output stream, and the
+    * suggested filename, or Left if not available.
+    */
+  def streamExamConfigFile(
+      enrolmentId: Long,
+      user: User
+  ): Either[StudentActionsError, (java.io.OutputStream => Unit, String)] =
     DB.find(classOf[ExamEnrolment])
       .where()
       .idEq(enrolmentId)
@@ -260,48 +258,25 @@ class StudentActionsService @Inject() (
         val examName     = enrolment.getExam.getName
         val eec          = enrolment.getExaminationEventConfiguration
         val baseFileName = examName.replace(" ", "-")
+        val fileName     = s"$baseFileName.seb"
         val quitPassword =
           byodConfigHandler.getPlaintextPassword(
             eec.getEncryptedQuitPassword,
             eec.getQuitPasswordSalt
           )
-
-        val file = File.createTempFile(baseFileName, ".seb")
         Try {
-          Using(new FileOutputStream(file)) { fos =>
-            val data = byodConfigHandler.getExamConfig(
-              eec.getHash,
-              eec.getEncryptedSettingsPassword,
-              eec.getSettingsPasswordSalt,
-              quitPassword
-            )
-            fos.write(data)
-          }.get
-          val contentDisposition = fileHandler.getContentDisposition(file)
-          fileHandler.read(file).left.map { error =>
-            file.delete()
-            logger.error(s"Failed to read file: $error")
-            StudentActionsError.ErrorCreatingConfigFile
-          }.map { data =>
-            val body = Base64.getEncoder.encodeToString(data)
-            // Extract filename from Content-Disposition header (format: "attachment; filename=\"...\"")
-            val extractedFileName = contentDisposition
-              .split("filename=")
-              .lastOption
-              .map(_.replace("\"", "").trim)
-              .getOrElse(s"$baseFileName.seb")
-            file.delete()
-            FileResponse(
-              content = body,
-              contentType = "application/octet-stream",
-              fileName = extractedFileName
-            )
-          }
+          val data = byodConfigHandler.getExamConfig(
+            eec.getHash,
+            eec.getEncryptedSettingsPassword,
+            eec.getSettingsPasswordSalt,
+            quitPassword
+          )
+          val writer: java.io.OutputStream => Unit = os => os.write(data)
+          (writer, fileName)
         }.toEither.left.map { ex =>
-          file.delete()
           logger.error("Error creating config file", ex)
           StudentActionsError.ErrorCreatingConfigFile
-        }.flatMap(identity)
+        }
 
   def getExamInfo(examId: Long, user: User): Option[Exam] =
     DB.find(classOf[Exam])

@@ -14,14 +14,13 @@ import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.User
 import org.apache.poi.common.usermodel.HyperlinkType
 import org.apache.poi.ss.usermodel._
-import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.apache.poi.xssf.streaming.SXSSFWorkbook
 import play.i18n.{Lang, MessagesApi}
 import services.config.ConfigReader
 
-import java.io.ByteArrayOutputStream
+import java.io.OutputStream
 import javax.inject.Inject
 import scala.jdk.CollectionConverters._
-import scala.util.Using
 
 class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuilder:
 
@@ -36,8 +35,12 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     "submissionId"
   )
 
-  override def build(examId: Long, childIds: List[Long]): ByteArrayOutputStream =
-    val examRecords = DB
+  override def streamExamRecords(examId: Long, childIds: List[Long])(os: OutputStream): Unit =
+    val examRecords = fetchExamRecords(examId, childIds)
+    streamTo(os)(wb => buildExamRecordsSheet(wb, examRecords))
+
+  private def fetchExamRecords(examId: Long, childIds: List[Long]): List[ExamRecord] =
+    DB
       .find(classOf[ExamRecord])
       .fetch("examScore")
       .where()
@@ -47,226 +50,206 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       .asScala
       .toList
 
-    Using.resource(new XSSFWorkbook()) { wb =>
-      val sheet     = wb.createSheet("Exam records")
-      val headers   = ExamScore.getHeaders
-      val headerRow = sheet.createRow(0)
-
-      headers.indices.foreach(i => headerRow.createCell(i).setCellValue(headers(i)))
-
-      examRecords.zipWithIndex.foreach { case (record, index) =>
-        val data = record.getExamScore.asCells(record.getStudent, record.getTeacher, record.getExam)
-        val dataRow = sheet.createRow(index + 1)
-
-        data.asScala.zipWithIndex.foreach { case (entry, cellIndex) =>
-          val cell = dataRow.createCell(cellIndex)
-          val cellType = entry._2 match
-            case assessment.ExamScore.CellType.DECIMAL => CellType.DECIMAL
-            case assessment.ExamScore.CellType.STRING  => CellType.STRING
-          setValue(cell, entry._1, cellType)
-        }
+  private def buildExamRecordsSheet(wb: Workbook, examRecords: List[ExamRecord]): Unit =
+    val sheet     = wb.createSheet("Exam records")
+    val headers   = ExamScore.getHeaders
+    val headerRow = sheet.createRow(0)
+    headers.indices.foreach(i => headerRow.createCell(i).setCellValue(headers(i)))
+    examRecords.zipWithIndex.foreach { case (record, index) =>
+      val data = record.getExamScore.asCells(record.getStudent, record.getTeacher, record.getExam)
+      val dataRow = sheet.createRow(index + 1)
+      data.asScala.zipWithIndex.foreach { case (entry, cellIndex) =>
+        val cell = dataRow.createCell(cellIndex)
+        val cellType = entry._2 match
+          case assessment.ExamScore.CellType.DECIMAL => CellType.DECIMAL
+          case assessment.ExamScore.CellType.STRING  => CellType.STRING
+        setValue(cell, entry._1, cellType)
       }
-
-      // Auto-size columns
-      headers.indices.foreach(i => sheet.autoSizeColumn(i, true))
-
-      val bos = new ByteArrayOutputStream()
-      wb.write(bos)
-      bos
     }
+    headers.indices.foreach(i => sheet.autoSizeColumn(i, true))
 
-  override def buildStudentReport(
+  override def streamStudentReport(
       exam: Exam,
       student: User,
       messages: MessagesApi
-  ): ByteArrayOutputStream =
+  )(os: OutputStream): Unit =
+    streamTo(os)(wb => buildStudentReportSheet(wb, exam, student, messages))
+
+  private def buildStudentReportSheet(
+      wb: Workbook,
+      exam: Exam,
+      student: User,
+      messages: MessagesApi
+  ): Unit =
     val lang = Option(student.getLanguage)
       .flatMap(l => Option(l.getCode))
       .map(Lang.forCode)
       .getOrElse(Lang.forCode("en"))
 
-    Using.resource(new XSSFWorkbook()) { wb =>
-      val sheet          = wb.createSheet(messages.get(lang, "reports.scores"))
-      val defaultHeaders = getStudentReportHeaderMap(student)
-      val headerRow      = sheet.createRow(0)
-      val valueRow       = sheet.createRow(sheet.getLastRowNum + 1)
+    val sheet          = wb.createSheet(messages.get(lang, "reports.scores"))
+    val defaultHeaders = getStudentReportHeaderMap(student)
+    val headerRow      = sheet.createRow(0)
+    val valueRow       = sheet.createRow(sheet.getLastRowNum + 1)
 
-      // Add default headers and values
-      defaultHeaders.foreach { case (header, value) =>
-        appendCell(headerRow, messages.get(lang, header))
-        appendCell(valueRow, value)
-      }
-
-      // Add question scores
-      exam.getExamSections.asScala.toList.sorted.foreach { es =>
-        es.getSectionQuestions.asScala.toList.sorted.zipWithIndex.foreach {
-          case (esq, questionIndex) =>
-            val questionNumber = questionIndex + 1
-            val questionType = esq.getQuestion.getType match
-              case Question.Type.EssayQuestion => messages.get(lang, "reports.question.type.essay")
-              case Question.Type.ClozeTestQuestion =>
-                messages.get(lang, "reports.question.type.cloze")
-              case Question.Type.MultipleChoiceQuestion =>
-                messages.get(lang, "reports.question.type.multiplechoice")
-              case Question.Type.WeightedMultipleChoiceQuestion =>
-                messages.get(lang, "reports.question.type.weightedmultiplechoide")
-              case Question.Type.ClaimChoiceQuestion =>
-                messages.get(lang, "reports.question.type.claim")
-
-            appendCell(
-              headerRow,
-              s"${messages.get(lang, "reports.question")} $questionNumber: $questionType"
-            )
-
-            val (scoreValue, scoreType) = getScoreTuple(esq)
-            val valueCell               = valueRow.createCell(valueRow.getLastCellNum)
-            setValue(valueCell, scoreValue, scoreType)
-        }
-
-        appendCell(headerRow, messages.get(lang, "reports.scores.sectionScore", es.getName))
-        appendCell(valueRow, es.getTotalScore)
-      }
-
-      appendCell(headerRow, messages.get(lang, "reports.scores.totalScore"))
-      appendCell(valueRow, exam.getTotalScore)
-
-      autosizeColumns(headerRow, sheet)
-
-      val bos = new ByteArrayOutputStream()
-      wb.write(bos)
-      bos
+    defaultHeaders.foreach { case (header, value) =>
+      appendCell(headerRow, messages.get(lang, header))
+      appendCell(valueRow, value)
     }
 
-  override def buildScoreExcel(examId: Long, childIds: List[Long]): ByteArrayOutputStream =
-    Using.resource(new XSSFWorkbook()) { wb =>
-      val sheet    = wb.createSheet("Question scores")
-      val hostname = configReader.getHostName
+    exam.getExamSections.asScala.toList.sorted.foreach { es =>
+      es.getSectionQuestions.asScala.toList.sorted.zipWithIndex.foreach {
+        case (esq, questionIndex) =>
+          val questionNumber = questionIndex + 1
+          val questionType = esq.getQuestion.getType match
+            case Question.Type.EssayQuestion => messages.get(lang, "reports.question.type.essay")
+            case Question.Type.ClozeTestQuestion =>
+              messages.get(lang, "reports.question.type.cloze")
+            case Question.Type.MultipleChoiceQuestion =>
+              messages.get(lang, "reports.question.type.multiplechoice")
+            case Question.Type.WeightedMultipleChoiceQuestion =>
+              messages.get(lang, "reports.question.type.weightedmultiplechoide")
+            case Question.Type.ClaimChoiceQuestion =>
+              messages.get(lang, "reports.question.type.claim")
 
-      // Create cell style for hyperlinks
-      val linkStyle = wb.createCellStyle()
-      val linkFont  = wb.createFont()
-      linkFont.setColor(IndexedColors.BLUE.getIndex)
-      linkFont.setUnderline(Font.U_SINGLE)
-      linkStyle.setFont(linkFont)
+          appendCell(
+            headerRow,
+            s"${messages.get(lang, "reports.question")} $questionNumber: $questionType"
+          )
 
-      val parentExam = Option(
-        DB.find(classOf[Exam])
-          .fetch("examSections.sectionQuestions.question")
-          .where()
-          .eq("id", examId)
-          .findOneOrEmpty()
-          .orElse(null)
-      ).getOrElse(throw new RuntimeException("parent exam not found"))
+          val (scoreValue, scoreType) = getScoreTuple(esq)
+          val valueCell               = valueRow.createCell(valueRow.getLastCellNum)
+          setValue(valueCell, scoreValue, scoreType)
+      }
 
-      val childExams = DB
-        .find(classOf[Exam])
-        .fetch("examParticipation.user")
+      appendCell(headerRow, messages.get(lang, "reports.scores.sectionScore", es.getName))
+      appendCell(valueRow, es.getTotalScore)
+    }
+
+    appendCell(headerRow, messages.get(lang, "reports.scores.totalScore"))
+    appendCell(valueRow, exam.getTotalScore)
+
+    autosizeColumns(headerRow, sheet)
+
+  override def streamScores(examId: Long, childIds: List[Long])(os: OutputStream): Unit =
+    streamTo(os)(wb => buildScoreSheetContent(wb, examId, childIds))
+
+  private def buildScoreSheetContent(wb: Workbook, examId: Long, childIds: List[Long]): Unit =
+    val sheet    = wb.createSheet("Question scores")
+    val hostname = configReader.getHostName
+
+    val linkStyle = wb.createCellStyle()
+    val linkFont  = wb.createFont()
+    linkFont.setColor(IndexedColors.BLUE.getIndex)
+    linkFont.setUnderline(Font.U_SINGLE)
+    linkStyle.setFont(linkFont)
+
+    val parentExam = Option(
+      DB.find(classOf[Exam])
         .fetch("examSections.sectionQuestions.question")
-        .fetch("examRecord.examScore")
         .where()
-        .eq("parent.id", examId)
-        .in("id", childIds)
-        .findList()
-        .asScala
-        .toList
+        .eq("id", examId)
+        .findOneOrEmpty()
+        .orElse(null)
+    ).getOrElse(throw new RuntimeException("parent exam not found"))
 
-      val deletedQuestionIds = getDeletedQuestionIds(parentExam, childExams)
+    val childExams = DB
+      .find(classOf[Exam])
+      .fetch("examParticipation.user")
+      .fetch("examSections.sectionQuestions.question")
+      .fetch("examRecord.examScore")
+      .where()
+      .eq("parent.id", examId)
+      .in("id", childIds)
+      .findList()
+      .asScala
+      .toList
 
-      // Map section name -> question IDs
-      val questionIdsBySectionName = collection.mutable.LinkedHashMap[String, Set[Long]]()
+    val deletedQuestionIds = getDeletedQuestionIds(parentExam, childExams)
 
-      parentExam.getExamSections.asScala.foreach { es =>
-        questionIdsBySectionName(es.getName) = extractQuestionIdsFromSection(es)
-      }
-
-      // Add missing questions/sections from child exams
-      childExams.flatMap(_.getExamSections.asScala).foreach { es =>
-        val sectionName      = es.getName
-        val childQuestionIds = extractQuestionIdsFromSection(es)
-        questionIdsBySectionName.updateWith(sectionName) {
-          case Some(existing) => Some(existing ++ childQuestionIds)
-          case None           => Some(childQuestionIds)
-        }
-      }
-
-      // Create the header row
-      val headerRow = sheet.createRow(0)
-      ScoreReportDefaultHeaders.indices.foreach(i =>
-        headerRow.createCell(i).setCellValue(ScoreReportDefaultHeaders(i))
-      )
-
-      // Column index mappings
-      val questionColumnIndexesBySectionName = collection.mutable.Map[String, Map[Long, Int]]()
-      val sectionTotalIndexesBySectionName   = collection.mutable.Map[String, Int]()
-
-      // Build header columns
-      questionIdsBySectionName.foreach { case (sectionName, questionIds) =>
-        val columnIndexesByQuestionIds = collection.mutable.Map[Long, Int]()
-
-        questionIds.foreach { questionId =>
-          if deletedQuestionIds.contains(questionId) then
-            val columnIndex = appendCell(headerRow, "removed")
-            columnIndexesByQuestionIds(questionId) = columnIndex
-          else
-            val link        = wb.getCreationHelper.createHyperlink(HyperlinkType.URL)
-            val columnIndex = headerRow.getLastCellNum
-            link.setAddress(s"$hostname/questions/$questionId")
-            val cell = headerRow.createCell(columnIndex)
-            cell.setCellStyle(linkStyle)
-            cell.setHyperlink(link)
-            cell.setCellValue(s"questionId_$questionId")
-            columnIndexesByQuestionIds(questionId) = columnIndex
-        }
-
-        questionColumnIndexesBySectionName(sectionName) = columnIndexesByQuestionIds.toMap
-
-        val sectionTotalIdx = appendCell(headerRow, s"Aihealueen $sectionName pisteet")
-        sectionTotalIndexesBySectionName(sectionName) = sectionTotalIdx
-      }
-
-      val totalScoreIndex = appendCell(headerRow, "Kokonaispisteet")
-
-      // Create data rows for each child exam
-      childExams.foreach { exam =>
-        Option(exam.getExamParticipation).flatMap(p => Option(p.getUser)).foreach { student =>
-          val examScore = Option(exam.getExamRecord).map(_.getExamScore)
-          val isGraded = exam.getState match
-            case Exam.State.GRADED | Exam.State.GRADED_LOGGED | Exam.State.ARCHIVED => true
-            case _                                                                  => false
-
-          val defaultCells = getScoreReportDefaultCells(student, exam, examScore)
-          val currentRow   = sheet.createRow(sheet.getLastRowNum + 1)
-          appendCellsToRow(currentRow, defaultCells)
-
-          exam.getExamSections.asScala.foreach { es =>
-            val sectionName = es.getName
-            es.getSectionQuestions.asScala.foreach { esq =>
-              val questionId          = getQuestionId(esq)
-              val questionColumnIndex = questionColumnIndexesBySectionName(sectionName)(questionId)
-
-              if isGraded then
-                val (scoreValue, scoreType) = getScoreTuple(esq)
-                val currentCell             = currentRow.createCell(questionColumnIndex)
-                setValue(currentCell, scoreValue, scoreType)
-              else currentRow.createCell(questionColumnIndex).setCellValue("-")
-            }
-
-            val sectionIndex = sectionTotalIndexesBySectionName(sectionName)
-            if isGraded then currentRow.createCell(sectionIndex).setCellValue(es.getTotalScore)
-            else currentRow.createCell(sectionIndex).setCellValue("-")
-          }
-
-          if isGraded then currentRow.createCell(totalScoreIndex).setCellValue(exam.getTotalScore)
-          else currentRow.createCell(totalScoreIndex).setCellValue("-")
-        }
-      }
-
-      autosizeColumns(headerRow, sheet)
-
-      val bos = new ByteArrayOutputStream()
-      wb.write(bos)
-      bos
+    val questionIdsBySectionName = collection.mutable.LinkedHashMap[String, Set[Long]]()
+    parentExam.getExamSections.asScala.foreach { es =>
+      questionIdsBySectionName(es.getName) = extractQuestionIdsFromSection(es)
     }
+    childExams.flatMap(_.getExamSections.asScala).foreach { es =>
+      val sectionName      = es.getName
+      val childQuestionIds = extractQuestionIdsFromSection(es)
+      questionIdsBySectionName.updateWith(sectionName) {
+        case Some(existing) => Some(existing ++ childQuestionIds)
+        case None           => Some(childQuestionIds)
+      }
+    }
+
+    val headerRow = sheet.createRow(0)
+    ScoreReportDefaultHeaders.indices.foreach(i =>
+      headerRow.createCell(i).setCellValue(ScoreReportDefaultHeaders(i))
+    )
+
+    val questionColumnIndexesBySectionName = collection.mutable.Map[String, Map[Long, Int]]()
+    val sectionTotalIndexesBySectionName   = collection.mutable.Map[String, Int]()
+
+    questionIdsBySectionName.foreach { case (sectionName, questionIds) =>
+      val columnIndexesByQuestionIds = collection.mutable.Map[Long, Int]()
+      questionIds.foreach { questionId =>
+        if deletedQuestionIds.contains(questionId) then
+          val columnIndex = appendCell(headerRow, "removed")
+          columnIndexesByQuestionIds(questionId) = columnIndex
+        else
+          val link        = wb.getCreationHelper.createHyperlink(HyperlinkType.URL)
+          val columnIndex = headerRow.getLastCellNum
+          link.setAddress(s"$hostname/questions/$questionId")
+          val cell = headerRow.createCell(columnIndex)
+          cell.setCellStyle(linkStyle)
+          cell.setHyperlink(link)
+          cell.setCellValue(s"questionId_$questionId")
+          columnIndexesByQuestionIds(questionId) = columnIndex
+      }
+      questionColumnIndexesBySectionName(sectionName) = columnIndexesByQuestionIds.toMap
+      val sectionTotalIdx = appendCell(headerRow, s"Aihealueen $sectionName pisteet")
+      sectionTotalIndexesBySectionName(sectionName) = sectionTotalIdx
+    }
+
+    val totalScoreIndex = appendCell(headerRow, "Kokonaispisteet")
+
+    childExams.foreach { exam =>
+      Option(exam.getExamParticipation).flatMap(p => Option(p.getUser)).foreach { student =>
+        val examScore = Option(exam.getExamRecord).map(_.getExamScore)
+        val isGraded = exam.getState match
+          case Exam.State.GRADED | Exam.State.GRADED_LOGGED | Exam.State.ARCHIVED => true
+          case _                                                                  => false
+
+        val defaultCells = getScoreReportDefaultCells(student, exam, examScore)
+        val currentRow   = sheet.createRow(sheet.getLastRowNum + 1)
+        appendCellsToRow(currentRow, defaultCells)
+
+        exam.getExamSections.asScala.foreach { es =>
+          val sectionName = es.getName
+          es.getSectionQuestions.asScala.foreach { esq =>
+            val questionId          = getQuestionId(esq)
+            val questionColumnIndex = questionColumnIndexesBySectionName(sectionName)(questionId)
+            if isGraded then
+              val (scoreValue, scoreType) = getScoreTuple(esq)
+              val currentCell             = currentRow.createCell(questionColumnIndex)
+              setValue(currentCell, scoreValue, scoreType)
+            else currentRow.createCell(questionColumnIndex).setCellValue("-")
+          }
+          val sectionIndex = sectionTotalIndexesBySectionName(sectionName)
+          if isGraded then currentRow.createCell(sectionIndex).setCellValue(es.getTotalScore)
+          else currentRow.createCell(sectionIndex).setCellValue("-")
+        }
+
+        if isGraded then currentRow.createCell(totalScoreIndex).setCellValue(exam.getTotalScore)
+        else currentRow.createCell(totalScoreIndex).setCellValue("-")
+      }
+    }
+
+    autosizeColumns(headerRow, sheet)
+
+  override def streamTo(os: OutputStream, rowWindowSize: Int = 100)(build: Workbook => Unit): Unit =
+    val wb = new SXSSFWorkbook(rowWindowSize)
+    try
+      build(wb)
+      wb.write(os)
+    finally wb.close()
 
   // Private helper methods
 

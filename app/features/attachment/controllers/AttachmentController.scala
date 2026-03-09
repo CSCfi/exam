@@ -172,9 +172,9 @@ class AttachmentController @Inject() (
       val user = request.attrs(Auth.ATTR_USER)
       attachmentService.downloadQuestionAttachment(id, user).flatMap {
         case Right(attachment) =>
-          attachmentService.serveAttachment(attachment).flatMap {
-            case Right(source) => serveAsBase64Stream(attachment, source)
-            case Left(error)   => Future.successful(InternalServerError(error))
+          attachmentService.serveAttachment(attachment).map {
+            case Right(source) => serveAsStream(attachment, source)
+            case Left(error)   => InternalServerError(error)
           }
         case Left(_) => Future.successful(NotFound)
       }
@@ -185,9 +185,9 @@ class AttachmentController @Inject() (
       val user = request.attrs(Auth.ATTR_USER)
       attachmentService.downloadQuestionAnswerAttachment(qid, user).flatMap {
         case Right(attachment) =>
-          attachmentService.serveAttachment(attachment).flatMap {
-            case Right(source) => serveAsBase64Stream(attachment, source)
-            case Left(error)   => Future.successful(InternalServerError(error))
+          attachmentService.serveAttachment(attachment).map {
+            case Right(source) => serveAsStream(attachment, source)
+            case Left(error)   => InternalServerError(error)
           }
         case Left(_) => Future.successful(NotFound)
       }
@@ -197,9 +197,9 @@ class AttachmentController @Inject() (
     authenticated.async { _ =>
       attachmentService.downloadExamAttachment(id).flatMap {
         case Right(attachment) =>
-          attachmentService.serveAttachment(attachment).flatMap {
-            case Right(source) => serveAsBase64Stream(attachment, source)
-            case Left(error)   => Future.successful(InternalServerError(error))
+          attachmentService.serveAttachment(attachment).map {
+            case Right(source) => serveAsStream(attachment, source)
+            case Left(error)   => InternalServerError(error)
           }
         case Left(_) => Future.successful(NotFound)
       }
@@ -210,9 +210,9 @@ class AttachmentController @Inject() (
       val user = request.attrs(Auth.ATTR_USER)
       attachmentService.downloadFeedbackAttachment(id, user).flatMap {
         case Right(attachment) =>
-          attachmentService.serveAttachment(attachment).flatMap {
-            case Right(source) => serveAsBase64Stream(attachment, source)
-            case Left(error)   => Future.successful(InternalServerError(error))
+          attachmentService.serveAttachment(attachment).map {
+            case Right(source) => serveAsStream(attachment, source)
+            case Left(error)   => InternalServerError(error)
           }
         case Left(_) => Future.successful(NotFound)
       }
@@ -223,9 +223,9 @@ class AttachmentController @Inject() (
       val user = request.attrs(Auth.ATTR_USER)
       attachmentService.downloadStatementAttachment(id, user).flatMap {
         case Right(attachment) =>
-          attachmentService.serveAttachment(attachment).flatMap {
-            case Right(source) => serveAsBase64Stream(attachment, source)
-            case Left(error)   => Future.successful(InternalServerError(error))
+          attachmentService.serveAttachment(attachment).map {
+            case Right(source) => serveAsStream(attachment, source)
+            case Left(error)   => InternalServerError(error)
           }
         case Left(_) => Future.successful(NotFound)
       }
@@ -238,18 +238,12 @@ class AttachmentController @Inject() (
       (filePart, request.body.dataParts)
     }
 
-  private def serveAsBase64Stream(
+  private def serveAsStream(
       attachment: models.attachment.Attachment,
       source: Source[ByteString, Future[IOResult]]
-  ): Future[Result] =
-    // Convert to base64 and stream
-    source
-      .map(_.encodeBase64)
-      .runFold(ByteString.empty)(_ ++ _)
-      .map { base64Data =>
-        Ok(base64Data.utf8String)
-          .withHeaders(
-            "Content-Disposition" -> s"attachment; filename=\"${attachment.getFileName}\"",
-            "Content-Type"        -> "application/octet-stream"
-          )
-      }
+  ): Result = {
+    val mimeType = Option(attachment.getMimeType).getOrElse("application/octet-stream")
+    Ok.chunked(source)
+      .as(mimeType)
+      .withHeaders("Content-Disposition" -> s"attachment; filename=\"${attachment.getFileName}\"")
+  }

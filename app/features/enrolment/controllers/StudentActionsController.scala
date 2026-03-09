@@ -7,12 +7,15 @@ package features.enrolment.controllers
 import database.EbeanJsonExtensions
 import features.enrolment.services.{StudentActionsError, StudentActionsService}
 import models.user.Role
+import org.apache.pekko.stream.scaladsl.StreamConverters
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
 import security.{Auth, BlockingIOExecutionContext}
 import system.interceptors.SensitiveDataFilter
 
+import java.io.{PipedInputStream, PipedOutputStream}
 import javax.inject.Inject
+import scala.concurrent.Future
 
 class StudentActionsController @Inject() (
     authenticated: AuthenticatedAction,
@@ -43,23 +46,29 @@ class StudentActionsController @Inject() (
           case None       => NotFound(StudentActionsError.ExamNotFound.message)
       }
 
+  private val XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
   def getExamScoreReport(eid: Long): Action[AnyContent] =
     authenticated
       .andThen(authorized(Seq(Role.Name.STUDENT)))
-      .andThen(sensitiveDataFilter(Set("score", "defaultScore", "correctOption"))) { request =>
+      .andThen(sensitiveDataFilter(Set("score", "defaultScore", "correctOption")))
+      .async { request =>
         val user = request.attrs(Auth.ATTR_USER)
-        studentActionsService.getExamScoreReport(eid, user) match
-          case Right(fileResponse) =>
-            Ok(fileResponse.content)
-              .withHeaders(
-                "Content-Disposition" -> s"attachment; filename=\"${fileResponse.fileName}\""
-              )
-              .as(fileResponse.contentType)
+        studentActionsService.streamExamScoreReport(eid, user) match
           case Left(StudentActionsError.ExamNotFound) =>
-            NotFound(StudentActionsError.ExamNotFound.message)
-          case Left(StudentActionsError.ErrorCreatingExcelFile) =>
-            InternalServerError(StudentActionsError.ErrorCreatingExcelFile.message)
-          case Left(_) => InternalServerError
+            Future.successful(NotFound(StudentActionsError.ExamNotFound.message))
+          case Right(writer) =>
+            val pos = new PipedOutputStream()
+            val pis = new PipedInputStream(pos)
+            Future {
+              try writer(pos)
+              finally pos.close()
+            }(using ec)
+            Future.successful(
+              Ok.chunked(StreamConverters.fromInputStream(() => pis))
+                .as(XLSX_MIME)
+                .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.xlsx\"")
+            )
       }
 
   def getFinishedExams(filter: Option[String]): Action[AnyContent] =
@@ -88,21 +97,31 @@ class StudentActionsController @Inject() (
     }
 
   def getExamConfigFile(enrolmentId: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.STUDENT))) { request =>
-      val user = request.attrs(Auth.ATTR_USER)
-      studentActionsService.getExamConfigFile(enrolmentId, user) match
-        case Right(fileResponse) =>
-          Ok(fileResponse.content)
-            .withHeaders(
-              "Content-Disposition" -> s"attachment; filename=\"${fileResponse.fileName}\""
+    authenticated
+      .andThen(authorized(Seq(Role.Name.STUDENT)))
+      .async { request =>
+        val user = request.attrs(Auth.ATTR_USER)
+        studentActionsService.streamExamConfigFile(enrolmentId, user) match
+          case Left(StudentActionsError.ExamConfigNotAvailable) =>
+            Future.successful(Forbidden(StudentActionsError.ExamConfigNotAvailable.message))
+          case Left(StudentActionsError.ErrorCreatingConfigFile) =>
+            Future.successful(
+              InternalServerError(StudentActionsError.ErrorCreatingConfigFile.message)
             )
-            .as(fileResponse.contentType)
-        case Left(StudentActionsError.ExamConfigNotAvailable) =>
-          Forbidden(StudentActionsError.ExamConfigNotAvailable.message)
-        case Left(StudentActionsError.ErrorCreatingConfigFile) =>
-          InternalServerError(StudentActionsError.ErrorCreatingConfigFile.message)
-        case Left(_) => Forbidden
-    }
+          case Left(_) => Future.successful(Forbidden)
+          case Right((writer, fileName)) =>
+            val pos = new PipedOutputStream()
+            val pis = new PipedInputStream(pos)
+            Future {
+              try writer(pos)
+              finally pos.close()
+            }(using ec)
+            Future.successful(
+              Ok.chunked(StreamConverters.fromInputStream(() => pis))
+                .as("application/octet-stream")
+                .withHeaders("Content-Disposition" -> s"attachment; filename=\"$fileName\"")
+            )
+      }
 
   def getExamInfo(eid: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.STUDENT))) { request =>

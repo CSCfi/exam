@@ -7,6 +7,7 @@ package features.assessment.controllers
 import database.EbeanJsonExtensions
 import features.assessment.services.{ExamRecordError, ExamRecordService}
 import models.user.Role
+import org.apache.pekko.stream.scaladsl.StreamConverters
 import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
@@ -15,7 +16,9 @@ import system.AuditedAction
 import validation.CommaJoinedListValidator
 import validation.core.{ScalaAttrs, Validators}
 
+import java.io.{PipedInputStream, PipedOutputStream}
 import javax.inject.Inject
+import scala.concurrent.Future
 
 class ExamRecordController @Inject() (
     val controllerComponents: ControllerComponents,
@@ -27,7 +30,9 @@ class ExamRecordController @Inject() (
 ) extends BaseController
     with EbeanJsonExtensions:
 
-  private val XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  private val XLSX_MIME  = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  private val CSV_MIME   = "text/csv"
+  private val CSV_HEADER = "Content-Disposition" -> "attachment; filename=\"examrecords.csv\""
 
   def addExamRecord(): Action[JsValue] =
     authenticated
@@ -73,38 +78,54 @@ class ExamRecordController @Inject() (
       }
 
   def exportExamRecordsAsCsv(start: Long, end: Long): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT))) {
-      _ =>
-        examRecordService.exportExamRecordsAsCsv(start, end) match
-          case Right((content, contentDisposition)) =>
-            Ok(content).withHeaders("Content-Disposition" -> contentDisposition)
-          case Left(ExamRecordError.ErrorCreatingCsvFile) =>
-            InternalServerError(ExamRecordError.ErrorCreatingCsvFile.message)
-          case Left(_) => InternalServerError
-    }
+    authenticated
+      .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
+      .async { _ =>
+        val pos = new PipedOutputStream()
+        val pis = new PipedInputStream(pos)
+        Future {
+          try examRecordService.streamExamRecordsAsCsvByDate(start, end)(pos)
+          finally pos.close()
+        }(using ec)
+        Future.successful(
+          Ok.chunked(StreamConverters.fromInputStream(() => pis))
+            .as(CSV_MIME)
+            .withHeaders(CSV_HEADER)
+        )
+      }
 
   def exportSelectedExamRecordsAsCsv(examId: Long): Action[AnyContent] = authenticated
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
-    .andThen(validators.validated(CommaJoinedListValidator)) { request =>
+    .andThen(validators.validated(CommaJoinedListValidator))
+    .async { request =>
       val ids = request.attrs(ScalaAttrs.ID_LIST)
-      examRecordService.exportSelectedExamRecordsAsCsv(examId, ids) match
-        case Right((content, contentDisposition)) =>
-          Ok(content).withHeaders("Content-Disposition" -> contentDisposition)
-        case Left(ExamRecordError.ErrorCreatingCsvFile) =>
-          InternalServerError(ExamRecordError.ErrorCreatingCsvFile.message)
-        case Left(_) => InternalServerError
+      val pos = new PipedOutputStream()
+      val pis = new PipedInputStream(pos)
+      Future {
+        try examRecordService.streamSelectedExamRecordsAsCsv(examId, ids)(pos)
+        finally pos.close()
+      }(using ec)
+      Future.successful(
+        Ok.chunked(StreamConverters.fromInputStream(() => pis))
+          .as(CSV_MIME)
+          .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.csv\"")
+      )
     }
 
   def exportSelectedExamRecordsAsExcel(examId: Long): Action[AnyContent] = authenticated
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER, Role.Name.SUPPORT)))
-    .andThen(validators.validated(CommaJoinedListValidator)) { request =>
+    .andThen(validators.validated(CommaJoinedListValidator))
+    .async { request =>
       val ids = request.attrs(ScalaAttrs.ID_LIST)
-      examRecordService.exportSelectedExamRecordsAsExcel(examId, ids) match
-        case Right(content) =>
-          Ok(content)
-            .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.xlsx\"")
-            .as(XLSX_MIME)
-        case Left(ExamRecordError.ErrorCreatingExcelFile) =>
-          InternalServerError(ExamRecordError.ErrorCreatingExcelFile.message)
-        case Left(_) => InternalServerError
+      val pos = new PipedOutputStream()
+      val pis = new PipedInputStream(pos)
+      Future {
+        try examRecordService.streamSelectedExamRecordsAsExcel(examId, ids)(pos)
+        finally pos.close()
+      }(using ec)
+      Future.successful(
+        Ok.chunked(StreamConverters.fromInputStream(() => pis))
+          .as(XLSX_MIME)
+          .withHeaders("Content-Disposition" -> "attachment; filename=\"exam_records.xlsx\"")
+      )
     }

@@ -7,21 +7,29 @@ package services.excel
 import com.google.inject.ImplementedBy
 import models.exam.Exam
 import models.user.User
+import org.apache.poi.ss.usermodel.Workbook
 import play.i18n.MessagesApi
 
-import java.io.ByteArrayOutputStream
+import java.io.OutputStream
 
 @ImplementedBy(classOf[ExcelBuilderImpl])
 trait ExcelBuilder:
 
-  @throws[java.io.IOException]
-  def build(examId: Long, childIds: List[Long]): ByteArrayOutputStream
+  /** Streams the student score report Excel to the given output stream. Caller must close the
+    * stream.
+    */
+  def streamStudentReport(exam: Exam, student: User, messages: MessagesApi)(os: OutputStream): Unit
 
-  @throws[java.io.IOException]
-  def buildScoreExcel(examId: Long, childIds: List[Long]): ByteArrayOutputStream
+  /** Streams an Excel workbook to the given output stream using a row-windowed (SXSSF) workbook.
+    * Caller must close the stream.
+    */
+  def streamTo(os: OutputStream, rowWindowSize: Int = 100)(build: Workbook => Unit): Unit
 
-  @throws[java.io.IOException]
-  def buildStudentReport(exam: Exam, student: User, messages: MessagesApi): ByteArrayOutputStream
+  /** Streams the "Exam records" sheet. Caller must close the stream. */
+  def streamExamRecords(examId: Long, childIds: List[Long])(os: OutputStream): Unit
+
+  /** Streams the "Question scores" sheet. Caller must close the stream. */
+  def streamScores(examId: Long, childIds: List[Long])(os: OutputStream): Unit
 
 object ExcelBuilder:
   enum CellType:

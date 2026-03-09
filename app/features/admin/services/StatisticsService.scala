@@ -10,19 +10,18 @@ import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
 import models.user.User
 import org.apache.poi.ss.usermodel.{Sheet, Workbook}
-import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
 import play.api.Logging
+import services.excel.ExcelBuilder
 
-import java.io.ByteArrayOutputStream
-import java.util.Base64
+import java.io.OutputStream
 import javax.inject.Inject
 import scala.jdk.CollectionConverters._
-import scala.util.{Try, Using}
+import scala.util.Try
 
-class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJsonExtensions
-    with Logging:
+class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
+    extends EbeanQueryExtensions with EbeanJsonExtensions with Logging:
 
   private val DTF = DateTimeFormat.forPattern("dd.MM.yyyy")
 
@@ -48,7 +47,11 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
   def findExam(id: Long): Option[Exam] =
     DB.find(classOf[Exam]).where().idEq(id).isNotNull("course").find
 
-  def examToExcel(exam: Exam): Try[String] =
+  /** Streams the exam metadata sheet to the given output stream. Caller must close the stream. */
+  def streamExamAsExcel(exam: Exam)(os: OutputStream): Unit =
+    excelBuilder.streamTo(os)(wb => buildExamSheet(wb, exam))
+
+  private def buildExamSheet(wb: Workbook, exam: Exam): Unit =
     val values = Map(
       "Creator ID"       -> exam.getCreator.getId.toString,
       "First name"       -> exam.getCreator.getFirstName,
@@ -71,25 +74,25 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
       "Instructions" -> forceNotNull(exam.getInstruction),
       "Shared"       -> exam.isShared.toString
     )
-
-    Using(new XSSFWorkbook()) { wb =>
-      val sheet     = wb.createSheet(exam.getName)
-      val headerRow = sheet.createRow(0)
-      values.keys.zipWithIndex.foreach { case (key, i) =>
-        headerRow.createCell(i).setCellValue(key)
-      }
-      val dataRow = sheet.createRow(1)
-      values.values.zipWithIndex.foreach { case (value, i) =>
-        dataRow.createCell(i).setCellValue(value)
-      }
-      encode(wb)
+    val sheet     = wb.createSheet(exam.getName)
+    val headerRow = sheet.createRow(0)
+    values.keys.zipWithIndex.foreach { case (key, i) =>
+      headerRow.createCell(i).setCellValue(key)
+    }
+    val dataRow = sheet.createRow(1)
+    values.values.zipWithIndex.foreach { case (value, i) =>
+      dataRow.createCell(i).setCellValue(value)
     }
 
-  def getTeacherExamsByDate(uid: Long, from: String, to: String): Try[String] =
+  /** Streams the teacher's exams report. Caller must close the stream. */
+  def streamTeacherExamsByDateAsExcel(uid: Long, from: String, to: String)(os: OutputStream): Unit =
+    val exams = fetchTeacherExamsBetween(uid, from, to)
+    excelBuilder.streamTo(os)(wb => buildTeacherExamsSheet(wb, exams))
+
+  private def fetchTeacherExamsBetween(uid: Long, from: String, to: String): List[Exam] =
     val start = DateTime.parse(from, DTF)
     val end   = DateTime.parse(to, DTF)
-
-    val exams = DB
+    DB
       .find(classOf[Exam])
       .fetch("creator")
       .fetch("examType")
@@ -103,56 +106,52 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
       .orderBy("created")
       .list
 
-    Using(new XSSFWorkbook()) { wb =>
-      val sheet = wb.createSheet("teacher's exams")
-      addHeader(
-        sheet,
-        Array(
-          "exam",
-          "created",
-          "state",
-          "course code",
-          "active during",
-          "credits",
-          "exam type",
-          "in review",
-          "graded",
-          "logged"
-        )
+  private def buildTeacherExamsSheet(wb: Workbook, exams: List[Exam]): Unit =
+    val sheet = wb.createSheet("teacher's exams")
+    addHeader(
+      sheet,
+      Array(
+        "exam",
+        "created",
+        "state",
+        "course code",
+        "active during",
+        "credits",
+        "exam type",
+        "in review",
+        "graded",
+        "logged"
       )
-
-      exams.zipWithIndex.foreach { case (parent, idx) =>
-        val (inReview, graded, logged) =
-          parent.getChildren.asScala.foldLeft((0, 0, 0)) { case ((ir, g, l), child) =>
-            child.getState match
-              case Exam.State.REVIEW | Exam.State.REVIEW_STARTED => (ir + 1, g, l)
-              case Exam.State.GRADED                             => (ir, g + 1, l)
-              case Exam.State.GRADED_LOGGED                      => (ir, g, l + 1)
-              case _                                             => (ir, g, l)
-          }
-
-        val data = Array(
-          parent.getName,
-          ISODateTimeFormat.date().print(new DateTime(parent.getCreated)),
-          parent.getState.toString,
-          parent.getCourse.getCode,
-          s"${ISODateTimeFormat.date().print(
-              new DateTime(parent.getPeriodStart)
-            )} - ${ISODateTimeFormat.date().print(new DateTime(parent.getPeriodEnd))}",
-          Option(parent.getCourse.getCredits).map(_.toString).getOrElse(""),
-          parent.getExamType.getType,
-          inReview.toString,
-          graded.toString,
-          logged.toString
-        )
-        createRow(sheet, data, idx + 1)
-      }
-
-      (0 to 9).foreach(i => sheet.autoSizeColumn(i, true))
-      encode(wb)
+    )
+    exams.zipWithIndex.foreach { case (parent, idx) =>
+      val (inReview, graded, logged) =
+        parent.getChildren.asScala.foldLeft((0, 0, 0)) { case ((ir, g, l), child) =>
+          child.getState match
+            case Exam.State.REVIEW | Exam.State.REVIEW_STARTED => (ir + 1, g, l)
+            case Exam.State.GRADED                             => (ir, g + 1, l)
+            case Exam.State.GRADED_LOGGED                      => (ir, g, l + 1)
+            case _                                             => (ir, g, l)
+        }
+      val data = Array(
+        parent.getName,
+        ISODateTimeFormat.date().print(new DateTime(parent.getCreated)),
+        parent.getState.toString,
+        parent.getCourse.getCode,
+        s"${ISODateTimeFormat.date().print(
+            new DateTime(parent.getPeriodStart)
+          )} - ${ISODateTimeFormat.date().print(new DateTime(parent.getPeriodEnd))}",
+        Option(parent.getCourse.getCredits).map(_.toString).getOrElse(""),
+        parent.getExamType.getType,
+        inReview.toString,
+        graded.toString,
+        logged.toString
+      )
+      createRow(sheet, data, idx + 1)
     }
+    (0 to 9).foreach(i => sheet.autoSizeColumn(i, true))
 
-  def getExamEnrollments(id: Long): Try[String] =
+  /** Returns a stream writer if the exam exists; caller must close the stream after writing. */
+  def streamExamEnrolmentsAsExcel(id: Long): Option[OutputStream => Unit] =
     DB.find(classOf[Exam])
       .fetch("examEnrolments")
       .fetch("examEnrolments.user")
@@ -161,44 +160,46 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
       .where()
       .eq("id", id)
       .isNull("parent")
-      .find match
-      case None => scala.util.Failure(new NoSuchElementException("i18n_error_exam_not_found"))
-      case Some(proto) =>
-        Using(new XSSFWorkbook()) { wb =>
-          val sheet = wb.createSheet("enrolments")
-          addHeader(
-            sheet,
-            Array(
-              "student name",
-              "student ID",
-              "student EPPN",
-              "reservation time",
-              "enrolment time"
-            )
-          )
+      .find
+      .map { proto => (os: OutputStream) =>
+        excelBuilder.streamTo(os)(wb => buildEnrollmentsSheet(wb, proto))
+      }
 
-          proto.getExamEnrolments.asScala.zipWithIndex.foreach { case (e, idx) =>
-            val data = Array(
-              s"${e.getUser.getFirstName} ${e.getUser.getLastName}",
-              forceNotNull(e.getUser.getIdentifier),
-              e.getUser.getEppn,
-              Option(e.getReservation)
-                .map(r => ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(r.getStartAt)))
-                .getOrElse(""),
-              ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getEnrolledOn))
-            )
-            createRow(sheet, data, idx + 1)
-          }
+  private def buildEnrollmentsSheet(wb: Workbook, proto: Exam): Unit =
+    val sheet = wb.createSheet("enrolments")
+    addHeader(
+      sheet,
+      Array(
+        "student name",
+        "student ID",
+        "student EPPN",
+        "reservation time",
+        "enrolment time"
+      )
+    )
+    proto.getExamEnrolments.asScala.zipWithIndex.foreach { case (e, idx) =>
+      val data = Array(
+        s"${e.getUser.getFirstName} ${e.getUser.getLastName}",
+        forceNotNull(e.getUser.getIdentifier),
+        e.getUser.getEppn,
+        Option(e.getReservation)
+          .map(r => ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(r.getStartAt)))
+          .getOrElse(""),
+        ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getEnrolledOn))
+      )
+      createRow(sheet, data, idx + 1)
+    }
+    (0 to 4).foreach(i => sheet.autoSizeColumn(i, true))
 
-          (0 to 4).foreach(i => sheet.autoSizeColumn(i, true))
-          encode(wb)
-        }
+  /** Streams the reviews report to the given output stream. Caller must close the stream. */
+  def streamReviewsByDateAsExcel(from: String, to: String)(os: OutputStream): Unit =
+    val exams = fetchExamsGradedBetween(from, to)
+    excelBuilder.streamTo(os)(wb => buildReviewsSheet(wb, exams))
 
-  def getReviewsByDate(from: String, to: String): Try[String] =
+  private def fetchExamsGradedBetween(from: String, to: String): List[Exam] =
     val start = DateTime.parse(from, DTF)
     val end   = DateTime.parse(to, DTF)
-
-    val exams = DB
+    DB
       .find(classOf[Exam])
       .fetch("course")
       .where()
@@ -210,49 +211,57 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
       .orderBy("creator.id")
       .list
 
-    Using(new XSSFWorkbook()) { wb =>
-      val sheet = wb.createSheet("graded exams")
-      addHeader(
-        sheet,
-        Array(
-          "student",
-          "exam",
-          "course",
-          "taken on",
-          "graded on",
-          "graded by",
-          "credits",
-          "grade",
-          "exam type",
-          "answer language"
-        )
+  private def buildReviewsSheet(wb: Workbook, exams: List[Exam]): Unit =
+    val sheet = wb.createSheet("graded exams")
+    addHeader(
+      sheet,
+      Array(
+        "student",
+        "exam",
+        "course",
+        "taken on",
+        "graded on",
+        "graded by",
+        "credits",
+        "grade",
+        "exam type",
+        "answer language"
       )
-
-      exams.zipWithIndex.foreach { case (e, idx) =>
-        val data = Array(
-          s"${e.getCreator.getFirstName} ${e.getCreator.getLastName}",
-          e.getName,
-          e.getCourse.getCode,
-          ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getCreated)),
-          ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getGradedTime)),
-          safeParse(() => s"${e.getGradedByUser.getFirstName} ${e.getGradedByUser.getLastName}"),
-          Option(e.getCourse.getCredits).map(_.toString).getOrElse(""),
-          safeParse(() => e.getGrade.getName),
-          safeParse(() => e.getCreditType.getType),
-          e.getAnswerLanguage
-        )
-        createRow(sheet, data, idx + 1)
-      }
-
-      (0 to 9).foreach(i => sheet.autoSizeColumn(i, true))
-      encode(wb)
+    )
+    exams.zipWithIndex.foreach { case (e, idx) =>
+      val data = Array(
+        s"${e.getCreator.getFirstName} ${e.getCreator.getLastName}",
+        e.getName,
+        e.getCourse.getCode,
+        ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getCreated)),
+        ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getGradedTime)),
+        safeParse(() => s"${e.getGradedByUser.getFirstName} ${e.getGradedByUser.getLastName}"),
+        Option(e.getCourse.getCredits).map(_.toString).getOrElse(""),
+        safeParse(() => e.getGrade.getName),
+        safeParse(() => e.getCreditType.getType),
+        e.getAnswerLanguage
+      )
+      createRow(sheet, data, idx + 1)
     }
+    (0 to 9).foreach(i => sheet.autoSizeColumn(i, true))
 
-  def getReservationsForRoomByDate(roomId: Long, from: String, to: String): Try[String] =
+  /** Streams the reservations report. Caller must close the stream. */
+  def streamReservationsForRoomByDateAsExcel(
+      roomId: Long,
+      from: String,
+      to: String
+  )(os: OutputStream): Unit =
+    val enrolments = fetchReservationsForRoomBetween(roomId, from, to)
+    excelBuilder.streamTo(os)(wb => buildReservationsSheet(wb, enrolments))
+
+  private def fetchReservationsForRoomBetween(
+      roomId: Long,
+      from: String,
+      to: String
+  ): List[ExamEnrolment] =
     val start = DateTime.parse(from, DTF)
     val end   = DateTime.parse(to, DTF)
-
-    val enrolments = DB
+    DB
       .find(classOf[ExamEnrolment])
       .fetch("user")
       .fetch("exam")
@@ -263,55 +272,54 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
       .isNotNull("exam")
       .list
 
-    Using(new XSSFWorkbook()) { wb =>
-      val sheet = wb.createSheet("reservations")
-      val headers = Array(
-        "enrolment id",
-        "enrolled on",
-        "user id",
-        "user first name",
-        "user last name",
-        "exam id",
-        "exam name",
-        "reservation id",
-        "reservation begins",
-        "reservation ends",
-        "machine id",
-        "machine name",
-        "machine IP",
-        "room id",
-        "room name",
-        "room code"
+  private def buildReservationsSheet(wb: Workbook, enrolments: List[ExamEnrolment]): Unit =
+    val sheet = wb.createSheet("reservations")
+    val headers = Array(
+      "enrolment id",
+      "enrolled on",
+      "user id",
+      "user first name",
+      "user last name",
+      "exam id",
+      "exam name",
+      "reservation id",
+      "reservation begins",
+      "reservation ends",
+      "machine id",
+      "machine name",
+      "machine IP",
+      "room id",
+      "room name",
+      "room code"
+    )
+    addHeader(sheet, headers)
+    enrolments.zipWithIndex.foreach { case (e, idx) =>
+      val data = Array(
+        e.getId.toString,
+        ISODateTimeFormat.date().print(new DateTime(e.getEnrolledOn)),
+        e.getUser.getId.toString,
+        e.getUser.getFirstName,
+        e.getUser.getLastName,
+        e.getExam.getId.toString,
+        e.getExam.getName,
+        e.getReservation.getId.toString,
+        ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation.getStartAt)),
+        ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation.getEndAt)),
+        e.getReservation.getMachine.getId.toString,
+        e.getReservation.getMachine.getName,
+        e.getReservation.getMachine.getIpAddress,
+        e.getReservation.getMachine.getRoom.getId.toString,
+        e.getReservation.getMachine.getRoom.getName,
+        e.getReservation.getMachine.getRoom.getRoomCode
       )
-      addHeader(sheet, headers)
-
-      enrolments.zipWithIndex.foreach { case (e, idx) =>
-        val data = Array(
-          e.getId.toString,
-          ISODateTimeFormat.date().print(new DateTime(e.getEnrolledOn)),
-          e.getUser.getId.toString,
-          e.getUser.getFirstName,
-          e.getUser.getLastName,
-          e.getExam.getId.toString,
-          e.getExam.getName,
-          e.getReservation.getId.toString,
-          ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation.getStartAt)),
-          ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation.getEndAt)),
-          e.getReservation.getMachine.getId.toString,
-          e.getReservation.getMachine.getName,
-          e.getReservation.getMachine.getIpAddress,
-          e.getReservation.getMachine.getRoom.getId.toString,
-          e.getReservation.getMachine.getRoom.getName,
-          e.getReservation.getMachine.getRoom.getRoomCode
-        )
-        createRow(sheet, data, idx + 1)
-      }
-
-      headers.indices.foreach(i => sheet.autoSizeColumn(i, true))
-      encode(wb)
+      createRow(sheet, data, idx + 1)
     }
+    headers.indices.foreach(i => sheet.autoSizeColumn(i, true))
 
-  def reportAllExams(from: String, to: String): Try[String] =
+  /** Streams the report to the given output stream using SXSSF (low memory). Caller must close the
+    * stream.
+    */
+  def streamAllExamsAsExcel(from: String, to: String)(os: OutputStream): Unit =
     val start = DateTime.parse(from, DTF)
     val end   = DateTime.parse(to, DTF)
 
@@ -328,47 +336,57 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
       .endOr()
       .list
 
-    Using(new XSSFWorkbook()) { wb =>
+    excelBuilder.streamTo(os)(wb =>
       generateParticipationSheet(wb, participations, includeStudentInfo = true)
-      encode(wb)
+    )
+
+  /** Returns a stream writer if the student exists; caller must close the stream after writing. */
+  def streamStudentActivityAsExcel(
+      studentId: Long,
+      from: String,
+      to: String
+  ): Option[OutputStream => Unit] =
+    Option(DB.find(classOf[User], studentId)).map { student =>
+      val participations = fetchStudentParticipations(studentId, from, to)
+      (os: OutputStream) =>
+        excelBuilder.streamTo(os)(wb => buildStudentActivitySheets(wb, student, participations))
     }
 
-  def reportStudentActivity(studentId: Long, from: String, to: String): Try[(User, String)] =
-    Option(DB.find(classOf[User], studentId)) match
-      case None => scala.util.Failure(new NoSuchElementException("i18n_error_not_found"))
-      case Some(student) =>
-        val start = DateTime.parse(from, DTF)
-        val end   = DateTime.parse(to, DTF)
+  private def fetchStudentParticipations(
+      studentId: Long,
+      from: String,
+      to: String
+  ): List[ExamParticipation] =
+    val start = DateTime.parse(from, DTF)
+    val end   = DateTime.parse(to, DTF)
+    DB
+      .find(classOf[ExamParticipation])
+      .fetch("exam")
+      .fetch("reservation")
+      .fetch("reservation.externalReservation")
+      .fetch("reservation.machine")
+      .fetch("reservation.machine.room")
+      .where()
+      .gt("started", start)
+      .lt("ended", end)
+      .eq("user.id", studentId)
+      .isNotNull("reservation")
+      .list
 
-        val participations = DB
-          .find(classOf[ExamParticipation])
-          .fetch("exam")
-          .fetch("reservation")
-          .fetch("reservation.externalReservation")
-          .fetch("reservation.machine")
-          .fetch("reservation.machine.room")
-          .where()
-          .gt("started", start)
-          .lt("ended", end)
-          .eq("user.id", studentId)
-          .isNotNull("reservation")
-          .list
-
-        Using(new XSSFWorkbook()) { wb =>
-          // Student info sheet
-          val studentSheet = wb.createSheet("student")
-          addHeader(studentSheet, Array("id", "first name", "last name", "email", "language"))
-          val dataRow = studentSheet.createRow(1)
-          dataRow.createCell(0).setCellValue(student.getId.toDouble)
-          dataRow.createCell(1).setCellValue(student.getFirstName)
-          dataRow.createCell(2).setCellValue(student.getLastName)
-          dataRow.createCell(3).setCellValue(student.getEmail)
-          dataRow.createCell(4).setCellValue(student.getLanguage.getCode)
-
-          // Participations
-          generateParticipationSheet(wb, participations, includeStudentInfo = false)
-          (student, encode(wb))
-        }
+  private def buildStudentActivitySheets(
+      wb: Workbook,
+      student: User,
+      participations: List[ExamParticipation]
+  ): Unit =
+    val studentSheet = wb.createSheet("student")
+    addHeader(studentSheet, Array("id", "first name", "last name", "email", "language"))
+    val dataRow = studentSheet.createRow(1)
+    dataRow.createCell(0).setCellValue(student.getId.toDouble)
+    dataRow.createCell(1).setCellValue(student.getFirstName)
+    dataRow.createCell(2).setCellValue(student.getLastName)
+    dataRow.createCell(3).setCellValue(student.getEmail)
+    dataRow.createCell(4).setCellValue(student.getLanguage.getCode)
+    generateParticipationSheet(wb, participations, includeStudentInfo = false)
 
   // Helper methods
   private def generateParticipationSheet(
@@ -479,12 +497,6 @@ class StatisticsService @Inject() () extends EbeanQueryExtensions with EbeanJson
     }
 
   private def forceNotNull(src: String): String = Option(src).getOrElse("")
-
-  private def encode(wb: Workbook): String =
-    Using(new ByteArrayOutputStream()) { bos =>
-      wb.write(bos)
-      Base64.getEncoder.encodeToString(bos.toByteArray)
-    }.get
 
   private def addHeader(sheet: Sheet, headers: Array[String]): Unit =
     val headerRow = sheet.createRow(0)

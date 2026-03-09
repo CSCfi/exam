@@ -17,7 +17,6 @@ import services.excel.ExcelBuilder
 
 import javax.inject.Inject
 import scala.jdk.CollectionConverters._
-import scala.util.Try
 
 class ReportService @Inject() (
     private val excelBuilder: ExcelBuilder
@@ -158,28 +157,28 @@ class ReportService @Inject() (
   ): (Int, Int, Int) =
     val query   = DB.find(classOf[Exam]).where().isNotNull("parent").isNotNull("course")
     val exams   = withFilters(query, "course", "created", dept, start, end).distinct
-    val aborted = exams.count(e => e.getState == Exam.State.ABORTED)
-    val assessed = exams.count(e =>
-      e.hasState(
-        Exam.State.GRADED,
-        Exam.State.GRADED_LOGGED,
-        Exam.State.ARCHIVED,
-        Exam.State.REJECTED,
-        Exam.State.DELETED
-      )
-    )
-    val unassessed = exams.count(e =>
-      e.hasState(
-        Exam.State.INITIALIZED,
-        Exam.State.STUDENT_STARTED,
-        Exam.State.REVIEW,
-        Exam.State.REVIEW_STARTED
-      )
-    )
+    val aborted = exams.count(_.getState == Exam.State.ABORTED)
+    val assessed = exams.count(_.hasState(
+      Exam.State.GRADED,
+      Exam.State.GRADED_LOGGED,
+      Exam.State.ARCHIVED,
+      Exam.State.REJECTED,
+      Exam.State.DELETED
+    ))
+    val unassessed = exams.count(_.hasState(
+      Exam.State.INITIALIZED,
+      Exam.State.STUDENT_STARTED,
+      Exam.State.REVIEW,
+      Exam.State.REVIEW_STARTED
+    ))
     (aborted, assessed, unassessed)
 
-  def exportExamQuestionScoresAsExcel(examId: Long, childIds: List[Long]): Try[Array[Byte]] =
-    Try(excelBuilder.buildScoreExcel(examId, childIds).toByteArray)
+  /** Streams the score Excel to the given output stream. Caller must close the stream. */
+  def streamExamQuestionScoresAsExcel(
+      examId: Long,
+      childIds: List[Long]
+  )(os: java.io.OutputStream): Unit =
+    excelBuilder.streamScores(examId, childIds)(os)
 
   private def withFilters[T](
       query: ExpressionList[T],

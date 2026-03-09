@@ -394,13 +394,22 @@ class QuestionService @Inject() (
     question.update()
 
   def exportQuestions(body: JsValue): String =
+    xmlExporter.convert(questionsForExport(body))
+
+  /** Streams Moodle XML for the questions identified in body to the given output stream. Caller
+    * must close the stream.
+    */
+  def streamExportQuestions(body: JsValue)(os: java.io.OutputStream): Unit =
+    xmlExporter.writeToStream(questionsForExport(body))(os)
+
+  private def questionsForExport(body: JsValue): Seq[Question] =
     val ids = (body \ "params" \ "ids")
       .asOpt[JsArray]
       .getOrElse(Json.arr())
       .value
       .map(_.as[Long])
       .toSet
-    val questions = DB
+    DB
       .find(classOf[Question])
       .where()
       .idIn(ids.asJava)
@@ -408,7 +417,7 @@ class QuestionService @Inject() (
       .filter(q =>
         q.getType != Question.Type.ClaimChoiceQuestion && q.getType != Question.Type.ClozeTestQuestion
       )
-    xmlExporter.convert(questions)
+      .toSeq
 
   def importQuestions(fileContent: String, user: User): (Seq[Question], Seq[String]) =
     val (successes, errors) = xmlImporter.convert(fileContent, user)

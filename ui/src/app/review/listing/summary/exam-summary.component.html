@@ -219,7 +219,7 @@ SPDX-License-Identifier: EUPL-1.2
                 </div>
                 @if (kv.value.max > 0) {
                     <div class="col-md-9">
-                        {{ calcAverage(kv.value.totals) | number: '1.2-2' }} / {{ kv.value.max | number: '1.2-2' }}
+                        {{ calculateAverage(kv.value.totals) | number: '1.2-2' }} / {{ kv.value.max | number: '1.2-2' }}
                     </div>
                 }
             </div>

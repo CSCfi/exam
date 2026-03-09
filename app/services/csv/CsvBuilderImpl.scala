@@ -17,14 +17,15 @@ import org.jsoup.safety.Safelist
 import play.api.Logging
 import play.api.libs.json.{JsArray, JsValue}
 
-import java.io.{File, FileReader, FileWriter}
+import java.io.{File, FileReader, OutputStream, OutputStreamWriter}
+import java.nio.charset.StandardCharsets
 import java.util.Date
 import scala.jdk.CollectionConverters._
 import scala.util.{Try, Using}
 
 class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
 
-  override def build(startDate: Long, endDate: Long): File =
+  override def streamExamRecordsByDate(startDate: Long, endDate: Long)(os: OutputStream): Unit =
     val start = new Date(startDate)
     val end   = new Date(endDate)
     val examRecords = DB
@@ -35,10 +36,9 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
       .findList()
       .asScala
       .toList
+    withCsvWriter(os)(writer => writeRecords(writer, examRecords, ExamScore.getHeaders))
 
-    writeRecordsToFile(examRecords, "csv-output", ExamScore.getHeaders)
-
-  override def build(examId: Long, childIds: List[Long]): File =
+  override def streamExamRecords(examId: Long, childIds: List[Long])(os: OutputStream): Unit =
     val examRecords = DB
       .find(classOf[ExamRecord])
       .fetch("examScore")
@@ -48,20 +48,15 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
       .findList()
       .asScala
       .toList
+    withCsvWriter(os)(writer => writeRecords(writer, examRecords, ExamScore.getHeaders))
 
-    writeRecordsToFile(examRecords, "csv-output-", ExamScore.getHeaders)
-
-  override def build(node: JsValue): File =
-    val file = File.createTempFile("csv-output-", ".tmp")
-
-    Using.resource(new CSVWriter(new FileWriter(file))) { writer =>
+  override def streamAssessments(node: JsValue)(os: OutputStream): Unit =
+    withCsvWriter(os) { writer =>
       writer.writeNext(getHeaders)
       node.as[JsArray].value.foreach { assessment =>
         writer.writeNext(values(assessment).toArray)
       }
     }
-
-    file
 
   override def parseGrades(csvFile: File, user: User, role: Role.Name): Unit =
     detectDelimiter(csvFile) match
@@ -78,23 +73,25 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
 
   // Helper methods
 
-  private def writeRecordsToFile(
+  /** Runs the given function with a CSVWriter writing to the output stream. Flushes the writer on
+    * exit; does not close the stream.
+    */
+  private def withCsvWriter(os: OutputStream)(f: CSVWriter => Unit): Unit =
+    val writer = new CSVWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))
+    try f(writer)
+    finally writer.flush()
+
+  private def writeRecords(
+      writer: CSVWriter,
       records: List[ExamRecord],
-      prefix: String,
       headers: Array[String]
-  ): File =
-    val file = File.createTempFile(prefix, ".tmp")
-
-    Using.resource(new CSVWriter(new FileWriter(file))) { writer =>
-      writer.writeNext(headers)
-      records.foreach { record =>
-        writer.writeNext(
-          record.getExamScore.asArray(record.getStudent, record.getTeacher, record.getExam)
-        )
-      }
+  ): Unit =
+    writer.writeNext(headers)
+    records.foreach { record =>
+      writer.writeNext(
+        record.getExamScore.asArray(record.getStudent, record.getTeacher, record.getExam)
+      )
     }
-
-    file
 
   private def detectDelimiter(csvFile: File): Option[CSVReader] =
     val GradesFirstRowColumnCount = 6
