@@ -10,7 +10,9 @@ licenses += "EUPL 1.2" -> url("https://joinup.ec.europa.eu/software/page/eupl/li
 
 scalaVersion := "3.7.3"
 
-scalacOptions ++= Seq("-deprecation", "-feature", "-Wunused:imports")
+// Add "-Wunused:imports" for checking unused imports. In comments because it brings noise to compilation output
+// regarding the route file
+scalacOptions ++= Seq("-deprecation", "-feature")
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayEbean)
 
@@ -18,26 +20,25 @@ libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice, caffeine)
 
 libraryDependencies += "com.google.code.gson"     % "gson"               % "2.13.2"
 libraryDependencies += "com.opencsv"              % "opencsv"            % "5.12.0"
-libraryDependencies += "io.vavr"                  % "vavr"               % "0.10.7"
 libraryDependencies += "net.sf.biweekly"          % "biweekly"           % "0.6.8"
 libraryDependencies += "org.apache.commons"       % "commons-compress"   % "1.28.0"
 libraryDependencies += "org.apache.commons"       % "commons-email"      % "1.6.0"
-libraryDependencies += "org.apache.poi"           % "poi"                % "5.5.0"
-libraryDependencies += "org.apache.poi"           % "poi-ooxml"          % "5.5.0"
+libraryDependencies += "org.apache.poi"           % "poi"                % "5.5.1"
+libraryDependencies += "org.apache.poi"           % "poi-ooxml"          % "5.5.1"
 libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"          % "1.2.0"
-libraryDependencies += "org.springframework"      % "spring-beans"       % "7.0.1"
+libraryDependencies += "org.springframework"      % "spring-beans"       % "7.0.5"
 libraryDependencies += "org.typelevel"           %% "cats-core"          % "2.13.0"
-libraryDependencies += "org.typelevel"           %% "cats-effect"        % "3.6.3"
-libraryDependencies += "joda-time"                % "joda-time"          % "2.14.0"
-libraryDependencies += "org.jsoup"                % "jsoup"              % "1.21.2"
-libraryDependencies += "org.postgresql"           % "postgresql"         % "42.7.8"
-libraryDependencies += "com.icegreen"             % "greenmail"          % "2.1.7"  % "test"
-libraryDependencies += "com.icegreen"             % "greenmail-junit4"   % "2.1.7"  % "test"
+libraryDependencies += "org.typelevel"           %% "cats-effect"        % "3.7.0"
+libraryDependencies += "joda-time"                % "joda-time"          % "2.14.1"
+libraryDependencies += "org.jsoup"                % "jsoup"              % "1.22.1"
+libraryDependencies += "org.postgresql"           % "postgresql"         % "42.7.10"
+libraryDependencies += "com.icegreen"             % "greenmail"          % "2.1.8"  % "test"
+libraryDependencies += "com.icegreen"             % "greenmail-junit4"   % "2.1.8"  % "test"
 libraryDependencies += "net.jodah"                % "concurrentunit"     % "0.4.6"  % "test"
-libraryDependencies += "org.eclipse.jetty"        % "jetty-server"       % "12.1.4" % "test"
-libraryDependencies += "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet" % "12.1.4" % "test"
+libraryDependencies += "org.eclipse.jetty"        % "jetty-server"       % "12.1.7" % "test"
+libraryDependencies += "org.eclipse.jetty.ee10"   % "jetty-ee10-servlet" % "12.1.7" % "test"
 libraryDependencies += "org.easytesting"          % "fest-assert"        % "1.4"    % "test"
-libraryDependencies += "org.yaml"                 % "snakeyaml"          % "2.5"    % "test"
+libraryDependencies += "org.yaml"                 % "snakeyaml"          % "2.6"    % "test"
 libraryDependencies += "org.scalatest"           %% "scalatest"          % "3.2.19" % "test"
 libraryDependencies += "org.scalatestplus.play"  %% "scalatestplus-play" % "7.0.2"  % "test"
 

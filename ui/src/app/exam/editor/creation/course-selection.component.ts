@@ -51,20 +51,6 @@ export class CourseSelectionComponent {
         return currentExam ? this.Exam.getExecutionTypeTranslation(currentExam.executionType) : '';
     }
 
-    updateExamName() {
-        const currentExam = this.exam();
-        if (!currentExam) return;
-        this.Exam.updateExam$(currentExam).subscribe({
-            next: () => this.toast.info(this.translate.instant('i18n_exam_saved')),
-            error: (error) => {
-                if (error.data) {
-                    const msg = error.data.message || error.data;
-                    this.toast.error(this.translate.instant(msg));
-                }
-            },
-        });
-    }
-
     updateExamNameValue(value: string) {
         const currentExam = this.exam();
         if (!currentExam) return;
@@ -98,6 +84,14 @@ export class CourseSelectionComponent {
     continueToExam() {
         const currentExam = this.exam();
         if (!currentExam) return;
-        this.router.navigate(['/staff/exams', currentExam.id, 1]);
+        this.Exam.updateExam$(currentExam).subscribe({
+            next: () => this.router.navigate(['/staff/exams', currentExam.id, 1]),
+            error: (error) => {
+                if (error.data) {
+                    const msg = error.data.message || error.data;
+                    this.toast.error(this.translate.instant(msg));
+                }
+            },
+        });
     }
 }

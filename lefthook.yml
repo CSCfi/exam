@@ -16,10 +16,10 @@ pre-commit:
       tags: backend style / scala format
       glob: "**/*.scala"
       run: sbt scalafmtAll
-    scalafix:
-      tags: backend style / scala fix
-      glob: "**/*.scala"
-      run: sbt scalafixAll
+    #scalafix:
+    #  tags: backend style / scala fix
+    #  glob: "**/*.scala"
+    #  run: sbt scalafixAll
     eslint:
       tags: frontend rules
       glob: "**/*.ts"

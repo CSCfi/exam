@@ -61,10 +61,10 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       val dataRow = sheet.createRow(index + 1)
       data.asScala.zipWithIndex.foreach { case (entry, cellIndex) =>
         val cell = dataRow.createCell(cellIndex)
-        val cellType = entry._2 match
+        val cellType = entry.getValue match
           case assessment.ExamScore.CellType.DECIMAL => CellType.DECIMAL
           case assessment.ExamScore.CellType.STRING  => CellType.STRING
-        setValue(cell, entry._1, cellType)
+        setValue(cell, entry.getKey, cellType)
       }
     }
     headers.indices.foreach(i => sheet.autoSizeColumn(i, true))

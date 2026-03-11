@@ -6,12 +6,12 @@ package models.assessment;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import models.base.GeneratedIdentityModel;
 import models.exam.Exam;
 import models.user.User;
@@ -258,42 +258,43 @@ public class ExamScore extends GeneratedIdentityModel {
         };
     }
 
-    public List<Tuple2<String, CellType>> asCells(User student, User teacher, Exam exam) {
-        List<Tuple2<String, CellType>> cells = new ArrayList<>();
-        cells.add(Tuple.of(Long.toString(getId()), CellType.STRING));
-        cells.add(Tuple.of(this.student, CellType.STRING));
-        cells.add(Tuple.of(student.getFirstName(), CellType.STRING));
-        cells.add(Tuple.of(student.getLastName(), CellType.STRING));
-        cells.add(Tuple.of(student.getEmail(), CellType.STRING));
-        cells.add(Tuple.of(studentId, CellType.STRING));
-        cells.add(Tuple.of(identifier, CellType.STRING));
-        cells.add(Tuple.of(courseUnitCode, CellType.STRING));
-        cells.add(Tuple.of(exam.getCourse().getName(), CellType.STRING));
-        cells.add(Tuple.of(courseImplementation, CellType.STRING));
-        cells.add(Tuple.of(courseUnitLevel, CellType.STRING));
-        cells.add(Tuple.of(institutionName, CellType.STRING));
-        cells.add(Tuple.of(examDate, CellType.STRING));
-        cells.add(Tuple.of(creditType, CellType.STRING));
-        cells.add(Tuple.of(credits, CellType.DECIMAL));
-        cells.add(Tuple.of(creditLanguage, CellType.STRING));
-        cells.add(Tuple.of(studentGrade, CellType.STRING));
-        cells.add(Tuple.of(gradeScale, CellType.STRING));
-        cells.add(Tuple.of(examScore, CellType.DECIMAL));
-        cells.add(Tuple.of(lecturer, CellType.STRING));
-        cells.add(Tuple.of(teacher.getFirstName(), CellType.STRING));
-        cells.add(Tuple.of(teacher.getLastName(), CellType.STRING));
-        cells.add(Tuple.of(lecturerId, CellType.STRING));
-        cells.add(Tuple.of(lecturerEmployeeNumber, CellType.STRING));
-        cells.add(Tuple.of(registrationDate, CellType.STRING));
-        cells.add(Tuple.of(additionalInfo, CellType.STRING));
+    public List<Map.Entry<String, CellType>> asCells(User student, User teacher, Exam exam) {
+        List<Map.Entry<String, CellType>> cells = new ArrayList<>();
+        cells.add(entry(Long.toString(getId()), CellType.STRING));
+        cells.add(entry(this.student, CellType.STRING));
+        cells.add(entry(student.getFirstName(), CellType.STRING));
+        cells.add(entry(student.getLastName(), CellType.STRING));
+        cells.add(entry(student.getEmail(), CellType.STRING));
+        cells.add(entry(studentId, CellType.STRING));
+        cells.add(entry(identifier, CellType.STRING));
+        cells.add(entry(courseUnitCode, CellType.STRING));
+        cells.add(entry(exam.getCourse().getName(), CellType.STRING));
+        cells.add(entry(courseImplementation, CellType.STRING));
+        cells.add(entry(courseUnitLevel, CellType.STRING));
+        cells.add(entry(institutionName, CellType.STRING));
+        cells.add(entry(examDate, CellType.STRING));
+        cells.add(entry(creditType, CellType.STRING));
+        cells.add(entry(credits, CellType.DECIMAL));
+        cells.add(entry(creditLanguage, CellType.STRING));
+        cells.add(entry(studentGrade, CellType.STRING));
+        cells.add(entry(gradeScale, CellType.STRING));
+        cells.add(entry(examScore, CellType.DECIMAL));
+        cells.add(entry(lecturer, CellType.STRING));
+        cells.add(entry(teacher.getFirstName(), CellType.STRING));
+        cells.add(entry(teacher.getLastName(), CellType.STRING));
+        cells.add(entry(lecturerId, CellType.STRING));
+        cells.add(entry(lecturerEmployeeNumber, CellType.STRING));
+        cells.add(entry(registrationDate, CellType.STRING));
+        cells.add(entry(additionalInfo, CellType.STRING));
         return cells;
     }
 
+    private static Map.Entry<String, CellType> entry(String value, CellType type) {
+        return new AbstractMap.SimpleImmutableEntry<>(value, type);
+    }
+
     public String[] asArray(User student, User teacher, Exam exam) {
-        return asCells(student, teacher, exam)
-            .stream()
-            .map(t -> t._1)
-            .toArray(String[]::new);
+        return asCells(student, teacher, exam).stream().map(Map.Entry::getKey).toArray(String[]::new);
     }
 
     public enum CellType {
