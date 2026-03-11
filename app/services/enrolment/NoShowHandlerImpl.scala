@@ -8,6 +8,7 @@ import cats.effect.IO
 import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.effect.unsafe.implicits.global
 import database.EbeanQueryExtensions
+import org.joda.time.DateTime
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
 import play.api.Logging
@@ -126,17 +127,9 @@ class NoShowHandlerImpl @Inject (
   override def handleNoShowAndNotify(enrolment: ExamEnrolment): Unit =
     val exam = enrolment.getExam
     if Option(exam).exists(_.isPrivate) then
-      // For no-shows with private examinations we remove the reservation so a student can re-reserve.
-      // This is needed because a student is not able to re-enroll by themselves.
-      val reservation = enrolment.getReservation
-      val eec         = enrolment.getExaminationEventConfiguration
-      enrolment.setReservation(null)
-      enrolment.setExaminationEventConfiguration(null)
-      enrolment.setNoShow(false)
-      enrolment.update()
-      if Option(reservation).nonEmpty then reservation.delete
-      if Option(eec).nonEmpty then eec.delete
-    else enrolment.setNoShow(true)
+      // For no-shows with private examinations we automatically create a new enrolment so a student can re-reserve.
+      createNewEnrolment(enrolment)
+    enrolment.setNoShow(true)
     enrolment.update()
     logger.info(s"Marked enrolment ${enrolment.getId} as no-show")
     val (examName, courseCode) = Option(exam) match
@@ -152,3 +145,15 @@ class NoShowHandlerImpl @Inject (
           composer.composeNoShowMessage(teacher, enrolment.getUser, exam)
           logger.info(s"Email sent to ${teacher.getEmail}")
       )
+
+  private def createNewEnrolment(enrolment: ExamEnrolment) =
+    val newEnrolment = new ExamEnrolment()
+    if Option(enrolment.getUser).nonEmpty then
+      newEnrolment.setUser(enrolment.getUser)
+    else
+      newEnrolment.setPreEnrolledUserEmail(enrolment.getPreEnrolledUserEmail)
+    newEnrolment.setExam(enrolment.getExam)
+    newEnrolment.setEnrolledOn(DateTime.now())
+    newEnrolment.setInformation(enrolment.getInformation)
+    newEnrolment.setRandomDelay()
+    newEnrolment.save()
