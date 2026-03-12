@@ -16,9 +16,9 @@ import { CourseCodeService } from './course-code.service';
     imports: [],
 })
 export class CourseCodeComponent {
-    course = input.required<Course>();
+    readonly course = input.required<Course>();
 
-    private CodeService = inject(CourseCodeService);
+    private readonly CodeService = inject(CourseCodeService);
 
     formatCode = () => this.CodeService.formatCode(this.course().code || '');
 }

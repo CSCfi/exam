@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -22,7 +22,7 @@ import { FileService } from 'src/app/shared/file/file.service';
     imports: [TranslateModule],
     template: `
         <div class="modal-header">
-            <h2 class="xm-modal-title">{{ title | translate }}</h2>
+            <h2 class="xm-modal-title">{{ title() | translate }}</h2>
         </div>
         <div class="modal-body">
             <div class="row">
@@ -46,7 +46,7 @@ import { FileService } from 'src/app/shared/file/file.service';
                 </div>
             </div>
             <div class="row pt-2">
-                @if (isTeacherModal) {
+                @if (isTeacherModal()) {
                     <div class="col-12">
                         {{ 'i18n_check_file_accessible' | translate }}
                     </div>
@@ -71,34 +71,17 @@ import { FileService } from 'src/app/shared/file/file.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttachmentSelectorComponent {
-    @ViewChild('file', { static: false }) file!: ElementRef;
-    fileObject = signal<File | undefined>(undefined);
-    maxFileSize = signal(0);
-    activeModal = inject(NgbActiveModal);
+    readonly fileObject = signal<File | undefined>(undefined);
+    readonly maxFileSize = signal(0);
+    readonly title = signal('');
+    readonly isTeacherModal = signal(false);
 
-    private _title = signal('');
-    private _isTeacherModal = signal(false);
-    private Files = inject(FileService);
+    protected readonly activeModal = inject(NgbActiveModal);
+    private readonly file = viewChild.required<ElementRef>('file');
+    private readonly Files = inject(FileService);
 
     constructor() {
         this.Files.getMaxFilesize$().subscribe((data) => this.maxFileSize.set(data.filesize));
-    }
-
-    // Getters/setters for compatibility with direct property assignment pattern
-    get title(): string {
-        return this._title();
-    }
-
-    get isTeacherModal(): boolean {
-        return this._isTeacherModal();
-    }
-
-    set title(value: string) {
-        this._title.set(value);
-    }
-
-    set isTeacherModal(value: boolean) {
-        this._isTeacherModal.set(value);
     }
 
     confirmed() {
@@ -109,7 +92,7 @@ export class AttachmentSelectorComponent {
     }
 
     onFilesAdded() {
-        const files: { [key: string]: File } = this.file.nativeElement.files;
+        const files: { [key: string]: File } = this.file().nativeElement.files;
         for (const key in files) {
             if (!isNaN(parseInt(key))) {
                 this.fileObject.set(files[key]);

@@ -5,7 +5,7 @@
 import { LowerCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
-import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavItemRole, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavChangeEvent, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
@@ -21,10 +21,7 @@ import { ExamTabService } from './exam-tabs.service';
     selector: 'xm-exam-tabs',
     templateUrl: './exam-tabs.component.html',
     imports: [
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
+        NgbNavModule,
         RouterOutlet,
         LowerCasePipe,
         TranslateModule,
@@ -36,18 +33,18 @@ import { ExamTabService } from './exam-tabs.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamTabsComponent {
-    exam = signal<Exam | undefined>(undefined);
-    collaborative = signal(false);
-    examInfo = signal<{ title: string | null }>({ title: null });
-    activeTab = signal(1);
-    user: User;
+    readonly exam = signal<Exam | undefined>(undefined);
+    readonly collaborative = signal(false);
+    readonly examInfo = signal<{ title: string | null }>({ title: null });
+    readonly activeTab = signal(1);
+    readonly user: User;
 
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private Session = inject(SessionService);
-    private Tabs = inject(ExamTabService);
-    private CourseCode = inject(CourseCodeService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly Session = inject(SessionService);
+    private readonly Tabs = inject(ExamTabService);
+    private readonly CourseCode = inject(CourseCodeService);
 
     constructor() {
         this.user = this.Session.getUser();

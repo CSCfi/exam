@@ -66,8 +66,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
                     <div role="presentation" class="input-group">
                         <input
-                            [(ngModel)]="departmentFilter"
-                            (change)="handleDepartmentInputChange()"
+                            [value]="departmentFilter"
+                            (input)="onDepartmentFilterInput($event)"
                             type="text"
                             class="form-control"
                             placeholder="{{ 'i18n_search' | translate }}"
@@ -78,7 +78,7 @@ SPDX-License-Identifier: EUPL-1.2
                         <button
                             ngbDropdownItem
                             role="presentation"
-                            [ngClass]="department.filtered ? 'active' : ''"
+                            [class.active]="department.filtered"
                             (click)="setDepartmentFilter(department)"
                             (keydown.enter)="setDepartmentFilter(department)"
                         >

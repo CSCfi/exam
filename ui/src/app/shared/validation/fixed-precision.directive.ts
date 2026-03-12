@@ -2,34 +2,24 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Directive, ElementRef, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
+import { Directive, ElementRef, HostListener, inject } from '@angular/core';
+import { NgControl } from '@angular/forms';
+import { toFixedPrecisionString } from 'src/app/shared/validation/fixed-precision.util';
 
 @Directive({
     selector: '[xmFixedPrecision]',
 })
 export class FixedPrecisionValidatorDirective {
-    @Input() ngModel: number | null | undefined;
-    @Output() ngModelChange = new EventEmitter<number>();
-
-    private el = inject(ElementRef);
+    private readonly el = inject(ElementRef);
+    private readonly ngControl = inject(NgControl, { optional: true, self: true });
 
     @HostListener('change')
     onChange() {
-        const fixed = this.toFixed();
+        const value = this.ngControl?.control?.value;
+        const fixed = toFixedPrecisionString(value);
         if (fixed) {
             (this.el.nativeElement as HTMLInputElement).value = fixed;
-            this.ngModelChange.emit(parseFloat(fixed));
+            this.ngControl?.control?.setValue(parseFloat(fixed));
         }
     }
-
-    private toFixed = () => {
-        if (this.ngModel == null || this.ngModel == undefined) {
-            return this.ngModel;
-        }
-        const re = /^-?[0-9]+(\.[0-9]{1,2})?$/i;
-        if (!this.ngModel.toString().match(re)) {
-            return this.ngModel.toFixed(2);
-        }
-        return this.ngModel.toString();
-    };
 }

@@ -60,22 +60,22 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionListComponent {
-    exceptions = input<ExceptionWorkingHours[]>([]);
-    hideButton = input(false);
-    hideTitle = input(false);
-    hideInfo = input(true);
-    filter = input<(exception: ExceptionWorkingHours) => boolean>(() => true);
-    created = output<ExceptionWorkingHours[]>();
-    removed = output<ExceptionWorkingHours>();
+    readonly exceptions = input<ExceptionWorkingHours[]>([]);
+    readonly hideButton = input(false);
+    readonly hideTitle = input(false);
+    readonly hideInfo = input(true);
+    readonly filter = input<(exception: ExceptionWorkingHours) => boolean>(() => true);
+    readonly created = output<ExceptionWorkingHours[]>();
+    readonly removed = output<ExceptionWorkingHours>();
 
-    orderedExceptions = computed(() =>
+    readonly orderedExceptions = computed(() =>
         this.exceptions()
             .filter((e) => new Date(e.endDate) > new Date())
             .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()),
     );
 
-    private roomService = inject(RoomService);
-    private modal = inject(ModalService);
+    private readonly roomService = inject(RoomService);
+    private readonly modal = inject(ModalService);
 
     formatDate(exception: ExceptionWorkingHours) {
         if (!exception.startDate || !exception.endDate) {

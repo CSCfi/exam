@@ -17,9 +17,13 @@ import models.user.{Language, User}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import org.scalatest.BeforeAndAfterEach
+import play.api.Application
 import play.api.http.Status
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsNumber, Json}
 import play.api.test.Helpers.*
+import services.datetime.{AppClock, FixedAppClock}
 
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 import scala.concurrent.Future
@@ -27,6 +31,15 @@ import scala.jdk.CollectionConverters.*
 
 class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
     with EbeanQueryExtensions:
+
+  // Anchored to today at 10:00 — consistent with DateTime.now() in test setup while keeping
+  // the time-of-day safely within working hours and well before midnight
+  val fixedNow: DateTime = DateTime.now().withTimeAtStartOfDay().plusHours(10)
+
+  override def fakeApplication(): Application =
+    new GuiceApplicationBuilder()
+      .overrides(bind[AppClock].toInstance(FixedAppClock(fixedNow)))
+      .build()
 
   private val MAIL_TIMEOUT = 5000L
 
@@ -88,7 +101,7 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
       val dwh = new DefaultWorkingHours()
       dwh.setWeekday(day)
       dwh.setRoom(room)
-      dwh.setStartTime(DateTime.now().withTimeAtStartOfDay())
+      dwh.setStartTime(fixedNow.withTimeAtStartOfDay())
       dwh.setEndTime(dwh.getStartTime.withTime(20, 59, 59, 999))
       dwh.setTimezoneOffset(7200000)
       dwh.save()
@@ -152,8 +165,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           }(using scala.concurrent.ExecutionContext.global)
         }
 
-        // Wait for all requests to complete
-        latch.await(MAIL_TIMEOUT + 1000, TimeUnit.MILLISECONDS) must be(true)
+        // Wait for all requests to complete (10 requests serialise on a pessimistic user lock)
+        latch.await(30000L, TimeUnit.MILLISECONDS) must be(true)
         println(s"All HTTP requests completed. Status codes: ${statuses.toList}")
         statuses.toList.forall(_ == Status.OK) must be(true)
 
@@ -251,9 +264,9 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           .plusDays(1)
           .withHourOfDay(13)
 
-        // Setup existing future reservation
-        reservation.setStartAt(DateTime.now().plusHours(2))
-        reservation.setEndAt(DateTime.now().plusHours(3))
+        // Setup existing future reservation (must be after fixedNow=10:00 so checkEnrolment passes)
+        reservation.setStartAt(fixedNow.plusHours(2))
+        reservation.setEndAt(fixedNow.plusHours(3))
         reservation.setMachine(room.getExamMachines.get(0))
         reservation.save()
         enrolment.setReservation(reservation)
@@ -308,8 +321,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           .withHourOfDay(13)
 
         // Setup past reservation with no-show
-        reservation.setStartAt(DateTime.now().minusDays(1).minusMinutes(10))
-        reservation.setEndAt(DateTime.now().minusDays(1).minusMinutes(5))
+        reservation.setStartAt(fixedNow.minusDays(1).minusMinutes(10))
+        reservation.setEndAt(fixedNow.minusDays(1).minusMinutes(5))
         reservation.setMachine(room.getExamMachines.get(0))
         reservation.save()
         enrolment.setReservation(reservation)
@@ -357,12 +370,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
       "reject reservation with start time in past" in:
         val (user, session)            = runIO(loginAsStudent())
         val (exam, room, _, enrolment) = setupTestData()
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).minusHours(1)
-        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(2)
+        val start                      = fixedNow.minusHours(1)
+        val end                        = fixedNow.plusHours(2)
 
         val reservationData = Json.obj(
           "roomId" -> JsNumber(BigDecimal(room.getId)),
@@ -387,12 +396,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
       "reject reservation that ends before it starts" in:
         val (user, session)            = runIO(loginAsStudent())
         val (exam, room, _, enrolment) = setupTestData()
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(2)
-        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(1)
+        val start                      = fixedNow.plusHours(2)
+        val end                        = fixedNow.plusHours(1)
 
         val reservationData = Json.obj(
           "roomId" -> JsNumber(BigDecimal(room.getId)),
@@ -417,16 +422,12 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
       "reject reservation when previous reservation is in effect" in:
         val (user, session)                      = runIO(loginAsStudent())
         val (exam, room, reservation, enrolment) = setupTestData()
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(1)
-        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(2)
+        val start                                = fixedNow.plusHours(1)
+        val end                                  = fixedNow.plusHours(2)
 
         // Setup current reservation
-        reservation.setStartAt(DateTime.now().minusMinutes(10))
-        reservation.setEndAt(DateTime.now().plusMinutes(10))
+        reservation.setStartAt(fixedNow.minusMinutes(10))
+        reservation.setEndAt(fixedNow.plusMinutes(10))
         reservation.setMachine(room.getExamMachines.get(0))
         reservation.save()
         enrolment.setReservation(reservation)
@@ -459,8 +460,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val (_, room, reservation, enrolment) = setupTestData()
         // Setup future reservation
         reservation.setMachine(room.getExamMachines.get(0))
-        reservation.setStartAt(DateTime.now().plusHours(2))
-        reservation.setEndAt(DateTime.now().plusHours(3))
+        reservation.setStartAt(fixedNow.plusHours(2))
+        reservation.setEndAt(fixedNow.plusHours(3))
         reservation.save()
         enrolment.setReservation(reservation)
         enrolment.update()
@@ -482,8 +483,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val (_, room, reservation, enrolment) = setupTestData()
         // Setup past reservation
         reservation.setMachine(room.getExamMachines.get(0))
-        reservation.setStartAt(DateTime.now().minusHours(2))
-        reservation.setEndAt(DateTime.now().minusHours(1))
+        reservation.setStartAt(fixedNow.minusHours(2))
+        reservation.setEndAt(fixedNow.minusHours(1))
         reservation.save()
         enrolment.setReservation(reservation)
         enrolment.update()
@@ -502,8 +503,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val (_, room, reservation, enrolment) = setupTestData()
         // Setup current reservation
         reservation.setMachine(room.getExamMachines.get(0))
-        reservation.setStartAt(DateTime.now().minusHours(1))
-        reservation.setEndAt(DateTime.now().plusHours(1))
+        reservation.setStartAt(fixedNow.minusHours(1))
+        reservation.setEndAt(fixedNow.plusHours(1))
         reservation.save()
         enrolment.setReservation(reservation)
         enrolment.update()

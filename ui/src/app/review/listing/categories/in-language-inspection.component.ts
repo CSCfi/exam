@@ -4,7 +4,6 @@
 
 import { DatePipe, SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,7 +23,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     selector: 'xm-rl-in-language-inspection',
     templateUrl: './in-language-inspection.component.html',
     imports: [
-        FormsModule,
         TableSortComponent,
         RouterLink,
         PaginatorComponent,
@@ -40,14 +38,14 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InLanguageInspectionReviewsComponent {
-    reviews = input<Review[]>([]);
-    exam = input.required<Exam>();
+    readonly exam = input.required<Exam>();
+    readonly reviews = input<Review[]>([]);
 
-    view = signal<ReviewListView | undefined>(undefined);
+    readonly view = signal<ReviewListView | undefined>(undefined);
 
-    private ReviewList = inject(ReviewListService);
-    private Session = inject(SessionService);
-    private CommonExam = inject(CommonExamService);
+    private readonly ReviewList = inject(ReviewListService);
+    private readonly Session = inject(SessionService);
+    private readonly CommonExam = inject(CommonExamService);
 
     constructor() {
         effect(() => this.init(this.reviews()));
@@ -92,6 +90,11 @@ export class InLanguageInspectionReviewsComponent {
     toggleView() {
         this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
     }
+
+    onFreeSearchFilterInput = (event: Event) => {
+        this.updateFilter((event.target as HTMLInputElement).value);
+        this.applyFreeSearchFilter();
+    };
 
     private init(reviews: Review[]) {
         const initialView = this.ReviewList.prepareView(

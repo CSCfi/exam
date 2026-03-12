@@ -9,7 +9,7 @@ import { Reservation } from 'src/app/reservation/reservation.model';
 
 @Injectable({ providedIn: 'root' })
 export class StatisticsService {
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     listDepartments$ = () => this.http.get<{ departments: string[] }>('/app/reports/departments');
     listExams$ = (params: QueryParams) => this.http.get<ExamInfo[]>('/app/reports/exams', { params: params });

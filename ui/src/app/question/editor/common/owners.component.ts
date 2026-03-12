@@ -18,11 +18,11 @@ import type { User } from 'src/app/session/session.model';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OwnersComponent {
-    currentOwners = input<User[]>([]);
-    currentOwnersChange = output<User[]>();
+    readonly currentOwners = input<User[]>([]);
+    readonly currentOwnersChange = output<User[]>();
 
-    private http = inject(HttpClient);
-    private newOwnerTemplate = signal<User | undefined>(undefined);
+    private readonly newOwnerTemplate = signal<User | undefined>(undefined);
+    private readonly http = inject(HttpClient);
 
     get newOwner(): User | undefined {
         return this.newOwnerTemplate();

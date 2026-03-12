@@ -5,7 +5,6 @@
 import { DatePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, effect, inject, input, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -16,7 +15,7 @@ import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber, isString } from 'src/app/shared/miscellaneous/helpers';
 import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
 import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
@@ -29,10 +28,9 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
     selector: 'xm-library-results',
     templateUrl: './library-results.component.html',
     imports: [
-        FormsModule,
         NgbPopover,
         TableSortComponent,
-        MathUnifiedDirective,
+        MathDirective,
         RouterLink,
         PaginatorComponent,
         SlicePipe,
@@ -44,26 +42,27 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
     styleUrls: ['../library.component.scss'],
 })
 export class LibraryResultsComponent {
-    questions = input<LibraryQuestion[]>([]);
-    disableLinks = input(false);
-    selected = output<number[]>();
-    copied = output<LibraryQuestion>();
+    readonly questions = input<LibraryQuestion[]>([]);
+    readonly disableLinks = input(false);
+    readonly selected = output<number[]>();
+    readonly copied = output<LibraryQuestion>();
 
-    user: User;
-    allSelected = false;
-    pageSize = 25;
-    currentPage = signal(0);
-    questionsPredicate = signal('');
-    reverse = signal(false);
-    fixedQuestions = signal<SelectableQuestion[]>([]);
+    readonly allSelected = signal(false);
+    readonly currentPage = signal(0);
+    readonly questionsPredicate = signal('');
+    readonly reverse = signal(false);
+    readonly fixedQuestions = signal<SelectableQuestion[]>([]); // Internal state
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Confirmation = inject(ConfirmationDialogService);
-    private Library = inject(LibraryService);
-    private Attachment = inject(AttachmentService);
-    private Session = inject(SessionService);
+    readonly user: User;
+    readonly pageSize = 25;
+
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly Library = inject(LibraryService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         this.user = this.Session.getUser();
@@ -84,8 +83,18 @@ export class LibraryResultsComponent {
         });
     }
 
+    onSelectAll = (event: Event) => {
+        this.allSelected.set((event.target as HTMLInputElement).checked);
+        this.selectAll();
+    };
+
+    onQuestionToggle = (question: SelectableQuestion, event: Event) => {
+        question.selected = (event.target as HTMLInputElement).checked;
+        this.questionSelected();
+    };
+
     selectAll = () => {
-        this.fixedQuestions().forEach((q) => (q.selected = this.allSelected));
+        this.fixedQuestions().forEach((q) => (q.selected = this.allSelected()));
         this.questionSelected();
     };
 

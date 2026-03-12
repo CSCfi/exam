@@ -38,12 +38,12 @@ import { Option } from 'src/app/shared/select/select.model';
     imports: [DropdownSelectComponent, TranslateModule],
 })
 export class EnrolmentsReportComponent {
-    examNames = input<Option<string, number>[]>([]);
-    enrolment = signal<number | undefined>(undefined);
+    readonly examNames = input<Option<string, number>[]>([]);
+    readonly enrolment = signal<number | undefined>(undefined);
 
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private files = inject(FileService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly files = inject(FileService);
 
     getExamEnrolments() {
         const currentEnrolment = this.enrolment();

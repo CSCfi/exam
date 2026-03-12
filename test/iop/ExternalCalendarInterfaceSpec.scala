@@ -30,9 +30,11 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.Application
 import play.api.http.Status
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsArray, Json}
 import play.api.test.Helpers.*
+import services.datetime.{AppClock, FixedAppClock}
 import services.json.JsonDeserializer
 
 import java.io.{File, FileInputStream, IOException}
@@ -63,7 +65,7 @@ class ExternalCalendarInterfaceSpec
 
   class SlotServlet extends HttpServlet:
     override def doGet(request: HttpServletRequest, response: HttpServletResponse): Unit =
-      val soon = DateTime.now().plusHours(1)
+      val soon = fixedNow.plusHours(1)
       val slot1 = Json.obj(
         "start"             -> ISODateTimeFormat.dateTime().print(soon),
         "end"               -> ISODateTimeFormat.dateTime().print(soon.plusHours(1)),
@@ -79,7 +81,7 @@ class ExternalCalendarInterfaceSpec
 
   class ReservationServlet extends HttpServlet:
     override def doPost(request: HttpServletRequest, response: HttpServletResponse): Unit =
-      val soon = DateTime.now().plusHours(1)
+      val soon = fixedNow.plusHours(1)
       val addressNode = Json.obj(
         "city"   -> "Paris",
         "street" -> "123 Rue Monet",
@@ -125,10 +127,15 @@ class ExternalCalendarInterfaceSpec
         fis.close()
       catch case _: IOException => response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
 
+  // Anchored to today at 10:00 — consistent with LocalDate.now() in URLs and DateTime.now() in test
+  // setup, while keeping the time-of-day safely within working hours and well before midnight
+  val fixedNow: DateTime = DateTime.now().withTimeAtStartOfDay().plusHours(10)
+
   override def fakeApplication(): Application =
     val config = Map("exam.integration.enrolmentPermissionCheck.active" -> java.lang.Boolean.FALSE)
     new GuiceApplicationBuilder()
       .configure(config)
+      .overrides(bind[AppClock].toInstance(FixedAppClock(fixedNow)))
       .build()
 
   override def beforeAll(): Unit =
@@ -240,25 +247,7 @@ class ExternalCalendarInterfaceSpec
     config.setExam(exam)
     config.save()
 
-    /** Creates safe start and end times that avoid the midnight boundary issue. The lookup logic in
-      * getUpcomingExternalReservation looks ahead until midnight, so we ensure reservations are
-      * scheduled before then and always in the future.
-      */
-  private def createSafeTimes =
-    val now            = DateTime.now
-    val midnight       = now.plusDays(1).withMillisOfDay(0)
-    val latestSafeTime = midnight.minusHours(2) // Use 2 hours before midnight
-    var startTime      = now.plusHours(1)
-    var endTime        = now.plusHours(2)
-
-    if endTime.isAfter(latestSafeTime) then
-      endTime = latestSafeTime
-      startTime = endTime.minusHours(1)
-    if startTime.isBefore(now) then
-      startTime = now.plusMinutes(30)
-      endTime = startTime.plusHours(1)
-      if endTime.isAfter(latestSafeTime) then endTime = latestSafeTime
-    (startTime, endTime)
+  private def createSafeTimes = (fixedNow.plusHours(1), fixedNow.plusHours(2))
 
   "ExternalCalendarInterface" when:
     "getting slots" should:
@@ -286,13 +275,13 @@ class ExternalCalendarInterfaceSpec
           case None    => fail("Student user not found")
         val (exam, user, room, enrolment) = setupTestData(Some(studentUser))
 
-        // Setup a conflicting reservation
+        // Setup a conflicting reservation overlapping with the first slot (fixedNow+1h to fixedNow+2h)
         val examList    = DB.find(classOf[Exam]).where().eq("state", Exam.State.PUBLISHED).list
         val exam2       = examList(1)
         val reservation = new Reservation()
         reservation.setUser(user)
-        reservation.setStartAt(DateTime.now().plusMinutes(90))
-        reservation.setEndAt(DateTime.now().plusHours(2))
+        reservation.setStartAt(fixedNow.plusMinutes(90))
+        reservation.setEndAt(fixedNow.plusHours(2))
         reservation.setMachine(room.getExamMachines.get(0))
         reservation.save()
         val enrolment2 = new ExamEnrolment()
@@ -366,12 +355,8 @@ class ExternalCalendarInterfaceSpec
       "create reservation successfully" in:
         val (_, _, room, _) = setupTestData()
 
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(1)
-        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(2)
+        val start = fixedNow.plusHours(1)
+        val end   = fixedNow.plusHours(2)
 
         val requestData = Json.obj(
           "id"      -> RESERVATION_REF,
@@ -403,8 +388,8 @@ class ExternalCalendarInterfaceSpec
         val (_, _, room, _) = setupTestData()
         val reservation     = new Reservation()
         reservation.setExternalRef(RESERVATION_REF)
-        reservation.setStartAt(DateTime.now().plusHours(2))
-        reservation.setEndAt(DateTime.now().plusHours(3))
+        reservation.setStartAt(fixedNow.plusHours(2))
+        reservation.setEndAt(fixedNow.plusHours(3))
         reservation.setMachine(room.getExamMachines.get(0))
         reservation.save()
 
@@ -419,8 +404,8 @@ class ExternalCalendarInterfaceSpec
         val (_, user, room, enrolment) = setupTestData()
         val reservation                = new Reservation()
         reservation.setUser(user)
-        reservation.setStartAt(DateTime.now().plusHours(2))
-        reservation.setEndAt(DateTime.now().plusHours(3))
+        reservation.setStartAt(fixedNow.plusHours(2))
+        reservation.setEndAt(fixedNow.plusHours(3))
         reservation.setExternalRef(RESERVATION_REF)
         val er = new ExternalReservation()
         er.setOrgRef(ORG_REF)
@@ -447,8 +432,8 @@ class ExternalCalendarInterfaceSpec
 
         val reservation = new Reservation()
         reservation.setUser(user)
-        reservation.setStartAt(DateTime.now().minusHours(1))
-        reservation.setEndAt(DateTime.now().plusHours(2))
+        reservation.setStartAt(fixedNow.minusHours(1))
+        reservation.setEndAt(fixedNow.plusHours(2))
         reservation.setExternalRef(RESERVATION_REF)
         val er = new ExternalReservation()
         er.setOrgRef(ORG_REF)
@@ -476,8 +461,8 @@ class ExternalCalendarInterfaceSpec
         val reservation = new Reservation()
         reservation.setExternalRef(RESERVATION_REF)
         reservation.setExternalUserRef("testuser@test.org")
-        reservation.setStartAt(DateTime.now().plusHours(2))
-        reservation.setEndAt(DateTime.now().plusHours(3))
+        reservation.setStartAt(fixedNow.plusHours(2))
+        reservation.setEndAt(fixedNow.plusHours(3))
         reservation.setMachine(room.getExamMachines.get(0))
         reservation.save()
 
@@ -501,8 +486,8 @@ class ExternalCalendarInterfaceSpec
 
         val reservation = new Reservation()
         reservation.setExternalRef(RESERVATION_REF)
-        reservation.setStartAt(DateTime.now().minusHours(1))
-        reservation.setEndAt(DateTime.now().plusHours(2))
+        reservation.setStartAt(fixedNow.minusHours(1))
+        reservation.setEndAt(fixedNow.plusHours(2))
         reservation.setMachine(room.getExamMachines.get(0))
         reservation.save()
 
@@ -533,8 +518,8 @@ class ExternalCalendarInterfaceSpec
 
         val reservation = new Reservation()
         reservation.setExternalRef(RESERVATION_REF)
-        reservation.setStartAt(DateTime.now().plusHours(2))
-        reservation.setEndAt(DateTime.now().plusHours(3))
+        reservation.setStartAt(fixedNow.plusHours(2))
+        reservation.setEndAt(fixedNow.plusHours(3))
         reservation.setMachine(room.getExamMachines.get(0))
         reservation.save()
 
@@ -643,8 +628,8 @@ class ExternalCalendarInterfaceSpec
 
         val (_, session) = runIO(loginAsStudent())
         val requestData = Json.obj(
-          "start"         -> ISODateTimeFormat.dateTime().print(DateTime.now().plusHours(1)),
-          "end"           -> ISODateTimeFormat.dateTime().print(DateTime.now().plusHours(2)),
+          "start"         -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(1)),
+          "end"           -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(2)),
           "examId"        -> exam.getId.longValue,
           "orgId"         -> ORG_REF,
           "roomId"        -> ROOM_REF,
@@ -694,8 +679,8 @@ class ExternalCalendarInterfaceSpec
         val (exam, _, _, _) = setupTestData(Some(studentUser))
         val (_, session)    = runIO(loginAsStudent())
         val requestData = Json.obj(
-          "start"         -> ISODateTimeFormat.dateTime().print(DateTime.now().plusHours(1)),
-          "end"           -> ISODateTimeFormat.dateTime().print(DateTime.now().plusHours(2)),
+          "start"         -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(1)),
+          "end"           -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(2)),
           "examId"        -> exam.getId.longValue,
           "orgId"         -> ORG_REF,
           "roomId"        -> ROOM_REF,
@@ -718,8 +703,8 @@ class ExternalCalendarInterfaceSpec
         ).findOne()) match
           case Some(r) => r
           case None    => fail("Created reservation not found")
-        created.setStartAt(DateTime.now().minusHours(2))
-        created.setEndAt(DateTime.now().minusHours(1))
+        created.setStartAt(fixedNow.minusHours(2))
+        created.setEndAt(fixedNow.minusHours(1))
         created.save()
 
         val enrolmentData = Json.obj("code" -> exam.getCourse.getCode)
@@ -738,16 +723,12 @@ class ExternalCalendarInterfaceSpec
           case None    => fail("Student user not found")
         val (exam, user, room, enrolment) = setupTestData(Some(studentUser))
 
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(1)
-        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(2)
+        val start = fixedNow.plusHours(1)
+        val end   = fixedNow.plusHours(2)
 
         val reservation = new Reservation()
-        reservation.setStartAt(DateTime.now().minusMinutes(10))
-        reservation.setEndAt(DateTime.now().plusMinutes(10))
+        reservation.setStartAt(fixedNow.minusMinutes(10))
+        reservation.setEndAt(fixedNow.plusMinutes(10))
         reservation.setMachine(room.getExamMachines.get(0))
         reservation.save()
         enrolment.setReservation(reservation)
@@ -784,16 +765,12 @@ class ExternalCalendarInterfaceSpec
           case None    => fail("Student user not found")
         val (exam, user, room, enrolment) = setupTestData(Some(studentUser))
 
-        val start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(6)
-        val end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(
-          0
-        ).plusHours(7)
+        val start = fixedNow.plusHours(6)
+        val end   = fixedNow.plusHours(7)
 
         val reservation = new Reservation()
-        reservation.setStartAt(DateTime.now().plusHours(2))
-        reservation.setEndAt(DateTime.now().plusHours(3))
+        reservation.setStartAt(fixedNow.plusHours(2))
+        reservation.setEndAt(fixedNow.plusHours(3))
         reservation.setExternalRef(RESERVATION_REF)
         val er = new ExternalReservation()
         er.setOrgRef(ORG_REF)
@@ -842,8 +819,8 @@ class ExternalCalendarInterfaceSpec
 
         val reservation = new Reservation()
         reservation.setUser(user)
-        reservation.setStartAt(DateTime.now().plusHours(2))
-        reservation.setEndAt(DateTime.now().plusHours(3))
+        reservation.setStartAt(fixedNow.plusHours(2))
+        reservation.setEndAt(fixedNow.plusHours(3))
         reservation.setExternalRef(RESERVATION_REF)
         val er = new ExternalReservation()
         er.setOrgRef(ORG_REF)

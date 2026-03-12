@@ -29,15 +29,15 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
     `,
 })
 export class BaseQuestionDialogComponent {
-    question = model<ReverseQuestion | QuestionDraft | undefined>(undefined);
-    questionId = model<number | undefined>(undefined);
-    collaborative = model(false);
-    lotteryOn = model(false);
-    examId = model(0);
+    readonly question = model<ReverseQuestion | QuestionDraft | undefined>(undefined);
+    readonly questionId = model<number | undefined>(undefined);
+    readonly collaborative = model(false);
+    readonly lotteryOn = model(false);
+    readonly examId = model(0);
 
-    private modal = inject(NgbActiveModal);
-    private translate = inject(TranslateService);
-    private Dialogs = inject(ConfirmationDialogService);
+    private readonly modal = inject(NgbActiveModal);
+    private readonly translate = inject(TranslateService);
+    private readonly Dialogs = inject(ConfirmationDialogService);
 
     onSave = (event: ReverseQuestion | QuestionDraft) => this.modal.close(event);
     cancel = () => {

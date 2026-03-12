@@ -2,12 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
@@ -54,7 +53,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                         <span class="exam-question-option-text" [xmMath]="option.option.option"></span>
                     </div>
                     <div class="make-inline float-end">
-                        <span [ngClass]="option.score >= 0 ? 'text-success' : 'text-danger'">
+                        <span [class.text-success]="option.score >= 0" [class.text-danger]="option.score < 0">
                             {{ option.score }} {{ 'i18n_unit_points' | translate }}</span
                         >
                     </div>
@@ -62,10 +61,10 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             }
         </div>
     }`,
-    imports: [MathUnifiedDirective, NgClass, TranslateModule, OrderByPipe],
+    imports: [MathDirective, TranslateModule, OrderByPipe],
     styleUrl: './multi-choice-answers.shared.scss',
 })
 export class WeightedMultiChoiceAnswerComponent {
-    sectionQuestion = input.required<ExamSectionQuestion>();
-    reviewExpanded = signal(true);
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly reviewExpanded = signal(true);
 }

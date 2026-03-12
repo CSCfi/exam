@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
+import { SlicePipe, UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,26 +38,26 @@ import { SessionService } from 'src/app/session/session.service';
                         <div [innerHtml]="r.question.question | slice: 0 : 50"></div>
                     </div>
                     <div class="col-md-2">
-                        <div [ngClass]="isFinalized(r) ? 'text-success' : ''">
+                        <div [class.text-success]="isFinalized(r)" [class.text-danger]="!isFinalized(r)">
                             {{ r.answers.length - getAssessedAnswerCount(r) }} / {{ r.answers.length }}
                         </div>
                     </div>
                 </div>
             }
         </div>`,
-    imports: [NgClass, UpperCasePipe, SlicePipe, TranslateModule, NgbCollapse],
+    imports: [UpperCasePipe, SlicePipe, TranslateModule, NgbCollapse],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionFlowCategoryComponent {
-    categoryTitle = input('');
-    reviews = input<QuestionReview[]>([]);
-    allDone = input(false);
-    selected = output<QuestionReview>();
+    readonly categoryTitle = input('');
+    readonly reviews = input<QuestionReview[]>([]);
+    readonly allDone = input(false);
+    readonly selected = output<QuestionReview>();
 
-    hideCategory = signal(false);
+    readonly hideCategory = signal(false);
 
-    private QuestionReview = inject(QuestionReviewService);
-    private Session = inject(SessionService);
+    private readonly QuestionReview = inject(QuestionReviewService);
+    private readonly Session = inject(SessionService);
 
     isFinalized(review: QuestionReview) {
         return this.QuestionReview.isFinalized(review);

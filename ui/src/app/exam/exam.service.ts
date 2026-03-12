@@ -41,14 +41,14 @@ type SectionContainer = { examSections: ExamSection[] };
 
 @Injectable({ providedIn: 'root' })
 export class ExamService {
-    private router = inject(Router);
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private CommonExam = inject(CommonExamService);
-    private QuestionScore = inject(QuestionScoringService);
-    private Session = inject(SessionService);
-    private ConfirmationDialog = inject(ConfirmationDialogService);
+    private readonly router = inject(Router);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly QuestionScore = inject(QuestionScoringService);
+    private readonly Session = inject(SessionService);
+    private readonly ConfirmationDialog = inject(ConfirmationDialogService);
 
     getReviewablesCount = (exam: Exam) =>
         exam.children.filter((child) => child.state === 'REVIEW' || child.state === 'REVIEW_STARTED').length;

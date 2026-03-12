@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, OnDestroy, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { combineLatest, EMPTY, Subject } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { combineLatest, EMPTY } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import type { CollaborativeParticipation, ParticipationLike, ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -30,7 +30,6 @@ type Scores = {
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participation.component.html',
     imports: [
-        NgClass,
         CourseCodeComponent,
         TeacherListComponent,
         NgbCollapse,
@@ -41,19 +40,19 @@ type Scores = {
     ],
     styleUrl: './exam-participations.component.scss',
 })
-export class ExamParticipationComponent implements OnDestroy {
-    participation = input.required<ParticipationLike>();
-    collaborative = input(false);
+export class ExamParticipationComponent {
+    readonly participation = input.required<ParticipationLike>();
+    readonly collaborative = input(false);
 
-    reviewedExam = signal<ReviewedExam | undefined>(undefined);
-    scores = signal<Scores | undefined>(undefined);
-    showEvaluation = signal(false);
-    gradeDisplayName = signal('');
-    private ngUnsubscribe = new Subject<void>();
+    readonly reviewedExam = signal<ReviewedExam | undefined>(undefined);
+    readonly scores = signal<Scores | undefined>(undefined);
+    readonly showEvaluation = signal(false);
+    readonly gradeDisplayName = signal('');
 
-    private translate = inject(TranslateService);
-    private Exam = inject(CommonExamService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly translate = inject(TranslateService);
+    private readonly Exam = inject(CommonExamService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     constructor() {
         // React to participation and collaborative changes to load review
@@ -89,17 +88,12 @@ export class ExamParticipationComponent implements OnDestroy {
         );
 
         // React to language changes
-        this.translate.onLangChange.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+        this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
             const participation = this.participation();
             if (participation.exam.grade) {
                 this.gradeDisplayName.set(this.Exam.getExamGradeDisplayName(participation.exam.grade.name));
             }
         });
-    }
-
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
     }
 
     setCommentRead(exam: Exam | ReviewedExam) {
@@ -110,7 +104,7 @@ export class ExamParticipationComponent implements OnDestroy {
         ) {
             const participation = this.participation() as CollaborativeParticipation;
             this.Enrolment.setCommentRead$(participation.examId, participation._id, participation._rev)
-                .pipe(takeUntil(this.ngUnsubscribe))
+                .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe(() => {
                     if (this.participation().exam.examFeedback) {
                         this.participation().exam.examFeedback.feedbackStatus = true;
@@ -164,7 +158,7 @@ export class ExamParticipationComponent implements OnDestroy {
             return;
         }
         this.Enrolment.loadScore$(this.participation().exam.id)
-            .pipe(takeUntil(this.ngUnsubscribe))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(this.prepareScores);
     };
 

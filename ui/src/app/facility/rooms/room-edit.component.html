@@ -41,8 +41,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 type="text"
                                 name="name"
                                 class="form-control input-lg"
-                                [ngModel]="room()?.name"
-                                (ngModelChange)="updateRoomProperty('name', $event)"
+                                [value]="room()?.name ?? ''"
+                                (input)="onRoomTextInput('name', $event)"
                                 required
                                 (blur)="toggleShowName()"
                             />
@@ -55,27 +55,13 @@ SPDX-License-Identifier: EUPL-1.2
                     </span>
                 </span>
             </div>
-            <form
-                role="form"
-                #roomForm="ngForm"
-                name="roomForm"
-                novalidate
-                id="roomForm"
-                (ngSubmit)="validateAndUpdateRoom()"
-            >
+            <form role="form" novalidate id="roomForm" (ngSubmit)="validateAndUpdateRoom()">
                 <!-- Room Code & Building name -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="facility-info-text">{{ 'i18n_room_code' | translate }}</div>
                         <div class="input-group">
-                            <input
-                                type="text"
-                                name="roomCode"
-                                class="form-control"
-                                [ngModel]="room()?.roomCode"
-                                (ngModelChange)="updateRoomProperty('roomCode', $event)"
-                                required
-                            />
+                            <input type="text" class="form-control" [formField]="roomDetailsForm.roomCode" />
                             <span class="input-group-append">
                                 <span class="input-group-text">
                                     <i
@@ -91,13 +77,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <div class="col-md-6">
                         <div class="facility-info-text">{{ 'i18n_room_building_name' | translate }}</div>
                         <div class="input-group">
-                            <input
-                                type="text"
-                                name="buildingName"
-                                class="form-control"
-                                [ngModel]="room()?.buildingName"
-                                (ngModelChange)="updateRoomProperty('buildingName', $event)"
-                            />
+                            <input type="text" class="form-control" [formField]="roomDetailsForm.buildingName" />
                             <span class="input-group-append">
                                 <span class="input-group-text">
                                     <i
@@ -116,13 +96,7 @@ SPDX-License-Identifier: EUPL-1.2
                     <div class="col-md-6">
                         <div class="facility-info-text">{{ 'i18n_room_campus' | translate }}</div>
                         <div class="input-group">
-                            <input
-                                type="text"
-                                name="campus"
-                                class="form-control"
-                                [ngModel]="room()?.campus"
-                                (ngModelChange)="updateRoomProperty('campus', $event)"
-                            />
+                            <input type="text" class="form-control" [formField]="roomDetailsForm.campus" />
                             <span class="input-group-append">
                                 <span class="input-group-text">
                                     <i
@@ -143,10 +117,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <div class="input-group">
                             <input
                                 [type]="internalPasswordInputType()"
-                                name="internalPassword"
                                 class="form-control"
-                                [ngModel]="room()?.internalPassword"
-                                (ngModelChange)="updateRoomProperty('internalPassword', $event)"
+                                [formField]="roomDetailsForm.internalPassword"
                             />
                             <div class="input-group-append">
                                 <button
@@ -155,7 +127,8 @@ SPDX-License-Identifier: EUPL-1.2
                                     (click)="toggleInternalPasswordInputType()"
                                 >
                                     <i
-                                        [ngClass]="internalPasswordInputType() === 'text' ? 'bi-eye' : 'bi-eye-slash'"
+                                        [class.bi-eye]="internalPasswordInputType() === 'text'"
+                                        [class.bi-eye-slash]="internalPasswordInputType() !== 'text'"
                                     ></i>
                                 </button>
                             </div>
@@ -166,10 +139,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <div class="input-group">
                             <input
                                 [type]="externalPasswordInputType()"
-                                name="externalPassword"
                                 class="form-control"
-                                [ngModel]="room()?.externalPassword"
-                                (ngModelChange)="updateRoomProperty('externalPassword', $event)"
+                                [formField]="roomDetailsForm.externalPassword"
                             />
                             <div class="input-group-append">
                                 <button
@@ -178,7 +149,8 @@ SPDX-License-Identifier: EUPL-1.2
                                     (click)="toggleExternalPasswordInputType()"
                                 >
                                     <i
-                                        [ngClass]="externalPasswordInputType() === 'text' ? 'bi-eye' : 'bi-eye-slash'"
+                                        [class.bi-eye]="externalPasswordInputType() === 'text'"
+                                        [class.bi-eye-slash]="externalPasswordInputType() !== 'text'"
                                     ></i>
                                 </button>
                             </div>
@@ -188,7 +160,7 @@ SPDX-License-Identifier: EUPL-1.2
 
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <button type="submit" [disabled]="!roomForm.valid" class="btn btn-success">
+                        <button type="submit" [disabled]="roomDetailsForm.roomCode().invalid()" class="btn btn-success">
                             {{ 'i18n_save' | translate }}
                         </button>
                     </div>
@@ -204,9 +176,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <input
                         type="checkbox"
                         class="form-check-input"
-                        [ngModel]="room()?.availableForExternals"
-                        (ngModelChange)="updateRoomProperty('availableForExternals', $event)"
-                        (change)="updateInteroperability()"
+                        [checked]="room()?.availableForExternals ?? false"
+                        (change)="onAvailableForExternalsChange($event)"
                     />
                     <strong>{{ 'i18n_interoperable' | translate }}</strong>
                 </label>
@@ -238,8 +209,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <div class="facility-info-text">FI</div>
                     <textarea
                         class="form-control"
-                        [ngModel]="room()?.roomInstruction"
-                        (ngModelChange)="updateRoomProperty('roomInstruction', $event)"
+                        [value]="room()?.roomInstruction ?? ''"
+                        (input)="onRoomTextInput('roomInstruction', $event)"
                     >
                     </textarea>
                 </div>
@@ -247,8 +218,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <div class="facility-info-text">SV</div>
                     <textarea
                         class="form-control"
-                        [ngModel]="room()?.roomInstructionSV"
-                        (ngModelChange)="updateRoomProperty('roomInstructionSV', $event)"
+                        [value]="room()?.roomInstructionSV ?? ''"
+                        (input)="onRoomTextInput('roomInstructionSV', $event)"
                     >
                     </textarea>
                 </div>
@@ -257,8 +228,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <div class="input-group">
                         <textarea
                             class="form-control"
-                            [ngModel]="room()?.roomInstructionEN"
-                            (ngModelChange)="updateRoomProperty('roomInstructionEN', $event)"
+                            [value]="room()?.roomInstructionEN ?? ''"
+                            (input)="onRoomTextInput('roomInstructionEN', $event)"
                         >
                         </textarea>
                     </div>
@@ -269,8 +240,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <input
                             type="text"
                             class="form-control"
-                            [ngModel]="room()?.contactPerson"
-                            (ngModelChange)="updateRoomProperty('contactPerson', $event)"
+                            [value]="room()?.contactPerson ?? ''"
+                            (input)="onRoomTextInput('contactPerson', $event)"
                         />
                         <span class="input-group-append">
                             <span class="input-group-text">
@@ -295,8 +266,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     type="text"
                     class="form-control"
-                    [ngModel]="room()?.videoRecordingsURL"
-                    (ngModelChange)="updateRoomProperty('videoRecordingsURL', $event)"
+                    [value]="room()?.videoRecordingsURL ?? ''"
+                    (input)="onRoomTextInput('videoRecordingsURL', $event)"
                 />
                 <span class="input-group-append">
                     <span class="input-group-text">
@@ -331,8 +302,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     class="me-2"
                     type="checkbox"
-                    [ngModel]="room()?.outOfService"
-                    (ngModelChange)="updateOutOfService($event)"
+                    [checked]="room()?.outOfService ?? false"
+                    (change)="onOutOfServiceChange($event)"
                 />
                 <strong>{{ 'i18n_out_of_service' | translate }}</strong>
             </label>
@@ -347,8 +318,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <textarea
                     [disabled]="!room()?.outOfService"
                     class="form-control"
-                    [ngModel]="room()?.statusComment"
-                    (ngModelChange)="updateRoomProperty('statusComment', $event)"
+                    [value]="room()?.statusComment ?? ''"
+                    (input)="onRoomTextInput('statusComment', $event)"
                     (blur)="updateRoom()"
                 >
                 </textarea>
@@ -368,7 +339,7 @@ SPDX-License-Identifier: EUPL-1.2
     <!-- Button row -->
     <div class="row mt-2">
         <div class="col-md-12">
-            <button [disabled]="!roomForm.valid" (click)="saveRoom()" class="btn btn-success">
+            <button [disabled]="roomDetailsForm.roomCode().invalid()" (click)="saveRoom()" class="btn btn-success">
                 {{ 'i18n_save' | translate }}
             </button>
         </div>

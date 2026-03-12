@@ -30,9 +30,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="row" [hidden]="sectionQuestion().question.type !== 'MultipleChoiceQuestion'">
                     <div class="col-md-12">
                         <span>
-                            <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
+                            <i [class]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
                         </span>
-                        <span [ngClass]="o.option.correctOption ? 'bold' : ''" class="ps-2">
+                        <span [class.bold]="o.option.correctOption" class="ps-2">
                             {{ o.option.option }}
                         </span>
                     </div>
@@ -42,9 +42,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="row" [hidden]="sectionQuestion().question.type !== 'WeightedMultipleChoiceQuestion'">
                     <div class="col-md-3">
                         <span>
-                            <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
+                            <i [class]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
                         </span>
-                        <span [ngClass]="o.score > 0 ? 'font-bold' : ''"
+                        <span [class.font-bold]="o.score > 0"
                             >&nbsp;&nbsp;{{ o.score }} {{ 'i18n_unit_points' | translate }}</span
                         >
                     </div>
@@ -57,9 +57,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="row" [hidden]="sectionQuestion().question.type !== 'ClaimChoiceQuestion'">
                     <div class="col-md-12">
                         <span>
-                            <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
+                            <i [class]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
                         </span>
-                        <span [ngClass]="o.option.claimChoiceType === 'CorrectOption' ? 'fw-bold' : ''" class="ps-2">
+                        <span [class.fw-bold]="o.option.claimChoiceType === 'CorrectOption'" class="ps-2">
                             {{ o.option.option }}
                         </span>
                     </div>
@@ -72,7 +72,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_word_points' | translate }}:</div>
         @if (sectionQuestion().question.type === 'MultipleChoiceQuestion') {
             <div class="sub-content-row col-md-9">
-                <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
                     {{ scoreMultipleChoiceAnswer(true) }}
                 </span>
                 @if (hasForcedScore()) {
@@ -85,7 +85,7 @@ SPDX-License-Identifier: EUPL-1.2
         }
         @if (sectionQuestion().question.type === 'WeightedMultipleChoiceQuestion') {
             <div class="sub-content-row col-md-9">
-                <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
                     {{ scoreWeightedMultipleChoiceAnswer(true) }}
                 </span>
                 @if (hasForcedScore()) {
@@ -98,7 +98,7 @@ SPDX-License-Identifier: EUPL-1.2
         }
         @if (sectionQuestion().question.type === 'ClaimChoiceQuestion') {
             <div class="sub-content-row col-md-9">
-                <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
                     {{ scoreClaimChoiceAnswer(true) }}
                 </span>
                 @if (hasForcedScore()) {

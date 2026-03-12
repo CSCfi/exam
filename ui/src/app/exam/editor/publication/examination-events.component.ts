@@ -77,15 +77,16 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
     `,
 })
 export class ExaminationEventsComponent {
-    exam = input.required<Exam>();
-    maintenancePeriods = signal<MaintenancePeriod[]>([]);
+    readonly exam = input.required<Exam>();
 
-    private HttpClient = inject(HttpClient);
-    private ModalService = inject(ModalService);
-    private ToastrService = inject(ToastrService);
-    private TranslateService = inject(TranslateService);
-    private ConfirmationDialogService = inject(ConfirmationDialogService);
-    private ExamService = inject(ExamService);
+    readonly maintenancePeriods = signal<MaintenancePeriod[]>([]);
+
+    private readonly HttpClient = inject(HttpClient);
+    private readonly ModalService = inject(ModalService);
+    private readonly ToastrService = inject(ToastrService);
+    private readonly TranslateService = inject(TranslateService);
+    private readonly ConfirmationDialogService = inject(ConfirmationDialogService);
+    private readonly ExamService = inject(ExamService);
 
     constructor() {
         this.HttpClient.get<MaintenancePeriod[]>('/app/maintenance').subscribe((periods) =>

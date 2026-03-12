@@ -2,10 +2,9 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { email, form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
@@ -16,17 +15,15 @@ import type { Exam } from 'src/app/exam/exam.model';
     selector: 'xm-exam-pre-participant-selector',
     template: `<div class="row">
             <div class="col-md-9 offset-md-3">
-                <form #myForm="ngForm" name="myForm">
+                <form>
                     <input
                         type="email"
-                        name="email"
                         placeholder="{{ 'i18n_write_pre_participant_email' | translate }}"
                         class="form-control w-50 make-inline"
-                        [(ngModel)]="newPreParticipant.email"
-                        email
+                        [formField]="participantForm.email"
                     />
                     <button
-                        [disabled]="!myForm.valid || !newPreParticipant.email"
+                        [disabled]="participantForm.email().invalid()"
                         (click)="addPreParticipant()"
                         class="btn btn-success"
                     >
@@ -50,7 +47,7 @@ import type { Exam } from 'src/app/exam/exam.model';
                     {{ 'i18n_exam_participants' | translate }}:
                     <!-- Students not having finished the exam, sorted alphabetically -->
                     @for (enrolment of exam().examEnrolments; track enrolment) {
-                        <div class="ms-1 mt-1 row" [ngClass]="{ 'hover-grey': exam().state !== 'PUBLISHED' }">
+                        <div class="ms-1 mt-1 row" [class.hover-grey]="exam().state !== 'PUBLISHED'">
                             <div class="ms-1 col-8">
                                 {{ renderParticipantLabel(enrolment) }}
                                 @if (enrolment.user?.userIdentifier) {
@@ -86,35 +83,37 @@ import type { Exam } from 'src/app/exam/exam.model';
                 </span>
             }
         </div>`,
-    imports: [FormsModule, NgClass, TranslateModule],
+    imports: [FormField, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamPreParticipantSelectorComponent {
-    exam = input.required<Exam>();
+    readonly exam = input.required<Exam>();
 
-    participants = computed(() => {
+    readonly participantForm = form(signal({ email: '' }), (path) => {
+        email(path.email);
+    });
+    readonly participants = computed(() => {
         const currentExam = this.exam();
         return currentExam.children
             .map((c) => c.examParticipation)
             .filter((p): p is ExamParticipation => p !== undefined)
             .map((p) => p.user);
     });
-    newPreParticipant: { email?: string } = { email: '' };
 
-    private translate = inject(TranslateService);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly translate = inject(TranslateService);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     addPreParticipant = () => {
         const currentExam = this.exam();
-        const exists =
-            currentExam.examEnrolments.map((e) => e.preEnrolledUserEmail).indexOf(this.newPreParticipant.email) > -1;
+        const emailValue = this.participantForm.email().value();
+        const exists = currentExam.examEnrolments.map((e) => e.preEnrolledUserEmail).indexOf(emailValue) > -1;
         if (!exists) {
-            this.Enrolment.enrollStudent$(currentExam, this.newPreParticipant).subscribe({
+            this.Enrolment.enrollStudent$(currentExam, { email: emailValue }).subscribe({
                 next: (enrolment) => {
                     currentExam.examEnrolments.push(enrolment);
-                    this.newPreParticipant.email = undefined;
+                    this.participantForm.email().value.set('');
                 },
                 error: (err) => this.toast.error(err),
             });

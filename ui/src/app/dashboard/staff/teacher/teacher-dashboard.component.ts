@@ -4,15 +4,7 @@
 
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-    NgbNav,
-    NgbNavChangeEvent,
-    NgbNavContent,
-    NgbNavItem,
-    NgbNavItemRole,
-    NgbNavLink,
-    NgbNavOutlet,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavChangeEvent, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { take } from 'rxjs';
 import { DashboardExam, ExtraData } from 'src/app/dashboard/dashboard.model';
@@ -29,36 +21,31 @@ import { TeacherDashboardService } from './teacher-dashboard.service';
     templateUrl: './teacher-dashboard.component.html',
     imports: [
         RouterLink,
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
-        NgbNavContent,
+        NgbNavModule,
         ExamListCategoryComponent,
-        NgbNavOutlet,
         TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
     ],
 })
 export class TeacherDashboardComponent {
-    activeTab = signal(1);
-    userId = 0;
-    activeExtraData: ExtraData[];
-    finishedExtraData: ExtraData[];
-    archivedExtraData: ExtraData[];
+    readonly activeTab = signal(1);
 
-    finishedExams = signal<DashboardExam[]>([]);
-    filteredFinished = signal<DashboardExam[]>([]);
-    activeExams = signal<DashboardExam[]>([]);
-    filteredActive = signal<DashboardExam[]>([]);
-    archivedExams = signal<DashboardExam[]>([]);
-    filteredArchived = signal<DashboardExam[]>([]);
-    draftExams = signal<DashboardExam[]>([]);
-    filteredDrafts = signal<DashboardExam[]>([]);
+    readonly activeExtraData: ExtraData[];
+    readonly finishedExtraData: ExtraData[];
+    readonly archivedExtraData: ExtraData[];
+    readonly finishedExams = signal<DashboardExam[]>([]);
+    readonly filteredFinished = signal<DashboardExam[]>([]);
+    readonly activeExams = signal<DashboardExam[]>([]);
+    readonly filteredActive = signal<DashboardExam[]>([]);
+    readonly archivedExams = signal<DashboardExam[]>([]);
+    readonly filteredArchived = signal<DashboardExam[]>([]);
+    readonly draftExams = signal<DashboardExam[]>([]);
+    readonly filteredDrafts = signal<DashboardExam[]>([]);
 
-    private TeacherDashboard = inject(TeacherDashboardService);
-    private Session = inject(SessionService);
+    private readonly TeacherDashboard = inject(TeacherDashboardService);
+    private readonly Session = inject(SessionService);
+    private readonly userId: number;
 
     constructor() {
         this.activeExtraData = [

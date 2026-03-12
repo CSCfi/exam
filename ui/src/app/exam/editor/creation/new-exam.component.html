@@ -11,73 +11,62 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-3">
-                    <form>
+                    <div class="mb-3">
+                        <label class="form-label" for="execType">
+                            {{ 'i18n_new_exam_type' | translate }}
+                            <sup
+                                triggers="mouseenter:mouseleave"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                ngbPopover="{{ 'i18n_new_exam_type_description' | translate }}"
+                            >
+                                <img src="/assets/images/icon_tooltip.svg" alt="" />
+                            </sup>
+                        </label>
+                        <select class="form-select" id="execType" (change)="onTypeChange($event)">
+                            <option value="">{{ 'i18n_choose' | translate }}</option>
+                            @for (t of executionTypes(); track t) {
+                                <option [value]="t.type" [selected]="t.type === type()?.type">
+                                    {{ t.name | translate }}
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    @if (
+                        (homeExaminationSupported() || sebExaminationSupported()) &&
+                        type() &&
+                        type()?.type !== 'PRINTOUT'
+                    ) {
                         <div class="mb-3">
-                            <label class="form-label" for="execType">
-                                {{ 'i18n_new_exam_type' | translate }}
+                            <label class="form-label" for="examinationType"
+                                >{{ 'i18n_examination_type' | translate }}
                                 <sup
                                     triggers="mouseenter:mouseleave"
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    ngbPopover="{{ 'i18n_new_exam_type_description' | translate }}"
+                                    ngbPopover="{{ 'i18n_examination_type_description' | translate }}"
                                 >
                                     <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </label>
                             <select
                                 class="form-select"
-                                name="execType"
-                                id="execType"
-                                [ngModel]="type()"
-                                (ngModelChange)="type.set($event); selectType()"
-                                required
+                                id="examinationType"
+                                [value]="examinationType()"
+                                (change)="examinationType.set($any($event.target).value)"
                             >
-                                <option [ngValue]="undefined">{{ 'i18n_choose' | translate }}</option>
-                                @for (type of executionTypes(); track type) {
-                                    <option [ngValue]="type">
-                                        {{ type.name | translate }}
+                                <option value="AQUARIUM">{{ 'i18n_examination_type_aquarium' | translate }}</option>
+                                @if (sebExaminationSupported()) {
+                                    <option [disabled]="!canCreateByodExams()" value="CLIENT_AUTH">
+                                        {{ 'i18n_examination_type_seb' | translate }}
+                                    </option>
+                                }
+                                @if (homeExaminationSupported()) {
+                                    <option [disabled]="!canCreateByodExams()" value="WHATEVER">
+                                        {{ 'i18n_examination_type_home_exam' | translate }}
                                     </option>
                                 }
                             </select>
                         </div>
-                        @if (
-                            (homeExaminationSupported() || sebExaminationSupported()) &&
-                            type() &&
-                            type()?.type !== 'PRINTOUT'
-                        ) {
-                            <div class="mb-3">
-                                <label class="form-label" for="examinationType"
-                                    >{{ 'i18n_examination_type' | translate }}
-                                    <sup
-                                        triggers="mouseenter:mouseleave"
-                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                        ngbPopover="{{ 'i18n_examination_type_description' | translate }}"
-                                    >
-                                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                    </sup>
-                                </label>
-                                <select
-                                    class="form-select"
-                                    name="examinationType"
-                                    id="examinationType"
-                                    [ngModel]="examinationType()"
-                                    (ngModelChange)="examinationType.set($event)"
-                                    required
-                                >
-                                    <option value="AQUARIUM">{{ 'i18n_examination_type_aquarium' | translate }}</option>
-                                    @if (sebExaminationSupported()) {
-                                        <option [disabled]="!canCreateByodExams()" value="CLIENT_AUTH">
-                                            {{ 'i18n_examination_type_seb' | translate }}
-                                        </option>
-                                    }
-                                    @if (homeExaminationSupported()) {
-                                        <option [disabled]="!canCreateByodExams()" value="WHATEVER">
-                                            {{ 'i18n_examination_type_home_exam' | translate }}
-                                        </option>
-                                    }
-                                </select>
-                            </div>
-                        }
-                    </form>
+                    }
                 </div>
             </div>
         </div>

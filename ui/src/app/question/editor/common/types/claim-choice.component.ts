@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import {
     ControlContainer,
@@ -24,20 +24,20 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     templateUrl: './claim-choice.component.html',
     styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
-    imports: [ReactiveFormsModule, NgClass, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
+    imports: [ReactiveFormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClaimChoiceComponent implements AfterViewInit {
-    question = input.required<ReverseQuestion | QuestionDraft>();
-    lotteryOn = input(false);
-    showWarning = input(false);
+    readonly question = input.required<ReverseQuestion | QuestionDraft>();
+    readonly lotteryOn = input(false);
+    readonly showWarning = input(false);
 
-    missingOption = signal('');
+    readonly missingOption = signal('');
+    readonly claimChoiceForm: FormGroup;
 
-    claimChoiceForm: FormGroup;
-    private translate = inject(TranslateService);
-    private Question = inject(QuestionService);
-    private parentForm = inject(FormGroupDirective);
+    private readonly translate = inject(TranslateService);
+    private readonly Question = inject(QuestionService);
+    private readonly parentForm = inject(FormGroupDirective);
 
     constructor() {
         // Create nested form group with FormArray for options

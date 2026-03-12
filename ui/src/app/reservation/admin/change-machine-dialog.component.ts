@@ -64,17 +64,16 @@ export class ChangeMachineDialogComponent {
     @ViewChild('machineSelection') machineSelection!: DropdownSelectComponent<ExamMachine, number>;
     @ViewChild('roomSelection') roomSelection!: DropdownSelectComponent<ExamRoom, number>;
 
-    reservation = model<Reservation | undefined>(undefined);
-    room = signal<Option<ExamRoom, number> | undefined>(undefined);
-    availableRoomOptions = signal<Option<ExamRoom, number>[]>([]);
-    machine = signal<ExamMachine | undefined>(undefined);
-    availableMachineOptions = signal<Option<ExamMachine, number>[]>([]);
+    readonly reservation = model<Reservation | undefined>(undefined);
+    readonly room = signal<Option<ExamRoom, number> | undefined>(undefined);
+    readonly availableRoomOptions = signal<Option<ExamRoom, number>[]>([]);
+    readonly machine = signal<ExamMachine | undefined>(undefined);
+    readonly availableMachineOptions = signal<Option<ExamMachine, number>[]>([]);
 
-    activeModal = inject(NgbActiveModal);
-
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
         effect(() => {

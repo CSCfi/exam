@@ -39,14 +39,13 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
     imports: [ReactiveFormsModule, TranslateModule, QuestionBodyComponent],
 })
 export class ExamQuestionComponent implements OnDestroy {
-    questionForm = new FormGroup({});
-    examQuestion = model<ExamSectionQuestion | undefined>(undefined);
-    lotteryOn = input(false);
-    saved = output<{ question: Question; examQuestion: ExamSectionQuestion }>();
-    cancelled = output<{ dirty: boolean }>();
+    readonly examQuestion = model<ExamSectionQuestion | undefined>(undefined);
+    readonly lotteryOn = input(false);
+    readonly saved = output<{ question: Question; examQuestion: ExamSectionQuestion }>();
+    readonly cancelled = output<{ dirty: boolean }>();
 
     // Adapted question for QuestionBodyComponent (uses ReverseQuestion format)
-    adaptedQuestion = computed(() => {
+    readonly adaptedQuestion = computed(() => {
         const eq = this.examQuestion();
         const baseQ = this.baseQuestion();
         if (eq && baseQ) {
@@ -56,33 +55,35 @@ export class ExamQuestionComponent implements OnDestroy {
     });
 
     // Extract exam names and section names from base question
-    examNames = computed(() => {
+    readonly examNames = computed(() => {
         const baseQ = this.baseQuestion();
         if (!baseQ) return [];
         const names = baseQ.examSectionQuestions.map((esq) => esq.examSection.exam.name as string);
         return names.filter((n, pos) => names.indexOf(n) === pos).sort();
     });
 
-    sectionNames = computed(() => {
+    readonly sectionNames = computed(() => {
         const baseQ = this.baseQuestion();
         if (!baseQ) return [];
         const names = baseQ.examSectionQuestions.map((esq) => esq.examSection.name);
         return names.filter((n, pos) => names.indexOf(n) === pos);
     });
 
-    isInPublishedExam = computed(() => {
+    readonly isInPublishedExam = computed(() => {
         const baseQ = this.baseQuestion();
         if (!baseQ) return false;
         return baseQ.examSectionQuestions.some((esq) => esq.examSection.exam.state === 'PUBLISHED');
     });
 
-    // Base question (from server) - needed for adapter conversions
-    private baseQuestion = signal<ReverseQuestion | undefined>(undefined);
+    readonly questionForm = new FormGroup({});
 
-    private http = inject(HttpClient);
-    private Question = inject(QuestionService);
-    private modal = inject(ModalService);
-    private adapter = inject(QuestionAdapterService);
+    // Base question (from server) - needed for adapter conversions
+    private readonly baseQuestion = signal<ReverseQuestion | undefined>(undefined);
+
+    private readonly http = inject(HttpClient);
+    private readonly Question = inject(QuestionService);
+    private readonly modal = inject(ModalService);
+    private readonly adapter = inject(QuestionAdapterService);
 
     constructor() {
         // Initialize question data when examQuestion becomes available

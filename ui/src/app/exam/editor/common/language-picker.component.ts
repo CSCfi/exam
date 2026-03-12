@@ -2,10 +2,9 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
@@ -22,7 +21,7 @@ import { LanguageService } from 'src/app/shared/language/language.service';
             @for (language of examLanguages(); track language) {
                 <button
                     ngbDropdownItem
-                    [ngClass]="isSelected(language) ? 'active' : ''"
+                    [class.active]="isSelected(language)"
                     (click)="updateExamLanguage(language)"
                     title="{{ language.name }}"
                 >
@@ -31,21 +30,21 @@ import { LanguageService } from 'src/app/shared/language/language.service';
             }
         </div>
     </div>`,
-    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass],
+    imports: [NgbDropdownModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LanguageSelectorComponent {
-    exam = input.required<Exam>();
-    collaborative = input(false);
-    disabled = input(false);
-    updated = output<ExamLanguage[]>();
+    readonly exam = input.required<Exam>();
+    readonly collaborative = input(false);
+    readonly disabled = input(false);
+    readonly updated = output<ExamLanguage[]>();
 
-    examLanguages = signal<ExamLanguage[]>([]);
+    readonly examLanguages = signal<ExamLanguage[]>([]);
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Language = inject(LanguageService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Language = inject(LanguageService);
 
     constructor() {
         this.Language.getExamLanguages$().subscribe((languages: ExamLanguage[]) => {

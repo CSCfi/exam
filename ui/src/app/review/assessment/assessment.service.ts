@@ -38,13 +38,13 @@ type Link = {
 
 @Injectable({ providedIn: 'root' })
 export class AssessmentService {
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private router = inject(Router);
-    private toast = inject(ToastrService);
-    private Confirmation = inject(ConfirmationDialogService);
-    private Session = inject(SessionService);
-    private Exam = inject(CommonExamService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly router = inject(Router);
+    private readonly toast = inject(ToastrService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly Session = inject(SessionService);
+    private readonly Exam = inject(CommonExamService);
 
     saveFeedback$ = (exam: Exam, silent = false): Observable<Feedback> => {
         const data = {

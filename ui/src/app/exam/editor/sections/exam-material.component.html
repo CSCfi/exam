@@ -12,8 +12,8 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-12">
             <div class="form-group input-group">
                 <input
-                    [ngModel]="filter()"
-                    (ngModelChange)="filter.set($event)"
+                    [value]="filter()"
+                    (input)="onFilterInput($event)"
                     type="text"
                     class="form-control"
                     placeholder="{{ 'i18n_search_by_name' | translate }}"
@@ -66,16 +66,10 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="row">
         <div class="col-md-12">
-            <form novalidate>
+            <form>
                 <div class="form-group">
                     <label for="name">{{ 'i18n_name' | translate }}</label>
-                    <input
-                        id="name"
-                        class="form-control"
-                        aria-describedby="name"
-                        [(ngModel)]="newMaterial.name"
-                        required
-                    />
+                    <input id="name" class="form-control" aria-describedby="name" [formField]="materialForm.name" />
                 </div>
                 <div class="form-group">
                     <label for="author">{{ 'i18n_author' | translate }}</label>
@@ -83,14 +77,19 @@ SPDX-License-Identifier: EUPL-1.2
                         id="author"
                         class="form-control"
                         aria-describedby="author"
-                        [(ngModel)]="newMaterial.author"
+                        [formField]="materialForm.author"
                     />
                 </div>
                 <div class="form-group">
                     <label for="isbn">ISBN</label>
-                    <input id="isbn" class="form-control" aria-describedby="isbn" [(ngModel)]="newMaterial.isbn" />
+                    <input id="isbn" class="form-control" aria-describedby="isbn" [formField]="materialForm.isbn" />
                 </div>
-                <button type="submit" class="btn btn-primary" (click)="createMaterial()">
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    [disabled]="materialForm.name().invalid()"
+                    (click)="createMaterial()"
+                >
                     {{ 'i18n_create_new' | translate }}
                 </button>
             </form>

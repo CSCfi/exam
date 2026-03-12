@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -16,6 +15,8 @@ import { Availability } from 'src/app/facility/facility.model';
 import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { RoomService } from './room.service';
 
+type ExceptionHour = ExceptionWorkingHours & { start: string; end: string; description: string };
+
 @Component({
     templateUrl: './availability.component.html',
     selector: 'xm-availability',
@@ -26,19 +27,20 @@ import { RoomService } from './room.service';
             }
         `,
     ],
-    imports: [NgClass, BookingCalendarComponent, TranslateModule, NgbPopover],
+    imports: [BookingCalendarComponent, TranslateModule, NgbPopover],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AvailabilityComponent {
-    room = input.required<ExamRoom>();
-    openingHours = signal<OpeningHours[]>([]);
-    exceptionHours = signal<(ExceptionWorkingHours & { start: string; end: string; description: string })[]>([]);
-    newExceptions = signal<(ExceptionWorkingHours & { start: string; end: string; description: string })[]>([]);
-    oldExceptionsHidden = signal(true);
+    readonly room = input.required<ExamRoom>();
 
-    private toast = inject(ToastrService);
-    private roomService = inject(RoomService);
-    private calendar = inject(CalendarService);
+    readonly openingHours = signal<OpeningHours[]>([]);
+    readonly exceptionHours = signal<ExceptionHour[]>([]);
+    readonly newExceptions = signal<ExceptionHour[]>([]);
+    readonly oldExceptionsHidden = signal(true);
+
+    private readonly toast = inject(ToastrService);
+    private readonly roomService = inject(RoomService);
+    private readonly calendar = inject(CalendarService);
 
     constructor() {
         effect(() => {

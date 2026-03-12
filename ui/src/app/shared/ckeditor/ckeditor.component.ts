@@ -101,23 +101,23 @@ import { Math } from './plugins/math/plugin';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CKEditorComponent implements AfterViewInit, OnDestroy {
-    data = input('');
-    required = input(false);
-    enableClozeTest = input(false);
-    id = input('word-count-id');
-    dataChange = output<string>();
+    readonly data = input('');
+    readonly required = input(false);
+    readonly enableClozeTest = input(false);
+    readonly id = input('word-count-id');
+    readonly dataChange = output<string>();
 
     editor = ClassicEditor;
     editorConfig!: EditorConfig;
 
-    isLayoutReady = signal(false);
+    readonly isLayoutReady = signal(false);
     private editorInstance: Editor | null = null;
     private languageSubscription?: Subscription;
-    private currentLanguage = signal<string>('');
+    private readonly currentLanguage = signal<string>('');
     private pendingContent: string | null = null;
 
-    private changeDetector = inject(ChangeDetectorRef);
-    private Translate = inject(TranslateService);
+    private readonly changeDetector = inject(ChangeDetectorRef);
+    private readonly Translate = inject(TranslateService);
     private initializationService = new CKEditorInitializationService(this.changeDetector);
 
     constructor() {

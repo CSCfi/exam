@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -24,27 +23,37 @@ import { FileService } from 'src/app/shared/file/file.service';
     selector: 'xm-r-feedback',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './feedback.template.html',
-    imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
+    imports: [CdkDrag, NgbPopover, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
-export class FeedbackComponent implements OnInit {
-    exam = input.required<Examination>();
-    collaborative = input(false);
-    participation = input<ExamParticipation>();
-    hidden = input(false);
+export class FeedbackComponent {
+    readonly exam = input.required<Examination>();
+    readonly collaborative = input(false);
+    readonly participation = input<ExamParticipation>();
+    readonly hidden = input(false);
 
-    hideEditor = signal(true);
-    shouldHide = computed(() => this.hidden());
-    attachment = computed(() => this.exam().examFeedback?.attachment);
+    readonly hideEditor = signal(true);
+    readonly shouldHide = computed(() => this.hidden());
+    readonly attachment = computed(() => this.exam().examFeedback?.attachment);
 
-    private id = 0;
-    private ref = '';
+    private readonly id: number;
+    private readonly ref: string;
 
-    private route = inject(ActivatedRoute);
-    private Assessment = inject(AssessmentService);
-    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
+
+    constructor() {
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
+        effect(() => {
+            if (this.exam().executionType.type === 'MATURITY') {
+                this.hideEditor.set(false);
+            }
+        });
+    }
 
     get fixPosition() {
         return this.Assessment.fixPosition;
@@ -60,14 +69,6 @@ export class FeedbackComponent implements OnInit {
 
     set editorContent(value: string) {
         this.exam().examFeedback.comment = value;
-    }
-
-    ngOnInit() {
-        this.id = this.route.snapshot.params.id;
-        this.ref = this.route.snapshot.params.ref;
-        if (this.exam().executionType.type === 'MATURITY') {
-            this.hideEditor.set(false);
-        }
     }
 
     toggleVisibility = () => this.hideEditor.update((value) => !value);

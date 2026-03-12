@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -47,7 +47,8 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
                 <div class="col-md-10 col-12">
                     @for (eh of exceptionHours(); track eh.id) {
                         <div
-                            [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
+                            [class.text-danger]="eh.outOfService"
+                            [class.text-success]="!eh.outOfService"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ eh.description | translate }}"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -97,34 +98,32 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         }
     `,
     styleUrls: ['../calendar.component.scss'],
-    imports: [NgClass, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
+    imports: [NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
 })
 export class SelectedRoomComponent {
-    room = input.required<ExamRoom>();
-    maintenancePeriods = input<(MaintenancePeriod & { org: string })[]>([]);
-    viewStart = input<DateTime>(DateTime.now());
-
-    showAllMaintenancePeriods = false;
+    readonly room = input.required<ExamRoom>();
+    readonly maintenancePeriods = input<(MaintenancePeriod & { org: string })[]>([]);
+    readonly viewStart = input<DateTime>(DateTime.now());
 
     // Convert language change observable to signal
-    currentLang = toSignal(inject(TranslateService).onLangChange.pipe(map((event) => event.lang)), {
+    readonly currentLang = toSignal(inject(TranslateService).onLangChange.pipe(map((event) => event.lang)), {
         initialValue: inject(TranslateService).getCurrentLang(),
     });
 
-    openingHours = computed(() => {
+    readonly openingHours = computed(() => {
         const room = this.room();
         this.currentLang(); // Track language changes - weekday names are language-dependent
         return this.Calendar.processOpeningHours(room);
     });
 
-    exceptionHours = computed(() => {
+    readonly exceptionHours = computed(() => {
         const room = this.room();
         const start = this.viewStart();
         const end = start.plus({ week: 1 });
         return this.Calendar.getExceptionHours(room, start, end);
     });
 
-    thisWeeksMaintenancePeriods = computed(() => {
+    readonly thisWeeksMaintenancePeriods = computed(() => {
         const mp = this.maintenancePeriods();
         const viewStart = this.viewStart();
         const end = viewStart.plus({ week: 1 });
@@ -135,7 +134,7 @@ export class SelectedRoomComponent {
         });
     });
 
-    roomInstructions = computed(() => {
+    readonly roomInstructions = computed(() => {
         const currentRoom = this.room();
         const lang = this.currentLang();
         switch (lang) {
@@ -149,10 +148,10 @@ export class SelectedRoomComponent {
         }
     });
 
-    roomAccessibility = computed(() => {
+    readonly roomAccessibility = computed(() => {
         const currentRoom = this.room();
         return currentRoom.accessibilities ? currentRoom.accessibilities.map((a) => a.name).join(', ') : '';
     });
 
-    private Calendar = inject(CalendarService);
+    private readonly Calendar = inject(CalendarService);
 }

@@ -2,9 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Option } from './select.model';
@@ -15,7 +13,7 @@ import { Option } from './select.model';
         <button
             ngbDropdownToggle
             class="btn btn-outline-secondary"
-            [ngClass]="{ 'dropdown-select-full-width': fullWidth() }"
+            [class.dropdown-select-full-width]="fullWidth()"
             type="button"
             [ariaHasPopup]="true"
             [ariaExpanded]="d.isOpen()"
@@ -28,8 +26,8 @@ import { Option } from './select.model';
                 <div class="input-group p-1">
                     <input
                         type="text"
-                        [ngModel]="searchFilter()"
-                        (ngModelChange)="setSearchFilter($event)"
+                        [value]="searchFilter()"
+                        (input)="onSearchFilterInput($event)"
                         class="form-control"
                         placeholder="{{ placeholder() | translate }}"
                     />
@@ -45,9 +43,9 @@ import { Option } from './select.model';
                 <button
                     type="button"
                     ngbDropdownItem
-                    [ngClass]="getClasses(opt)"
+                    [class]="getClasses(opt)"
                     [disabled]="!!opt.isHeader"
-                    (click)="!opt.isHeader && selectOption(opt); !opt.isHeader && d.close()"
+                    (click)="selectOption(opt); d.close()"
                 >
                     @if (!opt.isHeader) {
                         {{ opt.label || '' | translate }}
@@ -58,31 +56,31 @@ import { Option } from './select.model';
             }
         </div>
     </div>`,
-    imports: [NgbDropdown, NgbDropdownToggle, NgClass, NgbDropdownMenu, FormsModule, NgbDropdownItem, TranslateModule],
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
     styleUrl: './dropdown-select.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DropdownSelectComponent<V, I> {
     private static instanceCount = 0;
-    readonly menuTriggerId = `xm-dropdown-select-${++DropdownSelectComponent.instanceCount}`;
 
-    options = input<Option<V, I>[]>([]);
-    initial = input<Option<V, I> | undefined>(undefined);
-    placeholder = input('i18n_choose');
-    limitTo = input<number | undefined>(undefined);
-    fullWidth = input(false);
-    noSearch = input(false);
-    allowClearing = input(true);
+    readonly options = input<Option<V, I>[]>([]);
+    readonly initial = input<Option<V, I> | undefined>(undefined);
+    readonly placeholder = input('i18n_choose');
+    readonly limitTo = input<number | undefined>(undefined);
+    readonly fullWidth = input(false);
+    readonly noSearch = input(false);
+    readonly allowClearing = input(true);
     /** When true, selection is cleared after each option select (for filter-style multi-select). */
-    clearAfterSelect = input(false);
-    optionSelected = output<Option<V, I> | undefined>();
+    readonly clearAfterSelect = input(false);
+    readonly optionSelected = output<Option<V, I> | undefined>();
     /** Emits when the dropdown opens or closes (payload is open: boolean). Use to load data on open. */
-    dropdownOpenChange = output<boolean>();
+    readonly dropdownOpenChange = output<boolean>();
 
-    searchFilter = signal('');
-    selected = signal<Option<V, I> | undefined>(undefined);
+    readonly menuTriggerId = `xm-dropdown-select-${++DropdownSelectComponent.instanceCount}`;
+    readonly searchFilter = signal('');
+    readonly selected = signal<Option<V, I> | undefined>(undefined);
 
-    filteredOptions = computed(() => {
+    readonly filteredOptions = computed(() => {
         const optionsValue = this.options();
         const searchFilterValue = this.searchFilter();
         const limitToValue = this.limitTo();
@@ -91,8 +89,7 @@ export class DropdownSelectComponent<V, I> {
             (option) => option.label != null && option.label.toLowerCase().includes(searchFilterValue.toLowerCase()),
         );
 
-        // Show all options, if limit is set to 0
-        if (!limitToValue || limitToValue === 0) {
+        if (!limitToValue) {
             return filtered;
         } else {
             return filtered.slice(0, limitToValue);
@@ -100,13 +97,15 @@ export class DropdownSelectComponent<V, I> {
     });
 
     constructor() {
-        // Use initial as default value once (before user makes a selection)
         effect(() => {
-            if (this.selected() === undefined && this.initial() !== undefined) {
-                this.selected.set(this.initial());
+            const initial = this.initial();
+            if (initial !== undefined) {
+                this.selected.set(initial);
             }
         });
     }
+
+    onSearchFilterInput = (event: Event) => this.setSearchFilter((event.target as HTMLInputElement).value);
 
     setSearchFilter(value: string) {
         this.searchFilter.set(value);

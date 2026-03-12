@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, Input, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,10 +19,10 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
         </div>
         <div class="modal-body ms-2">
             <div class="row">
-                @if (exam.examFeedback !== null) {
+                @if (exam()?.examFeedback !== null) {
                     <div class="col-md-12 ps-0">
                         <xm-ckeditor
-                            [data]="exam.examFeedback.comment"
+                            [data]="exam()?.examFeedback?.comment ?? ''"
                             (dataChange)="commentChanged($event)"
                             autofocus
                         ></xm-ckeditor>
@@ -42,31 +42,30 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpeedReviewFeedbackComponent {
-    private _exam = signal<Exam | undefined>(undefined);
-    private modal = inject(NgbActiveModal);
-    private Assessment = inject(AssessmentService);
+    readonly exam = signal<Exam | undefined>(undefined);
 
-    get exam() {
-        return this._exam()!;
-    }
+    private readonly modal = inject(NgbActiveModal);
+    private readonly Assessment = inject(AssessmentService);
 
-    @Input()
-    set exam(value: Exam) {
-        this._exam.set(value);
-        if (!value.examFeedback) {
-            value.examFeedback = { comment: '' };
-        }
+    constructor() {
+        effect(() => {
+            const examValue = this.exam();
+            if (examValue && !examValue.examFeedback) {
+                examValue.examFeedback = { comment: '' };
+            }
+        });
     }
 
     commentChanged(event: string) {
-        this.exam.examFeedback.comment = event;
+        this.exam()!.examFeedback.comment = event;
     }
 
     ok() {
-        if (!this.exam.examFeedback) {
-            this.exam.examFeedback = { comment: '', feedbackStatus: false };
+        const examValue = this.exam()!;
+        if (!examValue.examFeedback) {
+            examValue.examFeedback = { comment: '', feedbackStatus: false };
         }
-        this.Assessment.saveFeedback$(this.exam).subscribe(this.modal.close);
+        this.Assessment.saveFeedback$(examValue).subscribe(this.modal.close);
     }
 
     cancel() {

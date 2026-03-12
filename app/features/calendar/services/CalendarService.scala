@@ -15,7 +15,7 @@ import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsValue
 import security.BlockingIOExecutionContext
-import services.datetime.{CalendarHandler, CalendarHandlerError, DateTimeHandler}
+import services.datetime.{AppClock, CalendarHandler, CalendarHandlerError, DateTimeHandler}
 import services.mail.EmailComposer
 import validation.calendar.ReservationDTO
 
@@ -30,6 +30,7 @@ class CalendarService @Inject() (
     private val emailComposer: EmailComposer,
     private val dateTimeHandler: DateTimeHandler,
     private val externalReservationHandler: ExternalReservationHandlerService,
+    private val clock: AppClock,
     implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
@@ -53,7 +54,7 @@ class CalendarService @Inject() (
       case Some(enrolment) =>
         // Removal is not permitted if the reservation is in the past or ongoing
         val reservation = enrolment.getReservation
-        val now         = dateTimeHandler.adjustDST(DateTime.now(), reservation)
+        val now         = dateTimeHandler.adjustDST(clock.now(), reservation)
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Left(CalendarError.ReservationInEffect)
         else
@@ -78,7 +79,7 @@ class CalendarService @Inject() (
           Right(())
 
   def getCurrentEnrolment(examId: Long, user: User): Option[ExamEnrolment] =
-    val now = dateTimeHandler.adjustDST(DateTime.now())
+    val now = dateTimeHandler.adjustDST(clock.now())
     DB.find(classOf[ExamEnrolment])
       .fetch("optionalSections")
       .where()
@@ -97,7 +98,7 @@ class CalendarService @Inject() (
     val sectionIds = dto.sectionIds.getOrElse(List.empty)
 
     val room = DB.find(classOf[models.facility.ExamRoom], roomId)
-    val now  = dateTimeHandler.adjustDST(DateTime.now(), room)
+    val now  = dateTimeHandler.adjustDST(clock.now(), room)
 
     // Start manual transaction
     Using(DB.beginTransaction()) { tx =>

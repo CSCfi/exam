@@ -34,12 +34,12 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchiveDownloadComponent {
-    startDate = signal<Date | null>(new Date());
-    endDate = signal<Date | null>(new Date());
+    readonly startDate = signal<Date | null>(new Date());
+    readonly endDate = signal<Date | null>(new Date());
 
-    private modal = inject(NgbActiveModal);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    private readonly modal = inject(NgbActiveModal);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     startDateChanged(event: { date: Date | null }) {
         this.startDate.set(event.date);

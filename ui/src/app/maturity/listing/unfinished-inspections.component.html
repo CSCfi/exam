@@ -31,8 +31,8 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-3">
             <div class="input-group">
                 <input
-                    [(ngModel)]="filterText"
-                    (ngModelChange)="filterTextChanged()"
+                    [value]="filterText"
+                    (input)="onFilterInput($event)"
                     class="form-control"
                     placeholder="{{ 'i18n_search' | translate }}"
                     ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"

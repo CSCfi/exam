@@ -2,22 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, Observable, of, Subject } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilChanged,
-    finalize,
-    map,
-    switchMap,
-    takeUntil,
-    tap,
-} from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap, tap } from 'rxjs/operators';
 import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ExamSearchResultComponent } from './exam-search-result.component';
@@ -48,8 +39,8 @@ interface LoadingState {
                 <div class="col-5">
                     <div class="input-group">
                         <input
-                            (ngModelChange)="search($event)"
-                            [(ngModel)]="filterText"
+                            [value]="filterText"
+                            (input)="onFilterTextInput($event)"
                             type="text"
                             class="form-control"
                             [ariaLabel]="'i18n_search' | translate"
@@ -131,32 +122,24 @@ interface LoadingState {
             </div>
         </div>
     `,
-    imports: [
-        FormsModule,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        ExamSearchResultComponent,
-        TranslateModule,
-        OrderByPipe,
-    ],
+    imports: [NgbDropdownModule, ExamSearchResultComponent, TranslateModule, OrderByPipe],
 })
-export class ExamSearchComponent implements OnDestroy {
-    exams = signal<EnrolmentInfo[]>([]);
-    filterChanged = new Subject<string>();
-    filter = signal<{ text: string; ordering: string; reverse: boolean }>({
+export class ExamSearchComponent {
+    readonly exams = signal<EnrolmentInfo[]>([]);
+    readonly filter = signal<{ text: string; ordering: string; reverse: boolean }>({
         text: '',
         ordering: 'name',
         reverse: false,
     });
-    searchDone = signal(false);
-    loader = signal<LoadingState>({ loading: false });
-    permissionCheck = signal<{ active: boolean }>({ active: false });
+    readonly searchDone = signal(false);
+    readonly loader = signal<LoadingState>({ loading: false });
+    readonly permissionCheck = signal<{ active: boolean }>({ active: false });
 
-    private readonly ngUnsubscribe = new Subject<void>();
-    private toast = inject(ToastrService);
-    private Search = inject(ExamSearchService);
+    private readonly filterChanged = new Subject<string>();
+
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly toast = inject(ToastrService);
+    private readonly Search = inject(ExamSearchService);
 
     constructor() {
         this.setupSearchHandler();
@@ -164,7 +147,6 @@ export class ExamSearchComponent implements OnDestroy {
         this.loadPermissionCheck();
     }
 
-    // Getter/setter for filter.text to work with ngModel
     get filterText(): string {
         return this.filter().text;
     }
@@ -172,10 +154,7 @@ export class ExamSearchComponent implements OnDestroy {
         this.filter.update((f) => ({ ...f, text: value }));
     }
 
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
-    }
+    onFilterTextInput = (event: Event) => this.search((event.target as HTMLInputElement).value);
 
     search(text: string) {
         this.filter.update((f) => ({ ...f, text }));
@@ -190,7 +169,7 @@ export class ExamSearchComponent implements OnDestroy {
 
     private setupSearchHandler() {
         this.filterChanged
-            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
             .subscribe((text) => {
                 if (this.permissionCheck().active === false) {
                     this.exams.set([]);
@@ -227,7 +206,7 @@ export class ExamSearchComponent implements OnDestroy {
 
     private loadPermissionCheck() {
         this.Search.getEnrolmentPermissionCheckStatus$()
-            .pipe(takeUntil(this.ngUnsubscribe))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (setting) => {
                     this.permissionCheck.set(setting);
@@ -253,7 +232,7 @@ export class ExamSearchComponent implements OnDestroy {
                 tap((exams) => this.processExams(exams)),
                 switchMap((exams) => this.batchCheckEnrolmentStatus(exams)),
                 finalize(() => this.loader.set({ loading: false })),
-                takeUntil(this.ngUnsubscribe),
+                takeUntilDestroyed(this.destroyRef),
             )
             .subscribe({
                 next: (exams) => {

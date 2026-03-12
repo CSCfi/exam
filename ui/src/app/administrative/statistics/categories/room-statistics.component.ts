@@ -74,12 +74,12 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
     imports: [DatePipe, TranslateModule],
 })
 export class RoomStatisticsComponent {
-    queryParams = input<QueryParams>({});
-    participations = signal<Participations>({});
-    rooms = signal<string[]>([]);
-    months = signal<Date[]>([]);
+    readonly queryParams = input<QueryParams>({});
+    readonly participations = signal<Participations>({});
+    readonly rooms = signal<string[]>([]);
+    readonly months = signal<Date[]>([]);
 
-    private Statistics = inject(StatisticsService);
+    private readonly Statistics = inject(StatisticsService);
 
     listParticipations() {
         this.Statistics.listParticipations$(this.queryParams()).subscribe((resp) => {

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { ChangeDetectionStrategy, Component, effect, inject, model, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormField, form, required } from '@angular/forms/signals';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -11,25 +11,18 @@ import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 
 @Component({
-    imports: [FormsModule, TranslateModule, DateTimePickerComponent],
+    imports: [FormField, TranslateModule, DateTimePickerComponent],
     template: `
         <div class="modal-header">
             <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{ 'i18n_maintenance_period' | translate }}</h4>
         </div>
 
         <div class="modal-body">
-            <form #periodForm="ngForm" name="periodForm">
+            <form>
                 <div class="row">
                     <div class="col-md-12 mb-2">
                         <label for="description" class="form-label">{{ 'i18n_description' | translate }}:</label>
-                        <input
-                            class="form-control"
-                            id="description"
-                            name="description"
-                            [ngModel]="description()"
-                            (ngModelChange)="setDescription($event)"
-                            required
-                        />
+                        <input class="form-control" id="description" [formField]="descriptionForm.description" />
                     </div>
                 </div>
                 <div class="row">
@@ -59,7 +52,7 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
             </form>
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-success" [disabled]="periodForm.invalid" (click)="ok()">
+            <button class="btn btn-success" [disabled]="descriptionForm.description().invalid()" (click)="ok()">
                 {{ 'i18n_button_save' | translate }}
             </button>
             <button class="btn btn-outline-secondary float-end me-3" (click)="cancel()">
@@ -70,18 +63,16 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MaintenancePeriodDialogComponent {
-    period = model<MaintenancePeriod | undefined>(undefined);
-    readonly DATE_OPTIONS = {
-        'starting-day': 1,
-    };
-    readonly DATE_FORMAT = 'dd.MM.yyyy';
-    startsAt = signal(new Date(new Date().setMinutes(60)));
-    endsAt = signal(new Date(new Date().setMinutes(60)));
-    description = signal('');
+    readonly period = model<MaintenancePeriod | undefined>(undefined);
+    readonly startsAt = signal(new Date(new Date().setMinutes(60)));
+    readonly endsAt = signal(new Date(new Date().setMinutes(60)));
+    readonly descriptionForm = form(signal({ description: '' }), (path) => {
+        required(path.description);
+    });
 
-    private translate = inject(TranslateService);
-    private activeModal = inject(NgbActiveModal);
-    private toast = inject(ToastrService);
+    private readonly translate = inject(TranslateService);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
         effect(() => {
@@ -89,7 +80,7 @@ export class MaintenancePeriodDialogComponent {
             if (currentPeriod) {
                 this.startsAt.set(new Date(currentPeriod.startsAt));
                 this.endsAt.set(new Date(currentPeriod.endsAt));
-                this.description.set(currentPeriod.description);
+                this.descriptionForm.description().value.set(currentPeriod.description);
             }
         });
     }
@@ -103,7 +94,7 @@ export class MaintenancePeriodDialogComponent {
             id: this.period()?.id,
             startsAt: this.startsAt(),
             endsAt: this.endsAt(),
-            description: this.description(),
+            description: this.descriptionForm.description().value(),
         });
     }
 
@@ -120,9 +111,5 @@ export class MaintenancePeriodDialogComponent {
 
     onEndDateChange(e: { date: Date }) {
         this.endsAt.set(e.date);
-    }
-
-    setDescription(value: string) {
-        this.description.set(value);
     }
 }

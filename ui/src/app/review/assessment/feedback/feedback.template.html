@@ -15,7 +15,11 @@ SPDX-License-Identifier: EUPL-1.2
                 ngbPopover="{{ (hideEditor() ? 'i18n_show' : 'i18n_hide') | translate }}"
                 triggers="mouseenter:mouseleave"
             >
-                <i [ngClass]="hideEditor() ? 'bi-chevron-right' : 'bi-chevron-down'" aria-hidden="true"></i>
+                <i
+                    [class.bi-chevron-right]="!hideEditor()"
+                    [class.bi-chevron-down]="hideEditor()"
+                    aria-hidden="true"
+                ></i>
             </button>
         </div>
         <div class="col-11">{{ title | translate }}</div>

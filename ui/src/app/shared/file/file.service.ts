@@ -24,9 +24,9 @@ export type DownloadOptions = {
 export class FileService {
     maxFileSize = 0;
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     download(url: string, filename: string, options: DownloadOptions = {}) {
         const { params, method: optMethod = 'GET', asBlob = true } = options;

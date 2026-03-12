@@ -5,6 +5,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { FormField, form, required } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Software } from 'src/app/facility/facility.model';
@@ -13,15 +14,17 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 @Component({
     selector: 'xm-software',
     templateUrl: './software.component.html',
-    imports: [FormsModule, TranslateModule, OrderByPipe],
+    imports: [FormsModule, FormField, TranslateModule, OrderByPipe],
 })
 export class SoftwareComponent implements OnInit {
-    software = signal<(Software & { showName: boolean })[]>([]);
-    newSoftware = { name: '' }; // Keep as plain object for ngModel
+    readonly software = signal<(Software & { showName: boolean })[]>([]);
+    readonly newSoftwareForm = form(signal({ name: '' }), (path) => {
+        required(path.name);
+    });
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     ngOnInit() {
         this.http
@@ -42,11 +45,11 @@ export class SoftwareComponent implements OnInit {
     };
 
     addSoftware = () =>
-        this.http.post<Software>(`/app/softwares/${this.newSoftware.name}`, {}).subscribe({
+        this.http.post<Software>(`/app/softwares/${this.newSoftwareForm.name().value()}`, {}).subscribe({
             next: (resp) => {
                 this.toast.info(this.translate.instant('i18n_software_added'));
                 this.software.update((list) => [...list, { ...resp, showName: false }]);
-                this.newSoftware.name = '';
+                this.newSoftwareForm.name().value.set('');
             },
             error: (err) => this.toast.error(err),
         });

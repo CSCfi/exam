@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-<div class="row mt-4" [ngClass]="{ 'text-muted': room().state === 'INACTIVE' }">
+<div class="row mt-4" [class.text-muted]="room().state === 'INACTIVE'">
     <div class="col-12">
         <h4>
             {{ room().name || 'i18n_no_name' | translate }}

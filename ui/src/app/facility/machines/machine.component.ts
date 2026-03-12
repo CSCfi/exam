@@ -2,9 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { disabled, form, FormField, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -15,53 +14,71 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { MachineService } from './machines.service';
 
-interface SoftwareWithClass extends Software {
-    class: string;
+interface SoftwareWithActive extends Software {
+    active: boolean;
 }
 
 @Component({
     templateUrl: './machine.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],
     selector: 'xm-machine',
-    imports: [FormsModule, NgClass, TranslateModule, PageHeaderComponent, PageContentComponent],
+    imports: [FormField, TranslateModule, PageHeaderComponent, PageContentComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MachineComponent {
-    machine = signal<ExamMachine | undefined>(undefined);
-    software = signal<SoftwareWithClass[]>([]);
+    readonly machine = signal<ExamMachine | undefined>(undefined);
+    readonly software = signal<SoftwareWithActive[]>([]);
+    readonly machineForm = form(
+        signal({
+            name: '',
+            accessible: false,
+            accessibilityInfo: '',
+            otherIdentifier: '',
+            surveillanceCamera: '',
+            videoRecordings: '',
+            ipAddress: '',
+            outOfService: false,
+            statusComment: '',
+        }),
+        (path) => {
+            required(path.name);
+            required(path.ipAddress);
+            disabled(path.accessibilityInfo, ({ valueOf }) => !valueOf(path.accessible));
+            disabled(path.statusComment, ({ valueOf }) => !valueOf(path.outOfService));
+        },
+    );
 
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private Confirmation = inject(ConfirmationDialogService);
-    private machines = inject(MachineService);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly machines = inject(MachineService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
         this.machines.getMachine(this.route.snapshot.params.id).subscribe({
             next: (machine) => {
                 this.machine.set(machine);
+                this.machineForm.name().value.set(machine.name);
+                this.machineForm.accessible().value.set(machine.accessible);
+                this.machineForm.accessibilityInfo().value.set(machine.accessibilityInfo);
+                this.machineForm.otherIdentifier().value.set(machine.otherIdentifier);
+                this.machineForm.surveillanceCamera().value.set(machine.surveillanceCamera);
+                this.machineForm.videoRecordings().value.set(machine.videoRecordings);
+                this.machineForm.ipAddress().value.set(machine.ipAddress);
+                this.machineForm.outOfService().value.set(machine.outOfService);
+                this.machineForm.statusComment().value.set(machine.statusComment || '');
                 this.machines.getSoftware().subscribe((data) => {
                     this.software.set(
                         data.map((s) => ({
                             ...s,
-                            class:
-                                machine.softwareInfo.map((si) => si.id).indexOf(s.id) > -1
-                                    ? 'bg-success'
-                                    : 'bg-light text-dark',
+                            active: machine.softwareInfo.some((si) => si.id === s.id),
                         })),
                     );
                 });
             },
             error: (err) => this.toast.error(err),
         });
-    }
-
-    updateMachineProperty<K extends keyof ExamMachine>(key: K, value: ExamMachine[K]) {
-        const currentMachine = this.machine();
-        if (currentMachine) {
-            this.machine.set({ ...currentMachine, [key]: value });
-        }
     }
 
     removeMachine(machine: ExamMachine) {
@@ -80,15 +97,16 @@ export class MachineComponent {
         });
     }
 
-    toggleSoftware(software: SoftwareWithClass) {
+    toggleSoftware(software: SoftwareWithActive) {
         const currentMachine = this.machine();
         if (!currentMachine) return;
 
         this.machines.toggleMachineSoftware(currentMachine.id, software.id).subscribe({
             next: (response) => {
-                const newClass = response.turnedOn === true ? 'bg-success' : 'bg-light text-dark';
                 this.software.update((items) =>
-                    items.map((item) => (item.id === software.id ? { ...item, class: newClass } : item)),
+                    items.map((item) =>
+                        item.id === software.id ? { ...item, active: response.turnedOn === true } : item,
+                    ),
                 );
             },
             error: (err) => this.toast.error(err),
@@ -98,8 +116,22 @@ export class MachineComponent {
     updateMachine(cb?: () => void) {
         const currentMachine = this.machine();
         if (!currentMachine) return;
+        const outOfService = this.machineForm.outOfService().value() === true;
+        const updatedMachine: ExamMachine = {
+            ...currentMachine,
+            name: this.machineForm.name().value() || '',
+            accessible: this.machineForm.accessible().value() === true,
+            accessibilityInfo: this.machineForm.accessibilityInfo().value() || '',
+            otherIdentifier: this.machineForm.otherIdentifier().value() || '',
+            surveillanceCamera: this.machineForm.surveillanceCamera().value() || '',
+            videoRecordings: this.machineForm.videoRecordings().value() || '',
+            ipAddress: this.machineForm.ipAddress().value() || '',
+            outOfService,
+            statusComment: outOfService ? this.machineForm.statusComment().value() || '' : undefined,
+        };
+        this.machine.set(updatedMachine);
 
-        this.machines.updateMachine(currentMachine).subscribe({
+        this.machines.updateMachine(updatedMachine).subscribe({
             next: () => this.toast.info(this.translate.instant('i18n_machine_updated')),
             error: (err) => this.toast.error(this.translate.instant(err)),
             complete: () => {
@@ -113,11 +145,8 @@ export class MachineComponent {
     }
 
     setReason() {
-        const currentMachine = this.machine();
-        if (!currentMachine) return;
-
-        if (!currentMachine.outOfService) {
-            this.machine.set({ ...currentMachine, statusComment: undefined });
+        if (!this.machineForm.outOfService().value()) {
+            this.machineForm.statusComment().value.set('');
         }
     }
 }

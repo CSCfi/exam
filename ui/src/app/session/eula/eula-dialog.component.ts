@@ -28,10 +28,10 @@ import { TranslateModule } from '@ngx-translate/core';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EulaDialogComponent {
-    settings = signal<{ eula: { value: string } }>({ eula: { value: '' } });
+    readonly settings = signal<{ eula: { value: string } }>({ eula: { value: '' } });
 
-    activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
+    protected readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
 
     constructor() {
         this.http

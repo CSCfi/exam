@@ -17,10 +17,10 @@ import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
     imports: [DatePipe, TranslateModule],
 })
 export class NoShowComponent {
-    enrolment = input.required<ExamEnrolment>();
-    collaborative = input(false);
+    readonly enrolment = input.required<ExamEnrolment>();
+    readonly collaborative = input(false);
 
-    started = computed(() => {
+    readonly started = computed(() => {
         const enrolmentValue = this.enrolment();
         return enrolmentValue.examinationEventConfiguration
             ? enrolmentValue.examinationEventConfiguration.examinationEvent.start

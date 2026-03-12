@@ -93,20 +93,16 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row ms-1">
             <div class="col-2">
                 @if (answer().evaluationType === 'Points') {
-                    <form #essayPoints="ngForm" name="essayPoints">
+                    <form>
                         <input
-                            name="score"
                             type="number"
                             lang="en"
                             class="form-control"
-                            [(ngModel)]="answer().essayAnswer.temporaryScore"
+                            [formField]="pointsForm.score"
                             size="5"
                             onclick="this.focus()"
-                            [disabled]="!editable()"
-                            [min]="0"
-                            [max]="answer().maxScore"
                         />
-                        @if (essayPoints.invalid) {
+                        @if (!isPointsScoreValid()) {
                             <small class="alert-danger">
                                 <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_error_score_input' | translate }}
                             </small>

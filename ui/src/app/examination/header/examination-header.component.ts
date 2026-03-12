@@ -40,11 +40,11 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationPageHeaderComponent {
-    exam = input.required<Examination>();
-    isPreview = input(false);
-    timedOut = output<void>();
+    readonly exam = input.required<Examination>();
+    readonly isPreview = input(false);
+    readonly timedOut = output<void>();
 
-    private Session = inject(SessionService);
+    private readonly Session = inject(SessionService);
 
     notifyTimeout() {
         this.timedOut.emit();

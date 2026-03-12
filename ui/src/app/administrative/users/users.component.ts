@@ -2,20 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass, SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { DatePipe, SlicePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PermissionType, type Permission, type User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -48,13 +42,8 @@ interface UserWithOptions extends User {
     selector: 'xm-users',
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        FormsModule,
         NgbPopover,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        NgClass,
+        NgbDropdownModule,
         PaginatorComponent,
         SlicePipe,
         DatePipe,
@@ -72,39 +61,39 @@ interface UserWithOptions extends User {
         `,
     ],
 })
-export class UsersComponent implements OnDestroy {
-    users = signal<UserWithOptions[]>([]);
-    pageSize = 30;
-    currentPage = signal(0);
+export class UsersComponent {
+    readonly users = signal<UserWithOptions[]>([]);
+    readonly currentPage = signal(0);
     textChanged = new Subject<string>();
-    ngUnsubscribe = new Subject<void>();
-    roles = signal<RoleOption[]>([
+    readonly roles = signal<RoleOption[]>([
         { type: 'ADMIN', name: 'i18n_admin', icon: 'bi-shield-lock' },
         { type: 'TEACHER', name: 'i18n_teacher', icon: 'bi-person-workspace' },
         { type: 'STUDENT', name: 'i18n_student', icon: 'bi-mortarboard' },
         { type: 'SUPPORT', name: 'i18n_support_person', icon: 'bi-person-heart' },
     ]);
-    permissions = signal<PermissionOption[]>([]);
-    loader = signal({ loading: false });
-    appUser: User;
+    readonly pageSize = 30;
+    readonly permissions = signal<PermissionOption[]>([]);
+    readonly loader = signal({ loading: false });
 
-    filteredUsers = computed(() => {
+    readonly filteredUsers = computed(() => {
         const currentUsers = this.users();
         const currentRoles = this.roles();
         const currentPermissions = this.permissions();
         return currentUsers.filter((user) => this.isUnfiltered(user, currentRoles, currentPermissions));
     });
 
-    private _filterText = signal('');
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private session = inject(SessionService);
-    private userManagement = inject(UserManagementService);
+    private readonly appUser: User;
+    private readonly _filterText = signal('');
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly session = inject(SessionService);
+    private readonly userManagement = inject(UserManagementService);
 
     constructor() {
         this.appUser = this.session.getUser();
         this.textChanged
-            .pipe(debounceTime(1000), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .pipe(debounceTime(1000), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
             .subscribe((text) => {
                 this._filterText.set(text);
                 this.search();
@@ -112,7 +101,7 @@ export class UsersComponent implements OnDestroy {
 
         this.userManagement
             .getPermissions()
-            .pipe(takeUntil(this.ngUnsubscribe))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((permissions) => {
                 const mappedPermissions = permissions.map((p) => {
                     if (p.type === PermissionType.CAN_INSPECT_LANGUAGE) {
@@ -147,10 +136,10 @@ export class UsersComponent implements OnDestroy {
         this.textChanged.next(value);
     }
 
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
-    }
+    onFilterInput = (event: Event) => {
+        this.filterText = (event.target as HTMLInputElement).value;
+        this.loader.set({ loading: true });
+    };
 
     getRoleIcons(user: User): string[] {
         const currentRoles = this.roles();
@@ -227,7 +216,7 @@ export class UsersComponent implements OnDestroy {
     addRole(user: UserWithOptions, role: RoleOption) {
         this.userManagement
             .addRole(user.id, role.type)
-            .pipe(takeUntil(this.ngUnsubscribe))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
                 const updatedUsers = this.users().map((u) => {
                     if (u.id === user.id) {
@@ -244,7 +233,7 @@ export class UsersComponent implements OnDestroy {
     addPermission(user: UserWithOptions, permission: Permission) {
         this.userManagement
             .addPermission(user.id, permission.type)
-            .pipe(takeUntil(this.ngUnsubscribe))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
                 const updatedUsers = this.users().map((u) => {
                     if (u.id === user.id) {
@@ -278,7 +267,7 @@ export class UsersComponent implements OnDestroy {
     removePermission(user: UserWithOptions, permission: PermissionOption) {
         this.userManagement
             .removePermission(user.id, permission.type)
-            .pipe(takeUntil(this.ngUnsubscribe))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
                 const updatedUsers = this.users().map((u) => {
                     if (u.id === user.id) {
@@ -325,7 +314,7 @@ export class UsersComponent implements OnDestroy {
     initSearch() {
         this.userManagement
             .getUsers(this._filterText())
-            .pipe(takeUntil(this.ngUnsubscribe))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (users) => {
                     const usersWithOptions = users as UserWithOptions[];

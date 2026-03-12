@@ -24,15 +24,16 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BasicInfoComponent implements AfterViewInit {
-    question = input<ReverseQuestion | QuestionDraft>();
-    questionTypes = input<{ type: string; name: string }[]>([]);
-    questionId = input<number>();
-    formReady = output<FormGroup>();
-    newText = output<string>();
+    readonly question = input<ReverseQuestion | QuestionDraft>();
+    readonly questionTypes = input<{ type: string; name: string }[]>([]);
+    readonly questionId = input<number>();
+    readonly formReady = output<FormGroup>();
+    readonly newText = output<string>();
 
-    baseInformationForm: FormGroup;
-    private parentForm = inject(FormGroupDirective);
-    private questionTypeControl = new FormControl<string>('');
+    readonly baseInformationForm: FormGroup;
+
+    private readonly questionTypeControl = new FormControl<string>('');
+    private readonly parentForm = inject(FormGroupDirective);
 
     constructor() {
         this.baseInformationForm = new FormGroup({

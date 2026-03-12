@@ -17,7 +17,7 @@ SPDX-License-Identifier: EUPL-1.2
 <ng-template #content>
     <div class="row">
         <div class="col-md-12 mb-3 no-print">
-            <form class="row form-group">
+            <div class="row form-group">
                 <div class="col-auto">
                     <xm-dropdown-select
                         id="month"
@@ -38,7 +38,7 @@ SPDX-License-Identifier: EUPL-1.2
                         (optionSelected)="yearChanged($event)"
                     ></xm-dropdown-select>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -107,7 +107,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 </td>
                             }
                             <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
-                            <td [ngClass]="inspection.approved ? 'text-success' : 'text-danger'">
+                            <td [class.text-success]="inspection.approved" [class.text-danger]="!inspection.approved">
                                 <strong>{{
                                     (inspection.approved ? 'i18n_approved' : 'i18n_rejected') | translate
                                 }}</strong>

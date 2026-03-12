@@ -11,9 +11,9 @@ import { Link } from './navigation.model';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
-    private http = inject(HttpClient);
-    private router = inject(Router);
-    private Session = inject(SessionService);
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+    private readonly Session = inject(SessionService);
 
     getAppVersion$ = () => this.http.get<{ appVersion: string }>('/app/settings/appVersion');
 

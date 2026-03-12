@@ -3,9 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,7 +28,6 @@ import { ReservationService, Selection } from './reservation.service';
 @Component({
     selector: 'xm-reservations',
     imports: [
-        FormsModule,
         TranslateModule,
         NgbTypeaheadModule,
         DatePickerComponent,
@@ -43,39 +41,42 @@ import { ReservationService, Selection } from './reservation.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReservationsComponent {
-    @ViewChild('studentInput') studentInput!: ElementRef;
-    @ViewChild('examInput') examInput!: ElementRef;
-    @ViewChild('ownerInput') ownerInput!: ElementRef;
+    readonly studentInput = viewChild.required<ElementRef>('studentInput');
+    readonly examInput = viewChild.required<ElementRef>('examInput');
+    readonly ownerInput = viewChild.required<ElementRef>('ownerInput');
 
-    examId = signal('');
-    externalRef = signal('');
-    student = signal<User | undefined>(undefined);
-    owner = signal<User | undefined>(undefined);
-    startDate = signal<Date | null>(new Date());
-    endDate = signal<Date | null>(new Date());
-    user: User;
-    examStates: string[];
-    selection = signal<Selection>({});
-    stateOptions = signal<Option<string, string>[]>([]);
-    roomOptions = signal<Option<ExamRoom, number>[]>([]);
-    machineOptions = signal<Option<ExamMachine, number>[]>([]);
-    rooms = signal<ExamRoom[]>([]);
-    machines = signal<ExamMachine[]>([]);
-    reservations = signal<AnyReservation[]>([]);
-    isInteroperable = signal(false);
-    externalReservationsOnly = signal(false);
-    byodExamsOnly = signal(false);
+    readonly examId = signal('');
+    readonly externalRef = signal('');
+    readonly student = signal<User | undefined>(undefined);
+    readonly owner = signal<User | undefined>(undefined);
+    readonly startDate = signal<Date | null>(new Date());
+    readonly endDate = signal<Date | null>(new Date());
+    readonly selection = signal<Selection>({});
+    readonly stateOptions = signal<Option<string, string>[]>([]);
+    readonly roomOptions = signal<Option<ExamRoom, number>[]>([]);
+    readonly machineOptions = signal<Option<ExamMachine, number>[]>([]);
+    readonly rooms = signal<ExamRoom[]>([]);
+    readonly machines = signal<ExamMachine[]>([]);
+    readonly reservations = signal<AnyReservation[]>([]);
+    readonly isInteroperable = signal(false);
+    readonly externalReservationsOnly = signal(false);
+    readonly byodExamsOnly = signal(false);
+    readonly isAdminView: boolean;
+    readonly isSupportView: boolean;
 
-    private isInteroperable$ = toObservable(this.isInteroperable);
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private toast = inject(ToastrService);
-    private orderPipe = inject(OrderByPipe);
-    private Session = inject(SessionService);
-    private Reservation = inject(ReservationService);
+    private readonly isInteroperable$ = toObservable(this.isInteroperable);
+
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly toast = inject(ToastrService);
+    private readonly orderPipe = inject(OrderByPipe);
+    private readonly Session = inject(SessionService);
+    private readonly Reservation = inject(ReservationService);
 
     constructor() {
-        this.user = this.Session.getUser();
+        const user = this.Session.getUser();
+        this.isAdminView = user.isAdmin ?? false;
+        this.isSupportView = user.isSupport ?? false;
 
         const baseStates = [
             'REVIEW',
@@ -90,11 +91,10 @@ export class ReservationsComponent {
             'NO_SHOW',
         ];
 
-        if (this.user.isAdmin || this.user.isSupport) {
-            this.examStates = [...baseStates, 'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED'];
-        } else {
-            this.examStates = baseStates;
-        }
+        const examStates =
+            this.isAdminView || this.isSupportView
+                ? [...baseStates, 'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED']
+                : baseStates;
 
         const examIdParam = this.route.snapshot.params.eid;
         if (examIdParam) {
@@ -103,13 +103,23 @@ export class ReservationsComponent {
         this.initOptions();
         this.query();
         this.stateOptions.set(
-            this.examStates.map((s) => ({
+            examStates.map((s) => ({
                 id: s,
                 value: s,
                 label: `i18n_exam_status_${s.toLowerCase()}`,
             })),
         );
     }
+
+    onExternalReservationsChange = (event: Event) => {
+        this.externalReservationsOnly.set((event.target as HTMLInputElement).checked);
+        this.query();
+    };
+
+    onByodExamsChange = (event: Event) => {
+        this.byodExamsOnly.set((event.target as HTMLInputElement).checked);
+        this.query();
+    };
 
     query() {
         const currentSelection = this.selection();
@@ -131,14 +141,6 @@ export class ReservationsComponent {
         }
     }
 
-    isAdminView() {
-        return this.user.isAdmin;
-    }
-
-    isSupportView() {
-        return this.user.isSupport;
-    }
-
     studentSelected(event: NgbTypeaheadSelectItemEvent<User & { name: string }>) {
         this.student.set(event.item);
         this.query();
@@ -146,7 +148,7 @@ export class ReservationsComponent {
 
     clearStudent() {
         this.student.set(undefined);
-        this.studentInput.nativeElement.value = '';
+        this.studentInput().nativeElement.value = '';
         this.query();
     }
 
@@ -157,7 +159,7 @@ export class ReservationsComponent {
 
     clearOwner() {
         this.owner.set(undefined);
-        this.ownerInput.nativeElement.value = '';
+        this.ownerInput().nativeElement.value = '';
         this.query();
     }
 
@@ -175,7 +177,7 @@ export class ReservationsComponent {
     clearExam() {
         this.examId.set('');
         this.externalRef.set('');
-        this.examInput.nativeElement.value = '';
+        this.examInput().nativeElement.value = '';
         this.query();
     }
 
@@ -230,10 +232,7 @@ export class ReservationsComponent {
     protected searchExams$ = (text$: Observable<string>) =>
         combineLatest([text$, this.isInteroperable$]).pipe(
             switchMap(([text, isInteroperable]) =>
-                this.Reservation.searchExams$(
-                    of(text),
-                    isInteroperable && (this.isAdminView() || this.isSupportView()),
-                ),
+                this.Reservation.searchExams$(of(text), isInteroperable && (this.isAdminView || this.isSupportView)),
             ),
         );
 
@@ -267,7 +266,7 @@ export class ReservationsComponent {
             this.isInteroperable.set(resp.isExamVisitSupported);
         });
 
-        if (this.isAdminView() || this.isSupportView()) {
+        if (this.isAdminView || this.isSupportView) {
             this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe({
                 next: (resp) => {
                     const orderedRooms = this.orderPipe.transform(resp, 'name');

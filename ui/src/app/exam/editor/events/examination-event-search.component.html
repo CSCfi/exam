@@ -21,10 +21,10 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
     </div>
-    <form class="row my-3 align-items-end">
+    <div class="row my-3 align-items-end">
         <!-- Start & End time datepickers -->
         <div class="col-2">
-            <span class="exam-input-label-uppercase">{{ 'i18n_begin' | translate }}</span>
+            {{ 'i18n_begin' | translate }}
             <xm-date-picker
                 [optional]="true"
                 [initialDate]="date()"
@@ -32,7 +32,7 @@ SPDX-License-Identifier: EUPL-1.2
             ></xm-date-picker>
         </div>
         <div class="col-2">
-            <span class="exam-input-label-uppercase">{{ 'i18n_end' | translate }}</span>
+            {{ 'i18n_end' | translate }}
             <xm-date-picker
                 [optional]="true"
                 [initialDate]="date()"
@@ -42,9 +42,8 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-2">
             <div class="input-group">
                 <input
-                    name="text-search"
-                    [(ngModel)]="filterText"
-                    (ngModelChange)="query()"
+                    [value]="filterText()"
+                    (input)="onFilterInput($event)"
                     class="form-control"
                     placeholder="{{ 'i18n_search' | translate }}"
                     ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
@@ -55,7 +54,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="input-group-append bi-search search-append"></div>
             </div>
         </div>
-    </form>
+    </div>
 
     @if (events().length > 0) {
         <div class="row">

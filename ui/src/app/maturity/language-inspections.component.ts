@@ -47,11 +47,11 @@ import type { LanguageInspection, LanguageInspectionData, QueryParams } from './
     ],
 })
 export class LanguageInspectionsComponent {
-    ongoingInspections = signal<LanguageInspectionData[]>([]);
-    processedInspections = signal<LanguageInspectionData[]>([]);
+    readonly ongoingInspections = signal<LanguageInspectionData[]>([]);
+    readonly processedInspections = signal<LanguageInspectionData[]>([]);
 
-    private Language = inject(LanguageService);
-    private LanguageInspection = inject(LanguageInspectionService);
+    private readonly Language = inject(LanguageService);
+    private readonly LanguageInspection = inject(LanguageInspectionService);
 
     private startDate: Date | null = null;
     private endDate: Date | null = null;

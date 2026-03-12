@@ -9,7 +9,7 @@ import type { ExamMachine } from 'src/app/reservation/reservation.model';
 
 @Injectable({ providedIn: 'root' })
 export class MachineService {
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     softwareApi = () => '/app/softwares';
     machineSoftwareApi = (mid: number, sid: number) => `/app/machine/${mid}/software/${sid}`;

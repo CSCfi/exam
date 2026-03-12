@@ -198,7 +198,7 @@ SPDX-License-Identifier: EUPL-1.2
                         <span><strong class="text text-primary">BYOD</strong></span>
                     }
                 </td>
-                <td class="reservation-search" [ngClass]="getStateClass(r)">
+                <td class="reservation-search" [class]="getStateClass(r)">
                     {{ 'i18n_exam_status_' + printExamState(r) | lowercase | translate }}
                 </td>
                 @if (isAdminView() || isSupportView()) {

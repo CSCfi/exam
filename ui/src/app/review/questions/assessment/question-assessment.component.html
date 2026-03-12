@@ -38,11 +38,11 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <div class="row">
+        @let hasAnswerInstructions = selectedReview() && selectedReview()!.question.defaultAnswerInstructions;
         <div
-            [ngClass]="
-                selectedReview() && selectedReview()!.question.defaultAnswerInstructions ? 'col-md-10' : 'col-md-11'
-            "
-            class="col-md-offset-1"
+            [class.col-md-10]="hasAnswerInstructions"
+            [class.col-md-11]="!hasAnswerInstructions"
+            [class.col-md-offset-1]="hasAnswerInstructions"
         >
             <div class="" [xmMath]="selectedReview()!.question.question"></div>
         </div>

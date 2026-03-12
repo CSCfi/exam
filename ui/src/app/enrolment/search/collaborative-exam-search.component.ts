@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, forkJoin, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, finalize, map, switchMap, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs/operators';
 import type { CollaborativeExamInfo } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { CollaborativeExam } from 'src/app/exam/exam.model';
@@ -36,8 +36,8 @@ interface LoadingState {
             <div class="col-5">
                 <div class="input-group">
                     <input
-                        [(ngModel)]="filterText"
-                        (ngModelChange)="search($event)"
+                        [value]="filterText"
+                        (input)="onFilterTextInput($event)"
                         type="text"
                         class="form-control"
                         [ariaLabel]="'i18n_search' | translate"
@@ -115,30 +115,21 @@ interface LoadingState {
             </div>
         </div>
     `,
-    imports: [
-        FormsModule,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        ExamSearchResultComponent,
-        TranslateModule,
-        OrderByPipe,
-    ],
+    imports: [NgbDropdownModule, ExamSearchResultComponent, TranslateModule, OrderByPipe],
 })
-export class CollaborativeExamSearchComponent implements OnDestroy {
-    exams = signal<CollaborativeExamInfo[]>([]);
-    filterOrdering = signal<'name' | 'periodStart' | 'periodEnd'>('name');
-    filterReverse = signal(false);
-    searchDone = signal(false);
-    loader = signal<LoadingState>({ loading: false });
-    filterChanged: Subject<string> = new Subject<string>();
+export class CollaborativeExamSearchComponent {
+    readonly exams = signal<CollaborativeExamInfo[]>([]);
+    readonly filterOrdering = signal<'name' | 'periodStart' | 'periodEnd'>('name');
+    readonly filterReverse = signal(false);
+    readonly searchDone = signal(false);
+    readonly loader = signal<LoadingState>({ loading: false });
 
-    private _filterText = signal('');
-    private readonly ngUnsubscribe = new Subject<void>();
-    private toast = inject(ToastrService);
-    private Search = inject(ExamSearchService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly filterChanged: Subject<string> = new Subject<string>();
+    private readonly _filterText = signal('');
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly toast = inject(ToastrService);
+    private readonly Search = inject(ExamSearchService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     constructor() {
         this.setupSearchHandler();
@@ -153,10 +144,7 @@ export class CollaborativeExamSearchComponent implements OnDestroy {
         this._filterText.set(value);
     }
 
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
-    }
+    onFilterTextInput = (event: Event) => this.search((event.target as HTMLInputElement).value);
 
     search(text: string) {
         this._filterText.set(text);
@@ -172,7 +160,7 @@ export class CollaborativeExamSearchComponent implements OnDestroy {
 
     private setupSearchHandler() {
         this.filterChanged
-            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .pipe(debounceTime(500), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
             .subscribe((text) => this.doSearch(text));
     }
 
@@ -220,7 +208,7 @@ export class CollaborativeExamSearchComponent implements OnDestroy {
                     return this.batchCheckEnrolmentStatus(transformedExams);
                 }),
                 finalize(() => this.loader.set({ loading: false })),
-                takeUntil(this.ngUnsubscribe),
+                takeUntilDestroyed(this.destroyRef),
             )
             .subscribe({
                 next: (checkedExams) => {

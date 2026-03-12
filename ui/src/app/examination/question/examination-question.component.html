@@ -6,7 +6,7 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div class="row">
     <div class="col-md-12">
-        <div class="guide-wrapper" [ngClass]="isAnswered() ? 'active' : 'notactive'">
+        <div class="guide-wrapper" [class.active]="isAnswered()" [class.notactive]="!isAnswered()">
             <div class="row align-items-center">
                 <div class="col-auto">
                     @if (isAnswered()) {
@@ -30,7 +30,7 @@ SPDX-License-Identifier: EUPL-1.2
                         (click)="toggleExpanded()"
                         (keydown.enter)="toggleExpanded()"
                     >
-                        <i [ngClass]="expanded() ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                        <i [class.bi-chevron-down]="expanded()" [class.bi-chevron-right]="!expanded()"></i>
                     </button>
                 </div>
                 <!-- question text -->
@@ -106,6 +106,7 @@ SPDX-License-Identifier: EUPL-1.2
                                         [sq]="sq()"
                                         [examHash]="exam()?.hash || ''"
                                         [isPreview]="isPreview()"
+                                        [isExternal]="exam()?.external || false"
                                     />
                                 }
                                 @case ('MultipleChoiceQuestion') {
@@ -113,6 +114,7 @@ SPDX-License-Identifier: EUPL-1.2
                                         [sq]="sq()"
                                         [examHash]="exam()?.hash || ''"
                                         [isPreview]="isPreview()"
+                                        [isExternal]="exam()?.external || false"
                                         [orderOptions]="!exam()?.external"
                                     >
                                     </xm-examination-multi-choice-question>
@@ -122,6 +124,7 @@ SPDX-License-Identifier: EUPL-1.2
                                         [sq]="sq()"
                                         [examHash]="exam()?.hash || ''"
                                         [isPreview]="isPreview()"
+                                        [isExternal]="exam()?.external || false"
                                         [orderOptions]="true"
                                     >
                                     </xm-examination-multi-choice-question>
@@ -131,6 +134,7 @@ SPDX-License-Identifier: EUPL-1.2
                                         [sq]="sq()"
                                         [examHash]="exam()?.hash || ''"
                                         [isPreview]="isPreview()"
+                                        [isExternal]="exam()?.external || false"
                                         [orderOptions]="!exam()?.external"
                                     >
                                     </xm-examination-weighted-multi-choice-question>

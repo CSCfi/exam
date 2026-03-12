@@ -2,19 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbNav,
-    NgbNavItem,
-    NgbNavItemRole,
-    NgbNavLink,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { QueryParams } from 'src/app/administrative/administrative.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -45,33 +34,25 @@ enum Tab {
     selector: 'xm-statistics',
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
+        NgbNavModule,
+        NgbDropdownModule,
+        TranslateModule,
         DatePickerComponent,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        FormsModule,
-        NgbDropdownItem,
-        NgClass,
         IopReservationStatisticsComponent,
         RoomStatisticsComponent,
         ReservationStatisticsComponent,
         ResponseStatisticsComponent,
         ExamStatisticsComponent,
-        TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
     ],
 })
 export class StatisticsComponent {
-    departments = signal<Departments[]>([]);
-    startDate = signal<Date | null>(null);
-    endDate = signal<Date | null>(null);
+    readonly departments = signal<Departments[]>([]);
+    readonly startDate = signal<Date | null>(null);
+    readonly endDate = signal<Date | null>(null);
 
-    filteredDepartments = computed(() => {
+    readonly filteredDepartments = computed(() => {
         const filter = this._departmentFilter().toLowerCase();
         if (filter === '') {
             return this.departments();
@@ -79,7 +60,7 @@ export class StatisticsComponent {
         return this.departments().filter((d) => d.name.toLowerCase().includes(filter));
     });
 
-    queryParams = computed<QueryParams>(() => {
+    readonly queryParams = computed<QueryParams>(() => {
         const params: { start?: string; end?: string; dept?: string } = {};
         const currentStartDate = this.startDate();
         const currentEndDate = this.endDate();
@@ -96,9 +77,9 @@ export class StatisticsComponent {
         return params;
     });
 
-    private _view = signal<Tab>(Tab.RESPONSES);
-    private _departmentFilter = signal('');
-    private Statistics = inject(StatisticsService);
+    private readonly _view = signal<Tab>(Tab.RESPONSES);
+    private readonly _departmentFilter = signal('');
+    private readonly Statistics = inject(StatisticsService);
 
     constructor() {
         this.Statistics.listDepartments$().subscribe((resp) => {
@@ -138,8 +119,7 @@ export class StatisticsComponent {
         this.endDate.set(event.date);
     }
 
-    handleDepartmentInputChange() {
-        // The computed signal will automatically update when _departmentFilter changes
-        // This method is kept for the template event handler but doesn't need to do anything
-    }
+    onDepartmentFilterInput = (event: Event) => {
+        this.departmentFilter = (event.target as HTMLInputElement).value;
+    };
 }

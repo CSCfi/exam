@@ -16,10 +16,10 @@ export type UpdateProps = {
 export class ExamTabService {
     // Signal-based API
     // Using wrapper objects to ensure effects fire even if same value is set twice
-    private tabChange = signal<{ tab: number; timestamp: number } | undefined>(undefined);
-    private examUpdate = signal<{ props: UpdateProps; timestamp: number } | undefined>(undefined);
-    private exam = signal<Exam | undefined>(undefined);
-    private collaborative = signal(false);
+    private readonly tabChange = signal<{ tab: number; timestamp: number } | undefined>(undefined);
+    private readonly examUpdate = signal<{ props: UpdateProps; timestamp: number } | undefined>(undefined);
+    private readonly exam = signal<Exam | undefined>(undefined);
+    private readonly collaborative = signal(false);
 
     // Readonly signals for components
     get tabChangeSignal() {

@@ -2,10 +2,9 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -33,9 +32,7 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
     templateUrl: './exam-publication.component.html',
     imports: [
         DatePickerComponent,
-        FormsModule,
         NgbPopover,
-        NgClass,
         ExamPublicationParticipantsComponent,
         ExaminationEventsComponent,
         UpperCasePipe,
@@ -47,26 +44,25 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamPublicationComponent {
-    exam = signal<Exam>({} as Exam);
+    readonly exam = signal<Exam>({} as Exam);
 
-    collaborative = signal(false);
-    isAdmin = signal(false);
-    hostName = signal('');
-    examDurations = signal<number[]>([]);
+    readonly collaborative = signal(false);
+    readonly examDurations = signal<number[]>([]);
+    readonly hostName = window.location.origin;
+    readonly isAdmin: boolean;
 
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private modal = inject(ModalService);
-    private toast = inject(ToastrService);
-    private Session = inject(SessionService);
-    private Exam = inject(ExamService);
-    private Tabs = inject(ExamTabService);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly modal = inject(ModalService);
+    private readonly toast = inject(ToastrService);
+    private readonly Session = inject(SessionService);
+    private readonly Exam = inject(ExamService);
+    private readonly Tabs = inject(ExamTabService);
 
     constructor() {
-        this.hostName.set(window.location.origin);
-        this.isAdmin.set(this.Session.getUser().isAdmin);
+        this.isAdmin = this.Session.getUser().isAdmin;
         this.exam.set(this.Tabs.getExam());
         this.collaborative.set(this.Tabs.isCollaborative());
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe({
@@ -141,18 +137,8 @@ export class ExamPublicationComponent {
         return Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');
     }
 
-    checkDuration(duration: number) {
-        const currentExam = this.exam();
-        return currentExam.duration === duration ? 'btn-primary' : '';
-    }
-
     range(min: number, max: number, step = 1) {
         return [...Array(step + max - min).keys()].map((v) => min + v);
-    }
-
-    checkTrialCount(x: number | null) {
-        const currentExam = this.exam();
-        return currentExam.trialCount === x ? 'btn-primary' : '';
     }
 
     setTrialCount(x: number | null) {
@@ -201,7 +187,7 @@ export class ExamPublicationComponent {
                             ? 'i18n_exam_saved_and_pre_published'
                             : 'i18n_exam_saved_and_published';
                         this.toast.success(this.translate.instant(text));
-                        this.router.navigate(['/staff', this.isAdmin() ? 'admin' : 'teacher']);
+                        this.router.navigate(['/staff', this.isAdmin ? 'admin' : 'teacher']);
                     },
                     error: (err) => this.toast.error(err),
                 });

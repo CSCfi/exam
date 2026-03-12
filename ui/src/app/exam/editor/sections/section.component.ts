@@ -14,6 +14,7 @@ import { HttpClient } from '@angular/common/http';
 import {
     ChangeDetectionStrategy,
     Component,
+    OnInit,
     ViewEncapsulation,
     computed,
     inject,
@@ -21,15 +22,8 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {
-    NgbCollapse,
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { FormField, disabled, form, max, min, required } from '@angular/forms/signals';
+import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap } from 'rxjs/operators';
@@ -52,11 +46,8 @@ import { SectionQuestionComponent } from './section-question.component';
     templateUrl: './section.component.html',
     imports: [
         NgbPopover,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        FormsModule,
+        NgbDropdownModule,
+        FormField,
         NgbCollapse,
         CdkDropList,
         CdkDrag,
@@ -69,32 +60,50 @@ import { SectionQuestionComponent } from './section-question.component';
     styleUrls: ['./sections.shared.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SectionComponent {
-    section = input.required<ExamSection>();
-    index = input(0);
-    examId = input(0);
-    canBeOptional = input(false);
-    collaborative = input(false);
-    materials = input<ExamMaterial[]>([]);
+export class SectionComponent implements OnInit {
+    readonly section = input.required<ExamSection>();
+    readonly index = input(0);
+    readonly examId = input(0);
+    readonly canBeOptional = input(false);
+    readonly collaborative = input(false);
+    readonly materials = input<ExamMaterial[]>([]);
 
-    removed = output<ExamSection>();
-    updated = output<ExamSection>();
-    materialsChanged = output<void>();
+    readonly removed = output<ExamSection>();
+    readonly updated = output<ExamSection>();
+    readonly materialsChanged = output<void>();
 
-    expanded = computed(() => {
+    readonly expanded = computed(() => {
         const override = this.expandedOverride();
         return override !== undefined ? override : (this.section().expanded ?? false);
     });
+    readonly sectionForm = form(
+        signal({ name: '', description: '', optional: false, lotteryOn: false, lotteryItemCount: 1 }),
+        (path) => {
+            required(path.name);
+            disabled(path.lotteryOn, () => this.lotteryDisabled());
+            min(path.lotteryItemCount, 1);
+            max(path.lotteryItemCount, () => this.section().sectionQuestions.length);
+        },
+    );
 
-    private expandedOverride = signal<boolean | undefined>(undefined);
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private modal = inject(ModalService);
-    private toast = inject(ToastrService);
-    private dialogs = inject(ConfirmationDialogService);
-    private QuestionScore = inject(QuestionScoringService);
-    private Files = inject(FileService);
-    private Exam = inject(ExamService);
+    private readonly expandedOverride = signal<boolean | undefined>(undefined);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly modal = inject(ModalService);
+    private readonly toast = inject(ToastrService);
+    private readonly dialogs = inject(ConfirmationDialogService);
+    private readonly QuestionScore = inject(QuestionScoringService);
+    private readonly Files = inject(FileService);
+    private readonly Exam = inject(ExamService);
+
+    ngOnInit() {
+        const s = this.section();
+        this.sectionForm.name().value.set(s.name || '');
+        this.sectionForm.description().value.set(s.description || '');
+        this.sectionForm.optional().value.set(s.optional ?? false);
+        this.sectionForm.lotteryOn().value.set(s.lotteryOn ?? false);
+        this.sectionForm.lotteryItemCount().value.set(s.lotteryItemCount ?? 1);
+    }
 
     questionPointsMatch() {
         const currentSection = this.section();
@@ -138,6 +147,14 @@ export class SectionComponent {
     }
 
     renameSection() {
+        const currentSection = this.section();
+        const updated = {
+            ...currentSection,
+            name: this.sectionForm.name().value(),
+            description: this.sectionForm.description().value(),
+            optional: this.sectionForm.optional().value(),
+        };
+        this.updated.emit(updated);
         this.updateSection(false);
     }
 
@@ -173,17 +190,19 @@ export class SectionComponent {
     toggleLottery() {
         const currentSection = this.section();
         if (this.lotteryDisabled()) {
+            this.sectionForm.lotteryOn().value.set(false);
             const updated = { ...currentSection, lotteryOn: false };
             this.updated.emit(updated);
             return;
         }
         if (!this.questionPointsMatch()) {
             this.toast.error(this.translate.instant('i18n_error_lottery_points_not_match'));
+            this.sectionForm.lotteryOn().value.set(false);
             const updated = { ...currentSection, lotteryOn: false };
             this.updated.emit(updated);
             return;
         }
-        const newLotteryOn = !currentSection.lotteryOn;
+        const newLotteryOn = this.sectionForm.lotteryOn().value();
         const updatedPayload = {
             ...this.getSectionPayload(),
             lotteryOn: newLotteryOn,
@@ -207,13 +226,15 @@ export class SectionComponent {
 
     updateLotteryCount() {
         const currentSection = this.section();
-        let lotteryItemCount = currentSection.lotteryItemCount;
+        let lotteryItemCount = this.sectionForm.lotteryItemCount().value() ?? 1;
         if (!lotteryItemCount) {
             this.toast.warning(this.translate.instant('i18n_warn_lottery_count'));
             lotteryItemCount = 1;
+            this.sectionForm.lotteryItemCount().value.set(1);
         } else if (lotteryItemCount > currentSection.sectionQuestions.length) {
             this.toast.warning(this.translate.instant('i18n_warn_lottery_count'));
             lotteryItemCount = currentSection.sectionQuestions.length;
+            this.sectionForm.lotteryItemCount().value.set(lotteryItemCount);
         }
         if (lotteryItemCount !== currentSection.lotteryItemCount) {
             const updated = { ...currentSection, lotteryItemCount };
@@ -335,36 +356,6 @@ export class SectionComponent {
         return this.section().sectionQuestions.filter((q) => q.evaluationType === 'Selection').length;
     }
 
-    setSectionName(value: string) {
-        const currentSection = this.section();
-        const updated = { ...currentSection, name: value };
-        this.updated.emit(updated);
-    }
-
-    setSectionDescription(value: string) {
-        const currentSection = this.section();
-        const updated = { ...currentSection, description: value };
-        this.updated.emit(updated);
-    }
-
-    setSectionOptional(value: boolean) {
-        const currentSection = this.section();
-        const updated = { ...currentSection, optional: value };
-        this.updated.emit(updated);
-    }
-
-    setSectionLotteryOn(value: boolean) {
-        const currentSection = this.section();
-        const updated = { ...currentSection, lotteryOn: value };
-        this.updated.emit(updated);
-    }
-
-    setSectionLotteryItemCount(value: number) {
-        const currentSection = this.section();
-        const updated = { ...currentSection, lotteryItemCount: value };
-        this.updated.emit(updated);
-    }
-
     private updateSection(silent: boolean) {
         const currentSection = this.section();
         this.http
@@ -391,14 +382,15 @@ export class SectionComponent {
 
     private getSectionPayload() {
         const currentSection = this.section();
+        const lotteryOn = this.sectionForm.lotteryOn().value();
         return {
             id: currentSection.id,
-            name: currentSection.name,
-            lotteryOn: currentSection.lotteryOn,
-            lotteryItemCount: currentSection.lotteryOn ? currentSection.lotteryItemCount : 0,
-            description: currentSection.description,
+            name: this.sectionForm.name().value(),
+            lotteryOn,
+            lotteryItemCount: lotteryOn ? this.sectionForm.lotteryItemCount().value() : 0,
+            description: this.sectionForm.description().value(),
             expanded: currentSection.expanded,
-            optional: currentSection.optional,
+            optional: this.sectionForm.optional().value(),
         };
     }
 

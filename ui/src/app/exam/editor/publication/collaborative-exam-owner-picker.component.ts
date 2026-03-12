@@ -2,10 +2,9 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { email, form, FormField } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -27,17 +26,15 @@ import { SessionService } from 'src/app/session/session.service';
                 </sup>
             </div>
             <div class="col-md-9">
-                <form #myForm="ngForm" name="myForm">
+                <form>
                     <input
                         type="email"
-                        name="email"
                         placeholder="{{ 'i18n_write_exam_owner_email' | translate }}"
                         class="form-control w-50 make-inline"
-                        [(ngModel)]="newOwner.email"
-                        email
+                        [formField]="ownerForm.email"
                     />
                     <button
-                        [disabled]="!myForm.valid || !newOwner.email || !user.isAdmin"
+                        [disabled]="ownerForm.email().invalid() || !user.isAdmin"
                         (click)="addOwner()"
                         class="btn btn-success"
                     >
@@ -51,7 +48,7 @@ import { SessionService } from 'src/app/session/session.service';
             <div class="col-md-9">
                 <!-- Owners for the exam -->
                 @for (owner of exam().examOwners; track owner) {
-                    <div class="ms-1 row" [ngClass]="{ 'hover-grey': !user.isAdmin }">
+                    <div class="ms-1 row" [class.hover-grey]="!user.isAdmin">
                         <div class="row col-8">
                             {{ owner.email }}
                         </div>
@@ -68,19 +65,21 @@ import { SessionService } from 'src/app/session/session.service';
                 }
             </div>
         </div>`,
-    imports: [NgClass, NgbPopover, FormsModule, TranslateModule],
+    imports: [NgbPopover, FormField, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CollaborativeExamOwnerSelectorComponent {
-    exam = input.required<Exam>();
+    readonly exam = input.required<Exam>();
 
-    user: User;
-    newOwner: { email: string | undefined } = { email: undefined };
+    readonly ownerForm = form(signal({ email: '' }), (path) => {
+        email(path.email);
+    });
+    readonly user: User;
 
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
-    private Session = inject(SessionService);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         this.user = this.Session.getUser();
@@ -88,12 +87,13 @@ export class CollaborativeExamOwnerSelectorComponent {
 
     addOwner = () => {
         const currentExam = this.exam();
-        const exists = currentExam.examOwners.some((o) => o.email === this.newOwner.email);
+        const emailValue = this.ownerForm.email().value();
+        const exists = currentExam.examOwners.some((o) => o.email === emailValue);
         if (!exists) {
-            this.http.post<User>(`/app/iop/exams/${currentExam.id}/owners`, this.newOwner).subscribe({
+            this.http.post<User>(`/app/iop/exams/${currentExam.id}/owners`, { email: emailValue }).subscribe({
                 next: (user) => {
                     currentExam.examOwners.push(user);
-                    this.newOwner.email = undefined;
+                    this.ownerForm.email().value.set('');
                 },
                 error: (err) => this.toast.error(err),
             });

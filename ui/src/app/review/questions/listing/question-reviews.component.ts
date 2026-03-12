@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -47,9 +46,8 @@ import { QuestionReviewComponent } from './question-review.component';
                     <input
                         id="select-all"
                         type="checkbox"
-                        (change)="selectAll()"
-                        [ngModel]="selectionToggle()"
-                        (ngModelChange)="setSelectionToggle($event)"
+                        [checked]="selectionToggle()"
+                        (change)="onSelectionToggleChange($event)"
                     />
                 </span>
             </span>
@@ -68,19 +66,19 @@ import { QuestionReviewComponent } from './question-review.component';
         }
     </div>`,
     styleUrls: ['../assessment/question-assessment.component.scss'],
-    imports: [FormsModule, QuestionReviewComponent, TranslateModule],
+    imports: [QuestionReviewComponent, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionReviewsComponent {
-    examId = signal(0);
-    reviews = signal<QuestionReview[]>([]);
-    selectedReviews = signal<number[]>([]);
-    selectionToggle = signal(false);
+    readonly examId = signal(0);
+    readonly reviews = signal<QuestionReview[]>([]);
+    readonly selectedReviews = signal<number[]>([]);
+    readonly selectionToggle = signal(false);
 
-    private router = inject(Router);
-    private toast = inject(ToastrService);
-    private QuestionReview = inject(QuestionReviewService);
-    private Tabs = inject(ExamTabService);
+    private readonly router = inject(Router);
+    private readonly toast = inject(ToastrService);
+    private readonly QuestionReview = inject(QuestionReviewService);
+    private readonly Tabs = inject(ExamTabService);
 
     constructor() {
         this.examId.set(this.Tabs.getExam().id);
@@ -112,6 +110,11 @@ export class QuestionReviewsComponent {
         currentReviews.forEach((r) => (r.selected = true));
         this.selectedReviews.set(currentReviews.map((r) => r.question.id));
     }
+
+    onSelectionToggleChange = (event: Event) => {
+        this.setSelectionToggle((event.target as HTMLInputElement).checked);
+        this.selectAll();
+    };
 
     selectAll() {
         if (this.selectionToggle()) {

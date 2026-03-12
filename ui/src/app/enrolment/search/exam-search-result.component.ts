@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -16,7 +16,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     selector: 'xm-exam-search-result',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<div
-        [ngClass]="
+        [class]="
             exam().alreadyEnrolled && exam().reservationMade
                 ? 'xm-study-item-container'
                 : 'xm-study-item-container--inactive'
@@ -101,16 +101,16 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
         </div>
     </div>`,
     styleUrls: ['./exam-search.component.scss', '../enrolment.shared.scss'],
-    imports: [NgClass, RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
+    imports: [RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class ExamSearchResultComponent {
-    exam = input.required<EnrolmentInfo | CollaborativeExamInfo>();
-    collaborative = input(false);
+    readonly exam = input.required<EnrolmentInfo | CollaborativeExamInfo>();
+    readonly collaborative = input(false);
 
-    enrolling = signal(false);
+    readonly enrolling = signal(false);
 
-    private router = inject(Router);
-    private Enrolment = inject(EnrolmentService);
+    private readonly router = inject(Router);
+    private readonly Enrolment = inject(EnrolmentService);
 
     enrollForExam() {
         if (this.enrolling()) {

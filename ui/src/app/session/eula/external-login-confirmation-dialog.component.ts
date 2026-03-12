@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { User } from 'src/app/session/session.model';
@@ -12,13 +12,11 @@ import { User } from 'src/app/session/session.model';
     template: `
         <div class="modal-header">
             <h1 class="xm-modal-title">
-                {{ 'i18n_external_organisation_login' | translate }} ({{ user?.homeOrganisations }})
+                {{ 'i18n_external_organisation_login' | translate }} ({{ user()!.homeOrganisations }})
             </h1>
         </div>
         <div class="modal-body">
-            @if (user) {
-                {{ 'i18n_external_organisation_login_description' | translate }}: {{ user.externalUserOrg }}?
-            }
+            {{ 'i18n_external_organisation_login_description' | translate }}: {{ user()!.externalUserOrg }}?
         </div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-success" (click)="activeModal.close()" autofocus>
@@ -32,7 +30,7 @@ import { User } from 'src/app/session/session.model';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExternalLoginConfirmationDialogComponent {
-    user?: User;
+    readonly user = signal<User | undefined>(undefined);
 
-    activeModal = inject(NgbActiveModal);
+    protected readonly activeModal = inject(NgbActiveModal);
 }

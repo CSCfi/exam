@@ -11,10 +11,8 @@ import { SessionService } from 'src/app/session/session.service';
 
 @Injectable({ providedIn: 'root' })
 export class CollaborativeExamService {
-    exams: CollaborativeExam[] = [];
-
-    private http = inject(HttpClient);
-    private Session = inject(SessionService);
+    private readonly http = inject(HttpClient);
+    private readonly Session = inject(SessionService);
 
     listExams$ = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/app/iop/enrolments' : '/app/iop/exams';

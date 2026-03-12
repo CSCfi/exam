@@ -17,8 +17,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <span class="caret"></span>
                 </button>
                 <ul ngbDropdownMenu aria-labelledby="dropDownMenu">
-                    @for (org of organisations; track org) {
-                        <li ngbDropdownItem role="presentation" (click)="organisation = org">
+                    @for (org of organisations(); track org) {
+                        <li ngbDropdownItem role="presentation" (click)="organisation.set(org)">
                             <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
                         </li>
                     }
@@ -28,11 +28,11 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="row mt-4">
         <div class="col-12">
-            <button class="btn btn-success" [disabled]="!organisation" (click)="transfer()">
+            <button class="btn btn-success" [disabled]="!organisation()" (click)="transfer()">
                 {{ 'i18n_copy' | translate }}
             </button>
-            @if (organisation) {
-                <span class="ps-2 vertm">({{ organisation.code }})</span>
+            @if (organisation(); as org) {
+                <span class="ps-2 vertm">({{ org.code }})</span>
             }
         </div>
     </div>

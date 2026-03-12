@@ -11,66 +11,25 @@ import { TranslateModule } from '@ngx-translate/core';
     imports: [TranslateModule],
     template: `
         <div class="modal-header">
-            <div class="xm-modal-title">{{ title | translate }}</div>
+            <div class="xm-modal-title">{{ title() | translate }}</div>
         </div>
-        <div class="modal-body" [innerHTML]="description"></div>
+        <div class="modal-body" [innerHTML]="description()"></div>
         <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-success" (click)="activeModal.close(true)" autofocus>
-                {{ getConfirmButtonText() | translate }}
+                {{ confirmButtonText() | translate }}
             </button>
             <button class="btn btn-secondary me-3" (click)="activeModal.dismiss(false)">
-                {{ getCancelButtonText() | translate }}
+                {{ cancelButtonText() | translate }}
             </button>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmationDialogComponent {
-    activeModal = inject(NgbActiveModal);
+    readonly title = signal('');
+    readonly description = signal('');
+    readonly confirmButtonText = signal('i18n_button_accept');
+    readonly cancelButtonText = signal('i18n_button_decline');
 
-    private _title = signal('');
-    private _description = signal('');
-    private _confirmButtonText = signal<string | undefined>(undefined);
-    private _cancelButtonText = signal<string | undefined>(undefined);
-
-    // Getters/setters for compatibility with direct property assignment pattern
-    get title(): string {
-        return this._title();
-    }
-
-    get description(): string {
-        return this._description();
-    }
-
-    get confirmButtonText(): string | undefined {
-        return this._confirmButtonText();
-    }
-
-    get cancelButtonText(): string | undefined {
-        return this._cancelButtonText();
-    }
-
-    set title(value: string) {
-        this._title.set(value);
-    }
-
-    set description(value: string) {
-        this._description.set(value);
-    }
-
-    set confirmButtonText(value: string | undefined) {
-        this._confirmButtonText.set(value);
-    }
-
-    set cancelButtonText(value: string | undefined) {
-        this._cancelButtonText.set(value);
-    }
-
-    getConfirmButtonText(): string {
-        return this.confirmButtonText || 'i18n_button_accept';
-    }
-
-    getCancelButtonText(): string {
-        return this.cancelButtonText || 'i18n_button_decline';
-    }
+    protected readonly activeModal = inject(NgbActiveModal);
 }

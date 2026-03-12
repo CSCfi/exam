@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { NgbActiveModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -13,16 +13,16 @@ import type { ExamMaterial } from 'src/app/exam/exam.model';
 @Component({
     selector: 'xm-exam-material',
     templateUrl: './exam-material.component.html',
-    imports: [FormsModule, TranslateModule, NgbPopoverModule],
+    imports: [FormField, TranslateModule, NgbPopoverModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamMaterialComponent {
-    materials = signal<ExamMaterial[]>([]);
-    filter = signal('');
-    newMaterial: Partial<ExamMaterial> = {};
-    materialsChanged = signal(false);
-
-    filteredMaterials = computed(() => {
+    readonly materials = signal<ExamMaterial[]>([]);
+    readonly filter = signal('');
+    readonly materialForm = form(signal({ name: '', author: '', isbn: '' }), (path) => {
+        required(path.name);
+    });
+    readonly filteredMaterials = computed(() => {
         const filterValue = this.filter();
         if (!filterValue) {
             return this.materials();
@@ -33,9 +33,9 @@ export class ExamMaterialComponent {
         );
     });
 
-    private activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
         this.http.get<ExamMaterial[]>('/app/materials').subscribe({
@@ -44,22 +44,31 @@ export class ExamMaterialComponent {
         });
     }
 
+    onFilterInput = (event: Event) => this.filter.set((event.target as HTMLInputElement).value);
+
     createMaterial() {
-        this.http.post<ExamMaterial>('/app/materials', this.newMaterial).subscribe({
-            next: (resp) => {
-                this.materials.update((materials) => [...materials, resp]);
-                this.newMaterial = {};
-                this.materialsChanged.set(true);
-            },
-            error: (err) => this.toast.error(err),
-        });
+        const { name, author, isbn } = this.materialForm;
+        this.http
+            .post<ExamMaterial>('/app/materials', {
+                name: name().value(),
+                author: author().value(),
+                isbn: isbn().value(),
+            })
+            .subscribe({
+                next: (resp) => {
+                    this.materials.update((materials) => [...materials, resp]);
+                    name().value.set('');
+                    author().value.set('');
+                    isbn().value.set('');
+                },
+                error: (err) => this.toast.error(err),
+            });
     }
 
     removeMaterial(material: ExamMaterial) {
         this.http.delete(`/app/materials/${material.id}`).subscribe({
             next: () => {
                 this.materials.update((materials) => materials.filter((m) => m.id !== material.id));
-                this.materialsChanged.set(true);
             },
             error: (err) => this.toast.error(err),
         });

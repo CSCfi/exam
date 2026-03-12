@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormField, form } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -18,17 +18,15 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
             <xm-page-content [content]="content" />
         </div>
         <ng-template #content>
-            <form (ngSubmit)="login($event, false)">
+            <form (submit)="login($event, false)">
                 <div class="mb-3">
                     <label class="form-label" for="uname">{{ 'i18n_username' | translate }}</label>
                     <input
                         id="uname"
                         class="form-control w-25"
-                        name="uname"
                         type="text"
                         placeholder="{{ 'i18n_username' | translate }}"
-                        [ngModel]="username()"
-                        (ngModelChange)="username.set($event)"
+                        [formField]="loginForm.username"
                         (keydown.enter)="login($event, true)"
                     />
                 </div>
@@ -38,34 +36,30 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
                         id="pwd"
                         class="form-control w-25"
                         type="password"
-                        name="pwd"
                         placeholder="{{ 'i18n_password' | translate }}"
-                        [ngModel]="password()"
-                        (ngModelChange)="password.set($event)"
+                        [formField]="loginForm.password"
                         (keydown.enter)="login($event, true)"
                     />
                 </div>
-
                 <button type="submit" class="btn btn-success" id="submit">
                     {{ 'i18n_login' | translate }}
                 </button>
             </form>
         </ng-template>
     `,
-    imports: [FormsModule, TranslateModule, PageHeaderComponent, PageContentComponent],
+    imports: [FormField, TranslateModule, PageHeaderComponent, PageContentComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DevLoginComponent {
-    loggedIn = output<User>();
+    readonly loggedIn = output<User>();
 
-    username = signal('');
-    password = signal('');
+    readonly loginForm = form(signal({ username: '', password: '' }));
 
-    private Session = inject(SessionService);
+    private readonly Session = inject(SessionService);
 
     login(event: Event, blur: boolean) {
         if (blur) (event.target as HTMLElement).blur();
-        this.Session.login$(this.username(), this.password()).subscribe({
+        this.Session.login$(this.loginForm.username().value(), this.loginForm.password().value()).subscribe({
             next: (user) => this.loggedIn.emit(user),
             error: (err) => console.error(JSON.stringify(err)),
         });

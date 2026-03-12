@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormField, form } from '@angular/forms/signals';
 import { NgbHighlight, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -18,32 +18,33 @@ import { CoursePickerService } from './course-picker.service';
     selector: 'xm-course-picker',
     templateUrl: './course-picker.component.html',
     styleUrls: ['../../exam.shared.scss'],
-    imports: [FormsModule, NgbTypeahead, NgbHighlight, NgbPopover, TranslateModule],
+    imports: [FormField, NgbTypeahead, NgbHighlight, NgbPopover, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CoursePickerComponent {
-    course = input<Course | undefined>();
-    updated = output<Course>();
+    readonly course = input<Course | undefined>();
+    readonly updated = output<Course>();
 
-    nameFilter = '';
-    codeFilter = '';
-    loaderName = signal(false);
-    loaderCode = signal(false);
+    readonly courseFilterModel = signal({ name: '', code: '' });
+    readonly loaderName = signal(false);
+    readonly loaderCode = signal(false);
+    readonly courseFilterForm = form(this.courseFilterModel);
 
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Course = inject(CoursePickerService);
-    private CourseCode = inject(CourseCodeService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Course = inject(CoursePickerService);
+    private readonly CourseCode = inject(CourseCodeService);
 
     constructor() {
         effect(() => {
             const currentCourse = this.course();
             if (currentCourse) {
-                this.nameFilter = currentCourse.name;
-                this.codeFilter = this.CourseCode.formatCode(currentCourse.code);
+                this.courseFilterModel.set({
+                    name: currentCourse.name,
+                    code: this.CourseCode.formatCode(currentCourse.code),
+                });
             } else {
-                this.nameFilter = '';
-                this.codeFilter = '';
+                this.courseFilterModel.set({ name: '', code: '' });
             }
         });
     }
@@ -55,8 +56,8 @@ export class CoursePickerComponent {
     nameFormat = (c: Course | string) => (this.isCourse(c) ? c.name : c);
 
     onCourseSelect(event: NgbTypeaheadSelectItemEvent) {
-        this.codeFilter = this.CourseCode.formatCode(event.item.code);
-        this.nameFilter = event.item.name;
+        this.courseFilterForm.code().value.set(this.CourseCode.formatCode(event.item.code));
+        this.courseFilterForm.name().value.set(event.item.name);
         this.updated.emit(event.item);
     }
 
@@ -76,7 +77,11 @@ export class CoursePickerComponent {
             tap((courses) => {
                 this.toggleLoadingIcon(category, false);
                 if (courses.length === 0) {
-                    this.showError(this.codeFilter);
+                    const searchTerm =
+                        category === 'code'
+                            ? this.courseFilterForm.code().value()
+                            : this.courseFilterForm.name().value();
+                    this.showError(searchTerm);
                 }
             }),
         );
@@ -96,11 +101,11 @@ export class CoursePickerComponent {
 
     private setInputValue(filter: string, value: string) {
         if (filter === 'code') {
-            this.codeFilter = value;
-            this.nameFilter = '';
+            this.courseFilterForm.code().value.set(value);
+            this.courseFilterForm.name().value.set('');
         } else if (filter === 'name') {
-            this.nameFilter = value;
-            this.codeFilter = '';
+            this.courseFilterForm.name().value.set(value);
+            this.courseFilterForm.code().value.set('');
         }
     }
 }

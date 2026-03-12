@@ -11,6 +11,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized}
 import security.{Auth, BlockingIOExecutionContext}
+import services.datetime.AppClock
 import system.AuditedAction
 import validation.calendar.ReservationCreationFilter
 import validation.core.ScalaAttrs
@@ -21,6 +22,7 @@ class CalendarController @Inject() (
     authenticated: AuthenticatedAction,
     audited: AuditedAction,
     private val calendarService: CalendarService,
+    private val clock: AppClock,
     val controllerComponents: ControllerComponents,
     implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
@@ -49,7 +51,7 @@ class CalendarController @Inject() (
   def createReservation(): Action[JsValue] = audited
     .andThen(authenticated)(parse.json)
     .andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.STUDENT)))
-    .andThen(ReservationCreationFilter())
+    .andThen(ReservationCreationFilter(clock))
     .async { request =>
       val dto  = request.attrs(ScalaAttrs.ATTR_STUDENT_RESERVATION)
       val user = request.attrs(Auth.ATTR_USER)

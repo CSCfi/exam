@@ -36,11 +36,11 @@ import type { Exam } from 'src/app/exam/exam.model';
     `,
 })
 export class PublicationDialogComponent {
-    exam = input.required<Exam>();
-    prePublication = input(false);
+    readonly exam = input.required<Exam>();
+    readonly prePublication = input(false);
 
-    activeModal = inject(NgbActiveModal);
-    private translate = inject(TranslateService);
+    protected readonly activeModal = inject(NgbActiveModal);
+    private readonly translate = inject(TranslateService);
 
     getConfirmationText() {
         const currentPrePublication = this.prePublication();

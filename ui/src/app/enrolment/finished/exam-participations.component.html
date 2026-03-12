@@ -34,7 +34,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     [ariaLabel]="'i18n_search' | translate"
                     [ariaDescription]="'i18n_type_to_start_search' | translate"
-                    [(ngModel)]="filterText"
+                    [value]="filterText"
+                    (input)="onFilterInput($event)"
                     type="text"
                     class="form-control"
                     placeholder="{{ 'i18n_search' | translate }}"
@@ -91,7 +92,7 @@ SPDX-License-Identifier: EUPL-1.2
     @for (
         participation of participations()
             | orderBy: filter().ordering : filter().reverse
-            | slice: currentPage() * pageSize() : currentPage() * pageSize() + pageSize();
+            | slice: currentPage() * pageSize : currentPage() * pageSize + pageSize;
         track participation
     ) {
         <div class="row mb-3">
@@ -106,12 +107,12 @@ SPDX-License-Identifier: EUPL-1.2
 
     @if (participations()) {
         <div class="row mt-2">
-            @if (participations().length > pageSize()) {
+            @if (participations().length > pageSize) {
                 <div class="col-md-12">
                     <xm-paginator
                         [items]="participations()"
                         (pageSelected)="pageSelected($event)"
-                        [pageSize]="pageSize()"
+                        [pageSize]="pageSize"
                         [currentPage]="currentPage()"
                     >
                     </xm-paginator>

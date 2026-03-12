@@ -18,12 +18,12 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
-    private http = inject(HttpClient);
-    private modal = inject(ModalService);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private dialogs = inject(ConfirmationDialogService);
-    private DateTime = inject(DateTimeService);
+    private readonly http = inject(HttpClient);
+    private readonly modal = inject(ModalService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly dialogs = inject(ConfirmationDialogService);
+    private readonly DateTime = inject(DateTimeService);
 
     roomsApi = (id?: number) => (id ? `/app/rooms/${id}` : '/app/rooms');
     availabilityApi = (roomId: number, date: string) => `/app/availability/${roomId}/${date}`;

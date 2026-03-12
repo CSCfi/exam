@@ -2,17 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { LowerCasePipe, NgClass } from '@angular/common';
+import { LowerCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {
-    NgbNav,
-    NgbNavContent,
-    NgbNavItem,
-    NgbNavItemRole,
-    NgbNavLink,
-    NgbNavOutlet,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, catchError, forkJoin, of, tap } from 'rxjs';
@@ -25,7 +18,7 @@ import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { EssayAnswerListComponent } from './essay-answers.component';
 
@@ -34,15 +27,9 @@ import { EssayAnswerListComponent } from './essay-answers.component';
     templateUrl: './question-assessment.component.html',
     styleUrls: ['./question-assessment.component.scss'],
     imports: [
-        NgClass,
-        MathUnifiedDirective,
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
-        NgbNavContent,
+        NgbNavModule,
+        MathDirective,
         EssayAnswerListComponent,
-        NgbNavOutlet,
         QuestionFlowComponent,
         LowerCasePipe,
         TranslateModule,
@@ -52,22 +39,23 @@ import { EssayAnswerListComponent } from './essay-answers.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionAssessmentComponent {
-    user: User;
-    examId = signal(0);
-    reviews = signal<QuestionReview[]>([]);
-    selectedReview = signal<(QuestionReview & { expanded: boolean }) | undefined>(undefined);
-    assessedAnswers = signal<ReviewQuestion[]>([]);
-    unassessedAnswers = signal<ReviewQuestion[]>([]);
-    lockedAnswers = signal<ReviewQuestion[]>([]);
-    allAnswersExpanded = signal(true);
+    readonly examId = signal(0);
+    readonly reviews = signal<QuestionReview[]>([]);
+    readonly selectedReview = signal<(QuestionReview & { expanded: boolean }) | undefined>(undefined);
+    readonly assessedAnswers = signal<ReviewQuestion[]>([]);
+    readonly unassessedAnswers = signal<ReviewQuestion[]>([]);
+    readonly lockedAnswers = signal<ReviewQuestion[]>([]);
+    readonly allAnswersExpanded = signal(true);
 
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private QuestionReview = inject(QuestionReviewService);
-    private Assessment = inject(AssessmentService);
-    private Session = inject(SessionService);
-    private Attachment = inject(AttachmentService);
+    readonly user: User;
+
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly QuestionReview = inject(QuestionReviewService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly Session = inject(SessionService);
+    private readonly Attachment = inject(AttachmentService);
 
     constructor() {
         this.user = this.Session.getUser();

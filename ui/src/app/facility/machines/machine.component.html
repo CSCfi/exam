@@ -9,22 +9,13 @@ SPDX-License-Identifier: EUPL-1.2
     <xm-page-content [content]="content" />
 }
 <ng-template #content>
-    <form #machineForm="ngForm">
+    <form>
         <div class="row">
             <div class="col-md-6">
                 <label for="machineName" class="form-label">
                     {{ 'i18n_machine_name' | translate }}
                 </label>
-                <input
-                    id="machineName"
-                    name="name"
-                    required
-                    type="text"
-                    class="form-control"
-                    [ngModel]="machine()?.name"
-                    (ngModelChange)="updateMachineProperty('name', $event)"
-                    autofocus
-                />
+                <input id="machineName" type="text" class="form-control" [formField]="machineForm.name" autofocus />
             </div>
         </div>
         <div class="row mt-2">
@@ -32,11 +23,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="form-check">
                     <input
                         id="accessible"
-                        name="accessible"
                         type="checkbox"
                         class="form-check-input"
-                        [ngModel]="machine()?.accessible"
-                        (ngModelChange)="updateMachineProperty('accessible', $event)"
+                        [formField]="machineForm.accessible"
                     />
                     <label class="form-check-label" for="accessible">
                         {{ 'i18n_machine_accessible' | translate }}
@@ -52,11 +41,8 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     id="machineAccessibility"
                     type="text"
-                    name="accessibility"
-                    [disabled]="!machine()?.accessible"
                     class="form-control"
-                    [ngModel]="machine()?.accessibilityInfo"
-                    (ngModelChange)="updateMachineProperty('accessibilityInfo', $event)"
+                    [formField]="machineForm.accessibilityInfo"
                 />
             </div>
         </div>
@@ -68,11 +54,9 @@ SPDX-License-Identifier: EUPL-1.2
                 }}</label>
                 <input
                     id="machineOtherIdentifier"
-                    name="identifier"
                     type="text"
                     class="form-control"
-                    [ngModel]="machine()?.otherIdentifier"
-                    (ngModelChange)="updateMachineProperty('otherIdentifier', $event)"
+                    [formField]="machineForm.otherIdentifier"
                 />
             </div>
             <div class="col-md-6">
@@ -81,11 +65,9 @@ SPDX-License-Identifier: EUPL-1.2
                 }}</label>
                 <input
                     id="machineSurveillanceCamera"
-                    name="surveillance"
                     type="text"
                     class="form-control"
-                    [ngModel]="machine()?.surveillanceCamera"
-                    (ngModelChange)="updateMachineProperty('surveillanceCamera', $event)"
+                    [formField]="machineForm.surveillanceCamera"
                 />
             </div>
         </div>
@@ -98,24 +80,14 @@ SPDX-License-Identifier: EUPL-1.2
                 }}</label>
                 <input
                     id="machineVideoRecordings"
-                    name="video"
                     type="text"
                     class="form-control"
-                    [ngModel]="machine()?.videoRecordings"
-                    (ngModelChange)="updateMachineProperty('videoRecordings', $event)"
+                    [formField]="machineForm.videoRecordings"
                 />
             </div>
             <div class="col-md-6">
                 <label for="machineIpAddress" class="form-label">{{ 'i18n_machine_ip_address' | translate }}</label>
-                <input
-                    id="machineIpAddress"
-                    name="ip"
-                    type="text"
-                    required
-                    class="form-control"
-                    [ngModel]="machine()?.ipAddress"
-                    (ngModelChange)="updateMachineProperty('ipAddress', $event)"
-                />
+                <input id="machineIpAddress" type="text" class="form-control" [formField]="machineForm.ipAddress" />
             </div>
         </div>
         <!--Software-->
@@ -123,7 +95,13 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-12">
                 <span class="d-block">{{ 'i18n_machine_softwares' | translate }}:</span>
                 @for (software of software(); track software) {
-                    <span class="badge me-1 mb-1 pointer" [ngClass]="software.class" (click)="toggleSoftware(software)">
+                    <span
+                        class="badge me-1 mb-1 pointer"
+                        [class.bg-success]="software.active"
+                        [class.bg-light]="!software.active"
+                        [class.text-dark]="!software.active"
+                        (click)="toggleSoftware(software)"
+                    >
                         {{ software.name }}
                     </span>
                 }
@@ -135,13 +113,11 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="form-check">
                     <input
                         id="outOfService"
-                        name="outOfService"
                         type="checkbox"
                         class="form-check-input"
-                        [ngModel]="machine()?.outOfService"
-                        (ngModelChange)="updateMachineProperty('outOfService', $event)"
+                        [formField]="machineForm.outOfService"
                         (change)="setReason()"
-                        aria-checked="{{ machine()?.outOfService }}"
+                        [attr.aria-checked]="machineForm.outOfService().value()"
                     />
                     <label class="form-check-label" for="outOfService">
                         {{ 'i18n_out_of_service' | translate }}
@@ -152,20 +128,16 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="row mt-2">
             <div class="col-md-6">
                 <label for="statusComment" class="form-label">{{ 'i18n_reason' | translate }}</label>
-                <textarea
-                    id="statusComment"
-                    name="statusComment"
-                    [disabled]="!machine()?.outOfService"
-                    class="form-control"
-                    [ngModel]="machine()?.statusComment"
-                    (ngModelChange)="updateMachineProperty('statusComment', $event)"
-                >
-                </textarea>
+                <textarea id="statusComment" class="form-control" [formField]="machineForm.statusComment"> </textarea>
             </div>
         </div>
         <div class="row mt-2">
             <div class="col-md-12 d-flex flex-row-reverse flex-align-r m-3">
-                <button [disabled]="!machineForm.valid" (click)="updateMachineAndExit()" class="btn btn-success">
+                <button
+                    [disabled]="machineForm.name().invalid() || machineForm.ipAddress().invalid()"
+                    (click)="updateMachineAndExit()"
+                    class="btn btn-success"
+                >
                     {{ 'i18n_save' | translate }}
                 </button>
             </div>

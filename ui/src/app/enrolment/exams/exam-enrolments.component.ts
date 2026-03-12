@@ -44,12 +44,12 @@ import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
     imports: [EnrolmentDetailsComponent, ExamSearchResultComponent, TranslateModule],
 })
 export class ExamEnrolmentsComponent {
-    exam = signal<EnrolmentInfo | undefined>(undefined);
-    exams = signal<EnrolmentInfo[]>([]);
+    readonly exam = signal<EnrolmentInfo | undefined>(undefined);
+    readonly exams = signal<EnrolmentInfo[]>([]);
 
-    private route = inject(ActivatedRoute);
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     constructor() {
         const code = this.route.snapshot.queryParamMap.get('code') || '';

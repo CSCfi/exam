@@ -5,7 +5,9 @@
 package system.modules
 
 import com.google.inject.AbstractModule
-import services.datetime.{DateTimeHandler, DateTimeHandlerImpl}
+import services.datetime.{AppClock, DateTimeHandler, DateTimeHandlerImpl, SystemAppClock}
 
 class DateTimeHandlerModule extends AbstractModule:
-  override def configure(): Unit = bind(classOf[DateTimeHandler]).to(classOf[DateTimeHandlerImpl])
+  override def configure(): Unit =
+    bind(classOf[DateTimeHandler]).to(classOf[DateTimeHandlerImpl])
+    bind(classOf[AppClock]).to(classOf[SystemAppClock])

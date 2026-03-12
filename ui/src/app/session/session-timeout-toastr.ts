@@ -14,21 +14,12 @@ import { Toast, ToastPackage, ToastrService } from 'ngx-toastr';
     `,
 })
 export class SessionExpireWarningComponent extends Toast {
-    public override toastPackage: ToastPackage;
-    protected override toastrService: ToastrService;
-
-    private http = inject(HttpClient);
-    private i18n = inject(TranslateService);
+    private readonly http = inject(HttpClient);
+    private readonly i18n = inject(TranslateService);
 
     // constructor is only necessary when not using AoT
     constructor() {
-        const toastrService = inject(ToastrService);
-        const toastPackage = inject(ToastPackage);
-
-        super(toastrService, toastPackage);
-
-        this.toastrService = toastrService;
-        this.toastPackage = toastPackage;
+        super(inject(ToastrService), inject(ToastPackage));
     }
 
     @HostListener('window:keydown', ['$event'])

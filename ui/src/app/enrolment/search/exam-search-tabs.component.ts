@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbNav, NgbNavItem, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
@@ -64,9 +64,7 @@ const EXAM_TABS: ExamTab[] = [
     `,
     styleUrls: ['./exam-search-tabs.component.scss'],
     imports: [
-        NgbNav,
-        NgbNavItem,
-        NgbNavLink,
+        NgbNavModule,
         TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
@@ -75,15 +73,15 @@ const EXAM_TABS: ExamTab[] = [
     ],
 })
 export class ExamSearchTabsComponent {
-    availableTabs = signal<ExamTab[]>(EXAM_TABS);
-    activeTab = signal(1);
-    collaborationSupported = signal(false);
+    readonly availableTabs = signal<ExamTab[]>(EXAM_TABS);
+    readonly activeTab = signal(1);
+    readonly collaborationSupported = signal(false);
 
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private http = inject(HttpClient);
-    private title = inject(Title);
-    private translate = inject(TranslateService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly http = inject(HttpClient);
+    private readonly title = inject(Title);
+    private readonly translate = inject(TranslateService);
 
     constructor() {
         this.loadCollaborationConfiguration();

@@ -2,25 +2,17 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-    NgbCollapse,
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { startWith } from 'rxjs';
 import type { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
-import { UniquenessValidator } from 'src/app/shared/validation/unique-values.directive';
+import { UniquenessValidator } from 'src/app/shared/validation/uniqueness.validator';
 
 type ReleaseType = { name: string; translation: string };
 
@@ -28,36 +20,24 @@ type ReleaseType = { name: string; translation: string };
     selector: 'xm-auto-evaluation',
     templateUrl: './auto-evaluation.component.html',
     styleUrls: ['./auto-evaluation.component.scss'],
-    imports: [
-        NgClass,
-        NgbPopover,
-        NgbCollapse,
-        ReactiveFormsModule,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        DatePickerComponent,
-        TranslateModule,
-    ],
+    imports: [NgbPopover, NgbCollapse, ReactiveFormsModule, NgbDropdownModule, DatePickerComponent, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AutoEvaluationComponent {
-    exam = input.required<Exam>();
-    enabled = output<void>();
-    disabled = output<void>();
-    updated = output<{ config: AutoEvaluationConfig }>();
+    readonly exam = input.required<Exam>();
+    readonly enabled = output<void>();
+    readonly disabled = output<void>();
+    readonly updated = output<{ config: AutoEvaluationConfig }>();
 
-    panelOpen = signal(false);
-
-    releaseTypes: ReleaseType[] = [
+    readonly panelOpen = signal(false);
+    readonly releaseTypes: ReleaseType[] = [
         { name: 'IMMEDIATE', translation: 'i18n_release_type_immediate' },
         { name: 'GIVEN_DATE', translation: 'i18n_release_type_given_date' },
         { name: 'GIVEN_AMOUNT_DAYS', translation: 'i18n_release_type_given_days' },
         { name: 'AFTER_EXAM_PERIOD', translation: 'i18n_release_type_period' },
         { name: 'NEVER', translation: 'i18n_release_type_never' },
     ];
-    form = new FormGroup({
+    readonly form = new FormGroup({
         gradeEvaluations: new FormArray<FormGroup>([]),
         amountDays: new FormControl(0),
         releaseDate: new FormControl<Date | null>(null),
@@ -65,21 +45,17 @@ export class AutoEvaluationComponent {
     });
 
     // Computed signal derived from form
-    selectedReleaseType = computed(() => {
+    readonly selectedReleaseType = computed(() => {
         const releaseTypeName = this.releaseTypeValue();
         return this.releaseTypes.find((rt) => rt.name === releaseTypeName) ?? this.releaseTypes[0];
     });
-    releaseTypeValue = toSignal(
+    readonly releaseTypeValue = toSignal(
         this.form.get('releaseType')!.valueChanges.pipe(startWith(this.form.get('releaseType')!.value ?? 'IMMEDIATE')),
         { initialValue: 'IMMEDIATE' },
     );
 
-    // Signal to track form's releaseType value changes (needed for computed to react)
-    //private releaseTypeValue = signal<string>('IMMEDIATE');
-
-    private Exam = inject(ExamService);
-    private CommonExam = inject(CommonExamService);
-
+    private readonly Exam = inject(ExamService);
+    private readonly CommonExam = inject(CommonExamService);
     // Track if form has been initialized to prevent overwriting user changes
     private formInitialized = false;
 

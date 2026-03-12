@@ -2,19 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass, SlicePipe } from '@angular/common';
+import { DatePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import {
-    NgbCollapse,
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, take } from 'rxjs';
@@ -37,13 +29,8 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     templateUrl: './graded.component.html',
     imports: [
         NgbPopover,
-        FormsModule,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
+        NgbDropdownModule,
         NgbCollapse,
-        NgClass,
         TableSortComponent,
         RouterLink,
         PaginatorComponent,
@@ -59,23 +46,23 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GradedReviewsComponent {
-    exam = input.required<Exam>();
-    reviews = input<Review[]>([]);
-    collaborative = input(false);
-    registered = output<Review[]>();
+    readonly exam = input.required<Exam>();
+    readonly reviews = input<Review[]>([]);
+    readonly collaborative = input(false);
+    readonly registered = output<Review[]>();
 
-    view = signal<ReviewListView | undefined>(undefined);
-    needsFeedbackWarning = signal(false);
-    selections = signal<{ all: boolean; page: boolean }>({ all: false, page: false });
+    readonly view = signal<ReviewListView | undefined>(undefined);
+    readonly needsFeedbackWarning = signal(false);
+    readonly selections = signal<{ all: boolean; page: boolean }>({ all: false, page: false });
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Confirmation = inject(ConfirmationDialogService);
-    private ReviewList = inject(ReviewListService);
-    private Assessment = inject(AssessmentService);
-    private CommonExam = inject(CommonExamService);
-    private Session = inject(SessionService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly ReviewList = inject(ReviewListService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         effect(() => this.init(this.reviews()));
@@ -174,6 +161,15 @@ export class GradedReviewsComponent {
     toggleView() {
         this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
     }
+
+    onReviewToggle = (review: Review, event: Event) => {
+        review.selected = (event.target as HTMLInputElement).checked;
+    };
+
+    onFreeSearchFilterInput = (event: Event) => {
+        this.updateFilter((event.target as HTMLInputElement).value);
+        this.applyFreeSearchFilter();
+    };
 
     private init(reviews: Review[]) {
         const initialView = this.ReviewList.prepareView(

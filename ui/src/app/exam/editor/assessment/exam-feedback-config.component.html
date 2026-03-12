@@ -44,7 +44,7 @@ SPDX-License-Identifier: EUPL-1.2
             @if (!examFeedbackConfig.enabled) {
                 <button
                     class="btn btn-success"
-                    [ngClass]="{ 'feature-not-in-use': modifiable() !== 'everything' }"
+                    [class.feature-not-in-use]="modifiable() !== 'everything'"
                     name="enableExamFeedbackConfig"
                     (click)="enable()"
                 >
@@ -54,7 +54,7 @@ SPDX-License-Identifier: EUPL-1.2
             @if (examFeedbackConfig.enabled) {
                 <button
                     class="btn btn-outline-danger"
-                    [ngClass]="{ 'feature-not-in-use': modifiable() !== 'everything' }"
+                    [class.feature-not-in-use]="modifiable() !== 'everything'"
                     name="disableExamFeedbackConfig"
                     (click)="disable()"
                 >
@@ -74,7 +74,7 @@ SPDX-License-Identifier: EUPL-1.2
             </button>
             <ul ngbDropdownMenu role="menu">
                 @for (type of availableReleaseTypes(); track type) {
-                    <li role="presentation" [ngClass]="type.filtered ? 'active' : ''" (click)="applyFilter(type)">
+                    <li role="presentation" [class.active]="type.filtered" (click)="applyFilter(type)">
                         <a ngbDropdownItem class="pointer">
                             {{ type.translation | translate }}
                         </a>

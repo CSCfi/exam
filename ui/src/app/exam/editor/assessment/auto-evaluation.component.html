@@ -132,10 +132,7 @@ SPDX-License-Identifier: EUPL-1.2
                         </button>
                         <ul ngbDropdownMenu role="menu">
                             @for (type of releaseTypes; track type.name) {
-                                <li
-                                    role="presentation"
-                                    [ngClass]="selectedReleaseType()?.name === type.name ? 'active' : ''"
-                                >
+                                <li role="presentation" [class.active]="selectedReleaseType()?.name === type.name">
                                     <a
                                         ngbDropdownItem
                                         class="pointer"

@@ -2,9 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ViewChild, inject, signal } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { FormField, form, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,8 +22,7 @@ import { RoomService } from './room.service';
     styleUrls: ['./rooms.component.scss'],
     selector: 'xm-room-edit',
     imports: [
-        FormsModule,
-        NgClass,
+        FormField,
         NgbPopover,
         AvailabilityComponent,
         AccessibilitySelectorComponent,
@@ -36,23 +34,43 @@ import { RoomService } from './room.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomEditComponent {
-    @ViewChild('roomForm', { static: false }) roomForm!: NgForm;
+    readonly room = signal<ExamRoom | undefined>(undefined);
+    readonly showName = signal(false);
+    readonly isInteroperable = signal(false);
+    readonly internalPasswordInputType = signal<'password' | 'text'>('password');
+    readonly externalPasswordInputType = signal<'password' | 'text'>('password');
+    readonly roomDetailsForm = form(
+        signal({
+            roomCode: '',
+            buildingName: '',
+            campus: '',
+            internalPassword: '',
+            externalPassword: '',
+        }),
+        (path) => {
+            required(path.roomCode);
+        },
+    );
 
-    room = signal<ExamRoom | undefined>(undefined);
-    showName = signal(false);
-    isInteroperable = signal(false);
-    internalPasswordInputType = signal<'password' | 'text'>('password');
-    externalPasswordInputType = signal<'password' | 'text'>('password');
-
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private roomService = inject(RoomService);
-    private interoperability = inject(InteroperabilityService);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly roomService = inject(RoomService);
+    private readonly interoperability = inject(InteroperabilityService);
 
     constructor() {
         this.showName.set(true);
+        effect(() => {
+            const currentRoom = this.room();
+            if (!currentRoom) return;
+            this.roomDetailsForm.roomCode().value.set(currentRoom.roomCode || '');
+            this.roomDetailsForm.buildingName().value.set(currentRoom.buildingName || '');
+            this.roomDetailsForm.campus().value.set(currentRoom.campus || '');
+            this.roomDetailsForm.internalPassword().value.set(currentRoom.internalPassword || '');
+            this.roomDetailsForm.externalPassword().value.set(currentRoom.externalPassword || '');
+        });
+
         this.roomService.examVisit().subscribe((data) => {
             this.isInteroperable.set(data.isExamVisitSupported);
         });
@@ -74,7 +92,8 @@ export class RoomEditComponent {
     };
 
     validateAndUpdateRoom = () => {
-        if (this.roomForm.valid) {
+        if (!this.roomDetailsForm.roomCode().invalid()) {
+            this.syncRoomDetailsFromForm();
             this.updateRoom();
         }
     };
@@ -93,14 +112,19 @@ export class RoomEditComponent {
     };
 
     saveRoom = () => {
-        const currentRoom = this.room();
-        if (!currentRoom) {
+        if (!this.room()) {
             return;
         }
-        if (!this.roomService.isAnyExamMachines(currentRoom))
-            this.toast.error(this.translate.instant('i18n_dont_forget_to_add_machines') + ' ' + currentRoom.name);
+        if (this.roomDetailsForm.roomCode().invalid()) {
+            return;
+        }
+        this.syncRoomDetailsFromForm();
+        const updatedRoom = this.room();
+        if (!updatedRoom) return;
+        if (!this.roomService.isAnyExamMachines(updatedRoom))
+            this.toast.error(this.translate.instant('i18n_dont_forget_to_add_machines') + ' ' + updatedRoom.name);
 
-        this.roomService.updateRoom$(currentRoom).subscribe({
+        this.roomService.updateRoom$(updatedRoom).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_room_saved'));
                 this.router.navigate(['/staff/rooms']);
@@ -150,6 +174,20 @@ export class RoomEditComponent {
         this.showName.update((v) => !v);
     };
 
+    onRoomTextInput = (key: keyof ExamRoom, event: Event) => {
+        const value = (event.target as HTMLInputElement | HTMLTextAreaElement).value;
+        this.room.update((r) => (r ? { ...r, [key]: value } : r));
+    };
+
+    onAvailableForExternalsChange = (event: Event) => {
+        this.updateRoomProperty('availableForExternals', (event.target as HTMLInputElement).checked);
+        this.updateInteroperability();
+    };
+
+    onOutOfServiceChange = (event: Event) => {
+        this.updateOutOfService((event.target as HTMLInputElement).checked);
+    };
+
     updateRoomProperty<K extends keyof ExamRoom>(key: K, value: ExamRoom[K]) {
         this.room.update((r) => (r ? { ...r, [key]: value } : r));
     }
@@ -157,5 +195,19 @@ export class RoomEditComponent {
     updateOutOfService(value: boolean) {
         this.updateRoomProperty('outOfService', value);
         this.updateRoom();
+    }
+
+    private syncRoomDetailsFromForm() {
+        const currentRoom = this.room();
+        if (!currentRoom) return;
+
+        this.room.set({
+            ...currentRoom,
+            roomCode: this.roomDetailsForm.roomCode().value() || '',
+            buildingName: this.roomDetailsForm.buildingName().value() || '',
+            campus: this.roomDetailsForm.campus().value() || '',
+            internalPassword: this.roomDetailsForm.internalPassword().value() || undefined,
+            externalPassword: this.roomDetailsForm.externalPassword().value() || undefined,
+        });
     }
 }

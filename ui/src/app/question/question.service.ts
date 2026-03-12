@@ -21,11 +21,11 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class QuestionService {
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Files = inject(FileService);
-    private Attachment = inject(AttachmentService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Files = inject(FileService);
+    private readonly Attachment = inject(AttachmentService);
 
     getQuestionType = (type: string) => {
         let questionType;

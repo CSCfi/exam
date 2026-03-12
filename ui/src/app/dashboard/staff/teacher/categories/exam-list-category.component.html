@@ -8,11 +8,11 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-7">
         <div class="input-group">
             <input
-                [(ngModel)]="filterText"
+                [value]="filterText"
+                (input)="onFilterInput($event)"
                 type="text"
                 class="form-control"
                 placeholder="{{ 'i18n_exam_search_description' | translate }}"
-                (ngModelChange)="search($event)"
             />
             <div class="input-group-append bi-search search-append"></div>
         </div>

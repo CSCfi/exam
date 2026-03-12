@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question/question.model';
@@ -15,7 +14,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     template: `@if (reviewExpanded()) {
         @for (option of sectionQuestion().options | orderBy: 'option.id'; track option) {
             <div class="ps-2 mb-2">
-                <div [ngClass]="getSelectedOptionClass(option)">
+                <div [class]="getSelectedOptionClass(option)">
                     <div class="make-inline float-start">
                         @switch (determineClaimOptionType(option)) {
                             @case ('CorrectOption') {
@@ -39,15 +38,15 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
             </div>
         }
     }`,
-    imports: [NgClass, TranslateModule, OrderByPipe],
+    imports: [TranslateModule, OrderByPipe],
     styleUrl: './multi-choice-answers.shared.scss',
 })
 export class ClaimChoiceAnswerComponent {
-    sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
 
-    reviewExpanded = signal(true);
+    readonly reviewExpanded = signal(true);
 
-    private Question = inject(QuestionService);
+    private readonly Question = inject(QuestionService);
 
     determineClaimOptionType = (option: ExamSectionQuestionOption) =>
         this.Question.determineClaimOptionTypeForExamQuestionOption(option);

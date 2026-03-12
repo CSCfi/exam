@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { AsyncPipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, Signal, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
-import { Observable, Subject, filter, interval, map, startWith, switchMap, take, takeUntil } from 'rxjs';
+import { Subject, filter, interval, map, startWith, switchMap, take } from 'rxjs';
 
 @Component({
     selector: 'xm-examination-clock',
@@ -26,12 +26,9 @@ import { Observable, Subject, filter, interval, map, startWith, switchMap, take,
                     }
                     <div class="col-5">
                         @if (showRemainingTime()) {
-                            <span
-                                class="exam-clock"
-                                role="region"
-                                [ngClass]="(isTimeScarce$ | async) ? 'text-warning' : ''"
-                                >{{ remainingTime$ | async }}</span
-                            >
+                            <span class="exam-clock" role="region" [class.text-warning]="isTimeScarce()">{{
+                                remainingTime()
+                            }}</span>
                         }
                         @if (ariaLiveTime()) {
                             <span class="exam-clock skip" role="region" [ariaLive]="'polite'">{{
@@ -48,35 +45,39 @@ import { Observable, Subject, filter, interval, map, startWith, switchMap, take,
             </div>
         </div>
     </div>`,
-    imports: [NgClass, AsyncPipe, TranslateModule],
+    imports: [TranslateModule],
     styleUrl: './examination-clock.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExaminationClockComponent implements OnInit, OnDestroy {
-    examHash = input('');
-    timedOut = output<void>();
+export class ExaminationClockComponent {
+    readonly examHash = input('');
+    readonly timedOut = output<void>();
 
-    showRemainingTime = signal(false);
-    ariaLiveTime = signal('');
-    remainingTime$!: Observable<string>;
-    isTimeScarce$!: Observable<boolean>;
+    readonly showRemainingTime = signal(false);
+    readonly ariaLiveTime = signal('');
+    readonly remainingTime: Signal<string>;
+    readonly isTimeScarce: Signal<boolean>;
 
-    private http = inject(HttpClient);
-    private syncInterval = 60;
-    private alarmThreshold = 300;
-    private clock = new Subject<number>();
-    private ngUnsubscribe = new Subject<void>();
+    private readonly http = inject(HttpClient);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly syncInterval = 60;
+    private readonly alarmThreshold = 300;
+    private readonly clock = new Subject<number>();
 
-    ngOnInit() {
+    constructor() {
+        this.remainingTime = toSignal(
+            this.clock.pipe(map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss'))),
+            { initialValue: '' },
+        );
+        this.isTimeScarce = toSignal(this.clock.pipe(map((n) => n <= this.alarmThreshold)), { initialValue: false });
+
         const currentExamHash = this.examHash();
-        if (!currentExamHash) {
-            return;
-        }
+        if (!currentExamHash) return;
 
         const sync$ = this.http.get<number>(`/app/time/${currentExamHash}`);
         interval(this.syncInterval * 1000)
             .pipe(
-                takeUntil(this.ngUnsubscribe),
+                takeUntilDestroyed(this.destroyRef),
                 startWith(0),
                 switchMap(() =>
                     sync$.pipe(
@@ -91,33 +92,22 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
             )
             .subscribe(this.clock);
 
-        this.remainingTime$ = this.clock.pipe(
-            takeUntil(this.ngUnsubscribe),
-            map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss')),
-        );
         this.clock
             .pipe(
-                takeUntil(this.ngUnsubscribe),
+                takeUntilDestroyed(this.destroyRef),
                 filter((t) => t % (60 * 30) === 0 || [1, 5, 10].some((n) => t === 60 * n)),
                 map((t) => Duration.fromObject({ seconds: t }).toFormat('hh:mm:ss')),
             )
             .subscribe((time) => this.ariaLiveTime.set(time));
-        this.isTimeScarce$ = this.clock.pipe(
-            takeUntil(this.ngUnsubscribe),
-            map((n) => n <= this.alarmThreshold),
-        );
-        this.clock.pipe(takeUntil(this.ngUnsubscribe)).subscribe((n) => {
+
+        this.clock.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((n) => {
             if (n === 0) this.timedOut.emit();
         });
+
         this.showRemainingTime.set(true);
     }
 
     toggleShowRemainingTime() {
         this.showRemainingTime.update((v) => !v);
-    }
-
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
     }
 }

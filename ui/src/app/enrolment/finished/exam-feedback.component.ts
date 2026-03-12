@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -21,7 +21,7 @@ import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
     selector: 'xm-exam-feedback',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-feedback.component.html',
-    imports: [NgClass, DatePipe, TranslateModule],
+    imports: [DatePipe, TranslateModule],
     styles: [
         `
             .notice-wrap {
@@ -34,14 +34,14 @@ import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
     ],
 })
 export class ExamFeedbackComponent {
-    assessment = input.required<ReviewedExam>();
-    participationTime = input('');
-    participationDuration = input<number | string>(0);
-    scores = input.required<Scores>();
-    collaborative = input(false);
+    readonly assessment = input.required<ReviewedExam>();
+    readonly participationTime = input('');
+    readonly participationDuration = input<number | string>(0);
+    readonly scores = input.required<Scores>();
+    readonly collaborative = input(false);
 
     // Load answers reactively when assessment or collaborative changes
-    assessmentWithAnswers = toSignal(
+    readonly assessmentWithAnswers = toSignal(
         combineLatest([toObservable(this.assessment), toObservable(this.collaborative)]).pipe(
             switchMap(([assessment, collaborative]) => {
                 if (collaborative) {
@@ -53,10 +53,10 @@ export class ExamFeedbackComponent {
         { initialValue: undefined },
     );
 
-    private http = inject(HttpClient);
-    private modal = inject(ModalService);
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
+    private readonly http = inject(HttpClient);
+    private readonly modal = inject(ModalService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
 
     downloadFeedbackAttachment() {
         const assessment = this.assessment();

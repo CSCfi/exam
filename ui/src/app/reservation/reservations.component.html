@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
-@if (isAdminView() || isSupportView()) {
+@if (isAdminView || isSupportView) {
     <xm-page-header text="i18n_reservations_administration" />
 } @else {
     <xm-page-header text="i18n_reservations_new" />
@@ -74,7 +74,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
     <!-- 2nd row of controls for admin only -->
-    @if (isAdminView() || isSupportView()) {
+    @if (isAdminView || isSupportView) {
         <div class="row mt-2 align-items-center">
             <div class="col-md-3">
                 <label for="owner-search" class="reservation-search-form-label">{{
@@ -134,8 +134,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <input
                             type="checkbox"
                             value=""
-                            [ngModel]="externalReservationsOnly()"
-                            (ngModelChange)="externalReservationsOnly.set($event); query()"
+                            [checked]="externalReservationsOnly()"
+                            (change)="onExternalReservationsChange($event)"
                         />
                         <strong class="reservation-search-form-label">
                             {{ 'i18n_external_reservations_only' | translate }}
@@ -147,8 +147,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <input
                             type="checkbox"
                             value=""
-                            [ngModel]="byodExamsOnly()"
-                            (ngModelChange)="byodExamsOnly.set($event); query()"
+                            [checked]="byodExamsOnly()"
+                            (change)="onByodExamsChange($event)"
                         />
                         <strong class="reservation-search-form-label">
                             {{ 'i18n_byod_only' | translate }}
@@ -162,8 +162,8 @@ SPDX-License-Identifier: EUPL-1.2
     @if (reservations() && reservations().length > 0) {
         <xm-reservation-details
             [reservations]="reservations()"
-            [isAdminView]="isAdminView()"
-            [isSupportView]="isSupportView()"
+            [isAdminView]="isAdminView"
+            [isSupportView]="isSupportView"
         >
         </xm-reservation-details>
     } @else {

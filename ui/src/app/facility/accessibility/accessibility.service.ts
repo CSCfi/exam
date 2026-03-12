@@ -8,7 +8,7 @@ import type { Accessibility } from 'src/app/reservation/reservation.model';
 
 @Injectable({ providedIn: 'root' })
 export class AccessibilityService {
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     accessibilityApi = (id?: number) => (id ? `/app/accessibility/${id}` : '/app/accessibility');
     roomAccessibilityApi = (roomId: number) => `/app/room/${roomId}/accessibility`;

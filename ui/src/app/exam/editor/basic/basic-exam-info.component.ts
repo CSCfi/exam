@@ -2,15 +2,12 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { LanguageSelectorComponent } from 'src/app/exam/editor/common/language-picker.component';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
@@ -33,12 +30,10 @@ import { SoftwareSelectorComponent } from './software-picker.component';
     templateUrl: './basic-exam-info.component.html',
     styleUrls: ['../../exam.shared.scss'],
     imports: [
-        ExamCourseComponent,
         NgbPopover,
-        FormsModule,
+        ExamCourseComponent,
         LanguageSelectorComponent,
         ExamOwnerSelectorComponent,
-        NgClass,
         ExamInspectorSelectorComponent,
         SoftwareSelectorComponent,
         CKEditorComponent,
@@ -46,30 +41,28 @@ import { SoftwareSelectorComponent } from './software-picker.component';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BasicExamInfoComponent implements OnDestroy {
-    exam = signal<Exam>({} as Exam);
-    collaborative = signal(false);
-    byodExaminationSupported = signal(false);
-    anonymousReviewEnabled = signal(false);
-    gradeScaleSetting = signal({ overridable: false });
-    examTypes = signal<(ExamType & { name: string })[]>([]);
-    gradeScales = signal<GradeScale[]>([]);
-    pwdInputType = signal('password');
-    user: User;
+export class BasicExamInfoComponent {
+    readonly exam = signal<Exam>({} as Exam);
+    readonly collaborative = signal(false);
+    readonly byodExaminationSupported = signal(false);
+    readonly anonymousReviewEnabled = signal(false);
+    readonly gradeScaleSetting = signal({ overridable: false });
+    readonly examTypes = signal<(ExamType & { name: string })[]>([]);
+    readonly gradeScales = signal<GradeScale[]>([]);
+    readonly pwdInputType = signal('password');
+    readonly user: User;
 
-    unsubscribe = new Subject<unknown>();
-
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Exam = inject(ExamService);
-    private ExamTabs = inject(ExamTabService);
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
-    private Session = inject(SessionService);
-    private Tabs = inject(ExamTabService);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Exam = inject(ExamService);
+    private readonly ExamTabs = inject(ExamTabService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
+    private readonly Session = inject(SessionService);
+    private readonly Tabs = inject(ExamTabService);
 
     constructor() {
         this.user = this.Session.getUser();
@@ -89,10 +82,14 @@ export class BasicExamInfoComponent implements OnDestroy {
         this.Tabs.notifyTabChange(1);
     }
 
-    ngOnDestroy() {
-        this.unsubscribe.next(undefined);
-        this.unsubscribe.complete();
-    }
+    onExamNameInput = (event: Event) => this.updateExamName((event.target as HTMLInputElement).value);
+
+    onExamAnonymousChange = (event: Event) => {
+        this.updateExamAnonymous((event.target as HTMLInputElement).checked);
+        this.toggleAnonymous();
+    };
+
+    onInternalRefInput = (event: Event) => this.updateInternalRef((event.target as HTMLInputElement).value);
 
     updateExam(resetAutoEvaluationConfig: boolean) {
         const currentExam = this.exam();

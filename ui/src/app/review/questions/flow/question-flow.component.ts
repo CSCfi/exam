@@ -38,21 +38,21 @@ import { QuestionFlowCategoryComponent } from './question-flow-category.componen
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionFlowComponent {
-    reviews = input<QuestionReview[]>([]);
-    selected = output<number>();
+    readonly reviews = input<QuestionReview[]>([]);
+    readonly selected = output<number>();
 
-    unfinished = computed(() => {
+    readonly unfinished = computed(() => {
         const currentReviews = this.reviews();
         return currentReviews.filter((r) => this.getAssessedAnswerCount(r) < r.answers.length);
     });
 
-    finished = computed(() => {
+    readonly finished = computed(() => {
         const currentReviews = this.reviews();
         return currentReviews.filter((r) => this.getAssessedAnswerCount(r) === r.answers.length);
     });
 
-    private QuestionReview = inject(QuestionReviewService);
-    private Session = inject(SessionService);
+    private readonly QuestionReview = inject(QuestionReviewService);
+    private readonly Session = inject(SessionService);
 
     getAssessedAnswerCount(review: QuestionReview) {
         return this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());

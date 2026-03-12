@@ -63,8 +63,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <div class="input-group">
                     <input
                         class="form-control"
-                        name="filterSearch"
-                        [formControl]="searchTextControl"
+                        [formField]="searchForm.text"
                         placeholder="{{ 'i18n_search_by_question_text' | translate }}"
                     />
                     <div class="input-group-append bi-search search-append"></div>

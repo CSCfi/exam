@@ -21,7 +21,7 @@ import play.api.mvc.*
 import security.Auth.{AuthenticatedAction, authorized, subjectNotPresent}
 import security.{Auth, BlockingIOExecutionContext}
 import services.config.ConfigReader
-import services.datetime.{CalendarHandler, DateTimeHandler}
+import services.datetime.{AppClock, CalendarHandler, DateTimeHandler}
 import services.mail.EmailComposer
 import system.AuditedAction
 import validation.calendar.ExternalCalendarReservationValidator
@@ -41,6 +41,7 @@ class ExternalCalendarController @Inject() (
     configReader: ConfigReader,
     dateTimeHandler: DateTimeHandler,
     externalReservationHandler: ExternalReservationHandlerService,
+    clock: AppClock,
     val controllerComponents: ControllerComponents,
     implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
@@ -92,7 +93,7 @@ class ExternalCalendarController @Inject() (
       val orgRef   = (body \ "orgRef").as[String]
       val orgName  = (body \ "orgName").as[String]
 
-      if start.isBeforeNow || end.isBefore(start) then BadRequest("invalid dates")
+      if start.isBefore(clock.now()) || end.isBefore(start) then BadRequest("invalid dates")
       else
         DB.find(classOf[ExamRoom]).where().eq("externalRef", roomRef).find match
           case None => NotFound("room not found")
@@ -125,7 +126,7 @@ class ExternalCalendarController @Inject() (
       .find match
       case None => NotFound("reservation not found")
       case Some(reservation) =>
-        val now = dateTimeHandler.adjustDST(DateTime.now(), reservation)
+        val now = dateTimeHandler.adjustDST(clock.now(), reservation)
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Forbidden("i18n_reservation_in_effect")
         else
@@ -148,7 +149,7 @@ class ExternalCalendarController @Inject() (
       case None => NotFound(f"No reservation with ref $ref.")
       case Some(enrolment) =>
         val reservation = enrolment.getReservation
-        val now         = dateTimeHandler.adjustDST(DateTime.now(), reservation)
+        val now         = dateTimeHandler.adjustDST(clock.now(), reservation)
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Forbidden("i18n_reservation_in_effect")
         else
@@ -225,7 +226,7 @@ class ExternalCalendarController @Inject() (
   def requestReservation(): Action[JsValue] = audited
     .andThen(authenticated)
     .andThen(authorized(Seq(Role.Name.STUDENT)))
-    .andThen(ExternalCalendarReservationValidator.filter)
+    .andThen(ExternalCalendarReservationValidator.filter(clock))
     .async(parse.json) { request =>
       if !configReader.isVisitingExaminationSupported then
         Future.successful(Forbidden("Feature not enabled in the installation"))
@@ -239,7 +240,7 @@ class ExternalCalendarController @Inject() (
         val examId     = dto.examId
         val sectionIds = dto.sectionIds
 
-        val now = dateTimeHandler.adjustDST(DateTime.now())
+        val now = dateTimeHandler.adjustDST(clock.now())
         val enrolmentOpt =
           DB.find(classOf[ExamEnrolment])
             .fetch("reservation")
@@ -331,7 +332,7 @@ class ExternalCalendarController @Inject() (
       reservationOpt match
         case None => Future.successful(NotFound(f"No reservation with ref $ref."))
         case Some(reservation) =>
-          val now = dateTimeHandler.adjustDST(DateTime.now(), reservation)
+          val now = dateTimeHandler.adjustDST(clock.now(), reservation)
           if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
             Future.successful(Forbidden("i18n_reservation_in_effect"))
           else
@@ -452,7 +453,7 @@ class ExternalCalendarController @Inject() (
       .map(r => DateTimeZone.forID(r.getLocalTimezone))
       .getOrElse(configReader.getDefaultTimeZone)
 
-    val now                   = DateTime.now().withZone(zone).toLocalDate
+    val now                   = clock.now().withZone(zone).toLocalDate
     val reservationWindowDate = now.plusDays(windowSize)
     val examEndDate = DateTime
       .parse(endDate, ISODateTimeFormat.dateTimeParser())

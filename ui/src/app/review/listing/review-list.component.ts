@@ -41,19 +41,19 @@ import { ReviewListService } from './review-list.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReviewListComponent {
-    exam = signal<Exam | undefined>(undefined);
-    collaborative = signal(false);
-    reviews = signal<ExamParticipation[]>([]);
-    noShows = signal<ExamEnrolment[]>([]);
+    readonly exam = signal<Exam | undefined>(undefined);
+    readonly collaborative = signal(false);
+    readonly reviews = signal<ExamParticipation[]>([]);
+    readonly noShows = signal<ExamEnrolment[]>([]);
 
     // Computed signals that automatically update when reviews or collaborative change
-    abortedExams = computed(() =>
+    readonly abortedExams = computed(() =>
         this.ReviewList.filterByStateAndEnhance(['ABORTED'], this.reviews(), this.collaborative()),
     );
-    inProgressReviews = computed(() =>
+    readonly inProgressReviews = computed(() =>
         this.ReviewList.filterByStateAndEnhance(['REVIEW', 'REVIEW_STARTED'], this.reviews(), this.collaborative()),
     );
-    languageInspectedReviews = computed(() =>
+    readonly languageInspectedReviews = computed(() =>
         this.ReviewList.filterByStateAndEnhance(
             ['GRADED'],
             this.reviews().filter(
@@ -62,24 +62,24 @@ export class ReviewListComponent {
             this.collaborative(),
         ),
     );
-    rejectedReviews = computed(() =>
+    readonly rejectedReviews = computed(() =>
         this.ReviewList.filterByStateAndEnhance(['REJECTED'], this.reviews(), this.collaborative()),
     );
 
     // Mutable arrays that can be modified by user actions (onArchive, onRegistration)
     // These are synced from reviews() via effect() but can be modified by user actions
-    gradedLoggedReviews = signal<Review[]>([]);
-    archivedReviews = signal<Review[]>([]);
-    gradedReviews = signal<Review[]>([]);
+    readonly gradedLoggedReviews = signal<Review[]>([]);
+    readonly archivedReviews = signal<Review[]>([]);
+    readonly gradedReviews = signal<Review[]>([]);
 
     // Track manually moved review IDs to prevent effect() from overwriting them
     private manuallyMovedIds = new Set<number | string>();
 
-    private modal = inject(ModalService);
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private ReviewList = inject(ReviewListService);
-    private Tabs = inject(ExamTabService);
+    private readonly modal = inject(ModalService);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly ReviewList = inject(ReviewListService);
+    private readonly Tabs = inject(ExamTabService);
 
     constructor() {
         // Sync mutable arrays when reviews or collaborative changes
@@ -167,14 +167,14 @@ export class ReviewListComponent {
         const modalRef = this.modal.openRef(AbortedExamsComponent, { size: 'xl' });
         const currentExam = this.exam();
         if (currentExam) {
-            modalRef.componentInstance.exam = currentExam;
-            modalRef.componentInstance.abortedExams = this.abortedExams();
+            modalRef.componentInstance.exam.set(currentExam);
+            modalRef.componentInstance.abortedExams.set(this.abortedExams());
         }
     }
 
     openNoShows() {
         const modalRef = this.modal.openRef(NoShowsComponent, { size: 'xl' });
-        modalRef.componentInstance.noShows = this.noShows();
+        modalRef.componentInstance.noShows.set(this.noShows());
     }
 
     abortedExamsToBeFreed(): number {

@@ -19,7 +19,7 @@ SPDX-License-Identifier: EUPL-1.2
                             (sectionQuestion().clozeTestAnswer?.score?.incorrectAnswers || 0)
                     }}
                     &nbsp;<strong>{{ 'i18n_word_points' | translate }}: </strong>
-                    <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                    <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
                         {{ displayAchievedScore() }}
                     </span>
                     @if (hasForcedScore()) {
@@ -84,28 +84,24 @@ SPDX-License-Identifier: EUPL-1.2
                                 >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
                                 <small>[0 &hellip; {{ sectionQuestion().maxScore.toFixed(2) }}]</small></span
                             >
-                            <form #forcedPoints="ngForm" name="forcedPoints">
-                                <input
-                                    name="score"
-                                    type="number"
-                                    lang="en"
-                                    class="form-control"
-                                    [(ngModel)]="scoreValue"
-                                    xmFixedPrecision
-                                    (blur)="forcedPoints.valid && insertForcedScore()"
-                                    onclick="this.focus()"
-                                    [disabled]="!isScorable()"
-                                    [min]="0"
-                                    [max]="sectionQuestion().maxScore"
-                                />
-                                @if (forcedPoints.invalid) {
-                                    <small class="alert-danger">
-                                        <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                            'i18n_error_score_input' | translate
-                                        }}
-                                    </small>
-                                }
-                            </form>
+                            <input
+                                type="number"
+                                lang="en"
+                                class="form-control"
+                                [formControl]="scoreControl"
+                                xmFixedPrecision
+                                (blur)="scoreControl.valid && insertForcedScore()"
+                                onclick="this.focus()"
+                                [min]="0"
+                                [max]="sectionQuestion().maxScore"
+                            />
+                            @if (scoreControl.invalid) {
+                                <small class="alert-danger">
+                                    <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                        'i18n_error_score_input' | translate
+                                    }}
+                                </small>
+                            }
                         </div>
                     }
                 </div>

@@ -2,10 +2,9 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -43,8 +42,6 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
     imports: [
         TableSortComponent,
         RouterLink,
-        NgClass,
-        FormsModule,
         PaginatorComponent,
         NgbPopover,
         LowerCasePipe,
@@ -63,28 +60,29 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpeedReviewComponent {
-    pageSize = 10;
-    currentPage = signal(0);
-    reviewPredicate = signal('deadline');
-    reverse = signal(false);
-    examId = signal(0);
-    examInfo = signal<{ examOwners: User[]; title: string; anonymous: boolean } | undefined>(undefined);
-    toggleReviews = signal(false);
-    examReviews = signal<Review[]>([]);
+    readonly currentPage = signal(0);
+    readonly reviewPredicate = signal('deadline');
+    readonly reverse = signal(false);
+    readonly examId = signal(0);
+    readonly examInfo = signal<{ examOwners: User[]; title: string; anonymous: boolean } | undefined>(undefined);
+    readonly toggleReviews = signal(false);
+    readonly examReviews = signal<Review[]>([]);
 
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private modal = inject(ModalService);
-    private toast = inject(ToastrService);
-    private Exam = inject(ExamService);
-    private CommonExam = inject(CommonExamService);
-    private Confirmation = inject(ConfirmationDialogService);
-    private Files = inject(FileService);
-    private Attachment = inject(AttachmentService);
-    private DateTime = inject(DateTimeService);
-    private CourseCode = inject(CourseCodeService);
+    readonly pageSize = 10;
+
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly modal = inject(ModalService);
+    private readonly toast = inject(ToastrService);
+    private readonly Exam = inject(ExamService);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly Files = inject(FileService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly DateTime = inject(DateTimeService);
+    private readonly CourseCode = inject(CourseCodeService);
 
     constructor() {
         const examIdValue = this.route.snapshot.params.id;
@@ -123,8 +121,13 @@ export class SpeedReviewComponent {
 
     showFeedbackEditor(review: Review) {
         const modalRef = this.modal.openRef(SpeedReviewFeedbackComponent);
-        modalRef.componentInstance.exam = review.examParticipation.exam;
+        modalRef.componentInstance.exam.set(review.examParticipation.exam);
     }
+
+    onGradeSelect = (review: Review, event: Event) => {
+        const key = (event.target as HTMLSelectElement).value;
+        review.selectedGrade = review.grades.find((g) => String(g.id ?? g.type) === key);
+    };
 
     isAllowedToGrade(review: Review) {
         return this.Exam.isOwnerOrAdmin(review.examParticipation.exam);

@@ -115,7 +115,6 @@ export interface ExamSectionQuestion {
     negativeScoreAllowed: boolean;
     optionShufflingOn: boolean;
     sequenceNumber: number;
-    expanded: boolean;
     derivedMaxScore?: number;
     derivedAssessedScore?: number;
 }

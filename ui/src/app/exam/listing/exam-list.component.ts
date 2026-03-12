@@ -4,13 +4,14 @@
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { ExaminationTypeSelectorComponent } from 'src/app/exam/editor/common/examination-type-picker.component';
 import type { Exam, Implementation } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -29,10 +30,7 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
     selector: 'xm-exam-list',
     templateUrl: './exam-list.component.html',
     imports: [
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
+        NgbNavModule,
         NgbPopover,
         TableSortComponent,
         CourseCodeComponent,
@@ -47,28 +45,29 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamListingComponent implements OnDestroy {
-    activeId = signal(0);
-    views = [
+export class ExamListingComponent {
+    readonly activeId = signal(0);
+    readonly examsPredicate = signal('periodEnd');
+    readonly reverse = signal(true);
+    readonly loader = signal({ loading: false });
+    readonly exams = signal<ExamListExam[]>([]);
+    readonly views = [
         { view: 'PUBLISHED', showExpired: false },
         { view: 'PUBLISHED', showExpired: true },
         { view: 'SAVED', showExpired: false },
         { view: 'DRAFT', showExpired: false },
     ];
-    examsPredicate = signal('periodEnd');
-    reverse = signal(true);
-    loader = signal({ loading: false });
-    exams = signal<ExamListExam[]>([]);
-    subject = new Subject<string>();
-    ngUnsubscribe = new Subject<void>();
 
-    private translate = inject(TranslateService);
-    private router = inject(Router);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
-    private Confirmation = inject(ConfirmationDialogService);
-    private Exam = inject(ExamService);
-    private Modal = inject(ModalService);
+    private readonly subject = new Subject<string>();
+
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly translate = inject(TranslateService);
+    private readonly router = inject(Router);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly Exam = inject(ExamService);
+    private readonly Modal = inject(ModalService);
 
     constructor() {
         this.subject
@@ -92,14 +91,9 @@ export class ExamListingComponent implements OnDestroy {
                     this.exams.set(exams);
                     this.loader.set({ loading: false });
                 }),
-                takeUntil(this.ngUnsubscribe),
+                takeUntilDestroyed(this.destroyRef),
             )
             .subscribe();
-    }
-
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
     }
 
     newExam() {
@@ -119,7 +113,7 @@ export class ExamListingComponent implements OnDestroy {
         this.Modal.open$<{ type: string; examinationType: string }>(ExaminationTypeSelectorComponent)
             .pipe(
                 switchMap((data) => this.http.post<Exam>(`/app/exams/${exam.id}`, data)),
-                takeUntil(this.ngUnsubscribe),
+                takeUntilDestroyed(this.destroyRef),
             )
             .subscribe({
                 next: (resp) => {
@@ -132,12 +126,12 @@ export class ExamListingComponent implements OnDestroy {
 
     deleteExam(exam: ExamListExam) {
         this.Confirmation.open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_remove_exam'))
-            .pipe(takeUntil(this.ngUnsubscribe))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
                     this.http
                         .delete(`/app/exams/${exam.id}`)
-                        .pipe(takeUntil(this.ngUnsubscribe))
+                        .pipe(takeUntilDestroyed(this.destroyRef))
                         .subscribe({
                             next: () => {
                                 this.toast.success(this.translate.instant('i18n_exam_removed'));

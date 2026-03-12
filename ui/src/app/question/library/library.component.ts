@@ -149,15 +149,15 @@ type FileResult = { errorCount: number; successCount: number };
     styleUrl: './library.component.scss',
 })
 export class LibraryComponent {
-    questions = signal<LibraryQuestion[]>([]);
-    selections = signal<number[]>([]);
+    readonly questions = signal<LibraryQuestion[]>([]);
+    readonly selections = signal<number[]>([]);
 
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private modal = inject(ModalService);
-    private toast = inject(ToastrService);
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly modal = inject(ModalService);
+    private readonly toast = inject(ToastrService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
 
     resultsUpdated(results: LibraryQuestion[]) {
         this.questions.set(results);
@@ -207,7 +207,7 @@ export class LibraryComponent {
 
     openOwnerSelection() {
         const modalRef = this.modal.openRef(LibraryOwnersDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.selections = this.selections();
+        modalRef.componentInstance.selections.set(this.selections());
         this.modal
             .result$<{ questions: number[]; users: User[] }>(modalRef)
             .pipe(
@@ -221,7 +221,7 @@ export class LibraryComponent {
 
     openTagSelection() {
         const modalRef = this.modal.openRef(LibraryTagsDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.selections = this.selections();
+        modalRef.componentInstance.selections.set(this.selections());
         this.modal
             .result$<{ questions: number[]; tags: Tag[] }>(modalRef)
             .pipe(
@@ -235,7 +235,7 @@ export class LibraryComponent {
 
     openFileTransfer() {
         const modalRef = this.modal.openRef(LibraryTransferDialogComponent, { size: 'lg' });
-        modalRef.componentInstance.selections = this.selections();
+        modalRef.componentInstance.selections.set(this.selections());
     }
 
     private addTagIfNotExists(q: LibraryQuestion, t: Tag) {

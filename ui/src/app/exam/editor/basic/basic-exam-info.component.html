@@ -42,8 +42,8 @@ SPDX-License-Identifier: EUPL-1.2
                             <div class="col-md-9">
                                 <input
                                     class="form-control w-50"
-                                    [ngModel]="exam().name"
-                                    (ngModelChange)="updateExamName($event)"
+                                    [value]="exam().name"
+                                    (input)="onExamNameInput($event)"
                                 />
                             </div>
                         </div>
@@ -106,9 +106,8 @@ SPDX-License-Identifier: EUPL-1.2
                                     type="checkbox"
                                     title="anonymous"
                                     name="anonymous"
-                                    (change)="toggleAnonymous()"
-                                    [ngModel]="exam().anonymous"
-                                    (ngModelChange)="updateExamAnonymous($event)"
+                                    [checked]="exam().anonymous"
+                                    (change)="onExamAnonymousChange($event)"
                                     [disabled]="toggleAnonymousDisabled()"
                                 />
                             </div>
@@ -127,8 +126,8 @@ SPDX-License-Identifier: EUPL-1.2
                                 <input
                                     type="text"
                                     maxlength="128"
-                                    [ngModel]="exam().internalRef"
-                                    (ngModelChange)="updateInternalRef($event)"
+                                    [value]="exam().internalRef"
+                                    (input)="onInternalRefInput($event)"
                                 />
                             </div>
                         </div>
@@ -154,7 +153,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <div class="col-md-9">
                                 <button
                                     class="btn selection-button-wide"
-                                    [ngClass]="exam().subjectToLanguageInspection === true ? 'btn-primary' : ''"
+                                    [class.btn-primary]="exam().subjectToLanguageInspection === true"
                                     [disabled]="exam().state === 'PUBLISHED'"
                                     (click)="setSubjectToLanguageInspection(true)"
                                 >
@@ -162,7 +161,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 >&nbsp;
                                 <button
                                     class="btn selection-button-wide"
-                                    [ngClass]="exam().subjectToLanguageInspection === false ? 'btn-primary' : ''"
+                                    [class.btn-primary]="exam().subjectToLanguageInspection === false"
                                     [disabled]="exam().state === 'PUBLISHED'"
                                     (click)="setSubjectToLanguageInspection(false)"
                                 >

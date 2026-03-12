@@ -52,25 +52,15 @@ type InspectionComment = { comment: string; creator: User; created: Date };
     imports: [NgbPopover, DatePipe, TranslateModule],
 })
 export class InspectionCommentsComponent {
-    exam = input.required<Exam>();
-    addingVisible = input(false);
+    readonly exam = input.required<Exam>();
+    readonly addingVisible = input(false);
+    readonly commentAdded = output<InspectionComment>();
 
-    // Output signal to notify parent when a comment is added
-    commentAdded = output<InspectionComment>();
+    readonly allComments = computed(() => [...this.localComments(), ...(this.exam().inspectionComments ?? [])]);
+    private readonly localComments = signal<InspectionComment[]>([]);
 
-    // Computed signal that combines exam comments with locally added ones
-    allComments = computed(() => {
-        const examComments = this.exam().inspectionComments || [];
-        const local = this.localComments();
-        // Combine: local comments first (newest), then exam comments
-        return [...local, ...examComments];
-    });
-
-    // Local signal to track newly added comments (before parent refreshes)
-    private localComments = signal<InspectionComment[]>([]);
-
-    private modal = inject(ModalService);
-    private http = inject(HttpClient);
+    private readonly modal = inject(ModalService);
+    private readonly http = inject(HttpClient);
 
     addInspectionComment = () =>
         this.modal

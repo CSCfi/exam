@@ -59,11 +59,11 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
     imports: [TranslateModule],
 })
 export class ExamStatisticsComponent {
-    queryParams = input<QueryParams>({});
-    exams = signal<ExamInfo[]>([]);
-    totalExams = signal(0);
+    readonly queryParams = input<QueryParams>({});
+    readonly exams = signal<ExamInfo[]>([]);
+    readonly totalExams = signal(0);
 
-    private Statistics = inject(StatisticsService);
+    private readonly Statistics = inject(StatisticsService);
 
     constructor() {
         this.listExams();

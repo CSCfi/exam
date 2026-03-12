@@ -28,8 +28,8 @@ export interface Selection {
 }
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
-    private http = inject(HttpClient);
-    private modal = inject(ModalService);
+    private readonly http = inject(HttpClient);
+    private readonly modal = inject(ModalService);
 
     printExamState = (reservation: {
         enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };

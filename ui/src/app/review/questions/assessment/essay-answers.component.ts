@@ -41,13 +41,13 @@ import { EssayAnswerComponent } from './essay-answer.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EssayAnswerListComponent {
-    answers = input<ReviewQuestion[]>([]);
-    editable = input(false);
-    isPremature = input(false);
-    actionText = input('');
-    assessed = output<ReviewQuestion[]>();
+    readonly answers = input<ReviewQuestion[]>([]);
+    readonly editable = input(false);
+    readonly isPremature = input(false);
+    readonly actionText = input('');
+    readonly assessed = output<ReviewQuestion[]>();
 
-    private QuestionReview = inject(QuestionReviewService);
+    private readonly QuestionReview = inject(QuestionReviewService);
 
     countSelected() {
         const currentAnswers = this.answers();

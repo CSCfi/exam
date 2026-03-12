@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Exam } from 'src/app/exam/exam.model';
@@ -14,7 +13,6 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
 
 @Component({
     imports: [
-        FormsModule,
         NgbPopoverModule,
         TranslateModule,
         ExamParticipantSelectorComponent,
@@ -34,9 +32,8 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
                     <label>
                         <input
                             type="radio"
-                            [ngModel]="visibleParticipantSelector()"
-                            (ngModelChange)="visibleParticipantSelector.set($event)"
-                            value="participant"
+                            [checked]="visibleParticipantSelector() === 'participant'"
+                            (change)="visibleParticipantSelector.set('participant')"
                         />
                         {{ 'i18n_exam_participant_selector_label' | translate }}
                         <sup
@@ -49,9 +46,8 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
                     <label class="ms-2">
                         <input
                             type="radio"
-                            [ngModel]="visibleParticipantSelector()"
-                            (ngModelChange)="visibleParticipantSelector.set($event)"
-                            value="pre-participant"
+                            [checked]="visibleParticipantSelector() === 'pre-participant'"
+                            (change)="visibleParticipantSelector.set('pre-participant')"
                         />
                         {{ 'i18n_exam_pre_participant_selector_label' | translate }}
                         <sup
@@ -80,7 +76,7 @@ import { OrganisationSelectorComponent } from './organisation-picker.component';
     `,
 })
 export class ExamPublicationParticipantsComponent {
-    collaborative = input(false);
-    exam = input.required<Exam>();
-    visibleParticipantSelector = signal('participant');
+    readonly collaborative = input(false);
+    readonly exam = input.required<Exam>();
+    readonly visibleParticipantSelector = signal('participant');
 }

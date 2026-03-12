@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { DatePipe, UpperCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { EMPTY, Subject } from 'rxjs';
@@ -18,7 +18,6 @@ import {
     map,
     startWith,
     switchMap,
-    takeUntil,
     tap,
 } from 'rxjs/operators';
 import type { CollaborativeExam, Exam } from 'src/app/exam/exam.model';
@@ -48,14 +47,10 @@ interface ListedCollaborativeExam extends Exam {
     selector: 'xm-collaborative-exam-listing',
     templateUrl: './collaborative-exam-listing.component.html',
     imports: [
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
+        NgbNavModule,
         NgbPopover,
         TableSortComponent,
         RouterLink,
-        NgClass,
         UpperCasePipe,
         DatePipe,
         TranslateModule,
@@ -65,17 +60,14 @@ interface ListedCollaborativeExam extends Exam {
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CollaborativeExamListingComponent implements OnDestroy {
-    user: User;
-    view = signal<ListingView>(ListingView.PUBLISHED);
-    examsPredicate = signal('periodEnd');
-    reverse = signal(true);
-    filterText = signal('');
-    examCreated = new Subject<void>();
-    ngUnsubscribe = new Subject<void>();
+export class CollaborativeExamListingComponent {
+    readonly view = signal<ListingView>(ListingView.PUBLISHED);
+    readonly examsPredicate = signal('periodEnd');
+    readonly reverse = signal(true);
+    readonly user: User;
 
     // Reactive search with debouncing
-    exams = toSignal(
+    readonly exams = toSignal(
         toObservable(computed(() => this.filterText())).pipe(
             startWith(''),
             debounceTime(500),
@@ -94,21 +86,27 @@ export class CollaborativeExamListingComponent implements OnDestroy {
         { initialValue: [] as ListedCollaborativeExam[] },
     );
 
-    loading = signal(false);
+    readonly loading = signal(false);
 
-    filteredExams = computed(() => {
+    readonly filteredExams = computed(() => {
         return this.exams().filter((e) => e.listingView === this.view());
     });
 
-    publishedCount = computed(() => this.exams().filter((e) => e.listingView === ListingView.PUBLISHED).length);
-    expiredCount = computed(() => this.exams().filter((e) => e.listingView === ListingView.EXPIRED).length);
-    draftsCount = computed(() => this.exams().filter((e) => e.listingView === ListingView.DRAFTS).length);
+    readonly publishedCount = computed(
+        () => this.exams().filter((e) => e.listingView === ListingView.PUBLISHED).length,
+    );
+    readonly expiredCount = computed(() => this.exams().filter((e) => e.listingView === ListingView.EXPIRED).length);
+    readonly draftsCount = computed(() => this.exams().filter((e) => e.listingView === ListingView.DRAFTS).length);
 
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Session = inject(SessionService);
-    private CollaborativeExam = inject(CollaborativeExamService);
+    private readonly examCreated = new Subject<void>();
+    private readonly filterText = signal('');
+
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Session = inject(SessionService);
+    private readonly CollaborativeExam = inject(CollaborativeExamService);
 
     constructor() {
         const toast = this.toast;
@@ -116,7 +114,7 @@ export class CollaborativeExamListingComponent implements OnDestroy {
         this.examCreated
             .pipe(
                 exhaustMap(() => this.CollaborativeExam.createExam$()),
-                takeUntil(this.ngUnsubscribe),
+                takeUntilDestroyed(this.destroyRef),
             )
             .subscribe({
                 next: (exam: CollaborativeExam) => {
@@ -125,15 +123,6 @@ export class CollaborativeExamListingComponent implements OnDestroy {
                 },
                 error: (err) => this.toast.error(err),
             });
-        this.listAllExams();
-    }
-
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
-    }
-
-    listAllExams() {
         this.filterText.set('');
     }
 

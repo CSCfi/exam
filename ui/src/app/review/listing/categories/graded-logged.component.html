@@ -35,9 +35,8 @@ SPDX-License-Identifier: EUPL-1.2
     <div [ngbCollapse]="!view()!.toggle" [hidden]="view()!.items.length === 0">
         <div class="py-3 input-group my-2 w-25">
             <input
-                (input)="applyFreeSearchFilter()"
-                [ngModel]="view()!.filter"
-                (ngModelChange)="updateFilter($event)"
+                [value]="view()!.filter"
+                (input)="onFreeSearchFilterInput($event)"
                 class="form-control"
                 placeholder="{{ 'i18n_search' | translate }}"
             />
@@ -51,12 +50,12 @@ SPDX-License-Identifier: EUPL-1.2
                             <i class="bi-square"></i>
                         </button>
                         <ul ngbDropdownMenu role="menu">
-                            <li ngbDropdownItem role="presentation" [ngClass]="selections().page ? 'active' : ''">
+                            <li ngbDropdownItem role="presentation" [class.active]="selections().page">
                                 <a role="menuitem" class="unstyled-link pointer" (click)="selectPage('selectionBox')">
                                     {{ 'i18n_choose_visible' | translate }}
                                 </a>
                             </li>
-                            <li ngbDropdownItem role="presentation" [ngClass]="selections().all ? 'active' : ''">
+                            <li ngbDropdownItem role="presentation" [class.active]="selections().all">
                                 <a role="menuitem" class="unstyled-link pointer" (click)="selectAll()">
                                     {{ 'i18n_choose_all' | translate }}
                                 </a>
@@ -160,7 +159,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <td class="table-column-checkbox">
                             <input
                                 type="checkbox"
-                                [(ngModel)]="review.selected"
+                                [checked]="review.selected"
+                                (change)="onReviewToggle(review, $event)"
                                 class="selectionBox"
                                 [value]="review.examParticipation.id"
                             />

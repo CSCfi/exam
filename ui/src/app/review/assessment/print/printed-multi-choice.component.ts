@@ -2,12 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, NgStyle } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
@@ -15,12 +14,12 @@ import { isNumber } from 'src/app/shared/miscellaneous/helpers';
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './templates/multi-choice.component.html',
     styleUrls: ['./print.shared.scss'],
-    imports: [MathUnifiedDirective, NgClass, NgStyle, TranslateModule],
+    imports: [MathDirective, TranslateModule],
 })
 export class PrintedMultiChoiceComponent {
-    sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
 
-    private QuestionScore = inject(QuestionScoringService);
+    private readonly QuestionScore = inject(QuestionScoringService);
 
     scoreWeightedMultipleChoiceAnswer = (ignoreForcedScore: boolean) => {
         const sq = this.sectionQuestion();

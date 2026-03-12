@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { AsyncPipe, DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
+import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, interval, map, startWith } from 'rxjs';
+import { interval, map, startWith } from 'rxjs';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
 import { SessionService } from 'src/app/session/session.service';
@@ -17,7 +17,7 @@ import { PageContentComponent } from 'src/app/shared/components/page-content.com
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
@@ -34,8 +34,7 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     imports: [
         CourseCodeComponent,
         TeacherListComponent,
-        MathUnifiedDirective,
-        AsyncPipe,
+        MathDirective,
         UpperCasePipe,
         SlicePipe,
         DatePipe,
@@ -46,19 +45,19 @@ export type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     ],
 })
 export class WaitingRoomComponent implements OnDestroy {
-    enrolment = signal<WaitingEnrolment | undefined>(undefined);
-    isUpcoming = signal(false);
-    delayCounter$?: Observable<number>;
+    readonly enrolment = signal<WaitingEnrolment | undefined>(undefined);
+    readonly isUpcoming = signal(false);
+    readonly delayCounter = signal<number | undefined>(undefined);
 
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Session = inject(SessionService);
-    private DateTimeService = inject(DateTimeService);
-    private changeDetector = inject(ChangeDetectorRef);
     private startTimerId = 0;
     private delayTimerId = 0;
+
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Session = inject(SessionService);
+    private readonly DateTimeService = inject(DateTimeService);
 
     constructor() {
         if (this.route.snapshot.params.id && this.route.snapshot.params.hash) {
@@ -111,11 +110,12 @@ export class WaitingRoomComponent implements OnDestroy {
                 DateTime.now().toSeconds(),
         );
         this.delayTimerId = window.setTimeout(this.Session.checkSession, Math.max(0, offset * 1000));
-        this.delayCounter$ = interval(1000).pipe(
-            startWith(0),
-            map((n) => offset - n),
-        );
-        this.changeDetector.markForCheck();
+        interval(1000)
+            .pipe(
+                startWith(0),
+                map((n) => offset - n),
+            )
+            .subscribe((n) => this.delayCounter.set(n));
     }
 
     private setOccasion(reservation: WaitingReservation) {

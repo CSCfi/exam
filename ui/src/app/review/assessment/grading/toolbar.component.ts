@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, OnInit, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -72,24 +72,24 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
         </div>`,
     imports: [RouterLink, NgbPopover, TranslateModule],
 })
-export class ToolbarComponent implements OnInit {
-    valid = input(false);
-    participation = input.required<ExamParticipation>();
-    collaborative = input(false);
-    exam = input.required<Examination>();
+export class ToolbarComponent {
+    readonly valid = input(false);
+    readonly participation = input.required<ExamParticipation>();
+    readonly collaborative = input(false);
+    readonly exam = input.required<Examination>();
 
-    id = 0;
-    ref = '';
+    private readonly id: number;
+    private readonly ref: string;
 
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Assessment = inject(AssessmentService);
-    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
-    private Exam = inject(ExamService);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private readonly Exam = inject(ExamService);
 
-    ngOnInit() {
+    constructor() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
     }

@@ -124,7 +124,7 @@ SPDX-License-Identifier: EUPL-1.2
 }
 
 @if (assessment().examFeedback?.comment) {
-    <div class="row" [ngClass]="!assessment().languageInspection ? 'mt-1' : ''">
+    <div class="row" [class.mt-1]="!assessment().languageInspection">
         <div class="col-12">
             <div class="row">
                 <div class="col-12">{{ 'i18n_teachers_comment' | translate }}:</div>

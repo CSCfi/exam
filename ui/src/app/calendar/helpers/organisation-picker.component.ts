@@ -2,9 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Organisation } from 'src/app/calendar/calendar.model';
 import { CalendarService } from 'src/app/calendar/calendar.service';
@@ -15,7 +14,8 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
     template: `
         <div
             class="row m-2 details-view"
-            [ngClass]="selectedOrganisation() ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+            [class.xm-study-item-container]="selectedOrganisation()"
+            [class.xm-study-item-container--inactive]="!selectedOrganisation()"
         >
             <div class="col-md-12">
                 <div class="row">
@@ -88,18 +88,18 @@ import { CalendarService } from 'src/app/calendar/calendar.service';
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    imports: [NgClass, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
+    imports: [NgbDropdownModule, TranslateModule],
 })
 export class OrganisationPickerComponent {
-    sequenceNumber = input(0);
-    disabled = input(false);
-    selected = output<Organisation>();
-    cancelled = output<void>();
+    readonly sequenceNumber = input(0);
+    readonly disabled = input(false);
+    readonly selected = output<Organisation>();
+    readonly cancelled = output<void>();
 
-    organisations = signal<Organisation[]>([]);
-    selectedOrganisation = signal<Organisation | undefined>(undefined);
+    readonly organisations = signal<Organisation[]>([]);
+    readonly selectedOrganisation = signal<Organisation | undefined>(undefined);
 
-    private Calendar = inject(CalendarService);
+    private readonly Calendar = inject(CalendarService);
 
     constructor() {
         this.Calendar.listOrganisations$().subscribe((resp) =>

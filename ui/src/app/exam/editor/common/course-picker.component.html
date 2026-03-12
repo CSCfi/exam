@@ -14,7 +14,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     id="courseCode"
                     class="form-control"
-                    [(ngModel)]="codeFilter"
+                    [formField]="courseFilterForm.code"
                     name="code"
                     [ngbTypeahead]="getCoursesByCode$"
                     (selectItem)="onCourseSelect($event)"
@@ -49,7 +49,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <input
                     id="courseName"
                     class="form-control"
-                    [(ngModel)]="nameFilter"
+                    [formField]="courseFilterForm.name"
                     name="name"
                     [ngbTypeahead]="getCoursesByName$"
                     (selectItem)="onCourseSelect($event)"

@@ -4,7 +4,6 @@
 
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,7 +22,6 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
     imports: [
         NgbPopover,
         ExamCourseComponent,
-        FormsModule,
         LanguageSelectorComponent,
         TranslateModule,
         PageHeaderComponent,
@@ -32,15 +30,15 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CourseSelectionComponent {
-    exam = signal<Exam | undefined>(undefined);
+    readonly exam = signal<Exam | undefined>(undefined);
 
-    private translate = inject(TranslateService);
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
-    private Exam = inject(ExamService);
-    private Session = inject(SessionService);
+    private readonly translate = inject(TranslateService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
+    private readonly Exam = inject(ExamService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         this.http.get<Exam>(`/app/exams/${this.route.snapshot.params.id}`).subscribe((exam) => this.exam.set(exam));
@@ -49,6 +47,10 @@ export class CourseSelectionComponent {
     getExecutionTypeTranslation() {
         const currentExam = this.exam();
         return currentExam ? this.Exam.getExecutionTypeTranslation(currentExam.executionType) : '';
+    }
+
+    onExamNameInput(event: Event) {
+        this.updateExamNameValue((event.target as HTMLInputElement).value);
     }
 
     updateExamNameValue(value: string) {

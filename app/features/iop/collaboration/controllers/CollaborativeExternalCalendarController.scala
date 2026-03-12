@@ -15,6 +15,7 @@ import security.Auth
 import security.Auth.{AuthenticatedAction, authorized}
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
+import services.datetime.AppClock
 import system.AuditedAction
 import validation.calendar.{ExternalReservationDTO, ReservationCreationFilter}
 import validation.core.ScalaAttrs
@@ -28,6 +29,7 @@ class CollaborativeExternalCalendarController @Inject() (
     audited: AuditedAction,
     collaborativeExternalCalendarService: CollaborativeExternalCalendarService,
     configReader: ConfigReader,
+    clock: AppClock,
     val controllerComponents: ControllerComponents,
     implicit val ec: BlockingIOExecutionContext
 ) extends BaseController
@@ -37,7 +39,7 @@ class CollaborativeExternalCalendarController @Inject() (
   def requestReservation(): Action[JsValue] = audited
     .andThen(authenticated)(parse.json)
     .andThen(authorized(Seq(Role.Name.STUDENT)))
-    .andThen(ReservationCreationFilter.forExternal())
+    .andThen(ReservationCreationFilter.forExternal(clock))
     .async { request =>
       if !configReader.isVisitingExaminationSupported then
         Future.successful(Forbidden("Feature not enabled in the installation"))

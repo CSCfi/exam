@@ -35,13 +35,12 @@ import { Question } from 'src/app/question/question.model';
     imports: [ExaminationQuestionComponent, TranslateModule],
 })
 export class QuestionPreviewDialogComponent {
-    question = signal<ExaminationQuestion | Question | undefined>(undefined);
-    isExamQuestion = signal(false);
+    readonly question = signal<ExaminationQuestion | Question | undefined>(undefined);
+    readonly isExamQuestion = signal(false);
+    readonly preview = signal<ExaminationQuestion | undefined>(undefined);
 
-    preview = signal<ExaminationQuestion | undefined>(undefined);
-
-    activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
+    protected readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
 
     constructor() {
         // Watch for when question is set and load preview

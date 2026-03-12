@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -14,29 +13,29 @@ import type { ExamMachine, ExamRoom } from 'src/app/reservation/reservation.mode
 @Component({
     templateUrl: './machines.component.html',
     selector: 'xm-machines',
-    imports: [NgbPopover, NgClass, RouterLink, TranslateModule],
+    imports: [NgbPopover, RouterLink, TranslateModule],
     styleUrls: ['./machines.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MachineListComponent {
-    room = input.required<ExamRoom>();
+    readonly room = input.required<ExamRoom>();
 
-    showMachines = signal(false);
-    machines = signal<ExamMachine[]>([]);
+    readonly showMachines = signal(false);
+    readonly machines = signal<ExamMachine[]>([]);
 
-    countMachineAlerts = computed(() => {
+    readonly countMachineAlerts = computed(() => {
         const currentRoom = this.room();
         return currentRoom ? currentRoom.examMachines.filter((m) => m.outOfService).length : 0;
     });
 
-    countMachineNotices = computed(() => {
+    readonly countMachineNotices = computed(() => {
         const currentRoom = this.room();
         return currentRoom ? currentRoom.examMachines.filter((m) => !m.outOfService && m.statusComment).length : 0;
     });
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
         effect(() => {

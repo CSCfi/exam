@@ -5,7 +5,7 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 @Component({
@@ -13,12 +13,12 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './templates/essay.component.html',
     styleUrls: ['./print.shared.scss'],
-    imports: [MathUnifiedDirective, TranslateModule],
+    imports: [MathDirective, TranslateModule],
 })
 export class PrintedEssayComponent {
-    sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
 
-    private CommonExam = inject(CommonExamService);
+    private readonly CommonExam = inject(CommonExamService);
 
     getScore = () => {
         const sq = this.sectionQuestion();

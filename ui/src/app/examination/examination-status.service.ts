@@ -8,18 +8,18 @@ import { computed, Injectable, signal } from '@angular/core';
 export class ExaminationStatusService {
     // Signal-based API
     // Using timestamps for void events - each notification updates the timestamp, triggering effects
-    combinedStatusSignal = computed(() => ({
+    readonly combinedStatusSignal = computed(() => ({
         starting: this.examinationStartingSignal(),
         upcoming: this.upcomingExamSignal(),
         wrongLocation: this.wrongLocationSignal(),
         aquarium: this.aquariumLoggedInSignal(),
     }));
 
-    private examinationEnding = signal<number | undefined>(undefined);
-    private wrongLocation = signal<number | undefined>(undefined);
-    private upcomingExam = signal<number | undefined>(undefined);
-    private examinationStarting = signal<number | undefined>(undefined);
-    private aquariumLoggedIn = signal<boolean>(true);
+    private readonly examinationEnding = signal<number | undefined>(undefined);
+    private readonly wrongLocation = signal<number | undefined>(undefined);
+    private readonly upcomingExam = signal<number | undefined>(undefined);
+    private readonly examinationStarting = signal<number | undefined>(undefined);
+    private readonly aquariumLoggedIn = signal<boolean>(true);
 
     // Readonly signals for components (preferred API)
     get examinationEndingSignal() {

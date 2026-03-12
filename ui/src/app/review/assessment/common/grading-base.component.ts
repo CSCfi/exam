@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { HttpClient } from '@angular/common/http';
+import { signal } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade } from 'src/app/exam/exam.model';
 import { isRealGrade } from 'src/app/exam/exam.model';
@@ -12,10 +14,15 @@ import type { LanguageService } from 'src/app/shared/language/language.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 export abstract class GradingBaseComponent {
-    selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };
-    grades: SelectableGrade[] = [];
-    creditTypes: (ExamType & { name: string })[] = [];
-    languages: (ExamLanguage & { name: string })[] = [];
+    readonly grades = signal<SelectableGrade[]>([]);
+    readonly creditTypes = signal<(ExamType & { name: string })[]>([]);
+    readonly languages = signal<(ExamLanguage & { name: string })[]>([]);
+    readonly gradingForm = new FormGroup({
+        grade: new FormControl<SelectableGrade | null>(null),
+        type: new FormControl<ExamType | null>(null),
+        language: new FormControl<ExamLanguage | null>(null),
+        customCredit: new FormControl<number | null>(null),
+    });
 
     constructor(
         protected http: HttpClient,
@@ -24,26 +31,16 @@ export abstract class GradingBaseComponent {
         protected Exam: ExamService,
         protected CommonExam: CommonExamService,
         protected Language: LanguageService,
-    ) {
-        this.selections = {
-            grade: null,
-            type: null,
-            language: null,
-        };
-    }
+    ) {}
 
     setGrade = () => {
+        const grade = this.gradingForm.controls.grade.value;
         const exam = this.getExam();
-        if (
-            this.selections.grade &&
-            (isRealGrade(this.selections.grade) ||
-                this.selections.grade.type === 'NOT_GRADED' ||
-                this.selections.grade.type === 'POINT_GRADED')
-        ) {
-            exam.grade = this.selections.grade;
-            if (this.selections.grade.type === 'NOT_GRADED') {
+        if (grade && (isRealGrade(grade) || grade.type === 'NOT_GRADED' || grade.type === 'POINT_GRADED')) {
+            exam.grade = grade;
+            if (grade.type === 'NOT_GRADED') {
                 exam.gradingType = 'NOT_GRADED';
-            } else if (this.selections.grade.type === 'POINT_GRADED') {
+            } else if (grade.type === 'POINT_GRADED') {
                 exam.gradingType = 'POINT_GRADED';
             } else {
                 exam.gradingType = 'GRADED';
@@ -55,30 +52,36 @@ export abstract class GradingBaseComponent {
     };
 
     setCreditType = () => {
+        const type = this.gradingForm.controls.type.value;
         const exam = this.getExam();
-        if (this.selections.type && this.selections.type.type) {
-            exam.creditType = this.selections.type;
+        if (type && type.type) {
+            exam.creditType = type;
         } else {
             delete exam.creditType;
         }
     };
 
-    setLanguage = () =>
-        (this.getExam().answerLanguage = this.selections.language ? this.selections.language.code : undefined);
+    setLanguage = () => {
+        const language = this.gradingForm.controls.language.value;
+        this.getExam().answerLanguage = language ? language.code : undefined;
+    };
 
     protected initGrades = (isMaturity: boolean = false, isCollaborative: boolean = false) => {
         const scale = this.resolveGradeScale();
-        this.grades = scale.grades.map((grade) => {
-            return {
+        this.grades.set(
+            scale.grades.map((grade) => ({
                 ...grade,
                 name: this.CommonExam.getExamGradeDisplayName(grade.name),
                 type: grade.name,
-            };
-        });
+            })),
+        );
         const exam = this.getExam();
-        this.grades
-            .filter((g) => exam.grade && isRealGrade(g) && isRealGrade(exam.grade) && exam.grade.id === g.id)
-            .forEach(this._setGrade);
+        const matchingGrade = this.grades().find(
+            (g) => exam.grade && isRealGrade(g) && isRealGrade(exam.grade) && exam.grade.id === g.id,
+        );
+        if (matchingGrade) {
+            this.gradingForm.controls.grade.setValue(matchingGrade, { emitEvent: false });
+        }
 
         // The "not graded" option
         const notGraded: NoGrade = {
@@ -94,25 +97,26 @@ export abstract class GradingBaseComponent {
             marksRejection: false,
         };
 
-        if (exam.gradingType === 'NOT_GRADED' && !this.selections.grade) {
-            this.selections.grade = notGraded;
-        } else if (exam.gradingType === 'POINT_GRADED' && !this.selections.grade) {
-            this.selections.grade = pointGraded;
+        if (exam.gradingType === 'NOT_GRADED' && !this.gradingForm.controls.grade.value) {
+            this.gradingForm.controls.grade.setValue(notGraded, { emitEvent: false });
+        } else if (exam.gradingType === 'POINT_GRADED' && !this.gradingForm.controls.grade.value) {
+            this.gradingForm.controls.grade.setValue(pointGraded, { emitEvent: false });
         }
         const extraGrades = isMaturity || isCollaborative ? [notGraded] : [pointGraded, notGraded];
-        this.grades.push(...extraGrades);
+        this.grades.update((g) => [...g, ...extraGrades]);
     };
 
     protected initCreditTypes = () => {
         const exam = this.getExam();
         this.Exam.refreshExamTypes$().subscribe((types) => {
             const creditType = exam.creditType || exam.examType;
-            this.creditTypes = types;
+            this.creditTypes.set(types);
             types.forEach((type) => {
                 if (creditType.id === type.id) {
                     // Reset also exam's credit type in case it was taken from its exam type.
                     // Confusing isn't it :)
-                    exam.creditType = this.selections.type = type;
+                    exam.creditType = type;
+                    this.gradingForm.controls.type.setValue(type, { emitEvent: false });
                 }
             });
         });
@@ -128,12 +132,14 @@ export abstract class GradingBaseComponent {
             exam.answerLanguage = lang.code;
         }
         this.Language.getExamLanguages$().subscribe((languages) => {
-            this.languages = languages.map((language) => {
-                if (lang?.code === language.code) {
-                    this.selections.language = language;
-                }
-                return language;
-            });
+            this.languages.set(
+                languages.map((language) => {
+                    if (lang?.code === language.code) {
+                        this.gradingForm.controls.language.setValue(language, { emitEvent: false });
+                    }
+                    return language;
+                }),
+            );
         });
     };
 
@@ -148,10 +154,6 @@ export abstract class GradingBaseComponent {
         } else {
             throw Error('No GradeScale for Assessment!');
         }
-    };
-
-    private _setGrade = (grade: SelectableGrade) => {
-        this.selections.grade = grade;
     };
 
     protected abstract getExam(): Exam;

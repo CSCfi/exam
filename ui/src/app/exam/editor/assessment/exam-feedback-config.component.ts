@@ -2,16 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, input, output, signal } from '@angular/core';
-import {
-    NgbCollapse,
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam, ExamFeedbackConfig } from 'src/app/exam/exam.model';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -27,29 +19,19 @@ type ExamFeedbackConfigTemplate = {
     selector: 'xm-exam-feedback-config',
     templateUrl: './exam-feedback-config.component.html',
     styleUrls: ['./exam-feedback-config.component.scss'],
-    imports: [
-        NgbPopover,
-        NgbCollapse,
-        NgClass,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        DatePickerComponent,
-        TranslateModule,
-    ],
+    imports: [NgbPopover, NgbCollapse, NgbDropdownModule, DatePickerComponent, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamFeedbackConfigComponent {
-    exam = input.required<Exam>();
-    modifiable = input<'everything' | 'nothing' | 'date'>('nothing');
-    enabled = output<void>();
-    disabled = output<void>();
-    updated = output<{ config: ExamFeedbackConfig }>();
+    readonly exam = input.required<Exam>();
+    readonly modifiable = input<'everything' | 'nothing' | 'date'>('nothing');
+    readonly enabled = output<void>();
+    readonly disabled = output<void>();
+    readonly updated = output<{ config: ExamFeedbackConfig }>();
 
-    examFeedbackConfig: ExamFeedbackConfigTemplate;
-    config = signal<ExamFeedbackConfig | undefined>(undefined);
-    examFeedbackConfigDisplayVisible = signal(false);
+    readonly config = signal<ExamFeedbackConfig | undefined>(undefined);
+    readonly examFeedbackConfigDisplayVisible = signal(false);
+    readonly examFeedbackConfig: ExamFeedbackConfigTemplate;
     private initialized = false;
 
     constructor() {

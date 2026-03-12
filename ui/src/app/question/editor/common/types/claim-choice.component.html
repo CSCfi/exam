@@ -37,7 +37,7 @@ SPDX-License-Identifier: EUPL-1.2
         @for (opt of question().options; track opt.id; let index = $index) {
             <div
                 class="row ms-2 w-50 question-editor-claim-choice-option"
-                [ngClass]="getOptionClass(opt)"
+                [class]="getOptionClass(opt)"
                 [formGroupName]="index"
             >
                 <div class="col-9">

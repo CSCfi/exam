@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -34,10 +33,8 @@ import { MaturityService } from './maturity.service';
                 </span>
                 @if (!isReadOnly() && !isDisabled()) {
                     <div class="ms-1">
-                        <button
-                            [ngClass]="getNextState().warn ? 'btn btn-outline-danger' : 'btn btn-success'"
-                            (click)="proceed(false)"
-                        >
+                        @let warn = getNextState().warn;
+                        <button [class.btn-outline-danger]="warn" [class.btn-success]="!warn" (click)="proceed(false)">
                             {{ getNextState().text | translate }}
                         </button>
                     </div>
@@ -48,12 +45,11 @@ import { MaturityService } from './maturity.service';
                     !isDisabled(getAlternateState(getNextState().alternateState).name)
                 ) {
                     <div class="ms-1">
+                        @let warn = getAlternateState(getNextState().alternateState).warn;
                         <button
-                            [ngClass]="
-                                getAlternateState(getNextState().alternateState).warn
-                                    ? 'btn btn-outline-danger'
-                                    : 'btn btn-success'
-                            "
+                            class="btn"
+                            [class.btn-outline-danger]="warn"
+                            [class.btn-success]="!warn"
                             (click)="proceed(true)"
                         >
                             {{ getAlternateState(getNextState().alternateState).text | translate }}
@@ -80,16 +76,16 @@ import { MaturityService } from './maturity.service';
                 }
             </div>
         }`,
-    imports: [RouterLink, NgClass, TranslateModule],
+    imports: [RouterLink, TranslateModule],
 })
 export class MaturityToolbarComponent {
-    exam = input.required<Exam>();
-    valid = input(false);
+    readonly exam = input.required<Exam>();
+    readonly valid = input(false);
 
-    private Maturity = inject(MaturityService);
-    private Assessment = inject(AssessmentService);
-    private Session = inject(SessionService);
-    private Exam = inject(ExamService);
+    private readonly Maturity = inject(MaturityService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly Session = inject(SessionService);
+    private readonly Exam = inject(ExamService);
 
     isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam());
     isReadOnly = () => this.Assessment.isReadOnly(this.exam());

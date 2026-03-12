@@ -18,10 +18,10 @@ type Selection = { [k: string]: boolean };
 
 @Injectable({ providedIn: 'root' })
 export class ReviewListService {
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private CommonExam = inject(CommonExamService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly CommonExam = inject(CommonExamService);
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
         if (review.user) return `${review.user.lastName} ${review.user.firstName}`;

@@ -12,9 +12,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <th>
                         <input
                             type="checkbox"
-                            name="select_all"
-                            [(ngModel)]="allSelected"
-                            (change)="selectAll()"
+                            [checked]="allSelected()"
+                            (change)="onSelectAll($event)"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'i18n_check_uncheck_all' | translate }}"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -100,8 +99,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <td class="question-table-checkbox">
                             <input
                                 type="checkbox"
-                                [(ngModel)]="question.selected"
-                                (change)="questionSelected()"
+                                [checked]="question.selected"
+                                (change)="onQuestionToggle(question, $event)"
                                 class="questionToUpdate"
                                 value="{{ question.id }}"
                             />
@@ -230,7 +229,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <!--Fill if page not full-->
                 @for (r of [] | pageFill: questions().length : currentPage() : pageSize; track r) {
                     <tr>
-                        <td colspan="11">&nbsp;</td>
+                        <td colspan="12">&nbsp;</td>
                         @if (user.isAdmin) {
                             <td></td>
                         }
@@ -238,7 +237,7 @@ SPDX-License-Identifier: EUPL-1.2
                 }
                 @if (questions().length === 0) {
                     <tr>
-                        <td colspan="11">{{ 'i18n_exam_library_no_results' | translate }}</td>
+                        <td colspan="12">{{ 'i18n_exam_library_no_results' | translate }}</td>
                         @if (user.isAdmin) {
                             <td></td>
                         }

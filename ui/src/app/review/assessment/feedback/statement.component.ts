@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -21,19 +20,20 @@ import { FileService } from 'src/app/shared/file/file.service';
     selector: 'xm-r-statement',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './feedback.template.html',
-    imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, NgbCollapse, FormsModule, TranslateModule],
+    imports: [CdkDrag, NgbPopover, CKEditorComponent, NgbCollapse, FormsModule, TranslateModule],
     styleUrl: './feedback.component.scss',
 })
 export class StatementComponent {
-    exam = input.required<Exam>();
-    hideEditor = signal(true);
-    shouldHide = computed(() => !!this.exam().languageInspection?.finishedAt);
-    attachment = computed(() => this.exam().languageInspection?.statement?.attachment);
+    readonly exam = input.required<Exam>();
 
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
-    private Maturity = inject(MaturityService);
-    private Assessment = inject(AssessmentService);
+    readonly hideEditor = signal(true);
+    readonly shouldHide = computed(() => !!this.exam().languageInspection?.finishedAt);
+    readonly attachment = computed(() => this.exam().languageInspection?.statement?.attachment);
+
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
+    private readonly Maturity = inject(MaturityService);
+    private readonly Assessment = inject(AssessmentService);
 
     get fixPosition() {
         return this.Assessment.fixPosition;

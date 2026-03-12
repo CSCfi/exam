@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -16,7 +16,10 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
     template: `
         <div class="col-md-2 ">{{ participation().started | date: 'dd.MM.yyyy' }}</div>
         <div class="col-md-4 ">
-            <span [ngClass]="participation().exam.state === 'ABORTED' ? 'text-danger' : 'text-success'">
+            <span
+                [class.text-danger]="participation().exam.state === 'ABORTED'"
+                [class.text-success]="participation().exam.state !== 'ABORTED'"
+            >
                 {{ 'i18n_exam_status_' + participation().exam.state | lowercase | translate }}
             </span>
         </div>
@@ -31,15 +34,15 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
             </div>
         }
     `,
-    imports: [NgClass, LowerCasePipe, DatePipe, TranslateModule],
+    imports: [LowerCasePipe, DatePipe, TranslateModule],
 })
 export class ParticipationComponent {
-    participation = input.required<ExamParticipation>();
-    collaborative = input(false);
+    readonly participation = input.required<ExamParticipation>();
+    readonly collaborative = input(false);
 
-    private route = inject(ActivatedRoute);
-    private Exam = inject(CommonExamService);
-    private Session = inject(SessionService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly Exam = inject(CommonExamService);
+    private readonly Session = inject(SessionService);
 
     viewAnswers = () => {
         const participationValue = this.participation();

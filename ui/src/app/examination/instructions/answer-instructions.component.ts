@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination } from 'src/app/examination/examination.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
@@ -49,14 +49,14 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
             </div>
         </div>
     `,
-    imports: [CourseCodeComponent, MathUnifiedDirective, TranslateModule],
+    imports: [CourseCodeComponent, MathDirective, TranslateModule],
     styleUrls: ['../examination.shared.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnswerInstructionsComponent {
-    exam = input.required<Examination>();
+    readonly exam = input.required<Examination>();
 
-    private DateTime = inject(DateTimeService);
+    private readonly DateTime = inject(DateTimeService);
 
     printExamDuration() {
         return this.DateTime.formatDuration(this.exam().duration);

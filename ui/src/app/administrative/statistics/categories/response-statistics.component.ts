@@ -40,10 +40,10 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
     imports: [TranslateModule],
 })
 export class ResponseStatisticsComponent {
-    queryParams = input<QueryParams>({});
-    data = signal({ assessed: 0, unAssessed: 0, aborted: 0 });
+    readonly queryParams = input<QueryParams>({});
+    readonly data = signal({ assessed: 0, unAssessed: 0, aborted: 0 });
 
-    private Statistics = inject(StatisticsService);
+    private readonly Statistics = inject(StatisticsService);
 
     constructor() {
         this.listResponses();

@@ -2,16 +2,9 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
-import {
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -48,7 +41,7 @@ import { Software } from 'src/app/facility/facility.model';
                                 <button
                                     ngbDropdownItem
                                     role="presentation"
-                                    [ngClass]="isSelected(sw) ? 'active' : ''"
+                                    [class.active]="isSelected(sw)"
                                     (click)="updateExamSoftware(sw)"
                                     title="{{ sw.name }}"
                                 >
@@ -61,18 +54,18 @@ import { Software } from 'src/app/facility/facility.model';
             </div>
         </div>
     </div>`,
-    imports: [NgbPopover, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass, TranslateModule],
+    imports: [NgbPopover, NgbDropdownModule, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SoftwareSelectorComponent {
-    exam = input.required<Exam>();
-    updated = output<Software[]>();
+    readonly exam = input.required<Exam>();
+    readonly updated = output<Software[]>();
 
-    software = signal<Software[]>([]);
+    readonly software = signal<Software[]>([]);
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
         this.http.get<Software[]>('/app/softwares').subscribe((data) => this.software.set(data));

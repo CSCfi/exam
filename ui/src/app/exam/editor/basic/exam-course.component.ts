@@ -57,13 +57,13 @@ import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.serv
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamCourseComponent {
-    exam = input.required<Exam>();
-    updated = output<Course>();
+    readonly exam = input.required<Exam>();
+    readonly updated = output<Course>();
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Exam = inject(CommonExamService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Exam = inject(CommonExamService);
 
     displayGradeScale() {
         const currentExam = this.exam();

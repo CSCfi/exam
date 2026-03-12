@@ -4,8 +4,7 @@
 
 import { SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { CollaborativeParticipation } from 'src/app/enrolment/enrolment.model';
@@ -21,11 +20,7 @@ import { ExamParticipationComponent } from './exam-participation.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participations.component.html',
     imports: [
-        FormsModule,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
+        NgbDropdownModule,
         ExamParticipationComponent,
         PaginatorComponent,
         SlicePipe,
@@ -36,16 +31,16 @@ import { ExamParticipationComponent } from './exam-participation.component';
     ],
 })
 export class CollaborativeParticipationsComponent {
-    collaborative = true;
-    originals = signal<CollaborativeParticipation[]>([]);
-    participations = signal<CollaborativeParticipation[]>([]);
-    pageSize = signal(10);
-    currentPage = signal(0);
-    filter = signal({ ordering: 'ended' as 'exam.name' | 'ended', reverse: true, text: '' });
-    searchDone = signal(false);
+    readonly originals = signal<CollaborativeParticipation[]>([]);
+    readonly participations = signal<CollaborativeParticipation[]>([]);
+    readonly currentPage = signal(0);
+    readonly filter = signal({ ordering: 'ended' as 'exam.name' | 'ended', reverse: true, text: '' });
+    readonly searchDone = signal(false);
+    readonly collaborative = true;
+    readonly pageSize = 10;
 
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     constructor() {
         this.Enrolment.listStudentParticipations$().subscribe({
@@ -60,13 +55,16 @@ export class CollaborativeParticipationsComponent {
         });
     }
 
-    // Getter/setter for filter.text to work with ngModel
     get filterText(): string {
         return this.filter().text;
     }
     set filterText(value: string) {
         this.filter.update((f) => ({ ...f, text: value }));
     }
+
+    onFilterInput = (event: Event) => {
+        this.filterText = (event.target as HTMLInputElement).value;
+    };
 
     pageSelected = ($event: { page: number }) => this.currentPage.set($event.page);
 

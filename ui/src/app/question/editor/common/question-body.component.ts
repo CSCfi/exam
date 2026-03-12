@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, input, OnDestroy, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
     ControlContainer,
     FormControl,
@@ -12,7 +13,6 @@ import {
     Validators,
 } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
 import type { QuestionDraft, ReverseQuestion, Tag } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import type { User } from 'src/app/session/session.model';
@@ -45,25 +45,26 @@ import { UsageComponent } from './usage.component';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionBodyComponent implements OnDestroy {
-    question = input.required<ReverseQuestion | QuestionDraft>();
-    currentOwners = input<User[]>([]);
-    lotteryOn = input(false);
-    collaborative = input(false);
-    questionTypes = input<{ type: string; name: string }[]>([]);
-    newQuestion = input(false);
+export class QuestionBodyComponent {
+    readonly question = input.required<ReverseQuestion | QuestionDraft>();
+    readonly currentOwners = input<User[]>([]);
+    readonly lotteryOn = input(false);
+    readonly collaborative = input(false);
+    readonly questionTypes = input<{ type: string; name: string }[]>([]);
+    readonly newQuestion = input(false);
 
-    currentOwnersChange = output<User[]>();
-    tagsChange = output<Tag[]>();
+    readonly currentOwnersChange = output<User[]>();
+    readonly tagsChange = output<Tag[]>();
 
-    questionBodyForm: FormGroup;
-    examNames = signal<string[]>([]);
-    questionType = signal<string | null>(null);
-    multichoiceFeaturesOn = signal(false);
+    readonly examNames = signal<string[]>([]);
+    readonly questionType = signal<string | null>(null);
+    readonly multichoiceFeaturesOn = signal(false);
 
-    private parentForm = inject(FormGroupDirective);
-    private Question = inject(QuestionService);
-    private readonly ngUnsubscribe = new Subject<void>();
+    readonly questionBodyForm: FormGroup;
+
+    private readonly parentForm = inject(FormGroupDirective);
+    private readonly Question = inject(QuestionService);
+    private readonly destroyRef = inject(DestroyRef);
 
     constructor() {
         this.Question.areNewFeaturesEnabled$().subscribe((data) => {
@@ -109,15 +110,10 @@ export class QuestionBodyComponent implements OnDestroy {
     onFormReady(form: FormGroup) {
         const ctrl = form.get('questionType');
         if (!ctrl) return;
-        ctrl.valueChanges.pipe(takeUntil(this.ngUnsubscribe)).subscribe((type: string | null) => {
+        ctrl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((type: string | null) => {
             this.questionType.set(type);
             this.updateDefaultMaxScoreValidators(type);
         });
-    }
-
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
     }
 
     private updateDefaultMaxScoreValidators(questionType: string | null): void {

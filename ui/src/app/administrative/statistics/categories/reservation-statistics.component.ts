@@ -34,10 +34,10 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
     imports: [TranslateModule],
 })
 export class ReservationStatisticsComponent {
-    queryParams = input<QueryParams>({});
-    data = signal({ noShows: 0, appearances: 0 });
+    readonly queryParams = input<QueryParams>({});
+    readonly data = signal({ noShows: 0, appearances: 0 });
 
-    private Statistics = inject(StatisticsService);
+    private readonly Statistics = inject(StatisticsService);
 
     constructor() {
         this.listReservations();

@@ -9,8 +9,8 @@ import { StorageService } from 'src/app/shared/storage/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExamSearchService {
-    private http = inject(HttpClient);
-    private webStorageService = inject(StorageService);
+    private readonly http = inject(HttpClient);
+    private readonly webStorageService = inject(StorageService);
 
     getEnrolmentPermissionCheckStatus$ = () =>
         this.http.get<{ active: boolean }>('/app/settings/enrolmentPermissionCheck');

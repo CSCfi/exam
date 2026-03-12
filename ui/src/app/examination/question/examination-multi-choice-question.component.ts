@@ -47,12 +47,13 @@ import { ExaminationService } from 'src/app/examination/examination.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationMultiChoiceComponent {
-    sq = input.required<ExaminationQuestion>();
-    examHash = input('');
-    isPreview = input(false);
-    orderOptions = input(false);
+    readonly sq = input.required<ExaminationQuestion>();
+    readonly examHash = input('');
+    readonly isPreview = input(false);
+    readonly isExternal = input(false);
+    readonly orderOptions = input(false);
 
-    questionTitle = computed(() => {
+    readonly questionTitle = computed(() => {
         // Extract plain text from HTML for aria-label (screen readers need plain text, not HTML)
         const html = this.sq().question.question;
         const parser = new DOMParser();
@@ -60,7 +61,7 @@ export class ExaminationMultiChoiceComponent {
         return doc.documentElement.innerText;
     });
 
-    private Examination = inject(ExaminationService);
+    private readonly Examination = inject(ExaminationService);
 
     constructor() {
         // Initialize options sorting and selectedOption when inputs change
@@ -85,6 +86,9 @@ export class ExaminationMultiChoiceComponent {
     }
 
     saveOption() {
-        this.Examination.saveOption(this.examHash(), this.sq(), this.isPreview());
+        this.Examination.saveOption(this.examHash(), this.sq(), {
+            preview: this.isPreview(),
+            external: this.isExternal(),
+        });
     }
 }

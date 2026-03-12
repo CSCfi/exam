@@ -43,8 +43,8 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionDeleteDialogComponent {
-    message = input<string | undefined>(undefined);
-    exception = input<ExceptionWorkingHours | undefined>(undefined);
+    readonly message = input<string | undefined>(undefined);
+    readonly exception = input<ExceptionWorkingHours | undefined>(undefined);
 
-    activeModal = inject(NgbActiveModal);
+    protected readonly activeModal = inject(NgbActiveModal);
 }

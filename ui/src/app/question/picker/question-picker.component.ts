@@ -56,16 +56,17 @@ import { LibraryQuestion } from 'src/app/question/question.model';
     `,
 })
 export class QuestionSelectorComponent {
-    questionCount = model(0);
-    sectionId = model(0);
-    examId = model(0);
-    questions = signal<LibraryQuestion[]>([]);
-    selections = signal<number[]>([]);
+    readonly questionCount = model(0);
+    readonly sectionId = model(0);
+    readonly examId = model(0);
 
-    private modal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    readonly questions = signal<LibraryQuestion[]>([]);
+    readonly selections = signal<number[]>([]);
+
+    private readonly modal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     resultsUpdated = (event: LibraryQuestion[]) => this.questions.set(event);
     questionSelected = (event: number[]) => this.selections.set(event);

@@ -18,7 +18,7 @@ import play.api.mvc.{AnyContent, Request, RequestHeader}
 import play.api.{Environment, Logging, Mode}
 import security.BlockingIOExecutionContext
 import services.config.{ByodConfigHandler, ConfigReader}
-import services.datetime.DateTimeHandler
+import services.datetime.{AppClock, DateTimeHandler}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,7 +29,8 @@ class EnrolmentRepository @Inject() (
     blockingIOExecutionContext: BlockingIOExecutionContext,
     byodConfigHandler: ByodConfigHandler,
     dateTimeHandler: DateTimeHandler,
-    configReader: ConfigReader
+    configReader: ConfigReader,
+    clock: AppClock
 ) extends Logging
     with EbeanQueryExtensions:
 
@@ -68,7 +69,7 @@ class EnrolmentRepository @Inject() (
     }
 
   private def doGetStudentEnrolments(user: User): List[ExamEnrolment] =
-    val now = dateTimeHandler.adjustDST(DateTime.now())
+    val now = dateTimeHandler.adjustDST(clock.now())
     val pp = PathProperties.parse(
       """(*,
         |examinationEventConfiguration(
@@ -145,7 +146,7 @@ class EnrolmentRepository @Inject() (
       case Some(ongoingEnrolment) =>
         handleOngoingEnrolment(ongoingEnrolment, request, headers, eppn)
       case None =>
-        val now = DateTime.now()
+        val now = clock.now()
         val lookAheadMinutes =
           Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes
         getNextEnrolment(userId, lookAheadMinutes) match
@@ -274,15 +275,15 @@ class EnrolmentRepository @Inject() (
   ): Unit =
     if Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.WHATEVER) then
       // Home exam, don't set headers unless it starts in 5 minutes
-      val threshold = DateTime.now().plusMinutes(5)
+      val threshold = clock.now().plusMinutes(5)
       val start     = enrolment.getExaminationEventConfiguration.getExaminationEvent.getStart
       if start.isBefore(threshold) then
         headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.getId}")
     else if isMachineOk(enrolment, request, headers, eppn) then
       if Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.AQUARIUM) then
         // Aquarium exam
-        val threshold      = DateTime.now().plusMinutes(5)
-        val thresholdEarly = DateTime.now().withTimeAtStartOfDay().plusDays(1)
+        val threshold      = clock.now().plusMinutes(5)
+        val thresholdEarly = clock.now().withTimeAtStartOfDay().plusDays(1)
         val start =
           dateTimeHandler.normalize(enrolment.getReservation.getStartAt, enrolment.getReservation)
         // if start is within 5 minutes, set the upcoming exam header
@@ -298,8 +299,8 @@ class EnrolmentRepository @Inject() (
 
   private def isInsideBounds(ee: ExamEnrolment, minutesToFuture: Int): Boolean =
     val earliest = Option(ee.getExaminationEventConfiguration) match
-      case None    => dateTimeHandler.adjustDST(DateTime.now())
-      case Some(_) => DateTime.now()
+      case None    => dateTimeHandler.adjustDST(clock.now())
+      case Some(_) => clock.now()
     val latest = earliest.plusMinutes(minutesToFuture)
     val delay  = ee.getDelay
 

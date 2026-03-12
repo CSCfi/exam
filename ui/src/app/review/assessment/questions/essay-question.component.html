@@ -18,7 +18,7 @@ SPDX-License-Identifier: EUPL-1.2
                         </span>
                     }
                     @if (!sectionQuestion().forcedScore) {
-                        {{ scoreValue || 0 }}
+                        {{ scoreControl.value || 0 }}
                     }
                     / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
                 </div>
@@ -26,13 +26,13 @@ SPDX-License-Identifier: EUPL-1.2
             @if (sectionQuestion().evaluationType === 'Selection') {
                 <div class="d-inline-block pe-3">
                     {{ 'i18n_evaluation_select' | translate }}:
-                    @if (scoreValue === 1) {
+                    @if (scoreControl.value === 1) {
                         {{ 'i18n_approved' | translate }}
                     }
-                    @if (scoreValue === 0) {
+                    @if (scoreControl.value === 0) {
                         {{ 'i18n_rejected' | translate }}
                     }
-                    @if (!scoreValue && scoreValue !== 0) {
+                    @if (!scoreControl.value && scoreControl.value !== 0) {
                         <div class="warning-no-hover border-none">
                             {{ 'i18n_question_not_graded' | translate }}
                         </div>
@@ -120,36 +120,27 @@ SPDX-License-Identifier: EUPL-1.2
                         </span>
 
                         @if (sectionQuestion().evaluationType === 'Points') {
-                            <form #essayPoints="ngForm" name="essayPoints">
-                                <input
-                                    name="score"
-                                    type="number"
-                                    lang="en"
-                                    class="form-control"
-                                    [(ngModel)]="scoreValue"
-                                    xmFixedPrecision
-                                    (blur)="essayPoints.valid && insertEssayScore()"
-                                    onclick="this.focus()"
-                                    [disabled]="!isScorable()"
-                                    [min]="0"
-                                    [max]="sectionQuestion().maxScore"
-                                />
-                                @if (!essayPoints.valid && isScorable()) {
-                                    <small class="alert-danger">
-                                        <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                            'i18n_error_score_input' | translate
-                                        }}
-                                    </small>
-                                }
-                            </form>
+                            <input
+                                type="number"
+                                lang="en"
+                                class="form-control"
+                                [formControl]="scoreControl"
+                                xmFixedPrecision
+                                (blur)="scoreControl.valid && insertEssayScore()"
+                                onclick="this.focus()"
+                                [min]="0"
+                                [max]="sectionQuestion().maxScore"
+                            />
+                            @if (scoreControl.invalid && isScorable()) {
+                                <small class="alert-danger">
+                                    <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                        'i18n_error_score_input' | translate
+                                    }}
+                                </small>
+                            }
                         }
                         @if (sectionQuestion().evaluationType === 'Selection') {
-                            <select
-                                class="form-select"
-                                [(ngModel)]="scoreValue"
-                                (change)="insertEssayScore()"
-                                [disabled]="!isScorable()"
-                            >
+                            <select class="form-select" [formControl]="scoreControl" (change)="insertEssayScore()">
                                 <option [ngValue]="1">
                                     {{ 'i18n_approved' | translate }}
                                 </option>

@@ -23,20 +23,20 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class WrongLocationComponent {
-    cause = signal('');
-    enrolment = signal<ExamEnrolment | undefined>(undefined);
-    reservation = signal<Reservation | undefined>(undefined);
-    isUpcoming = signal(false);
-    roomInstructions = signal('');
-    currentMachine = signal<ExamMachine | undefined>(undefined);
-    occasion = signal({ startAt: '', endAt: '' });
+    readonly cause = signal('');
+    readonly enrolment = signal<ExamEnrolment | undefined>(undefined);
+    readonly reservation = signal<Reservation | undefined>(undefined);
+    readonly isUpcoming = signal(false);
+    readonly roomInstructions = signal('');
+    readonly currentMachine = signal<ExamMachine | undefined>(undefined);
+    readonly occasion = signal({ startAt: '', endAt: '' });
 
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
-    private DateTimeService = inject(DateTimeService);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
+    private readonly DateTimeService = inject(DateTimeService);
 
     constructor() {
         this.cause.set(this.route.snapshot.data.cause);

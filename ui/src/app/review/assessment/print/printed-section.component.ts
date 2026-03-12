@@ -39,6 +39,6 @@ import { PrintedMultiChoiceComponent } from './printed-multi-choice.component';
     imports: [PrintedMultiChoiceComponent, PrintedEssayComponent, PrintedClozeTestComponent, OrderByPipe],
 })
 export class PrintedSectionComponent {
-    section = input.required<ExamSection>();
-    index = input(0);
+    readonly section = input.required<ExamSection>();
+    readonly index = input(0);
 }

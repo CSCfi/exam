@@ -22,22 +22,19 @@ import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetitio
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionDialogComponent {
-    outOfService = input(true);
-    exceptions = input<ExceptionWorkingHours[]>([]);
+    readonly outOfService = input(true);
+    readonly exceptions = input<ExceptionWorkingHours[]>([]);
 
-    dateFormat = 'yyyy.MM.dd HH:mm';
-    wholeDay = signal(false);
-    repeatOptions: REPEAT_OPTION[] = Object.values(REPEAT_OPTION);
-    repeats = signal<REPEAT_OPTION>(REPEAT_OPTION.once);
-    options = signal<RepetitionConfig>({ start: new Date(), end: new Date(), weekdays: [] });
+    readonly wholeDay = signal(false);
+    readonly repeats = signal<REPEAT_OPTION>(REPEAT_OPTION.once);
+    readonly options = signal<RepetitionConfig>({ start: new Date(), end: new Date(), weekdays: [] });
+    readonly repeatOptions: REPEAT_OPTION[] = Object.values(REPEAT_OPTION);
 
-    readonly REPEAT_OPTION = REPEAT_OPTION;
-
-    private translate = inject(TranslateService);
-    private activeModal = inject(NgbActiveModal);
-    private toast = inject(ToastrService);
-    private dateTime = inject(DateTimeService);
-    private dialogs = inject(ConfirmationDialogService);
+    private readonly translate = inject(TranslateService);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly toast = inject(ToastrService);
+    private readonly dateTime = inject(DateTimeService);
+    private readonly dialogs = inject(ConfirmationDialogService);
 
     ok() {
         const currentOptions = this.options();

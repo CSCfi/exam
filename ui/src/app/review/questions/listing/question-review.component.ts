@@ -4,12 +4,11 @@
 
 import { LowerCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { QuestionReview } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 
 @Component({
     selector: 'xm-question-review',
@@ -30,9 +29,9 @@ import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
             <span class="d-block float-end">
                 <input
                     type="checkbox"
-                    (change)="reviewSelected()"
                     class="questionToUpdate"
-                    [(ngModel)]="review().selected"
+                    [checked]="review().selected"
+                    (change)="onReviewSelectedChange($event)"
                 />
             </span>
         </div>
@@ -77,15 +76,20 @@ import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
         }
     </div>`,
     styleUrls: ['./question-review.component.scss'],
-    imports: [FormsModule, MathUnifiedDirective, LowerCasePipe, TranslateModule],
+    imports: [MathDirective, LowerCasePipe, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionReviewComponent {
-    review = input.required<QuestionReview>();
-    selected = output<{ id: number; selected: boolean }>();
+    readonly review = input.required<QuestionReview>();
+    readonly selected = output<{ id: number; selected: boolean }>();
 
-    private QuestionReview = inject(QuestionReviewService);
-    private Session = inject(SessionService);
+    private readonly QuestionReview = inject(QuestionReviewService);
+    private readonly Session = inject(SessionService);
+
+    onReviewSelectedChange = (event: Event) => {
+        this.review().selected = (event.target as HTMLInputElement).checked;
+        this.reviewSelected();
+    };
 
     getAssessedAnswerCount() {
         return this.QuestionReview.getProcessedAnswerCount(this.review(), this.Session.getUser());

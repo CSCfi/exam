@@ -105,7 +105,8 @@ import { TranslateModule } from '@ngx-translate/core';
     `,
 })
 export class UsageComponent {
-    examNames = input.required<string[]>();
-    showWarning = input(false);
-    limitNames = signal(false);
+    readonly examNames = input.required<string[]>();
+    readonly showWarning = input(false);
+
+    readonly limitNames = signal(false);
 }

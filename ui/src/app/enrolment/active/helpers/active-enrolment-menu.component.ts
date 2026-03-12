@@ -19,13 +19,13 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
     imports: [RouterLink, TranslateModule],
 })
 export class ActiveEnrolmentMenuComponent {
-    enrolment = input.required<ExamEnrolment>();
-    removed = output<number>();
+    readonly enrolment = input.required<ExamEnrolment>();
+    readonly removed = output<number>();
 
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
-    private Confirmation = inject(ConfirmationDialogService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
 
     makeReservation = () => this.Enrolment.makeReservation(this.enrolment());
 

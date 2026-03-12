@@ -3,19 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    effect,
-    inject,
-    input,
-    output,
-    signal,
-    TemplateRef,
-    untracked,
-    ViewChild,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -56,34 +44,32 @@ interface MonthOfYear {
 
 @Component({
     selector: 'xm-repetition-options',
-    imports: [CommonModule, FormsModule, TranslateModule, NgbDropdownModule, DateTimePickerComponent],
+    imports: [CommonModule, TranslateModule, NgbDropdownModule, DateTimePickerComponent],
     templateUrl: './exception-repetition-options.component.html',
     styleUrls: ['../rooms/rooms.component.scss'],
     styles: '.blue-shadow-hover:hover { box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1); }',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExceptionDialogRepetitionOptionsComponent {
-    @ViewChild('yearView') yearView!: TemplateRef<unknown>;
-    mode = input(REPEAT_OPTION.once);
-    wholeDay = input(false);
-    optionChanged = output<RepetitionConfig>();
+    readonly mode = input(REPEAT_OPTION.once);
+    readonly wholeDay = input(false);
+    readonly optionChanged = output<RepetitionConfig>();
 
-    startDate = signal(new Date());
-    endDate = signal(new Date());
-    wholeWeek = signal(false);
-    weekdays = signal<WeekdayOption[]>([]);
-    months = signal<MonthOption[]>([]);
-    useOrdinals = signal(true);
-    dayOfMonth = signal(1);
-    monthlyOrdinal = signal(ORDINAL_MAP[0]);
-    weekdayOfMonth = signal<WeekdayOfMonth>({ name: '', ord: 0 });
-    monthOfYear = signal<MonthOfYear>({ name: '', ord: 0 });
+    readonly startDate = signal(new Date());
+    readonly endDate = signal(new Date());
+    readonly wholeWeek = signal(false);
+    readonly weekdays = signal<WeekdayOption[]>([]);
+    readonly months = signal<MonthOption[]>([]);
+    readonly useOrdinals = signal(true);
+    readonly dayOfMonth = signal(1);
+    readonly monthlyOrdinal = signal(ORDINAL_MAP[0]);
+    readonly weekdayOfMonth = signal<WeekdayOfMonth>({ name: '', ord: 0 });
+    readonly monthOfYear = signal<MonthOfYear>({ name: '', ord: 0 });
 
-    ordinals = ORDINAL_MAP;
+    readonly ordinals = ORDINAL_MAP;
     readonly REPEAT_OPTION = REPEAT_OPTION;
-    readonly ORDINAL = ORDINAL;
 
-    private DateTimeService = inject(DateTimeService);
+    private readonly DateTimeService = inject(DateTimeService);
 
     constructor() {
         // Initialize signals that depend on DateTimeService
@@ -122,6 +108,8 @@ export class ExceptionDialogRepetitionOptionsComponent {
             }
         });
     }
+
+    onDayOfMonthInput = (event: Event) => this.dayOfMonthChanged(+(event.target as HTMLInputElement).value);
 
     getConfig(): RepetitionConfig {
         const conf: RepetitionConfig = {

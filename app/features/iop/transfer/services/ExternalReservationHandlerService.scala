@@ -8,7 +8,6 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.user.User
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.http.Status.*
 import play.api.libs.ws.{JsonBodyWritables, WSClient}
@@ -16,7 +15,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results.*
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
-import services.datetime.DateTimeHandler
+import services.datetime.{AppClock, DateTimeHandler}
 import services.mail.EmailComposer
 
 import java.net.URI
@@ -33,7 +32,8 @@ class ExternalReservationHandlerService @Inject() (
     wsClient: WSClient,
     emailComposer: EmailComposer,
     dateTimeHandler: DateTimeHandler,
-    configReader: ConfigReader
+    configReader: ConfigReader,
+    clock: AppClock
 )(implicit ec: BlockingIOExecutionContext)
     extends EbeanQueryExtensions
     with JsonBodyWritables
@@ -80,7 +80,7 @@ class ExternalReservationHandlerService @Inject() (
       case Some(enrolment) =>
         // Removal is not permitted if the reservation is in the past or ongoing
         val reservation = enrolment.getReservation
-        val now = dateTimeHandler.adjustDST(DateTime.now(), reservation.getExternalReservation)
+        val now         = dateTimeHandler.adjustDST(clock.now(), reservation.getExternalReservation)
 
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Future.successful(Forbidden("i18n_reservation_in_effect"))

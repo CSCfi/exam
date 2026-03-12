@@ -2,9 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { LanguageInspectionService } from 'src/app/maturity/language-inspections.service';
@@ -24,10 +23,8 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     templateUrl: './maturity-reporting.component.html',
     styleUrls: ['./maturity-reporting.component.scss'],
     imports: [
-        FormsModule,
         DropdownSelectComponent,
         CourseCodeComponent,
-        NgClass,
         DatePipe,
         TranslateModule,
         OrderByPipe,
@@ -36,13 +33,13 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     ],
 })
 export class MaturityReportingComponent {
-    month = signal<number | undefined>(undefined);
-    year = signal<number | undefined>(undefined);
-    processedInspections = signal<LanguageInspection[]>([]);
-    months = signal<Option<number, number>[]>([]);
-    years = signal<Option<number, number>[]>([]);
+    readonly month = signal<number | undefined>(undefined);
+    readonly year = signal<number | undefined>(undefined);
+    readonly processedInspections = signal<LanguageInspection[]>([]);
+    readonly months = signal<Option<number, number>[]>([]);
+    readonly years = signal<Option<number, number>[]>([]);
 
-    private LanguageInspection = inject(LanguageInspectionService);
+    private readonly LanguageInspection = inject(LanguageInspectionService);
 
     constructor() {
         this.months.set(range(1, 13).map((m) => ({ id: m, label: m.toString() })));

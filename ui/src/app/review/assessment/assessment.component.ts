@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -48,37 +48,36 @@ import { ExamSectionComponent } from './sections/section.component';
         PageContentComponent,
     ],
 })
-export class AssessmentComponent implements OnInit {
-    collaborative = signal(false);
-    questionSummary = signal<QuestionAmounts>({ accepted: 0, rejected: 0, hasEssays: false });
-    exam = signal<Examination | undefined>(undefined);
-    participation = signal<ExamParticipation | undefined>(undefined);
-    hideGeneralInfo = signal(false);
-    hideGradeInfo = signal(false);
-    user: User;
+export class AssessmentComponent {
+    readonly collaborative: boolean;
+    readonly questionSummary = signal<QuestionAmounts>({ accepted: 0, rejected: 0, hasEssays: false });
+    readonly exam = signal<Examination | undefined>(undefined);
+    readonly participation = signal<ExamParticipation | undefined>(undefined);
+    readonly hideGeneralInfo = signal(false);
+    readonly hideGradeInfo = signal(false);
 
-    private ref = '';
-    private examId = 0;
+    readonly user: User;
 
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
-    private Assessment = inject(AssessmentService);
-    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
-    private QuestionScore = inject(QuestionScoringService);
-    private Exam = inject(ExamService);
-    private Session = inject(SessionService);
+    private readonly ref: string;
+    private readonly examId: number;
+
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private readonly QuestionScore = inject(QuestionScoringService);
+    private readonly Exam = inject(ExamService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         this.user = this.Session.getUser();
-    }
-
-    ngOnInit() {
-        this.collaborative.set(this.route.snapshot.data.collaborative);
+        this.collaborative = this.route.snapshot.data.collaborative;
         this.examId = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        const path = this.collaborative() ? `${this.examId}/${this.ref}` : this.examId.toString();
+
+        const path = this.collaborative ? `${this.examId}/${this.ref}` : this.examId.toString();
         const url = this.getResource(path);
         this.http.get<Omit<ExamParticipation, 'exam'> & { exam: Examination }>(url).subscribe({
             next: (participation) => {
@@ -121,7 +120,7 @@ export class AssessmentComponent implements OnInit {
     print = () => {
         const examValue = this.exam();
         if (!examValue) return;
-        const url = this.collaborative()
+        const url = this.collaborative
             ? `/staff/assessments/${this.examId}/print/${this.ref}`
             : `/staff/assessments/${examValue.id}/print`;
         window.open(url, '_blank');
@@ -140,7 +139,7 @@ export class AssessmentComponent implements OnInit {
 
     isOwnerOrAdmin = () => {
         const examValue = this.exam();
-        return examValue ? this.Exam.isOwnerOrAdmin(examValue, this.collaborative()) : false;
+        return examValue ? this.Exam.isOwnerOrAdmin(examValue, this.collaborative) : false;
     };
     isReadOnly = () => {
         const examValue = this.exam();
@@ -154,8 +153,8 @@ export class AssessmentComponent implements OnInit {
     goToAssessment = () => {
         const examValue = this.exam();
         if (!examValue) return;
-        this.router.navigate(['/staff/exams/', this.collaborative() ? this.examId : examValue.parent?.id, '5'], {
-            queryParams: this.collaborative() ? { collaborative: true } : {},
+        this.router.navigate(['/staff/exams/', this.collaborative ? this.examId : examValue.parent?.id, '5'], {
+            queryParams: this.collaborative ? { collaborative: true } : {},
         });
     };
 
@@ -166,7 +165,7 @@ export class AssessmentComponent implements OnInit {
         if (!examValue || examValue.state !== 'REVIEW') return;
 
         const state = 'REVIEW_STARTED';
-        if (!this.collaborative()) {
+        if (!this.collaborative) {
             const review = this.Assessment.getPayload(examValue, state);
             this.http.put(`/app/review/${review.id}`, review).subscribe(() => {
                 examValue.state = state;
@@ -185,5 +184,5 @@ export class AssessmentComponent implements OnInit {
         }
     };
 
-    private getResource = (path: string) => (this.collaborative() ? `/app/iop/reviews/${path}` : `/app/review/${path}`);
+    private getResource = (path: string) => (this.collaborative ? `/app/iop/reviews/${path}` : `/app/review/${path}`);
 }

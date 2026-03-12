@@ -3,14 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
-import {
-    NgbActiveModal,
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 
@@ -24,34 +18,35 @@ type Organisation = {
 @Component({
     selector: 'xm-library-transfer',
     templateUrl: './library-transfer-dialog.component.html',
-    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
+    imports: [NgbDropdownModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibraryTransferDialogComponent {
-    selections: number[] = [];
-    organisations: Organisation[] = [];
-    organisation?: Organisation;
-    showOrganisationSelection = false;
+    readonly selections = signal<number[]>([]); // Set by modal opening component
+    readonly organisations = signal<Organisation[]>([]);
+    readonly organisation = signal<Organisation | undefined>(undefined);
 
-    activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    protected readonly activeModal = inject(NgbActiveModal);
+
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {
-            this.organisations = resp.filter((org) => !org.homeOrg);
+            this.organisations.set(resp.filter((org) => !org.homeOrg));
         });
     }
 
     transfer = () => {
-        if (this.selections.length == 0) {
+        if (this.selections().length == 0) {
             this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
         } else {
             this.http
                 .post('/app/iop/export', {
                     type: 'QUESTION',
-                    orgRef: this.organisation?._id,
-                    ids: this.selections,
+                    orgRef: this.organisation()?._id,
+                    ids: this.selections(),
                 })
                 .subscribe({
                     next: () => this.toast.info(this.translate.instant('i18n_questions_transferred')),

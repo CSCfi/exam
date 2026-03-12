@@ -21,11 +21,11 @@ import { ExamMaterialComponent } from './exam-material.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamMaterialSelectorComponent {
-    section = input.required<ExamSection>();
-    allMaterials = input<ExamMaterial[]>([]);
-    changed = output<void>();
+    readonly section = input.required<ExamSection>();
+    readonly allMaterials = input<ExamMaterial[]>([]);
+    readonly changed = output<void>();
 
-    materials = computed(() =>
+    readonly materials = computed(() =>
         this.allMaterials().filter(
             (m) =>
                 this.section()
@@ -33,12 +33,12 @@ export class ExamMaterialSelectorComponent {
                     .indexOf(m.id) == -1,
         ),
     );
-    selectedMaterial = signal<ExamMaterial | undefined>(undefined);
-    filter = signal('');
+    readonly selectedMaterial = signal<ExamMaterial | undefined>(undefined);
+    readonly filter = signal('');
 
-    private http = inject(HttpClient);
-    private modal = inject(ModalService);
-    private toast = inject(ToastrService);
+    private readonly http = inject(HttpClient);
+    private readonly modal = inject(ModalService);
+    private readonly toast = inject(ToastrService);
 
     selectMaterial(event: NgbTypeaheadSelectItemEvent) {
         this.selectedMaterial.set(event.item);

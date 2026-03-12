@@ -41,45 +41,41 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
     <div class="row mt-2">
         <div class="col-md-12">
-            <form novalidate>
-                <label class="form-label" for="examName"
-                    >{{ 'i18n_exam_name' | translate }}
-                    <sup
-                        ngbPopover="{{ 'i18n_exam_title_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    >
-                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                    </sup>
-                </label>
-                <input
-                    name="examName"
-                    id="examName"
-                    type="text"
-                    class="form-control w-50"
-                    [ngModel]="exam()?.name"
-                    (ngModelChange)="updateExamNameValue($event)"
-                    (keydown.enter)="$event.preventDefault()"
-                    required
-                />
-                <label class="form-label" for="examLanguage" class="mt-2">
-                    {{ 'i18n_exam_language' | translate }}
-                    <sup
-                        ngbPopover="{{ 'i18n_exam_language_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    >
-                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                    </sup>
-                </label>
-                @if (exam()) {
-                    <xm-language-picker
-                        [exam]="exam()!"
-                        id="examLanguage"
-                        (updated)="updateExamLanguages($event)"
-                    ></xm-language-picker>
-                }
-            </form>
+            <label class="form-label" for="examName"
+                >{{ 'i18n_exam_name' | translate }}
+                <sup
+                    ngbPopover="{{ 'i18n_exam_title_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                </sup>
+            </label>
+            <input
+                id="examName"
+                type="text"
+                class="form-control w-50"
+                [value]="exam()?.name ?? ''"
+                (input)="onExamNameInput($event)"
+                (keydown.enter)="$event.preventDefault()"
+            />
+            <label class="form-label mt-2" for="examLanguage">
+                {{ 'i18n_exam_language' | translate }}
+                <sup
+                    ngbPopover="{{ 'i18n_exam_language_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                </sup>
+            </label>
+            @if (exam()) {
+                <xm-language-picker
+                    [exam]="exam()!"
+                    id="examLanguage"
+                    (updated)="updateExamLanguages($event)"
+                ></xm-language-picker>
+            }
         </div>
     </div>
     <div class="row m-3 justify-content-end d-flex">

@@ -8,7 +8,7 @@ import { AppConfig } from 'src/app/administrative/administrative.model';
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     updateAgreement$ = (config: AppConfig, bypassAgreementUpdate = false) =>
         this.http.put('/app/settings/agreement', { value: config.eula, minorUpdate: bypassAgreementUpdate });

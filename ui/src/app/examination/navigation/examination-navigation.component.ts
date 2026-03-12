@@ -52,11 +52,11 @@ import type { Examination, ExaminationSection, NavigationPage } from 'src/app/ex
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationNavigationComponent {
-    exam = input.required<Examination>();
-    activeSection = input<ExaminationSection | undefined>(undefined);
-    selected = output<{ page: Partial<NavigationPage> }>();
+    readonly exam = input.required<Examination>();
+    readonly activeSection = input<ExaminationSection | undefined>(undefined);
+    readonly selected = output<{ page: Partial<NavigationPage> }>();
 
-    pages = computed(() => {
+    readonly pages = computed(() => {
         const currentExam = this.exam();
         const pages: Partial<NavigationPage>[] = currentExam.examSections.map((es, i) => ({
             index: i + 1,
@@ -70,7 +70,7 @@ export class ExaminationNavigationComponent {
         return pages;
     });
 
-    next = computed(() => {
+    readonly next = computed(() => {
         const currentActiveSection = this.activeSection();
         const currentPages = this.pages();
 
@@ -82,7 +82,7 @@ export class ExaminationNavigationComponent {
         return nextIndex > -1 ? currentPages[nextIndex] : { valid: false };
     });
 
-    prev = computed(() => {
+    readonly prev = computed(() => {
         const currentActiveSection = this.activeSection();
         const currentPages = this.pages();
 

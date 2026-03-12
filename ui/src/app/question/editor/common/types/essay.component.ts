@@ -22,11 +22,12 @@ import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.m
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EssayComponent implements AfterViewInit {
-    question = input.required<ReverseQuestion | QuestionDraft>();
-    lotteryOn = input(false);
+    readonly question = input.required<ReverseQuestion | QuestionDraft>();
+    readonly lotteryOn = input(false);
 
-    essayForm: FormGroup;
-    private parentForm = inject(FormGroupDirective);
+    readonly essayForm: FormGroup;
+
+    private readonly parentForm = inject(FormGroupDirective);
 
     constructor() {
         // Create nested form group for essay fields

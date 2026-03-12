@@ -21,11 +21,10 @@ import { NavigationService } from './navigation.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavigationComponent {
-    appVersion = signal('');
-    mobileMenuOpen = signal(false);
-    featureFlags = signal({ iop: false, byod: false });
-
-    links = computed(() => {
+    readonly appVersion = signal('');
+    readonly mobileMenuOpen = signal(false);
+    readonly featureFlags = signal({ iop: false, byod: false });
+    readonly links = computed(() => {
         // Track a bunch of signals to establish reactive dependencies
         this.user();
         this.ExaminationStatus.combinedStatusSignal();
@@ -33,10 +32,10 @@ export class NavigationComponent {
         return this.Navigation.getLinks(iop, byod);
     });
 
-    private toast = inject(ToastrService);
-    private Navigation = inject(NavigationService);
-    private Session = inject(SessionService);
-    private ExaminationStatus = inject(ExaminationStatusService);
+    private readonly toast = inject(ToastrService);
+    private readonly Navigation = inject(NavigationService);
+    private readonly Session = inject(SessionService);
+    private readonly ExaminationStatus = inject(ExaminationStatusService);
 
     constructor() {
         // Load app version for admins
@@ -56,7 +55,7 @@ export class NavigationComponent {
 
     // Use SessionService's user signal directly
     get user() {
-        return this.Session.userChangeSignal;
+        return this.Session.userChange;
     }
 
     isActive(link: Link) {

@@ -18,7 +18,7 @@ import play.api.{Environment, Logger}
 import repository.EnrolmentRepository
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
-import services.datetime.DateTimeHandler
+import services.datetime.{AppClock, DateTimeHandler}
 import services.exam.ExternalExamHandler
 
 import java.net.URLDecoder
@@ -35,7 +35,8 @@ class SessionService @Inject() (
     externalExamHandler: ExternalExamHandler,
     configReader: ConfigReader,
     enrolmentRepository: EnrolmentRepository,
-    dateTimeHandler: DateTimeHandler
+    dateTimeHandler: DateTimeHandler,
+    clock: AppClock
 )(implicit ec: BlockingIOExecutionContext)
     extends EbeanQueryExtensions
     with EbeanJsonExtensions:
@@ -185,7 +186,7 @@ class SessionService @Inject() (
       eppn: String,
       remoteAddress: String
   ): Option[Reservation] =
-    val now = dateTimeHandler.adjustDST(new DateTime())
+    val now = dateTimeHandler.adjustDST(clock.now())
     val lookAheadMinutes =
       Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes
     val future = now.plusMinutes(lookAheadMinutes)

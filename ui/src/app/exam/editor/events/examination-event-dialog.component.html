@@ -15,7 +15,7 @@ SPDX-License-Identifier: EUPL-1.2
     </h1>
 </div>
 
-<form class="modal-body" #eventForm="ngForm" name="eventForm">
+<form class="modal-body">
     @if (hasEnrolments()) {
         <div class="alert alert-warning form-text">
             {{ 'i18n_enrolments_exist_for_examination_event' | translate }}
@@ -39,7 +39,7 @@ SPDX-License-Identifier: EUPL-1.2
         [disabled]="hasEnrolments()"
         [hourStep]="1"
         [minuteStep]="15"
-        [readonly]="true"
+        [isReadonly]="true"
         [initialTime]="start()"
         [minDate]="examMinDate()"
         [maxDate]="examMaxDate()"
@@ -49,28 +49,11 @@ SPDX-License-Identifier: EUPL-1.2
     </xm-date-time-picker>
     <div class="form-group">
         <label for="description">{{ 'i18n_instructions' | translate }}:</label>
-        <textarea
-            id="description"
-            name="description"
-            class="form-control"
-            required
-            [ngModel]="description()"
-            (ngModelChange)="description.set($event)"
-        ></textarea>
+        <textarea id="description" class="form-control" [formField]="eventForm.description"></textarea>
     </div>
     <div class="form-group">
         <label for="capacity">{{ 'i18n_event_capacity' | translate }}:</label>
-        <input
-            id="capacity"
-            name="capacity"
-            class="form-control"
-            required
-            type="number"
-            step="1"
-            [min]="1"
-            [ngModel]="capacity()"
-            (ngModelChange)="capacity.set($event)"
-        />
+        <input id="capacity" class="form-control" type="number" step="1" [formField]="eventForm.capacity" />
         <ul>
             <li>
                 {{ 'i18n_total_simultaneous_byod_capacity' | translate }}:
@@ -95,16 +78,15 @@ SPDX-License-Identifier: EUPL-1.2
             <div id="settings-password" class="input-group">
                 <input
                     type="{{ settingsPasswordInputType() }}"
-                    name="settingsPassword"
                     class="form-control"
-                    [ngModel]="settingsPassword()"
-                    (ngModelChange)="settingsPassword.set($event)"
-                    [disabled]="hasEnrolments()"
-                    required
+                    [formField]="eventForm.settingsPassword"
                 />
                 <div class="input-group-append">
                     <button class="btn btn-success" type="button" (click)="toggleSettingsPasswordInputType()">
-                        <i [ngClass]="settingsPasswordInputType() === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                        <i
+                            [class.bi-eye]="settingsPasswordInputType() === 'text'"
+                            [class.bi-eye-slash]="settingsPasswordInputType() === 'password'"
+                        ></i>
                     </button>
                 </div>
             </div>
@@ -112,18 +94,13 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="form-group">
             <label for="quit-password">{{ 'i18n_quit_password' | translate }}:</label>
             <div id="quit-password" class="input-group">
-                <input
-                    type="{{ quitPasswordInputType() }}"
-                    name="quitPassword"
-                    class="form-control"
-                    [ngModel]="quitPassword()"
-                    (ngModelChange)="quitPassword.set($event)"
-                    [disabled]="hasEnrolments()"
-                    required
-                />
+                <input type="{{ quitPasswordInputType() }}" class="form-control" [formField]="eventForm.quitPassword" />
                 <div class="input-group-append">
                     <button class="btn btn-success" type="button" (click)="toggleQuitPasswordInputType()">
-                        <i [ngClass]="quitPasswordInputType() === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                        <i
+                            [class.bi-eye]="quitPasswordInputType() === 'text'"
+                            [class.bi-eye-slash]="quitPasswordInputType() === 'password'"
+                        ></i>
                     </button>
                 </div>
             </div>
@@ -132,7 +109,16 @@ SPDX-License-Identifier: EUPL-1.2
 </form>
 <div class="modal-footer">
     <div class="d-flex flex-row-reverse flex-align-r">
-        <button class="btn btn-success" [disabled]="eventForm.invalid" (click)="ok()">
+        <button
+            class="btn btn-success"
+            [disabled]="
+                eventForm.description().invalid() ||
+                eventForm.capacity().invalid() ||
+                eventForm.settingsPassword().invalid() ||
+                eventForm.quitPassword().invalid()
+            "
+            (click)="ok()"
+        >
             {{ 'i18n_button_accept' | translate }}
         </button>
         <button class="btn btn-outline-secondary me-3" (click)="cancel()">

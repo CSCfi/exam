@@ -17,7 +17,7 @@ import {
     output,
     Renderer2,
     runInInjectionContext,
-    ViewChild,
+    viewChild,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -29,14 +29,14 @@ type ClozeTestAnswer = Record<string, string>;
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
-    @ViewChild('clozeContainer', { static: true }) container?: ElementRef<HTMLDivElement>;
+    readonly container = viewChild<ElementRef<HTMLDivElement>>('clozeContainer');
 
-    answer = input<ClozeTestAnswer>({});
-    content = input('');
-    answerChanged = output<{ id: string; value: string }>();
+    readonly answer = input<ClozeTestAnswer>({});
+    readonly content = input('');
+    readonly answerChanged = output<{ id: string; value: string }>();
 
     // Only recompute when content changes, not when answer changes
-    sanitizedContent = computed(() => {
+    readonly sanitizedContent = computed(() => {
         const currentContent = this.content();
         // html is already sanitized by the server
         if (!currentContent) return this.sanitizer.bypassSecurityTrustHtml('');
@@ -49,19 +49,20 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
         return this.sanitizer.bypassSecurityTrustHtml(doc.body.innerHTML);
     });
 
-    private injector = inject(Injector);
-    private renderer = inject(Renderer2);
-    private sanitizer = inject(DomSanitizer);
     private inputListener?: () => void;
     private focusInTracker?: () => void;
     private focusOutTracker?: () => void;
     private focusedInputId: string | null = null;
 
+    private readonly injector = inject(Injector);
+    private readonly renderer = inject(Renderer2);
+    private readonly sanitizer = inject(DomSanitizer);
+
     constructor() {
         // React to answer changes - update values without recreating HTML
         effect(() => {
             const currentAnswer = this.answer();
-            if (!this.container?.nativeElement) return;
+            if (!this.container()?.nativeElement) return;
             this.updateInputValues(currentAnswer);
         });
 
@@ -73,7 +74,7 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
             // afterNextRender requires injection context; effect runs outside it
             runInInjectionContext(this.injector, () => {
                 afterNextRender(() => {
-                    if (!this.container?.nativeElement) return;
+                    if (!this.container()?.nativeElement) return;
                     this.setupInputs();
                 });
             });
@@ -85,7 +86,7 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
         // Lifecycle hooks run outside injection context, so use runInInjectionContext.
         runInInjectionContext(this.injector, () => {
             afterNextRender(() => {
-                if (!this.container?.nativeElement) return;
+                if (!this.container()?.nativeElement) return;
                 this.setupInputs();
             });
         });
@@ -109,9 +110,10 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
     }
 
     private updateInputValues(answer?: ClozeTestAnswer) {
-        if (!this.container?.nativeElement) return;
+        const containerEl = this.container()?.nativeElement;
+        if (!containerEl) return;
         const currentAnswer = answer ?? this.answer();
-        const inputs = this.container.nativeElement.querySelectorAll('input');
+        const inputs = containerEl.querySelectorAll('input');
         inputs.forEach((input: HTMLInputElement) => {
             if (input.id && currentAnswer[input.id] !== undefined) {
                 // Don't update if this input is currently focused (user is typing)
@@ -136,10 +138,11 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
             this.focusOutTracker();
             this.focusOutTracker = undefined;
         }
-        if (!this.container?.nativeElement) return;
+        const containerEl = this.container()?.nativeElement;
+        if (!containerEl) return;
 
         // Use event delegation on the container
-        this.inputListener = this.renderer.listen(this.container.nativeElement, 'input', (event: Event) => {
+        this.inputListener = this.renderer.listen(containerEl, 'input', (event: Event) => {
             const target = event.target as HTMLInputElement;
             if (target.tagName === 'INPUT' && target.id) {
                 this.answerChanged.emit({ id: target.id, value: target.value });
@@ -147,14 +150,14 @@ export class DynamicClozeTestComponent implements AfterViewInit, OnDestroy {
         });
 
         // Track which input has focus
-        this.focusInTracker = this.renderer.listen(this.container.nativeElement, 'focusin', (event: Event) => {
+        this.focusInTracker = this.renderer.listen(containerEl, 'focusin', (event: Event) => {
             const target = event.target as HTMLInputElement;
             if (target.tagName === 'INPUT' && target.id) {
                 this.focusedInputId = target.id;
             }
         });
 
-        this.focusOutTracker = this.renderer.listen(this.container.nativeElement, 'focusout', () => {
+        this.focusOutTracker = this.renderer.listen(containerEl, 'focusout', () => {
             // Clear immediately - updateInputValues already checks for focused input
             this.focusedInputId = null;
         });

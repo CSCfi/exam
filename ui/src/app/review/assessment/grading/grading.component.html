@@ -72,7 +72,8 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-8">
         <textarea
             class="form-control"
-            [(ngModel)]="exam().additionalInfo"
+            [value]="exam().additionalInfo"
+            (input)="onAdditionalInfoInput($event)"
             rows="3"
             [disabled]="isReadOnly() || !isOwnerOrAdmin()"
         >
@@ -90,7 +91,12 @@ SPDX-License-Identifier: EUPL-1.2
         /></sup>
     </div>
     <div class="col-md-8">
-        <textarea class="form-control" [(ngModel)]="exam().assessmentInfo" rows="3"> </textarea>
+        <textarea
+            class="form-control"
+            [value]="exam().assessmentInfo"
+            (input)="onAssessmentInfoInput($event)"
+            rows="3"
+        ></textarea>
     </div>
     <div class="col-md-2">
         <button class="btn btn-success" [disabled]="!exam().assessmentInfo" (click)="saveAssessmentInfo()">
@@ -109,7 +115,13 @@ SPDX-License-Identifier: EUPL-1.2
         /></sup>
     </div>
     <div class="col-md-8">
-        <textarea class="form-control" [(ngModel)]="message.text" rows="3" cols="120"></textarea>
+        <textarea
+            class="form-control"
+            [value]="message()"
+            (input)="onMessageTextInput($event)"
+            rows="3"
+            cols="120"
+        ></textarea>
     </div>
     <div class="col-md-2">
         <button class="btn btn-success" (click)="sendEmailMessage()">
@@ -129,11 +141,7 @@ SPDX-License-Identifier: EUPL-1.2
         :
     </div>
     @if (exam()?.examFeedback?.comment) {
-        <div
-            class="col-md-10"
-            [ngClass]="isCommentRead() ? '' : 'text-danger'"
-            [xmMath]="exam()?.examFeedback?.comment"
-        ></div>
+        <div class="col-md-10" [class.text-danger]="!isCommentRead()" [xmMath]="exam()?.examFeedback?.comment"></div>
     }
     @if (exam()?.examFeedback?.attachment) {
         <div class="col-md-offset-2 col-md-10">
@@ -150,7 +158,7 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 <div class="row mt-3">
     <div class="col-md-12">
-        <form #gradingForm="ngForm" name="gradingForm" role="form" novalidate>
+        <div [formGroup]="gradingForm">
             <div class="row">
                 <div class="col-md-3">
                     <label for="examGrade" class="form-label grading-title">
@@ -161,17 +169,9 @@ SPDX-License-Identifier: EUPL-1.2
                         triggers="mouseenter:mouseleave"
                         ><img src="/assets/images/icon_tooltip.svg" alt=""
                     /></sup>
-                    <select
-                        id="examGrade"
-                        name="examGrade"
-                        class="form-select"
-                        [(ngModel)]="selections.grade"
-                        [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-                        (ngModelChange)="setGrade()"
-                        required
-                    >
-                        <option value="">{{ 'i18n_choose' | translate }}</option>
-                        @for (grade of grades; track grade) {
+                    <select id="examGrade" formControlName="grade" class="form-select" (change)="setGrade()">
+                        <option [ngValue]="null">{{ 'i18n_choose' | translate }}</option>
+                        @for (grade of grades(); track grade) {
                             <option [ngValue]="grade">{{ grade.name }}</option>
                         }
                     </select>
@@ -181,16 +181,8 @@ SPDX-License-Identifier: EUPL-1.2
                         {{ 'i18n_exam_choose_credit_type' | translate | uppercase }}
                     </label>
                     @if (exam().gradingType !== 'POINT_GRADED') {
-                        <select
-                            id="creditType"
-                            name="creditType"
-                            class="form-select"
-                            [(ngModel)]="selections.type"
-                            (ngModelChange)="setCreditType()"
-                            [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-                            required
-                        >
-                            @for (type of creditTypes; track type) {
+                        <select id="creditType" formControlName="type" class="form-select" (change)="setCreditType()">
+                            @for (type of creditTypes(); track type) {
                                 <option [ngValue]="type">{{ type.name }}</option>
                             }
                         </select>
@@ -207,16 +199,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <label for="answerLanguage" class="form-label grading-title">
                         {{ 'i18n_exam_record_language' | translate | uppercase }}
                     </label>
-                    <select
-                        id="answerLanguage"
-                        name="answerLanguage"
-                        class="form-select"
-                        [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-                        [(ngModel)]="selections.language"
-                        (ngModelChange)="setLanguage()"
-                        required
-                    >
-                        @for (lang of languages; track lang) {
+                    <select id="answerLanguage" formControlName="language" class="form-select" (change)="setLanguage()">
+                        @for (lang of languages(); track lang) {
                             <option [ngValue]="lang">{{ lang.name }}</option>
                         }
                     </select>
@@ -227,25 +211,21 @@ SPDX-License-Identifier: EUPL-1.2
                     </label>
                     <input
                         id="customCredit"
-                        name="customCredit"
+                        formControlName="customCredit"
                         type="number"
                         lang="en"
-                        [disabled]="isReadOnly() || !isOwnerOrAdmin()"
-                        required
-                        [min]="0"
                         class="form-control"
                         maxlength="3"
-                        [(ngModel)]="exam().customCredit"
                     />
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
 <!-- Bottom toolbar -->
 <xm-r-toolbar
-    [valid]="!!gradingForm.valid"
+    [valid]="gradingForm.valid"
     [exam]="exam()"
     [participation]="participation()"
     [collaborative]="collaborative()"

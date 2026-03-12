@@ -8,7 +8,7 @@ import { AfterViewInit, Directive, ElementRef, inject } from '@angular/core';
     selector: '[xmAutoFocus]',
 })
 export class AutoFocusDirective implements AfterViewInit {
-    private elementRef = inject(ElementRef);
+    private readonly elementRef = inject(ElementRef);
 
     ngAfterViewInit() {
         this.elementRef.nativeElement.focus();

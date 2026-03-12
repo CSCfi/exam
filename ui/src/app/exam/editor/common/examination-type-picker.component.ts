@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import {
     ChangeDetectionStrategy,
@@ -10,10 +9,9 @@ import {
     Component,
     ElementRef,
     inject,
-    QueryList,
     signal,
-    ViewChild,
-    ViewChildren,
+    viewChild,
+    viewChildren,
 } from '@angular/core';
 import { NgbAccordionDirective, NgbAccordionModule, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -22,7 +20,7 @@ import { ExamService } from 'src/app/exam/exam.service';
 type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
 
 @Component({
-    imports: [TranslateModule, NgbAccordionModule, NgClass],
+    imports: [TranslateModule, NgbAccordionModule],
     template: `
         <div class="modal-header">
             <h4 class="modal-title">
@@ -45,7 +43,7 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
                                             type="button"
                                             #link
                                             class="btn btn-link"
-                                            [ngClass]="{ 'selected-type': selectedType() === type }"
+                                            [class.selected-type]="selectedType() === type"
                                             [ariaCurrent]="selectedType() === type ? 'true' : 'false'"
                                             [ariaPressed]="selectedType() === type"
                                             (click)="selectType(type)"
@@ -125,19 +123,19 @@ type ExamConfig = { type: string; name: string; examinationTypes: { type: string
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationTypeSelectorComponent {
-    @ViewChild('acc', { static: false }) acc!: NgbAccordionDirective;
-    @ViewChild('examTypePanel', { read: ElementRef }) examTypePanel!: ElementRef;
-    @ViewChildren('link') links!: QueryList<ElementRef>;
+    readonly acc = viewChild.required<NgbAccordionDirective>('acc');
+    readonly examTypePanel = viewChild<ElementRef>('examTypePanel');
+    readonly links = viewChildren<ElementRef>('link');
 
-    executionTypes = signal<ExamConfig[]>([]);
-    selectedType = signal<ExamConfig | undefined>(undefined);
-    focusedIndex = signal(0);
-    activePanel = signal(0); // 0 = first panel, 1 = second panel
+    readonly executionTypes = signal<ExamConfig[]>([]);
+    readonly selectedType = signal<ExamConfig | undefined>(undefined);
+    readonly focusedIndex = signal(0);
+    readonly activePanel = signal(0); // 0 = first panel, 1 = second panel
 
-    private http = inject(HttpClient);
-    private modal = inject(NgbActiveModal);
-    private Exam = inject(ExamService);
-    private changeDetector = inject(ChangeDetectorRef);
+    private readonly http = inject(HttpClient);
+    private readonly modal = inject(NgbActiveModal);
+    private readonly Exam = inject(ExamService);
+    private readonly changeDetector = inject(ChangeDetectorRef);
 
     constructor() {
         this.http
@@ -161,7 +159,7 @@ export class ExaminationTypeSelectorComponent {
 
                     // Expand first panel and focus first link
                     setTimeout(() => {
-                        this.acc.expand('executionType');
+                        this.acc().expand('executionType');
                         const firstLinks = this.getCurrentPanelLinks(0);
                         if (firstLinks.length) firstLinks[0].nativeElement.focus();
                         this.changeDetector.markForCheck();
@@ -228,8 +226,8 @@ export class ExaminationTypeSelectorComponent {
 
         // Expand second panel
         setTimeout(() => {
-            this.acc.expand('examinationType');
-            const body = this.examTypePanel?.nativeElement?.querySelector('.accordion-body');
+            this.acc().expand('examinationType');
+            const body = this.examTypePanel()?.nativeElement?.querySelector('.accordion-body');
             const firstButton = body?.querySelector('button');
             if (firstButton instanceof HTMLElement) firstButton.focus();
             this.focusedIndex.set(0);
@@ -246,7 +244,7 @@ export class ExaminationTypeSelectorComponent {
     }
 
     private getCurrentPanelLinks(panelIndex: number): ElementRef[] {
-        const allLinks = this.links.toArray();
+        const allLinks = this.links();
         if (panelIndex === 0) {
             return allLinks.slice(0, this.executionTypes().length);
         } else {

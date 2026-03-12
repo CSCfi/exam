@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, model, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { disabled, form, FormField, min, required } from '@angular/forms/signals';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -18,38 +18,46 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-examination-event-dialog',
-    imports: [NgClass, FormsModule, DatePipe, TranslateModule, DateTimePickerComponent, OrderByPipe],
+    imports: [FormField, DatePipe, TranslateModule, DateTimePickerComponent, OrderByPipe],
     templateUrl: './examination-event-dialog.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationEventDialogComponent {
-    examId = model.required<number>();
-    duration = model.required<number>();
-    config = model<ExaminationEventConfiguration | undefined>(undefined);
-    maintenancePeriods = model<MaintenancePeriod[]>([]);
-    requiresPassword = model(false);
-    examMinDate = model('');
-    examMaxDate = model('');
+    readonly examId = model.required<number>();
+    readonly duration = model.required<number>();
+    readonly config = model<ExaminationEventConfiguration | undefined>(undefined);
+    readonly maintenancePeriods = model<MaintenancePeriod[]>([]);
+    readonly requiresPassword = model(false);
+    readonly examMinDate = model('');
+    readonly examMaxDate = model('');
 
-    start = signal(new Date(new Date().getTime() + 60 * 1000));
-    description = signal('');
-    capacity = signal(0);
-    maxSimultaneousCapacity = signal(0);
-    conflictingEvents = signal<ExaminationEvent[]>([]);
-    availableCapacity = computed(
+    readonly start = signal(new Date(new Date().getTime() + 60 * 1000));
+    readonly maxSimultaneousCapacity = signal(0);
+    readonly conflictingEvents = signal<ExaminationEvent[]>([]);
+    readonly availableCapacity = computed(
         () => this.maxSimultaneousCapacity() - (this.conflictingEvents() || []).reduce((sum, e) => sum + e.capacity, 0),
     );
-    quitPassword = signal<string | undefined>(undefined);
-    settingsPassword = signal<string | undefined>(undefined);
-    hasEnrolments = signal(false);
-    settingsPasswordInputType = signal('password');
-    quitPasswordInputType = signal('password');
+    readonly hasEnrolments = signal(false);
+    readonly eventForm = form(
+        signal({ description: '', capacity: 0, settingsPassword: '', quitPassword: '' }),
+        (path) => {
+            required(path.description);
+            required(path.capacity);
+            min(path.capacity, 1);
+            required(path.settingsPassword);
+            disabled(path.settingsPassword, () => !this.requiresPassword() || this.hasEnrolments());
+            required(path.quitPassword);
+            disabled(path.quitPassword, () => !this.requiresPassword() || this.hasEnrolments());
+        },
+    );
+    readonly settingsPasswordInputType = signal('password');
+    readonly quitPasswordInputType = signal('password');
 
-    private activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Exam = inject(ExamService);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Exam = inject(ExamService);
 
     private now = new Date();
 
@@ -71,10 +79,10 @@ export class ExaminationEventDialogComponent {
             const currentConfig = this.config();
             if (currentConfig) {
                 this.start.set(new Date(currentConfig.examinationEvent.start));
-                this.description.set(currentConfig.examinationEvent.description);
-                this.capacity.set(currentConfig.examinationEvent.capacity);
-                this.quitPassword.set(currentConfig.quitPassword);
-                this.settingsPassword.set(currentConfig.settingsPassword);
+                this.eventForm.description().value.set(currentConfig.examinationEvent.description);
+                this.eventForm.capacity().value.set(currentConfig.examinationEvent.capacity);
+                this.eventForm.settingsPassword().value.set(currentConfig.settingsPassword ?? '');
+                this.eventForm.quitPassword().value.set(currentConfig.quitPassword ?? '');
                 this.hasEnrolments.set(currentConfig.examEnrolments.length > 0);
             } else {
                 // set start to next full hour
@@ -119,11 +127,13 @@ export class ExaminationEventDialogComponent {
             config: {
                 examinationEvent: {
                     start: currentStart.toISOString(),
-                    description: this.description(),
-                    capacity: this.capacity(),
+                    description: this.eventForm.description().value(),
+                    capacity: this.eventForm.capacity().value(),
                 },
-                settingsPassword: this.settingsPassword(),
-                quitPassword: this.quitPassword(),
+                settingsPassword: this.requiresPassword()
+                    ? this.eventForm.settingsPassword().value() || undefined
+                    : undefined,
+                quitPassword: this.requiresPassword() ? this.eventForm.quitPassword().value() || undefined : undefined,
             },
         };
         const currentConfig = this.config();

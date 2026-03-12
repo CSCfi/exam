@@ -60,13 +60,9 @@ SPDX-License-Identifier: EUPL-1.2
                 </label>
                 <input
                     id="sectionName_{{ section().id }}"
-                    name="sectionName"
                     type="text"
-                    required
                     class="form-control mb-3 w-50"
-                    maxlength="255"
-                    [ngModel]="section().name"
-                    (ngModelChange)="setSectionName($event)"
+                    [formField]="sectionForm.name"
                     (change)="renameSection()"
                 />
 
@@ -86,9 +82,7 @@ SPDX-License-Identifier: EUPL-1.2
                     class="form-control mb-3"
                     rows="4"
                     cols="150"
-                    name="description"
-                    [ngModel]="section().description"
-                    (ngModelChange)="setSectionDescription($event)"
+                    [formField]="sectionForm.description"
                     (change)="renameSection()"
                 >
                 </textarea>
@@ -101,12 +95,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <input
                             id="sectionOptionality_{{ section().id }}"
                             class="form-check-input"
-                            name="optional"
                             type="checkbox"
-                            name="optionalSection"
-                            value="On"
-                            [ngModel]="section().optional"
-                            (ngModelChange)="setSectionOptional($event)"
+                            [formField]="sectionForm.optional"
                             (change)="renameSection()"
                         />
                         <label for="sectionOptionality_{{ section().id }}" class="form-check-label">
@@ -125,11 +115,8 @@ SPDX-License-Identifier: EUPL-1.2
                     <input
                         id="sectionRandomized_{{ section().id }}"
                         type="checkbox"
-                        name="lottery"
                         class="form-check-input"
-                        [ngModel]="section().lotteryOn"
-                        (ngModelChange)="setSectionLotteryOn($event)"
-                        [disabled]="lotteryDisabled()"
+                        [formField]="sectionForm.lotteryOn"
                         (change)="toggleLottery()"
                     />
                     <label for="sectionRandomized_{{ section().id }}" class="form-check-label">
@@ -164,11 +151,7 @@ SPDX-License-Identifier: EUPL-1.2
                                 class="form-control"
                                 type="number"
                                 lang="en"
-                                name="lotteryItemCount"
-                                [min]="1"
-                                [max]="section().sectionQuestions.length"
-                                [ngModel]="section().lotteryItemCount"
-                                (ngModelChange)="setSectionLotteryItemCount($event)"
+                                [formField]="sectionForm.lotteryItemCount"
                                 (change)="updateLotteryCount()"
                             />
                         </div>

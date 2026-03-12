@@ -11,7 +11,7 @@ import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
@@ -23,7 +23,7 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     imports: [
         CourseCodeComponent,
         TeacherListComponent,
-        MathUnifiedDirective,
+        MathDirective,
         DatePipe,
         TranslateModule,
         PageHeaderComponent,
@@ -31,12 +31,13 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     ],
 })
 export class EnrolmentDetailsComponent {
-    exam = input.required<EnrolmentInfo>();
+    readonly exam = input.required<EnrolmentInfo>();
 
-    private router = inject(Router);
-    private Exam = inject(CommonExamService);
-    private Enrolment = inject(EnrolmentService);
-    private DateTime = inject(DateTimeService);
+    private readonly router = inject(Router);
+    private readonly Exam = inject(CommonExamService);
+    private readonly Enrolment = inject(EnrolmentService);
+    private readonly DateTime = inject(DateTimeService);
+
     getExpiration = (): boolean => {
         return new Date(this.exam().periodEnd || 0) < new Date();
     };

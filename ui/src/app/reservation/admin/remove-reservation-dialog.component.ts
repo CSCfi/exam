@@ -4,7 +4,6 @@
 
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, model, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -12,7 +11,7 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
 
 @Component({
     selector: 'xm-remove-reservation-dialog',
-    imports: [FormsModule, TranslateModule],
+    imports: [TranslateModule],
     template: `
         <div class="modal-header">
             <h4 class="xm-modal-title">
@@ -23,8 +22,8 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
             <strong>{{ 'i18n_message' | translate }}</strong>
             <textarea
                 class="form-control"
-                [ngModel]="message().text"
-                (ngModelChange)="setMessageText($event)"
+                [value]="message().text"
+                (input)="onMessageTextInput($event)"
                 rows="3"
                 autofocus
             >
@@ -40,12 +39,12 @@ import type { Reservation } from 'src/app/reservation/reservation.model';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RemoveReservationDialogComponent {
-    reservation = model<Reservation | undefined>(undefined);
-    message = signal<{ text: string }>({ text: '' });
+    readonly reservation = model<Reservation | undefined>(undefined);
+    readonly message = signal<{ text: string }>({ text: '' });
 
-    activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
 
     ok() {
         const currentReservation = this.reservation();
@@ -64,6 +63,8 @@ export class RemoveReservationDialogComponent {
     cancel() {
         this.activeModal.dismiss();
     }
+
+    onMessageTextInput = (event: Event) => this.setMessageText((event.target as HTMLTextAreaElement).value);
 
     setMessageText(text: string) {
         this.message.update((m) => ({ ...m, text }));

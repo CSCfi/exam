@@ -4,7 +4,6 @@
 
 import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,7 +23,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     selector: 'xm-rl-rejected',
     templateUrl: './rejected.component.html',
     imports: [
-        FormsModule,
         TableSortComponent,
         RouterLink,
         PaginatorComponent,
@@ -41,14 +39,14 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RejectedReviewsComponent {
-    reviews = input<Review[]>([]);
-    exam = input.required<Exam>();
+    readonly exam = input.required<Exam>();
+    readonly reviews = input<Review[]>([]);
 
-    view = signal<ReviewListView | undefined>(undefined);
+    readonly view = signal<ReviewListView | undefined>(undefined);
 
-    private ReviewList = inject(ReviewListService);
-    private CommonExam = inject(CommonExamService);
-    private Session = inject(SessionService);
+    private readonly ReviewList = inject(ReviewListService);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         effect(() => this.init(this.reviews()));
@@ -101,6 +99,11 @@ export class RejectedReviewsComponent {
     toggleView() {
         this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
     }
+
+    onFreeSearchFilterInput = (event: Event) => {
+        this.updateFilter((event.target as HTMLInputElement).value);
+        this.applyFreeSearchFilter();
+    };
 
     private init(reviews: Review[]) {
         const initialView = this.ReviewList.prepareView(

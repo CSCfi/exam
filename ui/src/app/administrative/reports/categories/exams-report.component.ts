@@ -41,12 +41,12 @@ import { Option } from 'src/app/shared/select/select.model';
     imports: [DropdownSelectComponent, TranslateModule],
 })
 export class ExamsReportComponent {
-    examNames = input<Option<string, number>[]>([]);
-    exam = signal<number | undefined>(undefined);
+    readonly examNames = input<Option<string, number>[]>([]);
+    readonly exam = signal<number | undefined>(undefined);
 
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private files = inject(FileService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly files = inject(FileService);
 
     examSelected(event?: Option<string, number>) {
         this.exam.set(event?.id);

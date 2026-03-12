@@ -5,40 +5,28 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { of } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, shareReplay, tap } from 'rxjs/operators';
 import { StorageService } from 'src/app/shared/storage/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class CourseCodeService {
-    private storageService = inject(StorageService);
-    private http = inject(HttpClient);
-    private loadingPrefix = false;
+    private readonly storageService = inject(StorageService);
+    private readonly http = inject(HttpClient);
+
+    private readonly prefix$ = this.http.get<{ prefix: string }>('/app/settings/coursecodeprefix').pipe(
+        tap((data) => this.storageService.set('COURSE_CODE_PREFIX', data.prefix)),
+        catchError(() => of(undefined)),
+        shareReplay(1),
+    );
 
     formatCode = (code: string): string => {
         const prefix = this.storageService.get<string>('COURSE_CODE_PREFIX');
         if (prefix) {
             const parts = code.split(prefix);
             return parts.length > 1 ? parts.slice(0, parts.length - 1).join(prefix) : parts[0];
-        } else if (!this.loadingPrefix) {
-            this.loadPrefixLazily();
+        } else {
+            this.prefix$.subscribe();
         }
         return code;
-    };
-
-    private loadPrefixLazily = () => {
-        this.loadingPrefix = true;
-        this.http
-            .get<{ prefix: string }>('/app/settings/coursecodeprefix')
-            .pipe(
-                tap((data) => {
-                    this.storageService.set('COURSE_CODE_PREFIX', data.prefix);
-                    this.loadingPrefix = false;
-                }),
-                catchError(() => {
-                    this.loadingPrefix = false;
-                    return of(undefined);
-                }),
-            )
-            .subscribe();
     };
 }

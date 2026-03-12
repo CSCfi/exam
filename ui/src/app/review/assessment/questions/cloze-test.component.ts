@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgStyle, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal, ViewChild } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { UpperCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -12,7 +13,7 @@ import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
@@ -20,54 +21,50 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     selector: 'xm-r-cloze-test',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './cloze-test.component.html',
-    imports: [
-        NgStyle,
-        MathUnifiedDirective,
-        FormsModule,
-        FixedPrecisionValidatorDirective,
-        UpperCasePipe,
-        TranslateModule,
-    ],
+    imports: [MathDirective, ReactiveFormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
     styleUrls: ['../assessment.shared.scss'],
 })
-export class ClozeTestComponent implements OnInit {
-    @ViewChild('forcedPoints', { static: false }) form?: NgForm;
+export class ClozeTestComponent {
+    readonly participation = input.required<ExamParticipation>();
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly isScorable = input(false);
+    readonly collaborative = input(false);
+    readonly scored = output<string>();
 
-    participation = input.required<ExamParticipation>();
-    sectionQuestion = input.required<ExamSectionQuestion>();
-    isScorable = input(false);
-    collaborative = input(false);
-    scored = output<string>();
+    readonly reviewExpanded = signal(true);
+    readonly scoreControl = new FormControl<number | null>(null);
 
-    id = 0;
-    ref = '';
-    reviewExpanded = signal(true);
-    _score = signal<number | null>(null);
+    private readonly id: number;
+    private readonly ref: string;
 
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Assessment = inject(AssessmentService);
-    private Attachment = inject(AttachmentService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly destroyRef = inject(DestroyRef);
 
-    get scoreValue(): number | null {
-        return this._score();
-    }
-
-    set scoreValue(value: number | null) {
-        this._score.set(value);
-        if (this.form?.valid) {
-            this.sectionQuestion().forcedScore = value;
-        }
-    }
-
-    ngOnInit() {
+    constructor() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        const sq = this.sectionQuestion();
-        if (sq.forcedScore) {
-            this.scoreValue = sq.forcedScore;
-        }
+
+        effect(() => {
+            if (this.isScorable()) {
+                this.scoreControl.enable({ emitEvent: false });
+            } else {
+                this.scoreControl.disable({ emitEvent: false });
+            }
+        });
+
+        effect(() => {
+            this.scoreControl.setValue(this.sectionQuestion().forcedScore ?? null, { emitEvent: false });
+        });
+
+        this.scoreControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+            if (this.scoreControl.valid) {
+                this.sectionQuestion().forcedScore = value;
+            }
+        });
     }
 
     hasForcedScore = () => isNumber(this.sectionQuestion().forcedScore);

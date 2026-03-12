@@ -4,13 +4,7 @@
 
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbTimepicker,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbTimepicker } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
@@ -18,6 +12,19 @@ import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model'
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+
+const ZERO_TIME = { hour: 0, minute: 0, second: 0, millisecond: 0 };
+const DEFAULT_NEW_TIME: DefaultWorkingHoursWithEditing = {
+    startTime: '',
+    endTime: '',
+    weekday: 'MONDAY',
+    editing: false,
+    pickStartingTime: ZERO_TIME,
+    pickEndingTime: ZERO_TIME,
+    displayStartingTime: ZERO_TIME,
+    displayEndingTime: ZERO_TIME,
+};
+
 interface RoomWithAddressVisibility extends ExamRoom {
     addressVisible: boolean;
     availabilityVisible: boolean;
@@ -26,30 +33,21 @@ interface RoomWithAddressVisibility extends ExamRoom {
 @Component({
     selector: 'xm-opening-hours',
     templateUrl: './opening-hours.component.html',
-    imports: [NgbTimepicker, FormsModule, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem],
+    imports: [NgbTimepicker, FormsModule, NgbDropdownModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OpenHoursComponent {
-    room = input.required<ExamRoom>();
+    readonly room = input.required<ExamRoom>();
 
-    weekdayNames = signal<string[]>([]);
-    extendedRoom = signal<RoomWithAddressVisibility | undefined>(undefined);
-    newTime = signal<DefaultWorkingHoursWithEditing>({
-        startTime: '',
-        endTime: '',
-        weekday: 'MONDAY',
-        editing: false,
-        pickStartingTime: { hour: 0, minute: 0, second: 0, millisecond: 0 },
-        pickEndingTime: { hour: 0, minute: 0, second: 0, millisecond: 0 },
-        displayStartingTime: { hour: 0, minute: 0, second: 0, millisecond: 0 },
-        displayEndingTime: { hour: 0, minute: 0, second: 0, millisecond: 0 },
-    });
+    readonly weekdayNames = signal<string[]>([]);
+    readonly extendedRoom = signal<RoomWithAddressVisibility | undefined>(undefined);
+    readonly newTime = signal<DefaultWorkingHoursWithEditing>({ ...DEFAULT_NEW_TIME });
     readonly WEEKDAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
-    private dateTime = inject(DateTimeService);
-    private roomService = inject(RoomService);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
+    private readonly dateTime = inject(DateTimeService);
+    private readonly roomService = inject(RoomService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
         this.weekdayNames.set(this.dateTime.getWeekdayNames());
@@ -114,7 +112,7 @@ export class OpenHoursComponent {
                     this.extendedRoom.update((room) =>
                         room ? { ...room, extendedDwh: [...room.extendedDwh, updatedWh] } : room,
                     );
-                    this.newTime.set(this.createNewTime());
+                    this.newTime.set({ ...DEFAULT_NEW_TIME });
                 } else {
                     this.extendedRoom.update((room) =>
                         room
@@ -208,19 +206,6 @@ export class OpenHoursComponent {
 
     private createTimeObject(hour: number, minute: number) {
         return { hour, minute, second: 0, millisecond: 0 };
-    }
-
-    private createNewTime(): DefaultWorkingHoursWithEditing {
-        return {
-            startTime: '',
-            endTime: '',
-            weekday: 'MONDAY',
-            editing: false,
-            pickStartingTime: this.createTimeObject(0, 0),
-            pickEndingTime: this.createTimeObject(0, 0),
-            displayStartingTime: this.createTimeObject(0, 0),
-            displayEndingTime: this.createTimeObject(0, 0),
-        };
     }
 
     private timeToMinutes(time: { hour: number; minute: number }) {

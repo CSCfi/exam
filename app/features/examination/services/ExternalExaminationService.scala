@@ -18,7 +18,7 @@ import org.joda.time.DateTime
 import play.api.{Environment, Logging}
 import security.BlockingIOExecutionContext
 import services.config.ByodConfigHandler
-import services.datetime.DateTimeHandler
+import services.datetime.{AppClock, DateTimeHandler}
 import validation.answer.{ClozeTestAnswerDTO, EssayAnswerDTO}
 
 import javax.inject.Inject
@@ -30,6 +30,7 @@ class ExternalExaminationService @Inject() (
     private val dateTimeHandler: DateTimeHandler,
     private val byodConfigHandler: ByodConfigHandler,
     override protected val environment: Environment,
+    private val clock: AppClock,
     implicit private val ec: BlockingIOExecutionContext
 ) extends EnrolmentValidator
     with EbeanQueryExtensions
@@ -193,7 +194,7 @@ class ExternalExaminationService @Inject() (
         _ => Left(SerializationFailed),
         _ =>
           val now = dateTimeHandler.adjustDST(
-            DateTime.now(),
+            clock.now(),
             enrolment.getReservation.getMachine.getRoom
           )
           externalExam.setStarted(now)
@@ -266,7 +267,7 @@ class ExternalExaminationService @Inject() (
       .find
 
   private def getEnrolment(user: User, prototype: ExternalExam): Option[ExamEnrolment] =
-    val now = dateTimeHandler.adjustDST(DateTime.now())
+    val now = dateTimeHandler.adjustDST(clock.now())
     DB.find(classOf[ExamEnrolment])
       .fetch("reservation")
       .fetch("reservation.machine")
@@ -313,7 +314,7 @@ class ExternalExaminationService @Inject() (
           case None => Left(EnrolmentNotFound)
           case Some(enrolment) =>
             val now =
-              dateTimeHandler.adjustDST(DateTime.now(), enrolment.getReservation.getMachine.getRoom)
+              dateTimeHandler.adjustDST(clock.now(), enrolment.getReservation.getMachine.getRoom)
             ee.setFinished(now)
             Try(ee.deserialize())
               .fold(

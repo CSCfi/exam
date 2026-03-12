@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -36,23 +36,23 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     templateUrl: './weighted-multiple-choice.component.html',
     styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
-    imports: [ReactiveFormsModule, NgClass, UpperCasePipe, TranslateModule, FixedPrecisionValidatorDirective],
+    imports: [ReactiveFormsModule, UpperCasePipe, TranslateModule, FixedPrecisionValidatorDirective],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WeightedMultipleChoiceComponent implements AfterViewInit {
-    question = input.required<ReverseQuestion | QuestionDraft>();
-    lotteryOn = input(false);
-    showWarning = input(false);
-    allowOptionRemoval = input(false);
-    multichoiceFeaturesOn = input(false);
+    readonly question = input.required<ReverseQuestion | QuestionDraft>();
+    readonly lotteryOn = input(false);
+    readonly showWarning = input(false);
+    readonly allowOptionRemoval = input(false);
+    readonly multichoiceFeaturesOn = input(false);
 
-    weightedMcForm: FormGroup;
+    readonly weightedMcForm: FormGroup;
 
     // Convert form valueChanges to a signal for reactive updates
-    formValues = signal<Record<string, unknown> | null>(null);
+    readonly formValues = signal<Record<string, unknown> | null>(null);
 
     // Computed values that react to form changes
-    maxPoints = computed(() => {
+    readonly maxPoints = computed(() => {
         // Access formValues to track changes
         this.formValues();
         const optionsArray = this.optionsFormArray;
@@ -66,7 +66,7 @@ export class WeightedMultipleChoiceComponent implements AfterViewInit {
         return parseFloat(max.toFixed(2));
     });
 
-    minPoints = computed(() => {
+    readonly minPoints = computed(() => {
         // Access formValues to track changes
         this.formValues();
         const negativeScoreAllowed = this.weightedMcForm.get('negativeScore')?.value ?? false;
@@ -84,10 +84,10 @@ export class WeightedMultipleChoiceComponent implements AfterViewInit {
         return parseFloat(min.toFixed(2));
     });
 
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private parentForm = inject(FormGroupDirective);
-    private formInitialized = signal(false);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly parentForm = inject(FormGroupDirective);
+    private readonly formInitialized = signal(false);
 
     constructor() {
         // Create nested form group with FormArray for options

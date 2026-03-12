@@ -40,10 +40,10 @@ import { FileService } from 'src/app/shared/file/file.service';
     imports: [DatePickerComponent, TranslateModule],
 })
 export class RecordsReportComponent {
-    startDate = signal<Date | null>(null);
-    endDate = signal<Date | null>(null);
+    readonly startDate = signal<Date | null>(null);
+    readonly endDate = signal<Date | null>(null);
 
-    private files = inject(FileService);
+    private readonly files = inject(FileService);
 
     getExamRecords() {
         const start = this.startDate() ? new Date(this.startDate()!).getTime() : new Date().getTime();

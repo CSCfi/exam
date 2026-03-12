@@ -4,7 +4,6 @@
 
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamExecutionType, Implementation } from 'src/app/exam/exam.model';
@@ -16,20 +15,20 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
 @Component({
     selector: 'xm-new-exam',
     templateUrl: './new-exam.component.html',
-    imports: [FormsModule, NgbPopover, TranslateModule, PageHeaderComponent, PageContentComponent],
+    imports: [NgbPopover, TranslateModule, PageHeaderComponent, PageContentComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewExamComponent {
-    executionTypes = signal<(ExamExecutionType & { name: string })[]>([]);
-    type = signal<ExamExecutionType | undefined>(undefined);
-    examinationType = signal<Implementation>('AQUARIUM');
-    homeExaminationSupported = signal(false);
-    sebExaminationSupported = signal(false);
-    canCreateByodExams = signal(false);
+    readonly executionTypes = signal<(ExamExecutionType & { name: string })[]>([]);
+    readonly type = signal<ExamExecutionType | undefined>(undefined);
+    readonly examinationType = signal<Implementation>('AQUARIUM');
+    readonly homeExaminationSupported = signal(false);
+    readonly sebExaminationSupported = signal(false);
+    readonly canCreateByodExams = signal(false);
 
-    private http = inject(HttpClient);
-    private Exam = inject(ExamService);
-    private Session = inject(SessionService);
+    private readonly http = inject(HttpClient);
+    private readonly Exam = inject(ExamService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         this.canCreateByodExams.set(this.Session.getUser().canCreateByodExam);
@@ -42,6 +41,12 @@ export class NewExamComponent {
                     this.sebExaminationSupported.set(resp.sebExaminationSupported);
                 });
         });
+    }
+
+    onTypeChange(event: Event) {
+        const value = (event.target as HTMLSelectElement).value;
+        this.type.set(this.executionTypes().find((t) => t.type === value));
+        this.selectType();
     }
 
     selectType() {

@@ -53,14 +53,14 @@ import { Option } from 'src/app/shared/select/select.model';
     imports: [DropdownSelectComponent, DatePickerComponent, TranslateModule],
 })
 export class StudentsReportComponent {
-    students = input<Option<User, number>[]>([]);
-    student = signal<number | undefined>(undefined);
-    startDate = signal<Date | null>(null);
-    endDate = signal<Date | null>(null);
+    readonly students = input<Option<User, number>[]>([]);
+    readonly student = signal<number | undefined>(undefined);
+    readonly startDate = signal<Date | null>(null);
+    readonly endDate = signal<Date | null>(null);
 
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private files = inject(FileService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly files = inject(FileService);
 
     getStudentReport() {
         const currentStudent = this.student();

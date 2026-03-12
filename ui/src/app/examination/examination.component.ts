@@ -31,16 +31,16 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationComponent implements OnDestroy {
-    isCollaborative = signal(false);
-    exam = signal<Examination | undefined>(undefined);
-    activeSection = signal<ExaminationSection | undefined>(undefined);
-    isPreview = signal(false);
+    readonly isCollaborative = signal(false);
+    readonly exam = signal<Examination | undefined>(undefined);
+    readonly activeSection = signal<ExaminationSection | undefined>(undefined);
+    readonly isPreview = signal(false);
 
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private Examination = inject(ExaminationService);
-    private Session = inject(SessionService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly Examination = inject(ExaminationService);
+    private readonly Session = inject(SessionService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     constructor() {
         const isPreviewValue = this.route.snapshot.data.isPreview;
@@ -91,7 +91,7 @@ export class ExaminationComponent implements OnDestroy {
         if (!currentExam) {
             return;
         }
-        this.Examination.saveAllTextualAnswersOfExam$(currentExam)
+        this.Examination.saveAllTextualAnswersOfExam$(currentExam, currentExam.external)
             .pipe(
                 catchError((err) => {
                     if (err) console.log(err);
@@ -111,20 +111,23 @@ export class ExaminationComponent implements OnDestroy {
         if (!currentExam) {
             return;
         }
-        this.Examination.logout(msg, currentExam.hash, currentExam.implementation === 'CLIENT_AUTH', canFail);
+        this.Examination.logout(msg, currentExam.hash, {
+            quitLinkEnabled: currentExam.implementation === 'CLIENT_AUTH',
+            canFail,
+            external: currentExam.external,
+        });
     }
 
     private setActiveSection(page: Partial<NavigationPage>) {
         const currentActiveSection = this.activeSection();
         const currentExam = this.exam();
         if (currentActiveSection && currentExam) {
-            this.Examination.saveAllTextualAnswersOfSection$(
-                currentActiveSection,
-                currentExam.hash,
-                true,
-                false,
-                false,
-            ).subscribe();
+            this.Examination.saveAllTextualAnswersOfSection$(currentActiveSection, currentExam.hash, {
+                autosave: true,
+                allowEmpty: false,
+                canFail: false,
+                external: currentExam.external,
+            }).subscribe();
         }
         this.activeSection.set(undefined);
         if (page.type === 'section' && currentExam) {

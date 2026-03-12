@@ -12,7 +12,7 @@ import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
 import { ClozeTestAnswer, ExamSectionQuestion } from 'src/app/question/question.model';
 import { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
@@ -22,24 +22,23 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
 @Component({
     selector: 'xm-printout',
     templateUrl: './printout.component.html',
-    imports: [CourseCodeComponent, TeacherListComponent, MathUnifiedDirective, DatePipe, TranslateModule, OrderByPipe],
+    imports: [CourseCodeComponent, TeacherListComponent, MathDirective, DatePipe, TranslateModule, OrderByPipe],
     styleUrl: './printout.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrintoutComponent {
-    exam = signal<Printout | undefined>(undefined);
-    tab = signal<number | undefined>(undefined);
+    readonly exam = signal<Printout | undefined>(undefined);
 
-    private http = inject(HttpClient);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private Files = inject(FileService);
+    private readonly tab: number | undefined;
+
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly Files = inject(FileService);
 
     constructor() {
         const tabParam = this.route.snapshot.queryParams.get('tab');
-        if (tabParam) {
-            this.tab.set(Number(tabParam));
-        }
+        this.tab = tabParam ? Number(tabParam) : undefined;
         this.http
             .get<Exam>(`/app/exams/${this.route.snapshot.params.id}/preview`)
             .pipe(
@@ -112,7 +111,7 @@ export class PrintoutComponent {
 
     exitPreview() {
         const currentExam = this.exam();
-        const currentTab = this.tab();
+        const currentTab = this.tab;
         if (currentTab && currentExam) {
             this.router.navigate(['/staff/exams', currentExam.id, currentTab]);
         } else {

@@ -9,7 +9,7 @@ import io.ebean.DB
 import models.enrolment.ExamEnrolment
 import models.user.User
 import org.joda.time.{DateTime, Seconds}
-import services.datetime.DateTimeHandler
+import services.datetime.{AppClock, DateTimeHandler}
 
 import javax.inject.Inject
 import scala.util.Try
@@ -17,7 +17,8 @@ import scala.util.Try
 import TimeError.*
 
 class TimeService @Inject() (
-    private val dateTimeHandler: DateTimeHandler
+    private val dateTimeHandler: DateTimeHandler,
+    private val clock: AppClock
 ) extends EbeanQueryExtensions:
 
   def getRemainingExamTime(hash: String, user: User): Either[TimeError, Long] =
@@ -45,8 +46,8 @@ class TimeService @Inject() (
 
   private def currentTime(enrolment: ExamEnrolment): DateTime =
     Option(enrolment.getExaminationEventConfiguration) match
-      case Some(_) => DateTime.now()
-      case None    => dateTimeHandler.adjustDST(DateTime.now(), enrolment.getReservation)
+      case Some(_) => clock.now()
+      case None    => dateTimeHandler.adjustDST(clock.now(), enrolment.getReservation)
 
   private def getDuration(enrolment: ExamEnrolment): Int =
     Option(enrolment.getExam) match

@@ -12,10 +12,10 @@ SPDX-License-Identifier: EUPL-1.2
 <xm-page-content [content]="content" />
 <ng-template #content>
     <div class="waitingroom-info">
-        @if (delayCounter$) {
+        @if (delayCounter() !== undefined) {
             <div class="alert alert-info">
                 <i class="bi bi-exclamation-circle-fill me-2"></i>
-                {{ delayCounter$ | async }} {{ 'i18n_seconds_until_examination_starts' | translate }}
+                {{ delayCounter() }} {{ 'i18n_seconds_until_examination_starts' | translate }}
             </div>
         } @else if (isUpcoming()) {
             <div class="alert alert-secondary" [ariaLive]="'polite'">

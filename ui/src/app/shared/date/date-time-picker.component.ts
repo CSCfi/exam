@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbTimepicker } from '@ng-bootstrap/ng-bootstrap';
@@ -12,17 +11,17 @@ import { DatePickerComponent } from './date-picker.component';
     selector: 'xm-date-time-picker',
     template: `
         <div class="row align-items-center">
-            <div class="col-auto" [ngClass]="disableDate() ? 'disable-gray-out' : ''">
+            <div class="col-auto" [class.disable-gray-out]="disableDate()">
                 <xm-date-picker
                     [disabled]="disabled()"
                     [initialDate]="initialTime()"
-                    [readonly]="readonly()"
+                    [isReadonly]="isReadonly()"
                     (updated)="onDateUpdate($event)"
                     [minDate]="minDate()"
                     [maxDate]="maxDate()"
                 ></xm-date-picker>
             </div>
-            <div class="col" [ngClass]="disableTime() ? 'disable-gray-out' : ''">
+            <div class="col" [class.disable-gray-out]="disableTime()">
                 <ngb-timepicker
                     name="timepicker"
                     [disabled]="disabled()"
@@ -35,24 +34,23 @@ import { DatePickerComponent } from './date-picker.component';
         </div>
     `,
     styleUrls: ['./date-time-picker.component.scss'],
-    imports: [NgClass, DatePickerComponent, NgbTimepicker, FormsModule],
+    imports: [DatePickerComponent, NgbTimepicker, FormsModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DateTimePickerComponent {
-    initialTime = input<Date | null>(null);
-    hourStep = input(0);
-    minuteStep = input(0);
-    disabled = input(false);
-    readonly = input(false);
-    minDate = input(new Date().toISOString());
-    maxDate = input<string | undefined>(undefined);
-    disableDate = input(false);
-    disableTime = input(false);
+    readonly initialTime = input<Date | null>(null);
+    readonly hourStep = input(0);
+    readonly minuteStep = input(0);
+    readonly disabled = input(false);
+    readonly isReadonly = input(false);
+    readonly minDate = input(new Date().toISOString());
+    readonly maxDate = input<string | undefined>(undefined);
+    readonly disableDate = input(false);
+    readonly disableTime = input(false);
+    readonly updated = output<{ date: Date }>();
 
-    updated = output<{ date: Date }>();
-
-    date = signal<Date>(new Date());
-    time = signal<{ hour: number; minute: number; second: number; millisecond?: number }>({
+    readonly date = signal<Date>(new Date());
+    readonly time = signal<{ hour: number; minute: number; second: number; millisecond?: number }>({
         hour: new Date().getHours(),
         minute: new Date().getMinutes(),
         second: new Date().getSeconds(),

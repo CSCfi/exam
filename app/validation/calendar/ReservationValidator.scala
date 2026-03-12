@@ -41,23 +41,29 @@ case class ExternalReservationDTO(
       case None       => java.util.List.of()
 
 object ReservationValidator:
-  def forCreation(body: JsValue): Either[ValidationException, ReservationDTO] =
+  def forCreation(
+      body: JsValue,
+      now: DateTime = DateTime.now()
+  ): Either[ValidationException, ReservationDTO] =
     PlayValidator(ReservationParser.parseFromJson)
       .withRule(requireRoomId)
       .withRule(r => requireExamId(r.examId))
       .withRule(r => requireStartDate(r.start))
       .withRule(r => requireEndDate(r.end))
-      .withRule(r => requireValidDateRange(r.start, r.end))
+      .withRule(r => requireValidDateRange(r.start, r.end, now))
       .validate(body)
 
-  def forCreationExternal(body: JsValue): Either[ValidationException, ExternalReservationDTO] =
+  def forCreationExternal(
+      body: JsValue,
+      now: DateTime = DateTime.now()
+  ): Either[ValidationException, ExternalReservationDTO] =
     PlayValidator(ExternalReservationParser.parseFromJson)
       .withRule(requireRoomRef)
       .withRule(requireOrgRef)
       .withRule(r => requireExamId(r.examId))
       .withRule(r => requireStartDate(r.start))
       .withRule(r => requireEndDate(r.end))
-      .withRule(r => requireValidDateRange(r.start, r.end))
+      .withRule(r => requireValidDateRange(r.start, r.end, now))
       .validate(body)
 
   // Common validators - work on shared fields
@@ -72,9 +78,10 @@ object ReservationValidator:
 
   private def requireValidDateRange(
       start: DateTime,
-      end: DateTime
+      end: DateTime,
+      now: DateTime
   ): ValidatedNel[FieldError, Unit] =
-    val isStartInPast    = start.isBeforeNow
+    val isStartInPast    = start.isBefore(now)
     val isEndBeforeStart = end.isBefore(start)
 
     if isStartInPast then PlayValidator.invalid("start", "Start date must be in the future")

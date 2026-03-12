@@ -2,14 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { User } from 'src/app/session/session.model';
 
 @Component({
-    imports: [TranslateModule, NgClass, NgbDropdownModule],
+    imports: [TranslateModule, NgbDropdownModule],
     template: `
         <div class="modal-header">
             <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_select_role' | translate }}</h4>
@@ -20,13 +19,13 @@ import type { User } from 'src/app/session/session.model';
                     {{ 'i18n_choose' | translate }}
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropDownMenu1">
-                    @for (role of user.roles; track role) {
+                    @for (role of user()!.roles; track role) {
                         <button
                             ngbDropdownItem
                             title="{{ role.displayName || '' | translate }}"
                             (click)="activeModal.close(role)"
                         >
-                            {{ role.displayName || '' | translate }} <i class="ps-1" [ngClass]="role.icon"></i>
+                            {{ role.displayName || '' | translate }} <i class="ps-1" [class]="role.icon"></i>
                         </button>
                     }
                 </div>
@@ -41,7 +40,7 @@ import type { User } from 'src/app/session/session.model';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectRoleDialogComponent {
-    user!: User; // Set by the component managing the modal
+    readonly user = signal<User | undefined>(undefined);
 
-    activeModal = inject(NgbActiveModal);
+    readonly activeModal = inject(NgbActiveModal);
 }

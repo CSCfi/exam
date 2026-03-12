@@ -2,9 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -39,9 +37,8 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                             type="checkbox"
                             class="form-check-input"
                             name="select_all"
-                            [ngModel]="allSelected()"
-                            (ngModelChange)="setAllSelected($event)"
-                            (change)="selectAll()"
+                            [checked]="allSelected()"
+                            (change)="onSelectAllChange($event)"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'i18n_check_uncheck_all' | translate }}"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -60,8 +57,8 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                                 type="checkbox"
                                 class="form-check-input"
                                 name="select_room"
-                                [ngModel]="room.selected"
-                                (ngModelChange)="updateRoomSelected(room, $event)"
+                                [checked]="room.selected"
+                                (change)="onRoomSelectedChange(room, $event)"
                             />
                             <label class="form-check-label" for="room"
                                 ><strong>{{ room.name || 'i18n_no_name' | translate }}</strong></label
@@ -69,7 +66,8 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                             @if (room.calendarExceptionEvents.length > 0) {
                                 <i
                                     class="user-select-none ms-1"
-                                    [ngClass]="room.showBreaks ? 'bi-chevron-down' : 'bi-chevron-right'"
+                                    [class.bi-chevron-down]="room.showBreaks"
+                                    [class.bi-chevron-right]="!room.showBreaks"
                                     (click)="toggleRoomShowBreaks(room)"
                                 ></i>
                             }
@@ -102,26 +100,18 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
             </div>
         </ng-template>
     `,
-    imports: [
-        FormsModule,
-        NgbPopover,
-        NgClass,
-        ExceptionListComponent,
-        TranslateModule,
-        PageHeaderComponent,
-        PageContentComponent,
-    ],
+    imports: [NgbPopover, ExceptionListComponent, TranslateModule, PageHeaderComponent, PageContentComponent],
     styleUrl: './rooms.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomExceptionsBulkComponent {
-    rooms = signal<SelectableRoom[]>([]);
-    roomIds = signal<number[]>([]);
-    allSelected = signal(false);
+    readonly rooms = signal<SelectableRoom[]>([]);
+    readonly roomIds = signal<number[]>([]);
+    readonly allSelected = signal(false);
 
-    private toast = inject(ToastrService);
-    private roomService = inject(RoomService);
-    private translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly roomService = inject(RoomService);
+    private readonly translate = inject(TranslateService);
 
     constructor() {
         this.loadRooms();
@@ -159,6 +149,14 @@ export class RoomExceptionsBulkComponent {
         if (outOfService) this.roomService.openExceptionDialog(this.addExceptions.bind(this), true, allExceptions);
         else this.roomService.openExceptionDialog(this.addExceptions.bind(this), false, allExceptions);
     }
+
+    onSelectAllChange = (event: Event) => {
+        this.setAllSelected((event.target as HTMLInputElement).checked);
+        this.selectAll();
+    };
+
+    onRoomSelectedChange = (room: SelectableRoom, event: Event) =>
+        this.updateRoomSelected(room, (event.target as HTMLInputElement).checked);
 
     selectAll() {
         const selected = this.allSelected();

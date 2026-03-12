@@ -4,18 +4,19 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
-import type { Reservation } from 'src/app/reservation/reservation.model';
+
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { NoShowComponent } from './no-show.component';
 import { ParticipationComponent } from './participation.component';
 
@@ -26,51 +27,48 @@ type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './general-info.component.html',
     styleUrls: ['../assessment.shared.scss'],
-    imports: [ParticipationComponent, NoShowComponent, MathUnifiedDirective, DatePipe, TranslateModule, ApplyDstPipe],
+    imports: [ParticipationComponent, NoShowComponent, MathDirective, DatePipe, TranslateModule, ApplyDstPipe],
 })
-export class GeneralInfoComponent implements OnInit {
-    exam = input.required<Exam>();
-    participation = input.required<Participation>();
-    collaborative = input(false);
+export class GeneralInfoComponent {
+    readonly exam = input.required<Exam>();
+    readonly participation = input.required<Participation>();
+    readonly collaborative = input(false);
 
-    student?: User;
-    studentName = '';
-    enrolment?: ExamEnrolment;
-    reservation?: Reservation;
-    participations = signal<ExamParticipation[]>([]);
-    noShows = signal<ExamEnrolment[]>([]);
+    readonly student = computed(() => this.participation().user as User | undefined);
+    readonly studentName = computed(() => {
+        const s = this.student();
+        if (s) return `${s.lastName} ${s.firstName}`;
+        return this.collaborative() ? (this.participation()._id as string) : this.exam().id.toString();
+    });
+    readonly enrolment = computed(() => this.exam().examEnrolments[0] as ExamEnrolment | undefined);
+    readonly reservation = computed(() => this.enrolment()?.reservation);
+    readonly participations = signal<ExamParticipation[]>([]);
+    readonly noShows = signal<ExamEnrolment[]>([]);
 
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private Attachment = inject(AttachmentService);
-    private DateTime = inject(DateTimeService);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly DateTime = inject(DateTimeService);
+    private readonly destroyRef = inject(DestroyRef);
 
-    ngOnInit() {
-        const participationValue = this.participation();
-        const examValue = this.exam();
-        const duration = DateTime.fromISO(participationValue.duration as string)
-            .set({ second: 0, millisecond: 0 })
-            .toJSDate();
-        participationValue.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
-        this.student = participationValue.user as User;
-        this.studentName = this.student
-            ? `${this.student.lastName} ${this.student.firstName}`
-            : this.collaborative()
-              ? (participationValue._id as string)
-              : examValue.id.toString();
-        this.enrolment = examValue.examEnrolments.length > 0 ? examValue.examEnrolments[0] : undefined;
-        this.reservation = this.enrolment?.reservation;
-        if (this.collaborative()) {
-            this.http
-                .get<
-                    ExamParticipation[]
-                >(`/app/iop/reviews/${this.route.snapshot.params.id}/participations/${this.route.snapshot.params.ref}`)
-                .subscribe(this.handleParticipations);
-        } else {
-            this.http
-                .get<ExamParticipation[]>(`app/examparticipations/${this.route.snapshot.params.id}`)
-                .subscribe(this.handleParticipations);
-        }
+    constructor() {
+        effect(() => {
+            const participation = this.participation();
+            const duration = DateTime.fromISO(participation.duration as string)
+                .set({ second: 0, millisecond: 0 })
+                .toJSDate();
+            participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
+        });
+
+        const id = this.route.snapshot.params.id;
+        const ref = this.route.snapshot.params.ref;
+        const url = this.collaborative()
+            ? `/app/iop/reviews/${id}/participations/${ref}`
+            : `app/examparticipations/${id}`;
+        this.http
+            .get<ExamParticipation[]>(url)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(this.handleParticipations);
     }
 
     downloadExamAttachment = () => {

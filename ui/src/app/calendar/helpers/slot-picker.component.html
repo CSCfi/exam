@@ -6,7 +6,8 @@ SPDX-License-Identifier: EUPL-1.2
 
 <div
     class="row m-2 details-view"
-    [ngClass]="selectedRoom() ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+    [class.xm-study-item-container]="selectedRoom()"
+    [class.xm-study-item-container--inactive]="!selectedRoom()"
 >
     <div class="col-md-12">
         <div class="row">
@@ -79,7 +80,6 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="row mt-2">
                 <div class="col-md-12">
                     <xm-password-prompt
-                        #passwordPrompt
                         [visible]="!passwordVerified()"
                         (passwordValidated)="onPasswordValidated($event)"
                     ></xm-password-prompt>

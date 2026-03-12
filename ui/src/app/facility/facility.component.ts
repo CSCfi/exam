@@ -5,14 +5,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-    NgbNav,
-    NgbNavContent,
-    NgbNavItem,
-    NgbNavItemRole,
-    NgbNavLink,
-    NgbNavOutlet,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { User } from 'src/app/session/session.model';
@@ -32,15 +25,10 @@ import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-
     templateUrl: './facility.component.html',
     selector: 'xm-facility',
     imports: [
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
-        NgbNavContent,
+        NgbNavModule,
         RoomListComponent,
         SoftwareComponent,
         AccessibilityComponent,
-        NgbNavOutlet,
         TranslateModule,
         DatePipe,
         OrderByPipe,
@@ -50,19 +38,18 @@ import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FacilityComponent {
-    user: User;
-    maintenancePeriods = signal<MaintenancePeriod[]>([]);
+    readonly maintenancePeriods = signal<MaintenancePeriod[]>([]);
+    readonly user: User;
 
-    private router = inject(Router);
-    private modal = inject(ModalService);
-    private translate = inject(TranslateService);
-    private session = inject(SessionService);
-    private toast = inject(ToastrService);
-    private room = inject(RoomService);
+    private readonly router = inject(Router);
+    private readonly modal = inject(ModalService);
+    private readonly translate = inject(TranslateService);
+    private readonly session = inject(SessionService);
+    private readonly toast = inject(ToastrService);
+    private readonly room = inject(RoomService);
 
     constructor() {
         this.user = this.session.getUser();
-
         this.room.listMaintenancePeriods$().subscribe((periods) => this.maintenancePeriods.set(periods));
     }
 

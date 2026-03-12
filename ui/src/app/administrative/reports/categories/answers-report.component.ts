@@ -41,10 +41,10 @@ import { FileService } from 'src/app/shared/file/file.service';
     imports: [DatePickerComponent, TranslateModule],
 })
 export class AnswersReportComponent {
-    startDate = signal<Date | null>(null);
-    endDate = signal<Date | null>(null);
+    readonly startDate = signal<Date | null>(null);
+    readonly endDate = signal<Date | null>(null);
 
-    private files = inject(FileService);
+    private readonly files = inject(FileService);
 
     getExamAnswerReport() {
         const f = DateTime.fromJSDate(this.startDate() || new Date()).toFormat('dd.MM.yyyy');

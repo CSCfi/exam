@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -34,7 +34,6 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
         OptionalSectionsComponent,
         OrganisationPickerComponent,
         SlotPickerComponent,
-        NgClass,
         CourseCodeComponent,
         DatePipe,
         TranslateModule,
@@ -43,9 +42,9 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
     ],
 })
 export class CalendarComponent {
-    isInteroperable = signal(false);
-    confirming = signal(false);
-    examInfo = signal<ExamInfo>({
+    readonly isInteroperable = signal(false);
+    readonly confirming = signal(false);
+    readonly examInfo = signal<ExamInfo>({
         periodStart: null,
         periodEnd: null,
         name: '',
@@ -54,7 +53,7 @@ export class CalendarComponent {
         examSections: [],
         course: { code: '', name: '', id: 0, credits: 0 },
     });
-    reservation = signal<
+    readonly reservation = signal<
         | {
               room: ExamRoom;
               start: DateTime;
@@ -64,42 +63,44 @@ export class CalendarComponent {
           }
         | undefined
     >(undefined);
-    reservationWindowSize = signal(0);
+    readonly reservationWindowSize = signal(0);
 
-    reservationWindowEndDate = computed(() =>
+    readonly reservationWindowEndDate = computed(() =>
         this.reservationWindowSize() > 0
             ? DateTime.now().plus({ day: this.reservationWindowSize() }).toJSDate()
             : undefined,
     );
 
-    minDate = computed(() => {
+    readonly minDate = computed(() => {
         const examInfo = this.examInfo();
         if (!examInfo.periodStart) return new Date();
         return [new Date(), new Date(examInfo.periodStart as string)].reduce((a, b) => (a > b ? a : b));
     });
 
-    maxDate = computed(() => {
+    readonly maxDate = computed(() => {
         const examInfo = this.examInfo();
         const windowEndDate = this.reservationWindowEndDate();
         if (!examInfo.periodEnd || !windowEndDate) return new Date();
         return [windowEndDate, new Date(examInfo.periodEnd as string)].reduce((a, b) => (a < b ? a : b));
     });
 
-    sectionSelectionOk = computed(() => this.examInfo().examSections.some((es) => !es.optional || es.selected));
+    readonly sectionSelectionOk = computed(() =>
+        this.examInfo().examSections.some((es) => !es.optional || es.selected),
+    );
 
-    selectedOrganisation = signal<Organisation | undefined>(undefined);
-    examId = signal(0);
-    selectedSections = signal<string[]>([]);
-    isCollaborative = signal(false);
-    isExternal = signal(false);
+    readonly selectedOrganisation = signal<Organisation | undefined>(undefined);
+    readonly selectedSections = signal<string[]>([]);
+    readonly isCollaborative = signal(false);
+    readonly isExternal = signal(false);
 
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private DateTimeService = inject(DateTimeService);
-    private Dialog = inject(ConfirmationDialogService);
-    private Calendar = inject(CalendarService);
+    private readonly examId = signal(0);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly DateTimeService = inject(DateTimeService);
+    private readonly Dialog = inject(ConfirmationDialogService);
+    private readonly Calendar = inject(CalendarService);
 
     constructor() {
         if (

@@ -74,6 +74,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     styleUrl: './multi-choice-answers.shared.scss',
 })
 export class MultiChoiceAnswerComponent {
-    sectionQuestion = input.required<ExamSectionQuestion>();
-    reviewExpanded = signal(true);
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
+
+    readonly reviewExpanded = signal(true);
 }

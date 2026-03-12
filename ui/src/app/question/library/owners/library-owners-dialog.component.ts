@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgbActiveModal, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -41,23 +41,23 @@ import { UserService } from 'src/app/shared/user/user.service';
     `,
     selector: 'xm-library-owners-dialog',
     imports: [NgbTypeahead, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibraryOwnersDialogComponent {
-    selections: number[] = [];
+    readonly selections = signal<number[]>([]); // Set by modal opening component
+    readonly teachers = signal<User[]>([]);
+    readonly newTeachers = signal<number[]>([]);
+    readonly selectedTeacherId = signal<number | undefined>(undefined);
 
-    teachers: User[] = [];
-    newTeachers: number[] = [];
-    selectedTeacherId?: number;
-
-    private activeModal = inject(NgbActiveModal);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Question = inject(QuestionService);
-    private User = inject(UserService);
+    private readonly activeModal = inject(NgbActiveModal);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Question = inject(QuestionService);
+    private readonly User = inject(UserService);
 
     constructor() {
         this.User.listUsersByRole$('TEACHER').subscribe((users: User[]) => {
-            this.teachers = users;
+            this.teachers.set(users);
         });
     }
 
@@ -65,7 +65,7 @@ export class LibraryOwnersDialogComponent {
         criteria$.pipe(
             debounceTime(100),
             distinctUntilChanged(),
-            map((text) => (text.length < 2 ? [] : this.filterByName(this.teachers, text))),
+            map((text) => (text.length < 2 ? [] : this.filterByName(this.teachers(), text))),
             take(8),
             catchError((err) => {
                 this.toast.error(err.data);
@@ -75,19 +75,20 @@ export class LibraryOwnersDialogComponent {
 
     nameFormatter = (user: User) => `${user.firstName} ${user.lastName} <${user.email}>`;
 
-    setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) => (this.selectedTeacherId = event.item.id);
+    setQuestionOwner = (event: NgbTypeaheadSelectItemEvent) => this.selectedTeacherId.set(event.item.id);
 
     addOwnerForSelected = () => {
         // check that atleast one has been selected
-        if (!this.selectedTeacherId) {
+        const teacherId = this.selectedTeacherId();
+        if (!teacherId) {
             this.toast.warning(this.translate.instant('i18n_add_question_owner'));
             return;
         }
 
-        this.Question.addOwnerForQuestions$(this.selectedTeacherId, this.selections).subscribe({
+        this.Question.addOwnerForQuestions$(teacherId, this.selections()).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_question_owner_added'));
-                this.newTeachers.push(this.selectedTeacherId as number);
+                this.newTeachers.update((ids) => [...ids, teacherId]);
             },
             error: () => this.toast.error(this.translate.instant('i18n_update_failed')),
         });
@@ -95,8 +96,8 @@ export class LibraryOwnersDialogComponent {
 
     close = () =>
         this.activeModal.close({
-            questions: this.selections,
-            users: this.teachers.filter((t) => this.newTeachers.includes(t.id)),
+            questions: this.selections(),
+            users: this.teachers().filter((t) => this.newTeachers().includes(t.id)),
         });
 
     private filterByName = (src: User[], q: string): User[] => {

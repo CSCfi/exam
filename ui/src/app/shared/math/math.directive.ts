@@ -2,15 +2,18 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Directive, ElementRef, Input, OnChanges, OnDestroy, inject } from '@angular/core';
-import { MathFieldElement, MathLiveService } from './mathlive.service';
+import { Directive, ElementRef, OnDestroy, effect, inject, input, model } from '@angular/core';
 
-// Type guard for MathfieldElement constructor
+interface MathFieldElement extends HTMLElement {
+    readOnly: boolean;
+    getValue(): string;
+    setValue(value: string): void;
+}
+
 interface MathfieldElementConstructor {
     new (): MathFieldElement;
 }
 
-export type MathRenderer = 'auto' | 'mathlive';
 export type MathMode = 'static' | 'interactive';
 
 /**
@@ -31,21 +34,22 @@ export type MathMode = 'static' | 'interactive';
 @Directive({
     selector: '[xmMath]',
 })
-export class MathUnifiedDirective implements OnChanges, OnDestroy {
-    @Input('xmMath') htmlContent?: string;
-    @Input() renderer: MathRenderer = 'auto'; // Only applies to plain expressions
-    @Input() mode: MathMode = 'static'; // Default mode for plain expressions
-    @Input() editable = false; // For backward compatibility
+export class MathDirective implements OnDestroy {
+    readonly htmlContent = model<string | undefined>(undefined, { alias: 'xmMath' });
+    readonly mode = input<MathMode>('static');
+    readonly editable = input(false);
 
-    private el = inject(ElementRef);
-    private mathLiveService = inject(MathLiveService);
     private mathFields: MathFieldElement[] = [];
     private processedElements: Element[] = [];
 
-    async ngOnChanges() {
-        if (this.htmlContent) {
-            await this.processHtmlContent();
-        }
+    private readonly el = inject(ElementRef);
+
+    constructor() {
+        effect(() => {
+            if (this.htmlContent()) {
+                void this.processHtmlContent();
+            }
+        });
     }
 
     ngOnDestroy() {
@@ -77,8 +81,7 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
      * Set new HTML content
      */
     setValue(htmlContent: string): void {
-        this.htmlContent = htmlContent;
-        this.processHtmlContent();
+        this.htmlContent.set(htmlContent);
     }
 
     /**
@@ -88,9 +91,9 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         return {
             processedElements: this.processedElements.length,
             mathLiveFields: this.mathFields.length,
-            mode: this.mode,
-            editable: this.editable,
-            content: this.htmlContent,
+            mode: this.mode(),
+            editable: this.editable(),
+            content: this.htmlContent(),
         };
     }
 
@@ -98,19 +101,18 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         // Clean up previous rendering
         this.cleanup();
 
-        if (!this.htmlContent) return;
+        const content = this.htmlContent();
+        if (!content) return;
 
         try {
-            // Check if it's HTML markup or plain math expression
-            if (this.isHtmlMarkup(this.htmlContent)) {
-                await this.processHtmlMarkup();
+            if (this.isHtmlMarkup(content)) {
+                await this.processHtmlMarkup(content);
             } else {
                 await this.processPlainExpression();
             }
         } catch (error) {
             console.error('Failed to process math content:', error);
-            // Fallback: display raw content
-            this.el.nativeElement.innerHTML = `<code>${this.htmlContent}</code>`;
+            this.el.nativeElement.innerHTML = `<code>${content}</code>`;
         }
     }
 
@@ -119,11 +121,8 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         return /<[^>]+>/.test(content);
     }
 
-    private async processHtmlMarkup() {
-        // Parse the HTML content
-        this.el.nativeElement.innerHTML = this.htmlContent;
-
-        // Find and process math elements
+    private async processHtmlMarkup(content: string) {
+        this.el.nativeElement.innerHTML = content;
         await this.processMathLiveElements();
     }
 
@@ -134,7 +133,7 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         } catch (error) {
             console.error('Failed to render plain expression with MathLive:', error);
             // Last resort: display the raw expression
-            this.el.nativeElement.innerHTML = `<code>${this.htmlContent || ''}</code>`;
+            this.el.nativeElement.innerHTML = `<code>${this.htmlContent() ?? ''}</code>`;
             this.el.nativeElement.style.color = 'red';
             this.el.nativeElement.title = 'Math rendering failed';
         }
@@ -151,7 +150,7 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         }
 
         if (mathLiveElements.length > 0) {
-            await this.mathLiveService.loadMathLive();
+            await this.loadMathLive();
 
             for (const element of mathLiveElements) {
                 await this.processMathLiveElement(element);
@@ -160,33 +159,20 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         }
     }
 
-    private async processMathLiveElement(element: HTMLElement) {
-        if (!this.mathLiveService.isMathLiveAvailable()) {
+    private processMathLiveElement(element: HTMLElement) {
+        if (!this.isMathLiveAvailable()) {
             console.error('MathfieldElement not available');
             return;
         }
 
-        let mathContent = '';
-        let isInteractive = this.mode === 'interactive' || this.editable;
+        const isInteractive = this.mode() === 'interactive' || this.editable();
 
-        if (element.tagName.toLowerCase() === 'math-field') {
-            // It's already a math-field element, just configure it
-            mathContent = element.textContent || '';
-            // Directive inputs take precedence over element attributes
-            // Only check element's read-only attribute if directive has default settings
-            if (this.mode === 'static' && !this.editable && element.hasAttribute('read-only')) {
-                isInteractive = false;
-            }
-        } else if (element.hasAttribute('xmMathLive')) {
-            // Convert xmMathLive attribute to math-field
-            mathContent = element.getAttribute('xmMathLive') || '';
-
-            // Create new math-field element
+        if (element.hasAttribute('xmMathLive')) {
+            const mathContent = element.getAttribute('xmMathLive') ?? '';
             const mathField = new (
                 window as unknown as { MathfieldElement: MathfieldElementConstructor }
             ).MathfieldElement();
 
-            // Configure the field
             mathField.readOnly = !isInteractive;
             mathField.setAttribute('math-virtual-keyboard-policy', isInteractive ? 'auto' : 'off');
 
@@ -200,15 +186,9 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
                 mathField.setValue(mathContent);
             }
 
-            // Replace the original element
             element.parentNode?.replaceChild(mathField, element);
             this.mathFields.push(mathField);
-
-            return;
-        }
-
-        // For existing math-field elements, just configure them
-        if (element.tagName.toLowerCase() === 'math-field') {
+        } else if (element.tagName.toLowerCase() === 'math-field') {
             const mathFieldElement = element as unknown as MathFieldElement;
             mathFieldElement.readOnly = !isInteractive;
             mathFieldElement.setAttribute('math-virtual-keyboard-policy', isInteractive ? 'auto' : 'off');
@@ -224,12 +204,12 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
     }
 
     private async renderPlainWithMathLive() {
-        await this.mathLiveService.loadMathLive();
+        await this.loadMathLive();
         this.setupPlainMathField();
     }
 
     private setupPlainMathField() {
-        if (!this.mathLiveService.isMathLiveAvailable()) {
+        if (!this.isMathLiveAvailable()) {
             console.error('MathfieldElement not available');
             return;
         }
@@ -240,7 +220,7 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         ).MathfieldElement();
 
         // Configure based on mode and editable setting
-        const isInteractive = this.mode === 'interactive' || this.editable;
+        const isInteractive = this.mode() === 'interactive' || this.editable();
 
         mathField.readOnly = !isInteractive;
         mathField.setAttribute('math-virtual-keyboard-policy', isInteractive ? 'auto' : 'off');
@@ -256,11 +236,22 @@ export class MathUnifiedDirective implements OnChanges, OnDestroy {
         this.el.nativeElement.innerHTML = '';
         this.el.nativeElement.appendChild(mathField);
 
-        if (this.htmlContent) {
-            mathField.setValue(this.htmlContent);
+        const content = this.htmlContent();
+        if (content) {
+            mathField.setValue(content);
         }
 
         this.mathFields.push(mathField);
+    }
+
+    private async loadMathLive(): Promise<void> {
+        if (!this.isMathLiveAvailable()) {
+            await import('mathlive');
+        }
+    }
+
+    private isMathLiveAvailable(): boolean {
+        return !!(window as unknown as { MathfieldElement?: unknown }).MathfieldElement;
     }
 
     private cleanup() {

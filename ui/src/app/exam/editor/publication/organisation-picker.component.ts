@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -73,7 +72,8 @@ type Organisation = {
                         >
                             <i
                                 class="bi bi-x-lg"
-                                [ngClass]="exam().state === 'PUBLISHED' ? 'text-danger' : 'text-success'"
+                                [class.text-danger]="exam().state === 'PUBLISHED'"
+                                [class.text-success]="exam().state !== 'PUBLISHED'"
                                 aria-hidden="true"
                             ></i>
                         </button>
@@ -81,18 +81,19 @@ type Organisation = {
                 </div>
             </div>
         }`,
-    imports: [NgClass, NgbPopover, NgbDropdownModule, TranslateModule],
+    imports: [NgbPopover, NgbDropdownModule, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganisationSelectorComponent {
-    exam = input.required<Exam>();
+    readonly exam = input.required<Exam>();
 
-    organisations = signal<Organisation[]>([]);
-    selectedOrganisations = signal<Organisation[]>([]);
+    readonly organisations = signal<Organisation[]>([]);
+    readonly selectedOrganisations = signal<Organisation[]>([]);
 
-    private http = inject(HttpClient);
-    private Exam = inject(ExamService);
     private allOrganisations: Organisation[] = [];
+
+    private readonly http = inject(HttpClient);
+    private readonly Exam = inject(ExamService);
 
     constructor() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {

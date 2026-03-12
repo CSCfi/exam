@@ -11,7 +11,7 @@ import { SessionService } from 'src/app/session/session.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LogoutComponent {
-    private Session = inject(SessionService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         this.Session.logout();

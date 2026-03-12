@@ -8,7 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { ExamInfo } from 'src/app/calendar/calendar.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
@@ -90,26 +90,28 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    imports: [CourseCodeComponent, MathUnifiedDirective, DatePipe, TranslateModule],
+    imports: [CourseCodeComponent, MathDirective, DatePipe, TranslateModule],
 })
 export class CalendarExamInfoComponent {
-    examInfo = input.required<ExamInfo>();
-    reservationWindowSize = input(0);
-    collaborative = input(false);
+    readonly examInfo = input.required<ExamInfo>();
+    readonly reservationWindowSize = input(0);
+    readonly collaborative = input(false);
 
-    reservationWindowEndDate = computed(() => DateTime.now().plus({ day: this.reservationWindowSize() }).toJSDate());
-    reservationWindowDescription = computed(() => {
+    readonly reservationWindowEndDate = computed(() =>
+        DateTime.now().plus({ day: this.reservationWindowSize() }).toJSDate(),
+    );
+    readonly reservationWindowDescription = computed(() => {
         const text = this.translate
             .instant('i18n_description_reservation_window')
             .replace('{}', this.reservationWindowSize().toString());
         return `${text} (${DateTime.fromJSDate(this.reservationWindowEndDate()).toFormat('dd.MM.yyyy')})`;
     });
-    showReservationWindowDescription = computed(
+    readonly showReservationWindowDescription = computed(
         () => DateTime.fromISO(this.examInfo().periodEnd as string).toJSDate() > this.reservationWindowEndDate(),
     );
 
-    private translate = inject(TranslateService);
-    private DateTimeService = inject(DateTimeService);
+    private readonly translate = inject(TranslateService);
+    private readonly DateTimeService = inject(DateTimeService);
 
     printExamDuration(info: ExamInfo) {
         return this.DateTimeService.formatDuration(info.duration);

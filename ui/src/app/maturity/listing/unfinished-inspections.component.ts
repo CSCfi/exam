@@ -4,7 +4,6 @@
 
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -21,7 +20,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     templateUrl: './unfinished-inspections.component.html',
     styleUrls: ['../maturity.shared.scss'],
     imports: [
-        FormsModule,
         NgbPopover,
         NgbCollapse,
         TableSortComponent,
@@ -34,18 +32,16 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UnfinishedInspectionsComponent {
-    inspections = input<LanguageInspectionData[]>([]);
+    readonly inspections = input<LanguageInspectionData[]>([]);
 
-    user: User;
-    sorting = signal<{ predicate: string; reverse: boolean }>({
+    readonly sorting = signal<{ predicate: string; reverse: boolean }>({
         predicate: 'created',
         reverse: false,
     });
-    pageSize = 10;
-    currentPage = signal(0);
-    hideItems = signal(false);
+    readonly currentPage = signal(0);
+    readonly hideItems = signal(false);
 
-    filteredInspections = computed(() => {
+    readonly filteredInspections = computed(() => {
         const inspections = this.inspections();
         const filterText = this._filterText().toLowerCase();
         if (!filterText) {
@@ -53,10 +49,12 @@ export class UnfinishedInspectionsComponent {
         }
         return inspections.filter((i) => this.examToString(i).toLowerCase().match(filterText));
     });
+    readonly user: User;
+    readonly pageSize = 10;
 
-    private _filterText = signal('');
-    private translate = inject(TranslateService);
-    private LanguageInspection = inject(LanguageInspectionService);
+    private readonly _filterText = signal('');
+    private readonly translate = inject(TranslateService);
+    private readonly LanguageInspection = inject(LanguageInspectionService);
 
     constructor() {
         const Session = inject(SessionService);
@@ -80,9 +78,9 @@ export class UnfinishedInspectionsComponent {
         }
     }
 
-    filterTextChanged() {
-        // No-op: filterText setter already updates the signal, and filteredInspections is computed
-    }
+    onFilterInput = (event: Event) => {
+        this.filterText = (event.target as HTMLInputElement).value;
+    };
 
     getInspectionAmounts() {
         return this.translate

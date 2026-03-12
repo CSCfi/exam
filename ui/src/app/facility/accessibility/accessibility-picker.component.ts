@@ -2,9 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
@@ -31,7 +30,7 @@ import { AccessibilityService } from './accessibility.service';
                             ngbDropdownItem
                             role="presentation"
                             class="pointer"
-                            [ngClass]="isSelected(ac) ? 'active' : ''"
+                            [class.active]="isSelected(ac)"
                             (click)="updateAccessibility(ac)"
                             (keydown.enter)="updateAccessibility(ac)"
                         >
@@ -42,25 +41,24 @@ import { AccessibilityService } from './accessibility.service';
             </span>
         </div>
     </div>`,
-    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass, TranslateModule],
+    imports: [NgbDropdownModule, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessibilitySelectorComponent {
-    room = input.required<ExamRoom>();
+    readonly room = input.required<ExamRoom>();
 
-    accessibilities = signal<Accessibility[]>([]);
-    roomAccessibilities = signal<Accessibility[]>([]);
-
-    selectedAccessibilities = computed(() => {
+    readonly accessibilities = signal<Accessibility[]>([]);
+    readonly roomAccessibilities = signal<Accessibility[]>([]);
+    readonly selectedAccessibilities = computed(() => {
         const accessibilities = this.roomAccessibilities();
         return accessibilities.length === 0
             ? this.translate.instant('i18n_select')
             : accessibilities.map((ac) => ac.name).join(', ');
     });
 
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private accessibilityService = inject(AccessibilityService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly accessibilityService = inject(AccessibilityService);
 
     constructor() {
         this.accessibilityService.getAccessibilities().subscribe((resp) => {

@@ -59,11 +59,10 @@ import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.mode
 })
 export class SelectExaminationEventDialogComponent {
     // Regular properties for programmatic access (set by modal service)
-    exam = signal<Exam | null>(null);
-    existingEventId = signal<number | undefined>(undefined);
+    readonly exam = signal<Exam | null>(null);
 
     // Computed signal for filtered and sorted configurations
-    configs = computed(() => {
+    readonly configs = computed(() => {
         const examValue = this.exam();
         const existingId = this.existingEventId();
         if (!examValue) {
@@ -78,7 +77,9 @@ export class SelectExaminationEventDialogComponent {
             );
     });
 
-    activeModal = inject(NgbActiveModal);
+    private readonly existingEventId = signal<number | undefined>(undefined);
+
+    private readonly activeModal = inject(NgbActiveModal);
 
     selectEvent(event: ExaminationEventConfiguration) {
         this.activeModal.close(event);

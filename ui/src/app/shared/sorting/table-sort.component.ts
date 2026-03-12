@@ -1,4 +1,3 @@
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -11,18 +10,18 @@ import { TranslateModule } from '@ngx-translate/core';
     template: `
         <span class="pointer" [ariaLabel]="text() | translate" [title]="text() | translate">
             {{ sliced() ? (text() | translate).slice(0, 3) + '.' : (text() | translate) }}&nbsp;
-            <i [ngClass]="getSortClass()"></i>
+            <i [class]="getSortClass()"></i>
         </span>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [NgClass, TranslateModule],
+    imports: [TranslateModule],
 })
 export class TableSortComponent {
-    by = input('');
-    predicate = input('');
-    text = input('');
-    reverse = input(false);
-    sliced = input(false);
+    readonly by = input('');
+    readonly predicate = input('');
+    readonly text = input('');
+    readonly reverse = input(false);
+    readonly sliced = input(false);
 
     getSortClass() {
         return this.by() === this.predicate()

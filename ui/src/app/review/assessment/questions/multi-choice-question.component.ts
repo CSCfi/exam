@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgStyle, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal, ViewChild } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { UpperCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -13,7 +14,7 @@ import { QuestionScoringService } from 'src/app/question/question-scoring.servic
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 import { ClaimChoiceAnswerComponent } from './claim-choice-answer.component';
@@ -26,56 +27,58 @@ import { WeightedMultiChoiceAnswerComponent } from './weighted-multi-choice-answ
     templateUrl: './multi-choice-question.component.html',
     styleUrls: ['../assessment.shared.scss'],
     imports: [
-        MathUnifiedDirective,
-        NgStyle,
+        MathDirective,
         MultiChoiceAnswerComponent,
         WeightedMultiChoiceAnswerComponent,
         ClaimChoiceAnswerComponent,
-        FormsModule,
+        ReactiveFormsModule,
         FixedPrecisionValidatorDirective,
         UpperCasePipe,
         TranslateModule,
     ],
 })
-export class MultiChoiceQuestionComponent implements OnInit {
-    @ViewChild('forcedPoints', { static: false }) form?: NgForm;
+export class MultiChoiceQuestionComponent {
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly participation = input.required<ExamParticipation>();
+    readonly isScorable = input(false);
+    readonly collaborative = input(false);
+    readonly scored = output<string>();
 
-    sectionQuestion = input.required<ExamSectionQuestion>();
-    participation = input.required<ExamParticipation>();
-    isScorable = input(false);
-    collaborative = input(false);
-    scored = output<string>();
+    readonly reviewExpanded = signal(true);
+    readonly scoreControl = new FormControl<number | null>(null);
 
-    reviewExpanded = signal(true);
-    _score = signal<number | null>(null);
-    id = 0;
-    ref = '';
+    private readonly id: number;
+    private readonly ref: string;
 
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Assessment = inject(AssessmentService);
-    private Attachment = inject(AttachmentService);
-    private QuestionScore = inject(QuestionScoringService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly QuestionScore = inject(QuestionScoringService);
+    private readonly destroyRef = inject(DestroyRef);
 
-    get scoreValue(): number | null {
-        return this._score();
-    }
-
-    set scoreValue(value: number | null) {
-        this._score.set(value);
-        if (this.form?.valid) {
-            this.sectionQuestion().forcedScore = value;
-        }
-    }
-
-    ngOnInit() {
+    constructor() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        const sq = this.sectionQuestion();
-        if (sq.forcedScore) {
-            this.scoreValue = sq.forcedScore;
-        }
+
+        effect(() => {
+            if (this.isScorable()) {
+                this.scoreControl.enable({ emitEvent: false });
+            } else {
+                this.scoreControl.disable({ emitEvent: false });
+            }
+        });
+
+        effect(() => {
+            this.scoreControl.setValue(this.sectionQuestion().forcedScore ?? null, { emitEvent: false });
+        });
+
+        this.scoreControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+            if (this.scoreControl.valid) {
+                this.sectionQuestion().forcedScore = value;
+            }
+        });
     }
 
     hasForcedScore = () => isNumber(this.sectionQuestion().forcedScore);

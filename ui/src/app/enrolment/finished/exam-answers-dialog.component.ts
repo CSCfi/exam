@@ -10,7 +10,7 @@ import { Exam } from 'src/app/exam/exam.model';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AnsweredQuestion } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
@@ -18,16 +18,16 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
     selector: 'xm-exam-answers-dialog',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-answers-dialog.component.html',
-    imports: [TranslateModule, MathUnifiedDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
+    imports: [TranslateModule, MathDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
 })
 export class ExamAnswersDialogComponent {
     // Regular properties for programmatic access (set by modal service)
-    exam = signal<Exam | null>(null);
-    participationTime = signal('');
-    participationDuration = signal<number | string>(0);
+    readonly exam = signal<Exam | null>(null);
+    readonly participationTime = signal('');
+    readonly participationDuration = signal<number | string>(0);
 
     // Computed exam with sorted sections and questions
-    sortedExam = computed(() => {
+    readonly sortedExam = computed(() => {
         const examValue = this.exam();
         if (!examValue) return null;
         return {
@@ -41,9 +41,9 @@ export class ExamAnswersDialogComponent {
         };
     });
 
-    activeModal = inject(NgbActiveModal);
-    private CommonExam = inject(CommonExamService);
-    private Attachment = inject(AttachmentService);
+    readonly activeModal = inject(NgbActiveModal);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly Attachment = inject(AttachmentService);
 
     downloadAttachment(answer: ExamSectionQuestion) {
         this.Attachment.downloadQuestionAnswerAttachment(answer as AnsweredQuestion);

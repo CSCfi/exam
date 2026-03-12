@@ -20,7 +20,7 @@ SPDX-License-Identifier: EUPL-1.2
                 id="newOwner"
                 type="text"
                 class="form-control w-50"
-                [(ngModel)]="newOwner.name"
+                [(ngModel)]="ownerName"
                 [ngbTypeahead]="listOwners$"
                 [inputFormatter]="nameFormatter"
                 [resultFormatter]="nameFormatter"

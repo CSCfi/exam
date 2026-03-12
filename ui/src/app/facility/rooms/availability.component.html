@@ -27,12 +27,12 @@ SPDX-License-Identifier: EUPL-1.2
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
-                <i [ngClass]="'bi ' + (oldExceptionsHidden() ? 'bi-eye' : 'bi-eye-slash')"></i>
+                <i [class.bi-eye]="!oldExceptionsHidden()" [class.bi-eye-slash]="oldExceptionsHidden()"></i>
             </button>
         </div>
         <div class="col">
             @for (eh of !oldExceptionsHidden() ? exceptionHours() : newExceptions(); track eh) {
-                <span [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'" class="row">
+                <span [class.text-danger]="eh.outOfService" [class.text-success]="!eh.outOfService" class="row">
                     {{ eh.start }} - {{ eh.end }} ({{ eh.description | translate }})
                     @if (isInFuture(eh.startDate)) {
                         <i

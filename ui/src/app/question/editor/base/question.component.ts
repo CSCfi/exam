@@ -43,27 +43,26 @@ import { HistoryBackComponent } from 'src/app/shared/history/history-back.compon
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
-    // Main form - single source of truth
-    questionForm = new FormGroup({});
-
     // Inputs - simplified API
     // question: if provided, use it (existing question with id, or draft with id: undefined)
     // questionId: if provided and no question, load from server
     // If neither provided, create new empty question
-    question = input<ReverseQuestion | QuestionDraft | undefined>(undefined);
-    questionId = input<number | undefined>(undefined);
-    lotteryOn = input(false);
-    collaborative = input(false);
-    examId = input(0);
-    isModalContext = input(false);
+    readonly question = input<ReverseQuestion | QuestionDraft | undefined>(undefined);
+    readonly questionId = input<number | undefined>(undefined);
+    readonly lotteryOn = input(false);
+    readonly collaborative = input(false);
+    readonly examId = input(0);
+    readonly isModalContext = input(false);
 
-    // Outputs
-    saved = output<ReverseQuestion | QuestionDraft>();
-    cancelled = output<void>();
+    readonly saved = output<ReverseQuestion | QuestionDraft>();
+    readonly cancelled = output<void>();
+
+    // Main form - single source of truth
+    readonly questionForm = new FormGroup({});
 
     // Computed: is this a new question?
     // New if: question has no id, or no question/questionId provided
-    newQuestion = computed(() => {
+    readonly newQuestion = computed(() => {
         const q = this.question();
         if (q !== undefined) {
             return q.id === undefined;
@@ -80,7 +79,7 @@ export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
     });
 
     // Computed: get questionId from route params or input
-    routeQuestionId = computed(() => {
+    readonly routeQuestionId = computed(() => {
         const routeId = this.route.snapshot.paramMap.get('id');
         if (routeId) {
             return Number(routeId);
@@ -89,11 +88,11 @@ export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
     });
 
     // Current question data (loaded from server, provided as input, or created as new)
-    currentQuestion = signal<ReverseQuestion | QuestionDraft | undefined>(undefined);
-    currentOwners = signal<User[]>([]);
-    currentTags = signal<Tag[]>([]);
+    readonly currentQuestion = signal<ReverseQuestion | QuestionDraft | undefined>(undefined);
+    readonly currentOwners = signal<User[]>([]);
+    readonly currentTags = signal<Tag[]>([]);
 
-    questionTypes = [
+    readonly questionTypes = [
         { type: 'EssayQuestion', name: 'i18n_toolbar_essay_question' },
         { type: 'ClozeTestQuestion', name: 'i18n_toolbar_cloze_test_question' },
         { type: 'MultipleChoiceQuestion', name: 'i18n_toolbar_multiplechoice_question' },
@@ -101,11 +100,11 @@ export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
         { type: 'ClaimChoiceQuestion', name: 'i18n_toolbar_claim_choice_question' },
     ];
 
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private toast = inject(ToastrService);
-    private Question = inject(QuestionService);
-    private Session = inject(SessionService);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly toast = inject(ToastrService);
+    private readonly Question = inject(QuestionService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         // Use effect to reactively load question when inputs change

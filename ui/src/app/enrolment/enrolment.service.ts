@@ -28,13 +28,13 @@ import type {
 
 @Injectable({ providedIn: 'root' })
 export class EnrolmentService {
-    private translate = inject(TranslateService);
-    private http = inject(HttpClient);
-    private router = inject(Router);
-    private modal = inject(ModalService);
-    private toast = inject(ToastrService);
-    private Confirmation = inject(ConfirmationDialogService);
-    private Modal = inject(ModalService);
+    private readonly translate = inject(TranslateService);
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+    private readonly modal = inject(ModalService);
+    private readonly toast = inject(ToastrService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly Modal = inject(ModalService);
 
     removeExaminationEvent = (enrolment: ExamEnrolment) => {
         this.Confirmation.open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))

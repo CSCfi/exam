@@ -2,17 +2,18 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, LowerCasePipe, NgClass, UpperCasePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
-import type { Exam, ExamLanguage, ExamType, SelectableGrade } from 'src/app/exam/exam.model';
+import type { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Examination } from 'src/app/examination/examination.model';
 import type { QuestionAmounts } from 'src/app/question/question.model';
@@ -22,7 +23,7 @@ import { GradingBaseComponent } from 'src/app/review/assessment/common/grading-b
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { LanguageService } from 'src/app/shared/language/language.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { InspectionComponent } from './inspection.component';
 import { ToolbarComponent } from './toolbar.component';
@@ -33,11 +34,10 @@ import { ToolbarComponent } from './toolbar.component';
     templateUrl: './grading.component.html',
     styleUrls: ['../assessment.shared.scss'],
     imports: [
-        InspectionComponent,
+        ReactiveFormsModule,
         NgbPopover,
-        FormsModule,
-        NgClass,
-        MathUnifiedDirective,
+        InspectionComponent,
+        MathDirective,
         ToolbarComponent,
         UpperCasePipe,
         LowerCasePipe,
@@ -45,30 +45,24 @@ import { ToolbarComponent } from './toolbar.component';
         TranslateModule,
     ],
 })
-export class GradingComponent extends GradingBaseComponent implements OnInit {
-    exam = input.required<Examination>();
-    questionSummary = input<QuestionAmounts>({ accepted: 0, rejected: 0, hasEssays: false });
-    participation = input.required<ExamParticipation>();
-    collaborative = input(false);
-    user = input.required<User>();
-    updated = output<void>();
+export class GradingComponent extends GradingBaseComponent {
+    readonly exam = input.required<Examination>();
+    readonly participation = input.required<ExamParticipation>();
+    readonly user = input.required<User>();
+    readonly questionSummary = input<QuestionAmounts>({ accepted: 0, rejected: 0, hasEssays: false });
+    readonly collaborative = input(false);
+    readonly updated = output<void>();
 
-    message: { text?: string } = { text: '' };
-    id = 0;
-    ref = '';
-    override selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null } = {
-        grade: null,
-        type: null,
-        language: null,
-    };
-    override grades: SelectableGrade[] = [];
-    override creditTypes: (ExamType & { name: string })[] = [];
-    override languages: (ExamLanguage & { name: string })[] = [];
+    readonly message = signal('');
 
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private CollaborativeAssessment = inject(CollaborativeAssesmentService);
-    private Attachment = inject(AttachmentService);
+    private readonly id: number;
+    private readonly ref: string;
+
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly CollaborativeAssessment = inject(CollaborativeAssesmentService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly destroyRef = inject(DestroyRef);
 
     constructor() {
         const http = inject(HttpClient);
@@ -79,22 +73,42 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
         const Language = inject(LanguageService);
 
         super(http, toast, Assessment, Exam, CommonExam, Language);
+
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
+
+        effect(() => {
+            if (this.isReadOnly() || !this.isOwnerOrAdmin()) {
+                this.gradingForm.disable({ emitEvent: false });
+            } else {
+                this.gradingForm.enable({ emitEvent: false });
+            }
+        });
+
+        effect(() => {
+            this.initGrades(false, this.collaborative());
+            this.initCreditTypes();
+            this.initLanguages();
+            this.gradingForm.controls.customCredit.setValue(this.exam().customCredit ?? null, { emitEvent: false });
+        });
+
+        this.gradingForm.controls.customCredit.valueChanges
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((value) => {
+                if (value !== null) {
+                    this.getExam().customCredit = value;
+                }
+            });
+
+        this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            this.initCreditTypes();
+            this.grades.update((gs) =>
+                gs.map((g) => ({ ...g, name: this.CommonExam.getExamGradeDisplayName(g.type) })),
+            );
+        });
     }
 
     getExam = () => this.exam();
-
-    ngOnInit() {
-        this.id = this.route.snapshot.params.id;
-        this.ref = this.route.snapshot.params.ref;
-        this.initGrades(false, this.collaborative());
-        this.initCreditTypes();
-        this.initLanguages();
-
-        this.translate.onLangChange.subscribe(() => {
-            this.initCreditTypes();
-            this.grades.forEach((g) => (g.name = this.CommonExam.getExamGradeDisplayName(g.type)));
-        });
-    }
 
     getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam());
     getExamTotalScore = () => this.Exam.getTotalScore(this.exam());
@@ -114,24 +128,25 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     };
 
     sendEmailMessage = () => {
-        if (!this.message.text) {
+        const text = this.message();
+        if (!text) {
             this.toast.error(this.translate.instant('i18n_email_empty'));
             return;
         }
         const examValue = this.exam();
         if (this.collaborative()) {
-            this.CollaborativeAssessment.sendEmailMessage$(this.id, this.ref, this.message.text).subscribe({
+            this.CollaborativeAssessment.sendEmailMessage$(this.id, this.ref, text).subscribe({
                 next: () => {
-                    delete this.message.text;
+                    this.message.set('');
                     this.toast.info(this.translate.instant('i18n_email_sent'));
                 },
                 error: (err) => this.toast.error(err),
             });
         } else {
-            this.http.post(`/app/email/inspection/${examValue.id}`, { msg: this.message.text }).subscribe({
+            this.http.post(`/app/email/inspection/${examValue.id}`, { msg: text }).subscribe({
                 next: () => {
                     this.toast.info(this.translate.instant('i18n_email_sent'));
-                    delete this.message.text;
+                    this.message.set('');
                 },
                 error: (err) => this.toast.error(err),
             });
@@ -157,4 +172,12 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     };
 
     isCommentRead = () => this.Assessment.isCommentRead(this.exam());
+
+    onAdditionalInfoInput = (event: Event) =>
+        (this.getExam().additionalInfo = (event.target as HTMLTextAreaElement).value);
+
+    onAssessmentInfoInput = (event: Event) =>
+        (this.getExam().assessmentInfo = (event.target as HTMLTextAreaElement).value);
+
+    onMessageTextInput = (event: Event) => this.message.set((event.target as HTMLTextAreaElement).value);
 }

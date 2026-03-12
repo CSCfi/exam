@@ -29,7 +29,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <button
                     [disabled]="examTypes().length < 2"
                     class="btn selection-button-narrow"
-                    [ngClass]="checkExamType(examType.type)"
+                    [class]="exam().examType.type === examType.type ? 'btn-primary' : ''"
                     (click)="setExamType(examType.type)"
                 >
                     {{ examType.name }}</button
@@ -56,7 +56,7 @@ SPDX-License-Identifier: EUPL-1.2
             <span>
                 <button
                     class="btn selection-button-narrow"
-                    [ngClass]="checkScale(gradeScale)"
+                    [class]="checkScale(gradeScale)"
                     (click)="setScale(gradeScale)"
                     [disabled]="checkScaleDisabled(gradeScale)"
                 >

@@ -10,9 +10,9 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 
 @Injectable({ providedIn: 'root' })
 export class ExamSectionService {
-    private Http = inject(HttpClient);
-    private Dialogs = inject(ConfirmationDialogService);
-    private Translate = inject(TranslateService);
+    private readonly Http = inject(HttpClient);
+    private readonly Dialogs = inject(ConfirmationDialogService);
+    private readonly Translate = inject(TranslateService);
 
     clearAllQuestions$ = (examId: number, sectionId: number, collaborative = false) =>
         this.Dialogs.open$(

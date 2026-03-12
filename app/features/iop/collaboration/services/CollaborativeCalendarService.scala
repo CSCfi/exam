@@ -14,7 +14,7 @@ import models.user.User
 import org.joda.time.DateTime
 import play.api.Logging
 import security.BlockingIOExecutionContext
-import services.datetime.{CalendarHandler, CalendarHandlerError, DateTimeHandler}
+import services.datetime.{AppClock, CalendarHandler, CalendarHandlerError, DateTimeHandler}
 import services.enrolment.EnrolmentHandler
 import services.mail.EmailComposer
 
@@ -35,6 +35,7 @@ class CollaborativeCalendarService @Inject() (
     dateTimeHandler: DateTimeHandler,
     enrolmentHandler: EnrolmentHandler,
     emailComposer: EmailComposer,
+    clock: AppClock,
     private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with Logging:
@@ -72,7 +73,7 @@ class CollaborativeCalendarService @Inject() (
     val oldReservation = Option(enrolment.getReservation)
 
     if exam.getState == Exam.State.STUDENT_STARTED ||
-      (oldReservation.isDefined && oldReservation.get.toInterval.isBefore(DateTime.now()))
+      (oldReservation.isDefined && oldReservation.get.toInterval.isBefore(clock.now()))
     then Some("i18n_reservation_in_effect")
     else if oldReservation.isEmpty && !enrolmentHandler.isAllowedToParticipate(exam, user) then
       Some("i18n_no_trials_left")
@@ -132,7 +133,7 @@ class CollaborativeCalendarService @Inject() (
       sectionIds: Seq[Long]
   ): Future[Either[String, (ExamEnrolment, Reservation)]] =
     val room = DB.find(classOf[ExamRoom], roomId)
-    val now  = dateTimeHandler.adjustDST(DateTime.now(), room)
+    val now  = dateTimeHandler.adjustDST(clock.now(), room)
 
     (for
         ceOpt <- collaborativeExamService.findById(examId)
@@ -226,7 +227,7 @@ class CollaborativeCalendarService @Inject() (
       aids: Option[Seq[Long]],
       userId: Long
   ): Future[Either[String, play.api.libs.json.JsValue]] =
-    val now = dateTimeHandler.adjustDST(DateTime.now())
+    val now = dateTimeHandler.adjustDST(clock.now())
 
     (for
       ceOpt <- collaborativeExamService.findById(examId)

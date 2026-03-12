@@ -35,28 +35,28 @@ import { CalendarService } from './calendar.service';
 export class BookingCalendarComponent {
     @ViewChild('fc') calendar!: FullCalendarComponent;
 
-    eventSelected = output<EventApi>();
-    moreEventsNeeded = output<{
+    readonly eventSelected = output<EventApi>();
+    readonly moreEventsNeeded = output<{
         date: string;
         timeZone: string;
         success: (events: EventInput[]) => void;
     }>();
 
-    room = input.required<ExamRoom>();
-    visible = input(false);
-    passwordVerified = input(false);
-    minDate = input<Date>();
-    maxDate = input<Date>();
-    accessibilities = input<Accessibility[]>([]);
+    readonly room = input.required<ExamRoom>();
+    readonly visible = input(false);
+    readonly passwordVerified = input(false);
+    readonly minDate = input<Date>();
+    readonly maxDate = input<Date>();
+    readonly accessibilities = input<Accessibility[]>([]);
 
-    calendarOptions = signal<CalendarOptions>({});
-    searchStart = signal(DateTime.now().startOf('week').toISO());
-    searchEnd = signal(DateTime.now().endOf('week').toISO());
-    isAdmin = signal(false);
+    readonly calendarOptions = signal<CalendarOptions>({});
+    readonly searchStart = signal(DateTime.now().startOf('week').toISO());
+    readonly searchEnd = signal(DateTime.now().endOf('week').toISO());
+    readonly isAdmin = signal(false);
 
-    private translate = inject(TranslateService);
-    private Calendar = inject(CalendarService);
-    private Session = inject(SessionService);
+    private readonly translate = inject(TranslateService);
+    private readonly Calendar = inject(CalendarService);
+    private readonly Session = inject(SessionService);
 
     constructor() {
         this.isAdmin.set(this.Session.getUser().isAdmin);

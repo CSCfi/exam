@@ -4,24 +4,8 @@
 
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import {
-    ApplicationRef,
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-    output,
-    signal,
-} from '@angular/core';
-import {
-    NgbCollapse,
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
@@ -37,56 +21,40 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 import { FileService } from 'src/app/shared/file/file.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { mergeDeepRight } from 'src/app/shared/miscellaneous/helpers';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-section-question',
     templateUrl: './section-question.component.html',
-    imports: [
-        CdkDragHandle,
-        NgbPopover,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        MathUnifiedDirective,
-        NgbCollapse,
-        TranslateModule,
-        OrderByPipe,
-    ],
+    imports: [CdkDragHandle, NgbPopover, NgbDropdownModule, MathDirective, NgbCollapse, TranslateModule, OrderByPipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionQuestionComponent {
-    sectionQuestion = input.required<ExamSectionQuestion>();
-    lotteryOn = input(false);
-    collaborative = input(false);
-    section = input.required<ExamSection>();
-    examId = input(0);
-    removed = output<ExamSectionQuestion>();
-    updated = output<ExamSectionQuestion>();
-    copied = output<ExamSectionQuestion>();
+    readonly section = input.required<ExamSection>();
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly lotteryOn = input(false);
+    readonly collaborative = input(false);
+    readonly examId = input(0);
+    readonly removed = output<ExamSectionQuestion>();
+    readonly updated = output<ExamSectionQuestion>();
+    readonly copied = output<ExamSectionQuestion>();
 
-    expanded = computed(() => {
-        const override = this.expandedOverride();
-        return override !== undefined ? override : (this.sectionQuestion().expanded ?? false);
-    });
+    readonly expanded = signal(false);
 
-    private expandedOverride = signal<boolean | undefined>(undefined);
-    private http = inject(HttpClient);
-    private modal = inject(ModalService);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Confirmation = inject(ConfirmationDialogService);
-    private Question = inject(QuestionService);
-    private QuestionScore = inject(QuestionScoringService);
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
-    private appRef = inject(ApplicationRef);
+    private readonly http = inject(HttpClient);
+    private readonly modal = inject(ModalService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly Question = inject(QuestionService);
+    private readonly QuestionScore = inject(QuestionScoringService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
 
     toggleExpanded() {
-        this.expandedOverride.update((v) => (v === undefined ? !this.sectionQuestion().expanded : !v));
+        this.expanded.update((v) => !v);
     }
 
     calculateWeightedMaxPoints() {

@@ -13,10 +13,10 @@ SPDX-License-Identifier: EUPL-1.2
             <div id="userSearch" class="flex-wrap-gap">
                 <div class="form-group input-group">
                     <input
-                        [(ngModel)]="filterText"
+                        [value]="filterText"
+                        (input)="onFilterInput($event)"
                         type="text"
                         class="form-control"
-                        (ngModelChange)="loader.set({ loading: true })"
                         placeholder="{{ 'i18n_search' | translate }}"
                         [openDelay]="500"
                         [closeDelay]="500"
@@ -45,12 +45,12 @@ SPDX-License-Identifier: EUPL-1.2
                         <button
                             ngbDropdownItem
                             role="presentation"
-                            [ngClass]="role.filtered ? 'active' : ''"
+                            [class.active]="role.filtered"
                             (click)="applyRoleFilter(role)"
                             (keydown.enter)="applyRoleFilter(role)"
                         >
                             <a role="menuitem" title="{{ role.name }}">
-                                <i class="float-end" [ngClass]="role.icon"></i>
+                                <i class="float-end" [class]="role.icon"></i>
                                 {{ role.name | translate }}
                             </a>
                         </button>
@@ -75,12 +75,12 @@ SPDX-License-Identifier: EUPL-1.2
                         <button
                             ngbDropdownItem
                             role="presentation"
-                            [ngClass]="permission.filtered ? 'active' : ''"
+                            [class.active]="permission.filtered"
                             (click)="applyPermissionFilter(permission)"
                             (keydown.enter)="applyPermissionFilter(permission)"
                         >
                             <a role="menuitem" title="{{ permission.name }}">
-                                <i class="float-end" [ngClass]="permission.icon || ''"></i>
+                                <i class="float-end" [class]="permission.icon || ''"></i>
                                 {{ permission.name || '' | translate }}&nbsp;
                             </a>
                         </button>
@@ -128,7 +128,7 @@ SPDX-License-Identifier: EUPL-1.2
                             <td>{{ user.lastLogin | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
                             <td>
                                 @for (icon of getRoleIcons(user); track icon) {
-                                    <i [ngClass]="icon" class="pe-2"></i>
+                                    <i [class]="icon" [class.pe-2]="true"></i>
                                 }
                                 <div class="float-end">
                                     <span class="xm-no-caret pointer" ngbDropdown>
@@ -156,7 +156,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                         (keydown.enter)="addRole(user, role)"
                                                     >
                                                         {{ role.name | translate }}
-                                                        <i [ngClass]="role.icon"></i>
+                                                        <i [class]="role.icon"></i>
                                                     </button>
                                                 }
                                             </div>
@@ -197,7 +197,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                         (keydown.enter)="removeRole(user, role)"
                                                     >
                                                         {{ role.name | translate }}
-                                                        <i [ngClass]="role.icon"></i>
+                                                        <i [class]="role.icon"></i>
                                                     </button>
                                                 }
                                             </div>
@@ -244,7 +244,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                         (keydown.enter)="addPermission(user, permission)"
                                                     >
                                                         {{ permission.name || '' | translate }}
-                                                        <i [ngClass]="permission.icon || ''"></i>
+                                                        <i [class]="permission.icon"></i>
                                                     </button>
                                                 }
                                             </div>
@@ -281,7 +281,7 @@ SPDX-License-Identifier: EUPL-1.2
                                                         (keydown.enter)="removePermission(user, permission)"
                                                     >
                                                         {{ permission.name || '' | translate }}
-                                                        <i [ngClass]="permission.icon || ''"></i>
+                                                        <i [class]="permission.icon"></i>
                                                     </button>
                                                 }
                                             </div>

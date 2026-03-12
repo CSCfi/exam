@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, registerLocaleData } from '@angular/common';
+import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
@@ -21,12 +21,12 @@ import { SessionService } from './session/session.service';
         @if (initializing()) {
             <div class="app-initializing" aria-live="polite">{{ 'i18n_loading' | translate }}</div>
         }
-        @if (!initializing() && !user && devLoginRequired()) {
+        @if (!initializing() && !user() && devLoginRequired()) {
             <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
         }
-        @if (user) {
+        @if (user()) {
             <xm-navigation [hidden]="hideNavBar()"></xm-navigation>
-            <main id="mainView" class="container-fluid" [ngClass]="{ 'vmenu-on': !hideNavBar() }">
+            <main id="mainView" class="container-fluid" [class.vmenu-on]="!hideNavBar()">
                 <router-outlet></router-outlet>
             </main>
         }
@@ -60,17 +60,17 @@ import { SessionService } from './session/session.service';
             }
         `,
     ],
-    imports: [DevLoginComponent, NavigationComponent, NgClass, RouterOutlet, TranslateModule],
+    imports: [DevLoginComponent, NavigationComponent, RouterOutlet, TranslateModule],
 })
 export class AppComponent implements OnInit {
-    user?: User;
-    hideNavBar = signal(false);
-    devLoginRequired = signal(false);
-    initializing = signal(true);
+    readonly hideNavBar = signal(false);
+    readonly devLoginRequired = signal(false);
+    readonly initializing = signal(true);
+    readonly user = signal<User | undefined>(undefined);
 
-    private router = inject(Router);
-    private Session = inject(SessionService);
-    private ExaminationStatus = inject(ExaminationStatusService);
+    private readonly router = inject(Router);
+    private readonly Session = inject(SessionService);
+    private readonly ExaminationStatus = inject(ExaminationStatusService);
 
     constructor() {
         registerLocaleData(localeSv);
@@ -90,8 +90,8 @@ export class AppComponent implements OnInit {
 
         // React to dev logout signal
         effect(() => {
-            if (this.Session.devLogoutChangeSignal()) {
-                delete this.user;
+            if (this.Session.devLogoutChange()) {
+                this.user.set(undefined);
                 this.router.navigate(['']);
             }
         });
@@ -111,7 +111,7 @@ export class AppComponent implements OnInit {
             this.Session.restartSessionCheck();
             // Load course code prefix if not already loaded (e.g., after page refresh)
             this.Session.loadCourseCodePrefix$().subscribe();
-            this.user = user;
+            this.user.set(user);
         } else {
             this.Session.switchLanguage('en');
             this.Session.getEnv$().subscribe({
@@ -132,7 +132,7 @@ export class AppComponent implements OnInit {
     }
 
     setUser(user: User) {
-        this.user = user;
+        this.user.set(user);
     }
 
     /**
@@ -142,7 +142,7 @@ export class AppComponent implements OnInit {
     private tryProdLogin(retry = false) {
         this.Session.login$('', '').subscribe({
             next: (user) => {
-                this.user = user;
+                this.user.set(user);
                 this.initializing.set(false);
             },
             error: () => {

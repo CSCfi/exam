@@ -21,9 +21,8 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="overflow-x-scroll">
             <div class="col-lg-6 input-group my-2">
                 <input
-                    (change)="applyFreeSearchFilter()"
-                    [ngModel]="view()!.filter"
-                    (ngModelChange)="updateFilter($event)"
+                    [value]="view()!.filter"
+                    (input)="onFreeSearchFilterInput($event)"
                     class="form-control"
                     placeholder="{{ 'i18n_search' | translate }}"
                 />

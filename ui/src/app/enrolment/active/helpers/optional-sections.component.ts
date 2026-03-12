@@ -95,7 +95,7 @@ import { ExamSection } from 'src/app/exam/exam.model';
     </div>`,
 })
 export class OptionalSectionsComponent {
-    allSections = input.required<ExamSection[]>();
-    selectedSections = input.required<ExamSection[]>();
-    showSections = signal(false);
+    readonly allSections = input.required<ExamSection[]>();
+    readonly selectedSections = input.required<ExamSection[]>();
+    readonly showSections = signal(false);
 }

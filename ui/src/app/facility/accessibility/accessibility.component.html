@@ -11,16 +11,20 @@ SPDX-License-Identifier: EUPL-1.2
 </div>
 <div class="row ms-3">
     <div class="col-md-12">
-        <form role="form">
+        <form>
             <label for="new-accessibility-name" class="form-label">{{ 'i18n_name' | translate }}</label>
             <input
                 type="text"
                 id="new-accessibility-name"
-                name="name"
                 class="form-control col-md-12"
-                [(ngModel)]="newItem.name"
+                [formField]="newItemForm.name"
             />
-            <button type="button" [disabled]="!newItem.name" (click)="add()" class="btn btn-primary mt-2">
+            <button
+                type="button"
+                [disabled]="newItemForm.name().invalid()"
+                (click)="add()"
+                class="btn btn-primary mt-2"
+            >
                 {{ 'i18n_create_new' | translate }}
             </button>
         </form>
@@ -44,14 +48,12 @@ SPDX-License-Identifier: EUPL-1.2
                                 {{ accessibility.name }}
                             </div>
                             @if (accessibility.showName) {
-                                <form role="form">
+                                <form>
                                     <div class="input-group">
                                         <input
                                             type="text"
                                             class="form-control input-sm"
-                                            name="accessibility-name"
-                                            [ngModel]="accessibility.name"
-                                            (ngModelChange)="updateAccessibilityName(accessibility, $event)"
+                                            [formField]="getEditNameForm(accessibility).name"
                                             autofocus
                                         />
                                         <span class="input-group-text pointer" (click)="saveAndToggle(accessibility)">{{

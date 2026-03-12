@@ -68,7 +68,8 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="col-md-8 col-12 p-0">
             <div
                 class="row m-2"
-                [ngClass]="reservation() ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+                [class.xm-study-item-container]="reservation()"
+                [class.xm-study-item-container--inactive]="!reservation()"
             >
                 <div class="col-md-12">
                     <div class="row">

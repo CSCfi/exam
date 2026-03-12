@@ -58,10 +58,7 @@ SPDX-License-Identifier: EUPL-1.2
                     @for (machine of machines(); track machine.id) {
                         <tr>
                             <td>
-                                <a
-                                    [ngClass]="{ 'text-danger': !machine.name }"
-                                    [routerLink]="['/staff/machines', machine.id]"
-                                >
+                                <a [class.text-danger]="!machine.name" [routerLink]="['/staff/machines', machine.id]">
                                     <strong>{{ !machine.name ? ('i18n_no_name' | translate) : machine.name }}</strong>
                                 </a>
                             </td>

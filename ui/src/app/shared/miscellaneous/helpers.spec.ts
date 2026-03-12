@@ -131,16 +131,15 @@ describe('helpers', () => {
             expect(updated.length).toBe(3);
         });
 
-        it('should mutate the original array', () => {
+        it('should not mutate the original array', () => {
             const items = [
                 { id: 1, name: 'Alice' },
                 { id: 2, name: 'Bob' },
             ];
-            const original = items;
 
             updateList(items, 'id', { id: 1, name: 'Alicia' });
 
-            expect(original[0]).toEqual({ id: 1, name: 'Alicia' });
+            expect(items[0]).toEqual({ id: 1, name: 'Alice' });
         });
     });
 

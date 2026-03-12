@@ -59,14 +59,14 @@ enum UserRole {
     styleUrl: './reports.component.scss',
 })
 export class ReportsComponent {
-    rooms = signal<Option<ExamRoom, number>[]>([]);
-    examNames = signal<Option<string, number>[]>([]);
-    teachers = signal<Option<User, number>[]>([]);
-    students = signal<Option<User, number>[]>([]);
+    readonly rooms = signal<Option<ExamRoom, number>[]>([]);
+    readonly examNames = signal<Option<string, number>[]>([]);
+    readonly teachers = signal<Option<User, number>[]>([]);
+    readonly students = signal<Option<User, number>[]>([]);
 
-    private Users = inject(UserService);
-    private Reports = inject(ReportsService);
-    private Room = inject(RoomService);
+    private readonly Users = inject(UserService);
+    private readonly Reports = inject(ReportsService);
+    private readonly Room = inject(RoomService);
 
     constructor() {
         this.Room.getRooms$().subscribe((resp) => {

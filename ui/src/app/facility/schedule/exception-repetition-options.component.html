@@ -101,18 +101,17 @@ SPDX-License-Identifier: EUPL-1.2
                         <input
                             class="form-check-input"
                             type="radio"
-                            [ngModel]="useOrdinals()"
-                            (ngModelChange)="setUseOrdinals($event)"
-                            [value]="false"
+                            [checked]="!useOrdinals()"
+                            (change)="setUseOrdinals(false)"
                         />
                         <input
                             type="number"
                             class="ms-1 me-1 mb-1"
                             min="1"
                             max="31"
-                            [ngModel]="dayOfMonth()"
-                            (ngModelChange)="dayOfMonthChanged($event)"
+                            [value]="dayOfMonth()"
                             [disabled]="useOrdinals()"
+                            (input)="onDayOfMonthInput($event)"
                         />
                         {{ 'i18n_day' | translate }}
                         @if (mode() === REPEAT_OPTION.yearly) {
@@ -123,10 +122,8 @@ SPDX-License-Identifier: EUPL-1.2
                         <input
                             class="form-check-input"
                             type="radio"
-                            checked
-                            [ngModel]="useOrdinals()"
-                            (ngModelChange)="setUseOrdinals($event)"
-                            [value]="true"
+                            [checked]="useOrdinals()"
+                            (change)="setUseOrdinals(true)"
                         />
                         {{ 'i18n_of_month' | translate }}
                         <span class="dropdown" ngbDropdown>

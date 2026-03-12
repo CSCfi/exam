@@ -78,11 +78,11 @@ import { groupBy } from 'src/app/shared/miscellaneous/helpers';
     imports: [KeyValuePipe, TranslateModule],
 })
 export class IopReservationStatisticsComponent {
-    queryParams = input<QueryParams>({});
-    reservations = signal<Reservation[]>([]);
-    grouped = signal<Record<string, Reservation[]>>({});
+    readonly queryParams = input<QueryParams>({});
+    readonly reservations = signal<Reservation[]>([]);
+    readonly grouped = signal<Record<string, Reservation[]>>({});
 
-    private Statistics = inject(StatisticsService);
+    private readonly Statistics = inject(StatisticsService);
 
     listReservations() {
         this.Statistics.listIopReservations$(this.queryParams()).subscribe((resp) => {

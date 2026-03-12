@@ -18,5 +18,5 @@ import { ChangeDetectionStrategy, Component, input, TemplateRef } from '@angular
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageContentComponent {
-    content = input.required<TemplateRef<unknown>>();
+    readonly content = input.required<TemplateRef<unknown>>();
 }

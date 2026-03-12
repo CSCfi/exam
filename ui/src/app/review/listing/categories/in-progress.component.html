@@ -35,9 +35,8 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="py-3 d-flex justify-content-between">
             <div class="input-group my-2 w-25">
                 <input
-                    (input)="applyFreeSearchFilter()"
-                    [ngModel]="view()!.filter"
-                    (ngModelChange)="updateFilter($event)"
+                    [value]="view()!.filter"
+                    (input)="onFreeSearchFilterInput($event)"
                     class="form-control"
                     placeholder="{{ 'i18n_search' | translate }}"
                 />
@@ -194,8 +193,11 @@ SPDX-License-Identifier: EUPL-1.2
                             <td>
                                 @for (inspection of review.examParticipation.exam.examInspections; track inspection) {
                                     @if (inspection.user) {
-                                        <span [ngClass]="inspection.ready ? 'text-success' : 'text-danger'">
-                                            <span [ngClass]="isOwner(inspection.user) ? 'fw-bold' : ''">
+                                        <span
+                                            [class.text-success]="inspection.ready"
+                                            [class.text-danger]="!inspection.ready"
+                                        >
+                                            <span [class.fw-bold]="isOwner(inspection.user)">
                                                 {{ inspection.user.firstName }} {{ inspection.user.lastName }}
                                             </span>
                                             <span>

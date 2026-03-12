@@ -29,13 +29,13 @@ import { SettingsService } from './settings.service';
     ],
 })
 export class SettingsComponent {
-    config = signal<AppConfig | undefined>(undefined);
-    attributes = signal<string[]>([]);
-    private _minorAgreementUpdate = signal(false);
+    readonly config = signal<AppConfig | undefined>(undefined);
+    readonly attributes = signal<string[]>([]);
+    private readonly _minorAgreementUpdate = signal(false);
 
-    private Settings = inject(SettingsService);
-    private toast = inject(ToastrService);
-    private translate = inject(TranslateService);
+    private readonly Settings = inject(SettingsService);
+    private readonly toast = inject(ToastrService);
+    private readonly translate = inject(TranslateService);
 
     constructor() {
         this.Settings.getConfig$().subscribe((resp) => this.config.set(resp));

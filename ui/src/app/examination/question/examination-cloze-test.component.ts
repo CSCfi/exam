@@ -37,13 +37,18 @@ import { ExaminationService } from 'src/app/examination/examination.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationClozeTestComponent {
-    sq = input.required<ExaminationQuestion>();
-    examHash = input('');
-    isPreview = input(false);
+    readonly sq = input.required<ExaminationQuestion>();
+    readonly examHash = input('');
+    readonly isPreview = input(false);
+    readonly isExternal = input(false);
 
-    private Examination = inject(ExaminationService);
+    private readonly Examination = inject(ExaminationService);
 
     saveAnswer() {
-        this.Examination.saveTextualAnswer$(this.sq(), this.examHash(), false, false).subscribe();
+        this.Examination.saveTextualAnswer$(this.sq(), this.examHash(), {
+            autosave: false,
+            canFail: false,
+            external: this.isExternal(),
+        }).subscribe();
     }
 }

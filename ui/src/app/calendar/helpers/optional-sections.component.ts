@@ -2,11 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamInfo } from 'src/app/calendar/calendar.model';
+import type { ExamInfo, SelectableSection } from 'src/app/calendar/calendar.model';
 
 @Component({
     selector: 'xm-calendar-optional-sections',
@@ -14,7 +13,8 @@ import type { ExamInfo } from 'src/app/calendar/calendar.model';
     template: `
         <div
             class="row m-2 xm details-view"
-            [ngClass]="sectionSelectionOk() ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+            [class.xm-study-item-container]="sectionSelectionOk()"
+            [class.xm-study-item-container--inactive]="!sectionSelectionOk()"
         >
             <span class="col-md-12">
                 <h2 class="calendar-phase-title">2. {{ 'i18n_exam_materials' | translate }}</h2>
@@ -54,9 +54,9 @@ import type { ExamInfo } from 'src/app/calendar/calendar.model';
                                             class="form-check-input"
                                             type="checkbox"
                                             value=""
-                                            [(ngModel)]="section.selected"
+                                            [checked]="section.selected"
                                             id="check1"
-                                            (ngModelChange)="checkSectionSelections()"
+                                            (change)="onSectionSelectedChange(section, $event)"
                                         />
                                         <label class="form-check-label" for="check1">
                                             {{ 'i18n_select_optional_section' | translate }}
@@ -91,11 +91,16 @@ import type { ExamInfo } from 'src/app/calendar/calendar.model';
         </div>
     `,
     styleUrls: ['../calendar.component.scss'],
-    imports: [NgClass, FormsModule, UpperCasePipe, TranslateModule],
+    imports: [UpperCasePipe, TranslateModule],
 })
 export class OptionalSectionsComponent {
-    examInfo = input.required<ExamInfo>();
-    selected = output<{ valid: boolean }>();
+    readonly examInfo = input.required<ExamInfo>();
+    readonly selected = output<{ valid: boolean }>();
+
+    onSectionSelectedChange = (section: SelectableSection, event: Event) => {
+        section.selected = (event.target as HTMLInputElement).checked;
+        this.checkSectionSelections();
+    };
 
     checkSectionSelections() {
         this.selected.emit({ valid: this.sectionSelectionOk() });

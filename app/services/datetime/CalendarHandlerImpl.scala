@@ -36,6 +36,7 @@ class CalendarHandlerImpl @Inject() (
     emailComposer: EmailComposer,
     dateTimeHandler: DateTimeHandler,
     enrolmentHandler: EnrolmentHandler,
+    clock: AppClock,
     implicit val ec: BlockingIOExecutionContext
 ) extends CalendarHandler
     with EbeanQueryExtensions
@@ -147,8 +148,8 @@ class CalendarHandlerImpl @Inject() (
       configReader.getDefaultTimeZone
     )
     val startOffset           = dtz.getOffset(exam.getPeriodStart)
-    val offset                = dtz.getOffset(DateTime.now())
-    val now                   = DateTime.now().plusMillis(offset).toLocalDate
+    val offset                = dtz.getOffset(clock.now())
+    val now                   = clock.now().plusMillis(offset).toLocalDate
     val reservationWindowDate = now.plusDays(windowSize)
 
     val examEndDate = new DateTime(exam.getPeriodEnd).plusMillis(offset).toLocalDate
@@ -308,7 +309,7 @@ class CalendarHandlerImpl @Inject() (
       case hs  => hs.sorted
 
     val now =
-      DateTime.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone).getOffset(DateTime.now()))
+      clock.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone).getOffset(clock.now()))
 
     openingHours.flatMap { oh =>
       val tzOffset = oh.timezoneOffset
@@ -494,7 +495,7 @@ class CalendarHandlerImpl @Inject() (
 
       // Removal is not permitted if the old reservation is in the past or if exam is already started
       if exam.getState == Exam.State.STUDENT_STARTED ||
-        oldReservationOpt.exists(_.toInterval.isBefore(DateTime.now()))
+        oldReservationOpt.exists(_.toInterval.isBefore(clock.now()))
       then Some(Forbidden("i18n_reservation_in_effect"))
 
       // If no previous reservation, check if allowed to participate
@@ -517,7 +518,7 @@ class CalendarHandlerImpl @Inject() (
     oldReservationOpt match
       case Some(oldRes)
           if Option(oldRes.getExternalRef).isDefined &&
-            !oldRes.getStartAt.isAfter(dateTimeHandler.adjustDST(DateTime.now())) &&
+            !oldRes.getStartAt.isAfter(dateTimeHandler.adjustDST(clock.now())) &&
             !enrolment.isNoShow &&
             enrolment.getExam.getState == Exam.State.PUBLISHED =>
         // External reservation - assessment not returned yet
@@ -525,7 +526,7 @@ class CalendarHandlerImpl @Inject() (
       case _ => None
 
   override def getEnrolment(examId: Long, user: User): ExamEnrolment =
-    val now = dateTimeHandler.adjustDST(DateTime.now())
+    val now = dateTimeHandler.adjustDST(clock.now())
     DB.find(classOf[ExamEnrolment])
       .fetch("exam")
       .where()
@@ -626,7 +627,7 @@ class CalendarHandlerImpl @Inject() (
   private def createDefaultStartingHours(roomTz: String): List[ExamStartingHour] =
     // Deliberately get offset from Jan 1st to have no DST in effect
     val zone      = DateTimeZone.forID(roomTz)
-    val beginning = DateTime.now().withDayOfYear(1).withTimeAtStartOfDay()
+    val beginning = clock.now().withDayOfYear(1).withTimeAtStartOfDay()
     val ending    = beginning.plusHours(LastHour)
 
     Iterator

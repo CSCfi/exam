@@ -3,45 +3,65 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { disabled, form, FormField, min, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ReviewQuestion } from 'src/app/review/review.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 @Component({
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
-    imports: [RouterLink, MathUnifiedDirective, FormsModule, UpperCasePipe, NgbCollapse, TranslateModule],
+    imports: [RouterLink, MathDirective, FormsModule, FormField, UpperCasePipe, NgbCollapse, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EssayAnswerComponent {
-    answer = input.required<ReviewQuestion>();
-    editable = input(false);
-    action = input('');
-    selected = output<ReviewQuestion>();
+    readonly answer = input.required<ReviewQuestion>();
+    readonly editable = input(false);
+    readonly action = input('');
+    readonly selected = output<ReviewQuestion>();
 
-    name = computed(() => {
+    readonly name = computed(() => {
         const currentAnswer = this.answer();
         return currentAnswer.examSection.exam.creator
             ? `${currentAnswer.examSection.exam.creator.lastName} ${currentAnswer.examSection.exam.creator.firstName}`
             : currentAnswer.examSection.exam.id.toString();
     });
+    readonly pointsFormModel = signal<{ score: number | null }>({ score: null });
+    readonly pointsForm = form(this.pointsFormModel, (path) => {
+        required(path.score);
+        min(path.score, 0);
+        disabled(path.score, () => !this.editable());
+    });
+    readonly isPointsScoreValid = computed(() => {
+        const score = this.pointsForm.score().value();
+        const max = this.answer().maxScore;
+        if (score == null || Number.isNaN(score)) return false;
+        return score >= 0 && score <= max;
+    });
 
-    private CommonExam = inject(CommonExamService);
-    private Attachment = inject(AttachmentService);
-    private initialized = false;
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly Attachment = inject(AttachmentService);
 
     constructor() {
         effect(() => {
-            // Initialize answer properties once when answer input is first set
-            if (!this.initialized) {
-                this.initializeAnswer();
-                this.initialized = true;
+            this.initializeAnswer();
+            const score = this.answer().essayAnswer.temporaryScore ?? null;
+            if (this.pointsForm.score().value() !== score) {
+                this.pointsForm.score().value.set(score);
+            }
+        });
+        effect(() => {
+            if (this.answer().evaluationType === 'Points') {
+                const score = this.pointsForm.score().value();
+                if (score != null) {
+                    this.answer().essayAnswer.temporaryScore = score;
+                }
             }
         });
     }

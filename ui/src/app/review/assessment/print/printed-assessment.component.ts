@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -20,7 +20,7 @@ import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -34,7 +34,7 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
     templateUrl: './printed-assessment.component.html',
     imports: [
         CourseCodeComponent,
-        MathUnifiedDirective,
+        MathDirective,
         PrintedSectionComponent,
         LowerCasePipe,
         DatePipe,
@@ -44,39 +44,36 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
     ],
     styleUrls: ['./print.shared.scss'],
 })
-export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
-    collaborative = false;
-    questionSummary = signal<QuestionAmounts>({ accepted: 0, rejected: 0, hasEssays: false });
-    exam = signal<Exam | undefined>(undefined);
-    user: User;
-    participation = signal<ExamParticipation | undefined>(undefined);
-    previousParticipations = signal<PreviousParticipation[]>([]);
-    student = signal<User | undefined>(undefined);
-    enrolment = signal<ExamEnrolment | undefined>(undefined);
-    reservation = signal<Reservation | undefined>(undefined);
-    id = 0;
-    ref = '';
+export class PrintedAssessmentComponent {
+    readonly collaborative: boolean;
+    readonly questionSummary = signal<QuestionAmounts>({ accepted: 0, rejected: 0, hasEssays: false });
+    readonly exam = signal<Exam | undefined>(undefined);
+    readonly participation = signal<ExamParticipation | undefined>(undefined);
+    readonly previousParticipations = signal<PreviousParticipation[]>([]);
+    readonly student = signal<User | undefined>(undefined);
+    readonly enrolment = signal<ExamEnrolment | undefined>(undefined);
+    readonly reservation = signal<Reservation | undefined>(undefined);
 
-    private route = inject(ActivatedRoute);
-    private http = inject(HttpClient);
-    private QuestionScore = inject(QuestionScoringService);
-    private Exam = inject(ExamService);
-    private CommonExam = inject(CommonExamService);
-    private Assessment = inject(AssessmentService);
-    private Session = inject(SessionService);
-    private DateTime = inject(DateTimeService);
+    readonly user: User;
+
+    private readonly id: number;
+    private readonly ref: string;
+
+    private readonly route = inject(ActivatedRoute);
+    private readonly http = inject(HttpClient);
+    private readonly QuestionScore = inject(QuestionScoringService);
+    private readonly Exam = inject(ExamService);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly Assessment = inject(AssessmentService);
+    private readonly Session = inject(SessionService);
+    private readonly DateTime = inject(DateTimeService);
 
     constructor() {
         this.user = this.Session.getUser();
-    }
-
-    ngOnInit() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
         this.collaborative = this.route.snapshot.data.collaborative;
-    }
 
-    ngAfterViewInit() {
         const path = this.collaborative ? `${this.id}/${this.ref}` : this.id;
         const url = this.getResource(path.toString());
 
@@ -96,15 +93,13 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
 
             this.questionSummary.set(this.QuestionScore.getQuestionAmounts(exam));
             this.exam.set(exam);
-            this.user = this.Session.getUser();
             this.participation.set(participation);
-            const participationValue = participation;
-            const duration = DateTime.fromISO(participationValue.duration as string)
+            const duration = DateTime.fromISO(participation.duration as string)
                 .set({ second: 0, millisecond: 0 })
                 .toJSDate();
-            participationValue.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
+            participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
 
-            this.student.set(participationValue.user);
+            this.student.set(participation.user);
             this.enrolment.set(exam.examEnrolments[0]);
             this.reservation.set(exam.examEnrolments[0]?.reservation as Reservation);
             if (!this.collaborative) {

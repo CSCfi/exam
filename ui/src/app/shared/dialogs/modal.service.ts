@@ -9,11 +9,11 @@ import { catchError } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class ModalService {
-    private ngbModal = inject(NgbModal);
     private readonly defaultOptions: NgbModalOptions = {
         backdrop: 'static',
         keyboard: true,
     };
+    private readonly ngbModal = inject(NgbModal);
 
     open$<T>(component: Type<unknown>, options?: NgbModalOptions): Observable<T> {
         const modalRef: NgbModalRef = this.ngbModal.open(component, { ...this.defaultOptions, ...options });

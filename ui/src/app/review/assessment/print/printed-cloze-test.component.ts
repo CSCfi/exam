@@ -2,11 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgStyle } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
@@ -14,10 +13,10 @@ import { isNumber } from 'src/app/shared/miscellaneous/helpers';
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './templates/cloze-test.component.html',
     styleUrls: ['./print.shared.scss'],
-    imports: [MathUnifiedDirective, NgStyle, TranslateModule],
+    imports: [MathDirective, TranslateModule],
 })
 export class PrintedClozeTestComponent {
-    sectionQuestion = input.required<ExamSectionQuestion>();
+    readonly sectionQuestion = input.required<ExamSectionQuestion>();
 
     hasForcedScore = () => isNumber(this.sectionQuestion().forcedScore);
 

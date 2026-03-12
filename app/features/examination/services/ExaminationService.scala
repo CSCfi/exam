@@ -20,6 +20,7 @@ import play.api.{Environment, Logging, Mode}
 import repository.ExaminationRepository
 import security.BlockingIOExecutionContext
 import services.config.{ByodConfigHandler, ConfigReader}
+import services.datetime.AppClock
 import services.exam.AutoEvaluationHandler
 import services.mail.EmailComposer
 import validation.answer.{ClozeTestAnswerDTO, EssayAnswerDTO}
@@ -37,6 +38,7 @@ class ExaminationService @Inject() (
     private val byodConfigHandler: ByodConfigHandler,
     private val configReader: ConfigReader,
     private val environment: Environment,
+    private val clock: AppClock,
     implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with Logging:
@@ -310,7 +312,7 @@ class ExaminationService @Inject() (
       .find
 
   private def setDurations(ep: ExamParticipation): Unit =
-    ep.setEnded(DateTime.now())
+    ep.setEnded(clock.now())
     ep.setDuration(new DateTime(ep.getEnded.getMillis - ep.getStarted.getMillis))
 
   private def validateEnrolment(

@@ -20,12 +20,12 @@ import { AttachmentSelectorComponent } from './dialogs/attachment-picker.compone
 
 @Injectable({ providedIn: 'root' })
 export class AttachmentService {
-    private dialogs = inject(ConfirmationDialogService);
-    private http = inject(HttpClient);
-    private modal = inject(ModalService);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Files = inject(FileService);
+    private readonly dialogs = inject(ConfirmationDialogService);
+    private readonly http = inject(HttpClient);
+    private readonly modal = inject(ModalService);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Files = inject(FileService);
 
     removeQuestionAttachment(question: Partial<Question>) {
         if (question.attachment) {
@@ -198,8 +198,8 @@ export class AttachmentService {
     ): Observable<FileResult> => {
         const modalRef = this.modal.openRef(AttachmentSelectorComponent);
         Object.assign(modalRef.componentInstance, params);
-        modalRef.componentInstance.isTeacherModal = isTeacherModal;
-        modalRef.componentInstance.title = title;
+        modalRef.componentInstance.isTeacherModal.set(isTeacherModal);
+        modalRef.componentInstance.title.set(title);
         return this.modal.result$<FileResult>(modalRef);
     };
 

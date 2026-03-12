@@ -103,11 +103,11 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrintoutListingComponent {
-    printouts = signal<(Exam & { examinationDatesAggregate: string })[]>([]);
-    predicate = signal('examinationDatesAggregate');
-    reverse = signal(true);
+    readonly printouts = signal<(Exam & { examinationDatesAggregate: string })[]>([]);
+    readonly predicate = signal('examinationDatesAggregate');
+    readonly reverse = signal(true);
 
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     constructor() {
         this.http

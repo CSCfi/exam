@@ -16,7 +16,7 @@ import play.api.Logging
 import repository.EnrolmentRepository
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
-import services.datetime.DateTimeHandler
+import services.datetime.{AppClock, DateTimeHandler}
 import services.enrolment.EnrolmentHandler
 import services.exam.ExternalCourseHandler
 import services.mail.EmailComposer
@@ -36,6 +36,7 @@ class EnrolmentService @Inject() (
     private val configReader: ConfigReader,
     private val dateTimeHandler: DateTimeHandler,
     private val enrolmentHandler: EnrolmentHandler,
+    private val clock: AppClock,
     implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with EbeanJsonExtensions
@@ -94,7 +95,7 @@ class EnrolmentService @Inject() (
       case None => Left(EnrolmentError.InvalidEnrolment("Exam not found"))
       case Some(exam) =>
         if enrolmentHandler.isAllowedToParticipate(exam, user) then
-          val now = dateTimeHandler.adjustDST(new DateTime())
+          val now = dateTimeHandler.adjustDST(clock.now())
           val enrolments = DB
             .find(classOf[ExamEnrolment])
             .where()
@@ -112,7 +113,7 @@ class EnrolmentService @Inject() (
         else Left(EnrolmentError.NoTrialsLeft)
 
   private def isActive(enrolment: ExamEnrolment): Boolean =
-    val now  = dateTimeHandler.adjustDST(new DateTime())
+    val now  = dateTimeHandler.adjustDST(clock.now())
     val exam = enrolment.getExam
     if Option(exam).isEmpty || exam.getImplementation == Exam.Implementation.AQUARIUM then
       val reservation = enrolment.getReservation
@@ -159,7 +160,7 @@ class EnrolmentService @Inject() (
 
   private def makeEnrolment(exam: Exam, user: User): ExamEnrolment =
     val enrolment = new ExamEnrolment()
-    enrolment.setEnrolledOn(DateTime.now())
+    enrolment.setEnrolledOn(clock.now())
     if Option(user.getId).isEmpty then enrolment.setPreEnrolledUserEmail(user.getEmail)
     else enrolment.setUser(user)
     enrolment.setExam(exam)
@@ -262,7 +263,7 @@ class EnrolmentService @Inject() (
           // Reservation in effect
           else if enrolments
               .flatMap(e => Option(e.getReservation))
-              .exists(r => r.toInterval.contains(dateTimeHandler.adjustDST(DateTime.now(), r)))
+              .exists(r => r.toInterval.contains(dateTimeHandler.adjustDST(clock.now(), r)))
           then
             tx.rollback()
             Future.successful(Left(EnrolmentError.ReservationInEffect))
@@ -271,7 +272,7 @@ class EnrolmentService @Inject() (
               Option(e.getExaminationEventConfiguration).exists { config =>
                 config.getExaminationEvent
                   .toInterval(e.getExam)
-                  .contains(dateTimeHandler.adjustDST(DateTime.now()))
+                  .contains(dateTimeHandler.adjustDST(clock.now()))
               }
             }
           then
@@ -281,7 +282,7 @@ class EnrolmentService @Inject() (
             // Enrolments with future reservations
             val futureReservations = enrolments.filter { ee =>
               Option(ee.getReservation).exists(
-                _.toInterval.isAfter(dateTimeHandler.adjustDST(DateTime.now()))
+                _.toInterval.isAfter(dateTimeHandler.adjustDST(clock.now()))
               )
             }
 
@@ -330,7 +331,7 @@ class EnrolmentService @Inject() (
                 val reservation = enrolment.getReservation
                 if Option(reservation).exists { r =>
                     Option(r.getExternalRef).isDefined &&
-                    !r.getStartAt.isAfter(dateTimeHandler.adjustDST(DateTime.now())) &&
+                    !r.getStartAt.isAfter(dateTimeHandler.adjustDST(clock.now())) &&
                     !enrolment.isNoShow &&
                     enrolment.getExam.getState == Exam.State.PUBLISHED
                   }
@@ -450,7 +451,7 @@ class EnrolmentService @Inject() (
           .fetch("examEnrolments")
           .where()
           .idEq(configId)
-          .gt("examinationEvent.start", DateTime.now())
+          .gt("examinationEvent.start", clock.now())
           .eq("exam", enrolment.getExam)
           .find
 

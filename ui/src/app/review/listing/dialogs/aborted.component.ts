@@ -4,7 +4,7 @@
 
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, Input, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -33,39 +33,17 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbortedExamsComponent {
-    abortedPredicate = signal('started');
-    reverse = signal(false);
+    readonly exam = signal<Exam | undefined>(undefined);
+    readonly abortedExams = signal<Review[]>([]);
+    readonly abortedPredicate = signal('started');
+    readonly reverse = signal(false);
+    readonly showId = computed(() => this.Session.getUser().isAdmin && (this.exam()?.anonymous ?? false));
 
-    private _exam = signal<Exam | undefined>(undefined);
-    private _abortedExams = signal<Review[]>([]);
-
-    private modal = inject(NgbActiveModal);
-    private translate = inject(TranslateService);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
-    private Session = inject(SessionService);
-
-    get exam() {
-        return this._exam()!;
-    }
-
-    get abortedExams() {
-        return this._abortedExams();
-    }
-
-    @Input()
-    set exam(value: Exam) {
-        this._exam.set(value);
-    }
-
-    @Input()
-    set abortedExams(value: Review[]) {
-        this._abortedExams.set(value);
-    }
-
-    showId() {
-        return this.Session.getUser().isAdmin && this.exam.anonymous;
-    }
+    private readonly modal = inject(NgbActiveModal);
+    private readonly translate = inject(TranslateService);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
+    private readonly Session = inject(SessionService);
 
     permitRetrial(enrolment: ExamEnrolment) {
         this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe(() => {

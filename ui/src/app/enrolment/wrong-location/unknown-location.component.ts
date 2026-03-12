@@ -23,17 +23,17 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
     imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class UnknownLocationComponent {
-    enrolment = signal<ExamEnrolment | undefined>(undefined);
-    reservation = signal<Reservation | undefined>(undefined);
-    roomInstructions = signal('');
-    occasion = signal({ startAt: '', endAt: '' });
+    readonly enrolment = signal<ExamEnrolment | undefined>(undefined);
+    readonly reservation = signal<Reservation | undefined>(undefined);
+    readonly roomInstructions = signal('');
+    readonly occasion = signal({ startAt: '', endAt: '' });
 
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
-    private DateTimeService = inject(DateTimeService);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
+    private readonly DateTimeService = inject(DateTimeService);
 
     constructor() {
         const eid = this.route.snapshot.params['eid'];

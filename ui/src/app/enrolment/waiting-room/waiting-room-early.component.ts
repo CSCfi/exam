@@ -33,11 +33,11 @@ import { WaitingEnrolment, WaitingReservation } from './waiting-room.component';
     imports: [DatePipe, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class WaitingRoomEarlyComponent {
-    enrolment = signal<WaitingEnrolment | undefined>(undefined);
+    readonly enrolment = signal<WaitingEnrolment | undefined>(undefined);
 
-    private route = inject(ActivatedRoute);
-    private http = inject(HttpClient);
-    private toast = inject(ToastrService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly http = inject(HttpClient);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
         if (this.route.snapshot.params.id && this.route.snapshot.params.hash) {

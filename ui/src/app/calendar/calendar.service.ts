@@ -22,9 +22,9 @@ type WeekdayNames = Record<string, { ord: number; name: string }>;
 
 @Injectable({ providedIn: 'root' })
 export class CalendarService {
-    private http = inject(HttpClient);
-    private DateTimeService = inject(DateTimeService);
-    private Session = inject(SessionService);
+    private readonly http = inject(HttpClient);
+    private readonly DateTimeService = inject(DateTimeService);
+    private readonly Session = inject(SessionService);
 
     reserve$(
         examId: number,

@@ -2,9 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormField, form, max, min } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -29,14 +28,10 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                             <input
                                 class="form-control"
                                 id="hourOffset"
-                                name="hourOffset"
                                 type="number"
                                 lang="en"
-                                [min]="0"
-                                [max]="59"
-                                [ngModel]="examStartingHourOffset()"
-                                (ngModelChange)="setExamStartingHourOffset($event)"
-                                (change)="setStartingHourOffset()"
+                                [formField]="hourOffsetForm.hourOffset"
+                                (change)="onHourOffsetChange()"
                                 (click)="setUnsavedProgress(true)"
                             />
                         </div>
@@ -49,7 +44,8 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                 @for (hour of examStartingHours(); track hour) {
                     <span
                         class="badge pointer"
-                        [ngClass]="hour.selected ? 'bg-success' : 'bg-secondary'"
+                        [class.bg-success]="hour.selected"
+                        [class.bg-secondary]="!hour.selected"
                         (click)="toggleHourSelected(hour)"
                         style="margin: 0.2em"
                         >{{ hour.startingHour }}</span
@@ -79,18 +75,22 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
                 </button>
             </div>
         </div>`,
-    imports: [FormsModule, NgClass, TranslateModule, NgbPopover],
+    imports: [FormField, TranslateModule, NgbPopover],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StartingTimeComponent {
-    roomIds = input<number[]>([]);
-    startingHours = input<WorkingHour[]>([]);
+    readonly roomIds = input<number[]>([]);
+    readonly startingHours = input<WorkingHour[]>([]);
 
-    examStartingHours = signal<WorkingHour[]>([]);
-    examStartingHourOffset = signal(0);
-    unsavedProgress = signal(false);
+    readonly examStartingHours = signal<WorkingHour[]>([]);
+    readonly examStartingHourOffset = signal(0);
+    readonly unsavedProgress = signal(false);
+    readonly hourOffsetForm = form(signal<{ hourOffset: number | null }>({ hourOffset: 0 }), (path) => {
+        min(path.hourOffset, 0);
+        max(path.hourOffset, 59);
+    });
 
-    private Room = inject(RoomService);
+    private readonly Room = inject(RoomService);
 
     constructor() {
         effect(() => {
@@ -103,6 +103,7 @@ export class StartingTimeComponent {
                 const startingHourDates = hours.map((hour) => DateTime.fromISO(hour.startingHour));
                 const offset = startingHourDates[0].minute;
                 this.examStartingHourOffset.set(offset);
+                this.hourOffsetForm.hourOffset().value.set(offset);
                 const formattedStartingHours = startingHourDates.map((hour) => hour.toFormat('H:mm'));
 
                 // First update the hour format with offset
@@ -154,6 +155,12 @@ export class StartingTimeComponent {
 
     setExamStartingHourOffset(value: number) {
         this.examStartingHourOffset.set(value);
+    }
+
+    onHourOffsetChange() {
+        const value = this.hourOffsetForm.hourOffset().value();
+        this.setExamStartingHourOffset(value ?? 0);
+        this.setStartingHourOffset();
     }
 
     toggleHourSelected(hour: WorkingHour) {

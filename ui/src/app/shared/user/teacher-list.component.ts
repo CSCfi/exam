@@ -21,9 +21,9 @@ type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TeacherListComponent {
-    exam = input<Personnel & { parent: Personnel | null }>();
-    useParent = input(false);
-    key = input<number | undefined>(undefined); // Forces Angular to create unique component instances
+    readonly exam = input<Personnel & { parent: Personnel | null }>();
+    readonly useParent = input(false);
+    readonly key = input<number | undefined>(undefined); // Forces Angular to create unique component instances
 
     get owners(): string {
         const examValue = this.exam();

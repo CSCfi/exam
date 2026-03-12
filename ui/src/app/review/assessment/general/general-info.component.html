@@ -4,18 +4,19 @@ SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 SPDX-License-Identifier: EUPL-1.2
 -->
 
+@let s = student();
 <div class="row">
     <div class="col-md-2">{{ 'i18n_name' | translate }}:</div>
     <div class="col-md-4">
-        {{ studentName }}
-        @if (student?.userIdentifier) {
-            <span>&nbsp;({{ student?.userIdentifier }})</span>
+        {{ studentName() }}
+        @if (s?.userIdentifier) {
+            <span>&nbsp;({{ s?.userIdentifier }})</span>
         }
     </div>
     <div class="col-md-2">{{ 'i18n_email' | translate }}:</div>
     <div class="col-md-4 xm-link">
-        @if (student?.email) {
-            <a href="mailto:{{ student?.email }}">{{ student?.email }}</a>
+        @if (s?.email) {
+            <a href="mailto:{{ s?.email }}">{{ s?.email }}</a>
         }
     </div>
 </div>
@@ -35,41 +36,45 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-2">{{ 'i18n_time_of_exam_participation' | translate }}:</div>
     <div class="col-md-4">{{ participation().duration | date: 'HH:mm' : 'UTC' }}</div>
 </div>
-@if (enrolment?.information) {
+@let enrolmentVal = enrolment();
+@let reservationVal = reservation();
+@if (enrolmentVal?.information) {
     <div class="row">
         <div class="col-md-2">{{ 'i18n_student_enrolment_info' | translate }}:</div>
-        <div class="col-md-10">{{ enrolment?.information }}</div>
+        <div class="col-md-10">{{ enrolmentVal?.information }}</div>
     </div>
 }
-@if (reservation) {
+@if (reservationVal) {
     <div class="row">
         <div class="col-md-2">{{ 'i18n_examination_location' | translate }}:</div>
-        @if (reservation.machine?.room) {
-            <div class="col-md-4">{{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})</div>
+        @if (reservationVal.machine?.room) {
+            <div class="col-md-4">
+                {{ reservationVal.machine.room.name }} ({{ reservationVal.machine.room.roomCode }})
+            </div>
         }
-        @if (!reservation?.machine?.room) {
+        @if (!reservationVal?.machine?.room) {
             <div class="col-md-4">N/A</div>
         }
         <div class="col-md-2">{{ 'i18n_exam_machine' | translate }}:</div>
-        @if (reservation?.machine) {
+        @if (reservationVal?.machine) {
             <div class="col-md-4">
-                {{ reservation.machine.name }}
+                {{ reservationVal.machine.name }}
             </div>
         }
-        @if (!reservation?.machine) {
+        @if (!reservationVal?.machine) {
             <div class="col-md-4">N/A</div>
         }
     </div>
 }
-@if (enrolment?.examinationEventConfiguration) {
+@if (enrolmentVal?.examinationEventConfiguration) {
     <div class="row">
         <div class="col-md-2">{{ 'i18n_examination_event' | translate }}:</div>
         <div class="col-md-4">
-            {{ enrolment?.examinationEventConfiguration?.examinationEvent?.start | date }}
+            {{ enrolmentVal?.examinationEventConfiguration?.examinationEvent?.start | date }}
         </div>
         <div class="col-md-2">{{ 'i18n_instructions' | translate }}:</div>
         <div class="col-md-4">
-            {{ enrolment?.examinationEventConfiguration?.examinationEvent?.description }}
+            {{ enrolmentVal?.examinationEventConfiguration?.examinationEvent?.description }}
         </div>
     </div>
 }

@@ -2,9 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, NgClass, SlicePipe } from '@angular/common';
+import { DatePipe, SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -25,8 +24,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     selector: 'xm-rl-archived',
     templateUrl: './archived.component.html',
     imports: [
-        FormsModule,
-        NgClass,
         NgbDropdownModule,
         TableSortComponent,
         RouterLink,
@@ -43,18 +40,18 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchivedReviewsComponent {
-    reviews = input<Review[]>([]);
-    exam = input.required<Exam>();
-    collaborative = input(false);
+    readonly exam = input.required<Exam>();
+    readonly reviews = input<Review[]>([]);
+    readonly collaborative = input(false);
 
-    view = signal<ReviewListView | undefined>(undefined);
-    selections = signal<{ all: boolean; page: boolean }>({ all: false, page: false });
+    readonly view = signal<ReviewListView | undefined>(undefined);
+    readonly selections = signal<{ all: boolean; page: boolean }>({ all: false, page: false });
 
-    private ReviewList = inject(ReviewListService);
-    private CommonExam = inject(CommonExamService);
-    private Files = inject(FileService);
-    private Session = inject(SessionService);
-    private Translate = inject(TranslateService);
+    private readonly ReviewList = inject(ReviewListService);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly Files = inject(FileService);
+    private readonly Session = inject(SessionService);
+    private readonly Translate = inject(TranslateService);
 
     constructor() {
         effect(() => this.init(this.reviews()));
@@ -142,6 +139,15 @@ export class ArchivedReviewsComponent {
     toggleView() {
         this.view.update((v) => ({ ...v!, toggle: !v!.toggle }));
     }
+
+    onReviewToggle = (review: Review, event: Event) => {
+        review.selected = (event.target as HTMLInputElement).checked;
+    };
+
+    onFreeSearchFilterInput = (event: Event) => {
+        this.updateFilter((event.target as HTMLInputElement).value);
+        this.applyFreeSearchFilter();
+    };
 
     private init(reviews: Review[]) {
         const initialView = {

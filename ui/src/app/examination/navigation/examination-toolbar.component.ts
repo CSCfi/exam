@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
+import { SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,29 +24,29 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     selector: 'xm-examination-toolbar',
     templateUrl: './examination-toolbar.component.html',
     styleUrls: ['../examination.shared.scss', './examination-toolbar.component.scss'],
-    imports: [NgClass, NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
+    imports: [NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationToolbarComponent implements OnInit {
-    exam = input.required<Examination>();
-    activeSection = input<ExaminationSection | undefined>(undefined);
-    isPreview = input(false);
-    isCollaborative = input(false);
-    pageSelected = output<{ page: { id?: number; type: string } }>();
+    readonly exam = input.required<Examination>();
+    readonly activeSection = input<ExaminationSection | undefined>(undefined);
+    readonly isPreview = input(false);
+    readonly isCollaborative = input(false);
+    readonly pageSelected = output<{ page: { id?: number; type: string } }>();
 
-    room = signal<ExamRoom | undefined>(undefined);
-    tab?: number;
+    readonly room = signal<ExamRoom | undefined>(undefined);
+    readonly tab: number;
 
-    private http = inject(HttpClient);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Confirmation = inject(ConfirmationDialogService);
-    private Session = inject(SessionService);
-    private Examination = inject(ExaminationService);
-    private Attachment = inject(AttachmentService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Confirmation = inject(ConfirmationDialogService);
+    private readonly Session = inject(SessionService);
+    private readonly Examination = inject(ExaminationService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     constructor() {
         this.tab = this.route.snapshot.queryParams.tab;
@@ -79,19 +79,18 @@ export class ExaminationToolbarComponent implements OnInit {
             next: () => {
                 const currentExam = this.exam();
                 // Save all textual answers regardless of empty or not
-                this.Examination.saveAllTextualAnswersOfExam$(currentExam)
+                this.Examination.saveAllTextualAnswersOfExam$(currentExam, currentExam.external)
                     .pipe(
                         catchError((err) => {
                             if (err) console.log(err);
                             return of(err);
                         }),
                         finalize(() =>
-                            this.Examination.logout(
-                                'i18n_exam_returned',
-                                currentExam.hash,
-                                currentExam.implementation === 'CLIENT_AUTH',
-                                false,
-                            ),
+                            this.Examination.logout('i18n_exam_returned', currentExam.hash, {
+                                quitLinkEnabled: currentExam.implementation === 'CLIENT_AUTH',
+                                canFail: false,
+                                external: currentExam.external,
+                            }),
                         ),
                     )
                     .subscribe();
@@ -106,7 +105,7 @@ export class ExaminationToolbarComponent implements OnInit {
         ).subscribe({
             next: () => {
                 const currentExam = this.exam();
-                this.Examination.abort$(currentExam.hash).subscribe({
+                this.Examination.abort$(currentExam.hash, currentExam.external).subscribe({
                     next: () => {
                         this.toast.info(this.translate.instant('i18n_exam_aborted'), undefined, { timeOut: 5000 });
                         this.router.navigate(['/examination/logout'], {

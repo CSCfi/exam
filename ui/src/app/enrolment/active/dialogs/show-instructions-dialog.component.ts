@@ -5,11 +5,11 @@
 import { Component, inject, model } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 
 @Component({
     selector: 'xm-show-instructions-dialog',
-    imports: [TranslateModule, MathUnifiedDirective],
+    imports: [TranslateModule, MathDirective],
     template: `
         <div class="modal-header">
             <div class="modal-title">
@@ -25,10 +25,10 @@ import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
     `,
 })
 export class ShowInstructionsDialogComponent {
-    instructions = model('');
-    title = model('');
+    readonly instructions = model('');
+    readonly title = model('');
 
-    activeModal = inject(NgbActiveModal);
+    private readonly activeModal = inject(NgbActiveModal);
 
     ok = () => this.activeModal.close();
 }

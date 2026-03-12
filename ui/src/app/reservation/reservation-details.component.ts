@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
@@ -28,32 +28,29 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         RouterLink,
         CourseCodeComponent,
         TeacherListComponent,
-        NgClass,
         LowerCasePipe,
         DatePipe,
         TranslateModule,
         ApplyDstPipe,
         OrderByPipe,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
+        NgbDropdownModule,
     ],
     styles: '.wrap { white-space: wrap !important }',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReservationDetailsComponent {
-    reservations = input<AnyReservation[]>([]);
-    isAdminView = input(false);
-    isSupportView = input(false);
-    predicate = signal('reservation.startAt');
-    reverse = signal(false);
-    fixedReservations = signal<ReservationDetail[]>([]);
+    readonly reservations = input<AnyReservation[]>([]);
+    readonly isAdminView = input(false);
+    readonly isSupportView = input(false);
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Reservation = inject(ReservationService);
+    readonly predicate = signal('reservation.startAt');
+    readonly reverse = signal(false);
+    readonly fixedReservations = signal<ReservationDetail[]>([]);
+
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Reservation = inject(ReservationService);
 
     constructor() {
         // This is terrible but modeling these is a handful. Maybe we can move some reservation types to different views.

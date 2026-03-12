@@ -25,7 +25,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <img src="/assets/images/icon_tooltip.svg" alt="" />
             </sup>
         </div>
-        <div class="col-md-6">{{ exam.name }}</div>
+        <div class="col-md-6">{{ exam()?.name }}</div>
     </div>
     <div class="row mt-3">
         <div class="col-md-3">
@@ -39,7 +39,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <img src="/assets/images/icon_tooltip.svg" alt="" />
             </sup>
         </div>
-        <div class="col-md-6">{{ exam.course?.name }}</div>
+        <div class="col-md-6">{{ exam()?.course?.name }}</div>
     </div>
     <div class="row mt-3">
         <div class="col-md-3">
@@ -54,8 +54,8 @@ SPDX-License-Identifier: EUPL-1.2
             </sup>
         </div>
         <div class="col-md-6">
-            {{ exam.periodStart | date: 'dd.MM.yyyy' }} -
-            {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
+            {{ exam()?.periodStart | date: 'dd.MM.yyyy' }} -
+            {{ exam()?.periodEnd | date: 'dd.MM.yyyy' }}
         </div>
     </div>
     <div class="row mt-3">
@@ -70,7 +70,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <img src="/assets/images/icon_tooltip.svg" alt="" />
             </sup>
         </div>
-        @if (exam) {
+        @if (exam()) {
             <div class="col-md-6">
                 {{ getQuestionCounts() }}
             </div>
@@ -89,10 +89,10 @@ SPDX-License-Identifier: EUPL-1.2
                 <img src="/assets/images/icon_tooltip.svg" alt="" />
             </sup>
         </div>
-        @if (reviews) {
+        @if (reviews().length > 0) {
             <div class="col-md-6">
-                {{ gradedCount }} / {{ getRegisteredCount() }} ({{
-                    (gradedCount / getRegisteredCount()) * 100 | number: '1.0-1'
+                {{ gradedCount() }} / {{ getRegisteredCount() }} ({{
+                    (gradedCount() / getRegisteredCount()) * 100 | number: '1.0-1'
                 }}%)
             </div>
         }
@@ -109,7 +109,7 @@ SPDX-License-Identifier: EUPL-1.2
                 <img src="/assets/images/icon_tooltip.svg" alt="" />
             </sup>
         </div>
-        @if (reviews.length > 0) {
+        @if (reviews().length > 0) {
             <div class="col-md-6">{{ getAverageTime() | number: '1.0-1' }} min</div>
         }
     </div>
@@ -127,7 +127,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         <div class="col-md-6">
             <a class="underline" (click)="openAborted()">
-                <strong>{{ abortedExams.length }}</strong>
+                <strong>{{ abortedExams().length }}</strong>
             </a>
         </div>
     </div>
@@ -145,7 +145,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
         <div class="col-md-6">
             <a class="underline" (click)="openNoShows()">
-                <strong>{{ noShows.length }}</strong>
+                <strong>{{ noShows().length }}</strong>
             </a>
         </div>
     </div>
@@ -168,11 +168,9 @@ SPDX-License-Identifier: EUPL-1.2
                 <img src="/assets/images/icon_tooltip.svg" alt="" />
             </sup>
         </div>
-        @if (reviews) {
+        @if (reviews().length > 0) {
             <div class="col-md-6">
-                {{ this.getReadFeedback() }} / {{ this.getTotalFeedback() }} ({{
-                    getFeedbackPercentage() | number: '1.0-1'
-                }}%)
+                {{ getReadFeedback() }} / {{ getTotalFeedback() }} ({{ getFeedbackPercentage() | number: '1.0-1' }}%)
             </div>
         }
     </div>
@@ -212,7 +210,7 @@ SPDX-License-Identifier: EUPL-1.2
     </div>
 
     <div class="mar40">
-        @for (kv of sectionScores | keyvalue; track kv) {
+        @for (kv of sectionScores() | keyvalue; track kv) {
             <div class="row mt-3">
                 <div class="col-md-3">
                     {{ kv.key }}
@@ -276,7 +274,7 @@ SPDX-License-Identifier: EUPL-1.2
         </div>
     </div>
 
-    @if (reviews.length > 0) {
+    @if (reviews().length > 0) {
         <div class="row">
             <div class="col-md-12 mt-3">
                 <button type="button" class="btn btn-link" (click)="printQuestionScoresReport()">

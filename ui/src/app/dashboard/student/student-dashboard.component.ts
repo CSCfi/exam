@@ -38,11 +38,12 @@ import { StudentDashboardService } from './student-dashboard.service';
         </ng-template>`,
 })
 export class StudentDashboardComponent {
-    enrolments = signal<DashboardEnrolment[]>([]);
-    sortedEnrolments = computed(() =>
+    readonly sortedEnrolments = computed(() =>
         [...this.enrolments()].sort((a, b) => a.startAtAggregate.localeCompare(b.startAtAggregate)),
     );
-    private StudentDashboard = inject(StudentDashboardService);
+    private readonly enrolments = signal<DashboardEnrolment[]>([]);
+
+    private readonly StudentDashboard = inject(StudentDashboardService);
 
     constructor() {
         this.StudentDashboard.listEnrolments$()

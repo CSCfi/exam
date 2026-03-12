@@ -57,7 +57,7 @@ SPDX-License-Identifier: EUPL-1.2
         <div class="sub-header-row col-md-3 newRow">{{ 'i18n_word_points' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <span>
-                <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                <span [style.text-decoration]="hasForcedScore() ? 'line-through' : null">
                     {{ displayAchievedScore() }}
                 </span>
                 @if (hasForcedScore()) {

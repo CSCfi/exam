@@ -32,12 +32,12 @@ import { countBy, groupBy } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })
 export class ChartService {
-    private Translate = inject(TranslateService);
-    private QuestionScore = inject(QuestionScoringService);
-    private ExamService = inject(ExamService);
-    private CommonExam = inject(CommonExamService);
-    private ReviewList = inject(ReviewListService);
-    private DateTime = inject(DateTimeService);
+    private readonly Translate = inject(TranslateService);
+    private readonly QuestionScore = inject(QuestionScoringService);
+    private readonly ExamService = inject(ExamService);
+    private readonly CommonExam = inject(CommonExamService);
+    private readonly ReviewList = inject(ReviewListService);
+    private readonly DateTime = inject(DateTimeService);
 
     constructor() {
         Chart.register([

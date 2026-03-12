@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -30,7 +29,6 @@ interface ExtendedRoom extends ExamRoom {
     templateUrl: './room.component.html',
     selector: 'xm-room',
     imports: [
-        NgClass,
         NgbPopover,
         RouterLink,
         OpenHoursComponent,
@@ -43,10 +41,10 @@ interface ExtendedRoom extends ExamRoom {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomComponent {
-    room = input.required<ExtendedRoom>();
+    readonly room = input.required<ExtendedRoom>();
 
-    private timeDateService = inject(DateTimeService);
-    private roomService = inject(RoomService);
+    private readonly timeDateService = inject(DateTimeService);
+    private readonly roomService = inject(RoomService);
 
     switchVisibility(room: ExtendedRoom) {
         if (!room.activate) {

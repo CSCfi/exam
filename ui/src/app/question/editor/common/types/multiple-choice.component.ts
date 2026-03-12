@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import {
     ControlContainer,
@@ -25,22 +25,23 @@ import { MultipleChoiceOption } from 'src/app/question/question.model';
     templateUrl: './multiple-choice.component.html',
     styleUrls: ['../../question.shared.scss'],
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
-    imports: [ReactiveFormsModule, NgClass, UpperCasePipe, TranslateModule],
+    imports: [ReactiveFormsModule, UpperCasePipe, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultipleChoiceComponent implements AfterViewInit {
-    question = input.required<ReverseQuestion | QuestionDraft>();
-    lotteryOn = input(false);
-    showWarning = input(false);
-    allowOptionRemoval = input(false);
-    multichoiceFeaturesOn = input(false);
+    readonly question = input.required<ReverseQuestion | QuestionDraft>();
+    readonly lotteryOn = input(false);
+    readonly showWarning = input(false);
+    readonly allowOptionRemoval = input(false);
+    readonly multichoiceFeaturesOn = input(false);
 
-    multipleChoiceForm: FormGroup;
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private QuestionScore = inject(QuestionScoringService);
-    private parentForm = inject(FormGroupDirective);
-    private formInitialized = signal(false);
+    readonly multipleChoiceForm: FormGroup;
+
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly QuestionScore = inject(QuestionScoringService);
+    private readonly parentForm = inject(FormGroupDirective);
+    private readonly formInitialized = signal(false);
 
     constructor() {
         // Create nested form group with FormArray for options

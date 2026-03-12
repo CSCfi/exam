@@ -30,5 +30,5 @@ import { TranslateModule } from '@ngx-translate/core';
     `,
 })
 export class PublicationRevocationDialogComponent {
-    activeModal = inject(NgbActiveModal);
+    protected readonly activeModal = inject(NgbActiveModal);
 }

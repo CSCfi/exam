@@ -2,16 +2,15 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, exhaustMap, take } from 'rxjs/operators';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import type { Exam } from 'src/app/exam/exam.model';
@@ -26,13 +25,13 @@ import type { User } from 'src/app/session/session.model';
                     type="text"
                     class="form-control w-50 make-inline"
                     placeholder="{{ 'i18n_write_participant_name' | translate }}"
-                    [(ngModel)]="newParticipant.name"
+                    [(ngModel)]="participantName"
                     [ngbTypeahead]="listStudents$"
                     [inputFormatter]="nameFormat"
                     [resultFormatter]="nameFormat"
                     (selectItem)="setExamParticipant($event)"
                 />
-                <button [disabled]="!newParticipant.id" (click)="addParticipant()" class="btn btn-success">
+                <button [disabled]="!newParticipantData().id" (click)="addParticipant()" class="btn btn-success">
                     {{ 'i18n_add' | translate }}
                 </button>
             </div>
@@ -54,7 +53,7 @@ import type { User } from 'src/app/session/session.model';
             </div>
             <!-- Students not having finished the exam, sorted alphabetically -->
             @for (enrolment of exam().examEnrolments; track enrolment) {
-                <div class="row" [ngClass]="{ 'hover-grey': exam().state !== 'PUBLISHED' }">
+                <div class="row" [class.hover-grey]="exam().state !== 'PUBLISHED'">
                     <div class="col-md-12">
                         &hyphen; {{ renderParticipantLabel(enrolment) }} <small><{{ enrolment.user?.email }}></small>
                         @if (enrolment.user?.userIdentifier) {
@@ -90,57 +89,53 @@ import type { User } from 'src/app/session/session.model';
             }
         }
     `,
-    imports: [FormsModule, NgClass, NgbTypeahead, TranslateModule],
+    imports: [FormsModule, NgbTypeahead, TranslateModule],
     styleUrls: ['../../exam.shared.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamParticipantSelectorComponent {
-    exam = input.required<Exam>();
-    newParticipant: { id?: number; name?: string } = {};
-    participants = computed(() => {
+    readonly exam = input.required<Exam>();
+
+    readonly newParticipantData = signal<{ id?: number }>({});
+    readonly participants = computed(() => {
         const currentExam = this.exam();
         return currentExam.children
             .map((c) => c.examParticipation)
             .filter((p): p is ExamParticipation => p !== undefined)
             .map((p) => p.user);
     });
+    participantName = '';
 
-    private http = inject(HttpClient);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly http = inject(HttpClient);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     listStudents$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
-            tap((name) => (this.newParticipant.name = name)),
             debounceTime(200),
             distinctUntilChanged(),
             exhaustMap((s) => (s.length < 2 ? from([]) : this.findUsers$(s))),
             take(15),
         );
 
-    idFormat(u: User) {
-        return u.id;
-    }
-
-    nameFormat = (u: User) => {
+    nameFormat = (u: User | string) => {
+        if (typeof u === 'string') return u;
         const uid = u.userIdentifier ? ` (${u.userIdentifier})` : '';
         return `${u.firstName} ${u.lastName} <${u.email}>${uid}`;
     };
 
     setExamParticipant(event: NgbTypeaheadSelectItemEvent) {
-        this.newParticipant.id = event.item.id;
+        this.newParticipantData.update((p) => ({ ...p, id: event.item.id }));
     }
 
     addParticipant() {
         const currentExam = this.exam();
-        this.Enrolment.enrollStudent$(currentExam, this.newParticipant).subscribe({
+        this.Enrolment.enrollStudent$(currentExam, this.newParticipantData()).subscribe({
             next: (enrolment) => {
-                // push to the list
                 currentExam.examEnrolments.push(enrolment);
-                // nullify input fields
-                this.newParticipant.name = undefined;
-                this.newParticipant.id = undefined;
+                this.newParticipantData.set({});
+                this.participantName = '';
             },
             error: (err) => this.toast.error(err),
         });

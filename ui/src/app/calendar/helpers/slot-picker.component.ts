@@ -2,12 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import {
     ChangeDetectionStrategy,
     Component,
-    ViewChild,
     ViewEncapsulation,
     computed,
     effect,
@@ -18,7 +16,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EventApi, EventInput } from '@fullcalendar/core';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
@@ -42,11 +40,7 @@ type AvailableSlot = Slot & { availableMachines: number };
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        NgClass,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
+        NgbDropdownModule,
         SelectedRoomComponent,
         AccessibilityPickerComponent,
         BookingCalendarComponent,
@@ -55,32 +49,29 @@ type AvailableSlot = Slot & { availableMachines: number };
     ],
 })
 export class SlotPickerComponent {
-    @ViewChild('passwordPrompt') passwordPrompt!: PasswordPromptComponent;
-
-    sequenceNumber = input(0);
-    isInteroperable = input(false);
-    isCollaborative = input(false);
-    isExternal = input(false);
-    organisation = input<Organisation | undefined>(undefined);
-    disabled = input(false);
-    minDate = input<Date>(new Date());
-    maxDate = input<Date>(new Date());
-    cancelled = output<void>();
-    selected = output<{
+    readonly sequenceNumber = input(0);
+    readonly isInteroperable = input(false);
+    readonly isCollaborative = input(false);
+    readonly isExternal = input(false);
+    readonly organisation = input<Organisation | undefined>(undefined);
+    readonly disabled = input(false);
+    readonly minDate = input<Date>(new Date());
+    readonly maxDate = input<Date>(new Date());
+    readonly cancelled = output<void>();
+    readonly selected = output<{
         start: string;
         end: string;
         room: ExamRoom;
         accessibilities: Accessibility[];
     }>();
 
-    accessibilities = signal<FilterableAccessibility[]>([]);
-    currentWeek = signal(DateTime.now());
-    examId = signal(0);
-    passwordVerified = signal(false);
-    selectedRoom = signal<ExamRoom | undefined>(undefined);
+    readonly accessibilities = signal<FilterableAccessibility[]>([]);
+    readonly currentWeek = signal(DateTime.now());
+    readonly passwordVerified = signal(false);
+    readonly selectedRoom = signal<ExamRoom | undefined>(undefined);
 
     // Computed state derived from organisation
-    rooms = computed<FilterableRoom[]>(() => {
+    readonly rooms = computed<FilterableRoom[]>(() => {
         const org = this.organisation();
         const filteredId = this.filteredRoomId();
         const baseRooms = org
@@ -89,22 +80,24 @@ export class SlotPickerComponent {
         return baseRooms.map((r): FilterableRoom => ({ ...r, filtered: r.id === filteredId }));
     });
 
-    maintenancePeriods = computed<(MaintenancePeriod & { org: string })[]>(() => {
+    readonly maintenancePeriods = computed<(MaintenancePeriod & { org: string })[]>(() => {
         const org = this.organisation();
         const local = this.localMaintenancePeriods();
         const remote = org?.maintenancePeriods?.map((p) => ({ ...p, org: org.code })) || [];
         return [...local, ...remote];
     });
 
-    // API-loaded state
-    private localRooms = signal<FilterableRoom[]>([]);
-    private localMaintenancePeriods = signal<(MaintenancePeriod & { org: '' })[]>([]);
-    private filteredRoomId = signal<number | undefined>(undefined);
+    private readonly examId = signal(0);
 
-    private translate = inject(TranslateService);
-    private route = inject(ActivatedRoute);
-    private toast = inject(ToastrService);
-    private Calendar = inject(CalendarService);
+    // API-loaded state
+    private readonly localRooms = signal<FilterableRoom[]>([]);
+    private readonly localMaintenancePeriods = signal<(MaintenancePeriod & { org: '' })[]>([]);
+    private readonly filteredRoomId = signal<number | undefined>(undefined);
+
+    private readonly translate = inject(TranslateService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly toast = inject(ToastrService);
+    private readonly Calendar = inject(CalendarService);
 
     constructor() {
         this.examId.set(Number(this.route.snapshot.paramMap.get('id')));

@@ -22,20 +22,20 @@ import { FileService } from 'src/app/shared/file/file.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationEssayQuestionComponent {
-    sq = input.required<Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }>();
-    exam = input<Examination | undefined>(undefined);
-    isPreview = input(false);
+    readonly sq = input.required<Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }>();
+    readonly exam = input<Examination | undefined>(undefined);
+    readonly isPreview = input(false);
 
-    questionTitle = computed(() => {
+    readonly questionTitle = computed(() => {
         const html = this.sq().question.question;
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         return doc.documentElement.innerText;
     });
 
-    private Examination = inject(ExaminationService);
-    private Attachment = inject(AttachmentService);
-    private Files = inject(FileService);
+    private readonly Examination = inject(ExaminationService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly Files = inject(FileService);
 
     constructor() {
         // Initialize essayAnswer if missing and set answer status when sq input changes
@@ -53,7 +53,11 @@ export class ExaminationEssayQuestionComponent {
     }
 
     saveAnswer() {
-        this.Examination.saveTextualAnswer$(this.sq(), this.exam()?.hash || '', false, false).subscribe();
+        this.Examination.saveTextualAnswer$(this.sq(), this.exam()?.hash || '', {
+            autosave: false,
+            canFail: false,
+            external: this.exam()?.external ?? false,
+        }).subscribe();
     }
 
     removeQuestionAnswerAttachment() {

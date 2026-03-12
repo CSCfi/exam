@@ -67,11 +67,11 @@ import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
     imports: [NgbCollapse, TranslateModule],
 })
 export class AccessibilityPickerComponent {
-    items = input<FilterableAccessibility[]>([]);
-    disabled = input(false);
-    itemsChange = output<FilterableAccessibility[]>();
+    readonly items = input<FilterableAccessibility[]>([]);
+    readonly disabled = input(false);
+    readonly itemsChange = output<FilterableAccessibility[]>();
 
-    showMenu = signal(false);
+    readonly showMenu = signal(false);
 
     select() {
         this.itemsChange.emit(this.items());

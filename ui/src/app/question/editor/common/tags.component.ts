@@ -10,6 +10,7 @@ import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 import type { QuestionDraft, ReverseQuestion, Tag } from 'src/app/question/question.model';
+import { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 
 @Component({
@@ -19,12 +20,11 @@ import { SessionService } from 'src/app/session/session.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TagsComponent {
-    question = input.required<ReverseQuestion | QuestionDraft>();
-    collaborative = input(false);
+    readonly question = input.required<ReverseQuestion | QuestionDraft>();
+    readonly collaborative = input(false);
+    readonly tagsChange = output<Tag[]>();
 
-    tagsChange = output<Tag[]>();
-
-    ownTags = computed(() => {
+    readonly ownTags = computed(() => {
         const questionValue = this.question();
         if (!questionValue.tags) {
             return [];
@@ -32,11 +32,16 @@ export class TagsComponent {
         return questionValue.tags.filter((t) => t.creator?.id === this.user.id);
     });
 
-    private http = inject(HttpClient);
-    private Session = inject(SessionService);
-    private user = this.Session.getUser();
-    private newTagTemplate = signal<Tag | undefined>(undefined);
-    private tagName = signal<string>('');
+    private readonly newTagTemplate = signal<Tag | undefined>(undefined);
+    private readonly tagName = signal<string>('');
+    private readonly user: User;
+
+    private readonly http = inject(HttpClient);
+    private readonly Session = inject(SessionService);
+
+    constructor() {
+        this.user = this.Session.getUser();
+    }
 
     get newTag(): Tag | undefined {
         return this.newTagTemplate();

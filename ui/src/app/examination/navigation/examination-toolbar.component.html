@@ -44,7 +44,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-12">
                 <button
                     class="btn btn-success me-2 mb-2"
-                    [ngClass]="!activeSection() ? '' : 'notactive'"
+                    [class.notactive]="!activeSection()"
                     (click)="selectGuidePage()"
                     (keydown.enter)="selectGuidePage()"
                 >
@@ -85,7 +85,7 @@ SPDX-License-Identifier: EUPL-1.2
         @for (section of exam().examSections | orderBy: 'sequenceNumber'; track section.id; let i = $index) {
             <div
                 class="row mt-3 ms-2 align-items-center phase-box"
-                [ngClass]="activeSection()?.sequenceNumber === i ? '' : 'notactive'"
+                [class.notactive]="activeSection()?.sequenceNumber !== i"
             >
                 <div class="col-12 ps-0">{{ 'i18n_exam_section' | translate }} {{ i + 1 }}: {{ section.name }}</div>
                 <div class="col-1 ms-1">

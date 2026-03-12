@@ -26,7 +26,7 @@ import { TranslateModule } from '@ngx-translate/core';
     `,
 })
 export class InspectionStatementDialogComponent {
-    statement = input('');
+    readonly statement = input('');
 
-    activeModal = inject(NgbActiveModal);
+    protected readonly activeModal = inject(NgbActiveModal);
 }

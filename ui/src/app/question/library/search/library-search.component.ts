@@ -3,11 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { AfterViewInit, Component, inject, OnDestroy, output, signal } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil, tap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, skip, Subject, takeUntil, tap } from 'rxjs';
 import type { Course, Exam, ExamSection } from 'src/app/exam/exam.model';
 import { LibraryService } from 'src/app/question/library/library.service';
 import { LibraryQuestion, Tag } from 'src/app/question/question.model';
@@ -31,43 +32,37 @@ interface Filterable<T> {
 @Component({
     selector: 'xm-library-search',
     templateUrl: './library-search.component.html',
-    imports: [DropdownSelectComponent, FormsModule, ReactiveFormsModule, TranslateModule],
+    imports: [DropdownSelectComponent, FormField, TranslateModule],
 })
 export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
-    updated = output<LibraryQuestion[]>();
+    readonly updated = output<LibraryQuestion[]>();
 
-    filter = { owner: '', text: '' };
-    limitations = { course: '', exam: '', section: '', tag: '', owner: '' };
-    user: User;
-    searchTextControl = new FormControl('');
-    courses = signal<Filterable<Course>[]>([]);
-    filteredCourses = signal<Filterable<Course>[]>([]);
-    exams = signal<Filterable<Exam>[]>([]);
-    filteredExams = signal<Filterable<Exam>[]>([]);
-    sections = signal<Filterable<ExamSection>[]>([]);
-    filteredSections = signal<Filterable<ExamSection>[]>([]);
-    tags = signal<Filterable<Tag>[]>([]);
-    filteredTags = signal<Filterable<Tag>[]>([]);
-    owners = signal<Filterable<User>[]>([]);
-    filteredOwners = signal<Filterable<User>[]>([]);
-    questions: LibraryQuestion[] = [];
+    readonly courses = signal<Filterable<Course>[]>([]);
+    readonly filteredCourses = signal<Filterable<Course>[]>([]);
+    readonly exams = signal<Filterable<Exam>[]>([]);
+    readonly filteredExams = signal<Filterable<Exam>[]>([]);
+    readonly sections = signal<Filterable<ExamSection>[]>([]);
+    readonly filteredSections = signal<Filterable<ExamSection>[]>([]);
+    readonly tags = signal<Filterable<Tag>[]>([]);
+    readonly filteredTags = signal<Filterable<Tag>[]>([]);
+    readonly owners = signal<Filterable<User>[]>([]);
+    readonly filteredOwners = signal<Filterable<User>[]>([]);
+    readonly searchForm = form(signal({ text: '' }));
+    readonly user: User;
+
+    private readonly questions = signal<LibraryQuestion[]>([]);
+    private readonly filter = signal({ owner: '', text: '' });
+    private readonly limitations = { course: '', exam: '', section: '', tag: '', owner: '' };
+    private readonly searchText$ = toObservable(this.searchForm.text().value);
 
     private readonly ngUnsubscribe = new Subject<void>();
-    private Library = inject(LibraryService);
-    private Session = inject(SessionService);
-    private CourseCode = inject(CourseCodeService);
-    private User = inject(UserService);
+    private readonly Library = inject(LibraryService);
+    private readonly Session = inject(SessionService);
+    private readonly CourseCode = inject(CourseCodeService);
+    private readonly User = inject(UserService);
 
     constructor() {
         this.user = this.Session.getUser();
-
-        // Subscribe to search text changes with debouncing
-        this.searchTextControl.valueChanges
-            .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
-            .subscribe((value) => {
-                this.filter.text = value || '';
-                this.applySearchFilter();
-            });
     }
 
     ngAfterViewInit() {
@@ -83,11 +78,11 @@ export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
             this.filteredTags.set(storedData.filters.tags || []);
             this.owners.set(storedData.filters.owners || []);
             this.filteredOwners.set(storedData.filters.owners || []);
-            this.filter.text = storedData.filters.text;
-            this.filter.owner = storedData.filters.owner;
-            this.searchTextControl.setValue(this.filter.text, { emitEvent: false });
+            this.filter().text = storedData.filters.text;
+            this.filter().owner = storedData.filters.owner;
+            this.searchForm.text().value.set(this.filter().text);
             this.query$().subscribe((questions) => {
-                if (this.filter.text || this.filter.owner) {
+                if (this.filter().text || this.filter().owner) {
                     this.applySearchFilter();
                 } else {
                     this.updated.emit(questions);
@@ -96,6 +91,12 @@ export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
         } else {
             this.query$().subscribe((resp) => this.updated.emit(resp));
         }
+        this.searchText$
+            .pipe(skip(1), debounceTime(300), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
+            .subscribe((value) => {
+                this.filter().text = value || '';
+                this.applySearchFilter();
+            });
     }
 
     ngOnDestroy() {
@@ -104,15 +105,15 @@ export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
     }
 
     applySearchFilter = () => {
-        let results = this.Library.applyFreeSearchFilter(this.filter.text, this.questions);
-        results = this.Library.applyOwnerSearchFilter(this.filter.owner, results);
+        let results = this.Library.applyFreeSearchFilter(this.filter().text, this.questions());
+        results = this.Library.applyOwnerSearchFilter(this.filter().owner, results);
         this.updated.emit(results);
         this.saveFilters();
     };
     applyOwnerSearchFilter = (user: Filterable<User>) => {
         user.filtered = !user.filtered;
         if (user.name) {
-            this.filter.owner = user.name;
+            this.filter().owner = user.name;
         } else {
             console.error('i18n_user_no_name');
         }
@@ -257,7 +258,7 @@ export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
                 )
                 .subscribe();
         } else {
-            const questionOwners = this.questions.flatMap((q) => q.questionOwners);
+            const questionOwners = this.questions().flatMap((q) => q.questionOwners);
             const uniqueMap: Record<number, User> = {};
             // Filter out duplicates based on the 'id' property
             const uniqueArray = questionOwners.filter((obj) => {
@@ -388,8 +389,8 @@ export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
             sections: this.sections(),
             tags: this.tags(),
             owners: this.owners(),
-            text: this.filter.text,
-            owner: this.filter.owner,
+            text: this.filter().text,
+            owner: this.filter().owner,
         };
         this.Library.storeFilters(filters, 'search');
     };
@@ -429,7 +430,7 @@ export class LibrarySearchComponent implements AfterViewInit, OnDestroy {
             this.getOwnerIds(),
         ).pipe(
             tap((questions) => {
-                this.questions = questions;
+                this.questions.set(questions);
                 this.saveFilters();
             }),
         );

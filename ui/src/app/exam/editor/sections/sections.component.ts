@@ -32,18 +32,18 @@ import { SectionComponent } from './section.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionsComponent {
-    exam = signal<Exam>({} as Exam);
-    collaborative = signal(false);
-    materials = signal<ExamMaterial[]>([]);
+    readonly exam = signal<Exam>({} as Exam);
+    readonly collaborative = signal(false);
+    readonly materials = signal<ExamMaterial[]>([]);
 
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Exam = inject(ExamService);
-    private Session = inject(SessionService);
-    private Tabs = inject(ExamTabService);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Exam = inject(ExamService);
+    private readonly Session = inject(SessionService);
+    private readonly Tabs = inject(ExamTabService);
 
     constructor() {
         const examValue = this.Tabs.getExam();

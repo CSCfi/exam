@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
+import { SlicePipe, UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 import { EssayAnswer } from 'src/app/question/question.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
-import { MathUnifiedDirective } from 'src/app/shared/math/math.directive';
+import { MathDirective } from 'src/app/shared/math/math.directive';
 import { DynamicClozeTestComponent } from './dynamic-cloze-test.component';
 import { ExaminationClozeTestComponent } from './examination-cloze-test.component';
 import { ExaminationEssayQuestionComponent } from './examination-essay-question.component';
@@ -20,8 +20,7 @@ import { ExaminationWeightedMultiChoiceComponent } from './examination-weighted-
     selector: 'xm-examination-question',
     templateUrl: './examination-question.component.html',
     imports: [
-        NgClass,
-        MathUnifiedDirective,
+        MathDirective,
         DynamicClozeTestComponent,
         ExaminationEssayQuestionComponent,
         ExaminationClozeTestComponent,
@@ -35,20 +34,20 @@ import { ExaminationWeightedMultiChoiceComponent } from './examination-weighted-
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationQuestionComponent {
-    exam = input<Examination | undefined>(undefined);
-    question = input.required<ExaminationQuestion>();
-    isPreview = input(false);
-    isCollaborative = input(false);
+    readonly exam = input<Examination | undefined>(undefined);
+    readonly question = input.required<ExaminationQuestion>();
+    readonly isPreview = input(false);
+    readonly isCollaborative = input(false);
 
-    clozeAnswer = signal<{ [key: string]: string }>({});
-    expanded = signal(true);
+    readonly clozeAnswer = signal<{ [key: string]: string }>({});
+    readonly expanded = signal(true);
 
-    sq = computed(() => {
+    readonly sq = computed(() => {
         const q = this.question() as Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }; // FIXME
         return { ...q, expanded: true };
     });
 
-    questionTitle = computed(() => {
+    readonly questionTitle = computed(() => {
         // Extract plain text from HTML for aria-label (screen readers need plain text, not HTML)
         const html = this.sq().question.question;
         const parser = new DOMParser();
@@ -56,9 +55,9 @@ export class ExaminationQuestionComponent {
         return doc.documentElement.innerText;
     });
 
-    private Examination = inject(ExaminationService);
-    private Attachment = inject(AttachmentService);
-    private translate = inject(TranslateService);
+    private readonly Examination = inject(ExaminationService);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly translate = inject(TranslateService);
 
     constructor() {
         // Initialize clozeAnswer when question changes

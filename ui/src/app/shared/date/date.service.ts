@@ -16,7 +16,7 @@ export enum REPEAT_OPTION {
 
 @Injectable({ providedIn: 'root' })
 export class DateTimeService {
-    private translate = inject(TranslateService);
+    private readonly translate = inject(TranslateService);
 
     formatDuration = (minutes: number): string => {
         if (minutes === 0) return '';

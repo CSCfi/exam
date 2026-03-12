@@ -81,15 +81,15 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationSectionComponent implements OnDestroy {
-    exam = input.required<Examination>();
-    section = input.required<ExaminationSection>();
-    index = input<number | undefined>(undefined);
-    isPreview = input(false);
-    isCollaborative = input(false);
+    readonly exam = input.required<Examination>();
+    readonly section = input.required<ExaminationSection>();
+    readonly index = input<number | undefined>(undefined);
+    readonly isPreview = input(false);
+    readonly isCollaborative = input(false);
 
-    autosaver?: number;
+    private autosaver?: number;
 
-    private Examination = inject(ExaminationService);
+    private readonly Examination = inject(ExaminationService);
 
     constructor() {
         // Set up autosaver when section and isPreview inputs are available
@@ -123,13 +123,12 @@ export class ExaminationSectionComponent implements OnDestroy {
             const currentExam = this.exam();
             this.autosaver = window.setInterval(
                 () =>
-                    this.Examination.saveAllTextualAnswersOfSection$(
-                        currentSection,
-                        currentExam.hash,
-                        true,
-                        false,
-                        false,
-                    ).subscribe(),
+                    this.Examination.saveAllTextualAnswersOfSection$(currentSection, currentExam.hash, {
+                        autosave: true,
+                        allowEmpty: false,
+                        canFail: false,
+                        external: currentExam.external,
+                    }).subscribe(),
                 1000 * 60,
             );
         }

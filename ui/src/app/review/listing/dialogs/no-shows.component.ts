@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
@@ -19,23 +19,19 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoShowsComponent {
-    noShowPredicate = signal('reservation.startAt');
-    reverse = signal(false);
+    readonly noShows = signal<(ExamEnrolment & { displayName: string })[]>([]);
+    readonly noShowPredicate = signal('reservation.startAt');
+    readonly reverse = signal(false);
 
-    private _noShows = signal<(ExamEnrolment & { displayName: string })[]>([]);
-    private modal = inject(NgbActiveModal);
+    private readonly modal = inject(NgbActiveModal);
 
-    get noShows() {
-        return this._noShows();
-    }
-
-    @Input()
-    set noShows(value: (ExamEnrolment & { displayName: string })[]) {
-        this._noShows.set(value);
+    constructor() {
         //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
-        value.forEach((r) => {
-            const id = (r.exam ? r.exam.id : r.collaborativeExam.id).toString();
-            r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : id;
+        effect(() => {
+            this.noShows().forEach((r) => {
+                const id = (r.exam ? r.exam.id : r.collaborativeExam.id).toString();
+                r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : id;
+            });
         });
     }
 

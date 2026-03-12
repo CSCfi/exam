@@ -4,13 +4,12 @@
 
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
 
 @Component({
-    imports: [FormsModule, TranslateModule],
+    imports: [TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="modal-header">
@@ -31,8 +30,8 @@ import { Duration } from 'luxon';
                         id="hourValue"
                         class="form-control xm-numeric-input"
                         type="number"
-                        [ngModel]="hours()"
-                        (ngModelChange)="hours.set($event)"
+                        [value]="hours()"
+                        (input)="onHoursInput($event)"
                         [max]="maxHour()"
                         [min]="0"
                     />
@@ -43,8 +42,8 @@ import { Duration } from 'luxon';
                         id="minuteValue"
                         class="form-control xm-numeric-input"
                         type="number"
-                        [ngModel]="minutes()"
-                        (ngModelChange)="minutes.set($event)"
+                        [value]="minutes()"
+                        (input)="onMinutesInput($event)"
                         [max]="59"
                         [min]="0"
                     />
@@ -67,18 +66,18 @@ import { Duration } from 'luxon';
     `,
 })
 export class CustomDurationPickerDialogComponent {
-    hours = signal(0);
-    minutes = signal(0);
-    minDuration = signal(1);
-    maxDuration = signal(300);
-    maxHour = computed(() => this.maxDuration() / 60);
-    allowSaving = computed(() => {
+    readonly hours = signal(0);
+    readonly minutes = signal(0);
+    readonly minDuration = signal(1);
+    readonly maxDuration = signal(300);
+    readonly maxHour = computed(() => this.maxDuration() / 60);
+    readonly allowSaving = computed(() => {
         const duration = this.hours() * 60 + this.minutes();
         return duration <= this.maxDuration() && duration >= this.minDuration();
     });
 
-    activeModal = inject(NgbActiveModal);
-    private http = inject(HttpClient);
+    protected readonly activeModal = inject(NgbActiveModal);
+    private readonly http = inject(HttpClient);
 
     constructor() {
         this.http
@@ -88,6 +87,9 @@ export class CustomDurationPickerDialogComponent {
             .get<{ minDuration: number }>('/app/settings/minDuration')
             .subscribe((data) => this.minDuration.set(data.minDuration));
     }
+
+    onHoursInput = (event: Event) => this.hours.set(+(event.target as HTMLInputElement).value);
+    onMinutesInput = (event: Event) => this.minutes.set(+(event.target as HTMLInputElement).value);
 
     format(minutes: number): string {
         return Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');

@@ -4,7 +4,6 @@
 
 import { DatePipe, SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,7 +22,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     styleUrls: ['../maturity.shared.scss'],
     imports: [
         RouterLink,
-        FormsModule,
         NgbPopover,
         NgbCollapse,
         DatePickerComponent,
@@ -39,19 +37,18 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReviewedInspectionsComponent {
-    inspections = input<LanguageInspectionData[]>([]);
-    startDateChanged = output<{ date: Date | null }>();
-    endDateChanged = output<{ date: Date | null }>();
+    readonly inspections = input<LanguageInspectionData[]>([]);
+    readonly startDateChanged = output<{ date: Date | null }>();
+    readonly endDateChanged = output<{ date: Date | null }>();
 
-    sorting = signal<{ predicate: string; reverse: boolean }>({
+    readonly sorting = signal<{ predicate: string; reverse: boolean }>({
         predicate: 'exam.created',
         reverse: true,
     });
-    pageSize = 10;
-    currentPage = signal(0);
-    hideItems = signal(false);
-
-    filteredInspections = computed(() => {
+    readonly currentPage = signal(0);
+    readonly hideItems = signal(false);
+    readonly pageSize = 10;
+    readonly filteredInspections = computed(() => {
         const inspections = this.inspections();
         const filterText = this._filterText().toLowerCase();
         if (!filterText) {
@@ -60,8 +57,8 @@ export class ReviewedInspectionsComponent {
         return inspections.filter((i) => this.examToString(i).toLowerCase().match(filterText));
     });
 
-    private _filterText = signal('');
-    private LanguageInspections = inject(LanguageInspectionService);
+    private readonly _filterText = signal('');
+    private readonly LanguageInspections = inject(LanguageInspectionService);
 
     get filterText(): string {
         return this._filterText();
@@ -84,9 +81,9 @@ export class ReviewedInspectionsComponent {
         this.currentPage.set(event.page);
     }
 
-    filterTextChanged() {
-        // No-op: filterText setter already updates the signal, and filteredInspections is computed
-    }
+    onFilterInput = (event: Event) => {
+        this.filterText = (event.target as HTMLInputElement).value;
+    };
 
     onStartDateChanged(event: { date: Date | null }) {
         this.startDateChanged.emit({ date: event.date });

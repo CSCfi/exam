@@ -5,7 +5,7 @@
 export const isNumber = (a: unknown): a is number => typeof a === 'number' && !isNaN(a);
 export const isObject = (a: unknown): a is Record<string, unknown> => a instanceof Object;
 export const isString = (a: unknown): a is string => typeof a === 'string';
-export const isBoolean = (a: unknown): a is boolean => a === !!a;
+export const isBoolean = (a: unknown): a is boolean => typeof a === 'boolean';
 
 export const groupBy = <T>(xs: T[], fn: (x: T) => string | number | boolean): Record<string, T[]> =>
     xs.reduce(
@@ -19,8 +19,7 @@ export const groupBy = <T>(xs: T[], fn: (x: T) => string | number | boolean): Re
 
 export const updateList = <T>(items: T[], key: keyof T, value: T): T[] => {
     const index = items.findIndex((item) => item[key] === value[key]);
-    items.splice(index, 1, value);
-    return items;
+    return items.toSpliced(index, 1, value);
 };
 export const deduplicate = <T>(items: T[], key: keyof T) =>
     items.filter((item, i, xs) => xs.findIndex((item2) => item2[key] === item[key]) === i);

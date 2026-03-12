@@ -16,7 +16,7 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
                 <div class="mt-4 mb-4 p-5 bg-body-secondary rounded-3">
                     <div class="container-fluid py-5">
                         <h1 class="display-5 fw-bold">{{ 'i18n_end_of_exam' | translate }}</h1>
-                        <p class="fs-4" aria-live="polite">{{ reasonPhrase() | translate }}</p>
+                        <p class="fs-4" aria-live="polite">{{ reasonPhrase | translate }}</p>
                         @if (quitLink()) {
                             <a [href]="quitLink()!" class="btn btn-primary btn-lg"
                                 >{{ 'i18n_quit_seb' | translate }}
@@ -31,18 +31,18 @@ import { ExaminationStatusService } from 'src/app/examination/examination-status
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationLogoutComponent {
-    reasonPhrase = signal('');
-    quitLink = signal<string | undefined>(undefined);
+    readonly quitLink = signal<string | undefined>(undefined);
+    readonly reasonPhrase: string;
 
-    private http = inject(HttpClient);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private ExaminationStatus = inject(ExaminationStatusService);
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly ExaminationStatus = inject(ExaminationStatusService);
 
     constructor() {
         const reason =
             this.route.snapshot.queryParamMap.get('reason') === 'aborted' ? 'i18n_exam_aborted' : 'i18n_exam_returned';
-        this.reasonPhrase.set(reason);
+        this.reasonPhrase = reason;
         const quitLinkEnabled = this.route.snapshot.queryParamMap.get('quitLinkEnabled') === 'true';
 
         if (quitLinkEnabled) {

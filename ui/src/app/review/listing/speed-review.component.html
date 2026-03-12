@@ -103,12 +103,14 @@ SPDX-License-Identifier: EUPL-1.2
                             </td>
                             <td>
                                 @for (inspection of review.examParticipation.exam.examInspections; track inspection) {
-                                    <span class="d-block" [ngClass]="inspection.ready ? 'text-success' : 'text-danger'">
+                                    <span
+                                        class="d-block"
+                                        [class.text-success]="inspection.ready"
+                                        [class.text-danger]="!inspection.ready"
+                                    >
                                         <span
-                                            [ngClass]="
+                                            [class.bold]="
                                                 isOwner(inspection.user, review.examParticipation.exam.examOwners)
-                                                    ? 'bold'
-                                                    : ''
                                             "
                                         >
                                             {{ inspection.user.firstName }} {{ inspection.user.lastName }}
@@ -149,10 +151,13 @@ SPDX-License-Identifier: EUPL-1.2
                                 <select
                                     class="form-select custom-select"
                                     [disabled]="!isGradeable(review)"
-                                    [(ngModel)]="review.selectedGrade"
+                                    (change)="onGradeSelect(review, $event)"
                                 >
                                     @for (grade of review.grades | orderBy: 'id'; track grade) {
-                                        <option [ngValue]="grade">
+                                        <option
+                                            [value]="grade.id ?? grade.type"
+                                            [selected]="grade === review.selectedGrade"
+                                        >
                                             {{ grade.name }}
                                         </option>
                                     }

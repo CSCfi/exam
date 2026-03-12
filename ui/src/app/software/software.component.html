@@ -13,8 +13,13 @@ SPDX-License-Identifier: EUPL-1.2
     <div class="col-md-12">
         <form role="form">
             <label for="new-software-name" class="form-label">{{ 'i18n_software_name' | translate }}</label>
-            <input type="text" id="new-software-name" name="name" class="form-control" [(ngModel)]="newSoftware.name" />
-            <button (click)="addSoftware()" [disabled]="!newSoftware.name" class="btn btn-primary mt-2" type="button">
+            <input type="text" id="new-software-name" class="form-control" [formField]="newSoftwareForm.name" />
+            <button
+                (click)="addSoftware()"
+                [disabled]="newSoftwareForm.name().invalid()"
+                class="btn btn-primary mt-2"
+                type="button"
+            >
                 {{ 'i18n_create_new' | translate }}
             </button>
         </form>

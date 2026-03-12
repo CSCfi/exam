@@ -30,11 +30,11 @@ interface ExtendedRoom extends ExamRoom {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoomListComponent {
-    user: User;
-    rooms = signal<ExtendedRoom[]>([]);
+    readonly rooms = signal<ExtendedRoom[]>([]);
+    readonly user: User;
 
-    private session = inject(SessionService);
-    private roomService = inject(RoomService);
+    private readonly session = inject(SessionService);
+    private readonly roomService = inject(RoomService);
 
     constructor() {
         this.user = this.session.getUser();

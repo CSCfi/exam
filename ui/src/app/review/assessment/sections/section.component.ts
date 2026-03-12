@@ -23,22 +23,22 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     imports: [MultiChoiceQuestionComponent, EssayQuestionComponent, ClozeTestComponent, TranslateModule, OrderByPipe],
 })
 export class ExamSectionComponent implements OnInit {
-    section = input.required<ExamSection>();
-    isScorable = input(false);
-    index = input(0);
-    exam = input.required<Exam>();
-    participation = input.required<ExamParticipation>();
-    collaborative = input(false);
-    scored = output<string>();
+    readonly section = input.required<ExamSection>();
+    readonly exam = input.required<Exam>();
+    readonly participation = input.required<ExamParticipation>();
+    readonly isScorable = input(false);
+    readonly index = input(0);
+    readonly collaborative = input(false);
+    readonly scored = output<string>();
 
-    essayQuestionAmounts = signal<{ rejected: number; accepted: number; total: number }>({
+    readonly essayQuestionAmounts = signal<{ rejected: number; accepted: number; total: number }>({
         rejected: 0,
         accepted: 0,
         total: 0,
     });
 
-    private Exam = inject(ExamService);
-    private QuestionScore = inject(QuestionScoringService);
+    private readonly Exam = inject(ExamService);
+    private readonly QuestionScore = inject(QuestionScoringService);
 
     ngOnInit() {
         this.essayQuestionAmounts.set(this.QuestionScore.getEssayQuestionAmountsBySection(this.section()));

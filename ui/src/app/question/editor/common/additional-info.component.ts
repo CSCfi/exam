@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -22,17 +21,18 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
     selector: 'xm-question-additional-info',
     templateUrl: './additional-info.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
-    imports: [ReactiveFormsModule, TranslateModule, NgbPopover, NgClass],
+    imports: [ReactiveFormsModule, TranslateModule, NgbPopover],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdditionalInfoComponent implements AfterViewInit {
-    question = input<ReverseQuestion | QuestionDraft>();
-    showWarning = input(false);
+    readonly question = input<ReverseQuestion | QuestionDraft>();
+    readonly showWarning = input(false);
 
-    additionalInfoForm: FormGroup;
-    private parentForm = inject(FormGroupDirective);
-    private Attachment = inject(AttachmentService);
-    private cdr = inject(ChangeDetectorRef);
+    readonly additionalInfoForm: FormGroup;
+
+    private readonly parentForm = inject(FormGroupDirective);
+    private readonly Attachment = inject(AttachmentService);
+    private readonly cdr = inject(ChangeDetectorRef);
 
     constructor() {
         // Create form group for additional info

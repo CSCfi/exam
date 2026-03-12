@@ -17,7 +17,7 @@ interface ExamName {
 
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
-    private http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
 
     examNames = () => this.http.get<ExamName[]>('/app/statistics/examnames');
 }

@@ -2,14 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, takeUntil } from 'rxjs';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import { AutoEvaluationConfig, Exam, ExamFeedbackConfig, ExamType, GradeScale } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -20,31 +19,29 @@ import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
     selector: 'xm-exam-assessment',
     templateUrl: './exam-assessment.component.html',
     styleUrls: ['../../exam.shared.scss'],
-    imports: [NgbPopover, NgClass, AutoEvaluationComponent, ExamFeedbackConfigComponent, TranslateModule],
+    imports: [NgbPopover, AutoEvaluationComponent, ExamFeedbackConfigComponent, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamAssessmentComponent implements OnDestroy {
-    @ViewChild('autoEvaluationComponent') autoEvaluationComponent?: AutoEvaluationComponent;
+export class ExamAssessmentComponent {
+    readonly autoEvaluationRef = viewChild<AutoEvaluationComponent>('autoEvaluationComponent');
 
-    exam = signal<Exam>({} as Exam);
-    collaborative = signal(false);
+    readonly exam = signal<Exam>({} as Exam);
+    readonly collaborative = signal(false);
+    readonly examTypes = signal<(ExamType & { name: string })[]>([]);
+    readonly gradeScaleSetting = signal({ overridable: false });
+    readonly gradeScales = signal<GradeScale[]>([]);
+    readonly autoEvaluation = signal({ enabled: false });
+    readonly examFeedbackConfig = signal({ enabled: false });
+    readonly isAllowedToUpdateFeedbackConfig = signal<'everything' | 'nothing' | 'date'>('nothing');
 
-    examTypes = signal<(ExamType & { name: string })[]>([]);
-    gradeScaleSetting = signal({ overridable: false });
-    gradeScales = signal<GradeScale[]>([]);
-    autoEvaluation = signal({ enabled: false });
-    examFeedbackConfig = signal({ enabled: false });
-    isAllowedToUpdateFeedbackConfig = signal<'everything' | 'nothing' | 'date'>('nothing');
-
-    unsubscribe = new Subject<unknown>();
-
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private translate = inject(TranslateService);
-    private toast = inject(ToastrService);
-    private Tabs = inject(ExamTabService);
-    private Exam = inject(ExamService);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly http = inject(HttpClient);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly translate = inject(TranslateService);
+    private readonly toast = inject(ToastrService);
+    private readonly Tabs = inject(ExamTabService);
+    private readonly Exam = inject(ExamService);
 
     constructor() {
         this.exam.set(this.Tabs.getExam());
@@ -62,19 +59,10 @@ export class ExamAssessmentComponent implements OnDestroy {
         this.examFeedbackConfig.set({ enabled: !!currentExam.examFeedbackConfig });
         this.Tabs.notifyTabChange(3);
 
-        this.translate.onTranslationChange.pipe(takeUntil(this.unsubscribe)).subscribe(() => {
+        this.translate.onTranslationChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
             this.refreshExamTypes();
             this.refreshGradeScales();
         });
-    }
-
-    ngOnDestroy() {
-        this.unsubscribe.next(undefined);
-        this.unsubscribe.complete();
-    }
-
-    checkExamType(type: string) {
-        return this.exam().examType.type === type ? 'btn-primary' : '';
     }
 
     setExamType(type: string) {
@@ -84,7 +72,6 @@ export class ExamAssessmentComponent implements OnDestroy {
     }
 
     // when grade changes, delete autoeval config (locally) and call prepare
-
     updateExam(resetAutoEvaluationConfig: boolean) {
         const currentAutoEvaluation = this.autoEvaluation();
         const currentExam = this.exam();
@@ -92,8 +79,9 @@ export class ExamAssessmentComponent implements OnDestroy {
 
         // Only sync form data if auto-evaluation is enabled
         // If disabled, we want to save with evaluationConfig: null
-        if (this.autoEvaluationComponent && currentAutoEvaluation.enabled) {
-            this.autoEvaluationComponent.save();
+        const autoEvaluationComponent = this.autoEvaluationRef();
+        if (autoEvaluationComponent && currentAutoEvaluation.enabled) {
+            autoEvaluationComponent.save();
             // Re-read exam after save() updates it via autoEvaluationConfigChanged
             // Since signals are synchronous, the exam should be updated immediately
             const updatedExam = this.exam();

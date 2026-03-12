@@ -5,7 +5,6 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -27,7 +26,6 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     styleUrls: ['../../exam.shared.scss'],
     imports: [
         DatePickerComponent,
-        FormsModule,
         NgbPopover,
         TableSortComponent,
         CourseCodeComponent,
@@ -41,19 +39,19 @@ import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component'
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExaminationEventSearchComponent {
-    date = signal(new Date());
-    startDate = signal<Date | null>(new Date());
-    endDate = signal<Date | null>(new Date());
-    events = signal<ExaminationEventConfiguration[]>([]);
-    sortingPredicate = signal('examinationEvent.start');
-    sortingReverse = signal(true);
-    filterText = '';
+    readonly date = signal(new Date());
+    readonly startDate = signal<Date | null>(new Date());
+    readonly endDate = signal<Date | null>(new Date());
+    readonly events = signal<ExaminationEventConfiguration[]>([]);
+    readonly sortingPredicate = signal('examinationEvent.start');
+    readonly sortingReverse = signal(true);
+    readonly filterText = signal('');
 
-    private translate = inject(TranslateService);
-    private http = inject(HttpClient);
-    private ConfirmationDialog = inject(ConfirmationDialogService);
-    private Enrolment = inject(EnrolmentService);
-    private toast = inject(ToastrService);
+    private readonly translate = inject(TranslateService);
+    private readonly http = inject(HttpClient);
+    private readonly ConfirmationDialog = inject(ConfirmationDialogService);
+    private readonly Enrolment = inject(EnrolmentService);
+    private readonly toast = inject(ToastrService);
 
     constructor() {
         const endDate = new Date();
@@ -125,6 +123,11 @@ export class ExaminationEventSearchComponent {
         });
     }
 
+    onFilterInput(event: Event) {
+        this.filterText.set((event.target as HTMLInputElement).value);
+        this.query();
+    }
+
     query() {
         const params: { start?: string; end?: string } = {};
         const tzOffset = new Date().getTimezoneOffset() * 60000;
@@ -140,7 +143,7 @@ export class ExaminationEventSearchComponent {
             .get<ExaminationEventConfiguration[]>('/app/examinationevents', { params: params })
             .subscribe((resp: ExaminationEventConfiguration[]) => {
                 const filtered = resp.filter((e) =>
-                    this.examToString(e).toLowerCase().match(this.filterText.toLowerCase()),
+                    this.examToString(e).toLowerCase().match(this.filterText().toLowerCase()),
                 );
                 this.events.set(filtered);
             });

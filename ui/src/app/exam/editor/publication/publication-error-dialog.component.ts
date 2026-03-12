@@ -27,7 +27,7 @@ import { TranslateModule } from '@ngx-translate/core';
     </div>`,
 })
 export class PublicationErrorDialogComponent {
-    errors = input<string[]>([]);
+    readonly errors = input<string[]>([]);
 
-    activeModal = inject(NgbActiveModal);
+    protected readonly activeModal = inject(NgbActiveModal);
 }

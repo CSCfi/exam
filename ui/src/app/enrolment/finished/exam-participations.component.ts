@@ -5,8 +5,7 @@
 import { SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { EMPTY } from 'rxjs';
@@ -24,11 +23,7 @@ import { ExamParticipationComponent } from './exam-participation.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './exam-participations.component.html',
     imports: [
-        FormsModule,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
+        NgbDropdownModule,
         ExamParticipationComponent,
         PaginatorComponent,
         SlicePipe,
@@ -39,14 +34,14 @@ import { ExamParticipationComponent } from './exam-participation.component';
     ],
 })
 export class ExamParticipationsComponent {
-    filter = signal({ ordering: 'ended' as 'exam.name' | 'ended', reverse: true, text: '' });
-    pageSize = signal(10);
-    currentPage = signal(0);
-    collaborative = false;
-    searchDone = signal(false);
+    readonly filter = signal({ ordering: 'ended' as 'exam.name' | 'ended', reverse: true, text: '' });
+    readonly pageSize = 10;
+    readonly currentPage = signal(0);
+    readonly searchDone = signal(false);
+    readonly collaborative = false;
 
     // Reactive search with debouncing - automatically cleans up on destroy
-    participations = toSignal(
+    readonly participations = toSignal(
         toObservable(computed(() => this.filter().text)).pipe(
             debounceTime(500),
             distinctUntilChanged(),
@@ -71,8 +66,8 @@ export class ExamParticipationsComponent {
         { initialValue: [] as ParticipationLike[] },
     );
 
-    private toast = inject(ToastrService);
-    private Enrolment = inject(EnrolmentService);
+    private readonly toast = inject(ToastrService);
+    private readonly Enrolment = inject(EnrolmentService);
 
     constructor() {
         // Trigger initial search with empty string
@@ -85,6 +80,10 @@ export class ExamParticipationsComponent {
     set filterText(value: string) {
         this.filter.update((f) => ({ ...f, text: value }));
     }
+
+    onFilterInput = (event: Event) => {
+        this.filterText = (event.target as HTMLInputElement).value;
+    };
 
     pageSelected($event: { page: number }) {
         this.currentPage.set($event.page);
