@@ -102,7 +102,7 @@ class MaintenancePeriodService @Inject() (
       end: DateTime,
       description: String
   ) =
-    period.setStartsAt(start)
-    period.setEndsAt(end)
-    period.setDescription(description)
+    period.startsAt = start
+    period.endsAt = end
+    period.description = description
     period

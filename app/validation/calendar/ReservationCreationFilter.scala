@@ -4,7 +4,6 @@
 
 package validation.calendar
 
-import org.joda.time.DateTime
 import play.api.libs.json.JsValue
 import play.api.mvc.*
 import services.datetime.AppClock

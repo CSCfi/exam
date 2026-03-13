@@ -25,13 +25,13 @@ class SessionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtension
 
         // Login and verify user creation
         val (user, _) = runIO(login(eppn))
-        user.getRoles.size must be(1)
-        user.getOrganisation mustNot be(null)
-        user.getRoles.asScala.head.getName must be(Role.Name.TEACHER.toString)
-        user.getFirstName must be("George")
-        user.getLastName must be("Lazenby")
-        user.getUserIdentifier must be("org1.org:11111 org2.org:22222 org3.org:33333")
-        user.getLanguage.getCode must be("en") // was de originally, but not supported
+        user.roles.size must be(1)
+        user.organisation mustNot be(null)
+        user.roles.asScala.head.name must be(Role.Name.TEACHER.toString)
+        user.firstName must be("George")
+        user.lastName must be("Lazenby")
+        user.userIdentifier must be("org1.org:11111 org2.org:22222 org3.org:33333")
+        user.language.code must be("en") // was de originally, but not supported
 
     "handling new external user login" must:
       "reject external user and not create account" in:
@@ -67,7 +67,7 @@ class SessionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtension
         )
         val (user, _) = runIO(login(eppn, additionalHeaders))
         // Verify that the user was created with deduplicated identifiers
-        user.getUserIdentifier must be("org1.org:null org2.org:aaaaa")
+        user.userIdentifier must be("org1.org:null org2.org:aaaaa")
 
       "handle other identifier key types correctly" in:
         val eppn = "newuser@test.org"
@@ -86,7 +86,7 @@ class SessionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtension
         )
         val (user, _) = runIO(login(eppn, additionalHeaders))
         // Verify that the user was created with a correct identifier
-        user.getUserIdentifier must be("org2.org:aaaaa")
+        user.userIdentifier must be("org2.org:aaaaa")
 
       "handle invalid user identifier string" in:
         val eppn = "newuser@test.org"
@@ -99,7 +99,7 @@ class SessionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtension
         val additionalHeaders = Map("schacPersonalUniqueCode" -> "11111")
         val (user, _)         = runIO(login(eppn, additionalHeaders))
         // Verify that the user was created with the raw identifier
-        user.getUserIdentifier must be("11111")
+        user.userIdentifier must be("11111")
 
       "handle missing user identifier value" in:
         val eppn = "newuser@test.org"
@@ -114,7 +114,7 @@ class SessionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtension
         )
         val (user, _) = runIO(login(eppn, additionalHeaders))
         // Verify that the user was created with a null value
-        user.getUserIdentifier must be("org2.org:null")
+        user.userIdentifier must be("org2.org:null")
 
       "handle national user identifier correctly" in:
         val eppn = "newuser@test.org"
@@ -132,7 +132,7 @@ class SessionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtension
         )
         val (user, _) = runIO(login(eppn, additionalHeaders))
         // Verify user was created with a correct identifier (national identifier ignored)
-        user.getUserIdentifier must be("org2.org:111")
+        user.userIdentifier must be("org2.org:111")
 
     "handling session management" must:
       "maintain session across requests" in:
@@ -149,7 +149,7 @@ class SessionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtension
       "clear session on logout" in:
         // Login first
         val (user, session) = runIO(login("logouttest@funet.fi"))
-        user.getId.longValue must be > 0L
+        user.id.longValue must be > 0L
 
         // Logout using the session
         val logoutResult = runIO(logout())

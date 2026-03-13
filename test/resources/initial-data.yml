@@ -647,7 +647,7 @@ exams:
       - *sv
       - *en
       - *de
-    softwareInfo:
+    softwares:
       - *Firefox
       - *Matematica
 
@@ -1332,7 +1332,6 @@ exam-machines:
     name: Pegasus 01
     otherIdentifier: Huone, jonka tunnus on 1
     surveillanceCamera: CAM-001
-    accessible: true
     softwareInfo:
         - *Matematica
         - *Firefox
@@ -1346,7 +1345,6 @@ exam-machines:
     name: Pegasus 02
     otherIdentifier: Huone, jonka tunnus on 2
     surveillanceCamera: CAM-002
-    accessible: true
     softwareInfo:
         - *Matematica
         - *Firefox
@@ -1361,8 +1359,6 @@ exam-machines:
     name: Pegasus 03
     otherIdentifier: Huone, jonka tunnus on 3
     surveillanceCamera: CAM-003
-    accessibilityInfo: Pistekirjoitus alusta
-    accessible: true
     softwareInfo:
         - *Matematica
         - *Firefox

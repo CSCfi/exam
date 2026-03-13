@@ -7,6 +7,7 @@ package features.integration.services
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
+import models.exam.ExamState
 import models.exam.{Exam, ExamExecutionType}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
@@ -36,7 +37,7 @@ class ExamAPIService @Inject() () extends EbeanQueryExtensions:
     query.apply(pp)
     query
       .where()
-      .eq("state", Exam.State.PUBLISHED)
+      .eq("state", ExamState.PUBLISHED)
       .ge("periodEnd", dateTime)
       .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
       .list

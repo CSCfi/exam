@@ -41,41 +41,41 @@ class ExternalAttachmentLoaderService @Inject() (
     val futures = scala.collection.mutable.ListBuffer[Future[Unit]]()
 
     // Add exam attachment if present
-    Option(exam.getAttachment).foreach { attachment =>
-      futures += createFromExternalAttachment(attachment, "exam", exam.getId.toString)
+    Option(exam.attachment).foreach { attachment =>
+      futures += createFromExternalAttachment(attachment, "exam", exam.id.toString)
     }
 
     // Process section questions
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
       .foreach { sectionQuestion =>
         // Add essay answer attachment if present
-        Option(sectionQuestion.getEssayAnswer)
-          .flatMap(ea => Option(ea.getAttachment))
+        Option(sectionQuestion.essayAnswer)
+          .flatMap(ea => Option(ea.attachment))
           .foreach { attachment =>
             futures += createFromExternalAttachment(
               attachment,
               "question",
-              sectionQuestion.getId.toString,
+              sectionQuestion.id.toString,
               "answer",
-              sectionQuestion.getEssayAnswer.getId.toString
+              sectionQuestion.essayAnswer.id.toString
             )
           }
       }
 
     // Process distinct questions with attachments
-    val distinctQuestions = exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .map(_.getQuestion)
-      .filter(q => q.getAttachment != null)
+    val distinctQuestions = exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .map(_.question)
+      .filter(q => q.attachment != null)
       .toSeq
       .distinct
 
     distinctQuestions.foreach { question =>
       futures += createFromExternalAttachment(
-        question.getAttachment,
+        question.attachment,
         "question",
-        question.getId.toString
+        question.id.toString
       )
     }
 
@@ -83,7 +83,7 @@ class ExternalAttachmentLoaderService @Inject() (
     Future.sequence(futures.toSeq).map(_ => ())
 
   def createExternalAttachment(attachment: Attachment): Future[Unit] =
-    Option(attachment).flatMap(a => Option(a.getFilePath).filter(_.nonEmpty)) match
+    Option(attachment).flatMap(a => Option(a.filePath).filter(_.nonEmpty)) match
       case None => Future.successful(())
       case Some(_) =>
         parseUrl("/api/attachments/") match
@@ -94,12 +94,12 @@ class ExternalAttachmentLoaderService @Inject() (
             request.post("").flatMap { response =>
               val json       = response.json
               val externalId = (json \ "id").as[String]
-              attachment.setExternalId(externalId)
+              attachment.externalId = externalId
 
-              val file = new File(attachment.getFilePath)
+              val file = new File(attachment.filePath)
               if !file.exists() then
                 logger.warn(
-                  s"Could not find file ${file.getAbsoluteFile} for attachment id ${attachment.getId}."
+                  s"Could not find file ${file.getAbsoluteFile} for attachment id ${attachment.id}."
                 )
                 Future.successful(())
               else
@@ -112,8 +112,8 @@ class ExternalAttachmentLoaderService @Inject() (
                     val source        = FileIO.fromPath(file.toPath)
                     val filePart = MultipartFormData.FilePart[Source[ByteString, ?]](
                       "file",
-                      attachment.getFileName,
-                      Option(attachment.getMimeType),
+                      attachment.fileName,
+                      Option(attachment.mimeType),
                       source
                     )
                     // Create Source with FilePart (DataPart not needed for Scala WSClient)
@@ -130,21 +130,21 @@ class ExternalAttachmentLoaderService @Inject() (
     val futures = scala.collection.mutable.ListBuffer[Future[Unit]]()
 
     // Create external attachments
-    Option(exam.getAttachment).foreach { attachment =>
+    Option(exam.attachment).foreach { attachment =>
       futures += createExternalAttachment(attachment)
     }
 
     // Process section questions
-    val attachmentFutures = exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
+    val attachmentFutures = exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
       .flatMap { sq =>
         val attachments = scala.collection.mutable.ListBuffer[Attachment]()
 
-        Option(sq.getEssayAnswer)
-          .flatMap(ea => Option(ea.getAttachment))
+        Option(sq.essayAnswer)
+          .flatMap(ea => Option(ea.attachment))
           .foreach(attachments += _)
 
-        Option(sq.getQuestion.getAttachment).foreach(attachments += _)
+        Option(sq.question.attachment).foreach(attachments += _)
 
         attachments
       }
@@ -159,7 +159,7 @@ class ExternalAttachmentLoaderService @Inject() (
       attachment: Attachment,
       pathParams: String*
   ): Future[Unit] =
-    Option(attachment.getExternalId).filter(_.nonEmpty) match
+    Option(attachment.externalId).filter(_.nonEmpty) match
       case None =>
         logger.error("Could not find external ID for an attachment")
         Future.failed(new RuntimeException("Could not find external ID for an attachment"))
@@ -174,10 +174,10 @@ class ExternalAttachmentLoaderService @Inject() (
               val sink     = FileIO.toPath(java.nio.file.Paths.get(filePath))
 
               response.bodyAsSource.runWith(sink).map { _ =>
-                attachment.setFilePath(filePath)
+                attachment.filePath = filePath
                 attachment.save()
                 logger.info(
-                  s"Saved attachment ${attachment.getExternalId} locally as # ${attachment.getId}"
+                  s"Saved attachment ${attachment.externalId} locally as # ${attachment.id}"
                 )
               }
             }

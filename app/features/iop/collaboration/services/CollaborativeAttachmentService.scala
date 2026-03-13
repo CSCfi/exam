@@ -56,9 +56,9 @@ class CollaborativeAttachmentService @Inject() (
     *   Some(ExamSectionQuestion) if found, None otherwise
     */
   private def findSectionQuestion(questionId: Long, exam: Exam): Option[ExamSectionQuestion] =
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .find(_.getId == questionId)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .find(_.id == questionId)
 
   /** Find essay answer with attachment
     *
@@ -68,10 +68,10 @@ class CollaborativeAttachmentService @Inject() (
     *   Some(EssayAnswer) if found with attachment, None otherwise
     */
   def findEssayAnswerWithAttachment(esq: ExamSectionQuestion): Option[EssayAnswer] =
-    Option(esq.getEssayAnswer) match
+    Option(esq.essayAnswer) match
       case Some(ea)
-          if Option(ea.getAttachment)
-            .flatMap(a => Option(a.getExternalId))
+          if Option(ea.attachment)
+            .flatMap(a => Option(a.externalId))
             .exists(_.nonEmpty) =>
         Some(ea)
       case _ => None
@@ -108,14 +108,14 @@ class CollaborativeAttachmentService @Inject() (
         // Find the container if questionId is provided
         val targetContainer = questionId match
           case Some(qid) =>
-            findSectionQuestion(qid, exam).map(_.getQuestion).getOrElse(container)
+            findSectionQuestion(qid, exam).map(_.question).getOrElse(container)
           case None => container
 
         val attachment = new Attachment()
-        attachment.setExternalId(externalId)
-        attachment.setMimeType(mimeType)
-        attachment.setFileName(displayName)
-        targetContainer.setAttachment(attachment)
+        attachment.externalId = externalId
+        attachment.mimeType = mimeType
+        attachment.fileName = displayName
+        targetContainer.attachment = attachment
 
         examLoader.uploadExam(ce, exam, user).map { result =>
           if result.header.status == play.api.mvc.Results.Ok.header.status then
@@ -151,10 +151,10 @@ class CollaborativeAttachmentService @Inject() (
         // Find the container if questionId is provided
         val targetContainer = questionId match
           case Some(qid) =>
-            findSectionQuestion(qid, exam).map(_.getQuestion).getOrElse(container)
+            findSectionQuestion(qid, exam).map(_.question).getOrElse(container)
           case None => container
 
-        targetContainer.setAttachment(null)
+        targetContainer.attachment = null
 
         examLoader.uploadExam(ce, exam, user).map { result =>
           if result.header.status == play.api.mvc.Results.Ok.header.status then Right(())
@@ -181,12 +181,12 @@ class CollaborativeAttachmentService @Inject() (
         questionId match
           case Some(qid) =>
             findSectionQuestion(qid, exam)
-              .map(_.getQuestion.getAttachment)
+              .map(_.question.attachment)
               .filter(_ != null) match
               case Some(att) => Right(att)
               case None      => Left("i18n_error_not_found")
           case None =>
-            Option(exam.getAttachment) match
+            Option(exam.attachment) match
               case Some(att) => Right(att)
               case None      => Left("i18n_error_not_found")
     }

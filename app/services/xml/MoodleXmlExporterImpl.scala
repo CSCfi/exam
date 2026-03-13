@@ -4,6 +4,7 @@
 
 package services.xml
 
+import models.questions.QuestionEvaluationType
 import models.questions.{MultipleChoiceOption, Question, Tag}
 import org.jsoup.Jsoup
 
@@ -18,7 +19,7 @@ import scala.xml.parsing.ConstructingParser
 
 class MoodleXmlExporterImpl extends MoodleXmlExporter:
 
-  private def moodleType(question: Question): String = question.getType.toString match
+  private def moodleType(question: Question): String = question.`type`.toString match
     case "EssayQuestion"     => "essay"
     case "ClozeTestQuestion" => "cloze"
     case _                   => "multichoice"
@@ -26,27 +27,27 @@ class MoodleXmlExporterImpl extends MoodleXmlExporter:
   private def Essay: Node = <answer fraction="0"><text></text></answer>
 
   private def convertMultiChoiceOption(option: MultipleChoiceOption): Node =
-    val fraction = if option.isCorrectOption then 100 else 0
+    val fraction = if option.correctOption then 100 else 0
     <answer fraction={fraction.toString}>
-        <text>{option.getOption}</text>
+        <text>{option.option}</text>
     </answer>
 
   private def convertWeightedMultiChoiceOption(
       option: MultipleChoiceOption,
       maxScore: Double
   ): Node =
-    val fraction = option.getDefaultScore / maxScore * 100
+    val fraction = option.defaultScore / maxScore * 100
     <answer fraction={fraction.toString}>
-        <text>{option.getOption}</text>
+        <text>{option.option}</text>
     </answer>
 
-  private def convertByType(question: Question): NodeBuffer = question.getType.toString match
+  private def convertByType(question: Question): NodeBuffer = question.`type`.toString match
     case "MultipleChoiceQuestion" =>
       val config =
         <shuffleanswers>1</shuffleanswers>
         <single>true</single>
         <answernumbering>none</answernumbering>
-      val options = question.getOptions.asScala.map(convertMultiChoiceOption)
+      val options = question.options.asScala.map(convertMultiChoiceOption)
       config ++= options
     case "WeightedMultipleChoiceQuestion" =>
       val config =
@@ -54,12 +55,12 @@ class MoodleXmlExporterImpl extends MoodleXmlExporter:
         <single>false</single>
         <answernumbering>none</answernumbering>
       val options =
-        question.getOptions.asScala.map(o =>
+        question.options.asScala.map(o =>
           convertWeightedMultiChoiceOption(o, question.getMaxDefaultScore)
         )
       config ++= options
     case "EssayQuestion" =>
-      val criteria = question.getDefaultEvaluationCriteria match
+      val criteria = question.defaultEvaluationCriteria match
         case ec if isEmpty(ec) => PCData("")
         case ec                => PCData(ec)
       val config =
@@ -75,29 +76,29 @@ class MoodleXmlExporterImpl extends MoodleXmlExporter:
 
   private def isEmpty(x: String) = Option(x).forall(_.isEmpty)
 
-  private def convert(tag: Tag): Node = <tag><text>{tag.getName}</text></tag>
+  private def convert(tag: Tag): Node = <tag><text>{tag.name}</text></tag>
 
   private def maxScore(question: Question): Double =
-    if question.getDefaultEvaluationType == Question.EvaluationType.Selection then 1
-    else question.getMaxDefaultScore()
+    if question.defaultEvaluationType == QuestionEvaluationType.Selection then 1
+    else question.getMaxDefaultScore
 
   private def attachment(question: Question): Option[(String, Node)] =
-    Option(question.getAttachment).map { a =>
-      val file     = new File(a.getFilePath)
+    Option(question.attachment).map { a =>
+      val file     = new File(a.filePath)
       val data     = Files.readAllBytes(file.toPath)
       val b64      = Base64.getEncoder.encodeToString(data)
-      val filename = a.getFileName
+      val filename = a.fileName
       val ref =
         s"""<br />Attachment: <a href="@@PLUGINFILE@@/$filename">${filename.toUpperCase}</a>"""
-      (ref, <file name={a.getFileName} path="/" encoding="base64">{b64}</file>)
+      (ref, <file name={a.fileName} path="/" encoding="base64">{b64}</file>)
     }
 
   private def convert(question: Question): Node =
-    val text = question.getQuestion.replace(" class=\"math-tex\"", "")
-    val instructions = question.getDefaultAnswerInstructions match
+    val text = question.question.replace(" class=\"math-tex\"", "")
+    val instructions = question.defaultAnswerInstructions match
       case i if isEmpty(i) => ""
       case i               => s"<br />Answer instructions: $i"
-    val wc = Option(question.getDefaultExpectedWordCount)
+    val wc = Option(question.defaultExpectedWordCount)
       .map(c => s"<br /> Expected word count: $c")
       .getOrElse("")
     val att          = attachment(question)
@@ -116,7 +117,7 @@ class MoodleXmlExporterImpl extends MoodleXmlExporter:
         </questiontext>
         <defaultgrade>{maxScore(question)}</defaultgrade>
         <tags>
-            {question.getTags.asScala.map(convert)}
+            {question.tags.asScala.map(convert)}
         </tags>
         {convertByType(question)}
     </question>

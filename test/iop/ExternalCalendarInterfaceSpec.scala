@@ -14,12 +14,12 @@ import helpers.{AttachmentServlet, RemoteServerHelper}
 import io.ebean.DB
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import models.admin.GeneralSettings
-import models.assessment.{AutoEvaluationConfig, GradeEvaluation}
+import models.assessment.{AutoEvaluationConfig, AutoEvaluationReleaseType, GradeEvaluation}
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
-import models.exam.Exam
+import models.exam.{Exam, ExamState}
 import models.facility.ExamRoom
 import models.iop.ExternalExam
-import models.questions.Question
+import models.questions.QuestionType
 import models.sections.ExamSectionQuestionOption
 import models.user.{Language, Role, User}
 import org.apache.commons.io.IOUtils
@@ -167,19 +167,19 @@ class ExternalCalendarInterfaceSpec
     greenMail.purgeEmailFromAllMailboxes()
 
   private def initExamSectionQuestions(exam: Exam): Unit =
-    exam.setExamSections(new java.util.TreeSet(exam.getExamSections))
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
+    exam.examSections = new java.util.TreeSet(exam.examSections)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
       .filter { esq =>
-        esq.getQuestion.getType == Question.Type.MultipleChoiceQuestion ||
-        esq.getQuestion.getType == Question.Type.WeightedMultipleChoiceQuestion
+        esq.question.`type` == QuestionType.MultipleChoiceQuestion ||
+        esq.question.`type` == QuestionType.WeightedMultipleChoiceQuestion
       }
       .foreach { esq =>
-        esq.getQuestion.getOptions.asScala.foreach { o =>
+        esq.question.options.asScala.foreach { o =>
           val esqo = new ExamSectionQuestionOption()
-          esqo.setOption(o)
-          esqo.setScore(o.getDefaultScore)
-          esq.getOptions.add(esqo)
+          esqo.option = o
+          esqo.score = o.defaultScore
+          esq.options.add(esqo)
         }
         esq.save()
       }
@@ -202,13 +202,13 @@ class ExternalCalendarInterfaceSpec
       case None    => fail("Test exam not found")
 
     initExamSectionQuestions(exam)
-    exam.setPeriodStart(DateTime.now().minusDays(1))
-    exam.setPeriodEnd(DateTime.now().plusDays(1))
+    exam.periodStart = DateTime.now().minusDays(1)
+    exam.periodEnd = DateTime.now().plusDays(1)
     exam.update()
 
     val user = otherUser match
       case Some(u) =>
-        u.setLanguage(DB.find(classOf[Language]).where().eq("code", "en").find.orNull)
+        u.language = DB.find(classOf[Language]).where().eq("code", "en").find.orNull
         u.update()
         u
       case None => null // Some tests expect null user
@@ -216,35 +216,35 @@ class ExternalCalendarInterfaceSpec
     val room = Option(DB.find(classOf[ExamRoom], 1L)) match
       case Some(r) => r
       case None    => fail("Test room not found")
-    room.setExternalRef(ROOM_REF)
-    room.getExamMachines.asScala.head.setIpAddress("127.0.0.1")
-    room.getExamMachines.asScala.head.update()
+    room.externalRef = ROOM_REF
+    room.examMachines.asScala.head.ipAddress = "127.0.0.1"
+    room.examMachines.asScala.head.update()
     room.update()
 
     val enrolment = new ExamEnrolment()
-    enrolment.setExam(exam)
-    enrolment.setUser(user)
+    enrolment.exam = exam
+    enrolment.user = user
     enrolment.save()
 
     val gs = new GeneralSettings()
-    gs.setName("reservation_window_size")
-    gs.setValue("60")
-    gs.setId(3L)
+    gs.name = "reservation_window_size"
+    gs.value = "60"
+    gs.id = 3L
     gs.save()
 
     (exam, user, room, enrolment)
 
   private def setAutoEvaluationConfig(exam: Exam): Unit =
     val config = new AutoEvaluationConfig()
-    config.setReleaseType(AutoEvaluationConfig.ReleaseType.IMMEDIATE)
-    config.setGradeEvaluations(new util.HashSet())
-    exam.getGradeScale.getGrades.asScala.foreach { g =>
+    config.releaseType = AutoEvaluationReleaseType.IMMEDIATE
+    config.gradeEvaluations = new util.HashSet()
+    exam.gradeScale.grades.asScala.foreach { g =>
       val ge = new GradeEvaluation()
-      ge.setGrade(g)
-      ge.setPercentage(20 * Integer.parseInt(g.getName))
-      config.getGradeEvaluations.add(ge)
+      ge.grade = g
+      ge.percentage = 20 * Integer.parseInt(g.name)
+      config.gradeEvaluations.add(ge)
     }
-    config.setExam(exam)
+    config.exam = exam
     config.save()
 
   private def createSafeTimes = (fixedNow.plusHours(1), fixedNow.plusHours(2))
@@ -259,7 +259,7 @@ class ExternalCalendarInterfaceSpec
         val (exam, user, room, enrolment) = setupTestData(Some(studentUser))
         val (_, session)                  = runIO(loginAsStudent())
         val url =
-          s"/app/iop/calendar/${exam.getId}/${room.getExternalRef}?&org=$ORG_REF&date=${ISODateTimeFormat.date().print(LocalDate.now())}"
+          s"/app/iop/calendar/${exam.id}/${room.externalRef}?&org=$ORG_REF&date=${ISODateTimeFormat.date().print(LocalDate.now())}"
         val result = runIO(get(url, session = session))
         statusOf(result) must be(Status.OK)
         val node = contentAsJsonOf(result)
@@ -276,23 +276,23 @@ class ExternalCalendarInterfaceSpec
         val (exam, user, room, enrolment) = setupTestData(Some(studentUser))
 
         // Setup a conflicting reservation overlapping with the first slot (fixedNow+1h to fixedNow+2h)
-        val examList    = DB.find(classOf[Exam]).where().eq("state", Exam.State.PUBLISHED).list
+        val examList    = DB.find(classOf[Exam]).where().eq("state", ExamState.PUBLISHED).list
         val exam2       = examList(1)
         val reservation = new Reservation()
-        reservation.setUser(user)
-        reservation.setStartAt(fixedNow.plusMinutes(90))
-        reservation.setEndAt(fixedNow.plusHours(2))
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.user = user
+        reservation.startAt = fixedNow.plusMinutes(90)
+        reservation.endAt = fixedNow.plusHours(2)
+        reservation.machine = room.examMachines.get(0)
         reservation.save()
         val enrolment2 = new ExamEnrolment()
-        enrolment2.setExam(exam2)
-        enrolment2.setUser(user)
-        enrolment2.setReservation(reservation)
+        enrolment2.exam = exam2
+        enrolment2.user = user
+        enrolment2.reservation = reservation
         enrolment2.save()
 
         val (_, session) = runIO(loginAsStudent())
         val url =
-          s"/app/iop/calendar/${exam.getId}/${room.getExternalRef}?&org=$ORG_REF&date=${ISODateTimeFormat.date().print(LocalDate.now())}"
+          s"/app/iop/calendar/${exam.id}/${room.externalRef}?&org=$ORG_REF&date=${ISODateTimeFormat.date().print(LocalDate.now())}"
         val result = runIO(get(url, session = session))
         statusOf(result) must be(Status.OK)
         val node = contentAsJsonOf(result)
@@ -301,15 +301,15 @@ class ExternalCalendarInterfaceSpec
 
         // Ensure that first slot got marked as reserved (due conflicting reservation)
         (an.value(0) \ "availableMachines").as[Int] must be(-1)
-        (an.value(0) \ "conflictingExam").as[String] must be(exam2.getName)
+        (an.value(0) \ "conflictingExam").as[String] must be(exam2.name)
         (an.value(1) \ "availableMachines").as[Int] must be(7)
 
     "providing slots" should:
       "return available slots for room" in:
         val (_, _, room, _) = setupTestData()
-        val machineCount    = room.getExamMachines.asScala.count(!_.getOutOfService)
+        val machineCount    = room.examMachines.asScala.count(!_.outOfService)
         val url =
-          s"/integration/iop/slots?roomId=${room.getExternalRef}&date=${ISODateTimeFormat.date().print(LocalDate.now())}&start=${ISODateTimeFormat
+          s"/integration/iop/slots?roomId=${room.externalRef}&date=${ISODateTimeFormat.date().print(LocalDate.now())}&start=${ISODateTimeFormat
               .dateTime()
               .print(DateTime.now().minusDays(7))}&end=${ISODateTimeFormat.dateTime().print(DateTime.now().plusDays(7))}&duration=180"
         val slotsResult = runIO(get(url))
@@ -325,7 +325,7 @@ class ExternalCalendarInterfaceSpec
 
       "exclude day before exam start after DST change" in:
         val (_, _, room, _) = setupTestData()
-        room.setLocalTimezone("Europe/Helsinki")
+        room.localTimezone = "Europe/Helsinki"
         room.update()
         // reservation_window_size=60 already set by setupTestData()
 
@@ -337,7 +337,7 @@ class ExternalCalendarInterfaceSpec
         // Request slots for the week containing April 1 (date=2026-03-31).
         // Without the DST fix, search could start on April 1 and return slots for that day.
         val url =
-          s"/integration/iop/slots?roomId=${room.getExternalRef}&date=2026-03-31&start=${ISODateTimeFormat.dateTime().print(
+          s"/integration/iop/slots?roomId=${room.externalRef}&date=2026-03-31&start=${ISODateTimeFormat.dateTime().print(
               examStartUtc
             )}&end=${ISODateTimeFormat.dateTime().print(examEndUtc)}&duration=180"
         val result = runIO(get(url))
@@ -379,18 +379,18 @@ class ExternalCalendarInterfaceSpec
             case None    => fail("Reservation not found")
 
         reservation must not be null
-        reservation.getMachine.getRoom.getExternalRef must be(ROOM_REF)
-        reservation.getStartAt must be(start)
-        reservation.getEndAt must be(end)
+        reservation.machine.room.externalRef must be(ROOM_REF)
+        reservation.startAt.getMillis must be(start.getMillis)
+        reservation.endAt.getMillis must be(end.getMillis)
 
     "acknowledging reservation removal" should:
       "remove reservation successfully" in:
         val (_, _, room, _) = setupTestData()
         val reservation     = new Reservation()
-        reservation.setExternalRef(RESERVATION_REF)
-        reservation.setStartAt(fixedNow.plusHours(2))
-        reservation.setEndAt(fixedNow.plusHours(3))
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.externalRef = RESERVATION_REF
+        reservation.startAt = fixedNow.plusHours(2)
+        reservation.endAt = fixedNow.plusHours(3)
+        reservation.machine = room.examMachines.get(0)
         reservation.save()
 
         val result = runIO(delete(s"/integration/iop/reservations/$RESERVATION_REF"))
@@ -403,67 +403,67 @@ class ExternalCalendarInterfaceSpec
       "revoke reservation successfully" in:
         val (_, user, room, enrolment) = setupTestData()
         val reservation                = new Reservation()
-        reservation.setUser(user)
-        reservation.setStartAt(fixedNow.plusHours(2))
-        reservation.setEndAt(fixedNow.plusHours(3))
-        reservation.setExternalRef(RESERVATION_REF)
+        reservation.user = user
+        reservation.startAt = fixedNow.plusHours(2)
+        reservation.endAt = fixedNow.plusHours(3)
+        reservation.externalRef = RESERVATION_REF
         val er = new ExternalReservation()
-        er.setOrgRef(ORG_REF)
-        er.setRoomRef(ROOM_REF)
-        er.setMachineName("M1")
-        er.setRoomName("External Room R1")
+        er.orgRef = ORG_REF
+        er.roomRef = ROOM_REF
+        er.machineName = "M1"
+        er.roomName = "External Room R1"
         er.save()
-        reservation.setExternalReservation(er)
+        reservation.externalReservation = er
         reservation.save()
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val result = runIO(delete(s"/integration/iop/reservations/$RESERVATION_REF/force"))
         statusOf(result) must be(Status.OK)
 
-        val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
+        val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
           case Some(e) => e
           case None    => fail("Enrolment not found")
-        ee.getReservation must be(null)
-        Option(DB.find(classOf[Reservation], reservation.getId)) must be(empty)
+        ee.reservation must be(null)
+        Option(DB.find(classOf[Reservation], reservation.id)) must be(empty)
 
       "fail to revoke reservation in effect" in:
         val (_, user, room, enrolment) = setupTestData()
 
         val reservation = new Reservation()
-        reservation.setUser(user)
-        reservation.setStartAt(fixedNow.minusHours(1))
-        reservation.setEndAt(fixedNow.plusHours(2))
-        reservation.setExternalRef(RESERVATION_REF)
+        reservation.user = user
+        reservation.startAt = fixedNow.minusHours(1)
+        reservation.endAt = fixedNow.plusHours(2)
+        reservation.externalRef = RESERVATION_REF
         val er = new ExternalReservation()
-        er.setOrgRef(ORG_REF)
-        er.setRoomRef(ROOM_REF)
-        er.setMachineName("M1")
-        er.setRoomName("External Room R1")
+        er.orgRef = ORG_REF
+        er.roomRef = ROOM_REF
+        er.machineName = "M1"
+        er.roomName = "External Room R1"
         er.save()
-        reservation.setExternalReservation(er)
+        reservation.externalReservation = er
         reservation.save()
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val result = runIO(delete(s"/integration/iop/reservations/$RESERVATION_REF/force"))
         statusOf(result) must be(Status.FORBIDDEN)
 
-        val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
+        val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
           case Some(e) => e
           case None    => fail("Enrolment not found")
-        ee.getReservation must not be null
+        ee.reservation must not be null
 
     "requesting reservation revocation as admin" should:
       "revoke external reservation successfully" in:
         val (_, _, room, _) = setupTestData()
 
         val reservation = new Reservation()
-        reservation.setExternalRef(RESERVATION_REF)
-        reservation.setExternalUserRef("testuser@test.org")
-        reservation.setStartAt(fixedNow.plusHours(2))
-        reservation.setEndAt(fixedNow.plusHours(3))
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.externalRef = RESERVATION_REF
+        reservation.externalUserRef = "testuser@test.org"
+        reservation.startAt = fixedNow.plusHours(2)
+        reservation.endAt = fixedNow.plusHours(3)
+        reservation.machine = room.examMachines.get(0)
         reservation.save()
 
         val (_, session) = runIO(loginAsAdmin())
@@ -485,10 +485,10 @@ class ExternalCalendarInterfaceSpec
         val (_, _, room, _) = setupTestData()
 
         val reservation = new Reservation()
-        reservation.setExternalRef(RESERVATION_REF)
-        reservation.setStartAt(fixedNow.minusHours(1))
-        reservation.setEndAt(fixedNow.plusHours(2))
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.externalRef = RESERVATION_REF
+        reservation.startAt = fixedNow.minusHours(1)
+        reservation.endAt = fixedNow.plusHours(2)
+        reservation.machine = room.examMachines.get(0)
         reservation.save()
 
         val (_, session) = runIO(loginAsAdmin())
@@ -517,13 +517,13 @@ class ExternalCalendarInterfaceSpec
         setAutoEvaluationConfig(exam)
 
         val reservation = new Reservation()
-        reservation.setExternalRef(RESERVATION_REF)
-        reservation.setStartAt(fixedNow.plusHours(2))
-        reservation.setEndAt(fixedNow.plusHours(3))
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.externalRef = RESERVATION_REF
+        reservation.startAt = fixedNow.plusHours(2)
+        reservation.endAt = fixedNow.plusHours(3)
+        reservation.machine = room.examMachines.get(0)
         reservation.save()
 
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val result = runIO(get(s"/integration/iop/reservations/$RESERVATION_REF"))
@@ -533,10 +533,10 @@ class ExternalCalendarInterfaceSpec
         val mapper      = new ObjectMapper()
         val jacksonNode = mapper.readTree(body.toString)
         val ee          = JsonDeserializer.deserialize(classOf[Exam], jacksonNode)
-        ee.getId must be(exam.getId)
-        ee.getExamSections must have size exam.getExamSections.size()
-        ee.getExamSections.asScala.map(_.getSectionQuestions.size()).sum must be(
-          exam.getExamSections.asScala.map(_.getSectionQuestions.size()).sum
+        ee.id must be(exam.id)
+        ee.examSections must have size exam.examSections.size()
+        ee.examSections.asScala.map(_.sectionQuestions.size()).sum must be(
+          exam.examSections.asScala.map(_.sectionQuestions.size()).sum
         )
 
     "handling temporal student visitor login" should:
@@ -547,11 +547,11 @@ class ExternalCalendarInterfaceSpec
         val (start, end) = createSafeTimes
 
         val reservation = new Reservation()
-        reservation.setExternalUserRef(eppn)
-        reservation.setExternalRef(RESERVATION_REF)
-        reservation.setStartAt(start)
-        reservation.setEndAt(end)
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.externalUserRef = eppn
+        reservation.externalRef = RESERVATION_REF
+        reservation.startAt = start
+        reservation.endAt = end
+        reservation.machine = room.examMachines.get(0)
         reservation.save()
 
         val (user, session) = runIO(login(eppn))
@@ -560,8 +560,8 @@ class ExternalCalendarInterfaceSpec
           case None    => fail("New user not found")
 
         newUser must not be null
-        newUser.getRoles must have size 1
-        newUser.getRoles.get(0).getName must be(Role.Name.TEACHER.toString)
+        newUser.roles must have size 1
+        newUser.roles.get(0).name must be(Role.Name.TEACHER.toString)
 
         val updatedReservation =
           Option(
@@ -569,7 +569,7 @@ class ExternalCalendarInterfaceSpec
           ) match
             case Some(r) => r
             case None    => fail("Reservation not found")
-        updatedReservation.getUser.getId must be(newUser.getId)
+        updatedReservation.user.id must be(newUser.id)
 
         // See that user is eventually directed to waiting room
         val sessionResult = runIO(get("/app/session", session = session))
@@ -589,14 +589,14 @@ class ExternalCalendarInterfaceSpec
             case None    => fail("Enrolment not found")
 
         enrolment must not be null
-        enrolment.getExam must be(null)
-        enrolment.getExternalExam must not be null
+        enrolment.exam must be(null)
+        enrolment.externalExam must not be null
 
         val mapper     = new ObjectMapper()
-        val json       = mapper.writeValueAsString(enrolment.getExternalExam.getContent)
+        val json       = mapper.writeValueAsString(enrolment.externalExam.content)
         val node       = mapper.readTree(json)
         val parsedExam = JsonDeserializer.deserialize(classOf[Exam], node)
-        parsedExam.getId must be(13630L) // ID that is in enrolment.json
+        parsedExam.id must be(13630L) // ID that is in enrolment.json
 
       "handle wrong machine IP" in:
         val (_, _, room, _) = setupTestData()
@@ -604,15 +604,15 @@ class ExternalCalendarInterfaceSpec
         // Create a reservation within the same day to avoid midnight boundary issues
         val (start, end) = createSafeTimes
 
-        val machine = room.getExamMachines.asScala.head
-        machine.setIpAddress("128.2.2.2")
+        val machine = room.examMachines.asScala.head
+        machine.ipAddress = "128.2.2.2"
         machine.update()
         val reservation = new Reservation()
-        reservation.setExternalUserRef(eppn)
-        reservation.setExternalRef(RESERVATION_REF)
-        reservation.setStartAt(start)
-        reservation.setEndAt(end)
-        reservation.setMachine(room.getExamMachines.asScala.head)
+        reservation.externalUserRef = eppn
+        reservation.externalRef = RESERVATION_REF
+        reservation.startAt = start
+        reservation.endAt = end
+        reservation.machine = room.examMachines.asScala.head
         reservation.save()
 
         // Login is rejected when temp visitor is on unknown machine and home org required
@@ -630,7 +630,7 @@ class ExternalCalendarInterfaceSpec
         val requestData = Json.obj(
           "start"         -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(1)),
           "end"           -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(2)),
-          "examId"        -> exam.getId.longValue,
+          "examId"        -> exam.id.longValue,
           "orgId"         -> ORG_REF,
           "roomId"        -> ROOM_REF,
           "requestingOrg" -> "foobar",
@@ -656,11 +656,11 @@ class ExternalCalendarInterfaceSpec
           case None    => fail("Created reservation not found")
 
         created must not be null
-        created.getEnrolment.getOptionalSections must have size 1
-        val external = created.getExternalReservation
+        created.enrolment.optionalSections must have size 1
+        val external = created.externalReservation
         external must not be null
-        external.getRoomInstructionEN must be("information in English here")
-        external.getMailAddress.getCity must be("Paris")
+        external.roomInstructionEN must be("information in English here")
+        external.mailAddress.city must be("Paris")
 
         // Check that correct mail was sent
         greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
@@ -681,7 +681,7 @@ class ExternalCalendarInterfaceSpec
         val requestData = Json.obj(
           "start"         -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(1)),
           "end"           -> ISODateTimeFormat.dateTime().print(fixedNow.plusHours(2)),
-          "examId"        -> exam.getId.longValue,
+          "examId"        -> exam.id.longValue,
           "orgId"         -> ORG_REF,
           "roomId"        -> ROOM_REF,
           "requestingOrg" -> "foobar",
@@ -703,14 +703,14 @@ class ExternalCalendarInterfaceSpec
         ).findOne()) match
           case Some(r) => r
           case None    => fail("Created reservation not found")
-        created.setStartAt(fixedNow.minusHours(2))
-        created.setEndAt(fixedNow.minusHours(1))
+        created.startAt = fixedNow.minusHours(2)
+        created.endAt = fixedNow.minusHours(1)
         created.save()
 
-        val enrolmentData = Json.obj("code" -> exam.getCourse.getCode)
+        val enrolmentData = Json.obj("code" -> exam.course.code)
         val result2 = runIO(makeRequest(
           POST,
-          s"/app/enrolments/${exam.getId}",
+          s"/app/enrolments/${exam.id}",
           Some(enrolmentData),
           session = session
         ))
@@ -727,18 +727,18 @@ class ExternalCalendarInterfaceSpec
         val end   = fixedNow.plusHours(2)
 
         val reservation = new Reservation()
-        reservation.setStartAt(fixedNow.minusMinutes(10))
-        reservation.setEndAt(fixedNow.plusMinutes(10))
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.startAt = fixedNow.minusMinutes(10)
+        reservation.endAt = fixedNow.plusMinutes(10)
+        reservation.machine = room.examMachines.getFirst
         reservation.save()
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val (_, session) = runIO(loginAsStudent())
         val requestData = Json.obj(
           "start"  -> ISODateTimeFormat.dateTime().print(start),
           "end"    -> ISODateTimeFormat.dateTime().print(end),
-          "examId" -> exam.getId.longValue(),
+          "examId" -> exam.id.longValue(),
           "orgId"  -> ORG_REF,
           "roomId" -> ROOM_REF
         )
@@ -753,10 +753,10 @@ class ExternalCalendarInterfaceSpec
         contentAsStringOf(result) must be("i18n_error_enrolment_not_found")
 
         // Verify
-        val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
+        val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
           case Some(e) => e
           case None    => fail("Enrolment not found")
-        ee.getReservation.getId must be(reservation.getId)
+        ee.reservation.id must be(reservation.id)
 
       "replace previous reservation in the future" in:
         ensureTestDataLoaded()
@@ -769,25 +769,25 @@ class ExternalCalendarInterfaceSpec
         val end   = fixedNow.plusHours(7)
 
         val reservation = new Reservation()
-        reservation.setStartAt(fixedNow.plusHours(2))
-        reservation.setEndAt(fixedNow.plusHours(3))
-        reservation.setExternalRef(RESERVATION_REF)
+        reservation.startAt = fixedNow.plusHours(2)
+        reservation.endAt = fixedNow.plusHours(3)
+        reservation.externalRef = RESERVATION_REF
         val er = new ExternalReservation()
-        er.setOrgRef(ORG_REF)
-        er.setRoomRef(ROOM_REF)
-        er.setMachineName("M1")
-        er.setRoomName("External Room R1")
+        er.orgRef = ORG_REF
+        er.roomRef = ROOM_REF
+        er.machineName = "M1"
+        er.roomName = "External Room R1"
         er.save()
-        reservation.setExternalReservation(er)
+        reservation.externalReservation = er
         reservation.save()
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val (_, session) = runIO(loginAsStudent())
         val requestData = Json.obj(
           "start"  -> ISODateTimeFormat.dateTime().print(start),
           "end"    -> ISODateTimeFormat.dateTime().print(end),
-          "examId" -> exam.getId.longValue(),
+          "examId" -> exam.id.longValue(),
           "orgId"  -> ORG_REF,
           "roomId" -> ROOM_REF
         )
@@ -801,11 +801,11 @@ class ExternalCalendarInterfaceSpec
         statusOf(result) must be(Status.CREATED)
 
         // Verify
-        val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
+        val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
           case Some(e) => e
           case None    => fail("Enrolment not found")
-        ee.getReservation.getId must not be reservation.getId
-        Option(DB.find(classOf[Reservation], reservation.getId)) must be(empty)
+        ee.reservation.id must not be reservation.id
+        Option(DB.find(classOf[Reservation], reservation.id)) must be(empty)
 
         greenMail.waitForIncomingEmail(5000, 1)
 
@@ -818,19 +818,19 @@ class ExternalCalendarInterfaceSpec
         val (_, user, _, enrolment) = setupTestData(Some(studentUser))
 
         val reservation = new Reservation()
-        reservation.setUser(user)
-        reservation.setStartAt(fixedNow.plusHours(2))
-        reservation.setEndAt(fixedNow.plusHours(3))
-        reservation.setExternalRef(RESERVATION_REF)
+        reservation.user = user
+        reservation.startAt = fixedNow.plusHours(2)
+        reservation.endAt = fixedNow.plusHours(3)
+        reservation.externalRef = RESERVATION_REF
         val er = new ExternalReservation()
-        er.setOrgRef(ORG_REF)
-        er.setRoomRef(ROOM_REF)
-        er.setMachineName("M1")
-        er.setRoomName("External Room R1")
+        er.orgRef = ORG_REF
+        er.roomRef = ROOM_REF
+        er.machineName = "M1"
+        er.roomName = "External Room R1"
         er.save()
-        reservation.setExternalReservation(er)
+        reservation.externalReservation = er
         reservation.save()
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val (_, session) = runIO(loginAsStudent())
@@ -838,11 +838,11 @@ class ExternalCalendarInterfaceSpec
           runIO(delete(s"/app/iop/reservations/external/$RESERVATION_REF", session = session))
         statusOf(result) must be(Status.OK)
 
-        val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
+        val ee = Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
           case Some(e) => e
           case None    => fail("Enrolment not found")
-        ee.getReservation must be(null)
-        Option(DB.find(classOf[Reservation], reservation.getId)) must be(empty)
+        ee.reservation must be(null)
+        Option(DB.find(classOf[Reservation], reservation.id)) must be(empty)
 
         // Check that correct mail was sent
         greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
@@ -860,12 +860,12 @@ class ExternalCalendarInterfaceSpec
         val (start, end) = createSafeTimes
 
         val reservation = new Reservation()
-        reservation.setExternalUserRef(eppn)
-        reservation.setExternalRef(RESERVATION_REF)
+        reservation.externalUserRef = eppn
+        reservation.externalRef = RESERVATION_REF
         // Use shorter offset to avoid crossing midnight boundary
-        reservation.setStartAt(start)
-        reservation.setEndAt(end)
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.startAt = start
+        reservation.endAt = end
+        reservation.machine = room.examMachines.get(0)
         reservation.save()
 
         val (user, session) = runIO(login(eppn))
@@ -881,6 +881,6 @@ class ExternalCalendarInterfaceSpec
         val result = runIO(delete(s"/integration/iop/reservations/$RESERVATION_REF"))
         statusOf(result) must be(Status.OK)
 
-        Option(DB.find(classOf[Reservation], reservation.getId)) must be(empty)
-        Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) must be(empty)
-        Option(DB.find(classOf[ExternalExam], enrolment.getExternalExam.getId)) must be(empty)
+        Option(DB.find(classOf[Reservation], reservation.id)) must be(empty)
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) must be(empty)
+        Option(DB.find(classOf[ExternalExam], enrolment.externalExam.id)) must be(empty)

@@ -33,7 +33,7 @@ class ExternalAttachmentControllerSpec extends BaseCollaborativeAttachmentSpec[E
         runIO(requestExamAttachment(Status.NOT_FOUND, session))
 
         // Set user as creator and try again
-        externalExam.setCreator(user)
+        externalExam.creator = user
         externalExam.save()
 
         // Second request should succeed
@@ -45,7 +45,7 @@ class ExternalAttachmentControllerSpec extends BaseCollaborativeAttachmentSpec[E
       "allow teacher to download question attachment" in:
         val (exam, examSectionQuestion, externalExam) = setupTestData()
         val (user, session)                           = runIO(loginAsTeacher())
-        val url    = s"/app/iop/attachment/exam/$EXAM_HASH/question/${examSectionQuestion.getId}"
+        val url    = s"/app/iop/attachment/exam/$EXAM_HASH/question/${examSectionQuestion.id}"
         val result = runIO(get(url, session = session))
         statusOf(result) must be(Status.OK)
         assertLastCall("GET")
@@ -55,14 +55,14 @@ class ExternalAttachmentControllerSpec extends BaseCollaborativeAttachmentSpec[E
       "add attachment to question answer as student" in:
         val (exam, examSectionQuestion, externalExam) = setupTestData()
         val (user, session)                           = runIO(loginAsStudent())
-        externalExam.setCreator(user)
+        externalExam.creator = user
         externalExam.save()
 
         val result = uploadAttachment(
           "/app/iop/attachment/question/answer",
           Map(
             "examId"     -> EXAM_HASH,
-            "questionId" -> examSectionQuestion.getId.toString
+            "questionId" -> examSectionQuestion.id.toString
           ),
           session
         )
@@ -70,38 +70,38 @@ class ExternalAttachmentControllerSpec extends BaseCollaborativeAttachmentSpec[E
         assertLastCall("POST")
 
         DB.refresh(externalExam)
-        val e  = externalExam.deserialize()
-        val sq = getExamSectionQuestion(e, Some(examSectionQuestion.getId))
-        Option(sq.getEssayAnswer) match
+        val e  = externalExam.deserialize
+        val sq = getExamSectionQuestion(e, Some(examSectionQuestion.id))
+        Option(sq.essayAnswer) match
           case Some(ea) =>
-            Option(ea.getAttachment) match
+            Option(ea.attachment) match
               case Some(attachment) =>
-                attachment.getExternalId must be("abcdefg123456")
-                attachment.getFileName must be("test_image.png")
+                attachment.externalId must be("abcdefg123456")
+                attachment.fileName must be("test_image.png")
               case None => fail("Question answer attachment not set")
           case None => fail("EssayAnswer not created")
 
       "delete question answer attachment as student" in:
         val (exam, examSectionQuestion, externalExam) = setupTestData()
         val (user, session)                           = runIO(loginAsStudent())
-        externalExam.setCreator(user)
+        externalExam.creator = user
         externalExam.save()
 
-        val essayAnswer = examSectionQuestion.getEssayAnswer
+        val essayAnswer = examSectionQuestion.essayAnswer
         val attachment  = createAttachment("test_image.png", testImage.getAbsolutePath, "image/png")
-        attachment.setExternalId("abcdefg12345")
-        essayAnswer.setAttachment(attachment)
+        attachment.externalId = "abcdefg12345"
+        essayAnswer.attachment = attachment
         externalExam.serialize(exam)
 
-        val url    = s"/app/iop/attachment/question/${examSectionQuestion.getId}/answer/$EXAM_HASH"
+        val url    = s"/app/iop/attachment/question/${examSectionQuestion.id}/answer/$EXAM_HASH"
         val result = runIO(delete(url, session = session))
         statusOf(result) must be(Status.OK)
         assertLastCall("DELETE")
 
         DB.refresh(externalExam)
-        val e  = externalExam.deserialize()
-        val sq = getExamSectionQuestion(e, Some(examSectionQuestion.getId))
-        Option(sq.getEssayAnswer).map(_.getAttachment) must be(defined)
+        val e  = externalExam.deserialize
+        val sq = getExamSectionQuestion(e, Some(examSectionQuestion.id))
+        Option(sq.essayAnswer).map(_.attachment) must be(defined)
 
   private def requestExamAttachment(expectedStatus: Int, session: Session): IO[Result] =
     for
@@ -152,6 +152,6 @@ class ExternalAttachmentControllerSpec extends BaseCollaborativeAttachmentSpec[E
 
   override protected def createExamInstance(): ExternalExam =
     val externalExam = new ExternalExam()
-    externalExam.setHash(EXAM_HASH)
+    externalExam.hash = EXAM_HASH
     externalExam.save()
     externalExam

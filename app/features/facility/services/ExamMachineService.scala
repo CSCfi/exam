@@ -51,7 +51,7 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
             .find(classOf[ExamMachine])
             .list
             .filter(m => !m.equals(dest))
-            .flatMap(m => Option(m.getIpAddress))
+            .flatMap(m => Option(m.ipAddress))
 
           if existingIps.contains(newIp) then
             Some(IpAddressConflict("i18n_error_ip_address_exists_for_room"))
@@ -61,16 +61,14 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
         ipConflict match
           case Some(error) => Left(error)
           case None =>
-            (body \ "name").asOpt[String].foreach(dest.setName)
-            (body \ "otherIdentifier").asOpt[String].foreach(dest.setOtherIdentifier)
-            (body \ "accessibilityInfo").asOpt[String].foreach(dest.setAccessibilityInfo)
-            (body \ "accessible").asOpt[Boolean].foreach(v => dest.setAccessible(v))
-            (body \ "ipAddress").asOpt[String].foreach(dest.setIpAddress)
-            (body \ "surveillanceCamera").asOpt[String].foreach(dest.setSurveillanceCamera)
-            (body \ "videoRecordings").asOpt[String].foreach(dest.setVideoRecordings)
-            (body \ "expanded").asOpt[Boolean].foreach(v => dest.setExpanded(v))
-            (body \ "statusComment").asOpt[String].foreach(dest.setStatusComment)
-            (body \ "outOfService").asOpt[Boolean].foreach(v => dest.setOutOfService(v))
+            (body \ "name").asOpt[String].foreach(v => dest.name = v)
+            (body \ "otherIdentifier").asOpt[String].foreach(v => dest.otherIdentifier = v)
+            (body \ "ipAddress").asOpt[String].foreach(v => dest.ipAddress = v)
+            (body \ "surveillanceCamera").asOpt[String].foreach(v => dest.surveillanceCamera = v)
+            (body \ "videoRecordings").asOpt[String].foreach(v => dest.videoRecordings = v)
+            (body \ "expanded").asOpt[Boolean].foreach(v => dest.expanded = v)
+            (body \ "statusComment").asOpt[String].foreach(v => dest.statusComment = v)
+            (body \ "outOfService").asOpt[Boolean].foreach(v => dest.outOfService = v)
 
             dest.update()
             Right((dest, defaultPathProperties))
@@ -79,7 +77,7 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
     Option(DB.find(classOf[ExamMachine], mid)) match
       case None => Left(MachineNotFound)
       case Some(machine) =>
-        machine.getSoftwareInfo.clear()
+        machine.softwareInfo.clear()
         machine.update()
         Right((machine, defaultPathProperties))
 
@@ -91,11 +89,11 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
           case None => Left(SoftwareNotFound)
           case Some(software) =>
             val isTurnedOn =
-              if machine.getSoftwareInfo.contains(software) then
-                machine.getSoftwareInfo.remove(software)
+              if machine.softwareInfo.contains(software) then
+                machine.softwareInfo.remove(software)
                 false
               else
-                machine.getSoftwareInfo.add(software)
+                machine.softwareInfo.add(software)
                 true
 
             machine.update()
@@ -106,7 +104,7 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
       case None => Left(RoomNotFound)
       case Some(room) =>
         val machine = new ExamMachine()
-        room.getExamMachines.add(machine)
+        room.examMachines.add(machine)
         room.save()
         machine.save()
         Right(machine)
@@ -134,7 +132,7 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
       case Some(error) => Left(error)
       case None =>
         val software = new Software()
-        software.setName(name)
+        software.name = name
         software.save()
         Right(software)
 
@@ -145,7 +143,7 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
         checkSoftwareName(name) match
           case Some(error) => Left(error)
           case None =>
-            software.setName(name)
+            software.name = name
             software.update()
             Right(software)
 

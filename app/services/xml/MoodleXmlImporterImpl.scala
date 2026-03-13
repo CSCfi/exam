@@ -7,6 +7,8 @@ package services.xml
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.attachment.Attachment
+import models.questions.QuestionEvaluationType
+import models.questions.QuestionType
 import models.questions.{MultipleChoiceOption, Question, Tag}
 import models.user.User
 import org.apache.commons.compress.archivers.tar.*
@@ -42,8 +44,8 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
           case h :: _ => h
           case _ =>
             val t = new Tag
-            t.setName(node.text.toLowerCase.take(32)) // max tag length in exam
-            t.setCreator(user)
+            t.name = node.text.toLowerCase.take(32) // max tag length in exam
+            t.creator = user
             t
       )
 
@@ -127,21 +129,21 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
       case "html" if isHtml(textNode.text) => textNode.text
       case _                               => "<p>" + textNode.text + "</p>"
     val question = new Question
-    question.setQuestion(stripAttachmentTags(questionText))
-    question.setTags(tags(src, user).asJava)
+    question.question = stripAttachmentTags(questionText)
+    question.tags = tags(src, user).asJava
     question.setCreatorWithDate(user)
     question.setModifierWithDate(user)
-    question.setQuestionOwners(Set(user).asJava)
+    question.questionOwners = Set(user).asJava
     val questionType = mode match
-      case "essay"                => Question.Type.EssayQuestion
-      case "multichoice"          => Question.Type.MultipleChoiceQuestion
-      case "weighted-multichoice" => Question.Type.WeightedMultipleChoiceQuestion
-    question.setType(questionType)
-    question.setState("SAVED")
+      case "essay"                => QuestionType.EssayQuestion
+      case "multichoice"          => QuestionType.MultipleChoiceQuestion
+      case "weighted-multichoice" => QuestionType.WeightedMultipleChoiceQuestion
+    question.`type` = questionType
+    question.state = "SAVED"
     question.save()
-    attachment(src, question.getId()) match
+    attachment(src, question.id) match
       case Some(a) =>
-        question.setAttachment(a)
+        question.attachment = a
         question.save()
         question
       case None => question
@@ -149,8 +151,8 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
   private def convertEssay(src: Node, user: User): Question =
     val question = convertCommon(src, user, mode = "essay")
     val score    = (src \ "defaultgrade").text.toDouble
-    question.setDefaultMaxScore(score)
-    question.setDefaultEvaluationType(Question.EvaluationType.Points)
+    question.defaultMaxScore = score
+    question.defaultEvaluationType = QuestionEvaluationType.Points
     question.update()
     question
 
@@ -162,39 +164,39 @@ class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
   private def convertOption(src: Node): MultipleChoiceOption =
     val isCorrect = src.attribute("fraction").get.text.toDouble == 100d
     val option    = new MultipleChoiceOption
-    option.setOption(optionText(src))
-    option.setCorrectOption(isCorrect)
+    option.option = optionText(src)
+    option.correctOption = isCorrect
     option
 
   private def convertWeightedOption(src: Node, maxScore: Double): MultipleChoiceOption =
     val fraction = src.attribute("fraction").get.text.toDouble
     val score    = fraction / 100 * maxScore
     val option   = new MultipleChoiceOption
-    option.setOption(optionText(src))
-    option.setDefaultScore(score)
+    option.option = optionText(src)
+    option.defaultScore = score
     option
 
   private def convertNonWeightedMultiChoice(src: Node, question: Question): Question =
     // question should have a single <answer> with fraction 100, others should have fraction zero
     val score = (src \ "defaultgrade").text.toDouble
-    question.setDefaultMaxScore(score)
-    val (wrong, rest) = (src \ "answer").map(convertOption).span(!_.isCorrectOption)
+    question.defaultMaxScore = score
+    val (wrong, rest) = (src \ "answer").map(convertOption).span(!_.correctOption)
     // assert that there is only one correct option
     val checkedOptions = (wrong :+ rest.head) ++ rest.tail.map(o =>
-      o.setCorrectOption(false)
+      o.correctOption = false
       o
     )
-    question.setOptions(checkedOptions.asJava)
+    question.options = checkedOptions.asJava
     question.save()
-    question.getOptions.forEach(_.save())
+    question.options.forEach(_.save())
     question
 
   private def convertWeightedMultiChoice(src: Node, question: Question): Question =
     val maxScore = (src \ "defaultgrade").text.toDouble
     val options  = (src \ "answer").map(node => convertWeightedOption(node, maxScore))
-    question.setOptions(options.asJava)
+    question.options = options.asJava
     question.save()
-    question.getOptions.forEach(_.save())
+    question.options.forEach(_.save())
     question
 
   private def convertMultiChoice(src: Node, user: User): Question =

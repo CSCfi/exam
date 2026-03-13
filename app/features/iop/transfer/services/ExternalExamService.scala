@@ -68,18 +68,18 @@ class ExternalExamService @Inject() (
           case None => Future.successful(Left(ExternalExamError.InvalidExternalExamData))
           case Some(ee) =>
             val parent =
-              DB.find(classOf[models.exam.Exam]).where().eq("hash", ee.getExternalRef).find
-            if parent.isEmpty && Option(enrolment.getCollaborativeExam).isEmpty then
+              DB.find(classOf[models.exam.Exam]).where().eq("hash", ee.externalRef).find
+            if parent.isEmpty && Option(enrolment.collaborativeExam).isEmpty then
               Future.successful(Left(ExternalExamError.ParentExamNotFound))
             else
               val clone = externalExamHandler.createCopyForAssessment(enrolment, ee)
-              enrolment.setExam(clone)
+              enrolment.exam = clone
               enrolment.update()
 
-              Option(enrolment.getCollaborativeExam) match
+              Option(enrolment.collaborativeExam) match
                 case Some(_) =>
                   collaborativeExamLoader
-                    .createAssessment(clone.getExamParticipation)
+                    .createAssessment(clone.examParticipation)
                     .map(success =>
                       if success then Right(())
                       else Left(ExternalExamError.FailedToCreateAssessment)
@@ -93,7 +93,7 @@ class ExternalExamService @Inject() (
     getPrototype(ref) match
       case None => Future.successful(Left(ExternalExamError.EnrolmentNotFound))
       case Some(enrolment) =>
-        Option(enrolment.getCollaborativeExam) match
+        Option(enrolment.collaborativeExam) match
           case Some(collaborativeExam) =>
             collaborativeExamLoader.downloadExam(collaborativeExam).map {
               case Some(exam) =>
@@ -102,16 +102,16 @@ class ExternalExamService @Inject() (
               case None => Left(ExternalExamError.CouldNotDownloadCollaborativeExam)
             }
           case None =>
-            val exam = enrolment.getExam
+            val exam = enrolment.exam
 
-            val examAttachmentFuture = Option(exam.getAttachment)
+            val examAttachmentFuture = Option(exam.attachment)
               .map(att => externalAttachmentLoader.createExternalAttachment(att).map(_ => ()))
               .toSeq
 
-            val questionAttachmentFutures = exam.getExamSections.asScala
-              .flatMap(_.getSectionQuestions.asScala)
-              .map(_.getQuestion)
-              .flatMap(q => Option(q.getAttachment))
+            val questionAttachmentFutures = exam.examSections.asScala
+              .flatMap(_.sectionQuestions.asScala)
+              .map(_.question)
+              .flatMap(q => Option(q.attachment))
               .toSet
               .map(att => externalAttachmentLoader.createExternalAttachment(att).map(_ => ()))
               .toSeq
@@ -123,7 +123,7 @@ class ExternalExamService @Inject() (
               .sequence(allFutures)
               .map(_ => Right((exam.asJson(pp), pp)))
               .recover { case t: Throwable =>
-                logger.error(s"Could not provide enrolment [id=${enrolment.getId}]", t)
+                logger.error(s"Could not provide enrolment [id=${enrolment.id}]", t)
                 Left(ExternalExamError.FailedToProvideEnrolment)
               }
 

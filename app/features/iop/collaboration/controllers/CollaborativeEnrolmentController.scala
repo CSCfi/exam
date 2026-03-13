@@ -65,7 +65,7 @@ class CollaborativeEnrolmentController @Inject() (
     authenticated.andThen(authorized(Seq(Role.Name.STUDENT))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
 
-      collaborativeEnrolmentService.checkIfEnrolled(id, user.getId).map {
+      collaborativeEnrolmentService.checkIfEnrolled(id, user.id).map {
         case Left(error)       => Forbidden(error)
         case Right(enrolments) => Ok(enrolments.asJson)
       }
@@ -77,7 +77,7 @@ class CollaborativeEnrolmentController @Inject() (
     ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
 
-      collaborativeEnrolmentService.createEnrolment(id, user.getId).map {
+      collaborativeEnrolmentService.createEnrolment(id, user.id).map {
         case Left(error)      => Forbidden(error)
         case Right(enrolment) => Ok(enrolment.asJson)
       }

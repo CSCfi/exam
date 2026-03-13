@@ -132,12 +132,12 @@ class CollaborativeAttachmentController @Inject() (
     Option(attachment) match
       case None => Future.successful(NotFound)
       case Some(att) =>
-        Option(att.getExternalId).filter(_.nonEmpty) match
+        Option(att.externalId).filter(_.nonEmpty) match
           case None =>
-            logger.warn(s"External id can not be found for attachment [id=${att.getId}]")
+            logger.warn(s"External id can not be found for attachment [id=${att.id}]")
             Future.successful(NotFound)
           case Some(externalId) =>
-            downloadAttachment(externalId, att.getMimeType, att.getFileName)
+            downloadAttachment(externalId, att.mimeType, att.fileName)
 
   private def downloadAttachment(id: String, mimeType: String, fileName: String): Future[Result] =
     parseUrl("/api/attachments/%s/download", id) match
@@ -172,7 +172,7 @@ class CollaborativeAttachmentController @Inject() (
           examLoader.downloadExam(ce).flatMap {
             case None => Future.successful(NotFound)
             case Some(exam) =>
-              val attachment = exam.getAttachment
+              val attachment = exam.attachment
               downloadExternalAttachment(attachment)
           }
       }
@@ -187,7 +187,7 @@ class CollaborativeAttachmentController @Inject() (
       getExternalExam(examId).flatMap {
         case None => Future.successful(NotFound)
         case Some(exam) =>
-          examLoader.downloadAssessment(exam.getExternalRef, assessmentRef).flatMap {
+          examLoader.downloadAssessment(exam.externalRef, assessmentRef).flatMap {
             case None => Future.successful(NotFound)
             case Some(assessment) =>
               request.body.file("file") match
@@ -216,7 +216,7 @@ class CollaborativeAttachmentController @Inject() (
       getExternalExam(examId).flatMap {
         case None => Future.successful(NotFound)
         case Some(exam) =>
-          examLoader.downloadAssessment(exam.getExternalRef, assessmentRef).flatMap {
+          examLoader.downloadAssessment(exam.externalRef, assessmentRef).flatMap {
             case None => Future.successful(NotFound)
             case Some(assessment) =>
               removeAssessmentAttachment(assessment).flatMap { result =>
@@ -254,14 +254,14 @@ class CollaborativeAttachmentController @Inject() (
 
   // Helper methods for question and answer attachments
   private def findSectionQuestion(qid: Long, exam: Exam): Option[ExamSectionQuestion] =
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .find(_.getId == qid)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .find(_.id == qid)
 
   private def findEssayAnswerWithAttachment(esq: ExamSectionQuestion): Option[EssayAnswer] =
-    Option(esq.getEssayAnswer) match
+    Option(esq.essayAnswer) match
       case Some(ea)
-          if Option(ea.getAttachment).flatMap(a => Option(a.getExternalId)).exists(_.nonEmpty) =>
+          if Option(ea.attachment).flatMap(a => Option(a.externalId)).exists(_.nonEmpty) =>
         Some(ea)
       case _ => None
 
@@ -272,7 +272,7 @@ class CollaborativeAttachmentController @Inject() (
       container: AttachmentContainer,
       user: User
   ): Future[Result] =
-    val externalId = Option(container.getAttachment).map(_.getExternalId).orNull
+    val externalId = Option(container.attachment).map(_.externalId).orNull
     parseUrl("/api/attachments/%s", Option(externalId).getOrElse("")) match
       case None => Future.successful(InternalServerError)
       case Some(url) =>
@@ -294,10 +294,10 @@ class CollaborativeAttachmentController @Inject() (
             val displayName = (json \ "displayName").as[String]
 
             val attachment = new Attachment()
-            attachment.setExternalId(id)
-            attachment.setMimeType(mimeType)
-            attachment.setFileName(displayName)
-            container.setAttachment(attachment)
+            attachment.externalId = id
+            attachment.mimeType = mimeType
+            attachment.fileName = displayName
+            container.attachment = attachment
 
             // Update exam using examLoader
             examLoader.uploadExam(ce, exam, user).map { result =>
@@ -312,13 +312,13 @@ class CollaborativeAttachmentController @Inject() (
       exam: Exam,
       user: User
   ): Future[Result] =
-    Option(container.getAttachment) match
+    Option(container.attachment) match
       case None => Future.successful(NotFound)
       case Some(attachment) =>
-        val externalId = attachment.getExternalId
+        val externalId = attachment.externalId
         if externalId == null || externalId.isBlank then
           logger.warn(
-            s"External id can not be found for attachment [id=${attachment.getExternalId}]"
+            s"External id can not be found for attachment [id=${attachment.externalId}]"
           )
           Future.successful(NotFound)
         else
@@ -329,7 +329,7 @@ class CollaborativeAttachmentController @Inject() (
                 if response.status != OK && response.status != NOT_FOUND then
                   Future.successful(Status(response.status))
                 else
-                  container.setAttachment(null)
+                  container.attachment = null
                   examLoader.uploadExam(ce, exam, user).map { result =>
                     if result.header.status == OK then Ok
                     else InternalServerError
@@ -367,7 +367,7 @@ class CollaborativeAttachmentController @Inject() (
                           case None => Future.successful(BadRequest("Missing file"))
                           case Some(filePart) =>
                             val user = request.attrs(Auth.ATTR_USER)
-                            uploadAttachment(filePart, ce, exam, sq.getQuestion, user)
+                            uploadAttachment(filePart, ce, exam, sq.question, user)
                 }
             }
           case _ => Future.successful(BadRequest("Missing examId or questionId"))
@@ -385,7 +385,7 @@ class CollaborativeAttachmentController @Inject() (
                 case None => Future.successful(NotFound)
                 case Some(sq) =>
                   val user = request.attrs(Auth.ATTR_USER)
-                  deleteExternalAttachment(sq.getQuestion, ce, exam, user)
+                  deleteExternalAttachment(sq.question, ce, exam, user)
           }
       }
     }
@@ -403,7 +403,7 @@ class CollaborativeAttachmentController @Inject() (
               findSectionQuestion(qid, exam) match
                 case None => Future.successful(NotFound)
                 case Some(sq) =>
-                  val attachment = sq.getQuestion.getAttachment
+                  val attachment = sq.question.attachment
                   downloadExternalAttachment(attachment)
           }
       }
@@ -433,12 +433,12 @@ class CollaborativeAttachmentController @Inject() (
                     findSectionQuestion(questionId, exam) match
                       case None => Future.successful(NotFound)
                       case Some(sq) =>
-                        if sq.getEssayAnswer == null then sq.setEssayAnswer(new EssayAnswer())
+                        if sq.essayAnswer == null then sq.essayAnswer = new EssayAnswer()
                         request.body.file("file") match
                           case None => Future.successful(BadRequest("Missing file"))
                           case Some(filePart) =>
                             val user = request.attrs(Auth.ATTR_USER)
-                            uploadAttachment(filePart, ce, exam, sq.getEssayAnswer, user)
+                            uploadAttachment(filePart, ce, exam, sq.essayAnswer, user)
                 }
             }
           case _ => Future.successful(BadRequest("Missing examId or questionId"))
@@ -480,7 +480,7 @@ class CollaborativeAttachmentController @Inject() (
                   findEssayAnswerWithAttachment(sq) match
                     case None => Future.successful(NotFound)
                     case Some(ea) =>
-                      val attachment = ea.getAttachment
+                      val attachment = ea.attachment
                       downloadExternalAttachment(attachment)
           }
       }

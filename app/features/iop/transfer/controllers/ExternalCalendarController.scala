@@ -9,7 +9,7 @@ import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.DB
 import models.calendar.MaintenancePeriod
 import models.enrolment.{ExamEnrolment, Reservation}
-import models.exam.Exam
+import models.exam.ExamState
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.Role
 import org.joda.time.*
@@ -103,13 +103,13 @@ class ExternalCalendarController @Inject() (
               case Some(machine) =>
                 // We are good to go :)
                 val reservation = new Reservation()
-                reservation.setExternalRef(reservationRef)
-                reservation.setEndAt(end)
-                reservation.setStartAt(start)
-                reservation.setMachine(machine)
-                reservation.setExternalUserRef(userEppn)
-                reservation.setExternalOrgRef(orgRef)
-                reservation.setExternalOrgName(orgName)
+                reservation.externalRef = reservationRef
+                reservation.endAt = end
+                reservation.startAt = start
+                reservation.machine = machine
+                reservation.externalUserRef = userEppn
+                reservation.externalOrgRef = orgRef
+                reservation.externalOrgName = orgName
                 reservation.save()
 
                 Created(asJson(reservation))
@@ -130,7 +130,7 @@ class ExternalCalendarController @Inject() (
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Forbidden("i18n_reservation_in_effect")
         else
-          Option(reservation.getEnrolment) match
+          Option(reservation.enrolment) match
             case Some(enrolment) => enrolment.delete() // cascades to reservation
             case None            => reservation.delete()
           Ok
@@ -148,12 +148,12 @@ class ExternalCalendarController @Inject() (
       .find match
       case None => NotFound(f"No reservation with ref $ref.")
       case Some(enrolment) =>
-        val reservation = enrolment.getReservation
+        val reservation = enrolment.reservation
         val now         = dateTimeHandler.adjustDST(clock.now(), reservation)
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Forbidden("i18n_reservation_in_effect")
         else
-          enrolment.setReservation(null)
+          enrolment.reservation = null
           enrolment.update()
           reservation.delete()
           Ok
@@ -172,14 +172,14 @@ class ExternalCalendarController @Inject() (
           case None => Forbidden(f"No room with ref: ($rid)")
           case Some(room) =>
             val slots =
-              if !room.getOutOfService && room.getState != ExamRoom.State.INACTIVE.toString then
+              if !room.outOfService && room.state != ExamRoom.State.INACTIVE.toString then
                 parseSearchDate(d, s, e, room) match
                   case None => List.empty[CalendarHandler.TimeSlot]
                   case Some(searchDate) =>
                     val machines = DB
                       .find(classOf[ExamMachine])
                       .where()
-                      .eq("room.id", room.getId)
+                      .eq("room.id", room.id)
                       .ne("outOfService", true)
                       .ne("archived", true)
                       .list
@@ -192,8 +192,8 @@ class ExternalCalendarController @Inject() (
                       .list
                       .map(p =>
                         new Interval(
-                          calendarHandler.normalizeMaintenanceTime(p.getStartsAt),
-                          calendarHandler.normalizeMaintenanceTime(p.getEndsAt)
+                          calendarHandler.normalizeMaintenanceTime(p.startsAt),
+                          calendarHandler.normalizeMaintenanceTime(p.endsAt)
                         )
                       )
 
@@ -247,9 +247,9 @@ class ExternalCalendarController @Inject() (
             .fetch("exam.examSections")
             .fetch("exam.examSections.examMaterials")
             .where()
-            .eq("user.id", user.getId)
+            .eq("user.id", user.id)
             .eq("exam.id", examId)
-            .eq("exam.state", Exam.State.PUBLISHED)
+            .eq("exam.state", ExamState.PUBLISHED)
             .disjunction()
             .isNull("reservation")
             .gt("reservation.startAt", now.toDate)
@@ -277,7 +277,7 @@ class ExternalCalendarController @Inject() (
                       "requestingOrg"    -> homeOrgRef,
                       "start"            -> ISODateTimeFormat.dateTime().print(start),
                       "end"              -> ISODateTimeFormat.dateTime().print(end),
-                      "user"             -> user.getEppn,
+                      "user"             -> user.eppn,
                       "optionalSections" -> Json.toJson(sectionIdsSeq)
                     )
 
@@ -293,7 +293,7 @@ class ExternalCalendarController @Inject() (
                           calendarHandler
                             .handleExternalReservation(
                               enrolment,
-                              enrolment.getExam,
+                              enrolment.exam,
                               root,
                               start,
                               end,
@@ -336,8 +336,8 @@ class ExternalCalendarController @Inject() (
           if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
             Future.successful(Forbidden("i18n_reservation_in_effect"))
           else
-            val roomRef = reservation.getMachine.getRoom.getExternalRef
-            Try(parseUrl(configReader.getHomeOrganisationRef, roomRef, reservation.getExternalRef))
+            val roomRef = reservation.machine.room.externalRef
+            Try(parseUrl(configReader.getHomeOrganisationRef, roomRef, reservation.externalRef))
               .fold(
                 {
                   case e: MalformedURLException =>
@@ -379,10 +379,10 @@ class ExternalCalendarController @Inject() (
           val user = request.attrs(Auth.ATTR_USER)
           Option(calendarHandler.getEnrolment(examId, user)) match
             case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
-            case Some(ee) if Option(ee.getCollaborativeExam).isDefined =>
+            case Some(ee) if Option(ee.collaborativeExam).isDefined =>
               Future.successful(Forbidden("i18n_error_enrolment_not_found"))
             case Some(ee) =>
-              val exam = ee.getExam
+              val exam = ee.exam
 
               // Sanity-check the provided search date
               calendarHandler.parseSearchDate(d, exam, None) match
@@ -390,9 +390,9 @@ class ExternalCalendarController @Inject() (
                 case _    =>
                   // Ready to shoot
                   val start =
-                    ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart))
-                  val end      = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd))
-                  val duration = exam.getDuration
+                    ISODateTimeFormat.dateTime().print(new DateTime(exam.periodStart))
+                  val end      = ISODateTimeFormat.dateTime().print(new DateTime(exam.periodEnd))
+                  val duration = exam.duration
                   Try(parseUrl(orgRef, roomRef, d, start, end, duration)).fold(
                     {
                       case e: MalformedURLException =>
@@ -450,7 +450,7 @@ class ExternalCalendarController @Inject() (
   ): Option[LocalDate] =
     val windowSize = calendarHandler.getReservationWindowSize
     val zone = Option(room)
-      .map(r => DateTimeZone.forID(r.getLocalTimezone))
+      .map(r => DateTimeZone.forID(r.localTimezone))
       .getOrElse(configReader.getDefaultTimeZone)
 
     val now                   = clock.now().withZone(zone).toLocalDate
@@ -485,4 +485,4 @@ class ExternalCalendarController @Inject() (
     calendarHandler.getEndSearchDate(searchDate, examEnd)
 
   private def isReservedDuring(machine: ExamMachine, interval: Interval): Boolean =
-    machine.getReservations.asScala.exists(r => interval.overlaps(r.toInterval))
+    machine.reservations.asScala.exists(r => interval.overlaps(r.toInterval))

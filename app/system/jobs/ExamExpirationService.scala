@@ -10,6 +10,7 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.ExamRecord
 import models.exam.Exam
+import models.exam.ExamState
 import org.joda.time.DateTime
 import play.api.Logging
 import services.config.ConfigReader
@@ -24,8 +25,8 @@ class ExamExpirationService @Inject() (private val configReader: ConfigReader)
 
   // Disassociate an exam from its creator, set state to deleted and erase any associated exam records
   private def cleanExamData(exam: Exam): Unit =
-    exam.setState(Exam.State.DELETED)
-    exam.setCreator(null)
+    exam.state = ExamState.DELETED
+    exam.creator = null
     exam.update()
     DB.find(classOf[ExamRecord]).where.eq("exam", exam).list.foreach(_.delete)
 
@@ -36,26 +37,26 @@ class ExamExpirationService @Inject() (private val configReader: ConfigReader)
         .find(classOf[Exam])
         .where
         .disjunction
-        .eq("state", Exam.State.GRADED_LOGGED)
-        .eq("state", Exam.State.ARCHIVED)
-        .eq("state", Exam.State.ABORTED)
-        .eq("state", Exam.State.REJECTED)
+        .eq("state", ExamState.GRADED_LOGGED)
+        .eq("state", ExamState.ARCHIVED)
+        .eq("state", ExamState.ABORTED)
+        .eq("state", ExamState.REJECTED)
         .endJunction
         .list
       val now = DateTime.now
       exams
         .map(exam =>
           val expirationDate =
-            if exam.getState eq Exam.State.ABORTED then exam.getExamParticipation.getEnded
-            else exam.getGradedTime
+            if exam.state `eq` ExamState.ABORTED then exam.examParticipation.ended
+            else exam.gradedTime
           (exam, Option(expirationDate))
         )
         .foreach((exam, expiration) =>
           expiration match
             case Some(date) if configReader.getExamExpirationDate(date).isBeforeNow =>
               cleanExamData(exam)
-              logger.info(s"Marked exam ${exam.getId} as expired")
-            case None => logger.error(s"no grading time for exam ${exam.getId}")
+              logger.info(s"Marked exam ${exam.id} as expired")
+            case None => logger.error(s"no grading time for exam ${exam.id}")
             case _    => // nothing to do
         )
       logger.info("<- done")

@@ -59,7 +59,7 @@ class CollaborativeExternalCalendarController @Inject() (
               "requestingOrg" -> homeOrgRef,
               "start"         -> ISODateTimeFormat.dateTime().print(start),
               "end"           -> ISODateTimeFormat.dateTime().print(end),
-              "user"          -> user.getEppn,
+              "user"          -> user.eppn,
               "optionalSections" -> JsArray(
                 sectionIds.getOrElse(List.empty).map(id => Json.toJson(id))
               )
@@ -68,7 +68,7 @@ class CollaborativeExternalCalendarController @Inject() (
             collaborativeExternalCalendarService
               .requestExternalReservation(
                 examId,
-                user.getId,
+                user.id,
                 orgRef,
                 roomRef,
                 start,
@@ -95,11 +95,11 @@ class CollaborativeExternalCalendarController @Inject() (
           val user = request.attrs(Auth.ATTR_USER)
 
           // Parse URL first to get exam period info
-          collaborativeExternalCalendarService.findEnrolledExam(examId, user.getId).flatMap {
+          collaborativeExternalCalendarService.findEnrolledExam(examId, user.id).flatMap {
             case None => Future.successful(Forbidden("i18n_error_enrolment_not_found"))
             case Some(_) =>
               collaborativeExternalCalendarService
-                .requestExternalSlots(examId, user.getId, orgValue, roomRef, dateValue)
+                .requestExternalSlots(examId, user.id, orgValue, roomRef, dateValue)
                 .map {
                   case Left(error)  => Forbidden(error)
                   case Right(slots) => Ok(slots)

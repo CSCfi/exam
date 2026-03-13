@@ -8,7 +8,7 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.enrolment.Reservation
-import models.exam.Exam
+import models.exam.ExamState
 import models.facility.ExamRoom
 import org.joda.time.LocalDate
 import org.joda.time.format.ISODateTimeFormat
@@ -53,7 +53,7 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
       .isNotNull("enrolment")
       .or() // ***
       .isNotNull("enrolment.collaborativeExam")
-      .ne("enrolment.exam.state", Exam.State.DELETED)
+      .ne("enrolment.exam.state", ExamState.DELETED)
       .endOr()  // ***
       .endAnd() // **
       .isNotNull("externalUserRef")
@@ -75,11 +75,11 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
 
     finalQuery.distinct.toList
       .map { r =>
-        r.setStartAt(dateTimeHandler.normalize(r.getStartAt, r))
-        r.setEndAt(dateTimeHandler.normalize(r.getEndAt, r))
+        r.startAt = dateTimeHandler.normalize(r.startAt, r)
+        r.endAt = dateTimeHandler.normalize(r.endAt, r)
         r
       }
-      .sortBy(r => r.getStartAt.getMillis)
+      .sortBy(r => r.startAt.getMillis)
 
   def getRooms: List[ExamRoom] =
     val pp    = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))")
@@ -95,10 +95,10 @@ class ReservationAPIService @Inject() (dateTimeHandler: DateTimeHandler)
       case None => None
       case Some(room) =>
         val searchDate = ISODateTimeFormat.dateParser().parseLocalDate(date)
-        val filteredEvents = room.getCalendarExceptionEvents.asScala.filter { ee =>
-          val start = new LocalDate(ee.getStartDate).withDayOfMonth(1)
-          val end   = new LocalDate(ee.getEndDate).dayOfMonth().withMaximumValue()
+        val filteredEvents = room.calendarExceptionEvents.asScala.filter { ee =>
+          val start = new LocalDate(ee.startDate).withDayOfMonth(1)
+          val end   = new LocalDate(ee.endDate).dayOfMonth().withMaximumValue()
           !start.isAfter(searchDate) && !end.isBefore(searchDate)
         }
-        room.setCalendarExceptionEvents(filteredEvents.asJava)
+        room.calendarExceptionEvents = filteredEvents.asJava
         Some(room)

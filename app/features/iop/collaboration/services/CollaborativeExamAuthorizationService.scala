@@ -5,6 +5,7 @@
 package features.iop.collaboration.services
 
 import models.exam.Exam
+import models.exam.ExamState
 import models.iop.CollaborativeExam
 import models.user.User
 import play.api.Logging
@@ -39,11 +40,11 @@ class CollaborativeExamAuthorizationService @Inject() (
   def isAuthorizedToView(exam: Exam, user: User, homeOrg: String): Boolean =
     val hasAccess =
       user.isAdminOrSupport ||
-        (exam.getExamOwners.asScala.exists { u =>
-          u.getEmail.equalsIgnoreCase(user.getEmail) ||
-          u.getEmail.equalsIgnoreCase(user.getEppn)
-        } && exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED))
-    Option(exam.getOrganisations) match
+        (exam.examOwners.asScala.exists { u =>
+          u.email.equalsIgnoreCase(user.email) ||
+          u.email.equalsIgnoreCase(user.eppn)
+        } && exam.hasState(ExamState.PRE_PUBLISHED, ExamState.PUBLISHED))
+    Option(exam.organisations) match
       case None => hasAccess
       case Some(orgs) =>
         val organisations = orgs.split(";")
@@ -60,10 +61,10 @@ class CollaborativeExamAuthorizationService @Inject() (
     */
   def isUnauthorizedToAssess(exam: Exam, user: User): Boolean =
     !user.isAdminOrSupport &&
-      (exam.getExamOwners.asScala.forall { u =>
-        !u.getEmail.equalsIgnoreCase(user.getEmail) &&
-        !u.getEmail.equalsIgnoreCase(user.getEppn)
-      } || !exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED))
+      (exam.examOwners.asScala.forall { u =>
+        !u.email.equalsIgnoreCase(user.email) &&
+        !u.email.equalsIgnoreCase(user.eppn)
+      } || !exam.hasState(ExamState.REVIEW, ExamState.REVIEW_STARTED, ExamState.GRADED))
 
   /** Find a collaborative exam by ID and return as Either
     *

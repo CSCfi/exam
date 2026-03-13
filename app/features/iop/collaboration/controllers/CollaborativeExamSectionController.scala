@@ -6,10 +6,12 @@ package features.iop.collaboration.controllers
 
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.*
+import features.question.services.QuestionService
 import io.ebean.Model
 import io.ebean.text.PathProperties
 import models.exam.Exam
 import models.questions.Question
+import models.questions.QuestionType
 import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.{Role, User}
 import org.joda.time.DateTime
@@ -26,13 +28,13 @@ import system.AuditedAction
 import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.*
 
 class CollaborativeExamSectionController @Inject() (
     wsClient: play.api.libs.ws.WSClient,
     examUpdater: ExamUpdater,
     examLoader: CollaborativeExamLoaderService,
     configReader: ConfigReader,
+    questionService: QuestionService,
     collaborativeExamService: CollaborativeExamService,
     collaborativeExamSectionService: CollaborativeExamSectionService,
     collaborativeExamSearchService: CollaborativeExamSearchService,
@@ -52,7 +54,7 @@ class CollaborativeExamSectionController @Inject() (
       authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))
     ).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      collaborativeExamSectionService.addSection(examId, user.getId).map {
+      collaborativeExamSectionService.addSection(examId, user.id).map {
         case Left(error)    => Forbidden(error)
         case Right(section) => Ok(section.asJson)
       }
@@ -88,15 +90,15 @@ class CollaborativeExamSectionController @Inject() (
   def removeSection(examId: Long, sectionId: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
       val updater = (exam: Exam, _: User) =>
-        exam.getExamSections.asScala.find(_.getId == sectionId) match
+        exam.examSections.asScala.find(_.id == sectionId) match
           case None => Some(NotFound("i18n_error_not_found"))
           case Some(es) =>
-            exam.getExamSections.remove(es)
+            exam.examSections.remove(es)
             // Decrease sequences for the entries above the removed one
-            val seq = es.getSequenceNumber
-            exam.getExamSections.asScala.foreach { sibling =>
-              val num = sibling.getSequenceNumber
-              if num >= seq then sibling.setSequenceNumber(num - 1)
+            val seq = es.sequenceNumber
+            exam.examSections.asScala.foreach { sibling =>
+              val num = sibling.sequenceNumber
+              if num >= seq then sibling.sequenceNumber = num - 1
             }
             None
 
@@ -108,28 +110,28 @@ class CollaborativeExamSectionController @Inject() (
     .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN)))
     .async { request =>
       val updater = (exam: Exam, _: User) =>
-        exam.getExamSections.asScala.find(_.getId == sectionId) match
+        exam.examSections.asScala.find(_.id == sectionId) match
           case None     => Some(NotFound("i18n_error_not_found"))
           case Some(es) =>
             // Bind form data
             val formData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
-            formData.get("name").flatMap(_.headOption).foreach(es.setName)
-            formData.get("expanded").flatMap(_.headOption).foreach(v => es.setExpanded(v.toBoolean))
+            formData.get("name").flatMap(_.headOption).foreach(v => es.name = v)
+            formData.get("expanded").flatMap(_.headOption).foreach(v => es.expanded = v.toBoolean)
             formData.get("lotteryOn").flatMap(_.headOption).foreach(v =>
-              es.setLotteryOn(v.toBoolean)
+              es.lotteryOn = v.toBoolean
             )
             formData
               .get("lotteryItemCount")
               .flatMap(_.headOption)
-              .foreach(v => es.setLotteryItemCount(Math.max(1, v.toInt)))
-            formData.get("description").flatMap(_.headOption).foreach(es.setDescription)
+              .foreach(v => es.lotteryItemCount = Math.max(1, v.toInt))
+            formData.get("description").flatMap(_.headOption).foreach(v => es.description = v)
             None
 
       update(
         request,
         examId,
         updater,
-        exam => exam.getExamSections.asScala.find(_.getId == sectionId)
+        exam => exam.examSections.asScala.find(_.id == sectionId)
       )
     }
 
@@ -148,12 +150,12 @@ class CollaborativeExamSectionController @Inject() (
               case None      =>
                 // Reorder by sequenceNumber (TreeSet orders the collection based on it)
                 val sections =
-                  exam.getExamSections.asScala.toSeq.sortBy(_.getSequenceNumber).toBuffer
+                  exam.examSections.asScala.toSeq.sortBy(_.sequenceNumber).toBuffer
                 val prev = sections(from)
                 sections.remove(from)
                 sections.insert(to, prev)
                 sections.zipWithIndex.foreach { case (section, i) =>
-                  section.setSequenceNumber(i)
+                  section.sequenceNumber = i
                 }
                 None
           case _ => Some(BadRequest("Missing from/to parameters"))
@@ -174,17 +176,17 @@ class CollaborativeExamSectionController @Inject() (
             checkBounds(from, to) match
               case Some(err) => Some(err)
               case None =>
-                exam.getExamSections.asScala.find(_.getId == sectionId) match
+                exam.examSections.asScala.find(_.id == sectionId) match
                   case None     => Some(NotFound("i18n_error_not_found"))
                   case Some(es) =>
                     // Reorder by sequenceNumber
                     val questions =
-                      es.getSectionQuestions.asScala.toSeq.sortBy(_.getSequenceNumber).toBuffer
+                      es.sectionQuestions.asScala.toSeq.sortBy(_.sequenceNumber).toBuffer
                     val prev = questions(from)
                     questions.remove(from)
                     questions.insert(to, prev)
                     questions.zipWithIndex.foreach { case (question, i) =>
-                      question.setSequenceNumber(i)
+                      question.sequenceNumber = i
                     }
                     None
           case _ => Some(BadRequest("Missing from/to parameters"))
@@ -200,57 +202,57 @@ class CollaborativeExamSectionController @Inject() (
       val sectionQuestionId = CollaborativeExamProcessingService.newId()
 
       val updater = (exam: Exam, user: User) =>
-        exam.getExamSections.asScala.find(_.getId == sectionId) match
+        exam.examSections.asScala.find(_.id == sectionId) match
           case None => Some(NotFound("i18n_error_not_found"))
           case Some(es) =>
             val questionBody = (request.body \ "question").get
             val question =
               JsonDeserializer.deserialize(classOf[Question], toJacksonJson(questionBody))
-            question.getQuestionOwners.asScala.foreach(CollaborativeExamProcessingService.cleanUser)
+            question.questionOwners.asScala.foreach(CollaborativeExamProcessingService.cleanUser)
 
             // Validate question
-            question.getValidationResult(toJacksonJson(questionBody)).toScala.map(_.asScala) match
+            questionService.validate(question, questionBody) match
               case Some(error) => Some(error)
               case None =>
                 val esq = new ExamSectionQuestion()
-                question.setId(CollaborativeExamProcessingService.newId())
+                question.id = CollaborativeExamProcessingService.newId()
 
-                if question.getType == Question.Type.ClaimChoiceQuestion then
+                if question.`type` == QuestionType.ClaimChoiceQuestion then
                   // Naturally order generated ids before saving them to question options
-                  val options = question.getOptions.asScala.toSeq
+                  val options = question.options.asScala.toSeq
                   val generatedIds =
                     options.indices.map(_ => CollaborativeExamProcessingService.newId()).sorted
-                  options.zip(generatedIds).foreach { case (opt, id) => opt.setId(id) }
+                  options.zip(generatedIds).foreach { case (opt, id) => opt.id = id }
                 else
-                  question.getOptions.asScala.foreach(o =>
-                    o.setId(CollaborativeExamProcessingService.newId())
+                  question.options.asScala.foreach(o =>
+                    o.id = CollaborativeExamProcessingService.newId()
                   )
 
-                esq.setId(sectionQuestionId)
-                esq.setQuestion(question)
+                esq.id = sectionQuestionId
+                esq.question = question
 
                 // Assert that the sequence number provided is within limits
-                val sequence = Math.min(Math.max(0, seq), es.getSectionQuestions.size())
-                updateSequences(es.getSectionQuestions.asScala.toList, sequence)
-                esq.setSequenceNumber(sequence)
+                val sequence = Math.min(Math.max(0, seq), es.sectionQuestions.size())
+                updateSequences(es.sectionQuestions.asScala.toList, sequence)
+                esq.sequenceNumber = sequence
 
-                if es.getSectionQuestions.contains(esq) || es.hasQuestion(question) then
+                if es.sectionQuestions.contains(esq) || es.hasQuestion(question) then
                   Some(BadRequest("i18n_question_already_in_section"))
                 else
-                  if question.getType == Question.Type.EssayQuestion then
+                  if question.`type` == QuestionType.EssayQuestion then
                     // disable auto evaluation for this exam
-                    Option(exam.getAutoEvaluationConfig).foreach(_.delete())
+                    Option(exam.autoEvaluationConfig).foreach(_.delete())
 
                   // Insert a new section question
-                  esq.setCreator(user)
-                  esq.setCreated(DateTime.now())
+                  esq.creator = user
+                  esq.created = DateTime.now()
                   updateExamQuestion(esq, question)
-                  esq.getOptions.asScala.foreach(o =>
-                    o.setId(CollaborativeExamProcessingService.newId())
+                  esq.options.asScala.foreach(o =>
+                    o.id = CollaborativeExamProcessingService.newId()
                   )
                   CollaborativeExamProcessingService.cleanUser(user)
                   es.setModifierWithDate(user)
-                  es.getSectionQuestions.add(esq)
+                  es.sectionQuestions.add(esq)
                   None
 
       update(
@@ -258,33 +260,33 @@ class CollaborativeExamSectionController @Inject() (
         examId,
         updater,
         exam =>
-          exam.getExamSections.asScala
-            .flatMap(_.getSectionQuestions.asScala)
-            .find(_.getId == sectionQuestionId)
+          exam.examSections.asScala
+            .flatMap(_.sectionQuestions.asScala)
+            .find(_.id == sectionQuestionId)
       )
     }
 
   def removeQuestion(examId: Long, sectionId: Long, questionId: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
       val updater = (exam: Exam, _: User) =>
-        exam.getExamSections.asScala.find(_.getId == sectionId) match
+        exam.examSections.asScala.find(_.id == sectionId) match
           case None => Some(NotFound("i18n_error_not_found"))
           case Some(es) =>
-            es.getSectionQuestions.asScala.find(_.getQuestion.getId == questionId) match
+            es.sectionQuestions.asScala.find(_.question.id == questionId) match
               case None => Some(NotFound("i18n_error_not_found"))
               case Some(esq) =>
-                es.getSectionQuestions.remove(esq)
+                es.sectionQuestions.remove(esq)
 
                 // Decrease sequences for the entries above the removed one
-                val seq = esq.getSequenceNumber
-                es.getSectionQuestions.asScala.foreach { sibling =>
-                  val num = sibling.getSequenceNumber
-                  if num >= seq then sibling.setSequenceNumber(num - 1)
+                val seq = esq.sequenceNumber
+                es.sectionQuestions.asScala.foreach { sibling =>
+                  val num = sibling.sequenceNumber
+                  if num >= seq then sibling.sequenceNumber = num - 1
                 }
 
                 // Update the lottery item count if needed
-                if es.isLotteryOn && es.getLotteryItemCount > es.getSectionQuestions.size() then
-                  es.setLotteryItemCount(es.getSectionQuestions.size())
+                if es.lotteryOn && es.lotteryItemCount > es.sectionQuestions.size() then
+                  es.lotteryItemCount = es.sectionQuestions.size()
 
                 None
 
@@ -292,24 +294,24 @@ class CollaborativeExamSectionController @Inject() (
         request,
         examId,
         updater,
-        exam => exam.getExamSections.asScala.find(_.getId == sectionId)
+        exam => exam.examSections.asScala.find(_.id == sectionId)
       )
     }
 
   def clearQuestions(examId: Long, sectionId: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).async { request =>
       val updater = (exam: Exam, _: User) =>
-        exam.getExamSections.asScala.find(_.getId == sectionId) match
+        exam.examSections.asScala.find(_.id == sectionId) match
           case None => Some(NotFound("i18n_error_not_found"))
           case Some(es) =>
-            es.getSectionQuestions.clear()
+            es.sectionQuestions.clear()
             None
 
       update(
         request,
         examId,
         updater,
-        exam => exam.getExamSections.asScala.find(_.getId == sectionId)
+        exam => exam.examSections.asScala.find(_.id == sectionId)
       )
     }
 
@@ -328,28 +330,26 @@ class CollaborativeExamSectionController @Inject() (
                 if !collaborativeExamAuthorizationService.isAuthorizedToView(exam, user, homeOrg) =>
               Future.successful(Forbidden("i18n_error_access_forbidden"))
             case Some(exam) =>
-              exam.getExamSections.asScala.find(_.getId == sectionId) match
+              exam.examSections.asScala.find(_.id == sectionId) match
                 case None => Future.successful(NotFound("i18n_error_not_found"))
                 case Some(es) =>
-                  es.getSectionQuestions.asScala.find(_.getId == questionId) match
+                  es.sectionQuestions.asScala.find(_.id == questionId) match
                     case None => Future.successful(NotFound("i18n_error_not_found"))
                     case Some(esq) =>
                       val payload = (request.body \ "question").get
                       val questionBody =
                         JsonDeserializer.deserialize(classOf[Question], toJacksonJson(payload))
 
-                      questionBody.getValidationResult(toJacksonJson(payload)).toScala.map(
-                        _.asScala
-                      ) match
+                      questionService.validate(questionBody, payload) match
                         case Some(error) => Future.successful(error)
                         case None =>
-                          questionBody.getOptions.asScala
-                            .filter(_.getId == null)
-                            .foreach(o => o.setId(CollaborativeExamProcessingService.newId()))
+                          questionBody.options.asScala
+                            .filter(o => Option(o.id).forall(_ == 0))
+                            .foreach(o => o.id = CollaborativeExamProcessingService.newId())
 
                           updateExamQuestion(esq, questionBody)
-                          esq.getOptions.asScala.foreach(o =>
-                            o.setId(CollaborativeExamProcessingService.newId())
+                          esq.options.asScala.foreach(o =>
+                            o.id = CollaborativeExamProcessingService.newId()
                           )
 
                           val pp = PathProperties.parse(
@@ -362,11 +362,11 @@ class CollaborativeExamSectionController @Inject() (
 
   private def createDraft(exam: Exam, user: User): ExamSection =
     val section = new ExamSection()
-    section.setLotteryItemCount(1)
-    section.setSectionQuestions(Set.empty[ExamSectionQuestion].asJava)
-    section.setSequenceNumber(exam.getExamSections.size())
-    section.setExpanded(true)
-    section.setId(CollaborativeExamProcessingService.newId())
+    section.lotteryItemCount = 1
+    section.sectionQuestions = Set.empty[ExamSectionQuestion].asJava
+    section.sequenceNumber = exam.examSections.size()
+    section.expanded = true
+    section.id = CollaborativeExamProcessingService.newId()
     CollaborativeExamProcessingService.cleanUser(user)
     section.setCreatorWithDate(user)
     section

@@ -8,13 +8,14 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
+import models.exam.ExamState
 import models.facility.ExamRoom
 import models.sections.ExamSection
 import models.user.User
 import org.joda.time.DateTime
 import play.api.Logging
 import security.BlockingIOExecutionContext
-import services.datetime.{AppClock, CalendarHandler, CalendarHandlerError, DateTimeHandler}
+import services.datetime.*
 import services.enrolment.EnrolmentHandler
 import services.mail.EmailComposer
 
@@ -70,9 +71,9 @@ class CollaborativeCalendarService @Inject() (
       exam: Exam,
       user: User
   ): Option[String] =
-    val oldReservation = Option(enrolment.getReservation)
+    val oldReservation = Option(enrolment.reservation)
 
-    if exam.getState == Exam.State.STUDENT_STARTED ||
+    if exam.state == ExamState.STUDENT_STARTED ||
       (oldReservation.isDefined && oldReservation.get.toInterval.isBefore(clock.now()))
     then Some("i18n_reservation_in_effect")
     else if oldReservation.isEmpty && !enrolmentHandler.isAllowedToParticipate(exam, user) then
@@ -148,7 +149,7 @@ class CollaborativeCalendarService @Inject() (
         exam <- examOpt match
           case None    => Future.failed(new IllegalArgumentException("Exam not found"))
           case Some(e) => Future.successful(e)
-      yield checkEnrolmentValidity(enrolment, exam, enrolment.getUser) match
+      yield checkEnrolmentValidity(enrolment, exam, enrolment.user) match
         case Some(error) => Left(error)
         case None =>
           calendarHandler.getRandomMachine(room, exam, start, end, aids) match
@@ -159,20 +160,20 @@ class CollaborativeCalendarService @Inject() (
                 // Take pessimistic lock for user
                 DB.find(classOf[User]).forUpdate().where().eq("id", userId).findOne()
 
-                val oldReservation = enrolment.getReservation
+                val oldReservation = enrolment.reservation
                 val reservation =
-                  calendarHandler.createReservation(start, end, machine, enrolment.getUser)
+                  calendarHandler.createReservation(start, end, machine, enrolment.user)
 
                 // Remove old reservation if any
                 if Option(oldReservation).isDefined then
-                  enrolment.setReservation(null)
+                  enrolment.reservation = null
                   enrolment.update()
                   oldReservation.delete()
 
                 // Set new reservation
                 reservation.save()
-                enrolment.setReservation(reservation)
-                enrolment.setReservationCanceled(false)
+                enrolment.reservation = reservation
+                enrolment.reservationCanceled = false
 
                 // Set optional sections
                 val sections =
@@ -183,7 +184,7 @@ class CollaborativeCalendarService @Inject() (
                       .idIn(sectionIds.asJava)
                       .distinct
 
-                enrolment.setOptionalSections(sections.asJava)
+                enrolment.optionalSections = sections.asJava
                 enrolment.save()
 
                 tx.commit()
@@ -191,13 +192,13 @@ class CollaborativeCalendarService @Inject() (
                 // Send email notification
                 emailComposer.scheduleEmail(1.second) {
                   emailComposer.composeReservationNotification(
-                    enrolment.getUser,
+                    enrolment.user,
                     reservation,
                     exam,
                     false
                   )
                   logger.info(
-                    f"Reservation confirmation email sent to ${enrolment.getUser.getEmail}"
+                    f"Reservation confirmation email sent to ${enrolment.user.email}"
                   )
                 }
 
@@ -243,7 +244,7 @@ class CollaborativeCalendarService @Inject() (
         case None    => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
         case Some(e) => Future.successful(e)
     yield
-      if !exam.hasState(Exam.State.PUBLISHED) then
+      if !exam.hasState(ExamState.PUBLISHED) then
         Left("i18n_error_exam_not_found")
       else
         val user             = DB.find(classOf[User], userId)

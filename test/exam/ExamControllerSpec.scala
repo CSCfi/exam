@@ -6,7 +6,7 @@ package exam
 
 import base.BaseIntegrationSpec
 import io.ebean.DB
-import models.exam.{Exam, ExamType}
+import models.exam.{Exam, ExamState, ExamType}
 import org.joda.time.DateTime
 import play.api.http.Status
 import play.api.libs.json.*
@@ -30,20 +30,20 @@ class ExamControllerSpec extends BaseIntegrationSpec:
         val activeExams = DB
           .find(classOf[Exam])
           .where()
-          .eq("creator.id", user.getId)
-          .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)
+          .eq("creator.id", user.id)
+          .in("state", ExamState.PUBLISHED, ExamState.SAVED, ExamState.DRAFT)
           .findList()
 
         activeExams.asScala.foreach { exam =>
-          exam.getExamOwners.add(exam.getCreator)
+          exam.examOwners.add(exam.creator)
           exam.update()
         }
 
         val ids = activeExams.asScala.map { exam =>
-          exam.setPeriodStart(DateTime.now())
-          exam.setPeriodEnd(DateTime.now().plusWeeks(1))
+          exam.periodStart = DateTime.now()
+          exam.periodEnd = DateTime.now().plusWeeks(1)
           exam.update()
-          exam.getId
+          exam.id
         }.toSet
 
         // Execute
@@ -97,19 +97,19 @@ class ExamControllerSpec extends BaseIntegrationSpec:
 
         val draft = DB.find(classOf[Exam], examId)
         draft must not be null
-        Option(draft.getName) must be(None)
-        draft.getCreator.getId must be(user.getId)
-        draft.getCreated must not be null
-        draft.getState must be(Exam.State.DRAFT)
-        draft.getExamSections must have size 1
+        Option(draft.name) must be(None)
+        draft.creator.id must be(user.id)
+        draft.created must not be null
+        draft.state must be(ExamState.DRAFT)
+        draft.examSections must have size 1
 
-        val section = draft.getExamSections.iterator().next()
-        Option(section.getName) must be(None)
-        section.isExpanded must be(true)
-        draft.getExamLanguages must have size 1
-        draft.getExamLanguages.getFirst.getCode must be("fi")
-        draft.getExamType.getId must be(2L)
-        draft.isAnonymous must be(true)
+        val section = draft.examSections.iterator().next()
+        Option(section.name) must be(None)
+        section.expanded must be(true)
+        draft.examLanguages must have size 1
+        draft.examLanguages.getFirst.code must be("fi")
+        draft.examType.id must be(2L)
+        draft.anonymous must be(true)
 
         val newRowCount = DB.find(classOf[Exam]).findCount()
         newRowCount must be(originalRowCount + 1)
@@ -120,7 +120,7 @@ class ExamControllerSpec extends BaseIntegrationSpec:
         // Setup
         val examId = 1L
         val exam   = DB.find(classOf[Exam], examId)
-        exam.setState(Exam.State.STUDENT_STARTED)
+        exam.state = ExamState.STUDENT_STARTED
         exam.update()
 
         // Execute
@@ -134,7 +134,7 @@ class ExamControllerSpec extends BaseIntegrationSpec:
         val examId   = 1L
         val exam     = DB.find(classOf[Exam], examId)
         val examType = DB.find(classOf[ExamType], 1L)
-        exam.setExamType(examType)
+        exam.examType = examType
         exam.save()
 
         // Check current state
@@ -148,8 +148,8 @@ class ExamControllerSpec extends BaseIntegrationSpec:
 
         // Prepare update
         val updateData = Json.obj(
-          "name"     -> exam.getName,
-          "duration" -> JsNumber(BigDecimal(exam.getDuration)),
+          "name"     -> exam.name,
+          "duration" -> JsNumber(BigDecimal(exam.duration)),
           "examType" -> Json.obj("type" -> "FINAL")
         )
 

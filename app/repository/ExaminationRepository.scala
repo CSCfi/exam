@@ -11,8 +11,10 @@ import io.ebean.text.PathProperties
 import io.ebean.{DB, Database, Query}
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
+import models.exam.ExamState
 import models.facility.ExamRoom
 import models.iop.CollaborativeExam
+import models.questions.QuestionType
 import models.questions.{ClozeTestAnswer, Question}
 import models.user.User
 import org.joda.time.DateTime
@@ -37,11 +39,11 @@ class ExaminationRepository @Inject() (
 
   private def doCreateExam(prototype: Exam, user: User, enrolment: ExamEnrolment): Option[Exam] =
     Using(db.beginTransaction()) { tx =>
-      val isCollaborative = Option(enrolment.getCollaborativeExam).isDefined
-      val reservation     = enrolment.getReservation
+      val isCollaborative = Option(enrolment.collaborativeExam).isDefined
+      val reservation     = enrolment.reservation
       // TODO: support for optional sections in BYOD exams
       val ids = Option(reservation)
-        .map(_ => enrolment.getOptionalSections.asScala.map(_.getId.longValue()).toSet)
+        .map(_ => enrolment.optionalSections.asScala.map(_.id.longValue()).toSet)
         .getOrElse(Set.empty[Long])
 
       val context =
@@ -50,13 +52,13 @@ class ExaminationRepository @Inject() (
         else ExamCopyContext.forStudentExam(user).withSelectedSections(ids).build()
 
       val studentExam = prototype.createCopy(context)
-      studentExam.setState(Exam.State.INITIALIZED)
-      studentExam.setCreator(user)
-      if !isCollaborative then studentExam.setParent(prototype)
+      studentExam.state = ExamState.INITIALIZED
+      studentExam.creator = user
+      if !isCollaborative then studentExam.parent = prototype
 
       studentExam.generateHash()
       db.save(studentExam)
-      enrolment.setExam(studentExam)
+      enrolment.exam = studentExam
       db.save(enrolment)
       tx.commit()
       studentExam
@@ -65,50 +67,50 @@ class ExaminationRepository @Inject() (
   def processClozeTestQuestions(exam: Exam): Unit =
     val questionsToHide = scala.collection.mutable.Set[Question]()
 
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .filter(_.getQuestion.getType == Question.Type.ClozeTestQuestion)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .filter(_.question.`type` == QuestionType.ClozeTestQuestion)
       .foreach { esq =>
-        val answer = Option(esq.getClozeTestAnswer).getOrElse {
+        val answer = Option(esq.clozeTestAnswer).getOrElse {
           val newAnswer = new ClozeTestAnswer()
           newAnswer
         }
         answer.setQuestion(esq)
-        esq.setClozeTestAnswer(answer)
+        esq.clozeTestAnswer = answer
         db.update(esq)
-        questionsToHide.add(esq.getQuestion)
+        questionsToHide.add(esq.question)
       }
 
-    questionsToHide.foreach(_.setQuestion(null))
+    questionsToHide.foreach(_.question = null)
 
   def createFinalExam(clone: Exam, user: User, enrolment: ExamEnrolment): Future[Exam] =
     Future {
-      clone.setState(Exam.State.STUDENT_STARTED)
+      clone.state = ExamState.STUDENT_STARTED
       db.update(clone)
-      clone.setCloned(false)
+      clone.cloned = false
       clone.setDerivedMaxScores()
       processClozeTestQuestions(clone)
 
-      if Option(clone.getExamParticipation).isEmpty then
-        val reservation       = enrolment.getReservation
+      if Option(clone.examParticipation).isEmpty then
+        val reservation       = enrolment.reservation
         val examParticipation = new ExamParticipation()
-        examParticipation.setUser(user)
-        examParticipation.setExam(clone)
-        examParticipation.setCollaborativeExam(enrolment.getCollaborativeExam)
-        examParticipation.setReservation(reservation)
+        examParticipation.user = user
+        examParticipation.exam = clone
+        examParticipation.collaborativeExam = enrolment.collaborativeExam
+        examParticipation.reservation = reservation
 
-        Option(enrolment.getExaminationEventConfiguration).foreach { config =>
-          examParticipation.setExaminationEvent(config.getExaminationEvent)
+        Option(enrolment.examinationEventConfiguration).foreach { config =>
+          examParticipation.examinationEvent = config.examinationEvent
         }
 
-        val now = Option(enrolment.getExaminationEventConfiguration) match
+        val now = Option(enrolment.examinationEventConfiguration) match
           case None =>
             Option(reservation) match
               case None    => dateTimeHandler.adjustDST(DateTime.now())
-              case Some(r) => dateTimeHandler.adjustDST(DateTime.now(), r.getMachine.getRoom)
+              case Some(r) => dateTimeHandler.adjustDST(DateTime.now(), r.machine.room)
           case Some(_) => DateTime.now()
 
-        examParticipation.setStarted(now)
+        examParticipation.started = now
         db.save(examParticipation)
 
       clone
@@ -120,8 +122,8 @@ class ExaminationRepository @Inject() (
         case Some(ce) => Some(ce)
         case None =>
           db.find(classOf[Exam]).where().eq("hash", hash).find match
-            case Some(exam) if !exam.getExamEnrolments.isEmpty =>
-              Option(exam.getExamEnrolments.getFirst.getCollaborativeExam)
+            case Some(exam) if !exam.examEnrolments.isEmpty =>
+              Option(exam.examEnrolments.getFirst.collaborativeExam)
             case _ => None
     }
 
@@ -150,17 +152,17 @@ class ExaminationRepository @Inject() (
     query
 
   private def isInEffect(ee: ExamEnrolment): Boolean =
-    val now = Option(ee.getExaminationEventConfiguration)
+    val now = Option(ee.examinationEventConfiguration)
       .map(_ => DateTime.now)
       .getOrElse(dateTimeHandler.adjustDST(DateTime.now()))
 
-    Option(ee.getReservation) match
+    Option(ee.reservation) match
       case Some(reservation) =>
-        reservation.getStartAt.isBefore(now) && reservation.getEndAt.isAfter(now)
+        reservation.startAt.isBefore(now) && reservation.endAt.isAfter(now)
       case None =>
-        Option(ee.getExaminationEventConfiguration).exists { config =>
-          val start = config.getExaminationEvent.getStart
-          val end   = start.plusMinutes(ee.getExam.getDuration)
+        Option(ee.examinationEventConfiguration).exists { config =>
+          val start = config.examinationEvent.start
+          val end   = start.plusMinutes(ee.exam.duration)
           start.isBefore(now) && end.isAfter(now)
         }
 
@@ -179,11 +181,11 @@ class ExaminationRepository @Inject() (
         .fetch("examinationEventConfiguration")
         .fetch("examinationEventConfiguration.examinationEvent")
         .where()
-        .eq("user.id", user.getId)
+        .eq("user.id", user.id)
         .or()
-        .eq("exam.id", prototype.getId)
+        .eq("exam.id", prototype.id)
         .and()
-        .eq("collaborativeExam.id", Option(ce).map(_.getId).getOrElse(-1L))
+        .eq("collaborativeExam.id", Option(ce).map(_.id).getOrElse(-1L))
         .isNull("exam.id")
         .endAnd()
         .endOr()
@@ -200,7 +202,7 @@ class ExaminationRepository @Inject() (
       db.find(classOf[ExamRoom])
         .fetch("mailAddress")
         .where()
-        .eq("id", enrolment.getReservation.getMachine.getRoom.getId)
+        .eq("id", enrolment.reservation.machine.room.id)
         .find
     }
 

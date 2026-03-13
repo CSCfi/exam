@@ -25,12 +25,12 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
     Option(DB.find(classOf[User], userId)) match
       case None => Left(UserNotFound)
       case Some(user) =>
-        if !user.getPermissions.asScala.exists(_.getValue == permissionString) then
-          Permission.Type.values().find(_.name() == permissionString) match
+        if !user.permissions.asScala.exists(_.value == permissionString) then
+          PermissionType.values().find(_.name() == permissionString) match
             case Some(permType) =>
               DB.find(classOf[Permission]).where().eq("type", permType).find match
                 case Some(permission) =>
-                  user.getPermissions.add(permission)
+                  user.permissions.add(permission)
                   user.update()
                   Right(())
                 case None => Left(PermissionNotFound)
@@ -41,12 +41,12 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
     Option(DB.find(classOf[User], userId)) match
       case None => Left(UserNotFound)
       case Some(user) =>
-        if user.getPermissions.asScala.exists(_.getValue == permissionString) then
-          Permission.Type.values().find(_.name() == permissionString) match
+        if user.permissions.asScala.exists(_.value == permissionString) then
+          PermissionType.values().find(_.name() == permissionString) match
             case Some(permType) =>
               DB.find(classOf[Permission]).where().eq("type", permType).find match
                 case Some(permission) =>
-                  user.getPermissions.remove(permission)
+                  user.permissions.remove(permission)
                   user.update()
                   Right(())
                 case None => Left(PermissionNotFound)
@@ -79,11 +79,11 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
     Option(DB.find(classOf[User], uid)) match
       case None => Left(UserNotFound)
       case Some(user) =>
-        if !user.getRoles.asScala.exists(_.getName == roleName) then
+        if !user.roles.asScala.exists(_.name == roleName) then
           DB.find(classOf[Role]).where().eq("name", roleName).find match
             case None => Left(RoleNotFound)
             case Some(role) =>
-              user.getRoles.add(role)
+              user.roles.add(role)
               user.update()
               Right(())
         else Right(())
@@ -92,11 +92,11 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
     Option(DB.find(classOf[User], uid)) match
       case None => Left(UserNotFound)
       case Some(user) =>
-        if user.getRoles.asScala.exists(_.getName == roleName) then
+        if user.roles.asScala.exists(_.name == roleName) then
           DB.find(classOf[Role]).where().eq("name", roleName).find match
             case None => Left(RoleNotFound)
             case Some(role) =>
-              user.getRoles.remove(role)
+              user.roles.remove(role)
               user.update()
               Right(())
         else Right(())
@@ -124,7 +124,7 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
   def listUnenrolledStudents(eid: Long, criteria: String): Seq[User] =
     val enrolments = DB.find(classOf[ExamEnrolment]).where().eq("exam.id", eid).list
     val users      = listUsersByRoleAndName("STUDENT", criteria).asJava
-    users.removeAll(enrolments.map(_.getUser).asJava)
+    users.removeAll(enrolments.map(_.user).asJava)
     users.asScala.toSeq
 
   def updateUserAgreementAccepted(userId: Long): Either[UserError, Unit] =
@@ -136,7 +136,7 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
       .find match
       case None => Left(UserNotFound)
       case Some(user) =>
-        user.setUserAgreementAccepted(true)
+        user.userAgreementAccepted = true
         user.update()
         Right(())
 
@@ -147,7 +147,7 @@ class UserService @Inject() (userHandler: UserHandler) extends EbeanQueryExtensi
         Option(DB.find(classOf[User], userId)) match
           case None => Left(UserNotFound)
           case Some(user) =>
-            user.setLanguage(language)
+            user.language = language
             user.update()
             Right(())
 

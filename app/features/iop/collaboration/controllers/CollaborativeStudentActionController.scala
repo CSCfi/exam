@@ -40,7 +40,7 @@ class CollaborativeStudentActionController @Inject() (
       parseAssessmentUrl() match
         case None => Future.successful(Results.InternalServerError)
         case Some(url) =>
-          val wsRequest = wsClient.url(url.toString + user.getEppn)
+          val wsRequest = wsClient.url(url.toString + user.eppn)
           wsRequest.get().map { response =>
             if response.status != play.api.http.Status.OK then Results.Status(response.status)
             else

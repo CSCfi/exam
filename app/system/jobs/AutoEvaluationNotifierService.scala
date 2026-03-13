@@ -8,8 +8,9 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import database.EbeanQueryExtensions
 import io.ebean.DB
-import models.assessment.AutoEvaluationConfig.ReleaseType
+import models.assessment.AutoEvaluationReleaseType
 import models.exam.Exam
+import models.exam.ExamState
 import org.joda.time.DateTime
 import play.api.Logging
 import services.datetime.DateTimeHandler
@@ -30,27 +31,28 @@ class AutoEvaluationNotifierService @Inject() (
     dateTimeHandler.adjustDST(date.withHourOfDay(5).withMinuteOfHour(0).withSecondOfMinute(0))
 
   private def isPastReleaseDate(exam: Exam) =
-    val config = exam.getAutoEvaluationConfig
-    val releaseDate = config.getReleaseType match
+    val config = exam.autoEvaluationConfig
+    val releaseDate = config.releaseType match
       // Put some delay in these dates to avoid sending stuff in the middle of the night
-      case ReleaseType.GIVEN_DATE => Some(adjustReleaseDate(new DateTime(config.getReleaseDate)))
-      case ReleaseType.GIVEN_AMOUNT_DAYS =>
-        Some(adjustReleaseDate(new DateTime(exam.getGradedTime).plusDays(config.getAmountDays)))
-      case ReleaseType.AFTER_EXAM_PERIOD =>
-        Some(adjustReleaseDate(new DateTime(exam.getPeriodEnd).plusDays(1)))
+      case AutoEvaluationReleaseType.GIVEN_DATE =>
+        Some(adjustReleaseDate(new DateTime(config.releaseDate)))
+      case AutoEvaluationReleaseType.GIVEN_AMOUNT_DAYS =>
+        Some(adjustReleaseDate(new DateTime(exam.gradedTime).plusDays(config.amountDays)))
+      case AutoEvaluationReleaseType.AFTER_EXAM_PERIOD =>
+        Some(adjustReleaseDate(new DateTime(exam.periodEnd).plusDays(1)))
       // Not handled at least by this service
       case _ => None
     releaseDate.exists(_.isBeforeNow)
 
   private def notifyStudent(exam: Exam): Unit =
-    val student = exam.getCreator
+    val student = exam.creator
     catching(classOf[RuntimeException]).either(
       composer.composeInspectionReady(student, None, exam)
     ) match
-      case Left(e) => logger.error(s"Sending mail to ${student.getEmail} failed", e)
+      case Left(e) => logger.error(s"Sending mail to ${student.email} failed", e)
       case Right(_) =>
-        logger.info(s"Mail sent to ${student.getEmail}")
-        exam.setAutoEvaluationNotified(DateTime.now)
+        logger.info(s"Mail sent to ${student.email}")
+        exam.autoEvaluationNotified = DateTime.now
         exam.update()
 
   private def runCheck(): IO[Unit] =
@@ -59,7 +61,7 @@ class AutoEvaluationNotifierService @Inject() (
       DB.find(classOf[Exam])
         .fetch("autoEvaluationConfig")
         .where
-        .eq("state", Exam.State.GRADED)
+        .eq("state", ExamState.GRADED)
         .isNotNull("gradedTime")
         .isNotNull("autoEvaluationConfig")
         .isNotNull("grade")

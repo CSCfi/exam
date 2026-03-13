@@ -46,8 +46,8 @@ class ExternalReservationHandlerService @Inject() (
     URI.create(sb.toString)
 
   def removeExternalReservation(reservation: Reservation): Future[Option[Int]] =
-    val external = reservation.getExternalReservation
-    Try(parseUrl(external.getOrgRef, external.getRoomRef, Some(reservation.getExternalRef))) match
+    val external = reservation.externalReservation
+    Try(parseUrl(external.orgRef, external.roomRef, Some(reservation.externalRef))) match
       case Failure(e) =>
         logger.error("Failed to parse URL for external reservation removal", e)
         Future.successful(Some(INTERNAL_SERVER_ERROR))
@@ -70,7 +70,7 @@ class ExternalReservationHandlerService @Inject() (
         .fetch("reservation.machine")
         .fetch("reservation.machine.room")
         .where()
-        .eq("user.id", user.getId)
+        .eq("user.id", user.id)
         .eq("reservation.externalRef", ref)
         .find
 
@@ -79,15 +79,15 @@ class ExternalReservationHandlerService @Inject() (
         Future.successful(NotFound(s"No reservation with ref $ref for current user."))
       case Some(enrolment) =>
         // Removal is not permitted if the reservation is in the past or ongoing
-        val reservation = enrolment.getReservation
-        val now         = dateTimeHandler.adjustDST(clock.now(), reservation.getExternalReservation)
+        val reservation = enrolment.reservation
+        val now         = dateTimeHandler.adjustDST(clock.now(), reservation.externalReservation)
 
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Future.successful(Forbidden("i18n_reservation_in_effect"))
         else
           // good to go
-          val external = reservation.getExternalReservation
-          Try(parseUrl(external.getOrgRef, external.getRoomRef, Some(ref))) match
+          val external = reservation.externalReservation
+          Try(parseUrl(external.orgRef, external.roomRef, Some(ref))) match
             case Failure(e) =>
               logger.error("Failed to parse URL for reservation removal", e)
               Future.successful(InternalServerError("Invalid URL"))
@@ -101,16 +101,16 @@ class ExternalReservationHandlerService @Inject() (
                       (response.json \ "message").asOpt[String].getOrElse("Connection refused")
                     InternalServerError(msg)
                   else
-                    enrolment.setReservation(null)
-                    enrolment.setReservationCanceled(true)
+                    enrolment.reservation = null
+                    enrolment.reservationCanceled = true
                     DB.save(enrolment)
                     reservation.delete()
 
                     // send email asynchronously
-                    val isStudentUser = user == enrolment.getUser
+                    val isStudentUser = user == enrolment.user
                     emailComposer.scheduleEmail(1.second) {
                       emailComposer.composeReservationCancellationNotification(
-                        enrolment.getUser,
+                        enrolment.user,
                         reservation,
                         Some(msg),
                         isStudentUser,
@@ -128,5 +128,5 @@ class ExternalReservationHandlerService @Inject() (
       user: User,
       msg: String
   ): Future[Result] =
-    if Option(reservation.getExternalReservation).isEmpty then Future.successful(Ok)
-    else requestRemoval(reservation.getExternalRef, user, msg)
+    if Option(reservation.externalReservation).isEmpty then Future.successful(Ok)
+    else requestRemoval(reservation.externalRef, user, msg)

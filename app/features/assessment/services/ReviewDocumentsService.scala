@@ -7,7 +7,8 @@ package features.assessment.services
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import models.exam.Exam
-import models.questions.Question
+import models.exam.ExamState
+import models.questions.QuestionType
 import models.user.{Role, User}
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
 import org.apache.commons.io.IOUtils
@@ -73,9 +74,9 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
     )
 
   private def isEligibleForArchiving(exam: Exam, start: Option[DateTime], end: Option[DateTime]) =
-    exam.hasState(Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED) &&
-      start.forall(!exam.getCreated.isBefore(_)) &&
-      end.forall(!exam.getCreated.isAfter(_))
+    exam.hasState(ExamState.ABORTED, ExamState.REVIEW, ExamState.REVIEW_STARTED) &&
+      start.forall(!exam.created.isBefore(_)) &&
+      end.forall(!exam.created.isAfter(_))
 
   private def createArchive(
       prototype: Exam,
@@ -83,35 +84,35 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
       start: Option[DateTime],
       end: Option[DateTime]
   ): Unit =
-    val children  = prototype.getChildren.asScala.filter(isEligibleForArchiving(_, start, end))
+    val children  = prototype.children.asScala.filter(isEligibleForArchiving(_, start, end))
     val questions = mutable.LinkedHashMap.empty[Long, String]
     for (exam <- children)
-      val id  = Option(exam.getCreator.getUserIdentifier).getOrElse(exam.getCreator.getId.toString)
-      val uid = s"$id-${exam.getId}"
-      for (es <- exam.getExamSections.asScala)
-        val essays = es.getSectionQuestions.asScala
-          .filter(_.getQuestion.getType == Question.Type.EssayQuestion)
+      val id  = Option(exam.creator.userIdentifier).getOrElse(exam.creator.id.toString)
+      val uid = s"$id-${exam.id}"
+      for (es <- exam.examSections.asScala)
+        val essays = es.sectionQuestions.asScala
+          .filter(_.question.`type` == QuestionType.EssayQuestion)
         for (essay <- essays)
-          val questionId = Option(essay.getQuestion).flatMap(q => Option(q.getParent)) match
-            case None    => essay.getQuestion.getId
-            case Some(p) => p.getId
-          val questionIdText = Option(essay.getQuestion).flatMap(q => Option(q.getParent)) match
+          val questionId = Option(essay.question).flatMap(q => Option(q.parent)) match
+            case None    => essay.question.id
+            case Some(p) => p.id
+          val questionIdText = Option(essay.question).flatMap(q => Option(q.parent)) match
             case None    => s"$questionId #original_question_removed"
-            case Some(p) => p.getId.toString
-          questions.put(questionId, essay.getQuestion.getQuestion)
-          val attachment = Option(essay.getEssayAnswer).flatMap(a => Option(a.getAttachment))
-          val file       = attachment.map(a => new File(a.getFilePath))
+            case Some(p) => p.id.toString
+          questions.put(questionId, essay.question.question)
+          val attachment = Option(essay.essayAnswer).flatMap(a => Option(a.attachment))
+          val file       = attachment.map(a => new File(a.filePath))
           file match
             case Some(f) if f.exists =>
               val entryName =
-                s"${prototype.getId}/$questionIdText/$uid/${attachment.get.getFileName}"
+                s"${prototype.id}/$questionIdText/$uid/${attachment.get.fileName}"
               addFileEntry(entryName, f, aos)
             case _ =>
               if file.isDefined then
                 logger.warn(
-                  s"Attachment ${attachment.get.getId} is not connected to a file on disk!"
+                  s"Attachment ${attachment.get.id} is not connected to a file on disk!"
                 )
-              val entryName = s"${prototype.getId}/$questionId/$uid"
+              val entryName = s"${prototype.id}/$questionId/$uid"
               val entry     = new TarArchiveEntry(entryName)
               aos.putArchiveEntry(entry)
               aos.closeArchiveEntry()
@@ -149,8 +150,8 @@ class ReviewDocumentsService @Inject() (private val csvBuilder: CsvBuilder)
       s"period: $s-$e"
     }
     val lines = periodLine.toSeq ++ Seq(
-      s"exam id: ${exam.getId}",
-      s"exam name: ${exam.getName}",
+      s"exam id: ${exam.id}",
+      s"exam name: ${exam.name}",
       "",
       "questions"
     ) ++ questions.map { case (k, v) => s"$k: ${Jsoup.parse(v).text}" }

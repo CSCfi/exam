@@ -8,6 +8,7 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
+import models.exam.ExamState
 import models.user.User
 import org.apache.poi.ss.usermodel.{Sheet, Workbook}
 import org.joda.time.DateTime
@@ -33,7 +34,7 @@ class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
       .eq("roles.name", "STUDENT")
       .list
 
-  def getExamNames: List[Exam] =
+  def examNames: List[Exam] =
     DB
       .find(classOf[Exam])
       .select("id, name")
@@ -53,28 +54,28 @@ class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
 
   private def buildExamSheet(wb: Workbook, exam: Exam): Unit =
     val values = Map(
-      "Creator ID"       -> exam.getCreator.getId.toString,
-      "First name"       -> exam.getCreator.getFirstName,
-      "Last name"        -> exam.getCreator.getLastName,
-      "Exam type"        -> exam.getExamType.getType,
-      "Course code"      -> exam.getCourse.getCode,
-      "Course name"      -> exam.getCourse.getName,
-      "Course credits"   -> exam.getCourse.getCredits.toString,
-      "Course unit type" -> forceNotNull(exam.getCourse.getCourseUnitType),
-      "Course level"     -> forceNotNull(exam.getCourse.getLevel),
-      "Created"          -> ISODateTimeFormat.date().print(new DateTime(exam.getCreated)),
-      "Begins"           -> ISODateTimeFormat.date().print(new DateTime(exam.getPeriodStart)),
-      "Ends"             -> ISODateTimeFormat.date().print(new DateTime(exam.getPeriodEnd)),
-      "Duration"         -> Option(exam.getDuration).map(_.toString).getOrElse("N/A"),
-      "Grade scale"      -> Option(exam.getGradeScale).map(_.getDescription).getOrElse("N/A"),
-      "State"            -> exam.getState.toString,
-      "Attachment" -> Option(exam.getAttachment).map(a =>
-        s"${a.getFilePath}${a.getFileName}"
+      "Creator ID"       -> exam.creator.id.toString,
+      "First name"       -> exam.creator.firstName,
+      "Last name"        -> exam.creator.lastName,
+      "Exam type"        -> exam.examType.`type`,
+      "Course code"      -> exam.course.code,
+      "Course name"      -> exam.course.name,
+      "Course credits"   -> exam.course.credits.toString,
+      "Course unit type" -> forceNotNull(exam.course.courseUnitType),
+      "Course level"     -> forceNotNull(exam.course.level),
+      "Created"          -> ISODateTimeFormat.date().print(new DateTime(exam.created)),
+      "Begins"           -> ISODateTimeFormat.date().print(new DateTime(exam.periodStart)),
+      "Ends"             -> ISODateTimeFormat.date().print(new DateTime(exam.periodEnd)),
+      "Duration"         -> Option(exam.duration).map(_.toString).getOrElse("N/A"),
+      "Grade scale"      -> Option(exam.gradeScale).map(_.description).getOrElse("N/A"),
+      "State"            -> exam.state.toString,
+      "Attachment" -> Option(exam.attachment).map(a =>
+        s"${a.filePath}${a.fileName}"
       ).getOrElse(""),
-      "Instructions" -> forceNotNull(exam.getInstruction),
-      "Shared"       -> exam.isShared.toString
+      "Instructions" -> forceNotNull(exam.instruction),
+      "Shared"       -> exam.shared.toString
     )
-    val sheet     = wb.createSheet(exam.getName)
+    val sheet     = wb.createSheet(exam.name)
     val headerRow = sheet.createRow(0)
     values.keys.zipWithIndex.foreach { case (key, i) =>
       headerRow.createCell(i).setCellValue(key)
@@ -125,23 +126,23 @@ class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
     )
     exams.zipWithIndex.foreach { case (parent, idx) =>
       val (inReview, graded, logged) =
-        parent.getChildren.asScala.foldLeft((0, 0, 0)) { case ((ir, g, l), child) =>
-          child.getState match
-            case Exam.State.REVIEW | Exam.State.REVIEW_STARTED => (ir + 1, g, l)
-            case Exam.State.GRADED                             => (ir, g + 1, l)
-            case Exam.State.GRADED_LOGGED                      => (ir, g, l + 1)
-            case _                                             => (ir, g, l)
+        parent.children.asScala.foldLeft((0, 0, 0)) { case ((ir, g, l), child) =>
+          child.state match
+            case ExamState.REVIEW | ExamState.REVIEW_STARTED => (ir + 1, g, l)
+            case ExamState.GRADED                            => (ir, g + 1, l)
+            case ExamState.GRADED_LOGGED                     => (ir, g, l + 1)
+            case _                                           => (ir, g, l)
         }
       val data = Array(
-        parent.getName,
-        ISODateTimeFormat.date().print(new DateTime(parent.getCreated)),
-        parent.getState.toString,
-        parent.getCourse.getCode,
+        parent.name,
+        ISODateTimeFormat.date().print(new DateTime(parent.created)),
+        parent.state.toString,
+        parent.course.code,
         s"${ISODateTimeFormat.date().print(
-            new DateTime(parent.getPeriodStart)
-          )} - ${ISODateTimeFormat.date().print(new DateTime(parent.getPeriodEnd))}",
-        Option(parent.getCourse.getCredits).map(_.toString).getOrElse(""),
-        parent.getExamType.getType,
+            new DateTime(parent.periodStart)
+          )} - ${ISODateTimeFormat.date().print(new DateTime(parent.periodEnd))}",
+        Option(parent.course.credits).map(_.toString).getOrElse(""),
+        parent.examType.`type`,
         inReview.toString,
         graded.toString,
         logged.toString
@@ -177,15 +178,15 @@ class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
         "enrolment time"
       )
     )
-    proto.getExamEnrolments.asScala.zipWithIndex.foreach { case (e, idx) =>
+    proto.examEnrolments.asScala.zipWithIndex.foreach { case (e, idx) =>
       val data = Array(
-        s"${e.getUser.getFirstName} ${e.getUser.getLastName}",
-        forceNotNull(e.getUser.getIdentifier),
-        e.getUser.getEppn,
-        Option(e.getReservation)
-          .map(r => ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(r.getStartAt)))
+        s"${e.user.firstName} ${e.user.lastName}",
+        forceNotNull(e.user.identifier),
+        e.user.eppn,
+        Option(e.reservation)
+          .map(r => ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(r.startAt)))
           .getOrElse(""),
-        ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getEnrolledOn))
+        ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.enrolledOn))
       )
       createRow(sheet, data, idx + 1)
     }
@@ -205,8 +206,8 @@ class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
       .where()
       .between("gradedTime", start, end)
       .disjunction()
-      .eq("state", Exam.State.GRADED)
-      .eq("state", Exam.State.GRADED_LOGGED)
+      .eq("state", ExamState.GRADED)
+      .eq("state", ExamState.GRADED_LOGGED)
       .endJunction()
       .orderBy("creator.id")
       .list
@@ -230,16 +231,16 @@ class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
     )
     exams.zipWithIndex.foreach { case (e, idx) =>
       val data = Array(
-        s"${e.getCreator.getFirstName} ${e.getCreator.getLastName}",
-        e.getName,
-        e.getCourse.getCode,
-        ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getCreated)),
-        ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getGradedTime)),
-        safeParse(() => s"${e.getGradedByUser.getFirstName} ${e.getGradedByUser.getLastName}"),
-        Option(e.getCourse.getCredits).map(_.toString).getOrElse(""),
-        safeParse(() => e.getGrade.getName),
-        safeParse(() => e.getCreditType.getType),
-        e.getAnswerLanguage
+        s"${e.creator.firstName} ${e.creator.lastName}",
+        e.name,
+        e.course.code,
+        ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.created)),
+        ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.gradedTime)),
+        safeParse(() => s"${e.gradedByUser.firstName} ${e.gradedByUser.lastName}"),
+        Option(e.course.credits).map(_.toString).getOrElse(""),
+        safeParse(() => e.grade.name),
+        safeParse(() => e.creditType.`type`),
+        e.answerLanguage
       )
       createRow(sheet, data, idx + 1)
     }
@@ -295,22 +296,22 @@ class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
     addHeader(sheet, headers)
     enrolments.zipWithIndex.foreach { case (e, idx) =>
       val data = Array(
-        e.getId.toString,
-        ISODateTimeFormat.date().print(new DateTime(e.getEnrolledOn)),
-        e.getUser.getId.toString,
-        e.getUser.getFirstName,
-        e.getUser.getLastName,
-        e.getExam.getId.toString,
-        e.getExam.getName,
-        e.getReservation.getId.toString,
-        ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation.getStartAt)),
-        ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation.getEndAt)),
-        e.getReservation.getMachine.getId.toString,
-        e.getReservation.getMachine.getName,
-        e.getReservation.getMachine.getIpAddress,
-        e.getReservation.getMachine.getRoom.getId.toString,
-        e.getReservation.getMachine.getRoom.getName,
-        e.getReservation.getMachine.getRoom.getRoomCode
+        e.id.toString,
+        ISODateTimeFormat.date().print(new DateTime(e.enrolledOn)),
+        e.user.id.toString,
+        e.user.firstName,
+        e.user.lastName,
+        e.exam.id.toString,
+        e.exam.name,
+        e.reservation.id.toString,
+        ISODateTimeFormat.dateTime().print(new DateTime(e.reservation.startAt)),
+        ISODateTimeFormat.dateTime().print(new DateTime(e.reservation.endAt)),
+        e.reservation.machine.id.toString,
+        e.reservation.machine.name,
+        e.reservation.machine.ipAddress,
+        e.reservation.machine.room.id.toString,
+        e.reservation.machine.room.name,
+        e.reservation.machine.room.roomCode
       )
       createRow(sheet, data, idx + 1)
     }
@@ -330,9 +331,9 @@ class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
       .gt("started", start)
       .lt("ended", end)
       .or()
-      .eq("exam.state", Exam.State.GRADED)
-      .eq("exam.state", Exam.State.GRADED_LOGGED)
-      .eq("exam.state", Exam.State.ARCHIVED)
+      .eq("exam.state", ExamState.GRADED)
+      .eq("exam.state", ExamState.GRADED_LOGGED)
+      .eq("exam.state", ExamState.ARCHIVED)
       .endOr()
       .list
 
@@ -381,11 +382,11 @@ class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
     val studentSheet = wb.createSheet("student")
     addHeader(studentSheet, Array("id", "first name", "last name", "email", "language"))
     val dataRow = studentSheet.createRow(1)
-    dataRow.createCell(0).setCellValue(student.getId.toDouble)
-    dataRow.createCell(1).setCellValue(student.getFirstName)
-    dataRow.createCell(2).setCellValue(student.getLastName)
-    dataRow.createCell(3).setCellValue(student.getEmail)
-    dataRow.createCell(4).setCellValue(student.getLanguage.getCode)
+    dataRow.createCell(0).setCellValue(student.id.toDouble)
+    dataRow.createCell(1).setCellValue(student.firstName)
+    dataRow.createCell(2).setCellValue(student.lastName)
+    dataRow.createCell(3).setCellValue(student.email)
+    dataRow.createCell(4).setCellValue(student.language.code)
     generateParticipationSheet(wb, participations, includeStudentInfo = false)
 
   // Helper methods
@@ -434,49 +435,49 @@ class StatisticsService @Inject() (private val excelBuilder: ExcelBuilder)
       val studentInfo =
         if includeStudentInfo then
           List(
-            p.getUser.getId.toString,
-            p.getUser.getFirstName,
-            p.getUser.getLastName,
-            p.getUser.getEmail
+            p.user.id.toString,
+            p.user.firstName,
+            p.user.lastName,
+            p.user.email
           )
         else List.empty
 
       val data = studentInfo ++ List(
-        Option(p.getExam.getGradedByUser).map(_.getId.toString).getOrElse(""),
-        Option(p.getExam.getGradedByUser).map(_.getFirstName).getOrElse(""),
-        Option(p.getExam.getGradedByUser).map(_.getLastName).getOrElse(""),
-        Option(p.getExam.getGradedByUser).map(_.getEmail).getOrElse(""),
-        p.getReservation.getId.toString,
-        ISODateTimeFormat.dateTime().print(new DateTime(p.getStarted)),
-        ISODateTimeFormat.dateTime().print(new DateTime(p.getEnded)),
-        ISODateTimeFormat.time().print(new DateTime(p.getDuration)),
-        Option(p.getReservation.getMachine).map(_.getRoom.getId.toString).getOrElse("external"),
-        Option(p.getReservation.getMachine)
-          .map(_.getRoom.getName)
-          .getOrElse(p.getReservation.getExternalReservation.getRoomName),
-        Option(p.getReservation.getMachine)
-          .map(_.getRoom.getRoomCode)
-          .getOrElse(p.getReservation.getExternalReservation.getRoomCode),
-        Option(p.getReservation.getMachine).map(_.getId.toString).getOrElse("external"),
-        Option(p.getReservation.getMachine)
-          .map(_.getName)
-          .getOrElse(p.getReservation.getExternalReservation.getMachineName),
-        Option(p.getReservation.getMachine).map(_.getIpAddress).getOrElse("external"),
-        Option(p.getExam.getCourse).map(_.getName).getOrElse(""),
-        Option(p.getExam.getCourse).map(_.getCode).getOrElse(""),
-        p.getExam.getId.toString,
-        p.getExam.getName,
-        p.getExam.getDuration.toString,
-        p.getExam.getState.toString,
-        p.getExam.getTotalScore.toString,
-        Option(p.getExam.getGradeScale)
-          .map(_.getDescription)
-          .getOrElse(p.getExam.getCourse.getGradeScale.getDescription),
-        Option(p.getExam.getGrade).map(_.getName).getOrElse(""),
-        Option(p.getExam.getGradedTime).map(t =>
+        Option(p.exam.gradedByUser).map(_.id.toString).getOrElse(""),
+        Option(p.exam.gradedByUser).map(_.firstName).getOrElse(""),
+        Option(p.exam.gradedByUser).map(_.lastName).getOrElse(""),
+        Option(p.exam.gradedByUser).map(_.email).getOrElse(""),
+        p.reservation.id.toString,
+        ISODateTimeFormat.dateTime().print(new DateTime(p.started)),
+        ISODateTimeFormat.dateTime().print(new DateTime(p.ended)),
+        ISODateTimeFormat.time().print(new DateTime(p.duration)),
+        Option(p.reservation.machine).map(_.room.id.toString).getOrElse("external"),
+        Option(p.reservation.machine)
+          .map(_.room.name)
+          .getOrElse(p.reservation.externalReservation.roomName),
+        Option(p.reservation.machine)
+          .map(_.room.roomCode)
+          .getOrElse(p.reservation.externalReservation.roomCode),
+        Option(p.reservation.machine).map(_.id.toString).getOrElse("external"),
+        Option(p.reservation.machine)
+          .map(_.name)
+          .getOrElse(p.reservation.externalReservation.machineName),
+        Option(p.reservation.machine).map(_.ipAddress).getOrElse("external"),
+        Option(p.exam.course).map(_.name).getOrElse(""),
+        Option(p.exam.course).map(_.code).getOrElse(""),
+        p.exam.id.toString,
+        p.exam.name,
+        p.exam.duration.toString,
+        p.exam.state.toString,
+        p.exam.getTotalScore.toString,
+        Option(p.exam.gradeScale)
+          .map(_.description)
+          .getOrElse(p.exam.course.gradeScale.description),
+        Option(p.exam.grade).map(_.name).getOrElse(""),
+        Option(p.exam.gradedTime).map(t =>
           ISODateTimeFormat.dateTime().print(new DateTime(t))
         ).getOrElse(""),
-        Option(p.getExam.getCreditType).map(_.getType).getOrElse("")
+        Option(p.exam.creditType).map(_.`type`).getOrElse("")
       )
 
       createRow(sheet, data.toArray, idx + 1)

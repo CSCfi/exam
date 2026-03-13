@@ -112,22 +112,22 @@ class ExamController @Inject() (
         examService.getExam(id, user) match
           case Left(error) => Future.successful(toResult(error))
           case Right(exam) =>
-            Future.successful(writeAnonymousResult(request, Ok(exam.asJson), exam.isAnonymous))
+            Future.successful(writeAnonymousResult(request, Ok(exam.asJson), exam.anonymous))
       }
 
   def getExamTypes: Action[AnyContent] =
     Action { _ =>
-      Ok(examService.getExamTypes().asJson)
+      Ok(examService.getExamTypes.asJson)
     }
 
   def getExamGradeScales: Action[AnyContent] =
     Action { _ =>
-      Ok(examService.getExamGradeScales().asJson)
+      Ok(examService.getExamGradeScales.asJson)
     }
 
   def getExamExecutionTypes: Action[AnyContent] =
     Action { _ =>
-      Ok(examService.getExamExecutionTypes().asJson)
+      Ok(examService.getExamExecutionTypes.asJson)
     }
 
   def getExamPreview(id: Long): Action[AnyContent] =

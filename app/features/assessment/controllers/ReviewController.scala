@@ -39,7 +39,7 @@ class ReviewController @Inject() (
         reviewService.findExam(eid) match
           case Some(exam) =>
             val participations = reviewService.listParticipationsForExamAndUser(exam)
-            writeAnonymousResult(request, Ok(participations.asJson), exam.isAnonymous)
+            writeAnonymousResult(request, Ok(participations.asJson), exam.anonymous)
           case None => NotFound("No exam with id " + eid + " found")
       }
 
@@ -50,7 +50,7 @@ class ReviewController @Inject() (
         reviewService.findExam(eid) match
           case Some(exam) =>
             val enrolments = reviewService.listNoShowsForExamAndUser(exam)
-            writeAnonymousResult(request, Ok(enrolments.asJson), exam.isAnonymous)
+            writeAnonymousResult(request, Ok(enrolments.asJson), exam.anonymous)
           case None => NotFound
       }
 
@@ -64,8 +64,8 @@ class ReviewController @Inject() (
         val blankAnswerText = reviewService.getBlankAnswerText(user)
         reviewService.getReview(eid, user, blankAnswerText) match
           case Right(participation) =>
-            val exam = participation.getExam
-            writeAnonymousResult(request, Ok(participation.asJson), exam.isAnonymous)
+            val exam = participation.exam
+            writeAnonymousResult(request, Ok(participation.asJson), exam.anonymous)
           case Left(ReviewError.AccessForbidden) =>
             Forbidden(ReviewError.AccessForbidden.message)
           case Left(ReviewError.ParticipationNotFound) =>

@@ -33,7 +33,7 @@ class StatisticsController @Inject() (
 
   def getExamNames: Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
-      Ok(statisticsService.getExamNames.asJson)
+      Ok(statisticsService.examNames.asJson)
     }
 
   def getExam(id: Long, reportType: String): Action[AnyContent] =
@@ -78,7 +78,7 @@ class StatisticsController @Inject() (
       )
     }
 
-  def getExamEnrollments(id: Long): Action[AnyContent] =
+  def getExamEnrolments(id: Long): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN))).async { _ =>
       statisticsService.streamExamEnrolmentsAsExcel(id) match
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))

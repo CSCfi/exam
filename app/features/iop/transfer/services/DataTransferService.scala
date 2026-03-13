@@ -65,7 +65,7 @@ class DataTransferService @Inject() (
                     file.contentType.getOrElse("application/octet-stream"),
                     newFilePath
                   )
-                  question.setAttachment(attachment)
+                  question.attachment = attachment
                   question.save()
                   Right(())
 
@@ -103,7 +103,7 @@ class DataTransferService @Inject() (
         val data = Json.obj(
           "type"      -> "QUESTION",
           "path"      -> "/integration/iop/import",
-          "owner"     -> user.getEppn,
+          "owner"     -> user.eppn,
           "questions" -> JsArray(questions.map(q => serialize(q, pp)).toSeq),
           "ids"       -> (body \ "ids").get,
           "orgRef"    -> orgRef
@@ -129,8 +129,8 @@ class DataTransferService @Inject() (
                 .toMap
 
               val localAttachments = questions
-                .filter(q => Option(q.getAttachment).exists(a => new File(a.getFilePath).exists()))
-                .map(q => q.getId.longValue() -> q.getAttachment)
+                .filter(q => Option(q.attachment).exists(a => new File(a.filePath).exists()))
+                .map(q => q.id.longValue() -> q.attachment)
                 .toMap
 
               val remoteAttachments = localAttachments
@@ -176,17 +176,17 @@ class DataTransferService @Inject() (
       attachment: models.attachment.Attachment
   ): ScalaSource[MultipartFormData.Part[ScalaSource[ByteString, Future[IOResult]]], NotUsed] =
     val source: ScalaSource[ByteString, Future[IOResult]] =
-      FileIO.fromPath(Paths.get(attachment.getFilePath))
+      FileIO.fromPath(Paths.get(attachment.filePath))
     val filePart = MultipartFormData.FilePart(
       "file",
-      attachment.getFileName,
-      Some(attachment.getMimeType),
+      attachment.fileName,
+      Some(attachment.mimeType),
       source
     )
     ScalaSource.single(filePart)
 
   private def isNewTag(tag: Tag, existing: Seq[Tag]): Boolean =
-    !existing.exists(_.getName == tag.getName)
+    !existing.exists(_.name == tag.name)
 
   private def importQuestions(body: JsValue): Either[DataTransferError, JsValue] =
     val eppn = (body \ "owner").as[String]
@@ -201,30 +201,30 @@ class DataTransferService @Inject() (
               play.libs.Json.parse(Json.stringify(questionNode))
             )
           val copy = question.copy()
-          copy.setParent(null)
+          copy.parent = null
           copy.setCreatorWithDate(user)
           copy.setModifierWithDate(user)
           copy.save()
 
           val userTags     = DB.find(classOf[Tag]).where().eq("creator", user).list
-          val questionTags = question.getTags.asScala.toList
+          val questionTags = question.tags.asScala.toList
 
           val newTags = questionTags.filter(t => isNewTag(t, userTags))
-          newTags.foreach(_.setId(null))
+          newTags.foreach(_.id = null)
 
           val existingTags = userTags.filter(t => !isNewTag(t, questionTags))
 
           DB.saveAll(newTags.asJava)
-          copy.getTags.addAll(newTags.asJava)
-          copy.getTags.addAll(existingTags.asJava)
-          copy.getTags.forEach(t => t.setCreatorWithDate(user))
-          copy.getTags.forEach(t => t.setModifierWithDate(user))
-          copy.getQuestionOwners.clear()
-          copy.getQuestionOwners.add(user)
+          copy.tags.addAll(newTags.asJava)
+          copy.tags.addAll(existingTags.asJava)
+          copy.tags.forEach(t => t.setCreatorWithDate(user))
+          copy.tags.forEach(t => t.setModifierWithDate(user))
+          copy.questionOwners.clear()
+          copy.questionOwners.add(user)
           copy.update()
-          DB.saveAll(copy.getOptions)
+          DB.saveAll(copy.options)
 
-          QuestionEntry(question.getId, copy.getId)
+          QuestionEntry(question.id, copy.id)
         }
 
         val idsArray = JsArray(entries.map(e => Json.obj("src" -> e.srcId, "dst" -> e.dstId)))

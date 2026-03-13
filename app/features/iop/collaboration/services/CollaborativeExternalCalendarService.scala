@@ -8,6 +8,7 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.ExamEnrolment
 import models.exam.Exam
+import models.exam.ExamState
 import models.user.User
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
@@ -59,8 +60,8 @@ class CollaborativeExternalCalendarService @Inject() (
       exam: Exam,
       user: User
   ): Option[String] =
-    val oldReservation = enrolment.getReservation
-    if exam.getState == Exam.State.STUDENT_STARTED ||
+    val oldReservation = enrolment.reservation
+    if exam.state == ExamState.STUDENT_STARTED ||
       (oldReservation != null && oldReservation.toInterval.isBefore(DateTime.now()))
     then Some("i18n_reservation_in_effect")
     else if oldReservation == null && !enrolmentHandler.isAllowedToParticipate(exam, user) then
@@ -217,7 +218,7 @@ class CollaborativeExternalCalendarService @Inject() (
         case None    => Future.failed(new IllegalArgumentException("i18n_error_exam_not_found"))
         case Some(e) => Future.successful(e)
     yield (enrolment, exam)).flatMap { (enrolment, exam) =>
-      val user = enrolment.getUser
+      val user = enrolment.user
       handleReservationRequest(
         enrolment,
         exam,
@@ -239,7 +240,7 @@ class CollaborativeExternalCalendarService @Inject() (
       date: String,
       userId: Long
   ): Future[Either[String, JsValue]] =
-    val result: Future[Either[String, JsValue]] = if !exam.hasState(Exam.State.PUBLISHED) then
+    val result: Future[Either[String, JsValue]] = if !exam.hasState(ExamState.PUBLISHED) then
       Future.successful(Left("i18n_error_exam_not_found"))
     else
       // Validate date and build URL
@@ -249,10 +250,10 @@ class CollaborativeExternalCalendarService @Inject() (
         case Some(_) =>
           // Build URL
           val start =
-            ISODateTimeFormat.dateTime().print(new org.joda.time.DateTime(exam.getPeriodStart))
+            ISODateTimeFormat.dateTime().print(new org.joda.time.DateTime(exam.periodStart))
           val end =
-            ISODateTimeFormat.dateTime().print(new org.joda.time.DateTime(exam.getPeriodEnd))
-          val duration = exam.getDuration
+            ISODateTimeFormat.dateTime().print(new org.joda.time.DateTime(exam.periodEnd))
+          val duration = exam.duration
 
           Try(parseUrl(orgRef, roomRef, date, start, end, duration)) match
             case Failure(e) =>

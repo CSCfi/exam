@@ -6,9 +6,12 @@ package features.assessment.services
 
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.{DB, FetchConfig}
-import models.assessment.ExamFeedbackConfig.ReleaseType.{GIVEN_DATE, ONCE_LOCKED}
-import models.exam.{Exam, Grade}
-import models.questions.{ClozeTestAnswer, Question}
+import models.assessment.ExamFeedbackReleaseType.{GIVEN_DATE, ONCE_LOCKED}
+import models.exam.Exam
+import models.exam.ExamState
+import models.exam.GradeType
+import models.questions.ClozeTestAnswer
+import models.questions.QuestionType
 import models.user.User
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
@@ -45,23 +48,23 @@ class ExamAnswerService @Inject() (
       .idEq(eid)
       .eq("creator", user)
       .isNotNull("parent.examFeedbackConfig")
-      .ne("gradingType", Grade.Type.NOT_GRADED)
-      .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
+      .ne("gradingType", GradeType.NOT_GRADED)
+      .in("state", ExamState.GRADED_LOGGED, ExamState.ARCHIVED)
       .find
 
   def prepareExamForAnswerRelease(exam: Exam, user: User): Exam =
     val blankAnswerText =
-      messaging("clozeTest.blank.answer")(using Lang.forCode(user.getLanguage.getCode))
+      messaging("clozeTest.blank.answer")(using Lang.forCode(user.language.code))
 
     // Create ClozeTestAnswer if missing and set question with results
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .filter(_.getQuestion.getType == Question.Type.ClozeTestQuestion)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .filter(_.question.`type` == QuestionType.ClozeTestQuestion)
       .foreach(esq =>
-        val answer = Option(esq.getClozeTestAnswer).getOrElse {
+        val answer = Option(esq.clozeTestAnswer).getOrElse {
           val cta = new ClozeTestAnswer()
           cta.save()
-          esq.setClozeTestAnswer(cta)
+          esq.clozeTestAnswer = cta
           esq.update()
           cta
         }
@@ -69,28 +72,25 @@ class ExamAnswerService @Inject() (
       )
 
     // Set derived scores
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .foreach(esq =>
-        esq.setDerivedMaxScore()
-        esq.setDerivedAssessedScore()
-      )
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .foreach(_.setDerivedMaxScore())
 
     // Set exam scores
     exam.setMaxScore()
     exam.setTotalScore()
 
     // Hide correct answers for cloze test questions
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .filter(esq => esq.getQuestion.getType eq Question.Type.ClozeTestQuestion)
-      .foreach(esq => esq.getQuestion.setQuestion(null))
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .filter(esq => esq.question.`type` == QuestionType.ClozeTestQuestion)
+      .foreach(esq => esq.question.question = null)
 
     exam
 
   def canReleaseAnswers(exam: Exam): Boolean =
-    val config = exam.getParent.getExamFeedbackConfig
-    config.getReleaseType match
+    val config = exam.parent.examFeedbackConfig
+    config.releaseType match
       case ONCE_LOCKED => true
       case GIVEN_DATE =>
-        DateTime.now.isAfter(config.getReleaseDate.withTimeAtStartOfDay.plusDays(1))
+        DateTime.now.isAfter(config.releaseDate.withTimeAtStartOfDay.plusDays(1))

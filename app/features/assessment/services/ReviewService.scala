@@ -9,10 +9,13 @@ import io.ebean.text.PathProperties
 import io.ebean.{DB, Query}
 import models.assessment.*
 import models.enrolment.{ExamEnrolment, ExamParticipation}
+import models.exam.ExamState
+import models.exam.GradeType
 import models.exam.{Exam, ExamType, Grade}
-import models.questions.{ClozeTestAnswer, EssayAnswer, Question}
+import models.questions.QuestionType
+import models.questions.{ClozeTestAnswer, EssayAnswer}
 import models.sections.ExamSectionQuestion
-import models.user.{Permission, Role, User}
+import models.user.{PermissionType, Role, User}
 import org.joda.time.DateTime
 import play.api.Logging
 import play.api.i18n.{Lang, MessagesApi}
@@ -38,13 +41,13 @@ class ReviewService @Inject() (
       .fetch("exam", "id, state, anonymous")
       .fetch("exam.grade", "id, name")
       .where()
-      .eq("user", exam.getCreator)
-      .eq("exam.parent", exam.getParent)
+      .eq("user", exam.creator)
+      .eq("exam.parent", exam.parent)
       .or()
-      .eq("exam.state", Exam.State.ABORTED)
-      .eq("exam.state", Exam.State.GRADED)
-      .eq("exam.state", Exam.State.GRADED_LOGGED)
-      .eq("exam.state", Exam.State.ARCHIVED)
+      .eq("exam.state", ExamState.ABORTED)
+      .eq("exam.state", ExamState.GRADED)
+      .eq("exam.state", ExamState.GRADED_LOGGED)
+      .eq("exam.state", ExamState.ARCHIVED)
       .endOr()
       .list
 
@@ -54,8 +57,8 @@ class ReviewService @Inject() (
       .fetch("reservation", "startAt, endAt")
       .fetch("examinationEventConfiguration.examinationEvent", "start")
       .where()
-      .eq("user", exam.getCreator)
-      .eq("exam", exam.getParent)
+      .eq("user", exam.creator)
+      .eq("exam", exam.parent)
       .eq("noShow", true)
       .orderBy("reservation.endAt")
       .distinct
@@ -68,35 +71,35 @@ class ReviewService @Inject() (
   ): Either[ReviewError, ExamParticipation] =
     val isAdmin = user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT)
     val states = Set(
-      Exam.State.REVIEW,
-      Exam.State.REVIEW_STARTED,
-      Exam.State.GRADED,
-      Exam.State.GRADED_LOGGED,
-      Exam.State.REJECTED,
-      Exam.State.ARCHIVED
+      ExamState.REVIEW,
+      ExamState.REVIEW_STARTED,
+      ExamState.GRADED,
+      ExamState.GRADED_LOGGED,
+      ExamState.REJECTED,
+      ExamState.ARCHIVED
     )
     createQuery()
       .where()
       .eq("exam.id", examId)
-      .in("exam.state", if isAdmin then (states + Exam.State.ABORTED).asJava else states.asJava)
+      .in("exam.state", if isAdmin then (states + ExamState.ABORTED).asJava else states.asJava)
       .find match
       case Some(participation) =>
-        val exam = participation.getExam
+        val exam = participation.exam
         if !exam.isChildInspectedOrCreatedOrOwnedBy(
             user
           ) && !isAdmin && !exam.isViewableForLanguageInspector(user)
         then Left(ReviewError.AccessForbidden)
         else
-          exam.getExamSections.asScala
-            .flatMap(es => es.getSectionQuestions.asScala)
-            .filter(esq => esq.getQuestion.getType == Question.Type.ClozeTestQuestion)
+          exam.examSections.asScala
+            .flatMap(es => es.sectionQuestions.asScala)
+            .filter(esq => esq.question.`type` == QuestionType.ClozeTestQuestion)
             .foreach(esq =>
-              if Option(esq.getClozeTestAnswer).isEmpty then
+              if Option(esq.clozeTestAnswer).isEmpty then
                 val cta = new ClozeTestAnswer
                 cta.save()
-                esq.setClozeTestAnswer(cta)
+                esq.clozeTestAnswer = cta
                 esq.update()
-              esq.getClozeTestAnswer.setQuestionWithResults(esq, blankAnswerText, true)
+              esq.clozeTestAnswer.setQuestionWithResults(esq, blankAnswerText, true)
             )
           Right(participation)
       case None => Left(ReviewError.ParticipationNotFound)
@@ -139,20 +142,20 @@ class ReviewService @Inject() (
       .eq("parent.id", parentExamId)
       .in(
         "state",
-        Exam.State.ABORTED,
-        Exam.State.REVIEW,
-        Exam.State.REVIEW_STARTED,
-        Exam.State.GRADED,
-        Exam.State.GRADED_LOGGED,
-        Exam.State.REJECTED,
-        Exam.State.ARCHIVED
+        ExamState.ABORTED,
+        ExamState.REVIEW,
+        ExamState.REVIEW_STARTED,
+        ExamState.GRADED,
+        ExamState.GRADED_LOGGED,
+        ExamState.REJECTED,
+        ExamState.ARCHIVED
       )
     val finalQuery =
       if !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then
         baseQuery.or.eq("parent.examOwners", user).eq("examInspections.user", user).endOr
       else baseQuery
     val exams   = finalQuery.distinct.toList
-    val anonIds = exams.filter(_.isAnonymous).map(_.getExamParticipation.getId.longValue)
+    val anonIds = exams.filter(_.anonymous).map(_.examParticipation.id.longValue)
 
     // Set calculated fields on exams
     exams.foreach { e =>
@@ -166,15 +169,15 @@ class ReviewService @Inject() (
 
   def buildParticipationsJson(exams: List[Exam]): Seq[JsValue] =
     exams.map { e =>
-      val ep = e.getExamParticipation
+      val ep = e.examParticipation
       Json.obj(
-        "id"            -> ep.getId.longValue,
-        "started"       -> Option(ep.getStarted).map(_.getMillis),
-        "ended"         -> Option(ep.getEnded).map(_.getMillis),
-        "duration"      -> Option(ep.getDuration).map(_.getMillis),
-        "deadline"      -> Option(ep.getDeadline).map(_.getMillis),
-        "sentForReview" -> Option(ep.getSentForReview).map(_.getMillis),
-        "user"          -> Option(ep.getUser).map(_.asJson),
+        "id"            -> ep.id.longValue,
+        "started"       -> Option(ep.started).map(_.getMillis),
+        "ended"         -> Option(ep.ended).map(_.getMillis),
+        "duration"      -> Option(ep.duration).map(_.getMillis),
+        "deadline"      -> Option(ep.deadline).map(_.getMillis),
+        "sentForReview" -> Option(ep.sentForReview).map(_.getMillis),
+        "user"          -> Option(ep.user).map(_.asJson),
         "exam"          -> e.asJson
       )
     }.toSeq
@@ -182,15 +185,15 @@ class ReviewService @Inject() (
   def scoreExamQuestion(id: Long, score: Option[Double]): Either[ReviewError, Unit] =
     Option(DB.find(classOf[ExamSectionQuestion], id)) match
       case Some(question) =>
-        val essayAnswer = Option(question.getEssayAnswer) match
+        val essayAnswer = Option(question.essayAnswer) match
           case Some(answer) => answer
           case None =>
             val answer = new EssayAnswer
             answer.save()
-            question.setEssayAnswer(answer)
+            question.essayAnswer = answer
             question.update()
             answer
-        essayAnswer.setEvaluatedScore(round(score.fold(null: java.lang.Double)(Double.box)))
+        essayAnswer.evaluatedScore = round(score.fold(null: java.lang.Double)(Double.box))
         essayAnswer.update()
         Right(())
       case None => Left(ReviewError.QuestionNotFound)
@@ -204,23 +207,23 @@ class ReviewService @Inject() (
       .fetch("examSection.exam.parent.examOwners")
       .where()
       .idEq(id)
-      .ne("question.type", Question.Type.EssayQuestion)
+      .ne("question.type", QuestionType.EssayQuestion)
       .find match
       case Some(esq) =>
-        val exam = esq.getExamSection.getExam
+        val exam = esq.examSection.exam
         if isDisallowedToScore(exam, user) then Left(ReviewError.NoPermissionToScore)
         else if exam.hasState(
-            Exam.State.ABORTED,
-            Exam.State.REJECTED,
-            Exam.State.GRADED_LOGGED,
-            Exam.State.ARCHIVED
+            ExamState.ABORTED,
+            ExamState.REJECTED,
+            ExamState.GRADED_LOGGED,
+            ExamState.ARCHIVED
           )
         then Left(ReviewError.NotAllowedToUpdateScoring)
         else if score.isDefined && (score.get < esq.getMinScore || score.get > esq.getMaxAssessedScore)
         then
           Left(ReviewError.InvalidScoreRange)
         else
-          esq.setForcedScore(round(score.fold(null: java.lang.Double)(Double.box)))
+          esq.forcedScore = round(score.fold(null: java.lang.Double)(Double.box))
           esq.update()
           Right(())
       case None => Left(ReviewError.QuestionNotFound)
@@ -230,13 +233,13 @@ class ReviewService @Inject() (
       .fetch("parent.creator")
       .where()
       .idEq(id)
-      .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.REJECTED)
+      .in("state", ExamState.GRADED_LOGGED, ExamState.ARCHIVED, ExamState.REJECTED)
       .find match
       case Some(exam) =>
-        if isDisallowedToModify(exam, user, exam.getState) then
+        if isDisallowedToModify(exam, user, exam.state) then
           Left(ReviewError.ModificationForbidden)
         else
-          exam.setAssessmentInfo(info.orNull)
+          exam.assessmentInfo = info.orNull
           exam.update()
           Right(())
       case None => Left(ReviewError.ExamNotFound)
@@ -244,13 +247,13 @@ class ReviewService @Inject() (
   def reviewExam(id: Long, body: JsValue, user: User): Either[ReviewError, Unit] =
     DB.find(classOf[Exam]).fetch("parent").fetch("parent.creator").where.idEq(id).find match
       case Some(exam) =>
-        val newState = Exam.State.valueOf((body \ "state").asOpt[String].orNull)
+        val newState = ExamState.valueOf((body \ "state").asOpt[String].orNull)
         if isDisallowedToModify(exam, user, newState) then Left(ReviewError.ModificationForbidden)
         else if exam.hasState(
-            Exam.State.ABORTED,
-            Exam.State.REJECTED,
-            Exam.State.GRADED_LOGGED,
-            Exam.State.ARCHIVED
+            ExamState.ABORTED,
+            ExamState.REJECTED,
+            ExamState.GRADED_LOGGED,
+            ExamState.ARCHIVED
           )
         then Left(ReviewError.NotAllowedToUpdateGrading)
         else
@@ -263,42 +266,42 @@ class ReviewService @Inject() (
           else
             val grade          = (body \ "grade").asOpt[Int]
             val additionalInfo = (body \ "additionalInfo").asOpt[String].orNull
-            val gradingType    = Grade.Type.valueOf((body \ "gradingType").asOpt[String].orNull)
+            val gradingType    = GradeType.valueOf((body \ "gradingType").asOpt[String].orNull)
             val examType = (body \ "creditType").asOpt[String].flatMap { creditType =>
               DB.find(classOf[ExamType]).where().eq("type", creditType).find
             }
-            exam.setCreditType(examType.orNull)
+            exam.creditType = examType.orNull
             val gradeError = grade match
               case Some(g) =>
                 val examGrade = DB.find(classOf[Grade], g)
                 val scale =
-                  if Option(exam.getGradeScale).isEmpty then exam.getCourse.getGradeScale
-                  else exam.getGradeScale
-                if scale.getGrades.contains(examGrade) then
-                  exam.setGrade(examGrade)
-                  exam.setGradingType(Grade.Type.GRADED)
+                  if Option(exam.gradeScale).isEmpty then exam.course.gradeScale
+                  else exam.gradeScale
+                if scale.grades.contains(examGrade) then
+                  exam.grade = examGrade
+                  exam.gradingType = GradeType.GRADED
                   None
                 else Some(ReviewError.InvalidGradeForScale)
               case None =>
-                exam.setGrade(null)
-                if gradingType == Grade.Type.NOT_GRADED then
-                  exam.setGrade(null)
-                  exam.setGradingType(Grade.Type.NOT_GRADED)
-                else if gradingType == Grade.Type.POINT_GRADED then
-                  exam.setGrade(null)
-                  exam.setGradingType(Grade.Type.POINT_GRADED)
+                exam.grade = null
+                if gradingType == GradeType.NOT_GRADED then
+                  exam.grade = null
+                  exam.gradingType = GradeType.NOT_GRADED
+                else if gradingType == GradeType.POINT_GRADED then
+                  exam.grade = null
+                  exam.gradingType = GradeType.POINT_GRADED
                   // Forced partial credit type
-                  exam.setCreditType(DB.find(classOf[ExamType]).where().eq(
+                  exam.creditType = DB.find(classOf[ExamType]).where().eq(
                     "type",
                     "PARTIAL"
-                  ).find.orNull)
+                  ).find.orNull
                 None
             gradeError match
               case Some(e) => Left(e)
               case None =>
-                exam.setAdditionalInfo(additionalInfo)
-                exam.setAnswerLanguage((body \ "answerLanguage").asOpt[String].orNull)
-                exam.setCustomCredit((body \ "customCredit").asOpt[Double].map(Double.box).orNull)
+                exam.additionalInfo = additionalInfo
+                exam.answerLanguage = (body \ "answerLanguage").asOpt[String].orNull
+                exam.customCredit = (body \ "customCredit").asOpt[Double].map(Double.box).orNull
                 updateReviewState(user, exam, newState, false)
                 Right(())
       case None => Left(ReviewError.ExamNotFound)
@@ -315,12 +318,12 @@ class ReviewService @Inject() (
           .fetch("user")
           .fetch("exam")
           .where()
-          .eq("exam.id", exam.getId)
+          .eq("exam.id", exam.id)
           .ne("user", loggedInUser)
           .distinct
-          .map(_.getUser)
+          .map(_.user)
         val recipients =
-          inspections ++ exam.getParent.getExamOwners.asScala.filterNot(_ == loggedInUser)
+          inspections ++ exam.parent.examOwners.asScala.filterNot(_ == loggedInUser)
         emailComposer.scheduleEmail(1.seconds) {
           recipients.foreach(user =>
             emailComposer.composeInspectionMessage(user, loggedInUser, exam, message)
@@ -347,8 +350,8 @@ class ReviewService @Inject() (
       else el.or.eq("exam.id", eid).eq("exam.parent.id", eid).endOr
     val enrolments = query.distinct.toList
     val anonIds = enrolments
-      .filter(ee => Option(ee.getCollaborativeExam).isDefined || ee.getExam.isAnonymous)
-      .map(_.getId.longValue)
+      .filter(ee => Option(ee.collaborativeExam).isDefined || ee.exam.anonymous)
+      .map(_.id.longValue)
       .toSet
     (enrolments, anonIds)
 
@@ -360,7 +363,7 @@ class ReviewService @Inject() (
   ): Either[ReviewError, Comment] =
     Option(DB.find(classOf[Exam], examId)) match
       case Some(exam) =>
-        if exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) then
+        if exam.hasState(ExamState.ABORTED, ExamState.GRADED_LOGGED, ExamState.ARCHIVED) then
           Left(ReviewError.Forbidden)
         else
           val comment = commentId match
@@ -370,13 +373,13 @@ class ReviewService @Inject() (
           else
             commentText match
               case Some(text) =>
-                comment.setComment(text)
+                comment.comment = text
                 comment.setModifierWithDate(user)
-                if Option(comment.getId).isEmpty then
+                if comment.id == 0 then
                   // new comment
                   comment.setCreatorWithDate(user)
                   comment.save()
-                  exam.setExamFeedback(comment)
+                  exam.examFeedback = comment
                   exam.save()
                 else comment.update()
                 Right(comment)
@@ -393,17 +396,17 @@ class ReviewService @Inject() (
         val comment = new InspectionComment
         comment.setCreatorWithDate(user)
         comment.setModifierWithDate(user)
-        comment.setComment(commentText)
-        comment.setExam(exam)
+        comment.comment = commentText
+        comment.exam = exam
         comment.save()
         Right(comment)
       case None => Left(ReviewError.ExamNotFound)
 
   def archiveExams(ids: List[Long]): Unit =
     val exams =
-      DB.find(classOf[Exam]).where().eq("state", Exam.State.GRADED_LOGGED).idIn(ids.asJava).distinct
+      DB.find(classOf[Exam]).where().eq("state", ExamState.GRADED_LOGGED).idIn(ids.asJava).distinct
     exams.foreach(e =>
-      e.setState(Exam.State.ARCHIVED)
+      e.state = ExamState.ARCHIVED
       e.update()
     )
 
@@ -412,13 +415,13 @@ class ReviewService @Inject() (
       .find(classOf[Exam])
       .where()
       .eq("parent.id", eid)
-      .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.REJECTED)
+      .in("state", ExamState.GRADED_LOGGED, ExamState.ARCHIVED, ExamState.REJECTED)
       .distinct
     if assessments.nonEmpty then
       Option(DB.find(classOf[Exam], eid)) match
         case Some(exam) =>
-          if Option(exam.getExamFeedbackConfig).isDefined &&
-            exam.getExamFeedbackConfig.getReleaseType == ExamFeedbackConfig.ReleaseType.GIVEN_DATE
+          if Option(exam.examFeedbackConfig).isDefined &&
+            exam.examFeedbackConfig.releaseType == ExamFeedbackReleaseType.GIVEN_DATE
           then "date"
           else "nothing"
         case None => "nothing"
@@ -432,18 +435,18 @@ class ReviewService @Inject() (
   ): Either[ReviewError, Unit] =
     Option(DB.find(classOf[Exam], examId)) match
       case Some(exam) =>
-        if exam.hasState(Exam.State.ABORTED, Exam.State.ARCHIVED) then Left(ReviewError.Forbidden)
+        if exam.hasState(ExamState.ABORTED, ExamState.ARCHIVED) then Left(ReviewError.Forbidden)
         else
           Option(DB.find(classOf[Comment], commentId)) match
             case Some(comment) =>
               comment.setModifierWithDate(user)
-              comment.setFeedbackStatus(status)
+              comment.feedbackStatus = status
               Right(())
             case None => Left(ReviewError.BadRequest)
       case None => Left(ReviewError.ExamNotFound)
 
   def getBlankAnswerText(user: User): String =
-    messaging("clozeTest.blank.answer")(using Lang.get(user.getLanguage.getCode).get)
+    messaging("clozeTest.blank.answer")(using Lang.get(user.language.code).get)
 
   private def createQuery(): Query[ExamParticipation] =
     val pp = PathProperties.parse(
@@ -484,24 +487,24 @@ class ReviewService @Inject() (
     query
 
   private def isDisallowedToModify(exam: Exam, user: User, newState: Exam.State) =
-    !exam.getParent.isOwnedOrCreatedBy(user) &&
+    !exam.parent.isOwnedOrCreatedBy(user) &&
       !user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) &&
       !isRejectedInLanguageInspection(exam, user, newState) &&
-      !user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE)
+      !user.hasPermission(PermissionType.CAN_INSPECT_LANGUAGE)
 
   private def isDisallowedToScore(exam: Exam, user: User) =
-    !exam.getParent.isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole(
+    !exam.parent.isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole(
       Role.Name.ADMIN,
       Role.Name.SUPPORT
     )
 
   private def isRejectedInLanguageInspection(exam: Exam, user: User, newState: Exam.State) =
-    val li = Option(exam.getLanguageInspection)
-    newState == Exam.State.REJECTED &&
+    val li = Option(exam.languageInspection)
+    newState == ExamState.REJECTED &&
     li.isDefined &&
-    !li.get.getApproved &&
-    Option(li.get.getFinishedAt).isDefined &&
-    user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE)
+    !li.get.approved &&
+    Option(li.get.finishedAt).isDefined &&
+    user.hasPermission(PermissionType.CAN_INSPECT_LANGUAGE)
 
   private def updateReviewState(
       user: User,
@@ -509,20 +512,20 @@ class ReviewService @Inject() (
       state: Exam.State,
       stateOnly: Boolean
   ): Unit =
-    exam.setState(state)
+    exam.state = state
     // set grading info only if the exam is really graded, not just modified
-    if exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED) then
+    if exam.hasState(ExamState.GRADED, ExamState.GRADED_LOGGED, ExamState.REJECTED) then
       if !stateOnly then
-        exam.setGradedTime(DateTime.now())
-        exam.setGradedByUser(user)
-      if exam.hasState(Exam.State.REJECTED) then
+        exam.gradedTime = DateTime.now()
+        exam.gradedByUser = user
+      if exam.hasState(ExamState.REJECTED) then
         // inform student
         notifyPartiesAboutPrivateExamRejection(user, exam)
     exam.update()
 
   private def notifyPartiesAboutPrivateExamRejection(user: User, exam: Exam): Unit =
     emailComposer.scheduleEmail(1.second) {
-      emailComposer.composeInspectionReady(exam.getCreator, Some(user), exam)
+      emailComposer.composeInspectionReady(exam.creator, Some(user), exam)
       logger.info("Inspection rejection notification email sent")
     }
 

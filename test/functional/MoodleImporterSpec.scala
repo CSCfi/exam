@@ -24,7 +24,7 @@ class MoodleImporterSpec extends BaseIntegrationSpec:
         val errors    = report._2
 
         questions must have size 1
-        questions.head.getTags must have size 2
+        questions.head.tags must have size 2
         errors must be(empty)
 
       "import essay question with plain text successfully" in:
@@ -36,7 +36,7 @@ class MoodleImporterSpec extends BaseIntegrationSpec:
         val errors    = report._2
 
         questions must have size 1
-        questions.head.getTags must have size 2
+        questions.head.tags must have size 2
         errors must be(empty)
 
     "importing multiple choice questions" should:
@@ -49,7 +49,7 @@ class MoodleImporterSpec extends BaseIntegrationSpec:
         val errors    = report._2
 
         questions must have size 1
-        questions.head.getOptions must have size 4
+        questions.head.options must have size 4
         errors must be(empty)
 
       "import weighted multichoice question successfully" in:
@@ -61,5 +61,5 @@ class MoodleImporterSpec extends BaseIntegrationSpec:
         val errors    = report._2
 
         questions must have size 1
-        questions.head.getOptions must have size 4
+        questions.head.options must have size 4
         errors must be(empty)

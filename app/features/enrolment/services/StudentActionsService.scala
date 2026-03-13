@@ -9,7 +9,7 @@ import features.iop.collaboration.services.CollaborativeExamLoaderService
 import io.ebean.text.PathProperties
 import io.ebean.{DB, FetchConfig, Model}
 import models.enrolment.{ExamEnrolment, ExamParticipation}
-import models.exam.{Exam, ExamExecutionType}
+import models.exam.*
 import models.user.User
 import org.joda.time.DateTime
 import play.api.Logging
@@ -63,11 +63,11 @@ class StudentActionsService @Inject() (
       .eq("id", examId)
       .eq("creator", user)
       .disjunction()
-      .eq("state", Exam.State.REJECTED)
-      .eq("state", Exam.State.GRADED_LOGGED)
-      .eq("state", Exam.State.ARCHIVED)
+      .eq("state", ExamState.REJECTED)
+      .eq("state", ExamState.GRADED_LOGGED)
+      .eq("state", ExamState.ARCHIVED)
       .conjunction()
-      .eq("state", Exam.State.GRADED)
+      .eq("state", ExamState.GRADED)
       .isNotNull("autoEvaluationConfig")
       .isNotNull("autoEvaluationNotified")
       .endJunction()
@@ -81,10 +81,10 @@ class StudentActionsService @Inject() (
       .eq("id", examId)
       .eq("creator", user)
       .disjunction()
-      .eq("state", Exam.State.GRADED_LOGGED)
-      .eq("state", Exam.State.ARCHIVED)
+      .eq("state", ExamState.GRADED_LOGGED)
+      .eq("state", ExamState.ARCHIVED)
       .conjunction()
-      .eq("state", Exam.State.GRADED)
+      .eq("state", ExamState.GRADED)
       .isNotNull("autoEvaluationConfig")
       .isNotNull("autoEvaluationNotified")
       .endJunction()
@@ -113,18 +113,18 @@ class StudentActionsService @Inject() (
       .eq("id", examId)
       .eq("creator", user)
       .disjunction()
-      .eq("state", Exam.State.GRADED_LOGGED)
-      .eq("state", Exam.State.ARCHIVED)
+      .eq("state", ExamState.GRADED_LOGGED)
+      .eq("state", ExamState.ARCHIVED)
       .conjunction()
-      .eq("state", Exam.State.GRADED)
+      .eq("state", ExamState.GRADED)
       .isNotNull("autoEvaluationConfig")
       .isNotNull("autoEvaluationNotified")
       .endJunction()
       .endJunction()
       .find match
       case Some(exam)
-          if Option(exam.getExamParticipation).exists(p => Option(p.getUser).isDefined) =>
-        val student = exam.getExamParticipation.getUser
+          if Option(exam.examParticipation).exists(p => Option(p.user).isDefined) =>
+        val student = exam.examParticipation.user
         Right(os => excelBuilder.streamStudentReport(exam, student, messagesApi.asJava)(os))
       case _ => Left(StudentActionsError.ExamNotFound)
 
@@ -165,9 +165,9 @@ class StudentActionsService @Inject() (
       .fetch("exam.examInspections.user", "firstName, lastName, id")
       .where()
       .isNotNull("exam.parent")
-      .ne("exam.state", Exam.State.STUDENT_STARTED)
-      .ne("exam.state", Exam.State.ABORTED)
-      .ne("exam.state", Exam.State.DELETED)
+      .ne("exam.state", ExamState.STUDENT_STARTED)
+      .ne("exam.state", ExamState.ABORTED)
+      .ne("exam.state", ExamState.DELETED)
       .eq("exam.creator", user)
 
     val query = filter.fold(baseQuery) { f =>
@@ -218,19 +218,19 @@ class StudentActionsService @Inject() (
 
     enrolmentOpt match
       case None => Future.successful(Left(StudentActionsError.EnrolmentNotFound))
-      case Some(enrolment) if Option(enrolment.getCollaborativeExam).isDefined =>
+      case Some(enrolment) if Option(enrolment.collaborativeExam).isDefined =>
         // Collaborative exam, need to download
-        collaborativeExamLoader.downloadExam(enrolment.getCollaborativeExam).map {
+        collaborativeExamLoader.downloadExam(enrolment.collaborativeExam).map {
           case Some(exam) =>
-            enrolment.setExam(exam)
+            enrolment.exam = exam
             Right(Json.parse(DB.json().toJson(enrolment, pp)))
           case None => Left(StudentActionsError.CollaborativeExamNotFound)
         }
-      case Some(enrolment) if Option(enrolment.getExternalExam).isDefined =>
+      case Some(enrolment) if Option(enrolment.externalExam).isDefined =>
         // External exam
-        val exam = enrolment.getExternalExam.deserialize()
-        enrolment.setExternalExam(null)
-        enrolment.setExam(exam)
+        val exam = enrolment.externalExam.deserialize
+        enrolment.externalExam = null
+        enrolment.exam = exam
         Future.successful(Right(Json.parse(DB.json().toJson(enrolment, pp))))
       case Some(enrolment) =>
         Future.successful(Right(Json.parse(DB.json().toJson(enrolment, pp))))
@@ -249,26 +249,26 @@ class StudentActionsService @Inject() (
       .where()
       .idEq(enrolmentId)
       .eq("user", user)
-      .eq("exam.implementation", Exam.Implementation.CLIENT_AUTH)
-      .in("exam.state", Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED)
+      .eq("exam.implementation", ExamImplementation.CLIENT_AUTH)
+      .in("exam.state", ExamState.PUBLISHED, ExamState.STUDENT_STARTED)
       .isNotNull("examinationEventConfiguration")
       .find match
       case None => Left(StudentActionsError.ExamConfigNotAvailable)
       case Some(enrolment) =>
-        val examName     = enrolment.getExam.getName
-        val eec          = enrolment.getExaminationEventConfiguration
+        val examName     = enrolment.exam.name
+        val eec          = enrolment.examinationEventConfiguration
         val baseFileName = examName.replace(" ", "-")
         val fileName     = s"$baseFileName.seb"
         val quitPassword =
           byodConfigHandler.getPlaintextPassword(
-            eec.getEncryptedQuitPassword,
-            eec.getQuitPasswordSalt
+            eec.encryptedQuitPassword,
+            eec.quitPasswordSalt
           )
         Try {
           val data = byodConfigHandler.getExamConfig(
-            eec.getHash,
-            eec.getEncryptedSettingsPassword,
-            eec.getSettingsPasswordSalt,
+            eec.hash,
+            eec.encryptedSettingsPassword,
+            eec.settingsPasswordSalt,
             quitPassword
           )
           val writer: java.io.OutputStream => Unit = os => os.write(data)
@@ -285,7 +285,7 @@ class StudentActionsService @Inject() (
       .fetch("examSections.examMaterials")
       .where()
       .idEq(examId)
-      .eq("state", Exam.State.PUBLISHED)
+      .eq("state", ExamState.PUBLISHED)
       .eq("examEnrolments.user", user)
       .find
 
@@ -314,7 +314,7 @@ class StudentActionsService @Inject() (
       .fetch("creator", "firstName, lastName")
       .fetch("examinationEventConfigurations.examinationEvent")
       .where()
-      .eq("state", Exam.State.PUBLISHED)
+      .eq("state", ExamState.PUBLISHED)
       .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
       .gt("periodEnd", DateTime.now().toDate)
 
@@ -339,10 +339,10 @@ class StudentActionsService @Inject() (
       .orderBy("course.code")
       .distinct
       .filter { e =>
-        e.getImplementation == Exam.Implementation.AQUARIUM ||
-        e.getExaminationEventConfigurations.asScala
-          .map(_.getExaminationEvent)
-          .exists(_.getStart.isAfter(DateTime.now()))
+        e.implementation == ExamImplementation.AQUARIUM ||
+        e.examinationEventConfigurations.asScala
+          .map(_.examinationEvent)
+          .exists(_.start.isAfter(DateTime.now()))
       }
 
     exams.asJson

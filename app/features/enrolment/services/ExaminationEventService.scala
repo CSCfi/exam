@@ -9,7 +9,7 @@ import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.calendar.MaintenancePeriod
 import models.enrolment.{ExaminationEvent, ExaminationEventConfiguration}
-import models.exam.{Exam, ExaminationDate}
+import models.exam.*
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, Interval, LocalDate}
 import play.api.Logging
@@ -37,8 +37,8 @@ class ExaminationEventService @Inject() (
       case None => Left(ExaminationEventError.ExamNotFound)
       case Some(exam) =>
         val ed = new ExaminationDate()
-        ed.setDate(date.toDate)
-        ed.setExam(exam)
+        ed.date = date.toDate
+        ed.exam = exam
         ed.save()
         Right(ed)
 
@@ -50,9 +50,9 @@ class ExaminationEventService @Inject() (
         Right(())
 
   private def getEventEnding(ee: ExaminationEvent): DateTime =
-    Option(ee.getExaminationEventConfiguration) match
-      case None         => ee.getStart
-      case Some(config) => ee.getStart.plusMinutes(config.getExam.getDuration)
+    Option(ee.examinationEventConfiguration) match
+      case None         => ee.start
+      case Some(config) => ee.start.plusMinutes(config.exam.duration)
 
   private def getParticipantUpperBound(start: DateTime, end: DateTime, id: Option[Long]): Int =
     val baseQuery = DB.find(classOf[ExaminationEvent]).where().le("start", end)
@@ -60,14 +60,14 @@ class ExaminationEventService @Inject() (
 
     query.distinct
       .filter(ee => !getEventEnding(ee).isBefore(start))
-      .map(_.getCapacity)
+      .map(_.capacity)
       .sum
 
   private def isWithinMaintenancePeriod(interval: Interval): Boolean =
     DB.find(classOf[MaintenancePeriod])
       .distinct
       .exists { p =>
-        val maintenanceInterval = new Interval(p.getStartsAt, p.getEndsAt)
+        val maintenanceInterval = new Interval(p.startsAt, p.endsAt)
         maintenanceInterval.overlaps(interval)
       }
 
@@ -82,7 +82,7 @@ class ExaminationEventService @Inject() (
 
         if start.isBeforeNow then Left(ExaminationEventError.EventInThePast)
         else
-          val end = start.plusMinutes(exam.getDuration)
+          val end = start.plusMinutes(exam.duration)
           if isWithinMaintenancePeriod(new Interval(start, end)) then
             Left(ExaminationEventError.ConflictsWithMaintenancePeriod)
           else
@@ -92,24 +92,24 @@ class ExaminationEventService @Inject() (
               Left(ExaminationEventError.MaxCapacityExceeded)
             else
               val quitPassword = dto.quitPassword
-              if exam.getImplementation == Exam.Implementation.CLIENT_AUTH && quitPassword.isEmpty
+              if exam.implementation == ExamImplementation.CLIENT_AUTH && quitPassword.isEmpty
               then
                 Left(ExaminationEventError.NoQuitPasswordProvided)
               else
                 val settingsPassword = dto.settingsPassword
-                if exam.getImplementation == Exam.Implementation.CLIENT_AUTH && settingsPassword.isEmpty
+                if exam.implementation == ExamImplementation.CLIENT_AUTH && settingsPassword.isEmpty
                 then
                   Left(ExaminationEventError.NoSettingsPasswordProvided)
                 else
                   val eec = new ExaminationEventConfiguration()
                   val ee  = new ExaminationEvent()
-                  ee.setStart(start)
-                  ee.setDescription(dto.description)
-                  ee.setCapacity(dto.capacity)
+                  ee.start = start
+                  ee.description = dto.description
+                  ee.capacity = dto.capacity
                   ee.save()
-                  eec.setExaminationEvent(ee)
-                  eec.setExam(exam)
-                  eec.setHash(UUID.randomUUID().toString)
+                  eec.examinationEvent = ee
+                  eec.exam = exam
+                  eec.hash = UUID.randomUUID().toString
 
                   (quitPassword, settingsPassword) match
                     case (Some(qPwd), Some(sPwd)) =>
@@ -118,8 +118,8 @@ class ExaminationEventService @Inject() (
                         _ <- encryptSettingsPassword(eec, sPwd, qPwd)
                       yield
                         // Pass back the plaintext password, so it can be shown to the user
-                        eec.setQuitPassword(qPwd)
-                        eec.setSettingsPassword(sPwd)
+                        eec.quitPassword = qPwd
+                        eec.settingsPassword = sPwd
                       ) match
                         case Left(error) => Left(error)
                         case Right(_) =>
@@ -142,35 +142,35 @@ class ExaminationEventService @Inject() (
 
     (examOpt, eecOpt) match
       case (Some(exam), Some(eec)) =>
-        val hasEnrolments = !eec.getExamEnrolments.isEmpty
-        val ee            = eec.getExaminationEvent
+        val hasEnrolments = !eec.examEnrolments.isEmpty
+        val ee            = eec.examinationEvent
         val quitPassword  = dto.quitPassword
 
-        if eec.getExam.getImplementation == Exam.Implementation.CLIENT_AUTH && quitPassword.isEmpty
+        if eec.exam.implementation == ExamImplementation.CLIENT_AUTH && quitPassword.isEmpty
         then
           Left(ExaminationEventError.NoQuitPasswordProvided)
         else
           val settingsPassword = dto.settingsPassword
-          if eec.getExam.getImplementation == Exam.Implementation.CLIENT_AUTH && settingsPassword.isEmpty
+          if eec.exam.implementation == ExamImplementation.CLIENT_AUTH && settingsPassword.isEmpty
           then
             Left(ExaminationEventError.NoSettingsPasswordProvided)
           else
             val start = dto.start
             if !hasEnrolments && start.isBeforeNow then Left(ExaminationEventError.EventInThePast)
             else
-              if !hasEnrolments then ee.setStart(start)
+              if !hasEnrolments then ee.start = start
 
-              val end = start.plusMinutes(exam.getDuration)
+              val end = start.plusMinutes(exam.duration)
               if isWithinMaintenancePeriod(new Interval(start, end)) then
                 Left(ExaminationEventError.ConflictsWithMaintenancePeriod)
               else
-                val ub       = getParticipantUpperBound(start, end, Some(ee.getId))
+                val ub       = getParticipantUpperBound(start, end, Some(ee.id))
                 val capacity = dto.capacity
                 if capacity + ub > configReader.getMaxByodExaminationParticipantCount then
                   Left(ExaminationEventError.MaxCapacityExceeded)
                 else
-                  ee.setCapacity(capacity)
-                  ee.setDescription(dto.description)
+                  ee.capacity = capacity
+                  ee.description = dto.description
                   ee.update()
 
                   (quitPassword, settingsPassword) match
@@ -181,26 +181,26 @@ class ExaminationEventService @Inject() (
                       yield
                         eec.save()
                         // Pass back the plaintext passwords
-                        eec.setQuitPassword(qPwd)
-                        eec.setSettingsPassword(sPwd)
+                        eec.quitPassword = qPwd
+                        eec.settingsPassword = sPwd
                       ) match
                         case Left(error) => Left(error)
                         case Right(_)    => Right(eec)
                     case (Some(_), Some(_)) =>
                       // Disallow changing password if enrolments exist - pass back original unchanged passwords
-                      eec.setQuitPassword(
+                      eec.quitPassword =
                         byodConfigHandler
                           .getPlaintextPassword(
-                            eec.getEncryptedQuitPassword,
-                            eec.getQuitPasswordSalt
+                            eec.encryptedQuitPassword,
+                            eec.quitPasswordSalt
                           )
-                      )
-                      eec.setSettingsPassword(
+
+                      eec.settingsPassword =
                         byodConfigHandler.getPlaintextPassword(
-                          eec.getEncryptedSettingsPassword,
-                          eec.getSettingsPasswordSalt
+                          eec.encryptedSettingsPassword,
+                          eec.settingsPasswordSalt
                         )
-                      )
+
                     case _ => ()
 
                   Right(eec)
@@ -215,17 +215,17 @@ class ExaminationEventService @Inject() (
 
     (eecOpt, examOpt) match
       case (Some(eec), Some(_)) =>
-        if !eec.getExamEnrolments.isEmpty then Left(ExaminationEventError.EventHasEnrolments)
+        if !eec.examEnrolments.isEmpty then Left(ExaminationEventError.EventHasEnrolments)
         else
           eec.delete()
           // Check if we can delete the event altogether (in case no configs are using it)
           val configs = DB
             .find(classOf[ExaminationEventConfiguration])
             .where()
-            .eq("examinationEvent", eec.getExaminationEvent)
+            .eq("examinationEvent", eec.examinationEvent)
             .distinct
 
-          if configs.isEmpty then eec.getExaminationEvent.delete()
+          if configs.isEmpty then eec.examinationEvent.delete()
           Right(())
       case _ => Left(ExaminationEventError.EventNotFound)
 
@@ -235,16 +235,16 @@ class ExaminationEventService @Inject() (
       quitPassword: String
   ): Either[ExaminationEventError, Unit] =
     Try {
-      val oldPwd = Option(eec.getEncryptedSettingsPassword).map { encrypted =>
-        byodConfigHandler.getPlaintextPassword(encrypted, eec.getSettingsPasswordSalt)
+      val oldPwd = Option(eec.encryptedSettingsPassword).map { encrypted =>
+        byodConfigHandler.getPlaintextPassword(encrypted, eec.settingsPasswordSalt)
       }
 
       if !oldPwd.contains(password) then
         val newSalt = UUID.randomUUID().toString
-        eec.setEncryptedSettingsPassword(byodConfigHandler.getEncryptedPassword(password, newSalt))
-        eec.setSettingsPasswordSalt(newSalt)
+        eec.encryptedSettingsPassword = byodConfigHandler.getEncryptedPassword(password, newSalt)
+        eec.settingsPasswordSalt = newSalt
         // Pre-calculate the config key
-        eec.setConfigKey(byodConfigHandler.calculateConfigKey(eec.getHash, quitPassword))
+        eec.configKey = byodConfigHandler.calculateConfigKey(eec.hash, quitPassword)
       Right(())
     }.recover { case e: Exception =>
       logger.error("unable to set settings password", e)
@@ -256,16 +256,16 @@ class ExaminationEventService @Inject() (
       password: String
   ): Either[ExaminationEventError, Unit] =
     Try {
-      val oldPwd = Option(eec.getEncryptedQuitPassword).map { encrypted =>
-        byodConfigHandler.getPlaintextPassword(encrypted, eec.getQuitPasswordSalt)
+      val oldPwd = Option(eec.encryptedQuitPassword).map { encrypted =>
+        byodConfigHandler.getPlaintextPassword(encrypted, eec.quitPasswordSalt)
       }
 
       if !oldPwd.contains(password) then
         val newSalt = UUID.randomUUID().toString
-        eec.setEncryptedQuitPassword(byodConfigHandler.getEncryptedPassword(password, newSalt))
-        eec.setQuitPasswordSalt(newSalt)
+        eec.encryptedQuitPassword = byodConfigHandler.getEncryptedPassword(password, newSalt)
+        eec.quitPasswordSalt = newSalt
         // Pre-calculate the config key
-        eec.setConfigKey(byodConfigHandler.calculateConfigKey(eec.getHash, password))
+        eec.configKey = byodConfigHandler.calculateConfigKey(eec.hash, password)
       Right(())
     }.recover { case e: Exception =>
       logger.error("unable to set quit password", e)
@@ -291,7 +291,7 @@ class ExaminationEventService @Inject() (
       withStartFilter.lt("examinationEvent.start", endDate.toDate)
     }
 
-    withEndFilter.eq("exam.state", Exam.State.PUBLISHED).distinct.toList
+    withEndFilter.eq("exam.state", ExamState.PUBLISHED).distinct.toList
 
   def listOverlappingExaminationEvents(start: String, duration: Int): List[ExaminationEvent] =
     val startDate = DateTime.parse(start, ISODateTimeFormat.dateTimeParser())

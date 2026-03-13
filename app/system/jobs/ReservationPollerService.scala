@@ -25,13 +25,13 @@ class ReservationPollerService @Inject() (
     with EbeanQueryExtensions:
 
   private def isPast(ee: ExamEnrolment): Boolean =
-    (Option(ee.getExaminationEventConfiguration), Option(ee.getReservation)) match
+    (Option(ee.examinationEventConfiguration), Option(ee.reservation)) match
       case (None, Some(reservation)) =>
         val now = dateTimeHandler.adjustDST(DateTime.now)
-        reservation.getEndAt.isBefore(now)
+        reservation.endAt.isBefore(now)
       case (Some(config), _) =>
-        val duration = ee.getExam.getDuration
-        val start    = config.getExaminationEvent.getStart
+        val duration = ee.exam.duration
+        val start    = config.examinationEvent.start
         start.plusMinutes(duration).isBeforeNow
       case _ => false
 

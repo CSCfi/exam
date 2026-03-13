@@ -10,7 +10,7 @@ import helpers.RemoteServerHelper
 import helpers.RemoteServerHelper.ServletDef
 import io.ebean.DB
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import models.exam.Exam
+import models.exam.{Exam, ExamState}
 import org.eclipse.jetty.server.Server
 import org.joda.time.DateTime
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
@@ -57,11 +57,11 @@ class EnrolmentInterfaceSpec
       .find(classOf[Exam])
       .where()
       .eq("course.code", "810136P")
-      .eq("state", Exam.State.PUBLISHED)
+      .eq("state", ExamState.PUBLISHED)
       .find
       .foreach(exam =>
-        exam.setPeriodStart(DateTime.now().minusDays(1))
-        exam.setPeriodEnd(DateTime.now().plusDays(1))
+        exam.periodStart = DateTime.now().minusDays(1)
+        exam.periodEnd = DateTime.now().plusDays(1)
         exam.save()
       );
 
@@ -79,7 +79,7 @@ class EnrolmentInterfaceSpec
 
         val examId = (examsJson.value.head \ "id").as[Long]
         val exam   = DB.find(classOf[Exam], examId)
-        exam.getCourse.getCode must be("810136P")
+        exam.course.code must be("810136P")
 
       "return empty list when no remote enrolments" in:
         val (user, session) = runIO(loginAsStudent())

@@ -5,7 +5,8 @@
 package services.exam
 
 import database.EbeanQueryExtensions
-import models.assessment.AutoEvaluationConfig
+import models.assessment.AutoEvaluationReleaseType
+import models.exam.ExamState
 import models.exam.{Exam, GradeScale}
 import org.joda.time.DateTime
 import play.api.Logging
@@ -22,17 +23,17 @@ class AutoEvaluationHandlerImpl @Inject (
     with Logging:
 
   override def autoEvaluate(exam: Exam): Unit =
-    val config = exam.getAutoEvaluationConfig
+    val config = exam.autoEvaluationConfig
     if Option(config).nonEmpty then
       // Grade automatically
       process(exam)
-      if config.getReleaseType == AutoEvaluationConfig.ReleaseType.IMMEDIATE then
+      if config.releaseType == AutoEvaluationReleaseType.IMMEDIATE then
         // Notify student immediately
-        exam.setAutoEvaluationNotified(DateTime.now)
+        exam.autoEvaluationNotified = DateTime.now
         exam.update()
-        val student = exam.getCreator
+        val student = exam.creator
         composer.scheduleEmail(5.seconds) { composer.composeInspectionReady(student, None, exam) }
-        logger.debug(s"Scheduled email about automatic evaluation to ${student.getEmail}")
+        logger.debug(s"Scheduled email about automatic evaluation to ${student.email}")
 
   private def process(exam: Exam): Unit =
     getGradeBasedOnScore(exam) match
@@ -41,13 +42,13 @@ class AutoEvaluationHandlerImpl @Inject (
         throw new RuntimeException()
       case Right((grade, msg)) =>
         // NOTE: do not set graded by person here, one who makes a record will get the honor
-        exam.setGrade(grade)
-        exam.setGradedTime(DateTime.now)
-        exam.setCreditType(exam.getExamType)
-        exam.getExamLanguages.asScala.headOption match
+        exam.grade = grade
+        exam.gradedTime = DateTime.now
+        exam.creditType = exam.examType
+        exam.examLanguages.asScala.headOption match
           case Some(lang) =>
-            exam.setAnswerLanguage(lang.getCode)
-            exam.setState(Exam.State.GRADED)
+            exam.answerLanguage = lang.code
+            exam.state = ExamState.GRADED
             exam.update()
             logger.info(msg)
           case _ => throw new RuntimeException("No exam language found!")
@@ -56,24 +57,24 @@ class AutoEvaluationHandlerImpl @Inject (
     val (score, maxScore) = (exam.getTotalScore, exam.getMaxScore)
     val percentage        = if maxScore == 0 then 0 else score * 100 / maxScore
     val evaluations =
-      exam.getAutoEvaluationConfig.getGradeEvaluations.asScala.toList.sortBy(_.getPercentage)
-    evaluations.findLast(_.getPercentage <= percentage) match
+      exam.autoEvaluationConfig.gradeEvaluations.asScala.toList.sortBy(_.percentage)
+    evaluations.findLast(_.percentage <= percentage) match
       case None => Left("Could not determine a grade")
       case Some(ge) =>
         resolveScale(exam) match
-          case Some(s) if s.getGrades.contains(ge.getGrade) =>
-            val grade = ge.getGrade
+          case Some(s) if s.grades.contains(ge.grade) =>
+            val grade = ge.grade
             val msg =
-              s"Automatically grading exam #${exam.getId}, $score/$maxScore points ($percentage%) " +
-                s"graded as ${grade.getName} using percentage threshold ${ge.getPercentage}"
+              s"Automatically grading exam #${exam.id}, $score/$maxScore points ($percentage%) " +
+                s"graded as ${grade.name} using percentage threshold ${ge.percentage}"
             Right((grade, msg))
           case _ => Left("Grade in auto evaluation configuration not found in exam grade scale!")
 
-  private def resolveScale(exam: Exam): Option[GradeScale] = Option(exam.getGradeScale) match
+  private def resolveScale(exam: Exam): Option[GradeScale] = Option(exam.gradeScale) match
     case scale @ Some(_) => scale
     case _ =>
-      Option(exam.getCourse).flatMap(c => Option(c.getGradeScale)) match
+      Option(exam.course).flatMap(c => Option(c.gradeScale)) match
         case scale @ Some(_) => scale
-        case _ => Option(exam.getParent).flatMap(p => Option(p.getCourse)).flatMap(c =>
-            Option(c.getGradeScale)
+        case _ => Option(exam.parent).flatMap(p => Option(p.course)).flatMap(c =>
+            Option(c.gradeScale)
           )

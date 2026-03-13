@@ -43,8 +43,8 @@ class CourseService @Inject() (
             .orderBy("code")
             .list
             .filter(c =>
-              Option(c.getStartDate).isEmpty || configReader
-                .getCourseValidityDate(new org.joda.time.DateTime(c.getStartDate))
+              Option(c.startDate).isEmpty || configReader
+                .getCourseValidityDate(new org.joda.time.DateTime(c.startDate))
                 .isBeforeNow
             )
         }

@@ -53,19 +53,19 @@ class ReservationInterfaceSpec extends BaseIntegrationSpec:
           case None    => fail("Test room not found")
 
         val ewh = new ExceptionWorkingHours()
-        ewh.setStartDate(DateTime.now().withDayOfMonth(15).toDate)
-        ewh.setEndDate(DateTime.now().plusMonths(1).withDayOfMonth(15).toDate)
-        ewh.setStartDateTimezoneOffset(0)
-        ewh.setEndDateTimezoneOffset(0)
+        ewh.startDate = DateTime.now().withDayOfMonth(15).toDate
+        ewh.endDate = DateTime.now().plusMonths(1).withDayOfMonth(15).toDate
+        ewh.startDateTimezoneOffset = 0
+        ewh.endDateTimezoneOffset = 0
 
         val ewh2 = new ExceptionWorkingHours()
-        ewh2.setStartDate(DateTime.now().plusMonths(1).withDayOfMonth(1).toDate)
-        ewh2.setEndDate(DateTime.now().plusMonths(1).withDayOfMonth(15).toDate)
-        ewh2.setStartDateTimezoneOffset(0)
-        ewh2.setEndDateTimezoneOffset(0)
+        ewh2.startDate = DateTime.now().plusMonths(1).withDayOfMonth(1).toDate
+        ewh2.endDate = DateTime.now().plusMonths(1).withDayOfMonth(15).toDate
+        ewh2.startDateTimezoneOffset = 0
+        ewh2.endDateTimezoneOffset = 0
 
-        room.getCalendarExceptionEvents.add(ewh)
-        room.getCalendarExceptionEvents.add(ewh2)
+        room.calendarExceptionEvents.add(ewh)
+        room.calendarExceptionEvents.add(ewh2)
         room.update()
 
         // Execute

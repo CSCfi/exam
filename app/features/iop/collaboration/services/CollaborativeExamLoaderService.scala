@@ -4,7 +4,6 @@
 
 package features.iop.collaboration.services
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import database.EbeanJsonExtensions
 import features.iop.transfer.services.ExternalAttachmentLoaderService
@@ -22,6 +21,7 @@ import play.api.libs.ws.{WSBodyWritables, WSClient}
 import play.api.mvc.{Result, Results}
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
+import services.json.EbeanMapper
 
 import java.net.{URI, URL}
 import javax.inject.Inject
@@ -72,7 +72,7 @@ class CollaborativeExamLoaderService @Inject() (
     Try {
       // Use jackson because it serializes the entire object.
       // TODO: maybe some other mapper can do this too?
-      val mapper     = new ObjectMapper()
+      val mapper     = EbeanMapper.create()
       val jsonString = mapper.writeValueAsString(exam)
       val node       = mapper.readTree(jsonString)
       // CouchDB expects "rev" (not "_rev") when uploading
@@ -115,18 +115,18 @@ class CollaborativeExamLoaderService @Inject() (
     PathProperties.parse(path)
 
   def createAssessmentWithAttachments(participation: ExamParticipation): Future[Boolean] =
-    val ref = participation.getCollaborativeExam.getExternalRef
+    val ref = participation.collaborativeExam.externalRef
     logger.debug(s"Sending back collaborative assessment for exam $ref")
 
     parseAssessmentUrl(ref) match
       case None => Future.successful(false)
       case Some(_) =>
         externalAttachmentLoader
-          .uploadAssessmentAttachments(participation.getExam)
+          .uploadAssessmentAttachments(participation.exam)
           .flatMap(_ => createAssessment(participation))
 
   def createAssessment(participation: ExamParticipation): Future[Boolean] =
-    val ref = participation.getCollaborativeExam.getExternalRef
+    val ref = participation.collaborativeExam.externalRef
     logger.debug(s"Sending back collaborative assessment for exam $ref")
 
     parseAssessmentUrl(ref) match
@@ -143,13 +143,13 @@ class CollaborativeExamLoaderService @Inject() (
               logger.error(s"Failed in sending assessment for exam $ref")
               false
             else
-              participation.setSentForReview(DateTime.now())
+              participation.sentForReview = DateTime.now()
               participation.update()
               logger.info(s"Assessment for exam $ref processed successfully")
               true
           }
           .recover { case t =>
-            logger.error(s"Could not send assessment to xm! [id=${participation.getId}]", t)
+            logger.error(s"Could not send assessment to xm! [id=${participation.id}]", t)
             false
           }
 
@@ -158,7 +158,7 @@ class CollaborativeExamLoaderService @Inject() (
       ref: String,
       payload: JsValue
   ): Future[Option[String]] =
-    parseUrl(ce.getExternalRef, ref) match
+    parseUrl(ce.externalRef, ref) match
       case None      => Future.successful(None)
       case Some(url) =>
         // TBD: maybe this should be checked on XM
@@ -176,7 +176,7 @@ class CollaborativeExamLoaderService @Inject() (
         }
 
   def downloadExam(ce: CollaborativeExam): Future[Option[Exam]] =
-    parseUrl(Some(ce.getExternalRef)) match
+    parseUrl(Some(ce.externalRef)) match
       case None => Future.successful(None)
       case Some(url) =>
         val request = wsClient.url(url.toString)
@@ -191,28 +191,28 @@ class CollaborativeExamLoaderService @Inject() (
           else
             // Set revision if present (CouchDB revision field can be _rev or rev)
             val revision = (root \ "_rev").asOpt[String].orElse((root \ "rev").asOpt[String])
-            revision.foreach(ce.setRevision)
+            revision.foreach(v => ce.revision = v)
 
-            // Convert JsValue to Jackson JsonNode for getExam
+            // Convert JsValue to Jackson JsonNode for.exam
             val jacksonNode = play.libs.Json.parse(Json.stringify(root))
             val exam        = ce.getExam(jacksonNode)
 
             // Save certain informative properties locally
-            ce.setName(exam.getName)
-            ce.setPeriodStart(exam.getPeriodStart)
-            ce.setPeriodEnd(exam.getPeriodEnd)
-            ce.setEnrollInstruction(exam.getEnrollInstruction)
-            ce.setDuration(exam.getDuration)
-            ce.setHash(exam.getHash)
-            ce.setState(exam.getState)
-            ce.setAnonymous(exam.isAnonymous)
+            ce.name = exam.name
+            ce.periodStart = exam.periodStart
+            ce.periodEnd = exam.periodEnd
+            ce.enrollInstruction = exam.enrollInstruction
+            ce.duration = exam.duration
+            ce.hash = exam.hash
+            ce.state = exam.state
+            ce.anonymous = exam.anonymous
             ce.update()
 
             Some(exam)
         }
 
   def downloadExamJson(ce: CollaborativeExam): Future[Option[JsValue]] =
-    parseUrl(Some(ce.getExternalRef)) match
+    parseUrl(Some(ce.externalRef)) match
       case None => Future.successful(None)
       case Some(url) =>
         val request = wsClient.url(url.toString)
@@ -225,7 +225,7 @@ class CollaborativeExamLoaderService @Inject() (
             None
           else
             val revision = (root \ "_rev").asOpt[String].orElse((root \ "rev").asOpt[String])
-            revision.foreach(ce.setRevision)
+            revision.foreach(v => ce.revision = v)
             Some(root)
         }
 
@@ -252,11 +252,11 @@ class CollaborativeExamLoaderService @Inject() (
       resultModel: Model,
       pp: PathProperties
   ): Future[Result] =
-    parseUrl(Some(ce.getExternalRef)) match
+    parseUrl(Some(ce.externalRef)) match
       case None => Future.successful(Results.InternalServerError)
       case Some(url) =>
         val request = wsClient.url(url.toString)
-        val payload = serializeForUpdate(content, ce.getRevision)
+        val payload = serializeForUpdate(content, ce.revision)
         request.put(payload).map { response =>
           if response.status != OK then
             val root    = response.json
@@ -270,7 +270,7 @@ class CollaborativeExamLoaderService @Inject() (
     uploadExam(ce, content, sender, null, null)
 
   def deleteExam(ce: CollaborativeExam): Future[Result] =
-    parseUrl(Some(ce.getExternalRef)) match
+    parseUrl(Some(ce.externalRef)) match
       case None => Future.successful(Results.InternalServerError)
       case Some(url) =>
         val request = wsClient.url(url.toString)

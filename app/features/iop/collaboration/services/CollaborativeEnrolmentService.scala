@@ -7,6 +7,7 @@ package features.iop.collaboration.services
 import database.{EbeanQueryExtensions, EbeanTransactions}
 import io.ebean.DB
 import models.enrolment.ExamEnrolment
+import models.exam.ExamState
 import models.exam.{Exam, ExamExecutionType}
 import models.iop.CollaborativeExam
 import models.user.User
@@ -45,17 +46,17 @@ class CollaborativeEnrolmentService @Inject() (
     *   true if enrollable, false otherwise
     */
   def isEnrollable(exam: Exam, homeOrg: String): Boolean =
-    val orgCheck = Option(exam.getOrganisations) match
+    val orgCheck = Option(exam.organisations) match
       case None => true
       case Some(orgs) =>
         val organisations = orgs.split(";")
         organisations.contains(homeOrg)
 
     orgCheck &&
-    exam.getState == Exam.State.PUBLISHED &&
-    exam.getExecutionType.getType == ExamExecutionType.Type.PUBLIC.toString &&
-    Option(exam.getPeriodEnd).isDefined &&
-    exam.getPeriodEnd.isAfterNow
+    exam.state == ExamState.PUBLISHED &&
+    exam.executionType.`type` == ExamExecutionType.Type.PUBLIC.toString &&
+    Option(exam.periodEnd).isDefined &&
+    exam.periodEnd.isAfterNow
 
   /** Check if a user can enroll in an exam
     *
@@ -113,7 +114,7 @@ class CollaborativeEnrolmentService @Inject() (
             .endJunction()
             .or()
             .isNull("exam")
-            .eq("exam.state", Exam.State.STUDENT_STARTED)
+            .eq("exam.state", ExamState.STUDENT_STARTED)
             .endOr()
             .list
           Right(enrolments)
@@ -151,9 +152,9 @@ class CollaborativeEnrolmentService @Inject() (
 
   private def makeEnrolment(exam: CollaborativeExam, user: User): ExamEnrolment =
     val enrolment = new ExamEnrolment()
-    enrolment.setEnrolledOn(DateTime.now())
-    enrolment.setUser(user)
-    enrolment.setCollaborativeExam(exam)
+    enrolment.enrolledOn = DateTime.now()
+    enrolment.user = user
+    enrolment.collaborativeExam = exam
     enrolment.setRandomDelay()
     enrolment.save()
     enrolment
@@ -165,12 +166,12 @@ class CollaborativeEnrolmentService @Inject() (
   ): Option[ExamEnrolment] =
     val now = dateTimeHandler.adjustDST(DateTime.now())
     val futureReservations = enrolments.filter { ee =>
-      Option(ee.getReservation).exists(_.toInterval.isAfter(now))
+      Option(ee.reservation).exists(_.toInterval.isAfter(now))
     }
 
     if futureReservations.size > 1 then
       logger.error(
-        s"Several enrolments with future reservations found for user $user and collaborative exam ${ce.getId}"
+        s"Several enrolments with future reservations found for user $user and collaborative exam ${ce.id}"
       )
       None
     else if futureReservations.nonEmpty then
@@ -181,23 +182,23 @@ class CollaborativeEnrolmentService @Inject() (
   private def doCreateEnrolment(ce: CollaborativeExam, user: User): Either[String, ExamEnrolment] =
     EbeanTransactions.withTransaction { tx =>
       // Take pessimistic lock for user to prevent multiple enrolments creating
-      DB.find(classOf[User]).forUpdate().where().eq("id", user.getId).findOne()
+      DB.find(classOf[User]).forUpdate().where().eq("id", user.id).findOne()
 
       val enrolments = DB
         .find(classOf[ExamEnrolment])
         .fetch("reservation")
         .where()
-        .eq("user.id", user.getId)
-        .eq("collaborativeExam.id", ce.getId)
+        .eq("user.id", user.id)
+        .eq("collaborativeExam.id", ce.id)
         .list
 
       // already enrolled
-      if enrolments.exists(_.getReservation == null) then
+      if enrolments.exists(_.reservation == null) then
         tx.rollback()
         Left("i18n_error_enrolment_exists")
       // reservation in effect
       else if enrolments
-          .flatMap(e => Option(e.getReservation))
+          .flatMap(e => Option(e.reservation))
           .exists(r => r.toInterval.contains(dateTimeHandler.adjustDST(DateTime.now(), r)))
       then
         tx.rollback()

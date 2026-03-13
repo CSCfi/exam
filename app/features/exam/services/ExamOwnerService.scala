@@ -17,7 +17,7 @@ class ExamOwnerService @Inject() extends EbeanQueryExtensions with EbeanJsonExte
   def listOwners(examId: Long): Either[ExamOwnerError, List[User]] =
     Option(DB.find(classOf[Exam], examId)) match
       case None       => Left(ExamOwnerError.ExamNotFound)
-      case Some(exam) => Right(exam.getExamOwners.asScala.toList)
+      case Some(exam) => Right(exam.examOwners.asScala.toList)
 
   def addOwner(examId: Long, userId: Long, currentUser: User): Either[ExamOwnerError, Unit] =
     (Option(DB.find(classOf[Exam], examId)), Option(DB.find(classOf[User], userId))) match
@@ -27,7 +27,7 @@ class ExamOwnerService @Inject() extends EbeanQueryExtensions with EbeanJsonExte
         if !currentUser.isAdminOrSupport && !exam.isOwnedOrCreatedBy(currentUser) then
           Left(ExamOwnerError.AccessForbidden)
         else
-          exam.getExamOwners.add(owner)
+          exam.examOwners.add(owner)
           exam.update()
           Right(())
 
@@ -39,6 +39,6 @@ class ExamOwnerService @Inject() extends EbeanQueryExtensions with EbeanJsonExte
         if !currentUser.isAdminOrSupport && !exam.isOwnedOrCreatedBy(currentUser) then
           Left(ExamOwnerError.AccessForbidden)
         else
-          exam.getExamOwners.remove(owner)
+          exam.examOwners.remove(owner)
           exam.update()
           Right(())

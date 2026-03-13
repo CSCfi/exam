@@ -73,10 +73,10 @@ object CollaborativeExamProcessingService:
     *   the user to clean
     */
   def cleanUser(user: User): Unit =
-    user.getEnrolments.clear()
-    user.getParticipations.clear()
-    user.getInspections.clear()
-    user.getPermissions.clear()
+    user.enrolments.clear()
+    user.participations.clear()
+    user.inspections.clear()
+    user.permissions.clear()
 
   /** Stream JSON array values as iterator
     *

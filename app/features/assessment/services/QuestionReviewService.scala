@@ -8,7 +8,9 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.exam.Exam
+import models.exam.ExamState
 import models.questions.Question
+import models.questions.QuestionType
 import models.sections.ExamSectionQuestion
 import models.user.User
 import play.api.libs.json.{JsValue, Json, Writes}
@@ -52,11 +54,11 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
 
   private val VALID_STATES =
     Seq(
-      Exam.State.REVIEW,
-      Exam.State.REVIEW_STARTED,
-      Exam.State.GRADED,
-      Exam.State.GRADED_LOGGED,
-      Exam.State.REJECTED
+      ExamState.REVIEW,
+      ExamState.REVIEW_STARTED,
+      ExamState.GRADED,
+      ExamState.GRADED_LOGGED,
+      ExamState.REJECTED
     )
 
   def findExam(examId: Long): Option[Exam] = Option(DB.find(classOf[Exam], examId))
@@ -64,30 +66,30 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
   def listEssays(exam: Exam, user: User, questionIds: Option[List[Long]]): List[QuestionEntry] =
     val ids = questionIds.getOrElse(List.empty)
     // This is the ordering of essay questions in the current exam
-    val questionSequence = exam.getExamSections.asScala.toList.sorted
-      .flatMap(_.getSectionQuestions.asScala.toList.sorted)
-      .map(_.getQuestion)
-      .filter(_.getType == Question.Type.EssayQuestion)
-      .filter(q => ids.isEmpty || ids.contains(q.getId))
+    val questionSequence = exam.examSections.asScala.toList.sorted
+      .flatMap(_.sectionQuestions.asScala.toList.sorted)
+      .map(_.question)
+      .filter(_.`type` == QuestionType.EssayQuestion)
+      .filter(q => ids.isEmpty || ids.contains(q.id))
 
-    val answers = exam.getChildren.asScala.toList
+    val answers = exam.children.asScala.toList
       .filter(canView(user, _))
-      .filter(e => VALID_STATES.contains(e.getState))
-      .flatMap(_.getExamSections.asScala)
-      .flatMap(_.getSectionQuestions.asScala)
-      .filter(_.getQuestion.getType == Question.Type.EssayQuestion)
-      .filter(esq => ids.isEmpty || ids.contains(esq.getQuestion.getParent.getId))
+      .filter(e => VALID_STATES.contains(e.state))
+      .flatMap(_.examSections.asScala)
+      .flatMap(_.sectionQuestions.asScala)
+      .filter(_.question.`type` == QuestionType.EssayQuestion)
+      .filter(esq => ids.isEmpty || ids.contains(esq.question.parent.id))
 
     // Get evaluation criteria from parent exam section questions
-    val evaluationCriteriaMap = exam.getExamSections.asScala.toList
-      .flatMap(_.getSectionQuestions.asScala)
+    val evaluationCriteriaMap = exam.examSections.asScala.toList
+      .flatMap(_.sectionQuestions.asScala)
       .filter(esq =>
-        esq.getQuestion.getType == Question.Type.EssayQuestion &&
-          Option(esq.getEvaluationCriteria).isDefined &&
-          Option(esq.getQuestion).isDefined
+        esq.question.`type` == QuestionType.EssayQuestion &&
+          Option(esq.evaluationCriteria).isDefined &&
+          Option(esq.question).isDefined
       )
-      .distinctBy(_.getQuestion)
-      .map(esq => esq.getQuestion -> esq.getEvaluationCriteria)
+      .distinctBy(_.question)
+      .map(esq => esq.question -> esq.evaluationCriteria)
       .toMap
 
     createMapping(answers, questionSequence)
@@ -105,14 +107,14 @@ class QuestionReviewService extends EbeanQueryExtensions with EbeanJsonExtension
   ): Map[Question, List[ExamSectionQuestion]] =
 
     // Create ordering based on original question list
-    val idToIndex = questions.map(_.getId).zipWithIndex.toMap
+    val idToIndex = questions.map(_.id).zipWithIndex.toMap
     implicit val questionOrdering: Ordering[Question] = Ordering.by { q =>
-      idToIndex.getOrElse(q.getId, Int.MaxValue)
+      idToIndex.getOrElse(q.id, Int.MaxValue)
     }
 
     // Group essay answers by question parent
     val answersGrouped = answers
-      .groupBy(_.getQuestion.getParent)
+      .groupBy(_.question.parent)
       .view
       .mapValues(_.toList)
       .toMap

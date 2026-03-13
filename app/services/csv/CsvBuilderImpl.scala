@@ -8,6 +8,7 @@ import com.opencsv.*
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment.{Comment, ExamRecord, ExamScore}
+import models.exam.ExamState
 import models.exam.{Exam, Grade, GradeScale}
 import models.user.{Role, User}
 import org.joda.time.DateTime
@@ -89,7 +90,7 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
     writer.writeNext(headers)
     records.foreach { record =>
       writer.writeNext(
-        record.getExamScore.asArray(record.getStudent, record.getTeacher, record.getExam)
+        record.examScore.asArray(record.student, record.teacher, record.exam)
       )
     }
 
@@ -132,7 +133,7 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
             logger.warn(s"Exam with id $examId not found or inaccessible, unable to grade it")
           case Some(exam) =>
             val gradeName = records(1)
-            val scale     = Option(exam.getGradeScale).getOrElse(exam.getCourse.getGradeScale)
+            val scale     = Option(exam.gradeScale).getOrElse(exam.course.gradeScale)
 
             findGrade(gradeName, scale) match
               case None =>
@@ -150,8 +151,8 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
       .idEq(examId)
       .isNotNull("parent")
       .or()
-      .eq("state", Exam.State.REVIEW)
-      .eq("state", Exam.State.REVIEW_STARTED)
+      .eq("state", ExamState.REVIEW)
+      .eq("state", ExamState.REVIEW_STARTED)
       .endOr()
 
     val query =
@@ -178,25 +179,25 @@ class CsvBuilderImpl extends CsvBuilder with EbeanQueryExtensions with Logging:
         None
 
   private def updateExam(exam: Exam, grade: Grade, user: User, records: Array[String]): Unit =
-    exam.setGrade(grade)
-    exam.setGradedByUser(user)
-    exam.setGradedTime(DateTime.now())
-    exam.setState(Exam.State.GRADED)
-    exam.setAnswerLanguage(exam.getExamLanguages.asScala.head.getCode)
-    exam.setCreditType(exam.getExamType)
+    exam.grade = grade
+    exam.gradedByUser = user
+    exam.gradedTime = DateTime.now()
+    exam.state = ExamState.GRADED
+    exam.answerLanguage = exam.examLanguages.asScala.head.code
+    exam.creditType = exam.examType
 
     // Handle feedback if present
     if records.length > 2 then
       Option(records(2)).filter(_.nonEmpty).foreach { feedback =>
-        val comment = Option(exam.getExamFeedback).getOrElse {
+        val comment = Option(exam.examFeedback).getOrElse {
           val newComment = new Comment()
           newComment.setCreatorWithDate(user)
           newComment
         }
         comment.setModifierWithDate(user)
-        comment.setComment(Jsoup.clean(feedback, Safelist.relaxed()))
+        comment.comment = Jsoup.clean(feedback, Safelist.relaxed())
         comment.save()
-        exam.setExamFeedback(comment)
+        exam.examFeedback = comment
       }
 
     exam.update()

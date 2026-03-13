@@ -11,7 +11,7 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.calendar.DefaultWorkingHours
 import models.enrolment.{ExamEnrolment, Reservation}
-import models.exam.{Exam, ExamExecutionType}
+import models.exam.{Exam, ExamExecutionType, ExamState}
 import models.facility.ExamRoom
 import models.user.{Language, User}
 import org.joda.time.DateTime
@@ -66,20 +66,20 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
     DB.find(classOf[ExamEnrolment]).list.foreach(_.delete())
 
     val exam =
-      DB.find(classOf[Exam]).where().eq("state", Exam.State.PUBLISHED).list.headOption match
+      DB.find(classOf[Exam]).where().eq("state", ExamState.PUBLISHED).list.headOption match
         case Some(e) => e
         case None    => fail("No published exam found")
 
     val user = DB.find(classOf[User]).where().eq("eppn", "student@funet.fi").find match
       case Some(u) =>
-        u.setLanguage(DB.find(classOf[Language]).where().eq("code", "en").find.orNull)
+        u.language = DB.find(classOf[Language]).where().eq("code", "en").find.orNull
         u.update()
         u
       case None => fail("Test user not found")
 
     val room = Option(DB.find(classOf[ExamRoom], 1L)) match
       case Some(r) =>
-        r.setRoomInstructionEN("information in English here")
+        r.roomInstructionEN = "information in English here"
         r.update()
         r
       case None => fail("Test room not found")
@@ -87,23 +87,23 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
     setWorkingHours(room)
 
     val enrolment = new ExamEnrolment()
-    enrolment.setExam(exam)
-    enrolment.setUser(user)
+    enrolment.exam = exam
+    enrolment.user = user
     enrolment.save()
 
     val reservation = new Reservation()
-    reservation.setUser(user)
+    reservation.user = user
     (exam, room, reservation, enrolment)
 
   private def setWorkingHours(room: ExamRoom): Unit =
     val dates = Array("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
     dates.foreach { day =>
       val dwh = new DefaultWorkingHours()
-      dwh.setWeekday(day)
-      dwh.setRoom(room)
-      dwh.setStartTime(fixedNow.withTimeAtStartOfDay())
-      dwh.setEndTime(dwh.getStartTime.withTime(20, 59, 59, 999))
-      dwh.setTimezoneOffset(7200000)
+      dwh.weekday = day
+      dwh.room = room
+      dwh.startTime = fixedNow.withTimeAtStartOfDay()
+      dwh.endTime = dwh.startTime.withTime(20, 59, 59, 999)
+      dwh.timezoneOffset = 7200000
       dwh.save()
     }
 
@@ -113,8 +113,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val (user, session)    = runIO(loginAsStudent())
         val (exam, room, _, _) = setupTestData()
         // Setup private exam
-        exam.setExecutionType(Option(DB.find(classOf[ExamExecutionType], 2L)).orNull)
-        exam.getExamOwners.add(Option(DB.find(classOf[User], 4L)).orNull)
+        exam.executionType = Option(DB.find(classOf[ExamExecutionType], 2L)).orNull
+        exam.examOwners.add(Option(DB.find(classOf[User], 4L)).orNull)
         exam.save()
 
         val start = DateTime
@@ -143,8 +143,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           Future {
             try
               val reservationData = Json.obj(
-                "roomId" -> JsNumber(BigDecimal(room.getId)),
-                "examId" -> JsNumber(BigDecimal(exam.getId)),
+                "roomId" -> JsNumber(BigDecimal(room.id)),
+                "examId" -> JsNumber(BigDecimal(exam.id)),
                 "start"  -> ISODateTimeFormat.dateTime().print(start),
                 "end"    -> ISODateTimeFormat.dateTime().print(end)
               )
@@ -184,7 +184,7 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
 
         // Verify only one reservation was created
         val reservationCount =
-          DB.find(classOf[Reservation]).where().eq("user.id", user.getId).list.size
+          DB.find(classOf[Reservation]).where().eq("user.id", user.id).list.size
         reservationCount must be(1)
 
     "creating single reservations" should:
@@ -192,8 +192,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val (user, session)            = runIO(loginAsStudent())
         val (exam, room, _, enrolment) = setupTestData()
         // Setup private exam
-        exam.setExecutionType(Option(DB.find(classOf[ExamExecutionType], 2L)).orNull)
-        exam.getExamOwners.add(Option(DB.find(classOf[User], 4L)).orNull)
+        exam.executionType = Option(DB.find(classOf[ExamExecutionType], 2L)).orNull
+        exam.examOwners.add(Option(DB.find(classOf[User], 4L)).orNull)
         exam.save()
 
         val start = DateTime
@@ -212,8 +212,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           .withHourOfDay(13)
 
         val reservationData = Json.obj(
-          "roomId" -> JsNumber(BigDecimal(room.getId)),
-          "examId" -> JsNumber(BigDecimal(exam.getId)),
+          "roomId" -> JsNumber(BigDecimal(room.id)),
+          "examId" -> JsNumber(BigDecimal(exam.id)),
           "start"  -> ISODateTimeFormat.dateTime().print(start),
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
@@ -227,13 +227,13 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         statusOf(result).must(be(Status.OK))
 
         // Verify reservation
-        Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
           case Some(ee) =>
-            ee.getReservation must not be null
-            ee.getReservation.getStartAt must be(start)
-            ee.getReservation.getEndAt must be(end)
-            ee.getExam.getId must be(exam.getId)
-            room.getExamMachines.asScala must contain(ee.getReservation.getMachine)
+            ee.reservation must not be null
+            ee.reservation.startAt must be(start)
+            ee.reservation.endAt must be(end)
+            ee.exam.id must be(exam.id)
+            room.examMachines.asScala must contain(ee.reservation.machine)
           case None => fail("Enrolment not found")
 
         // Check email
@@ -244,7 +244,7 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val body = GreenMailUtil.getBody(mails(0))
         body must include("You have booked an exam time")
         body must include("information in English here")
-        body must include(room.getName)
+        body must include(room.name)
 
       "create reservation when previous reservation is in future" in:
         val (user, session)                      = runIO(loginAsStudent())
@@ -265,16 +265,16 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           .withHourOfDay(13)
 
         // Setup existing future reservation (must be after fixedNow=10:00 so checkEnrolment passes)
-        reservation.setStartAt(fixedNow.plusHours(2))
-        reservation.setEndAt(fixedNow.plusHours(3))
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.startAt = fixedNow.plusHours(2)
+        reservation.endAt = fixedNow.plusHours(3)
+        reservation.machine = room.examMachines.get(0)
         reservation.save()
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val reservationData = Json.obj(
-          "roomId" -> JsNumber(BigDecimal(room.getId)),
-          "examId" -> JsNumber(BigDecimal(exam.getId)),
+          "roomId" -> JsNumber(BigDecimal(room.id)),
+          "examId" -> JsNumber(BigDecimal(exam.id)),
           "start"  -> ISODateTimeFormat.dateTime().print(start),
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
@@ -288,13 +288,13 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         statusOf(result).must(be(Status.OK))
 
         // Verify new reservation replaced old one
-        Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
           case Some(ee) =>
-            ee.getReservation must not be null
-            ee.getReservation.getStartAt must be(start)
-            ee.getReservation.getEndAt must be(end)
-            ee.getExam.getId must be(exam.getId)
-            room.getExamMachines.asScala must contain(ee.getReservation.getMachine)
+            ee.reservation must not be null
+            ee.reservation.startAt must be(start)
+            ee.reservation.endAt must be(end)
+            ee.exam.id must be(exam.id)
+            room.examMachines.asScala must contain(ee.reservation.machine)
           case None => fail("Enrolment not found")
 
         // Check email
@@ -321,24 +321,24 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
           .withHourOfDay(13)
 
         // Setup past reservation with no-show
-        reservation.setStartAt(fixedNow.minusDays(1).minusMinutes(10))
-        reservation.setEndAt(fixedNow.minusDays(1).minusMinutes(5))
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.startAt = fixedNow.minusDays(1).minusMinutes(10)
+        reservation.endAt = fixedNow.minusDays(1).minusMinutes(5)
+        reservation.machine = room.examMachines.get(0)
         reservation.save()
-        enrolment.setReservation(reservation)
-        enrolment.setNoShow(true)
+        enrolment.reservation = reservation
+        enrolment.noShow = true
         enrolment.update()
 
         // Create new enrolment
         val newEnrolment = new ExamEnrolment()
-        newEnrolment.setEnrolledOn(DateTime.now())
-        newEnrolment.setExam(exam)
-        newEnrolment.setUser(user)
+        newEnrolment.enrolledOn = DateTime.now()
+        newEnrolment.exam = exam
+        newEnrolment.user = user
         newEnrolment.save()
 
         val reservationData = Json.obj(
-          "roomId" -> JsNumber(BigDecimal(room.getId)),
-          "examId" -> JsNumber(BigDecimal(exam.getId)),
+          "roomId" -> JsNumber(BigDecimal(room.id)),
+          "examId" -> JsNumber(BigDecimal(exam.id)),
           "start"  -> ISODateTimeFormat.dateTime().print(start),
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
@@ -352,13 +352,13 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         statusOf(result).must(be(Status.OK))
 
         // Verify new reservation
-        Option(DB.find(classOf[ExamEnrolment], newEnrolment.getId)) match
+        Option(DB.find(classOf[ExamEnrolment], newEnrolment.id)) match
           case Some(ee) =>
-            ee.getReservation must not be null
-            ee.getReservation.getStartAt must be(start)
-            ee.getReservation.getEndAt must be(end)
-            ee.getExam.getId must be(exam.getId)
-            room.getExamMachines.asScala must contain(ee.getReservation.getMachine)
+            ee.reservation must not be null
+            ee.reservation.startAt must be(start)
+            ee.reservation.endAt must be(end)
+            ee.exam.id must be(exam.id)
+            room.examMachines.asScala must contain(ee.reservation.machine)
           case None => fail("New enrolment not found")
 
         // Check email
@@ -374,8 +374,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val end                        = fixedNow.plusHours(2)
 
         val reservationData = Json.obj(
-          "roomId" -> JsNumber(BigDecimal(room.getId)),
-          "examId" -> JsNumber(BigDecimal(exam.getId)),
+          "roomId" -> JsNumber(BigDecimal(room.id)),
+          "examId" -> JsNumber(BigDecimal(exam.id)),
           "start"  -> ISODateTimeFormat.dateTime().print(start),
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
@@ -389,8 +389,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         statusOf(result).must(be(Status.BAD_REQUEST))
 
         // Verify no reservation created
-        Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
-          case Some(ee) => ee.getReservation must be(null)
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
+          case Some(ee) => ee.reservation must be(null)
           case None     => fail("Enrolment not found")
 
       "reject reservation that ends before it starts" in:
@@ -400,8 +400,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val end                        = fixedNow.plusHours(1)
 
         val reservationData = Json.obj(
-          "roomId" -> JsNumber(BigDecimal(room.getId)),
-          "examId" -> JsNumber(BigDecimal(exam.getId)),
+          "roomId" -> JsNumber(BigDecimal(room.id)),
+          "examId" -> JsNumber(BigDecimal(exam.id)),
           "start"  -> ISODateTimeFormat.dateTime().print(start),
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
@@ -415,8 +415,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         statusOf(result).must(be(Status.BAD_REQUEST))
 
         // Verify no reservation created
-        Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
-          case Some(ee) => ee.getReservation must be(null)
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
+          case Some(ee) => ee.reservation must be(null)
           case None     => fail("Enrolment not found")
 
       "reject reservation when previous reservation is in effect" in:
@@ -426,16 +426,16 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val end                                  = fixedNow.plusHours(2)
 
         // Setup current reservation
-        reservation.setStartAt(fixedNow.minusMinutes(10))
-        reservation.setEndAt(fixedNow.plusMinutes(10))
-        reservation.setMachine(room.getExamMachines.get(0))
+        reservation.startAt = fixedNow.minusMinutes(10)
+        reservation.endAt = fixedNow.plusMinutes(10)
+        reservation.machine = room.examMachines.get(0)
         reservation.save()
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val reservationData = Json.obj(
-          "roomId" -> JsNumber(BigDecimal(room.getId)),
-          "examId" -> JsNumber(BigDecimal(exam.getId)),
+          "roomId" -> JsNumber(BigDecimal(room.id)),
+          "examId" -> JsNumber(BigDecimal(exam.id)),
           "start"  -> ISODateTimeFormat.dateTime().print(start),
           "end"    -> ISODateTimeFormat.dateTime().print(end)
         )
@@ -450,8 +450,8 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         contentAsStringOf(result) must be("i18n_error_enrolment_not_found")
 
         // Verify original reservation unchanged
-        Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
-          case Some(ee) => ee.getReservation.getId must be(reservation.getId)
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
+          case Some(ee) => ee.reservation.id must be(reservation.id)
           case None     => fail("Enrolment not found")
 
     "removing reservations" should:
@@ -459,61 +459,61 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
         val (user, session)                   = runIO(loginAsStudent())
         val (_, room, reservation, enrolment) = setupTestData()
         // Setup future reservation
-        reservation.setMachine(room.getExamMachines.get(0))
-        reservation.setStartAt(fixedNow.plusHours(2))
-        reservation.setEndAt(fixedNow.plusHours(3))
+        reservation.machine = room.examMachines.get(0)
+        reservation.startAt = fixedNow.plusHours(2)
+        reservation.endAt = fixedNow.plusHours(3)
         reservation.save()
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val result =
-          runIO(delete(s"/app/calendar/reservation/${reservation.getId}", session = session))
+          runIO(delete(s"/app/calendar/reservation/${reservation.id}", session = session))
         statusOf(result).must(be(Status.OK))
         greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
 
         // Verify reservation removed
-        Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
-          case Some(ee) => ee.getReservation must be(null)
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
+          case Some(ee) => ee.reservation must be(null)
           case None     => fail("Enrolment not found")
 
-        DB.find(classOf[Reservation]).where().eq("id", reservation.getId).find must be(None)
+        DB.find(classOf[Reservation]).where().eq("id", reservation.id).find must be(None)
 
       "reject removal of past reservation" in:
         val (user, session)                   = runIO(loginAsStudent())
         val (_, room, reservation, enrolment) = setupTestData()
         // Setup past reservation
-        reservation.setMachine(room.getExamMachines.get(0))
-        reservation.setStartAt(fixedNow.minusHours(2))
-        reservation.setEndAt(fixedNow.minusHours(1))
+        reservation.machine = room.examMachines.get(0)
+        reservation.startAt = fixedNow.minusHours(2)
+        reservation.endAt = fixedNow.minusHours(1)
         reservation.save()
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val result =
-          runIO(delete(s"/app/calendar/reservation/${reservation.getId}", session = session))
+          runIO(delete(s"/app/calendar/reservation/${reservation.id}", session = session))
         statusOf(result).must(be(Status.FORBIDDEN))
 
         // Verify reservation unchanged
-        Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
-          case Some(ee) => ee.getReservation.getId must be(reservation.getId)
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
+          case Some(ee) => ee.reservation.id must be(reservation.id)
           case None     => fail("Enrolment not found")
 
       "reject removal of reservation in progress" in:
         val (user, session)                   = runIO(loginAsStudent())
         val (_, room, reservation, enrolment) = setupTestData()
         // Setup current reservation
-        reservation.setMachine(room.getExamMachines.get(0))
-        reservation.setStartAt(fixedNow.minusHours(1))
-        reservation.setEndAt(fixedNow.plusHours(1))
+        reservation.machine = room.examMachines.get(0)
+        reservation.startAt = fixedNow.minusHours(1)
+        reservation.endAt = fixedNow.plusHours(1)
         reservation.save()
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val result =
-          runIO(delete(s"/app/calendar/reservation/${reservation.getId}", session = session))
+          runIO(delete(s"/app/calendar/reservation/${reservation.id}", session = session))
         statusOf(result).must(be(Status.FORBIDDEN))
 
         // Verify reservation unchanged
-        Option(DB.find(classOf[ExamEnrolment], enrolment.getId)) match
-          case Some(ee) => ee.getReservation.getId must be(reservation.getId)
+        Option(DB.find(classOf[ExamEnrolment], enrolment.id)) match
+          case Some(ee) => ee.reservation.id must be(reservation.id)
           case None     => fail("Enrolment not found")

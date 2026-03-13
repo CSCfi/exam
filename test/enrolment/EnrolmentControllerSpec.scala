@@ -15,7 +15,7 @@ import io.ebean.DB
 import io.ebean.text.json.EJson
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import models.enrolment.{ExamEnrolment, Reservation}
-import models.exam.{Exam, ExamExecutionType}
+import models.exam.{Exam, ExamExecutionType, ExamState}
 import models.facility.ExamRoom
 import models.iop.ExternalExam
 import models.user.User
@@ -90,7 +90,7 @@ class EnrolmentControllerSpec
       case None    => fail("Test exam not found")
 
     // Set exam owner if provided
-    examOwner.foreach(exam.setCreator)
+    examOwner.foreach(v => exam.creator = v)
 
     val user = enrolmentUser.getOrElse(
       DB.find(classOf[User]).where().eq("eppn", "student@funet.fi").find match
@@ -99,11 +99,11 @@ class EnrolmentControllerSpec
     )
 
     val enrolment = new ExamEnrolment()
-    enrolment.setExam(exam)
-    enrolment.setUser(user)
+    enrolment.exam = exam
+    enrolment.user = user
 
     val reservation = new Reservation()
-    reservation.setUser(user)
+    reservation.user = user
 
     val room = Option(DB.find(classOf[ExamRoom], 1L)) match
       case Some(r) => r
@@ -123,20 +123,20 @@ class EnrolmentControllerSpec
         val eppn               = "student@test.org"
         val email              = "student@foo.bar"
 
-        exam.setExecutionType(
+        exam.executionType =
           DB.find(classOf[ExamExecutionType])
             .where()
             .eq("type", ExamExecutionType.Type.PRIVATE.toString)
             .find
             .orNull
-        )
+
         exam.update()
 
         val enrollData = Json.obj("email" -> email)
         val result =
           runIO(makeRequest(
             POST,
-            s"/app/enrolments/student/${exam.getId}",
+            s"/app/enrolments/student/${exam.id}",
             Some(enrollData),
             session = session
           ))
@@ -152,9 +152,9 @@ class EnrolmentControllerSpec
         val ee = DB
           .find(classOf[ExamEnrolment])
           .where()
-          .eq("exam.id", exam.getId)
+          .eq("exam.id", exam.id)
           .or()
-          .eq("user.id", user.getId)
+          .eq("user.id", user.id)
           .ieq("preEnrolledUserEmail", email)
           .endOr()
           .find match
@@ -162,13 +162,13 @@ class EnrolmentControllerSpec
           case None            => fail("Enrolment not found")
 
         // If the user is still null, manually associate it (association might not run in test)
-        if ee.getUser == null then
-          ee.setUser(user)
-          ee.setPreEnrolledUserEmail(null)
+        if ee.user == null then
+          ee.user = user
+          ee.preEnrolledUserEmail = null
           ee.update()
 
-        ee.getUser.getEmail must be(email)
-        ee.getPreEnrolledUserEmail must be(null)
+        ee.user.email must be(email)
+        ee.preEnrolledUserEmail must be(null)
 
         greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
 
@@ -177,20 +177,20 @@ class EnrolmentControllerSpec
         val (exam, _, _, _)    = setupTestData(examOwner = Some(teacher))
         val eppn               = "student@test.org"
 
-        exam.setExecutionType(
+        exam.executionType =
           DB.find(classOf[ExamExecutionType])
             .where()
             .eq("type", ExamExecutionType.Type.PRIVATE.toString)
             .find
             .orNull
-        )
+
         exam.update()
 
         val enrollData = Json.obj("email" -> eppn)
         val result =
           runIO(makeRequest(
             POST,
-            s"/app/enrolments/student/${exam.getId}",
+            s"/app/enrolments/student/${exam.id}",
             Some(enrollData),
             session = session
           ))
@@ -205,9 +205,9 @@ class EnrolmentControllerSpec
         val ee = DB
           .find(classOf[ExamEnrolment])
           .where()
-          .eq("exam.id", exam.getId)
+          .eq("exam.id", exam.id)
           .or()
-          .eq("user.id", user.getId)
+          .eq("user.id", user.id)
           .ieq("preEnrolledUserEmail", eppn)
           .endOr()
           .find match
@@ -215,13 +215,13 @@ class EnrolmentControllerSpec
           case None            => fail("Enrolment not found")
 
         // If the user is still null, manually associate it (association might not run in test)
-        if ee.getUser == null then
-          ee.setUser(user)
-          ee.setPreEnrolledUserEmail(null)
+        if ee.user == null then
+          ee.user = user
+          ee.preEnrolledUserEmail = null
           ee.update()
 
-        ee.getUser.getEppn must be(eppn)
-        ee.getPreEnrolledUserEmail must be(null)
+        ee.user.eppn must be(eppn)
+        ee.preEnrolledUserEmail must be(null)
 
         greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1) must be(true)
 
@@ -231,51 +231,50 @@ class EnrolmentControllerSpec
         val (_, enrolment, reservation, room) = setupTestData()
 
         val ee = new ExternalExam()
-        ee.setExternalRef(UUID.randomUUID().toString)
-        ee.setHash(UUID.randomUUID().toString)
-        ee.setCreated(DateTime.now())
-        ee.setCreator(user)
-        ee.setContent(
+        ee.externalRef = UUID.randomUUID().toString
+        ee.hash = UUID.randomUUID().toString
+        ee.created = DateTime.now()
+        ee.creator = user
+        ee.content =
           EJson.parseObject(
             Files.asCharSource(
               new File("test/resources/enrolment.json"),
               Charset.forName("UTF-8")
             ).read()
           )
-        )
 
-        val machine = room.getExamMachines.get(0)
-        machine.setIpAddress("127.0.0.1")
+        val machine = room.examMachines.get(0)
+        machine.ipAddress = "127.0.0.1"
         machine.update()
 
-        reservation.setMachine(machine)
-        reservation.setStartAt(DateTime.now().plusMinutes(30))
-        reservation.setEndAt(DateTime.now().plusMinutes(75))
-        reservation.setExternalUserRef(user.getEppn)
-        reservation.setExternalRef("foobar")
+        reservation.machine = machine
+        reservation.startAt = DateTime.now().plusMinutes(30)
+        reservation.endAt = DateTime.now().plusMinutes(75)
+        reservation.externalUserRef = user.eppn
+        reservation.externalRef = "foobar"
         reservation.save()
 
-        enrolment.setExternalExam(ee)
-        enrolment.setExam(null)
-        enrolment.setReservation(reservation)
+        enrolment.externalExam = ee
+        enrolment.exam = null
+        enrolment.reservation = reservation
         enrolment.save()
 
-        val result = runIO(get(s"/app/student/enrolments/${enrolment.getId}", session = session))
+        val result = runIO(get(s"/app/student/enrolments/${enrolment.id}", session = session))
         statusOf(result) must be(Status.OK)
 
         val node = contentAsJsonOf(result)
         val data = deserialize(classOf[ExamEnrolment], node)
-        data.getExam must not be null
+        data.exam must not be null
 
     "creating enrolments" should:
       "create enrolment successfully" in:
         val (user, session) = runIO(loginAsStudent())
         val (exam, _, _, _) = setupTestData()
 
-        val enrollData = Json.obj("code" -> exam.getCourse.getCode)
+        val enrollData = Json.obj("code" -> exam.course.code)
         val result = runIO(makeRequest(
           POST,
-          s"/app/enrolments/${exam.getId}",
+          s"/app/enrolments/${exam.id}",
           Some(enrollData),
           session = session
         ))
@@ -284,8 +283,8 @@ class EnrolmentControllerSpec
         // Verify enrolment was created
         DB.find(classOf[ExamEnrolment])
           .where()
-          .eq("exam.id", exam.getId)
-          .eq("user.id", user.getId)
+          .eq("exam.id", exam.id)
+          .eq("user.id", user.id)
           .find must not be empty
 
       "handle concurrent enrolment creation" in:
@@ -293,7 +292,7 @@ class EnrolmentControllerSpec
         val (exam, _, _, _) = setupTestData()
 
         // Ensure exam is in correct state for enrolment
-        exam.setState(Exam.State.PUBLISHED)
+        exam.state = ExamState.PUBLISHED
         exam.update()
 
         val callCount = 10
@@ -305,10 +304,10 @@ class EnrolmentControllerSpec
         (0 until callCount).foreach { i =>
           scala.concurrent.Future {
             try
-              val enrollData = Json.obj("code" -> exam.getCourse.getCode)
+              val enrollData = Json.obj("code" -> exam.course.code)
               runIO(makeRequest(
                 POST,
-                s"/app/enrolments/${exam.getId}",
+                s"/app/enrolments/${exam.id}",
                 Some(enrollData),
                 session = session
               ))
@@ -326,8 +325,8 @@ class EnrolmentControllerSpec
         val count = DB
           .find(classOf[ExamEnrolment])
           .where()
-          .eq("exam.id", exam.getId)
-          .eq("user.id", user.getId)
+          .eq("exam.id", exam.id)
+          .eq("user.id", user.id)
           .list
           .size
         count must be(1)
@@ -338,13 +337,13 @@ class EnrolmentControllerSpec
 
         // Setup existing enrolment
         val enrolledOn = DateTime.now()
-        enrolment.setEnrolledOn(enrolledOn)
+        enrolment.enrolledOn = enrolledOn
         enrolment.save()
 
-        val enrollData = Json.obj("code" -> exam.getCourse.getCode)
+        val enrollData = Json.obj("code" -> exam.course.code)
         val result = runIO(makeRequest(
           POST,
-          s"/app/enrolments/${exam.getId}",
+          s"/app/enrolments/${exam.id}",
           Some(enrollData),
           session = session
         ))
@@ -355,27 +354,27 @@ class EnrolmentControllerSpec
         val enrolments = DB.find(classOf[ExamEnrolment]).list
         enrolments must have size 1
         val existingEnrolment = enrolments.head
-        existingEnrolment.getEnrolledOn must be(enrolledOn)
+        existingEnrolment.enrolledOn must be(enrolledOn)
 
       "recreate enrolment when future reservation exists" in:
         val (user, session)                      = runIO(loginAsStudent())
         val (exam, enrolment, reservation, room) = setupTestData()
 
         // Setup future reservation
-        reservation.setMachine(room.getExamMachines.get(0))
-        reservation.setStartAt(DateTime.now().plusDays(1))
-        reservation.setEndAt(DateTime.now().plusDays(2))
+        reservation.machine = room.examMachines.get(0)
+        reservation.startAt = DateTime.now().plusDays(1)
+        reservation.endAt = DateTime.now().plusDays(2)
         reservation.save()
 
         val enrolledOn = DateTime.now()
-        enrolment.setEnrolledOn(enrolledOn)
-        enrolment.setReservation(reservation)
+        enrolment.enrolledOn = enrolledOn
+        enrolment.reservation = reservation
         enrolment.save()
 
-        val enrollData = Json.obj("code" -> exam.getCourse.getCode)
+        val enrollData = Json.obj("code" -> exam.course.code)
         val result = runIO(makeRequest(
           POST,
-          s"/app/enrolments/${exam.getId}",
+          s"/app/enrolments/${exam.id}",
           Some(enrollData),
           session = session
         ))
@@ -385,28 +384,28 @@ class EnrolmentControllerSpec
         val enrolments = DB.find(classOf[ExamEnrolment]).list
         enrolments must have size 1
         val e = enrolments.head
-        e.getEnrolledOn.isAfter(enrolledOn) must be(true)
-        e.getReservation must be(null)
+        e.enrolledOn.isAfter(enrolledOn) must be(true)
+        e.reservation must be(null)
 
       "reject enrolment when ongoing reservation exists" in:
         val (user, session)                      = runIO(loginAsStudent())
         val (exam, enrolment, reservation, room) = setupTestData()
 
         // Set up ongoing reservation
-        reservation.setMachine(room.getExamMachines.get(0))
-        reservation.setStartAt(DateTime.now().minusDays(1))
-        reservation.setEndAt(DateTime.now().plusDays(1))
+        reservation.machine = room.examMachines.get(0)
+        reservation.startAt = DateTime.now().minusDays(1)
+        reservation.endAt = DateTime.now().plusDays(1)
         reservation.save()
 
         val enrolledOn = DateTime.now()
-        enrolment.setEnrolledOn(enrolledOn)
-        enrolment.setReservation(reservation)
+        enrolment.enrolledOn = enrolledOn
+        enrolment.reservation = reservation
         enrolment.save()
 
-        val enrollData = Json.obj("code" -> exam.getCourse.getCode)
+        val enrollData = Json.obj("code" -> exam.course.code)
         val result = runIO(makeRequest(
           POST,
-          s"/app/enrolments/${exam.getId}",
+          s"/app/enrolments/${exam.id}",
           Some(enrollData),
           session = session
         ))
@@ -417,27 +416,27 @@ class EnrolmentControllerSpec
         val enrolments = DB.find(classOf[ExamEnrolment]).list
         enrolments must have size 1
         val e = enrolments.head
-        e.getEnrolledOn must be(enrolledOn)
+        e.enrolledOn must be(enrolledOn)
 
       "create new enrolment when past reservation exists" in:
         val (user, session)                      = runIO(loginAsStudent())
         val (exam, enrolment, reservation, room) = setupTestData()
 
         // Setup past reservation
-        reservation.setMachine(room.getExamMachines.get(0))
-        reservation.setStartAt(DateTime.now().minusDays(2))
-        reservation.setEndAt(DateTime.now().minusDays(1))
+        reservation.machine = room.examMachines.get(0)
+        reservation.startAt = DateTime.now().minusDays(2)
+        reservation.endAt = DateTime.now().minusDays(1)
         reservation.save()
 
         val enrolledOn = DateTime.now()
-        enrolment.setEnrolledOn(enrolledOn)
-        enrolment.setReservation(reservation)
+        enrolment.enrolledOn = enrolledOn
+        enrolment.reservation = reservation
         enrolment.save()
 
-        val enrollData = Json.obj("code" -> exam.getCourse.getCode)
+        val enrollData = Json.obj("code" -> exam.course.code)
         val result = runIO(makeRequest(
           POST,
-          s"/app/enrolments/${exam.getId}",
+          s"/app/enrolments/${exam.id}",
           Some(enrollData),
           session = session
         ))
@@ -447,5 +446,5 @@ class EnrolmentControllerSpec
         val enrolments = DB.find(classOf[ExamEnrolment]).list
         enrolments must have size 2
         val newEnrolment = enrolments(1)
-        newEnrolment.getEnrolledOn.isAfter(enrolledOn) must be(true)
-        newEnrolment.getReservation must be(null)
+        newEnrolment.enrolledOn.isAfter(enrolledOn) must be(true)
+        newEnrolment.reservation must be(null)

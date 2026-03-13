@@ -32,6 +32,6 @@ class QuestionReviewController @Inject() (
       questionReviewService.findExam(examId) match
         case Some(exam) if exam.isInspectedOrCreatedOrOwnedBy(user) =>
           val results = questionReviewService.listEssays(exam, user, ids)
-          writeAnonymousResult(request, Ok(Json.toJson(results)), exam.isAnonymous)
+          writeAnonymousResult(request, Ok(Json.toJson(results)), exam.anonymous)
         case _ => BadRequest
     }

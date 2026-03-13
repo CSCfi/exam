@@ -76,7 +76,7 @@ class WeeklyReportService @Inject() (
         .list
         .foreach(u =>
           Try(composer.composeWeeklySummary(u)).fold(
-            e => logger.error(s"Failed to send email for ${u.getEmail}", e),
+            e => logger.error(s"Failed to send email for ${u.email}", e),
             _ => ()
           )
         )

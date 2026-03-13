@@ -110,9 +110,9 @@ trait BaseCollaborativeAttachmentSpec[T]
 
   protected def createAttachment(fileName: String, filePath: String, mimeType: String): Attachment =
     val attachment = new Attachment()
-    attachment.setFileName(fileName)
-    attachment.setFilePath(filePath)
-    attachment.setMimeType(mimeType)
+    attachment.fileName = fileName
+    attachment.filePath = filePath
+    attachment.mimeType = mimeType
     attachment.save()
     attachment
 
@@ -120,9 +120,9 @@ trait BaseCollaborativeAttachmentSpec[T]
     getExamSectionQuestion(exam, None)
 
   protected def getExamSectionQuestion(exam: Exam, id: Option[Long]): ExamSectionQuestion =
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .find(sq => id.isEmpty || sq.getId == id.get)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .find(sq => id.isEmpty || sq.id == id.get)
       .getOrElse(throw new Exception("Null section question"))
 
   /** Setup test data including exam, attachments, and external exam. Returns a tuple of (exam,
@@ -136,26 +136,26 @@ trait BaseCollaborativeAttachmentSpec[T]
       case Some(e) => e
       case None    => fail("Test exam not found")
 
-    exam.setExecutionType(Option(DB.find(classOf[ExamExecutionType], 1L)).orNull)
-    exam.setExternal(true)
+    exam.executionType = Option(DB.find(classOf[ExamExecutionType], 1L)).orNull
+    exam.external = true
 
     val examAttachment = createAttachment("test_image.png", testImage.getAbsolutePath, "image/png")
-    examAttachment.setExternalId("ab123fcdgkk")
-    exam.setAttachment(examAttachment)
+    examAttachment.externalId = "ab123fcdgkk"
+    exam.attachment = examAttachment
     exam.save()
 
     val examSectionQuestion = getExamSectionQuestion(exam)
 
     val answer = new EssayAnswer()
-    answer.setAnswer("Answer content")
+    answer.answer = "Answer content"
     answer.save()
-    examSectionQuestion.setEssayAnswer(answer)
+    examSectionQuestion.essayAnswer = answer
 
-    val question = examSectionQuestion.getQuestion
+    val question = examSectionQuestion.question
     val questionAttachment =
       createAttachment("test_image.png", testImage.getAbsolutePath, "image/png")
-    questionAttachment.setExternalId("9284774jdfjdfk")
-    question.setAttachment(questionAttachment)
+    questionAttachment.externalId = "9284774jdfjdfk"
+    question.attachment = questionAttachment
     question.save()
 
     val externalExam = createExamInstance()

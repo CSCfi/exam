@@ -8,10 +8,9 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.{DB, Transaction}
 import models.enrolment.{ExamEnrolment, ExaminationEventConfiguration}
-import models.exam.{Exam, ExamExecutionType}
+import models.exam.*
 import models.facility.ExamRoom
 import models.user.{Role, User}
-import org.joda.time.DateTime
 import play.api.Logging
 import repository.EnrolmentRepository
 import security.BlockingIOExecutionContext
@@ -54,7 +53,7 @@ class EnrolmentService @Inject() (
       .where()
       .eq("course.code", code)
       .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
-      .eq("state", Exam.State.PUBLISHED)
+      .eq("state", ExamState.PUBLISHED)
       .ge("periodEnd", new Date())
       .list
 
@@ -85,7 +84,7 @@ class EnrolmentService @Inject() (
       .fetch("examinationEventConfigurations")
       .fetch("examinationEventConfigurations.examinationEvent")
       .where()
-      .eq("state", Exam.State.PUBLISHED)
+      .eq("state", ExamState.PUBLISHED)
       .eq("course.code", code)
       .idEq(examId)
       .find
@@ -103,8 +102,8 @@ class EnrolmentService @Inject() (
             .eq("exam.id", examId)
             .gt("exam.periodEnd", now.toDate)
             .disjunction()
-            .eq("exam.state", Exam.State.PUBLISHED)
-            .eq("exam.state", Exam.State.STUDENT_STARTED)
+            .eq("exam.state", ExamState.PUBLISHED)
+            .eq("exam.state", ExamState.STUDENT_STARTED)
             .endJunction()
             .list
             .filter(isActive)
@@ -114,14 +113,14 @@ class EnrolmentService @Inject() (
 
   private def isActive(enrolment: ExamEnrolment): Boolean =
     val now  = dateTimeHandler.adjustDST(clock.now())
-    val exam = enrolment.getExam
-    if Option(exam).isEmpty || exam.getImplementation == Exam.Implementation.AQUARIUM then
-      val reservation = enrolment.getReservation
-      Option(reservation).forall(_.getEndAt.isAfter(now))
+    val exam = enrolment.exam
+    if Option(exam).isEmpty || exam.implementation == ExamImplementation.AQUARIUM then
+      val reservation = enrolment.reservation
+      Option(reservation).forall(_.endAt.isAfter(now))
     else
-      val config = enrolment.getExaminationEventConfiguration
+      val config = enrolment.examinationEventConfiguration
       Option(config).forall { c =>
-        c.getExaminationEvent.getStart.plusMinutes(exam.getDuration).isAfter(now)
+        c.examinationEvent.start.plusMinutes(exam.duration).isAfter(now)
       }
 
   def removeEnrolment(enrolmentId: Long, user: User): Either[EnrolmentError, Unit] =
@@ -137,9 +136,9 @@ class EnrolmentService @Inject() (
       case None            => Left(EnrolmentError.EnrolmentNotFound)
       case Some(enrolment) =>
         // Disallow removing enrolments to private exams created automatically for a student
-        if Option(enrolment.getExam).exists(_.isPrivate) then Left(EnrolmentError.PrivateExam)
-        else if Option(enrolment.getReservation).isDefined || Option(
-            enrolment.getExaminationEventConfiguration
+        if Option(enrolment.exam).exists(_.isPrivate) then Left(EnrolmentError.PrivateExam)
+        else if Option(enrolment.reservation).isDefined || Option(
+            enrolment.examinationEventConfiguration
           ).isDefined
         then Left(EnrolmentError.CancelReservationFirst)
         else
@@ -154,16 +153,16 @@ class EnrolmentService @Inject() (
     DB.find(classOf[ExamEnrolment]).where().idEq(enrolmentId).eq("user", user).find match
       case None => Left(EnrolmentError.EnrolmentNotFound)
       case Some(enrolment) =>
-        enrolment.setInformation(information.orNull)
+        enrolment.information = information.orNull
         enrolment.update()
         Right(())
 
   private def makeEnrolment(exam: Exam, user: User): ExamEnrolment =
     val enrolment = new ExamEnrolment()
-    enrolment.setEnrolledOn(clock.now())
-    if Option(user.getId).isEmpty then enrolment.setPreEnrolledUserEmail(user.getEmail)
-    else enrolment.setUser(user)
-    enrolment.setExam(exam)
+    enrolment.enrolledOn = clock.now()
+    if user.id == 0 then enrolment.preEnrolledUserEmail = user.email
+    else enrolment.user = user
+    enrolment.exam = exam
     enrolment.setRandomDelay()
     enrolment.save()
     enrolment
@@ -173,7 +172,7 @@ class EnrolmentService @Inject() (
       .where()
       .eq("id", eid)
       .disjunction()
-      .eq("state", Exam.State.PUBLISHED)
+      .eq("state", ExamState.PUBLISHED)
       .ne("executionType.type", ExamExecutionType.Type.PUBLIC.toString)
       .endJunction()
       .eq("executionType.type", execType.toString)
@@ -218,7 +217,7 @@ class EnrolmentService @Inject() (
   ): Future[Either[EnrolmentError, ExamEnrolment]] =
     withTransaction { tx =>
       // Take pessimistic lock for user to prevent multiple enrolments creating
-      DB.find(classOf[User]).forUpdate().where().eq("id", user.getId).findOne()
+      DB.find(classOf[User]).forUpdate().where().eq("id", user.id).findOne()
 
       getExam(eid, execType) match
         case None =>
@@ -233,19 +232,19 @@ class EnrolmentService @Inject() (
             .fetch("examinationEventConfiguration.examinationEvent")
             .where()
             .or()
-            .eq("exam.id", exam.getId)
-            .eq("exam.parent.id", exam.getId)
+            .eq("exam.id", exam.id)
+            .eq("exam.parent.id", exam.id)
             .endOr()
             .list
             .filter { ee =>
-              Option(ee.getUser).contains(user) ||
-              Option(ee.getPreEnrolledUserEmail).contains(user.getEmail)
+              Option(ee.user).contains(user) ||
+              Option(ee.preEnrolledUserEmail).contains(user.email)
             }
 
           // Already enrolled (regular examination)
           if enrolments.exists(e =>
-              e.getExam.getImplementation == Exam.Implementation.AQUARIUM && Option(
-                e.getReservation
+              e.exam.implementation == ExamImplementation.AQUARIUM && Option(
+                e.reservation
               ).isEmpty
             )
           then
@@ -253,8 +252,8 @@ class EnrolmentService @Inject() (
             Future.successful(Left(EnrolmentError.EnrolmentExists))
           // Already enrolled (BYOD examination)
           else if enrolments.exists(e =>
-              e.getExam.getImplementation != Exam.Implementation.AQUARIUM && Option(
-                e.getExaminationEventConfiguration
+              e.exam.implementation != ExamImplementation.AQUARIUM && Option(
+                e.examinationEventConfiguration
               ).isEmpty
             )
           then
@@ -262,16 +261,16 @@ class EnrolmentService @Inject() (
             Future.successful(Left(EnrolmentError.EnrolmentExists))
           // Reservation in effect
           else if enrolments
-              .flatMap(e => Option(e.getReservation))
+              .flatMap(e => Option(e.reservation))
               .exists(r => r.toInterval.contains(dateTimeHandler.adjustDST(clock.now(), r)))
           then
             tx.rollback()
             Future.successful(Left(EnrolmentError.ReservationInEffect))
           // Examination event in effect
           else if enrolments.exists { e =>
-              Option(e.getExaminationEventConfiguration).exists { config =>
-                config.getExaminationEvent
-                  .toInterval(e.getExam)
+              Option(e.examinationEventConfiguration).exists { config =>
+                config.examinationEvent
+                  .toInterval(e.exam)
                   .contains(dateTimeHandler.adjustDST(clock.now()))
               }
             }
@@ -281,21 +280,21 @@ class EnrolmentService @Inject() (
           else
             // Enrolments with future reservations
             val futureReservations = enrolments.filter { ee =>
-              Option(ee.getReservation).exists(
+              Option(ee.reservation).exists(
                 _.toInterval.isAfter(dateTimeHandler.adjustDST(clock.now()))
               )
             }
 
             if futureReservations.size > 1 then
               logger.error(
-                s"Several enrolments with future reservations found for user $user and exam ${exam.getId}"
+                s"Several enrolments with future reservations found for user $user and exam ${exam.id}"
               )
               tx.rollback()
               Future.successful(Left(EnrolmentError.MultipleFutureReservations))
             // Reservation in the future, replace it
             else if futureReservations.nonEmpty then
               val enrolment   = futureReservations.head
-              val reservation = enrolment.getReservation
+              val reservation = enrolment.reservation
               tx.commit()
               externalReservationHandler
                 .removeReservation(reservation, user, "")
@@ -307,14 +306,14 @@ class EnrolmentService @Inject() (
             else
               // Enrolments with future examination events
               val futureEvents = enrolments.filter { e =>
-                Option(e.getExaminationEventConfiguration).exists { config =>
-                  config.getExaminationEvent.toInterval(e.getExam).isAfterNow
+                Option(e.examinationEventConfiguration).exists { config =>
+                  config.examinationEvent.toInterval(e.exam).isAfterNow
                 }
               }
 
               if futureEvents.size > 1 then
                 logger.error(
-                  s"Several enrolments with future examination events found for user $user and exam ${exam.getId}"
+                  s"Several enrolments with future examination events found for user $user and exam ${exam.id}"
                 )
                 tx.rollback()
                 Future.successful(Left(EnrolmentError.MultipleFutureEvents))
@@ -328,12 +327,12 @@ class EnrolmentService @Inject() (
               // Check for pending external assessment
               else if enrolments.size == 1 then
                 val enrolment   = enrolments.head
-                val reservation = enrolment.getReservation
+                val reservation = enrolment.reservation
                 if Option(reservation).exists { r =>
-                    Option(r.getExternalRef).isDefined &&
-                    !r.getStartAt.isAfter(dateTimeHandler.adjustDST(clock.now())) &&
-                    !enrolment.isNoShow &&
-                    enrolment.getExam.getState == Exam.State.PUBLISHED
+                    Option(r.externalRef).isDefined &&
+                    !r.startAt.isAfter(dateTimeHandler.adjustDST(clock.now())) &&
+                    !enrolment.noShow &&
+                    enrolment.exam.state == ExamState.PUBLISHED
                   }
                 then
                   tx.rollback()
@@ -361,7 +360,7 @@ class EnrolmentService @Inject() (
     Option(DB.find(classOf[Exam], examId)) match
       case None => Future.successful(Left(EnrolmentError.ExamNotFound))
       case Some(exam) =>
-        val executionType = ExamExecutionType.Type.valueOf(exam.getExecutionType.getType)
+        val executionType = ExamExecutionType.Type.valueOf(exam.executionType.`type`)
         val userOpt = userId
           .flatMap(id => Option(DB.find(classOf[User], id)))
           .orElse {
@@ -386,7 +385,7 @@ class EnrolmentService @Inject() (
 
                 if enrolments.isEmpty then
                   val user = new User()
-                  user.setEmail(e)
+                  user.email = e
                   Some(user)
                 else None // Already pre-enrolled
               else if users.size == 1 then Some(users.head)
@@ -399,10 +398,10 @@ class EnrolmentService @Inject() (
           case Some(user) =>
             doCreateEnrolment(examId, executionType, user).map {
               case Right(enrolment) =>
-                if exam.getState == Exam.State.PUBLISHED then
+                if exam.state == ExamState.PUBLISHED then
                   emailComposer.scheduleEmail(1.second) {
                     emailComposer.composePrivateExamParticipantNotification(user, sender, exam)
-                    logger.info(s"Exam participation notification email sent to ${user.getEmail}")
+                    logger.info(s"Exam participation notification email sent to ${user.email}")
                   }
                 Right(enrolment)
               case Left(error) => Left(error)
@@ -415,13 +414,13 @@ class EnrolmentService @Inject() (
       .ne("exam.executionType.type", ExamExecutionType.Type.PUBLIC.toString)
       .isNull("reservation")
       .disjunction()
-      .eq("exam.state", Exam.State.DRAFT)
-      .eq("exam.state", Exam.State.SAVED)
+      .eq("exam.state", ExamState.DRAFT)
+      .eq("exam.state", ExamState.SAVED)
       .endJunction()
       .find match
       case None => Left(EnrolmentError.NotPossibleToRemoveParticipant)
       case Some(enrolment) =>
-        if !user.hasRole(Role.Name.ADMIN) && !enrolment.getExam.isOwnedOrCreatedBy(user) then
+        if !user.hasRole(Role.Name.ADMIN) && !enrolment.exam.isOwnedOrCreatedBy(user) then
           Left(EnrolmentError.NotPossibleToRemoveParticipant)
         else
           enrolment.delete()
@@ -440,7 +439,7 @@ class EnrolmentService @Inject() (
       .where()
       .idEq(enrolmentId)
       .eq("user", user)
-      .eq("exam.state", Exam.State.PUBLISHED)
+      .eq("exam.state", ExamState.PUBLISHED)
       .find
 
     enrolmentOpt match
@@ -452,21 +451,21 @@ class EnrolmentService @Inject() (
           .where()
           .idEq(configId)
           .gt("examinationEvent.start", clock.now())
-          .eq("exam", enrolment.getExam)
+          .eq("exam", enrolment.exam)
           .find
 
         configOpt match
           case None => Left(EnrolmentError.ConfigNotFound)
           case Some(config) =>
-            val event = config.getExaminationEvent
-            if config.getExamEnrolments.size() + 1 > event.getCapacity then
+            val event = config.examinationEvent
+            if config.examEnrolments.size() + 1 > event.capacity then
               Left(EnrolmentError.MaxEnrolmentsReached)
             else
-              enrolment.setExaminationEventConfiguration(config)
+              enrolment.examinationEventConfiguration = config
               enrolment.update()
               emailComposer.scheduleEmail(1.second) {
                 emailComposer.composeExaminationEventNotification(user, enrolment, false)
-                logger.info(s"Examination event notification email sent to ${user.getEmail}")
+                logger.info(s"Examination event notification email sent to ${user.email}")
               }
               Right(())
 
@@ -475,21 +474,21 @@ class EnrolmentService @Inject() (
       .where()
       .idEq(enrolmentId)
       .eq("user", user)
-      .eq("exam.state", Exam.State.PUBLISHED)
+      .eq("exam.state", ExamState.PUBLISHED)
       .isNotNull("examinationEventConfiguration")
       .find match
       case None => Left(EnrolmentError.EnrolmentNotFound)
       case Some(enrolment) =>
-        val event = enrolment.getExaminationEventConfiguration.getExaminationEvent
-        enrolment.setExaminationEventConfiguration(null)
+        val event = enrolment.examinationEventConfiguration.examinationEvent
+        enrolment.examinationEventConfiguration = null
         enrolment.update()
         emailComposer.scheduleEmail(1.second) {
           emailComposer.composeExaminationEventCancellationNotification(
             user,
-            enrolment.getExam,
+            enrolment.exam,
             event
           )
-          logger.info(s"Examination event cancellation notification email sent to ${user.getEmail}")
+          logger.info(s"Examination event cancellation notification email sent to ${user.email}")
         }
         Right(())
 
@@ -497,26 +496,26 @@ class EnrolmentService @Inject() (
     Option(DB.find(classOf[ExaminationEventConfiguration], configId)) match
       case None => Left(EnrolmentError.ConfigNotFound)
       case Some(config) =>
-        if config.getExaminationEvent.getStart.isBeforeNow then Left(EnrolmentError.EventInPast)
+        if config.examinationEvent.start.isBeforeNow then Left(EnrolmentError.EventInPast)
         else
-          val event = config.getExaminationEvent
-          val exam  = config.getExam
+          val event = config.examinationEvent
+          val exam  = config.exam
           val enrolments = DB
             .find(classOf[ExamEnrolment])
             .fetch("user")
             .where()
             .eq("examinationEventConfiguration.id", configId)
-            .eq("exam.state", Exam.State.PUBLISHED)
+            .eq("exam.state", ExamState.PUBLISHED)
             .distinct
 
           enrolments.foreach { e =>
-            e.setExaminationEventConfiguration(null)
+            e.examinationEventConfiguration = null
             e.update()
           }
           config.delete()
           event.delete()
 
-          val users = enrolments.flatMap(e => Option(e.getUser))
+          val users = enrolments.flatMap(e => Option(e.user))
           emailComposer.scheduleEmail(1.second) {
             emailComposer.composeExaminationEventCancellationNotification(
               users.asJava.asScala.toSet,
@@ -533,6 +532,6 @@ class EnrolmentService @Inject() (
     Option(DB.find(classOf[ExamEnrolment], enrolmentId)) match
       case None => Left(EnrolmentError.EnrolmentNotFound)
       case Some(enrolment) =>
-        enrolment.setRetrialPermitted(true)
+        enrolment.retrialPermitted = true
         enrolment.update()
         Right(())
