@@ -8,6 +8,7 @@ import database.EbeanQueryExtensions
 import io.ebean.Model
 import io.ebean.text.PathProperties
 import models.exam.Exam
+import models.exam.ExamState
 import models.sections.ExamSection
 import models.user.User
 import play.api.Logging
@@ -37,11 +38,11 @@ class CollaborativeExamSectionService @Inject() (
   private def isAuthorizedToView(exam: Exam, user: User, homeOrg: String): Boolean =
     val hasAccess =
       user.isAdminOrSupport ||
-        (exam.getExamOwners.asScala.exists { u =>
-          u.getEmail.equalsIgnoreCase(user.getEmail) ||
-          u.getEmail.equalsIgnoreCase(user.getEppn)
-        } && exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED))
-    Option(exam.getOrganisations) match
+        (exam.examOwners.asScala.exists { u =>
+          u.email.equalsIgnoreCase(user.email) ||
+          u.email.equalsIgnoreCase(user.eppn)
+        } && exam.hasState(ExamState.PRE_PUBLISHED, ExamState.PUBLISHED))
+    Option(exam.organisations) match
       case None => hasAccess
       case Some(orgs) =>
         val organisations = orgs.split(";")
@@ -49,21 +50,21 @@ class CollaborativeExamSectionService @Inject() (
 
   private def createDraft(exam: Exam, user: User): ExamSection =
     val section = new ExamSection()
-    section.setLotteryItemCount(1)
-    section.setSectionQuestions(Set.empty[models.sections.ExamSectionQuestion].asJava)
-    section.setSequenceNumber(exam.getExamSections.size())
-    section.setExpanded(true)
-    section.setId(newId())
+    section.lotteryItemCount = 1
+    section.sectionQuestions = Set.empty[models.sections.ExamSectionQuestion].asJava
+    section.sequenceNumber = exam.examSections.size()
+    section.expanded = true
+    section.id = newId()
     cleanUser(user)
     section.setCreatorWithDate(user)
     section
 
   private def cleanUser(user: User): Unit =
-    user.setId(null)
-    user.setEmail(null)
-    user.setEppn(null)
-    user.setFirstName(null)
-    user.setLastName(null)
+    user.id = null
+    user.email = null
+    user.eppn = null
+    user.firstName = null
+    user.lastName = null
 
   private def newId(): Long = scala.util.Random.nextLong(9223372036854775807L)
 
@@ -114,7 +115,7 @@ class CollaborativeExamSectionService @Inject() (
       case Right((ce, exam)) =>
         val user    = io.ebean.DB.find(classOf[User], userId)
         val section = createDraft(exam, user)
-        exam.getExamSections.add(section)
+        exam.examSections.add(section)
         examLoader.uploadExam(ce, exam, user, section, null).map { result =>
           if result.header.status == play.api.mvc.Results.Ok.header.status then
             Right(section)

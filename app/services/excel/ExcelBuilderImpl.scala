@@ -4,11 +4,14 @@
 
 package services.excel
 
+import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.assessment
 import models.assessment.{ExamRecord, ExamScore}
 import models.exam.Exam
-import models.questions.Question
+import models.exam.ExamState
+import models.questions.QuestionEvaluationType
+import models.questions.QuestionType
 import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.User
 import org.apache.poi.common.usermodel.HyperlinkType
@@ -23,7 +26,8 @@ import scala.jdk.CollectionConverters.*
 
 import ExcelBuilder.CellType
 
-class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuilder:
+class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuilder
+    with EbeanQueryExtensions:
 
   private val ScoreReportDefaultHeaders = Array(
     "studentInternalId",
@@ -47,9 +51,7 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       .where()
       .eq("exam.parent.id", examId)
       .in("exam.id", childIds)
-      .findList()
-      .asScala
-      .toList
+      .list
 
   private def buildExamRecordsSheet(wb: Workbook, examRecords: List[ExamRecord]): Unit =
     val sheet     = wb.createSheet("Exam records")
@@ -57,14 +59,14 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     val headerRow = sheet.createRow(0)
     headers.indices.foreach(i => headerRow.createCell(i).setCellValue(headers(i)))
     examRecords.zipWithIndex.foreach { case (record, index) =>
-      val data = record.getExamScore.asCells(record.getStudent, record.getTeacher, record.getExam)
+      val data    = record.examScore.asCells(record.student, record.teacher, record.exam)
       val dataRow = sheet.createRow(index + 1)
-      data.asScala.zipWithIndex.foreach { case (entry, cellIndex) =>
+      data.zipWithIndex.foreach { case ((value, scoreType), cellIndex) =>
         val cell = dataRow.createCell(cellIndex)
-        val cellType = entry.getValue match
+        val cellType = scoreType match
           case assessment.ExamScore.CellType.DECIMAL => CellType.DECIMAL
           case assessment.ExamScore.CellType.STRING  => CellType.STRING
-        setValue(cell, entry.getKey, cellType)
+        setValue(cell, value, cellType)
       }
     }
     headers.indices.foreach(i => sheet.autoSizeColumn(i, true))
@@ -82,8 +84,8 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       student: User,
       messages: MessagesApi
   ): Unit =
-    val lang = Option(student.getLanguage)
-      .flatMap(l => Option(l.getCode))
+    val lang = Option(student.language)
+      .flatMap(l => Option(l.code))
       .map(Lang.forCode)
       .getOrElse(Lang.forCode("en"))
 
@@ -97,19 +99,19 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       appendCell(valueRow, value)
     }
 
-    exam.getExamSections.asScala.toList.sorted.foreach { es =>
-      es.getSectionQuestions.asScala.toList.sorted.zipWithIndex.foreach {
+    exam.examSections.asScala.toList.sorted.foreach { es =>
+      es.sectionQuestions.asScala.toList.sorted.zipWithIndex.foreach {
         case (esq, questionIndex) =>
           val questionNumber = questionIndex + 1
-          val questionType = esq.getQuestion.getType match
-            case Question.Type.EssayQuestion => messages.get(lang, "reports.question.type.essay")
-            case Question.Type.ClozeTestQuestion =>
+          val questionType = esq.question.`type` match
+            case QuestionType.EssayQuestion => messages.get(lang, "reports.question.type.essay")
+            case QuestionType.ClozeTestQuestion =>
               messages.get(lang, "reports.question.type.cloze")
-            case Question.Type.MultipleChoiceQuestion =>
+            case QuestionType.MultipleChoiceQuestion =>
               messages.get(lang, "reports.question.type.multiplechoice")
-            case Question.Type.WeightedMultipleChoiceQuestion =>
+            case QuestionType.WeightedMultipleChoiceQuestion =>
               messages.get(lang, "reports.question.type.weightedmultiplechoide")
-            case Question.Type.ClaimChoiceQuestion =>
+            case QuestionType.ClaimChoiceQuestion =>
               messages.get(lang, "reports.question.type.claim")
 
           appendCell(
@@ -122,7 +124,7 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
           setValue(valueCell, scoreValue, scoreType)
       }
 
-      appendCell(headerRow, messages.get(lang, "reports.scores.sectionScore", es.getName))
+      appendCell(headerRow, messages.get(lang, "reports.scores.sectionScore", es.name))
       appendCell(valueRow, es.getTotalScore)
     }
 
@@ -168,11 +170,11 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     val deletedQuestionIds = getDeletedQuestionIds(parentExam, childExams)
 
     val questionIdsBySectionName = collection.mutable.LinkedHashMap[String, Set[Long]]()
-    parentExam.getExamSections.asScala.foreach { es =>
-      questionIdsBySectionName(es.getName) = extractQuestionIdsFromSection(es)
+    parentExam.examSections.asScala.foreach { es =>
+      questionIdsBySectionName(es.name) = extractQuestionIdsFromSection(es)
     }
-    childExams.flatMap(_.getExamSections.asScala).foreach { es =>
-      val sectionName      = es.getName
+    childExams.flatMap(_.examSections.asScala).foreach { es =>
+      val sectionName      = es.name
       val childQuestionIds = extractQuestionIdsFromSection(es)
       questionIdsBySectionName.updateWith(sectionName) {
         case Some(existing) => Some(existing ++ childQuestionIds)
@@ -212,19 +214,19 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     val totalScoreIndex = appendCell(headerRow, "Kokonaispisteet")
 
     childExams.foreach { exam =>
-      Option(exam.getExamParticipation).flatMap(p => Option(p.getUser)).foreach { student =>
-        val examScore = Option(exam.getExamRecord).map(_.getExamScore)
-        val isGraded = exam.getState match
-          case Exam.State.GRADED | Exam.State.GRADED_LOGGED | Exam.State.ARCHIVED => true
-          case _                                                                  => false
+      Option(exam.examParticipation).flatMap(p => Option(p.user)).foreach { student =>
+        val examScore = Option(exam.examRecord).map(_.examScore)
+        val isGraded = exam.state match
+          case ExamState.GRADED | ExamState.GRADED_LOGGED | ExamState.ARCHIVED => true
+          case _                                                               => false
 
         val defaultCells = getScoreReportDefaultCells(student, exam, examScore)
         val currentRow   = sheet.createRow(sheet.getLastRowNum + 1)
         appendCellsToRow(currentRow, defaultCells)
 
-        exam.getExamSections.asScala.foreach { es =>
-          val sectionName = es.getName
-          es.getSectionQuestions.asScala.foreach { esq =>
+        exam.examSections.asScala.foreach { es =>
+          val sectionName = es.name
+          es.sectionQuestions.asScala.foreach { esq =>
             val questionId          = getQuestionId(esq)
             val questionColumnIndex = questionColumnIndexesBySectionName(sectionName)(questionId)
             if isGraded then
@@ -256,10 +258,10 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
 
   private def getStudentReportHeaderMap(student: User): Map[String, String] =
     Map(
-      "reports.studentFirstName" -> student.getFirstName,
-      "reports.studentLastName"  -> student.getLastName,
-      "reports.studentEmail"     -> student.getEmail,
-      "reports.studentId"        -> student.getUserIdentifier
+      "reports.studentFirstName" -> student.firstName,
+      "reports.studentLastName"  -> student.lastName,
+      "reports.studentEmail"     -> student.email,
+      "reports.studentId"        -> student.userIdentifier
     )
 
   private def getScoreReportDefaultCells(
@@ -268,14 +270,14 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       examScore: Option[ExamScore]
   ): List[(String, CellType)] =
     List(
-      (student.getId.toString, CellType.STRING),
-      (student.getEppn, CellType.STRING),
-      (student.getFirstName, CellType.STRING),
-      (student.getLastName, CellType.STRING),
-      (student.getEmail, CellType.STRING),
-      (student.getIdentifier, CellType.STRING),
-      (exam.getState.name(), CellType.STRING),
-      (examScore.map(_.getId.toString).getOrElse(""), CellType.STRING)
+      (student.id.toString, CellType.STRING),
+      (student.eppn, CellType.STRING),
+      (student.firstName, CellType.STRING),
+      (student.lastName, CellType.STRING),
+      (student.email, CellType.STRING),
+      (student.identifier, CellType.STRING),
+      (exam.state.name(), CellType.STRING),
+      (examScore.map(_.id.toString).getOrElse(""), CellType.STRING)
     )
 
   private def setValue(cell: Cell, value: String, cellType: CellType): Unit =
@@ -295,7 +297,7 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     cell.setCellValue(value)
 
   private def getScoreTuple(esq: ExamSectionQuestion): (String, CellType) =
-    if esq.getEvaluationType == Question.EvaluationType.Selection then
+    if esq.evaluationType == QuestionEvaluationType.Selection then
       if esq.isApproved && !esq.isRejected then ("APPROVED", CellType.STRING)
       else ("REJECTED", CellType.STRING)
     else (esq.getAssessedScore.toString, CellType.DECIMAL)
@@ -308,30 +310,30 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     }
 
   private def extractQuestionIdsFromSection(es: ExamSection): Set[Long] =
-    es.getSectionQuestions.asScala.map(getQuestionId).toSet
+    es.sectionQuestions.asScala.map(getQuestionId).toSet
 
   private def getDeletedQuestionIds(parent: Exam, childExams: List[Exam]): Set[Long] =
-    val parentQuestionIds = parent.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .filter(esq => Option(esq.getQuestion).flatMap(q => Option(q.getId)).isDefined)
-      .map(_.getQuestion.getId.longValue())
+    val parentQuestionIds = parent.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .filter(esq => Option(esq.question).flatMap(q => Option(q.id)).isDefined)
+      .map(_.question.id.longValue())
       .toSet
 
     childExams
-      .flatMap(_.getExamSections.asScala)
-      .flatMap(_.getSectionQuestions.asScala)
+      .flatMap(_.examSections.asScala)
+      .flatMap(_.sectionQuestions.asScala)
       .filter(esq => isQuestionRemoved(esq, parentQuestionIds))
       .map(getQuestionId)
       .toSet
 
   private def getQuestionId(question: ExamSectionQuestion): Long =
-    Option(question.getQuestion)
-      .flatMap(q => Option(q.getParent).map(_.getId.longValue()).orElse(Some(q.getId.longValue())))
-      .getOrElse(question.getId.longValue())
+    Option(question.question)
+      .flatMap(q => Option(q.parent).map(_.id.longValue()).orElse(Some(q.id.longValue())))
+      .getOrElse(question.id.longValue())
 
   private def isQuestionRemoved(question: ExamSectionQuestion, parentIds: Set[Long]): Boolean =
-    Option(question.getQuestion)
-      .flatMap(q => Option(q.getParent).map(p => !parentIds.contains(p.getId.longValue())))
+    Option(question.question)
+      .flatMap(q => Option(q.parent).map(p => !parentIds.contains(p.id.longValue())))
       .getOrElse(true)
 
   private def autosizeColumns(header: Row, sheet: Sheet): Unit =

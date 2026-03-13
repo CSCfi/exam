@@ -83,9 +83,9 @@ class DataTransferControllerSpec
 
   private def createAttachment(fileName: String, filePath: String, mimeType: String): Attachment =
     val attachment = new Attachment()
-    attachment.setFileName(fileName)
-    attachment.setFilePath(filePath)
-    attachment.setMimeType(mimeType)
+    attachment.fileName = fileName
+    attachment.filePath = filePath
+    attachment.mimeType = mimeType
     attachment.save()
     attachment
 
@@ -102,7 +102,7 @@ class DataTransferControllerSpec
           .endOr()
           .list
 
-        val questionIds = questions.map(_.getId.longValue).toSet
+        val questionIds = questions.map(_.id.longValue).toSet
         val idsArray    = JsArray(questionIds.map(Json.toJson(_: Long)).toSeq)
 
         val body = Json.obj(
@@ -128,10 +128,10 @@ class DataTransferControllerSpec
         val q = questions.headOption.getOrElse(fail("No questions found for user"))
 
         val attachment = createAttachment("test_image.png", testImage.getAbsolutePath, "image/png")
-        q.setAttachment(attachment)
+        q.attachment = attachment
         q.save()
 
-        val questionIds = Set(q.getId.longValue)
+        val questionIds = Set(q.id.longValue)
         val idsArray    = JsArray(questionIds.map(Json.toJson(_: Long)).toSeq)
 
         val body = Json.obj(
@@ -171,7 +171,7 @@ class DataTransferControllerSpec
         val existing = new Tag()
         existing.setCreatorWithDate(user)
         existing.setModifierWithDate(user)
-        existing.setName("koira")
+        existing.name = "koira"
         existing.save()
 
         val mapper = new ObjectMapper()
@@ -190,7 +190,7 @@ class DataTransferControllerSpec
             case Some(q) => q
             case None    => fail("Imported question not found")
 
-        importedQuestion.getTags.size must be(2)
+        importedQuestion.tags.size must be(2)
 
       "import question with attachment (does not work like this anymore)" ignore:
         val mapper = new ObjectMapper()
@@ -209,4 +209,4 @@ class DataTransferControllerSpec
             case Some(q) => q
             case None    => fail("Imported question not found")
 
-        importedQuestion.getAttachment must not be null
+        importedQuestion.attachment must not be null

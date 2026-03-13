@@ -94,7 +94,7 @@ class SessionService @Inject() (
 
           userResult match
             case Right(u) =>
-              u.setLastLogin(new Date())
+              u.lastLogin = new Date()
               u.save()
               associateWithPreEnrolments(u)
               handleExternalReservationAndCreateSession(
@@ -136,9 +136,9 @@ class SessionService @Inject() (
               .eq("password", pwd)
               .find match
               case Some(u) =>
-                u.setLastLogin(new Date())
+                u.lastLogin = new Date()
                 u.update()
-                val externalReservation = getUpcomingExternalReservation(u.getEppn, remoteAddress)
+                val externalReservation = getUpcomingExternalReservation(u.eppn, remoteAddress)
                 handleExternalReservationAndCreateSession(
                   u,
                   externalReservation,
@@ -167,7 +167,7 @@ class SessionService @Inject() (
     case None => createSession(user, isTemporaryVisitor = false, headers, remoteAddress)
 
   private def isUserPreEnrolled(mail: String, user: User): Boolean =
-    mail.equalsIgnoreCase(user.getEmail) || mail.equalsIgnoreCase(user.getEppn)
+    mail.equalsIgnoreCase(user.email) || mail.equalsIgnoreCase(user.eppn)
 
   private def associateWithPreEnrolments(user: User): Unit =
     DB.find(classOf[ExamEnrolment])
@@ -175,10 +175,10 @@ class SessionService @Inject() (
       .isNotNull("preEnrolledUserEmail")
       .distinct
       .toList
-      .filter(ee => isUserPreEnrolled(ee.getPreEnrolledUserEmail, user))
+      .filter(ee => isUserPreEnrolled(ee.preEnrolledUserEmail, user))
       .foreach { ee =>
-        ee.setPreEnrolledUserEmail(null)
-        ee.setUser(user)
+        ee.preEnrolledUserEmail = null
+        ee.user = user
         ee.update()
       }
 
@@ -207,7 +207,7 @@ class SessionService @Inject() (
         // already imported
         Future.successful(())
       case None =>
-        reservation.setUser(user)
+        reservation.user = user
         reservation.update()
         externalExamHandler.requestEnrolment(user, reservation).flatMap {
           case Some(_) => Future.successful(())
@@ -286,16 +286,15 @@ class SessionService @Inject() (
       user: User,
       headers: Map[String, Seq[String]]
   ): Either[SessionError, Unit] =
-    user.setOrganisation(
+    user.organisation =
       parse(headers.get("homeOrganisation").flatMap(_.headOption))
         .flatMap(findOrganisation)
         .orNull
-    )
-    user.setUserIdentifier(
+
+    user.userIdentifier =
       parse(headers.get("schacPersonalUniqueCode").flatMap(_.headOption))
         .map(parseUserIdentifier)
         .orNull
-    )
 
     // Grant BYOD permission automatically for teachers if configuration so mandates
     if user.hasRole(
@@ -305,9 +304,9 @@ class SessionService @Inject() (
       val permission = DB
         .find(classOf[Permission])
         .where()
-        .eq("type", Permission.Type.CAN_CREATE_BYOD_EXAM)
+        .eq("type", PermissionType.CAN_CREATE_BYOD_EXAM)
         .findOne()
-      user.getPermissions.add(permission)
+      user.permissions.add(permission)
 
     val email = parse(headers.get("mail").flatMap(_.headOption))
       .flatMap(validateEmail)
@@ -320,11 +319,11 @@ class SessionService @Inject() (
 
     (email, lastName, firstName) match
       case (Right(e), Right(ln), Right(fn)) =>
-        user.setEmail(e)
-        user.setLastName(ln)
-        user.setFirstName(fn)
-        user.setEmployeeNumber(parse(headers.get("employeeNumber").flatMap(_.headOption)).orNull)
-        user.setLogoutUrl(parse(headers.get("logouturl").flatMap(_.headOption)).orNull)
+        user.email = e
+        user.lastName = ln
+        user.firstName = fn
+        user.employeeNumber = parse(headers.get("employeeNumber").flatMap(_.headOption)).orNull
+        user.logoutUrl = parse(headers.get("logouturl").flatMap(_.headOption)).orNull
         Right(())
       case (Left(e), _, _) => Left(e)
       case (_, Left(e), _) => Left(e)
@@ -343,12 +342,12 @@ class SessionService @Inject() (
     rolesResult.flatMap { roles =>
       val userRoles =
         if configReader.isLocalUser(eppn) then roles
-        else roles.filter(_.getName == Role.Name.STUDENT.toString)
-      user.getRoles.addAll(userRoles.asJava)
-      user.setLanguage(
+        else roles.filter(_.name == Role.Name.STUDENT.toString)
+      user.roles.addAll(userRoles.asJava)
+      user.language =
         getLanguage(parse(headers.get("preferredLanguage").flatMap(_.headOption)).orNull)
-      )
-      user.setEppn(eppn)
+
+      user.eppn = eppn
       updateUser(user, headers).map(_ => user)
     }
 
@@ -359,56 +358,56 @@ class SessionService @Inject() (
       remoteAddress: String
   ): Future[Either[SessionError, LoginResponse]] =
     val userData = Json.obj(
-      "id"                    -> user.getId.longValue,
-      "firstName"             -> user.getFirstName,
-      "lastName"              -> user.getLastName,
-      "lang"                  -> user.getLanguage.getCode,
-      "permissions"           -> user.getPermissions.asScala.asJson,
-      "userAgreementAccepted" -> user.isUserAgreementAccepted,
-      "userIdentifier"        -> user.getUserIdentifier,
-      "email"                 -> user.getEmail
+      "id"                    -> user.id.longValue,
+      "firstName"             -> user.firstName,
+      "lastName"              -> user.lastName,
+      "lang"                  -> user.language.code,
+      "permissions"           -> user.permissions.asScala.asJson,
+      "userAgreementAccepted" -> user.userAgreementAccepted,
+      "userIdentifier"        -> user.userIdentifier,
+      "email"                 -> user.email
     )
 
     val basePayload = Map(
       "since" -> ISODateTimeFormat.dateTime().print(DateTime.now()),
-      "id"    -> user.getId.toString,
-      "email" -> user.getEmail,
-      "eppn"  -> user.getEppn
+      "id"    -> user.id.toString,
+      "email" -> user.email,
+      "eppn"  -> user.eppn
     )
 
     val permissionsPayload =
-      if !user.getPermissions.isEmpty then
-        Map("permissions" -> user.getPermissions.asScala.map(_.getValue).mkString(","))
+      if !user.permissions.isEmpty then
+        Map("permissions" -> user.permissions.asScala.map(_.value).mkString(","))
       else Map.empty[String, String]
 
     val studentRole =
       Option(DB.find(classOf[Role]).where().eq("name", Role.Name.STUDENT.toString).findOne)
         .getOrElse(throw new IllegalStateException("Student role not found"))
-    val isLocalAccount = configReader.isLocalUser(user.getEppn)
+    val isLocalAccount = configReader.isLocalUser(user.eppn)
     val roles =
       if isTemporaryVisitor || !isLocalAccount then Seq(studentRole)
-      else user.getRoles.asScala.toSeq
+      else user.roles.asScala.toSeq
 
     val (rolePayload, responseData) =
       if isTemporaryVisitor then
         // External exam taker
         (
-          Map("visitingStudent" -> "true", "role" -> studentRole.getName),
+          Map("visitingStudent" -> "true", "role" -> studentRole.name),
           Map.empty[String, JsValue]
         )
       else if !isLocalAccount then
         // External account - may only login as students
         val homeOrgs = configReader.getHomeOrganisations.mkString(", ")
         (
-          Map("role" -> studentRole.getName),
+          Map("role" -> studentRole.name),
           Map(
-            "externalUserOrg"   -> Json.toJson(user.getEppn.split("@")(1)),
+            "externalUserOrg"   -> Json.toJson(user.eppn.split("@")(1)),
             "homeOrganisations" -> Json.toJson(homeOrgs)
           )
         )
-      else if user.getRoles.size() == 1 then
+      else if user.roles.size() == 1 then
         // Local account with a single role - automatically set it
-        (Map("role" -> user.getRoles.asScala.head.getName), Map.empty[String, JsValue])
+        (Map("role" -> user.roles.asScala.head.name), Map.empty[String, JsValue])
       else
         // Local account with multiple roles: don't set role, let user choose via setLoginRole
         (Map.empty[String, String], Map.empty[String, JsValue])
@@ -442,8 +441,8 @@ class SessionService @Inject() (
     userId match
       case Some(id) =>
         Option(DB.find(classOf[User], id)) match
-          case Some(user) if Option(user.getLogoutUrl).isDefined =>
-            Right(LogoutResponse(Some(user.getLogoutUrl)))
+          case Some(user) if Option(user.logoutUrl).isDefined =>
+            Right(LogoutResponse(Some(user.logoutUrl)))
           case _ =>
             Right(LogoutResponse(None))
       case None =>
@@ -461,7 +460,7 @@ class SessionService @Inject() (
         DB.find(classOf[Role]).where().eq("name", roleName).find match
           case None => Future.successful(Left(RoleNotFound))
           case Some(role) =>
-            if !user.getRoles.contains(role) then Future.successful(Left(UserDoesNotHaveRole))
+            if !user.roles.contains(role) then Future.successful(Left(UserDoesNotHaveRole))
             else Future.successful(Right(role))
 
   def extendSession: SessionData =

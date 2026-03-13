@@ -10,7 +10,7 @@ import features.iop.transfer.services.ExternalAttachmentLoaderService
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.enrolment.{ExamEnrolment, ExamParticipation}
-import models.exam.Exam
+import models.exam.{Exam, ExamImplementation, ExamState}
 import models.iop.CollaborativeExam
 import models.questions.{ClozeTestAnswer, EssayAnswer}
 import models.sections.ExamSectionQuestion
@@ -122,11 +122,11 @@ class ExaminationService @Inject() (
               None,
               Some("14")
             )
-            val deadlineDays = Integer.parseInt(settings.getValue)
-            val deadline     = ep.getEnded.plusDays(deadlineDays)
-            ep.setDeadline(deadline)
+            val deadlineDays = Integer.parseInt(settings.value)
+            val deadline     = ep.ended.plusDays(deadlineDays)
+            ep.deadline = deadline
             ep.save()
-            exam.setState(Exam.State.REVIEW)
+            exam.state = ExamState.REVIEW
             exam.update()
             if exam.isPrivate then notifyTeachers(exam)
             autoEvaluationHandler.autoEvaluate(exam)
@@ -149,7 +149,7 @@ class ExaminationService @Inject() (
           case Some(ep) =>
             setDurations(ep)
             ep.save()
-            exam.setState(Exam.State.ABORTED)
+            exam.state = ExamState.ABORTED
             exam.update()
             if exam.isPrivate then notifyTeachers(exam)
             Right((exam, ep))
@@ -167,15 +167,15 @@ class ExaminationService @Inject() (
         Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
           case None => Future.successful(Left(QuestionNotFound))
           case Some(question) =>
-            val answer = Option(question.getEssayAnswer) match
+            val answer = Option(question.essayAnswer) match
               case None =>
                 new EssayAnswer()
               case Some(existingAnswer) =>
-                answerDTO.objectVersion.foreach(ov => existingAnswer.setObjectVersion(ov))
+                answerDTO.objectVersion.foreach(ov => existingAnswer.objectVersion = ov)
                 existingAnswer
-            answer.setAnswer(answerDTO.answer)
+            answer.answer = answerDTO.answer
             answer.save()
-            question.setEssayAnswer(answer)
+            question.essayAnswer = answer
             question.save()
             Future.successful(Right(answer))
     }
@@ -193,8 +193,8 @@ class ExaminationService @Inject() (
         Option(DB.find(classOf[ExamSectionQuestion], questionId)) match
           case None => Left(QuestionNotFound)
           case Some(question) =>
-            question.getOptions.asScala.foreach { o =>
-              o.setAnswered(optionIds.contains(o.getId))
+            question.options.asScala.foreach { o =>
+              o.answered = optionIds.contains(o.id)
               o.update()
             }
             Right(())
@@ -214,11 +214,11 @@ class ExaminationService @Inject() (
           case None => Future.successful(Left(QuestionNotFound))
           case Some(esq) =>
             val objectVersion = answerDTO.objectVersion.getOrElse(0L)
-            val answer = Option(esq.getClozeTestAnswer).getOrElse {
+            val answer = Option(esq.clozeTestAnswer).getOrElse {
               new ClozeTestAnswer()
             }
-            answer.setObjectVersion(objectVersion)
-            answer.setAnswer(answerDTO.answer)
+            answer.objectVersion = objectVersion
+            answer.answer = answerDTO.answer
             answer.save()
             Future.successful(Right(answer))
     }
@@ -229,10 +229,10 @@ class ExaminationService @Inject() (
       enrolment: ExamEnrolment,
       exam: Exam
   ): Future[Either[ExaminationError, Exam]] =
-    Option(enrolment.getCollaborativeExam) match
+    Option(enrolment.collaborativeExam) match
       case None =>
         // No collaborative exam, proceed synchronously
-        exam.setCloned(true)
+        exam.cloned = true
         exam.setDerivedMaxScores()
         examinationRepository.processClozeTestQuestions(exam)
         Future.successful(Right(exam))
@@ -241,7 +241,7 @@ class ExaminationService @Inject() (
         externalAttachmentLoader
           .fetchExternalAttachmentsAsLocal(exam)
           .map { _ =>
-            exam.setCloned(true)
+            exam.cloned = true
             exam.setDerivedMaxScores()
             examinationRepository.processClozeTestQuestions(exam)
             Right(exam)
@@ -249,7 +249,7 @@ class ExaminationService @Inject() (
           .recover { case e =>
             logger.error("Could not fetch external attachments!", e)
             // Continue anyway - attachments are optional
-            exam.setCloned(true)
+            exam.cloned = true
             exam.setDerivedMaxScores()
             examinationRepository.processClozeTestQuestions(exam)
             Right(exam)
@@ -262,7 +262,7 @@ class ExaminationService @Inject() (
       requestData: RequestData
   ): Future[Either[ExaminationError, Exam]] =
     // sanity check
-    if !clone.hasState(Exam.State.INITIALIZED, Exam.State.STUDENT_STARTED) then
+    if !clone.hasState(ExamState.INITIALIZED, ExamState.STUDENT_STARTED) then
       Future.successful(Left(InvalidExamState))
     else
       examinationRepository
@@ -306,14 +306,14 @@ class ExaminationService @Inject() (
   private def findParticipation(exam: Exam, user: User): Option[ExamParticipation] =
     DB.find(classOf[ExamParticipation])
       .where()
-      .eq("exam.id", exam.getId)
+      .eq("exam.id", exam.id)
       .eq("user", user)
       .isNull("ended")
       .find
 
   private def setDurations(ep: ExamParticipation): Unit =
-    ep.setEnded(clock.now())
-    ep.setDuration(new DateTime(ep.getEnded.getMillis - ep.getStarted.getMillis))
+    ep.ended = clock.now()
+    ep.duration = new DateTime(ep.ended.getMillis - ep.started.getMillis)
 
   private def validateEnrolment(
       hash: String,
@@ -325,7 +325,7 @@ class ExaminationService @Inject() (
       .where()
       .eq("exam.hash", hash)
       .eq("exam.creator", user)
-      .eq("exam.state", Exam.State.STUDENT_STARTED)
+      .eq("exam.state", ExamState.STUDENT_STARTED)
       .findOne()
     validateEnrolment(enrolment, requestData)
 
@@ -337,9 +337,9 @@ class ExaminationService @Inject() (
     // or the reservation is not in effect right now.
     if Option(enrolment).isEmpty then Future.successful(Left(ReservationNotFound))
     else
-      val exam        = enrolment.getExam
-      val isByod      = Option(exam).exists(_.getImplementation == Exam.Implementation.CLIENT_AUTH)
-      val isUnchecked = Option(exam).exists(_.getImplementation == Exam.Implementation.WHATEVER)
+      val exam        = enrolment.exam
+      val isByod      = Option(exam).exists(_.implementation == ExamImplementation.CLIENT_AUTH)
+      val isUnchecked = Option(exam).exists(_.implementation == ExamImplementation.WHATEVER)
 
       if isByod then
         Future.successful(
@@ -348,7 +348,7 @@ class ExaminationService @Inject() (
               requestData.headers,
               requestData.uri,
               requestData.host,
-              enrolment.getExaminationEventConfiguration.getConfigKey
+              enrolment.examinationEventConfiguration.configKey
             )
             .map(error => Left(ValidationError(error.header.status.toString)))
             .getOrElse(Right(()))
@@ -356,9 +356,9 @@ class ExaminationService @Inject() (
       else if isUnchecked then Future.successful(Right(()))
       // For regular exams, check if IP matches - if not, provide detailed error with room info
       else if environment.mode != Mode.Dev &&
-        Option(enrolment.getReservation)
-          .flatMap(r => Option(r.getMachine))
-          .exists(m => m.getIpAddress != requestData.remoteAddress)
+        Option(enrolment.reservation)
+          .flatMap(r => Option(r.machine))
+          .exists(m => m.ipAddress != requestData.remoteAddress)
       then
         examinationRepository
           .findRoom(enrolment)
@@ -377,23 +377,23 @@ class ExaminationService @Inject() (
       skipIpCheck: Boolean = false
   ): Future[Either[ExaminationError, Unit]] =
     if Option(enrolment).isEmpty then Future.successful(Left(ReservationNotFound))
-    else if Option(enrolment.getReservation).isEmpty then
+    else if Option(enrolment.reservation).isEmpty then
       Future.successful(Left(ReservationNotFound))
-    else if Option(enrolment.getReservation.getMachine).isEmpty then
+    else if Option(enrolment.reservation.machine).isEmpty then
       Future.successful(Left(ReservationMachineNotFound))
     else if !skipIpCheck && environment.mode != Mode.Dev &&
-      !enrolment.getReservation.getMachine.getIpAddress.equals(requestData.remoteAddress)
+      !enrolment.reservation.machine.ipAddress.equals(requestData.remoteAddress)
     then Future.successful(Left(WrongExamMachine))
     else Future.successful(Right(()))
 
   private def notifyTeachers(exam: Exam): Unit =
-    val recipients = exam.getParent.getExamOwners.asScala.toSet ++
-      exam.getExamInspections.asScala.map(_.getUser).toSet
+    val recipients = exam.parent.examOwners.asScala.toSet ++
+      exam.examInspections.asScala.map(_.user).toSet
 
     emailComposer.scheduleEmail(1.seconds) {
       recipients.foreach { r =>
         emailComposer.composePrivateExamEnded(r, exam)
-        logger.info(s"Email sent to ${r.getEmail}")
+        logger.info(s"Email sent to ${r.email}")
       }
     }
 

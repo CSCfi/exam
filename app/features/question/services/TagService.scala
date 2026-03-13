@@ -26,7 +26,7 @@ class TagService @Inject() () extends EbeanQueryExtensions:
     val baseQuery = DB.find(classOf[Tag]).where()
     val queryWithUser =
       if user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) then baseQuery
-      else baseQuery.eq("creator.id", user.getId)
+      else baseQuery.eq("creator.id", user.id)
 
     val queryWithFilter = filter.fold(queryWithUser) { f =>
       queryWithUser.ilike("name", s"%$f%")
@@ -64,8 +64,8 @@ class TagService @Inject() () extends EbeanQueryExtensions:
     Option(DB.find(classOf[Tag], tagId)) match
       case Some(tag) =>
         questions.foreach { question =>
-          if !question.getTags.contains(tag) then
-            question.getTags.add(tag)
+          if !question.tags.contains(tag) then
+            question.tags.add(tag)
             question.update()
         }
         Right(())

@@ -21,7 +21,7 @@ import security.Auth.AuthenticatedAction
   *   override protected val sensitiveFields = Set("password", "ssn", "apiToken")
   *
   *   // All methods automatically filter sensitive fields
-  *   def getUser(id: Long): Action[AnyContent] = secureAction { request =>
+  *   def.user(id: Long): Action[AnyContent] = secureAction { request =>
   *     Ok(user.asJson)  // password, ssn, apiToken automatically removed
   *   }
   *

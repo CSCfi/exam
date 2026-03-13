@@ -11,6 +11,7 @@ import io.ebean.text.PathProperties
 import io.ebean.{DB, FetchConfig}
 import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
 import models.exam.Exam
+import models.exam.ExamState
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.{Role, User}
 import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
@@ -47,7 +48,7 @@ class ReservationService @Inject() (
     val baseQuery = q
       .where()
       .isNull("parent") // only Exam prototypes
-      .eq("state", Exam.State.PUBLISHED)
+      .eq("state", ExamState.PUBLISHED)
 
     val withFilter = filter.fold(baseQuery) { f =>
       baseQuery.ilike("name", s"%$f%")
@@ -72,16 +73,16 @@ class ReservationService @Inject() (
 
   private def asJsonUsers(users: Seq[User]): JsArray =
     JsArray(users.map { u =>
-      val baseName = s"${u.getFirstName} ${u.getLastName}"
-      val name = Option(u.getUserIdentifier).fold(baseName) { identifier =>
+      val baseName = s"${u.firstName} ${u.lastName}"
+      val name = Option(u.userIdentifier).fold(baseName) { identifier =>
         s"$baseName ($identifier)"
       }
 
       Json.obj(
-        "id"             -> u.getId.longValue,
-        "firstName"      -> u.getFirstName,
-        "lastName"       -> u.getLastName,
-        "userIdentifier" -> Option(u.getUserIdentifier),
+        "id"             -> u.id.longValue,
+        "firstName"      -> u.firstName,
+        "lastName"       -> u.lastName,
+        "userIdentifier" -> Option(u.userIdentifier),
         "name"           -> name
       )
     })
@@ -111,14 +112,14 @@ class ReservationService @Inject() (
       .find match
       case None => Future.successful(Left(ReservationError.ReservationNotFound))
       case Some(enrolment) =>
-        DB.find(classOf[ExamParticipation]).where().eq("exam", enrolment.getExam).find match
+        DB.find(classOf[ExamParticipation]).where().eq("exam", enrolment.exam).find match
           case Some(participation) =>
             Future.successful(Left(ReservationError.ParticipationExists))
           case None =>
-            val reservation = enrolment.getReservation
+            val reservation = enrolment.reservation
             // Let's not send emails about historical reservations
-            if reservation.getEndAt.isAfter(DateTime.now()) then
-              val student = enrolment.getUser
+            if reservation.endAt.isAfter(DateTime.now()) then
+              val student = enrolment.user
               emailComposer.composeReservationCancellationNotification(
                 student,
                 reservation,
@@ -127,12 +128,12 @@ class ReservationService @Inject() (
                 enrolment
               )
 
-            if Option(reservation.getExternalReservation).isDefined then
+            if Option(reservation.externalReservation).isDefined then
               externalReservationHandler
-                .removeReservation(reservation, enrolment.getUser, message.getOrElse(""))
+                .removeReservation(reservation, enrolment.user, message.getOrElse(""))
                 .map(_ => Right(()))
             else
-              enrolment.setReservation(null)
+              enrolment.reservation = null
               enrolment.update()
               reservation.delete()
               Future.successful(Right(()))
@@ -142,13 +143,13 @@ class ReservationService @Inject() (
       reservation: Reservation,
       exam: Exam
   ): Option[Interval] =
-    val room     = machine.getRoom
+    val room     = machine.room
     val interval = reservation.toInterval
-    val dtz      = DateTimeZone.forID(room.getLocalTimezone)
+    val dtz      = DateTimeZone.forID(room.localTimezone)
     val searchDate =
-      dateTimeHandler.normalize(reservation.getStartAt.withZone(dtz), dtz).toLocalDate
+      dateTimeHandler.normalize(reservation.startAt.withZone(dtz), dtz).toLocalDate
 
-    val slots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.getDuration)
+    val slots = calendarHandler.gatherSuitableSlots(room, searchDate, exam.duration)
     // Find the first slot that starts at or after the interval's start
     // and ends at or after the interval's end
     // This handles cases where rooms have different slot start times (e.g., 10:00 vs. 10:10)
@@ -169,7 +170,7 @@ class ReservationService @Inject() (
             // Check if a machine is available during the reservation's time slot
             // Exclude the current reservation if it's already assigned to this machine
             val interval = reservation.toInterval
-            val conflictingReservations = machine.getReservations.asScala
+            val conflictingReservations = machine.reservations.asScala
               .filter(r => r != reservation && interval.overlaps(r.toInterval))
             conflictingReservations.isEmpty
     }
@@ -192,13 +193,13 @@ class ReservationService @Inject() (
           .eq("room.id", roomId)
           .ne("outOfService", true)
           .ne("archived", true)
-          .ne("id", reservation.getMachine.getId)
+          .ne("id", reservation.machine.id)
           .list
 
         getReservationExam(reservation).flatMap {
           case None => Future.successful(Left(ReservationError.ExamNotFound))
           case Some(exam) =>
-            val timezone  = DateTimeZone.forID(room.getLocalTimezone)
+            val timezone  = DateTimeZone.forID(room.localTimezone)
             val formatter = DateTimeFormat.forPattern("HH:mm").withZone(timezone)
             Future
               .traverse(candidates) { machine =>
@@ -235,9 +236,9 @@ class ReservationService @Inject() (
             // Capture previous state for email notification (ugly because of java beans)
             val previous = {
               val p = new Reservation
-              p.setMachine(reservation.getMachine)
-              p.setStartAt(reservation.getStartAt)
-              p.setEndAt(reservation.getEndAt)
+              p.machine = reservation.machine
+              p.startAt = reservation.startAt
+              p.endAt = reservation.endAt
               p
             }
 
@@ -251,38 +252,38 @@ class ReservationService @Inject() (
                     findSuitableSlot(machine, reservation, exam) match
                       case Some(suitableSlot) =>
                         // Update reservation times to match the suitable slot
-                        reservation.setStartAt(suitableSlot.getStart)
-                        reservation.setEndAt(suitableSlot.getEnd)
-                        reservation.setMachine(machine)
+                        reservation.startAt = suitableSlot.getStart
+                        reservation.endAt = suitableSlot.getEnd
+                        reservation.machine = machine
                         reservation.update()
                         emailComposer.composeReservationChangeNotification(reservation, previous)
                         Future.successful(Right(reservation))
                       case None =>
                         // This shouldn't happen if isBookable returned true, but handle it gracefully
                         logger.error(
-                          s"Could not find suitable slot for reservation ${reservation.getId} when moving to machine ${machine.getId}"
+                          s"Could not find suitable slot for reservation ${reservation.id} when moving to machine ${machine.id}"
                         )
                         Future.successful(Left(ReservationError.SuitableSlotNotFound))
                 }
             }
 
   private def getReservationExam(reservation: Reservation): Future[Option[Exam]] =
-    Option(reservation.getEnrolment.getExam) match
+    Option(reservation.enrolment.exam) match
       case opt @ Some(exam) => Future.successful(opt)
       case None =>
-        Option(reservation.getEnrolment.getCollaborativeExam) match
+        Option(reservation.enrolment.collaborativeExam) match
           case Some(collaborativeExam) =>
             collaborativeExamLoader
               .downloadExam(collaborativeExam)
               .recover { case e: Throwable =>
                 logger.error(
-                  s"Could not load collaborative exam for reservation ${reservation.getId}",
+                  s"Could not load collaborative exam for reservation ${reservation.id}",
                   e
                 )
                 None
               }
           case None =>
-            logger.warn(s"Reservation ${reservation.getId} has neither exam nor collaborative exam")
+            logger.warn(s"Reservation ${reservation.id} has neither exam nor collaborative exam")
             Future.successful(None)
 
   def listExaminationEvents(
@@ -315,7 +316,7 @@ class ReservationService @Inject() (
           .eq("exam.parent.examOwners", user)
           .eq("exam.examOwners", user)
           .endJunction()
-          .ne("exam.state", Exam.State.DELETED)
+          .ne("exam.state", ExamState.DELETED)
       else baseQuery
 
     val withStartFilter = start.fold(withTeacherFilter) { s =>
@@ -327,7 +328,7 @@ class ReservationService @Inject() (
       case "NO_SHOW" => withStartFilter.eq("noShow", true)
       case "EXTERNAL_UNFINISHED" | "EXTERNAL_FINISHED" =>
         withStartFilter.isNull("id") // Force empty result set
-      case st => withStartFilter.eq("exam.state", Exam.State.valueOf(st)).eq("noShow", false)
+      case st => withStartFilter.eq("exam.state", ExamState.valueOf(st)).eq("noShow", false)
     }
 
     val withStudentFilter = studentId.fold(withStateFilter) { sid =>
@@ -339,7 +340,7 @@ class ReservationService @Inject() (
 
     val withExamFilter = examId.fold(withStudentFilter) { eid =>
       withStudentFilter
-        .ne("exam.state", Exam.State.DELETED)
+        .ne("exam.state", ExamState.DELETED)
         .disjunction()
         .eq("exam.parent.id", eid)
         .eq("exam.id", eid)
@@ -362,8 +363,8 @@ class ReservationService @Inject() (
         end.forall { e =>
           val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser())
           val eventEnd =
-            ee.getExaminationEventConfiguration.getExaminationEvent.getStart.plusMinutes(
-              ee.getExam.getDuration
+            ee.examinationEventConfiguration.examinationEvent.start.plusMinutes(
+              ee.exam.duration
             )
           eventEnd.isBefore(endDate)
         }
@@ -403,7 +404,7 @@ class ReservationService @Inject() (
         baseQuery
           .isNull("enrolment.externalExam")
           .isNull("enrolment.collaborativeExam")
-          .ne("enrolment.exam.state", Exam.State.DELETED)
+          .ne("enrolment.exam.state", ExamState.DELETED)
           .or()
           .eq("enrolment.exam.parent.examOwners", user)
           .eq("enrolment.exam.examOwners", user)
@@ -429,7 +430,7 @@ class ReservationService @Inject() (
       case "EXTERNAL_FINISHED" =>
         withEndFilter.isNotNull("externalUserRef").isNotNull("enrolment.externalExam.finished")
       case st =>
-        withEndFilter.eq("enrolment.exam.state", Exam.State.valueOf(st)).eq(
+        withEndFilter.eq("enrolment.exam.state", ExamState.valueOf(st)).eq(
           "enrolment.noShow",
           false
         )

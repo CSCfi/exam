@@ -54,7 +54,7 @@ class CollaborativeExamService @Inject() (
       DB.find(classOf[CollaborativeExam])
         .findList()
         .asScala
-        .map(ce => ce.getExternalRef -> ce)
+        .map(ce => ce.externalRef -> ce)
         .toMap
     )(using ec)
 
@@ -76,10 +76,10 @@ class CollaborativeExamService @Inject() (
   ): Future[CollaborativeExam] =
     Future {
       val ce = new CollaborativeExam()
-      ce.setExternalRef(externalRef)
-      ce.setRevision(revision)
-      ce.setCreated(DateTime.now())
-      ce.setAnonymous(anonymous)
+      ce.externalRef = externalRef
+      ce.revision = revision
+      ce.created = DateTime.now()
+      ce.anonymous = anonymous
       ce.save()
       ce
     }(using ec)
@@ -129,10 +129,10 @@ class CollaborativeExamService @Inject() (
         .filterNot { case (ref, _, _) => existing.contains(ref) }
         .map { case (ref, rev, anonymous) =>
           val ce = new CollaborativeExam()
-          ce.setExternalRef(ref)
-          ce.setRevision(rev)
-          ce.setCreated(DateTime.now())
-          ce.setAnonymous(anonymous)
+          ce.externalRef = ref
+          ce.revision = rev
+          ce.created = DateTime.now()
+          ce.anonymous = anonymous
           ce.save()
           ref -> ce
         }

@@ -18,7 +18,7 @@ object PermissionFilter:
   /** Create an ActionFilter that checks for a permission pattern
     *
     * @param permission
-    *   the permission type to check (e.g., Permission.Type.EXAM_PARTICIPATION)
+    *   the permission type to check (e.g., PermissionType.EXAM_PARTICIPATION)
     * @param ec
     *   execution context
     * @return
@@ -67,7 +67,7 @@ object CombinedRoleAndPermissionFilter:
         (input.attrs.get(Auth.ATTR_USER), input.attrs.get(Auth.ATTR_PERMISSIONS)) match
           case (Some(user), Some(permissions)) =>
             val hasPermissionMatch = permissions.contains(permission.toString)
-            val hasRoleMatch       = user.getLoginRole == role
+            val hasRoleMatch       = user.loginRole == role
 
             val allowed =
               if anyMatch then hasPermissionMatch || hasRoleMatch

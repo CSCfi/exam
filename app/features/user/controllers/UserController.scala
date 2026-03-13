@@ -114,7 +114,7 @@ class UserController @Inject() (
 
   def updateUserAgreementAccepted(): Action[AnyContent] =
     authenticated.andThen(audited) { request =>
-      val userId = request.attrs(Auth.ATTR_USER).getId
+      val userId = request.attrs(Auth.ATTR_USER).id
       userService.updateUserAgreementAccepted(userId.longValue) match
         case Left(error) => toResult(error)
         case Right(_)    => Ok
@@ -133,7 +133,7 @@ class UserController @Inject() (
         val user = request.attrs(Auth.ATTR_USER)
         val lang = request.attrs(ScalaAttrs.LANG)
 
-        userService.updateLanguage(user.getId.longValue, lang) match
+        userService.updateLanguage(user.id.longValue, lang) match
           case Left(error) => toResult(error)
           case Right(_)    => Ok
       }

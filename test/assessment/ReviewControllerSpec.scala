@@ -24,13 +24,13 @@ class ReviewControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensions
     val examInspection = new ExamInspection()
     exam match
       case Some(exam) =>
-        examInspection.setUser(user)
-        examInspection.setExam(exam)
+        examInspection.user = user
+        examInspection.exam = exam
         examInspection.save()
       case None => fail("No exam found")
 
   private def examParentId: Long =
-    exam.get.getParent.getId // Safe since we validate exam exists in setup
+    exam.get.parent.id // Safe since we validate exam exists in setup
 
   // Custom login methods that automatically set up exam inspection
   private def loginAsTeacherWithExamInspection(): (User, Session) =

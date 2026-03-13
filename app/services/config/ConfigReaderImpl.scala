@@ -25,18 +25,18 @@ class ConfigReaderImpl @Inject (private val config: Config) extends ConfigReader
   ): GeneralSettings =
     val gs = DB.find(classOf[GeneralSettings]).where().eq("name", name).find.getOrElse {
       val newGs = new GeneralSettings()
-      newGs.setName(name)
+      newGs.name = name
       newGs.save()
       newGs
     }
     value.foreach { v =>
-      gs.setValue(v)
+      gs.value = v
       gs.update()
     }
 
-    if Option(gs.getValue).isEmpty then
+    if Option(gs.value).isEmpty then
       defaultValue.foreach { dv =>
-        gs.setValue(dv)
+        gs.value = dv
         gs.update()
       }
     gs

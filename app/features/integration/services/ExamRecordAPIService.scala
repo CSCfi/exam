@@ -21,4 +21,4 @@ class ExamRecordAPIService @Inject() () extends EbeanQueryExtensions:
       .eq("releasable", true)
       .gt("timeStamp", start)
       .list
-      .flatMap(record => Option(record.getExamScore))
+      .flatMap(record => Option(record.examScore))

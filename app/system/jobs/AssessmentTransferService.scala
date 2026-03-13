@@ -44,11 +44,11 @@ class AssessmentTransferService @Inject() (
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/assessment").toURL
 
   private def send(enrolment: ExamEnrolment): IO[Unit] =
-    val ref = enrolment.getReservation.getExternalRef
+    val ref = enrolment.reservation.externalRef
     logger.info(s"Transferring back assessment for reservation $ref")
     val url     = parseUrl(ref)
     val request = wsClient.url(url.toString)
-    val ee      = enrolment.getExternalExam
+    val ee      = enrolment.externalExam
     val json    = DB.json.toJson(ee, PathProperties.parse("(*, creator(id))"))
     val node    = objectMapper.readTree(json)
     IO.fromFuture(
@@ -59,7 +59,7 @@ class AssessmentTransferService @Inject() (
           .map(resp =>
             resp.status match
               case Http.Status.CREATED =>
-                ee.setSent(DateTime.now)
+                ee.sent = DateTime.now
                 ee.update()
                 logger.info(s"Assessment transfer for reservation $ref processed successfully")
               case _ =>

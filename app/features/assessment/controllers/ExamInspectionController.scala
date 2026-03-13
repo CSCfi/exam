@@ -45,7 +45,7 @@ class ExamInspectionController @Inject() (
               Left(ExamInspectionError.AlreadyInspector)
             else
               val commentText = request.attrs.get(ScalaAttrs.COMMENT)
-              if Option(exam.getName).map(_.isEmpty).isEmpty && commentText.isDefined then
+              if Option(exam.name).map(_.isEmpty).isEmpty && commentText.isDefined then
                 Left(ExamInspectionError.ExamNameMissing)
               else Right(())
           inspection = examInspectionService.addInspection(

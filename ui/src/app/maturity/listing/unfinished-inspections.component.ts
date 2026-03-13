@@ -40,7 +40,6 @@ export class UnfinishedInspectionsComponent {
     });
     readonly currentPage = signal(0);
     readonly hideItems = signal(false);
-
     readonly filteredInspections = computed(() => {
         const inspections = this.inspections();
         const filterText = this._filterText().toLowerCase();

@@ -94,6 +94,7 @@ export class CalendarComponent {
     readonly isExternal = signal(false);
 
     private readonly examId = signal(0);
+
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly translate = inject(TranslateService);

@@ -33,7 +33,7 @@ object Auth:
           Option(DB.find(classOf[User], attrs("id").toLong))
         }(using executionContext).flatMap {
           case Some(user) =>
-            user.setLoginRole(Role.Name.valueOf(request.session("role")))
+            user.loginRole = Role.Name.valueOf(request.session("role"))
 
             // Parse permissions from the session (comma-separated string)
             val permissions = request.session
@@ -56,7 +56,7 @@ object Auth:
       override def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
         // Try to use already-loaded user first (when used with authenticated)
         input.attrs.get(ATTR_USER) match
-          case Some(user) if roles.contains(user.getLoginRole) => None
+          case Some(user) if roles.contains(user.loginRole) => None
           case Some(_) =>
             Some(Forbidden("authentication failure"))
           case None =>

@@ -7,7 +7,7 @@ package features.attachment.controllers
 import database.EbeanJsonExtensions
 import features.attachment.services.AttachmentService
 import models.attachment.Attachment
-import models.user.{Permission, Role}
+import models.user.{PermissionType, Role}
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.stream.{IOResult, Materializer}
 import org.apache.pekko.util.ByteString
@@ -111,7 +111,7 @@ class AttachmentController @Inject() (
 
   def deleteStatementAttachment(id: Long): Action[AnyContent] =
     authenticated
-      .andThen(PermissionFilter(Permission.Type.CAN_INSPECT_LANGUAGE))
+      .andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE))
       .async { _ =>
         attachmentService.deleteStatementAttachment(id).map {
           case Right(_) => Ok
@@ -155,7 +155,7 @@ class AttachmentController @Inject() (
 
   def addStatementAttachment(id: Long): Action[MultipartFormData[TemporaryFile]] = audited
     .andThen(authenticated)
-    .andThen(PermissionFilter(Permission.Type.CAN_INSPECT_LANGUAGE))
+    .andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE))
     .async(parse.multipartFormData) { request =>
       parseMultipartForm(request) match
         case None => Future.successful(BadRequest("Invalid form data"))
@@ -240,7 +240,7 @@ class AttachmentController @Inject() (
     }
 
   private def serveAsStream(attachment: Attachment, source: Source[ByteString, Future[IOResult]]) =
-    val mimeType = Option(attachment.getMimeType).getOrElse("application/octet-stream")
+    val mimeType = Option(attachment.mimeType).getOrElse("application/octet-stream")
     Ok.chunked(source)
       .as(mimeType)
-      .withHeaders("Content-Disposition" -> s"attachment; filename=\"${attachment.getFileName}\"")
+      .withHeaders("Content-Disposition" -> s"attachment; filename=\"${attachment.fileName}\"")

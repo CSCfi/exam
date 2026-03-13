@@ -48,7 +48,7 @@ class FacilityHandlerImpl @Inject() (
     DB.json().toJson(room, pp)
 
   override def updateFacility(room: ExamRoom): Future[Result] =
-    val url = parseUrl(Option(room.getExternalRef))
+    val url = parseUrl(Option(room.externalRef))
     wsClient
       .url(url)
       .withHttpHeaders("Content-Type" -> "application/json")
@@ -65,9 +65,9 @@ class FacilityHandlerImpl @Inject() (
     Option(DB.find(classOf[ExamRoom], id)) match
       case None => Future.successful(NotFound("Exam room not found"))
       case Some(room) =>
-        val url = parseUrl(Option(room.getExternalRef))
+        val url = parseUrl(Option(room.externalRef))
 
-        if Option(room.getExternalRef).isEmpty && room.getState != ExamRoom.State.INACTIVE.toString
+        if Option(room.externalRef).isEmpty && room.state != ExamRoom.State.INACTIVE.toString
         then
           // Add new
           wsClient
@@ -81,15 +81,15 @@ class FacilityHandlerImpl @Inject() (
                 InternalServerError(message)
               else
                 val externalRef = (response.json \ "id").as[String]
-                room.setExternalRef(externalRef)
+                room.externalRef = externalRef
                 room.update()
                 Ok(Json.obj("externalRef" -> externalRef))
             }
-        else if Option(room.getExternalRef).isDefined then
+        else if Option(room.externalRef).isDefined then
           // Remove
           wsClient.url(url).delete().map { response =>
             if response.status == NOT_FOUND || response.status == OK then
-              room.setExternalRef(null)
+              room.externalRef = null
               room.update()
               Ok(Json.obj("externalRef" -> JsNull))
             else InternalServerError("Connection refused")

@@ -90,23 +90,23 @@ class FileHandlerImpl @Inject() (environment: Environment, configReader: ConfigR
     catch case ex: Exception => logger.error("IO Exception occurred", ex)
 
   override def removePrevious(container: AttachmentContainer): Unit =
-    Option(container.getAttachment).foreach { attachment =>
-      val filePath = attachment.getFilePath
-      container.setAttachment(null)
+    Option(container.attachment).foreach { attachment =>
+      val filePath = attachment.filePath
+      container.attachment = null
       container.save()
       attachment.delete()
 
       // Remove the file from the disk if no references to it are found
       val removeFromDisk =
         DB.find(classOf[Attachment]).where().eq("filePath", filePath).findList().isEmpty
-      if removeFromDisk then removeAttachmentFile(attachment.getFilePath)
+      if removeFromDisk then removeAttachmentFile(attachment.filePath)
     }
 
   override def createNew(fileName: String, contentType: String, path: String): Attachment =
     val attachment = new Attachment()
-    attachment.setFileName(fileName)
-    attachment.setFilePath(path)
-    attachment.setMimeType(contentType)
+    attachment.fileName = fileName
+    attachment.filePath = path
+    attachment.mimeType = contentType
     attachment.save()
     attachment
 

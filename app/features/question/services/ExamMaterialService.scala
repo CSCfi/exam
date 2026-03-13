@@ -18,9 +18,9 @@ class ExamMaterialService @Inject() () extends SectionQuestionHandler with Ebean
 
   private def parseFromBody(body: JsValue): ExamMaterial =
     val em = new ExamMaterial()
-    em.setName((body \ "name").as[String])
-    (body \ "author").asOpt[String].foreach(em.setAuthor)
-    (body \ "isbn").asOpt[String].foreach(em.setIsbn)
+    em.name = (body \ "name").as[String]
+    (body \ "author").asOpt[String].foreach(v => em.author = v)
+    (body \ "isbn").asOpt[String].foreach(v => em.isbn = v)
     em
 
   def createMaterial(body: JsValue, user: User): ExamMaterial =
@@ -42,22 +42,22 @@ class ExamMaterialService @Inject() () extends SectionQuestionHandler with Ebean
 
   def removeMaterial(materialId: Long, user: User): Either[ExamMaterialError, Unit] =
     Option(DB.find(classOf[ExamMaterial], materialId)) match
-      case None                                    => Left(ExamMaterialError.MaterialNotFound)
-      case Some(em) if !em.getCreator.equals(user) => Left(ExamMaterialError.NotAuthorized)
+      case None                                 => Left(ExamMaterialError.MaterialNotFound)
+      case Some(em) if !em.creator.equals(user) => Left(ExamMaterialError.NotAuthorized)
       case Some(_) =>
         DB.delete(classOf[ExamMaterial], materialId)
         Right(())
 
   def updateMaterial(materialId: Long, body: JsValue, user: User): Either[ExamMaterialError, Unit] =
     Option(DB.find(classOf[ExamMaterial], materialId)) match
-      case None                                      => Left(ExamMaterialError.MaterialNotFound)
-      case Some(dst) if !dst.getCreator.equals(user) => Left(ExamMaterialError.NotAuthorized)
+      case None                                   => Left(ExamMaterialError.MaterialNotFound)
+      case Some(dst) if !dst.creator.equals(user) => Left(ExamMaterialError.NotAuthorized)
       case Some(dst) =>
         val src = parseFromBody(body)
         // Copy properties manually (Scala alternative to BeanUtils.copyProperties)
-        dst.setName(src.getName)
-        Option(src.getAuthor).foreach(dst.setAuthor)
-        Option(src.getIsbn).foreach(dst.setIsbn)
+        dst.name = src.name
+        Option(src.author).foreach(v => dst.author = v)
+        Option(src.isbn).foreach(v => dst.isbn = v)
         dst.update()
         Right(())
 
@@ -69,7 +69,7 @@ class ExamMaterialService @Inject() () extends SectionQuestionHandler with Ebean
       .find
 
   private def getOwnershipError(em: ExamMaterial, user: User): Option[ExamMaterialError] =
-    if Option(em).isEmpty || !em.getCreator.equals(user) then Some(ExamMaterialError.NotAuthorized)
+    if Option(em).isEmpty || !em.creator.equals(user) then Some(ExamMaterialError.NotAuthorized)
     else None
 
   def addMaterialForSection(
@@ -86,7 +86,7 @@ class ExamMaterialService @Inject() () extends SectionQuestionHandler with Ebean
             getSection(sectionId, user) match
               case None => Left(ExamMaterialError.SectionNotFound)
               case Some(es) =>
-                es.getExamMaterials.add(em)
+                es.examMaterials.add(em)
                 es.update()
                 Right(())
 
@@ -104,6 +104,6 @@ class ExamMaterialService @Inject() () extends SectionQuestionHandler with Ebean
             getSection(sectionId, user) match
               case None => Left(ExamMaterialError.SectionNotFound)
               case Some(es) =>
-                es.getExamMaterials.remove(em)
+                es.examMaterials.remove(em)
                 es.update()
                 Right(())

@@ -8,6 +8,7 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.text.PathProperties
 import io.ebean.{DB, ExpressionList}
 import models.enrolment.{ExamEnrolment, Reservation}
+import models.exam.ExamState
 import models.exam.{Course, Exam}
 import models.facility.ExamRoom
 import org.joda.time.DateTime
@@ -39,7 +40,7 @@ class ReportService @Inject() (
       .where()
       .isNotNull("department")
       .distinct
-      .map(_.getDepartment)
+      .map(_.department)
       .toList
 
   def listParticipations(
@@ -66,7 +67,7 @@ class ReportService @Inject() (
       .apply(pp)
       .where()
       .or()
-      .ne("exam.state", Exam.State.PUBLISHED)
+      .ne("exam.state", ExamState.PUBLISHED)
       .isNotNull("externalExam.started")
       .endOr()
       .isNotNull("reservation.machine")
@@ -74,15 +75,15 @@ class ReportService @Inject() (
       .distinct
     val roomMap = enrolments
       .groupBy { enrolment =>
-        val room = enrolment.getReservation.getMachine.getRoom
-        s"${room.getId}___${room.getName}"
+        val room = enrolment.reservation.machine.room
+        s"${room.id}___${room.name}"
       }
       .view
       .mapValues { enrolmentList =>
         enrolmentList.map { enrolment =>
-          val examStart = Option(enrolment.getExternalExam)
-            .map(_.getStarted)
-            .getOrElse(enrolment.getExam.getCreated)
+          val examStart = Option(enrolment.externalExam)
+            .map(_.started)
+            .getOrElse(enrolment.exam.created)
           Participation(examStart)
         }.toSet
       }
@@ -91,7 +92,7 @@ class ReportService @Inject() (
     // Fill in rooms with no participations
     val allRooms = DB.find(classOf[ExamRoom]).where().eq("outOfService", false).list
     allRooms.foldLeft(roomMap) { (map, room) =>
-      val key = s"${room.getId}___${room.getName}"
+      val key = s"${room.id}___${room.name}"
       if map.contains(key) then map else map + (key -> Set.empty[Participation])
     }
 
@@ -103,7 +104,7 @@ class ReportService @Inject() (
     val query = DB.find(classOf[ExamEnrolment]).where()
     val enrolments =
       withFilters(query, "exam.course", "reservation.startAt", dept, start, end).distinct
-    enrolments.partition(_.isNoShow) match
+    enrolments.partition(_.noShow) match
       case (a, b) => (a.size, b.size)
 
   def listIopReservations(
@@ -117,7 +118,7 @@ class ReportService @Inject() (
     val el    = query.where().isNotNull("externalRef")
     withFilters(el, "enrolment.exam.course", "startAt", dept, start, end).distinct
       .filter(r =>
-        Option(r.getExternalOrgName).isDefined || Option(r.getExternalReservation).isDefined
+        Option(r.externalOrgName).isDefined || Option(r.externalReservation).isDefined
       )
       .toList
 
@@ -132,13 +133,13 @@ class ReportService @Inject() (
       .where()
       .isNull("parent")
       .isNotNull("course")
-      .in("state", Exam.State.PUBLISHED, Exam.State.DELETED, Exam.State.ARCHIVED)
+      .in("state", ExamState.PUBLISHED, ExamState.DELETED, ExamState.ARCHIVED)
     val exams = withFilters(query, "course", "created", dept, start, end).distinct
 
     def examFilter(exam: Exam) =
-      val created          = exam.getCreated
-      val hasValidState    = exam.getState.ordinal() > Exam.State.PUBLISHED.ordinal()
-      val hasParticipation = Option(exam.getExamParticipation).isDefined
+      val created          = exam.created
+      val hasValidState    = exam.state.ordinal() > ExamState.PUBLISHED.ordinal()
+      val hasParticipation = Option(exam.examParticipation).isDefined
       hasValidState &&
       hasParticipation &&
       start.forall(s => DateTime.parse(s, ISODateTimeFormat.dateTimeParser()).isBefore(created)) &&
@@ -147,7 +148,7 @@ class ReportService @Inject() (
       )
 
     exams.map(e =>
-      ExamInfo(s"[${e.getCourse.getCode}] ${e.getName}", e.getChildren.asScala.count(examFilter))
+      ExamInfo(s"[${e.course.code}] ${e.name}", e.children.asScala.count(examFilter))
     ).toList
 
   def listResponses(
@@ -157,19 +158,19 @@ class ReportService @Inject() (
   ): (Int, Int, Int) =
     val query   = DB.find(classOf[Exam]).where().isNotNull("parent").isNotNull("course")
     val exams   = withFilters(query, "course", "created", dept, start, end).distinct
-    val aborted = exams.count(_.getState == Exam.State.ABORTED)
+    val aborted = exams.count(_.state == ExamState.ABORTED)
     val assessed = exams.count(_.hasState(
-      Exam.State.GRADED,
-      Exam.State.GRADED_LOGGED,
-      Exam.State.ARCHIVED,
-      Exam.State.REJECTED,
-      Exam.State.DELETED
+      ExamState.GRADED,
+      ExamState.GRADED_LOGGED,
+      ExamState.ARCHIVED,
+      ExamState.REJECTED,
+      ExamState.DELETED
     ))
     val unassessed = exams.count(_.hasState(
-      Exam.State.INITIALIZED,
-      Exam.State.STUDENT_STARTED,
-      Exam.State.REVIEW,
-      Exam.State.REVIEW_STARTED
+      ExamState.INITIALIZED,
+      ExamState.STUDENT_STARTED,
+      ExamState.REVIEW,
+      ExamState.REVIEW_STARTED
     ))
     (aborted, assessed, unassessed)
 

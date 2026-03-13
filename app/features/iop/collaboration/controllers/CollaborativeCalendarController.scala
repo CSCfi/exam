@@ -50,7 +50,7 @@ class CollaborativeCalendarController @Inject() (
         .createReservation(
           examId,
           roomId,
-          user.getId,
+          user.id,
           start,
           end,
           aids.getOrElse(Seq.empty),
@@ -72,7 +72,7 @@ class CollaborativeCalendarController @Inject() (
       val user = request.attrs(Auth.ATTR_USER)
 
       collaborativeCalendarService
-        .getSlots(examId, roomId, day, aids, user.getId)
+        .getSlots(examId, roomId, day, aids, user.id)
         .map {
           case Left(error) => Forbidden(error)
           case Right(json) => Ok(json)

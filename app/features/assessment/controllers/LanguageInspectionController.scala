@@ -6,7 +6,7 @@ package features.assessment.controllers
 
 import database.EbeanJsonExtensions
 import features.assessment.services.{LanguageInspectionError, LanguageInspectionService}
-import models.user.Permission.Type
+import models.user.PermissionType
 import models.user.Role
 import play.api.libs.json.JsValue
 import play.api.mvc.*
@@ -34,7 +34,7 @@ class LanguageInspectionController @Inject() (
       end: Option[Long]
   ): Action[AnyContent] =
     authenticated.andThen(CombinedRoleAndPermissionFilter.anyMatch(
-      Type.CAN_INSPECT_LANGUAGE,
+      PermissionType.CAN_INSPECT_LANGUAGE,
       Role.Name.ADMIN
     )) { _ =>
       val inspections = languageInspectionService.listInspections(month, start, end)
@@ -62,7 +62,7 @@ class LanguageInspectionController @Inject() (
       }
 
   def assignInspection(id: Long): Action[AnyContent] =
-    authenticated.andThen(PermissionFilter(Type.CAN_INSPECT_LANGUAGE)) { request =>
+    authenticated.andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE)) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       languageInspectionService.assignInspection(id, user) match
         case Right(_) => Ok
@@ -74,7 +74,9 @@ class LanguageInspectionController @Inject() (
     }
 
   def setApproval(id: Long): Action[JsValue] =
-    authenticated.andThen(PermissionFilter(Type.CAN_INSPECT_LANGUAGE))(parse.json).andThen(
+    authenticated.andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE))(
+      parse.json
+    ).andThen(
       audited
     ) { request =>
       (request.body \ "approved").asOpt[Boolean] match
@@ -95,7 +97,7 @@ class LanguageInspectionController @Inject() (
     }
 
   def setStatement(id: Long): Action[AnyContent] = authenticated
-    .andThen(PermissionFilter(Type.CAN_INSPECT_LANGUAGE))
+    .andThen(PermissionFilter(PermissionType.CAN_INSPECT_LANGUAGE))
     .andThen(validators.validated(CommentValidator))
     .andThen(audited) { request =>
       request.attrs.get(ScalaAttrs.COMMENT) match

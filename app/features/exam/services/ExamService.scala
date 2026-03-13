@@ -9,6 +9,7 @@ import features.exam.copy.ExamCopyContext
 import io.ebean.*
 import io.ebean.text.PathProperties
 import models.exam.*
+import models.exam.GradeType
 import models.facility.{ExamMachine, Software}
 import models.sections.ExamSection
 import models.user.*
@@ -45,9 +46,9 @@ class ExamService @Inject() (
       .fetch("parent")
       .where()
       .or()
-      .eq("state", Exam.State.PUBLISHED)
-      .eq("state", Exam.State.SAVED)
-      .eq("state", Exam.State.DRAFT)
+      .eq("state", ExamState.PUBLISHED)
+      .eq("state", ExamState.SAVED)
+      .eq("state", ExamState.DRAFT)
       .endOr()
 
   def searchExams(filter: Option[String], user: User): List[Exam] =
@@ -72,7 +73,7 @@ class ExamService @Inject() (
     DB.find(classOf[Exam])
       .where()
       .eq("executionType.type", ExamExecutionType.Type.PRINTOUT.toString)
-      .eq("state", Exam.State.PUBLISHED)
+      .eq("state", ExamState.PUBLISHED)
       .ge("examinationDates.date", LocalDate.now())
       .list
 
@@ -120,7 +121,7 @@ class ExamService @Inject() (
     props.apply(query)
     query
       .where()
-      .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)
+      .in("state", ExamState.PUBLISHED, ExamState.SAVED, ExamState.DRAFT)
       .disjunction()
       .eq("examInspections.user", user)
       .eq("examOwners", user)
@@ -136,7 +137,7 @@ class ExamService @Inject() (
         if user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) || exam.isOwnedOrCreatedBy(user) then
           if examUpdater.isAllowedToRemove(exam) then
             exam.setModifierWithDate(user)
-            exam.setState(Exam.State.DELETED)
+            exam.state = ExamState.DELETED
             exam.update()
             Right(())
           else Left(ExamError.ExamRemovalNotPossible)
@@ -147,9 +148,9 @@ class ExamService @Inject() (
       .where()
       .idEq(id)
       .disjunction()
-      .eq("state", Exam.State.DRAFT)
-      .eq("state", Exam.State.SAVED)
-      .eq("state", Exam.State.PUBLISHED)
+      .eq("state", ExamState.DRAFT)
+      .eq("state", ExamState.SAVED)
+      .eq("state", ExamState.PUBLISHED)
       .endJunction()
       .find
 
@@ -158,39 +159,39 @@ class ExamService @Inject() (
       case None       => Left(ExamError.NotFound)
       case Some(exam) =>
         // decipher the passwords if any
-        if exam.getImplementation == Exam.Implementation.CLIENT_AUTH then
-          exam.getExaminationEventConfigurations.asScala.foreach { eec =>
+        if exam.implementation == ExamImplementation.CLIENT_AUTH then
+          exam.examinationEventConfigurations.asScala.foreach { eec =>
             val plainTextSettingsPwd = byodConfigHandler.getPlaintextPassword(
-              eec.getEncryptedSettingsPassword,
-              eec.getSettingsPasswordSalt
+              eec.encryptedSettingsPassword,
+              eec.settingsPasswordSalt
             )
-            eec.setSettingsPassword(plainTextSettingsPwd)
-            Option(eec.getEncryptedQuitPassword).foreach { _ =>
+            eec.settingsPassword = plainTextSettingsPwd
+            Option(eec.encryptedQuitPassword).foreach { _ =>
               val plainTextQuitPwd = byodConfigHandler.getPlaintextPassword(
-                eec.getEncryptedQuitPassword,
-                eec.getQuitPasswordSalt
+                eec.encryptedQuitPassword,
+                eec.quitPasswordSalt
               )
-              eec.setQuitPassword(plainTextQuitPwd)
+              eec.quitPassword = plainTextQuitPwd
             }
           }
-        if exam.isShared || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(
+        if exam.shared || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(
             Role.Name.ADMIN,
             Role.Name.SUPPORT
           )
         then
-          exam.getExamSections.asScala.foreach { s =>
-            s.setSectionQuestions(new java.util.TreeSet(s.getSectionQuestions))
+          exam.examSections.asScala.foreach { s =>
+            s.sectionQuestions = new java.util.TreeSet(s.sectionQuestions)
           }
           Right(exam)
         else Left(ExamError.AccessForbidden)
 
-  def getExamTypes(): List[ExamType] =
+  def getExamTypes: List[ExamType] =
     DB.find(classOf[ExamType]).where().ne("deprecated", true).list
 
-  def getExamGradeScales(): List[GradeScale] =
+  def getExamGradeScales: List[GradeScale] =
     DB.find(classOf[GradeScale]).fetch("grades").list
 
-  def getExamExecutionTypes(): List[ExamExecutionType] =
+  def getExamExecutionTypes: List[ExamExecutionType] =
     DB.find(classOf[ExamExecutionType]).where().ne("active", false).list
 
   def getExamPreview(id: Long, user: User): Either[ExamError, Exam] =
@@ -215,7 +216,7 @@ class ExamService @Inject() (
       .find match
       case None => Left(ExamError.NotFound)
       case Some(exam) =>
-        if exam.isShared || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(
+        if exam.shared || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(
             Role.Name.ADMIN,
             Role.Name.SUPPORT
           )
@@ -245,30 +246,30 @@ class ExamService @Inject() (
             else Left(ExamError.AccessForbidden)
 
   private def handleExamUpdate(exam: Exam, user: User, payload: Exam): play.api.mvc.Result =
-    val grading           = Option(payload.getGrade).map(_.getId)
+    val grading           = Option(payload.grade).map(_.id)
     val gradeScaleChanged = grading.exists(didGradeChange(exam, _))
-    val loginRole         = user.getLoginRole
+    val loginRole         = user.loginRole
     examUpdater.update(exam, payload, loginRole)
     if gradeScaleChanged then
-      Option(exam.getAutoEvaluationConfig).foreach { config =>
+      Option(exam.autoEvaluationConfig).foreach { config =>
         config.delete()
-        exam.setAutoEvaluationConfig(null)
+        exam.autoEvaluationConfig = null
       }
     else
       // Always call update method - it handles null (removal) correctly
-      examUpdater.updateAutoEvaluationConfig(exam, payload.getAutoEvaluationConfig)
+      examUpdater.updateAutoEvaluationConfig(exam, payload.autoEvaluationConfig)
     // Always call update method - it handles null (removal) correctly
-    examUpdater.updateExamFeedbackConfig(exam, payload.getExamFeedbackConfig)
+    examUpdater.updateExamFeedbackConfig(exam, payload.examFeedbackConfig)
     exam.save()
     play.api.mvc.Results.Ok(exam.asJson)
 
   private def didGradeChange(exam: Exam, grading: Int): Boolean =
     val canOverrideGrading = configReader.isCourseGradeScaleOverridable
-    if canOverrideGrading || Option(exam.getCourse.getGradeScale).isEmpty then
+    if canOverrideGrading || Option(exam.course.gradeScale).isEmpty then
       DB.find(classOf[GradeScale]).fetch("grades").where().idEq(grading).find match
         case None => false
         case Some(scale) =>
-          Option(exam.getGradeScale).isEmpty || !exam.getGradeScale.equals(scale)
+          Option(exam.gradeScale).isEmpty || !exam.gradeScale.equals(scale)
     else false
 
   def updateExamSoftware(eid: Long, sid: Long, user: User): Either[ExamError, Unit] =
@@ -280,12 +281,12 @@ class ExamService @Inject() (
           Option(DB.find(classOf[Software], sid)) match
             case None => Left(ExamError.NotFound)
             case Some(software) =>
-              if exam.getSoftwareInfo.contains(software) then
-                exam.getSoftwareInfo.remove(software)
+              if exam.softwares.contains(software) then
+                exam.softwares.remove(software)
                 exam.update()
                 Right(())
               else
-                exam.getSoftwareInfo.add(software)
+                exam.softwares.add(software)
                 if !softwareRequirementDoable(exam) then Left(ExamError.NoRequiredSoftwares)
                 else
                   exam.update()
@@ -294,8 +295,8 @@ class ExamService @Inject() (
   private def softwareRequirementDoable(exam: Exam): Boolean =
     val machines = DB.find(classOf[ExamMachine]).where().eq("archived", false).list
     machines.exists { m =>
-      val machineSoftware = m.getSoftwareInfo.asScala.toSet
-      val examSoftware    = exam.getSoftwareInfo.asScala.toSet
+      val machineSoftware = m.softwareInfo.asScala.toSet
+      val examSoftware    = exam.softwares.asScala.toSet
       examSoftware.subsetOf(machineSoftware)
     }
 
@@ -317,8 +318,8 @@ class ExamService @Inject() (
   ): Either[ExamError, Exam] =
     (examinationType, executionTypeStr) match
       case (Some(examType), Some(execType)) =>
-        if Exam.Implementation.valueOf(examType) != Exam.Implementation.AQUARIUM &&
-          !user.hasPermission(Permission.Type.CAN_CREATE_BYOD_EXAM)
+        if ExamImplementation.valueOf(examType) != ExamImplementation.AQUARIUM &&
+          !user.hasPermission(PermissionType.CAN_CREATE_BYOD_EXAM)
         then Left(ExamError.NoPermissionToCreateByodExam)
         else
           val pp = PathProperties.parse(
@@ -346,27 +347,27 @@ class ExamService @Inject() (
                 case Some(executionType) =>
                   // No sense in copying the AE config if grade scale is fixed to course (that will initially be NULL for a copy)
                   if Option(
-                      prototype.getAutoEvaluationConfig
+                      prototype.autoEvaluationConfig
                     ).isDefined && !configReader.isCourseGradeScaleOverridable
-                  then prototype.setAutoEvaluationConfig(null)
+                  then prototype.autoEvaluationConfig = null
                   val context = ExamCopyContext.forTeacherCopy(user).build()
                   val copy    = prototype.createCopy(context)
-                  copy.setName(s"**COPY**${copy.getName}")
-                  copy.setState(Exam.State.DRAFT)
-                  copy.setExecutionType(executionType)
-                  copy.setImplementation(Exam.Implementation.valueOf(examType))
+                  copy.name = s"**COPY**${copy.name}"
+                  copy.state = ExamState.DRAFT
+                  copy.executionType = executionType
+                  copy.implementation = ExamImplementation.valueOf(examType)
                   copy.setCreatorWithDate(user)
-                  copy.setParent(null)
-                  copy.setCourse(null)
-                  copy.setExamFeedbackConfig(null)
-                  copy.setSubjectToLanguageInspection(null)
+                  copy.parent = null
+                  copy.course = null
+                  copy.examFeedbackConfig = null
+                  copy.subjectToLanguageInspection = null
                   val now = DateTime.now().withTimeAtStartOfDay()
-                  copy.setPeriodStart(now)
-                  copy.setPeriodEnd(now.plusDays(1))
+                  copy.periodStart = now
+                  copy.periodEnd = now.plusDays(1)
                   // Force anonymous review if globally enabled for public examinations
-                  if !copy.isPrivate then copy.setAnonymous(false)
-                  else if configReader.isAnonymousReviewEnabled then copy.setAnonymous(true)
-                  copy.setGradingType(Grade.Type.GRADED)
+                  if !copy.isPrivate then copy.anonymous = false
+                  else if configReader.isAnonymousReviewEnabled then copy.anonymous = true
+                  copy.gradingType = GradeType.GRADED
                   copy.save()
                   Right(copy)
       case _ => Left(ExamError.ValidationError("Missing examinationType or type"))
@@ -375,56 +376,56 @@ class ExamService @Inject() (
     ExamValidator.forCreation(payload) match
       case Left(ex) => Left(ExamError.ValidationError(ex.getMessage))
       case Right(validatedPayload) =>
-        val executionType  = validatedPayload.getExecutionType.getType
-        val implementation = validatedPayload.getImplementation.toString
+        val executionType  = validatedPayload.executionType.`type`
+        val implementation = validatedPayload.implementation.toString
         DB.find(classOf[ExamExecutionType])
           .where()
           .eq("type", executionType)
           .find match
           case None => Left(ExamError.UnsupportedExecutionType)
           case Some(examExecutionType) =>
-            if Exam.Implementation.valueOf(implementation) != Exam.Implementation.AQUARIUM &&
-              !user.hasPermission(Permission.Type.CAN_CREATE_BYOD_EXAM)
+            if ExamImplementation.valueOf(implementation) != ExamImplementation.AQUARIUM &&
+              !user.hasPermission(PermissionType.CAN_CREATE_BYOD_EXAM)
             then Left(ExamError.NoPermissionToCreateByodExam)
             else
               val exam = new Exam()
               exam.generateHash()
-              exam.setState(Exam.State.DRAFT)
-              exam.setImplementation(Exam.Implementation.valueOf(implementation))
-              exam.setExecutionType(examExecutionType)
-              if ExamExecutionType.Type.PUBLIC.toString == examExecutionType.getType then
-                exam.setAnonymous(configReader.isAnonymousReviewEnabled)
+              exam.state = ExamState.DRAFT
+              exam.implementation = ExamImplementation.valueOf(implementation)
+              exam.executionType = examExecutionType
+              if ExamExecutionType.Type.PUBLIC.toString == examExecutionType.`type` then
+                exam.anonymous = configReader.isAnonymousReviewEnabled
               exam.setCreatorWithDate(user)
-              exam.setGradingType(Grade.Type.GRADED)
+              exam.gradingType = GradeType.GRADED
               exam.save()
 
               val examSection = new ExamSection()
               examSection.setCreatorWithDate(user)
-              examSection.setExam(exam)
-              examSection.setExpanded(true)
-              examSection.setSequenceNumber(0)
+              examSection.exam = exam
+              examSection.expanded = true
+              examSection.sequenceNumber = 0
               examSection.save()
 
-              exam.getExamSections.add(examSection)
-              exam.getExamLanguages.add(DB.find(classOf[Language], "fi")) // TODO: configurable?
-              exam.setExamType(DB.find(classOf[ExamType], 2))             // Final
+              exam.examSections.add(examSection)
+              exam.examLanguages.add(DB.find(classOf[Language], "fi")) // TODO: configurable?
+              exam.examType = DB.find(classOf[ExamType], 2)            // Final
 
               val start = DateTime.now().withTimeAtStartOfDay()
               if !exam.isPrintout then
-                exam.setPeriodStart(start)
-                exam.setPeriodEnd(start.plusDays(1))
-              exam.setDuration(configReader.getExamDurationsJava.asScala.head)
+                exam.periodStart = start
+                exam.periodEnd = start.plusDays(1)
+              exam.duration = configReader.getExamDurations.head
               if configReader.isCourseGradeScaleOverridable then
-                exam.setGradeScale(DB.find(classOf[GradeScale]).list.head)
+                exam.gradeScale = DB.find(classOf[GradeScale]).list.head
 
               exam.save()
 
-              exam.getExamOwners.add(user)
-              exam.setTrialCount(1)
+              exam.examOwners.add(user)
+              exam.trialCount = 1
 
               exam.save()
 
-              Right(exam.getId)
+              Right(exam.id)
 
   def updateCourse(eid: Long, cid: Long, user: User): Either[ExamError, Unit] =
     Option(DB.find(classOf[Exam], eid)) match
@@ -436,24 +437,24 @@ class ExamService @Inject() (
           Option(DB.find(classOf[models.exam.Course], cid)) match
             case None => Left(ExamError.NotFound)
             case Some(course) =>
-              Option(course.getStartDate) match
+              Option(course.startDate) match
                 case Some(startDate) =>
                   val validity = configReader.getCourseValidityDate(new DateTime(startDate))
                   if validity.isAfterNow then Left(ExamError.CourseNotActive)
                   else
-                    Option(course.getEndDate) match
+                    Option(course.endDate) match
                       case Some(endDate) if endDate.before(new java.util.Date()) =>
                         Left(ExamError.CourseNotActive)
                       case _ =>
-                        exam.setCourse(course)
+                        exam.course = course
                         exam.save()
                         Right(())
                 case None =>
-                  Option(course.getEndDate) match
+                  Option(course.endDate) match
                     case Some(endDate) if endDate.before(new java.util.Date()) =>
                       Left(ExamError.CourseNotActive)
                     case _ =>
-                      exam.setCourse(course)
+                      exam.course = course
                       exam.save()
                       Right(())
         else Left(ExamError.AccessForbidden)

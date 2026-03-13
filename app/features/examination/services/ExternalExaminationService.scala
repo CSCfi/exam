@@ -10,11 +10,12 @@ import features.examination.services.ExternalExaminationError.*
 import io.ebean.DB
 import models.enrolment.ExamEnrolment
 import models.exam.Exam
+import models.exam.ExamState
 import models.iop.ExternalExam
-import models.questions.{ClozeTestAnswer, EssayAnswer, Question}
+import models.questions.QuestionType
+import models.questions.{ClozeTestAnswer, EssayAnswer}
 import models.sections.ExamSectionQuestion
 import models.user.User
-import org.joda.time.DateTime
 import play.api.{Environment, Logging}
 import security.BlockingIOExecutionContext
 import services.config.ByodConfigHandler
@@ -50,14 +51,14 @@ class ExternalExaminationService @Inject() (
               ExternalExaminationError,
               Exam
             ])) { enrolment =>
-              Try(externalExam.deserialize())
+              Try(externalExam.deserialize)
                 .fold(
                   _ => Future.successful(Left(DeserializationFailed)),
                   newExam =>
                     validateBasicEnrolment(enrolment, requestData).map {
                       case Some(error) => Left(ValidationError(error.header.status.toString))
                       case None =>
-                        if newExam.getState == Exam.State.PUBLISHED then
+                        if newExam.state == ExamState.PUBLISHED then
                           startExternalExam(externalExam, newExam, enrolment)
                         else
                           processExamForResponse(newExam)
@@ -68,10 +69,10 @@ class ExternalExaminationService @Inject() (
       }
 
   def turnExam(hash: String, user: User): Either[ExternalExaminationError, Unit] =
-    terminateExam(hash, Exam.State.REVIEW, user).map(_ => ())
+    terminateExam(hash, ExamState.REVIEW, user).map(_ => ())
 
   def abortExam(hash: String, user: User): Either[ExternalExaminationError, Unit] =
-    terminateExam(hash, Exam.State.ABORTED, user).map(_ => ())
+    terminateExam(hash, ExamState.ABORTED, user).map(_ => ())
 
   def answerMultiChoice(
       hash: String,
@@ -110,7 +111,7 @@ class ExternalExaminationService @Inject() (
             ExternalExaminationError,
             EssayAnswer
           ])) { ee =>
-            Try(ee.deserialize())
+            Try(ee.deserialize)
               .fold(
                 _ => Future.successful(Left(DeserializationFailed)),
                 content =>
@@ -120,18 +121,18 @@ class ExternalExaminationService @Inject() (
                       EssayAnswer
                     ])) {
                       question =>
-                        val answer = Option(question.getEssayAnswer).getOrElse(new EssayAnswer())
+                        val answer = Option(question.essayAnswer).getOrElse(new EssayAnswer())
                         // Handle optimistic locking
                         val hasVersionConflict = answerDTO.objectVersion match
-                          case Some(ov) if answer.getObjectVersion > ov => true
+                          case Some(ov) if answer.objectVersion > ov => true
                           case Some(ov) =>
-                            answer.setObjectVersion(ov + 1)
+                            answer.objectVersion = ov + 1
                             false
                           case None => false
                         if hasVersionConflict then Future.successful(Left(VersionConflict))
                         else
-                          answer.setAnswer(answerDTO.answer)
-                          question.setEssayAnswer(answer)
+                          answer.answer = answerDTO.answer
+                          question.essayAnswer = answer
                           Try(ee.serialize(content))
                             .fold(
                               _ => Future.successful(Left(SerializationFailed)),
@@ -162,17 +163,17 @@ class ExternalExaminationService @Inject() (
               findSectionQuestion(ee, questionId) match
                 case Left(error) => Future.successful(Left(error))
                 case Right((content, esq)) =>
-                  val answer = Option(esq.getClozeTestAnswer).getOrElse {
+                  val answer = Option(esq.clozeTestAnswer).getOrElse {
                     val newAnswer = new ClozeTestAnswer()
-                    esq.setClozeTestAnswer(newAnswer)
+                    esq.clozeTestAnswer = newAnswer
                     newAnswer
                   }
                   // Handle optimistic locking
-                  if answer.getObjectVersion > objectVersion then
+                  if answer.objectVersion > objectVersion then
                     Future.successful(Left(VersionConflict))
                   else
-                    answer.setObjectVersion(objectVersion + 1)
-                    answer.setAnswer(answerDTO.answer)
+                    answer.objectVersion = objectVersion + 1
+                    answer.answer = answerDTO.answer
                     Try(ee.serialize(content))
                       .fold(
                         _ => Future.successful(Left(SerializationFailed)),
@@ -188,46 +189,46 @@ class ExternalExaminationService @Inject() (
       newExam: Exam,
       enrolment: ExamEnrolment
   ): Either[ExternalExaminationError, Exam] =
-    newExam.setState(Exam.State.STUDENT_STARTED)
+    newExam.state = ExamState.STUDENT_STARTED
     Try(externalExam.serialize(newExam))
       .fold(
         _ => Left(SerializationFailed),
         _ =>
           val now = dateTimeHandler.adjustDST(
             clock.now(),
-            enrolment.getReservation.getMachine.getRoom
+            enrolment.reservation.machine.room
           )
-          externalExam.setStarted(now)
+          externalExam.started = now
           externalExam.update()
           processExamForResponse(newExam)
           Right(newExam)
       )
 
   private def processExamForResponse(exam: Exam): Unit =
-    exam.setCloned(false)
-    exam.setExternal(true)
+    exam.cloned = false
+    exam.external = true
     exam.setDerivedMaxScores()
     processClozeTestQuestions(exam)
 
   private def processClozeTestQuestions(exam: Exam): Unit =
-    val clozeTestQuestions = exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .filter(_.getQuestion.getType == Question.Type.ClozeTestQuestion)
+    val clozeTestQuestions = exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .filter(_.question.`type` == QuestionType.ClozeTestQuestion)
       .toList
 
     val questionsToHide = clozeTestQuestions.map { esq =>
-      val answer = Option(esq.getClozeTestAnswer).getOrElse(new ClozeTestAnswer())
+      val answer = Option(esq.clozeTestAnswer).getOrElse(new ClozeTestAnswer())
       answer.setQuestion(esq)
-      esq.setClozeTestAnswer(answer)
-      esq.getQuestion
+      esq.clozeTestAnswer = answer
+      esq.question
     }.toSet
-    questionsToHide.foreach(_.setQuestion(null))
+    questionsToHide.foreach(_.question = null)
 
   private def findSectionQuestion(
       ee: ExternalExam,
       qid: Long
   ): Either[ExternalExaminationError, (Exam, ExamSectionQuestion)] =
-    Try(ee.deserialize())
+    Try(ee.deserialize)
       .fold(
         _ => Left(DeserializationFailed),
         content =>
@@ -241,9 +242,9 @@ class ExternalExaminationService @Inject() (
       )
 
   private def findQuestion(qid: Long, content: Exam): Option[ExamSectionQuestion] =
-    content.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .find(_.getId == qid)
+    content.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .find(_.id == qid)
 
   private def processOptions(
       oids: List[Long],
@@ -251,7 +252,7 @@ class ExternalExaminationService @Inject() (
       ee: ExternalExam,
       content: Exam
   ): Future[Either[ExternalExaminationError, Unit]] =
-    esq.getOptions.asScala.foreach(o => o.setAnswered(oids.contains(o.getId)))
+    esq.options.asScala.foreach(o => o.answered = oids.contains(o.id))
     Try(ee.serialize(content))
       .fold(
         _ => Future.successful(Left(SerializationFailed)),
@@ -273,11 +274,11 @@ class ExternalExaminationService @Inject() (
       .fetch("reservation.machine")
       .fetch("reservation.machine.room")
       .where()
-      .eq("user.id", user.getId)
-      .eq("externalExam.hash", prototype.getHash)
+      .eq("user.id", user.id)
+      .eq("externalExam.hash", prototype.hash)
       .le("reservation.startAt", now.toDate)
       .gt("reservation.endAt", now.toDate)
-      .eq("reservation.externalUserRef", user.getEppn)
+      .eq("reservation.externalUserRef", user.eppn)
       .find
 
   private def validateEnrolment(
@@ -289,7 +290,7 @@ class ExternalExaminationService @Inject() (
       .where()
       .eq("externalExam.hash", hash)
       .eq("externalExam.creator", user)
-      .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString)
+      .jsonEqualTo("externalExam.content", "state", ExamState.STUDENT_STARTED.toString)
       .find match
       case None => Future.successful(Left(EnrolmentNotFound))
       case Some(e) =>
@@ -314,13 +315,13 @@ class ExternalExaminationService @Inject() (
           case None => Left(EnrolmentNotFound)
           case Some(enrolment) =>
             val now =
-              dateTimeHandler.adjustDST(clock.now(), enrolment.getReservation.getMachine.getRoom)
-            ee.setFinished(now)
-            Try(ee.deserialize())
+              dateTimeHandler.adjustDST(clock.now(), enrolment.reservation.machine.room)
+            ee.finished = now
+            Try(ee.deserialize)
               .fold(
                 _ => Left(DeserializationFailed),
                 content =>
-                  if content.getState == Exam.State.STUDENT_STARTED then content.setState(newState)
+                  if content.state == ExamState.STUDENT_STARTED then content.state = newState
                   Try(ee.serialize(content))
                     .fold(
                       _ => Left(SerializationFailed),

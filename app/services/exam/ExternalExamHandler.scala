@@ -4,7 +4,6 @@
 
 package services.exam
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.inject.ImplementedBy
 import features.exam.copy.ExamCopyContext
 import features.iop.collaboration.services.CollaborativeExamLoaderService
@@ -13,14 +12,15 @@ import io.ebean.DB
 import io.ebean.text.json.EJson
 import models.assessment.ExamInspection
 import models.enrolment.{ExamEnrolment, ExamParticipation, Reservation}
-import models.exam.{Exam, Grade}
+import models.exam.Exam
+import models.exam.ExamState
+import models.exam.GradeType
 import models.iop.ExternalExam
-import models.questions.Question
+import models.questions.QuestionType
 import models.sections.ExamSection
 import models.user.User
 import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
-import org.springframework.beans.BeanUtils
 import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -28,6 +28,7 @@ import play.libs.Json as JavaJson
 import security.BlockingIOExecutionContext
 import services.config.ConfigReader
 import services.enrolment.NoShowHandler
+import services.json.EbeanMapper
 import services.json.JsonDeserializer
 import services.mail.EmailComposer
 
@@ -60,7 +61,7 @@ class ExternalExamHandlerImpl @Inject() (
       user: User,
       reservation: Reservation
   ): Future[Option[ExamEnrolment]] =
-    val url = parseUrl(reservation.getExternalRef)
+    val url = parseUrl(reservation.externalRef)
     wsClient.url(url).get().map { response =>
       if response.status != OK then
         logger.warn(
@@ -78,9 +79,9 @@ class ExternalExamHandlerImpl @Inject() (
           // - local ref is a UUID X. It is used locally for referencing the exam
           // - content's hash is set to X in order to simplify things with the frontend
 
-          val externalRef = document.getHash
+          val externalRef = document.hash
           val ref         = UUID.randomUUID().toString
-          document.setHash(ref)
+          document.hash = ref
 
           // Filter out optional sections
           val optionalSectionsNode: Seq[Long] = if root.has("optionalSections") then
@@ -88,51 +89,49 @@ class ExternalExamHandlerImpl @Inject() (
             root.get("optionalSections").asScala.map(_.asLong()).toSeq
           else Seq.empty[Long]
           val ids: Set[Long] = optionalSectionsNode.toSet
-          document.setExamSections(
-            document.getExamSections.asScala
-              .filter(es => !es.isOptional || ids.contains(es.getId))
+          document.examSections =
+            document.examSections.asScala
+              .filter(es => !es.optional || ids.contains(es.id))
               .toSet
               .asJava
-          )
 
           // Shuffle multi-choice options
-          document.getExamSections.asScala
-            .flatMap(_.getSectionQuestions.asScala)
+          document.examSections.asScala
+            .flatMap(_.sectionQuestions.asScala)
             .foreach { esq =>
-              val questionType = Option(esq.getQuestion).map(_.getType)
+              val questionType = Option(esq.question).map(_.`type`)
               questionType match
-                case Some(Question.Type.ClaimChoiceQuestion) =>
+                case Some(QuestionType.ClaimChoiceQuestion) =>
                   // For ClaimChoiceQuestion, ensure options are sorted by ID
                   // (needed because JSON deserialization doesn't apply @OrderBy)
-                  val sorted = esq.getOptions.asScala.sortBy(_.getOption.getId).asJava
-                  esq.setOptions(sorted)
-                case _ if esq.isOptionShufflingOn =>
+                  val sorted = esq.options.asScala.sortBy(_.option.id).asJava
+                  esq.options = sorted
+                case _ if esq.optionShufflingOn =>
                   // Shuffle options for non-claim-choice questions
-                  val shuffled = Random.shuffle(esq.getOptions.asScala)
-                  esq.setOptions(shuffled.asJava)
+                  val shuffled = Random.shuffle(esq.options.asScala)
+                  esq.options = shuffled.asJava
                 case _ => // No shuffling
             }
 
           // Shuffle section questions if lottery on
-          document.getExamSections.asScala.filter(_.isLotteryOn).foreach(_.shuffleQuestions())
+          document.examSections.asScala.filter(_.lotteryOn).foreach(_.shuffleQuestions())
 
           val content =
-            val om  = new ObjectMapper()
-            val txt = om.writeValueAsString(document)
+            val txt = EbeanMapper.create().writeValueAsString(document)
             EJson.parseObject(txt)
 
           val ee = new ExternalExam()
-          ee.setExternalRef(externalRef)
-          ee.setHash(ref)
-          ee.setContent(content)
-          ee.setCreator(user)
-          ee.setCreated(DateTime.now())
+          ee.externalRef = externalRef
+          ee.hash = ref
+          ee.content = content
+          ee.creator = user
+          ee.created = DateTime.now()
           ee.save()
 
           val enrolment = new ExamEnrolment()
-          enrolment.setExternalExam(ee)
-          enrolment.setReservation(reservation)
-          enrolment.setUser(user)
+          enrolment.externalExam = ee
+          enrolment.reservation = reservation
+          enrolment.user = user
           enrolment.setRandomDelay()
           enrolment.save()
           enrolment
@@ -146,31 +145,30 @@ class ExternalExamHandlerImpl @Inject() (
     }
 
   override def createCopyForAssessment(enrolment: ExamEnrolment, externalExam: ExternalExam): Exam =
-    val parent = DB.find(classOf[Exam]).where().eq("hash", externalExam.getExternalRef).findOne()
-    val src    = externalExam.deserialize()
-    val clone  = createCopy(src, parent, enrolment.getUser)
+    val parent = DB.find(classOf[Exam]).where().eq("hash", externalExam.externalRef).findOne()
+    val src    = externalExam.deserialize
+    val clone  = createCopy(src, parent, enrolment.user)
 
     val ep = new ExamParticipation()
-    ep.setExam(clone)
-    ep.setCollaborativeExam(enrolment.getCollaborativeExam)
-    ep.setUser(enrolment.getUser)
-    ep.setStarted(externalExam.getStarted)
-    ep.setEnded(externalExam.getFinished)
-    ep.setReservation(enrolment.getReservation)
-    ep.setDuration(
-      new DateTime(externalExam.getFinished.getMillis - externalExam.getStarted.getMillis)
-    )
+    ep.exam = clone
+    ep.collaborativeExam = enrolment.collaborativeExam
+    ep.user = enrolment.user
+    ep.started = externalExam.started
+    ep.ended = externalExam.finished
+    ep.reservation = enrolment.reservation
+    ep.duration =
+      new DateTime(externalExam.finished.getMillis - externalExam.started.getMillis)
 
-    if clone.getState == Exam.State.REVIEW then
+    if clone.state == ExamState.REVIEW then
       import scala.jdk.OptionConverters.*
       val settings = configReader.getOrCreateSettings(
         "review_deadline",
         java.util.Optional.empty[String].toScala,
         java.util.Optional.of("14").toScala
       )
-      val deadlineDays = settings.getValue.toInt
-      val deadline     = externalExam.getFinished.plusDays(deadlineDays)
-      ep.setDeadline(deadline)
+      val deadlineDays = settings.value.toInt
+      val deadline     = externalExam.finished.plusDays(deadlineDays)
+      ep.deadline = deadline
       if clone.isPrivate then notifyTeachers(clone)
       autoEvaluationHandler.autoEvaluate(clone)
 
@@ -178,76 +176,64 @@ class ExternalExamHandlerImpl @Inject() (
     clone
 
   private def createCopy(src: Exam, parent: Exam, user: User): Exam =
-    val clone = new Exam()
-    BeanUtils.copyProperties(
-      src,
-      clone,
-      "id",
-      "parent",
-      "attachment",
-      "examSections",
-      "examEnrolments",
-      "examParticipation",
-      "examInspections",
-      "autoEvaluationConfig",
-      "creator",
-      "created",
-      "examOwners"
-    )
-    clone.setParent(parent)
-    if Option(src.getAttachment).isDefined then
-      val copy = src.getAttachment.copy()
+    val clone = src.scalarCopy()
+    clone.parent = parent
+    if Option(src.attachment).isDefined then
+      val copy = src.attachment.copy()
       copy.save()
-      clone.setAttachment(copy)
+      clone.attachment = copy
 
     clone.setCreatorWithDate(user)
     clone.setModifierWithDate(user)
     clone.generateHash()
-    clone.setGradingType(Grade.Type.GRADED)
+    clone.gradingType = GradeType.GRADED
     clone.save()
 
-    if Option(src.getAutoEvaluationConfig).isDefined then
-      val configClone = src.getAutoEvaluationConfig.copy()
-      configClone.setExam(clone)
+    if Option(src.autoEvaluationConfig).isDefined then
+      val configClone = src.autoEvaluationConfig.copy()
+      configClone.exam = clone
       configClone.save()
-      clone.setAutoEvaluationConfig(configClone)
+      clone.autoEvaluationConfig = configClone
 
-    src.getExamInspections.asScala.foreach { ei =>
+    src.examInspections.asScala.foreach { ei =>
       val inspection = new ExamInspection()
-      BeanUtils.copyProperties(ei, inspection, "id", "exam")
-      inspection.setExam(clone)
+      inspection.user = ei.user
+      inspection.assignedBy = ei.assignedBy
+      inspection.comment = ei.comment
+      inspection.ready = ei.ready
+      inspection.exam = clone
       inspection.save()
     }
 
-    val sections = new java.util.TreeSet[ExamSection](src.getExamSections)
+    val sections = new java.util.TreeSet[ExamSection](src.examSections)
     val context  = ExamCopyContext.forCopyWithAnswers(Some(user)).build()
     sections.asScala.foreach { es =>
       val esCopy = es.copy(clone, context)
       esCopy.setCreatorWithDate(user)
       esCopy.setModifierWithDate(user)
       esCopy.save()
-      esCopy.getSectionQuestions.asScala.foreach { esq =>
-        val questionCopy = esq.getQuestion
+      esCopy.sectionQuestions.asScala.foreach { esq =>
+        val questionCopy = esq.question
         questionCopy.setCreatorWithDate(user)
         questionCopy.setModifierWithDate(user)
         questionCopy.update()
         esq.save()
       }
-      clone.getExamSections.add(esCopy)
+      clone.examSections.add(esCopy)
     }
     clone.save()
     clone
 
   private def notifyTeachers(exam: Exam): Unit =
     val recipients = (
-      exam.getParent.getExamOwners.asScala ++
-        exam.getExamInspections.asScala.map(_.getUser)
+      exam.parent.examOwners.asScala ++
+        exam.examInspections.asScala.map(_.user)
     ).toSet
 
     emailComposer.scheduleEmail(1.second) {
       recipients.foreach { r =>
         emailComposer.composePrivateExamEnded(r, exam)
-        logger.info(s"Email sent to ${r.getEmail}")
+        logger.info(s"Email sent to ${r.email}")
       }
     }
 

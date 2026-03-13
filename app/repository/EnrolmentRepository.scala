@@ -8,7 +8,7 @@ import database.EbeanQueryExtensions
 import io.ebean.text.PathProperties
 import io.ebean.{DB, Database}
 import models.enrolment.ExamEnrolment
-import models.exam.Exam
+import models.exam.{ExamImplementation, ExamState}
 import models.facility.{ExamMachine, ExamRoom}
 import models.user.{Role, User}
 import org.apache.commons.codec.binary.Base64
@@ -65,7 +65,7 @@ class EnrolmentRepository @Inject() (
         if user.hasRole(Role.Name.STUDENT) then baseQuery.eq("user", user)
         else baseQuery
 
-      Option(query.findOne()).map(_.getReservation.getMachine.getRoom)
+      Option(query.findOne()).map(_.reservation.machine.room)
     }
 
   private def doGetStudentEnrolments(user: User): List[ExamEnrolment] =
@@ -111,29 +111,29 @@ class EnrolmentRepository @Inject() (
       .endOr()
       .list
       .filter { ee =>
-        Option(ee.getExaminationEventConfiguration) match
+        Option(ee.examinationEventConfiguration) match
           case None => true
           case Some(config) =>
-            val start = config.getExaminationEvent.getStart
-            start.plusMinutes(ee.getExam.getDuration).isAfterNow
+            val start = config.examinationEvent.start
+            start.plusMinutes(ee.exam.duration).isAfterNow
       }
 
     // Hide section info if no optional sections exist
     enrolments.foreach { ee =>
-      Option(ee.getExam).foreach { exam =>
-        if !exam.getExamSections.asScala.exists(_.isOptional) then exam.getExamSections.clear()
+      Option(ee.exam).foreach { exam =>
+        if !exam.examSections.asScala.exists(_.optional) then exam.examSections.clear()
       }
     }
 
     enrolments.filter { ee =>
-      Option(ee.getExam).flatMap(e => Option(e.getPeriodEnd)) match
+      Option(ee.exam).flatMap(e => Option(e.periodEnd)) match
         case Some(periodEnd) =>
-          periodEnd.isAfterNow && ee.getExam.hasState(
-            Exam.State.PUBLISHED,
-            Exam.State.STUDENT_STARTED
+          periodEnd.isAfterNow && ee.exam.hasState(
+            ExamState.PUBLISHED,
+            ExamState.STUDENT_STARTED
           )
         case None =>
-          Option(ee.getCollaborativeExam).exists(_.getPeriodEnd.isAfterNow)
+          Option(ee.collaborativeExam).exists(_.periodEnd.isAfterNow)
     }
 
   private def doGetReservationHeaders(
@@ -172,31 +172,31 @@ class EnrolmentRepository @Inject() (
       eppn: String
   ): Boolean =
     val requiresReservation =
-      Option(enrolment.getExternalExam).isDefined ||
-        Option(enrolment.getCollaborativeExam).isDefined ||
-        Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.AQUARIUM)
+      Option(enrolment.externalExam).isDefined ||
+        Option(enrolment.collaborativeExam).isDefined ||
+        Option(enrolment.exam).exists(_.implementation == ExamImplementation.AQUARIUM)
 
     // Lose the checks for dev usage to facilitate for easier testing
     if environment.mode == Mode.Dev && requiresReservation then true
     else
       val requiresClientAuth =
-        Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.CLIENT_AUTH)
+        Option(enrolment.exam).exists(_.implementation == ExamImplementation.CLIENT_AUTH)
 
       if requiresClientAuth then
         logger.info("Checking SEB config...")
         // SEB examination
-        val config = enrolment.getExaminationEventConfiguration
+        val config = enrolment.examinationEventConfiguration
         val error =
           byodConfigHandler.checkUserAgent(
             request.headers.toMap,
             request.uri,
             request.host,
-            config.getConfigKey
+            config.configKey
           )
 
         if error.isDefined then
           val msg =
-            ISODateTimeFormat.dateTime().print(new DateTime(config.getExaminationEvent.getStart))
+            ISODateTimeFormat.dateTime().print(new DateTime(config.examinationEvent.start))
           headers.put("x-exam-wrong-agent-config", msg)
           logger.warn("Wrong agent config for SEB")
           false
@@ -205,9 +205,9 @@ class EnrolmentRepository @Inject() (
           true
       else if requiresReservation then
         // Aquarium examination
-        val examMachine = enrolment.getReservation.getMachine
-        val room        = examMachine.getRoom
-        val machineIp   = examMachine.getIpAddress
+        val examMachine = enrolment.reservation.machine
+        val room        = examMachine.room
+        val machineIp   = examMachine.ipAddress
         val remoteIp    = request.remoteAddress
 
         logger.debug(s"User is on IP: $remoteIp <-> Should be on IP: $machineIp")
@@ -219,29 +219,29 @@ class EnrolmentRepository @Inject() (
               case None =>
                 // IP is not known
                 val local = configReader.isLocalUser(eppn)
-                val zone  = DateTimeZone.forID(room.getLocalTimezone)
+                val zone  = DateTimeZone.forID(room.localTimezone)
                 val start = {
                   ISODateTimeFormat.dateTime().withZone(zone).print(new DateTime(
-                    enrolment.getReservation.getStartAt
+                    enrolment.reservation.startAt
                   ))
                 }
                 val msg = Seq(
-                  enrolment.getId,
-                  room.getCampus,
-                  room.getBuildingName,
-                  room.getRoomCode,
-                  examMachine.getName,
+                  enrolment.id,
+                  room.campus,
+                  room.buildingName,
+                  room.roomCode,
+                  examMachine.name,
                   start,
                   zone.getID,
-                  if local then "true" else enrolment.getId
+                  if local then "true" else enrolment.id
                 ).mkString(":::")
                 ("x-exam-unknown-machine", msg)
-              case Some(lookedUp) if lookedUp.getRoom.getId == room.getId =>
+              case Some(lookedUp) if lookedUp.room.id == room.id =>
                 // Right room, wrong machine
-                ("x-exam-wrong-machine", s"${enrolment.getId}:::${lookedUp.getId}")
+                ("x-exam-wrong-machine", s"${enrolment.id}:::${lookedUp.id}")
               case Some(lookedUp) =>
                 // Wrong room
-                ("x-exam-wrong-room", s"${enrolment.getId}:::${lookedUp.getId}")
+                ("x-exam-wrong-room", s"${enrolment.id}:::${lookedUp.id}")
 
           headers.put(header, Base64.encodeBase64String(message.getBytes))
           logger.debug(s"room and machine not ok. $message")
@@ -250,12 +250,12 @@ class EnrolmentRepository @Inject() (
       else true
 
   private def getExamHash(enrolment: ExamEnrolment): String =
-    Option(enrolment.getExternalExam)
-      .map(_.getHash)
-      .orElse(Option(enrolment.getCollaborativeExam).filter(_ =>
-        Option(enrolment.getExam).isEmpty
-      ).map(_.getHash))
-      .getOrElse(Option(enrolment.getExam).map(_.getHash).get)
+    Option(enrolment.externalExam)
+      .map(_.hash)
+      .orElse(Option(enrolment.collaborativeExam).filter(_ =>
+        Option(enrolment.exam).isEmpty
+      ).map(_.hash))
+      .getOrElse(Option(enrolment.exam).map(_.hash).get)
 
   private def handleOngoingEnrolment(
       enrolment: ExamEnrolment,
@@ -273,53 +273,53 @@ class EnrolmentRepository @Inject() (
       headers: scala.collection.mutable.Map[String, String],
       eppn: String
   ): Unit =
-    if Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.WHATEVER) then
+    if Option(enrolment.exam).exists(_.implementation == ExamImplementation.WHATEVER) then
       // Home exam, don't set headers unless it starts in 5 minutes
       val threshold = clock.now().plusMinutes(5)
-      val start     = enrolment.getExaminationEventConfiguration.getExaminationEvent.getStart
+      val start     = enrolment.examinationEventConfiguration.examinationEvent.start
       if start.isBefore(threshold) then
-        headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.getId}")
+        headers.put("x-exam-upcoming-exam", s"$getExamHash(enrolment)}:::${enrolment.id}")
     else if isMachineOk(enrolment, request, headers, eppn) then
-      if Option(enrolment.getExam).exists(_.getImplementation == Exam.Implementation.AQUARIUM) then
+      if Option(enrolment.exam).exists(_.implementation == ExamImplementation.AQUARIUM) then
         // Aquarium exam
         val threshold      = clock.now().plusMinutes(5)
         val thresholdEarly = clock.now().withTimeAtStartOfDay().plusDays(1)
         val start =
-          dateTimeHandler.normalize(enrolment.getReservation.getStartAt, enrolment.getReservation)
+          dateTimeHandler.normalize(enrolment.reservation.startAt, enrolment.reservation)
         // if start is within 5 minutes, set the upcoming exam header
         if start.isBefore(threshold) then
-          headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.getId}")
+          headers.put("x-exam-upcoming-exam", s"$getExamHash(enrolment)}:::${enrolment.id}")
         // otherwise set the early login header if start is within today. For dev purposes skip requirement
         else if start.isBefore(thresholdEarly) && start.isAfterNow && environment.mode != Mode.Dev
         then
-          headers.put("x-exam-aquarium-login", s"${getExamHash(enrolment)}:::${enrolment.getId}")
+          headers.put("x-exam-aquarium-login", s"$getExamHash(enrolment)}:::${enrolment.id}")
       else
         // SEB exam
-        headers.put("x-exam-upcoming-exam", s"${getExamHash(enrolment)}:::${enrolment.getId}")
+        headers.put("x-exam-upcoming-exam", s"$getExamHash(enrolment)}:::${enrolment.id}")
 
   private def isInsideBounds(ee: ExamEnrolment, minutesToFuture: Int): Boolean =
-    val earliest = Option(ee.getExaminationEventConfiguration) match
+    val earliest = Option(ee.examinationEventConfiguration) match
       case None    => dateTimeHandler.adjustDST(clock.now())
       case Some(_) => clock.now()
     val latest = earliest.plusMinutes(minutesToFuture)
-    val delay  = ee.getDelay
+    val delay  = ee.delay
 
-    Option(ee.getReservation).exists { reservation =>
-      reservation.getStartAt.plusMillis(delay).isBefore(latest) &&
-      reservation.getEndAt.isAfter(earliest)
+    Option(ee.reservation).exists { reservation =>
+      reservation.startAt.plusMillis(delay).isBefore(latest) &&
+      reservation.endAt.isAfter(earliest)
     } ||
-    Option(ee.getExaminationEventConfiguration).map(_.getExaminationEvent).exists { event =>
-      event.getStart.plusMillis(delay).isBefore(latest) &&
-      event.getStart.plusMinutes(ee.getExam.getDuration).isAfter(earliest)
+    Option(ee.examinationEventConfiguration).map(_.examinationEvent).exists { event =>
+      event.start.plusMillis(delay).isBefore(latest) &&
+      event.start.plusMinutes(ee.exam.duration).isAfter(earliest)
     }
 
   private def getStartTime(enrolment: ExamEnrolment): DateTime =
-    Option(enrolment.getReservation) match
+    Option(enrolment.reservation) match
       case Some(reservation) =>
-        reservation.getStartAt.plusMillis(enrolment.getDelay)
+        reservation.startAt.plusMillis(enrolment.delay)
       case None =>
-        enrolment.getExaminationEventConfiguration.getExaminationEvent.getStart.plusMillis(
-          enrolment.getDelay
+        enrolment.examinationEventConfiguration.examinationEvent.start.plusMillis(
+          enrolment.delay
         )
 
   private def getNextEnrolment(userId: Long, minutesToFuture: Int): Option[ExamEnrolment] =
@@ -336,15 +336,15 @@ class EnrolmentRepository @Inject() (
       .where()
       .eq("user.id", userId)
       .or()
-      .eq("exam.state", Exam.State.PUBLISHED)
-      .eq("exam.state", Exam.State.STUDENT_STARTED)
-      .eq("exam.state", Exam.State.INITIALIZED)
+      .eq("exam.state", ExamState.PUBLISHED)
+      .eq("exam.state", ExamState.STUDENT_STARTED)
+      .eq("exam.state", ExamState.INITIALIZED)
       .and()
       .isNull("exam")
-      .eq("collaborativeExam.state", Exam.State.PUBLISHED)
+      .eq("collaborativeExam.state", ExamState.PUBLISHED)
       .endAnd()
-      .jsonEqualTo("externalExam.content", "state", Exam.State.PUBLISHED.toString)
-      .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString)
+      .jsonEqualTo("externalExam.content", "state", ExamState.PUBLISHED.toString)
+      .jsonEqualTo("externalExam.content", "state", ExamState.STUDENT_STARTED.toString)
       .endOr()
       .or()
       .isNotNull("reservation.machine")

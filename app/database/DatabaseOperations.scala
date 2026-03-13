@@ -29,7 +29,7 @@ object DatabaseOperations:
     *   {{{
     * import database.DatabaseOperations.blocking
     *
-    * def getUser(id: Long): Future[Option[User]] =
+    * def.user(id: Long): Future[Option[User]] =
     *   blocking {
     *     DB.find(classOf[User]).where().idEq(id).find
     *   }

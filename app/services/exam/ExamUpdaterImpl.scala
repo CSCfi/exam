@@ -6,8 +6,11 @@ package services.exam
 
 import database.EbeanQueryExtensions
 import io.ebean.DB
+import models.assessment.AutoEvaluationReleaseType
+import models.assessment.ExamFeedbackReleaseType
 import models.assessment.{AutoEvaluationConfig, ExamFeedbackConfig, GradeEvaluation}
 import models.exam.*
+import models.questions.QuestionType
 import models.questions.{ClozeTestAnswer, Question}
 import models.user.{Language, Role, User}
 import org.joda.time.DateTime
@@ -34,20 +37,20 @@ class ExamUpdaterImpl @Inject() (
       user: User,
       payload: Exam
   ): Option[Result] =
-    val newDuration = Option(payload.getDuration)
-    val newStart    = Option(payload.getPeriodStart)
-    val newEnd      = Option(payload.getPeriodEnd)
+    val newDuration = Option(payload.duration)
+    val newStart    = Option(payload.periodStart)
+    val newEnd      = Option(payload.periodEnd)
 
     // For printout exams everything is allowed
     if exam.isPrintout then
-      exam.setDuration(newDuration.orNull)
+      exam.duration = newDuration.orNull
       None
     else
       // Check unsupervised exam constraints
       val unsupervisedCheck =
         if exam.isUnsupervised && newEnd.isDefined then
-          val dates = exam.getExaminationEventConfigurations.asScala
-            .map(_.getExaminationEvent.getStart)
+          val dates = exam.examinationEventConfigurations.asScala
+            .map(_.examinationEvent.start)
             .toSet
           if dates.exists(_.isAfter(newEnd.get)) then
             Some(Forbidden("i18n_error_future_reservations_exist"))
@@ -66,7 +69,7 @@ class ExamUpdaterImpl @Inject() (
               isStartDate = true
             )
           then
-            exam.setPeriodStart(start)
+            exam.periodStart = start
             None
           else Some(Forbidden("i18n_error_future_reservations_exist"))
         }
@@ -80,7 +83,7 @@ class ExamUpdaterImpl @Inject() (
                 isStartDate = false
               )
             then
-              exam.setPeriodEnd(end)
+              exam.periodEnd = end
               None
             else Some(Forbidden("i18n_error_future_reservations_exist"))
           }
@@ -88,8 +91,8 @@ class ExamUpdaterImpl @Inject() (
           endDateCheck.orElse {
             // Update duration
             newDuration.flatMap { duration =>
-              if Option(exam.getDuration).contains(duration) || !hasFutureRes || isAdmin then
-                exam.setDuration(duration)
+              if Option(exam.duration).contains(duration) || !hasFutureRes || isAdmin then
+                exam.duration = duration
                 None
               else Some(Forbidden("i18n_error_future_reservations_exist"))
             }
@@ -98,42 +101,42 @@ class ExamUpdaterImpl @Inject() (
       }
 
   override def updateStateAndValidate(exam: Exam, user: User, payload: Exam): Option[Result] =
-    Option(payload.getState).flatMap {
-      case state @ Exam.State.PRE_PUBLISHED =>
+    Option(payload.state).flatMap {
+      case state @ ExamState.PRE_PUBLISHED =>
         // Exam is pre-published or about to be pre-published
         val error = getFormValidationError(!exam.isPrintout, payload).orElse {
-          if exam.getExamLanguages.isEmpty then Some(BadRequest("no exam languages specified"))
+          if exam.examLanguages.isEmpty then Some(BadRequest("no exam languages specified"))
           else None
         }
-        exam.setState(state)
+        exam.state = state
         error
 
-      case state @ Exam.State.PUBLISHED =>
+      case state @ ExamState.PUBLISHED =>
         // Exam is published or about to be published
         getFormValidationError(!exam.isPrintout, payload)
           .orElse {
             // Check for unnamed sections
-            if exam.getExamSections.asScala.exists(_.getName == null) then
+            if exam.examSections.asScala.exists(_.name == null) then
               Some(BadRequest("i18n_exam_contains_unnamed_sections"))
             else None
           }
           .orElse {
-            if exam.getExamLanguages.isEmpty then Some(BadRequest("no exam languages specified"))
+            if exam.examLanguages.isEmpty then Some(BadRequest("no exam languages specified"))
             else None
           }
           .orElse {
             // Check maturity exam requirements
-            if exam.getExecutionType.getType == ExamExecutionType.Type.MATURITY.toString then
-              if Option(payload.getSubjectToLanguageInspection).isEmpty then
+            if exam.executionType.`type` == ExamExecutionType.Type.MATURITY.toString then
+              if Option(payload.subjectToLanguageInspection).isEmpty then
                 Some(BadRequest("language inspection requirement not configured"))
               else None
             else None
           }
           .orElse {
             // Check SEB password configuration
-            if exam.getImplementation == Exam.Implementation.CLIENT_AUTH then
-              if exam.getExaminationEventConfigurations.asScala.exists(
-                  _.getEncryptedSettingsPassword == null
+            if exam.implementation == ExamImplementation.CLIENT_AUTH then
+              if exam.examinationEventConfigurations.asScala.exists(
+                  _.encryptedSettingsPassword == null
                 )
               then
                 Some(BadRequest("settings password not configured"))
@@ -142,8 +145,8 @@ class ExamUpdaterImpl @Inject() (
           }
           .orElse {
             // Check private exam participants
-            if exam.isPrivate && exam.getState != Exam.State.PUBLISHED then
-              if exam.getExamEnrolments.isEmpty then Some(BadRequest("i18n_no_participants"))
+            if exam.isPrivate && exam.state != ExamState.PUBLISHED then
+              if exam.examEnrolments.isEmpty then Some(BadRequest("i18n_no_participants"))
               else
                 notifyParticipantsAboutPrivateExamPublication(exam, user)
                 None
@@ -151,7 +154,7 @@ class ExamUpdaterImpl @Inject() (
           }
           .orElse {
             // Check printout exam dates
-            if exam.isPrintout && exam.getExaminationDates.isEmpty then
+            if exam.isPrintout && exam.examinationDates.isEmpty then
               Some(BadRequest("no examination dates specified"))
             else None
           }
@@ -159,72 +162,72 @@ class ExamUpdaterImpl @Inject() (
             error // Don't set state if there's an error
           }
           .orElse {
-            exam.setState(state)
+            exam.state = state
             None
           }
 
       case state =>
-        exam.setState(state)
+        exam.state = state
         None
     }
 
   override def update(exam: Exam, payload: Exam, loginRole: Role.Name): Unit =
-    val examName                   = Option(payload.getName)
-    val shared                     = payload.isShared
-    val grading                    = Option(payload.getGrade).map(_.getId)
-    val answerLanguage             = Option(payload.getAnswerLanguage)
-    val instruction                = Option(payload.getInstruction)
-    val enrollInstruction          = Option(payload.getEnrollInstruction)
-    val examType                   = Option(payload.getExamType).map(_.getType)
-    val organisations              = Option(payload.getOrganisations)
-    val trialCount                 = payload.getTrialCount
-    val requiresLanguageInspection = payload.getSubjectToLanguageInspection
-    val internalRef                = payload.getInternalRef
-    val anonymous                  = payload.isAnonymous
-    val impl = Option(payload.getImplementation).getOrElse(Exam.Implementation.AQUARIUM)
+    val examName                   = Option(payload.name)
+    val shared                     = payload.shared
+    val grading                    = Option(payload.grade).map(_.id)
+    val answerLanguage             = Option(payload.answerLanguage)
+    val instruction                = Option(payload.instruction)
+    val enrollInstruction          = Option(payload.enrollInstruction)
+    val examType                   = Option(payload.examType).map(_.`type`)
+    val organisations              = Option(payload.organisations)
+    val trialCount                 = payload.trialCount
+    val requiresLanguageInspection = payload.subjectToLanguageInspection
+    val internalRef                = payload.internalRef
+    val anonymous                  = payload.anonymous
+    val impl = Option(payload.implementation).getOrElse(ExamImplementation.AQUARIUM)
 
-    examName.foreach(exam.setName)
-    exam.setShared(shared)
+    examName.foreach(v => exam.name = v)
+    exam.shared = shared
 
     grading.foreach(updateGrading(exam, _))
 
-    answerLanguage.foreach(exam.setAnswerLanguage)
-    instruction.foreach(exam.setInstruction)
-    enrollInstruction.foreach(exam.setEnrollInstruction)
+    answerLanguage.foreach(v => exam.answerLanguage = v)
+    instruction.foreach(v => exam.instruction = v)
+    enrollInstruction.foreach(v => exam.enrollInstruction = v)
 
-    if exam.getState != Exam.State.PUBLISHED then
+    if exam.state != ExamState.PUBLISHED then
       organisations match
         case Some(orgs) =>
           val homeOrg = configReader.getHomeOrganisationRef
           val updated = if orgs.contains(homeOrg) then orgs else s"$homeOrg;$orgs"
-          exam.setOrganisations(updated)
+          exam.organisations = updated
         case None =>
-          exam.setOrganisations(null)
+          exam.organisations = null
 
     examType.foreach { typeStr =>
-      Option(DB.find(classOf[ExamType]).where().eq("type", typeStr).findOne()).foreach(
-        exam.setExamType
+      Option(DB.find(classOf[ExamType]).where().eq("type", typeStr).findOne()).foreach(t =>
+        exam.examType = t
       )
     }
 
-    exam.setTrialCount(trialCount)
-    exam.setSubjectToLanguageInspection(requiresLanguageInspection)
-    exam.setInternalRef(internalRef)
+    exam.trialCount = trialCount
+    exam.subjectToLanguageInspection = requiresLanguageInspection
+    exam.internalRef = internalRef
 
     // Set implementation based on config
     impl match
-      case Exam.Implementation.WHATEVER if configReader.isHomeExaminationSupported =>
-        exam.setImplementation(impl)
-      case Exam.Implementation.CLIENT_AUTH if configReader.isSebExaminationSupported =>
-        exam.setImplementation(impl)
+      case ExamImplementation.WHATEVER if configReader.isHomeExaminationSupported =>
+        exam.implementation = impl
+      case ExamImplementation.CLIENT_AUTH if configReader.isSebExaminationSupported =>
+        exam.implementation = impl
       case _ =>
-        exam.setImplementation(Exam.Implementation.AQUARIUM)
+        exam.implementation = ExamImplementation.AQUARIUM
 
     // Update anonymous flag for admins on public exams
     if (loginRole == Role.Name.ADMIN || loginRole == Role.Name.SUPPORT) &&
-      exam.getExecutionType.getType == ExamExecutionType.Type.PUBLIC.toString &&
+      exam.executionType.`type` == ExamExecutionType.Type.PUBLIC.toString &&
       !hasFutureReservations(exam)
-    then exam.setAnonymous(anonymous)
+    then exam.anonymous = anonymous
 
   override def isPermittedToUpdate(exam: Exam, user: User): Boolean =
     user.isAdminOrSupport || exam.isOwnedOrCreatedBy(user)
@@ -233,71 +236,71 @@ class ExamUpdaterImpl @Inject() (
     user.isAdminOrSupport || !hasFutureReservations(exam)
 
   override def isAllowedToRemove(exam: Exam): Boolean =
-    !hasFutureReservations(exam) && !hasFutureEvents(exam) && exam.getChildren.isEmpty
+    !hasFutureReservations(exam) && !hasFutureEvents(exam) && exam.children.isEmpty
 
   override def updateExamFeedbackConfig(exam: Exam, newConfig: ExamFeedbackConfig): Unit =
-    val config = exam.getExamFeedbackConfig
+    val config = exam.examFeedbackConfig
 
     Option(newConfig) match
       case None =>
         // User wishes to disable the config
         Option(config).foreach { c =>
           c.delete()
-          exam.setExamFeedbackConfig(null)
+          exam.examFeedbackConfig = null
         }
 
       case Some(nc) =>
         val finalConfig = Option(config).getOrElse {
           val c = new ExamFeedbackConfig()
-          c.setExam(exam)
-          exam.setExamFeedbackConfig(c)
+          c.exam = exam
+          exam.examFeedbackConfig = c
           c
         }
 
-        finalConfig.setReleaseType(nc.getReleaseType)
-        if finalConfig.getReleaseType == ExamFeedbackConfig.ReleaseType.GIVEN_DATE then
-          finalConfig.setReleaseDate(nc.getReleaseDate)
-        else finalConfig.setReleaseDate(null)
+        finalConfig.releaseType = nc.releaseType
+        if finalConfig.releaseType == ExamFeedbackReleaseType.GIVEN_DATE then
+          finalConfig.releaseDate = nc.releaseDate
+        else finalConfig.releaseDate = null
 
         finalConfig.save()
-        exam.setExamFeedbackConfig(finalConfig)
+        exam.examFeedbackConfig = finalConfig
 
   override def updateAutoEvaluationConfig(exam: Exam, newConfig: AutoEvaluationConfig): Unit =
-    val config = exam.getAutoEvaluationConfig
+    val config = exam.autoEvaluationConfig
 
     Option(newConfig) match
       case None =>
         // User wishes to disable the config
         Option(config).foreach { c =>
           c.delete()
-          exam.setAutoEvaluationConfig(null)
+          exam.autoEvaluationConfig = null
         }
 
       case Some(nc) =>
-        if exam.getExecutionType.getType != ExamExecutionType.Type.MATURITY.toString then
+        if exam.executionType.`type` != ExamExecutionType.Type.MATURITY.toString then
           val finalConfig = Option(config).getOrElse {
             val c = new AutoEvaluationConfig()
-            c.setGradeEvaluations(new java.util.HashSet[GradeEvaluation]())
-            c.setExam(exam)
-            exam.setAutoEvaluationConfig(c)
+            c.gradeEvaluations = new java.util.HashSet[GradeEvaluation]()
+            c.exam = exam
+            exam.autoEvaluationConfig = c
             c
           }
 
-          finalConfig.setReleaseType(nc.getReleaseType)
-          finalConfig.getReleaseType match
-            case AutoEvaluationConfig.ReleaseType.GIVEN_AMOUNT_DAYS =>
-              finalConfig.setAmountDays(nc.getAmountDays)
-              finalConfig.setReleaseDate(null)
-            case AutoEvaluationConfig.ReleaseType.GIVEN_DATE =>
-              finalConfig.setReleaseDate(nc.getReleaseDate)
-              finalConfig.setAmountDays(null)
+          finalConfig.releaseType = nc.releaseType
+          finalConfig.releaseType match
+            case AutoEvaluationReleaseType.GIVEN_AMOUNT_DAYS =>
+              finalConfig.amountDays = nc.amountDays
+              finalConfig.releaseDate = null
+            case AutoEvaluationReleaseType.GIVEN_DATE =>
+              finalConfig.releaseDate = nc.releaseDate
+              finalConfig.amountDays = null
             case _ =>
-              finalConfig.setReleaseDate(null)
-              finalConfig.setAmountDays(null)
+              finalConfig.releaseDate = null
+              finalConfig.amountDays = null
 
           finalConfig.save()
           updateGradeEvaluations(exam, nc)
-          exam.setAutoEvaluationConfig(finalConfig)
+          exam.autoEvaluationConfig = finalConfig
         else
           logger.warn(
             "Attempting to set auto evaluation config for maturity type. Refusing to do so"
@@ -307,52 +310,52 @@ class ExamUpdaterImpl @Inject() (
     if !isPermittedToUpdate(exam, user) then Some(Forbidden("i18n_error_access_forbidden"))
     else
       Option(DB.find(classOf[Language], code)).foreach { language =>
-        if exam.getExamLanguages.contains(language) then exam.getExamLanguages.remove(language)
-        else exam.getExamLanguages.add(language)
+        if exam.examLanguages.contains(language) then exam.examLanguages.remove(language)
+        else exam.examLanguages.add(language)
       }
       None
 
   override def preparePreview(exam: Exam): Unit =
     val questionsToHide = scala.collection.mutable.Set.empty[Question]
 
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .filter(_.getQuestion.getType == Question.Type.ClozeTestQuestion)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .filter(_.question.`type` == QuestionType.ClozeTestQuestion)
       .foreach { esq =>
         val answer = new ClozeTestAnswer()
         answer.setQuestion(esq)
-        esq.setClozeTestAnswer(answer)
-        questionsToHide += esq.getQuestion
+        esq.clozeTestAnswer = answer
+        questionsToHide += esq.question
       }
 
-    questionsToHide.foreach(_.setQuestion(null))
-    exam.getExamSections.asScala.filter(_.isLotteryOn).foreach(_.shuffleQuestions())
+    questionsToHide.foreach(_.question = null)
+    exam.examSections.asScala.filter(_.lotteryOn).foreach(_.shuffleQuestions())
     exam.setDerivedMaxScores()
 
   // Private helper methods
 
   private def updateGradeEvaluations(exam: Exam, newConfig: AutoEvaluationConfig): Unit =
-    val config             = exam.getAutoEvaluationConfig
-    val gradeMap           = config.asGradeMap.asScala.toMap
+    val config             = exam.autoEvaluationConfig
+    val gradeMap           = config.asGradeMap
     val handledEvaluations = scala.collection.mutable.ListBuffer.empty[Int]
-    val gs                 = Option(exam.getGradeScale).getOrElse(exam.getCourse.getGradeScale)
+    val gs                 = Option(exam.gradeScale).getOrElse(exam.course.gradeScale)
 
     // Handle proposed entries, persist new ones where necessary
-    newConfig.getGradeEvaluations.asScala.foreach { src =>
-      Option(DB.find(classOf[Grade], src.getGrade.getId)).foreach { grade =>
-        if gs.getGrades.contains(grade) then
+    newConfig.gradeEvaluations.asScala.foreach { src =>
+      Option(DB.find(classOf[Grade], src.grade.id)).foreach { grade =>
+        if gs.grades.contains(grade) then
           val ge = gradeMap.getOrElse(
-            grade.getId, {
+            grade.id, {
               val newGe = new GradeEvaluation()
-              newGe.setGrade(grade)
-              newGe.setAutoEvaluationConfig(config)
-              config.getGradeEvaluations.add(newGe)
+              newGe.grade = grade
+              newGe.autoEvaluationConfig = config
+              config.gradeEvaluations.add(newGe)
               newGe
             }
           )
-          ge.setPercentage(src.getPercentage)
+          ge.percentage = src.percentage
           ge.save()
-          handledEvaluations += grade.getId
+          handledEvaluations += grade.id
         else throw new IllegalArgumentException("unknown grade")
       }
     }
@@ -362,26 +365,26 @@ class ExamUpdaterImpl @Inject() (
       .filterNot { case (key, _) => handledEvaluations.contains(key) }
       .foreach { case (_, value) =>
         value.delete()
-        config.getGradeEvaluations.remove(value)
+        config.gradeEvaluations.remove(value)
       }
 
   private def hasFutureReservations(exam: Exam): Boolean =
     val now = DateTime.now()
-    exam.getExamEnrolments.asScala
-      .map(_.getReservation)
-      .exists(r => Option(r).exists(_.getEndAt.isAfter(now)))
+    exam.examEnrolments.asScala
+      .map(_.reservation)
+      .exists(r => Option(r).exists(_.endAt.isAfter(now)))
 
   private def hasFutureEvents(exam: Exam): Boolean =
     val now = DateTime.now()
-    exam.getExamEnrolments.asScala
-      .map(_.getExaminationEventConfiguration)
-      .exists(eec => Option(eec).exists(_.getExaminationEvent.getStart.isAfter(now)))
+    exam.examEnrolments.asScala
+      .map(_.examinationEventConfiguration)
+      .exists(eec => Option(eec).exists(_.examinationEvent.start.isAfter(now)))
 
   private def getFormValidationError(checkPeriod: Boolean, payload: Exam): Option[Result] =
     if !checkPeriod then None
     else
-      val start = Option(payload.getPeriodStart)
-      val end   = Option(payload.getPeriodEnd)
+      val start = Option(payload.periodStart)
+      val end   = Option(payload.periodEnd)
 
       (start, end) match
         case (None, _) =>
@@ -398,36 +401,36 @@ class ExamUpdaterImpl @Inject() (
       exam: Exam,
       isStartDate: Boolean
   ): Boolean =
-    val oldDate = if isStartDate then exam.getPeriodStart else exam.getPeriodEnd
+    val oldDate = if isStartDate then exam.periodStart else exam.periodEnd
     if isStartDate then !oldDate.isBefore(newDate)
     else !newDate.isBefore(oldDate)
 
   private def updateGrading(exam: Exam, grading: Int): Unit =
     // Allow updating grading if allowed in settings or if the course does not restrict the setting
     val canOverrideGrading = configReader.isCourseGradeScaleOverridable
-    if canOverrideGrading || Option(exam.getCourse).isEmpty || Option(exam.getCourse)
-        .flatMap(c => Option(c.getGradeScale))
+    if canOverrideGrading || Option(exam.course).isEmpty || Option(exam.course)
+        .flatMap(c => Option(c.gradeScale))
         .isEmpty
     then
       Option(DB.find(classOf[GradeScale]).fetch("grades").where().idEq(grading).findOne()) match
         case Some(scale) =>
-          exam.setGradeScale(scale)
+          exam.gradeScale = scale
         case None =>
           logger.warn(s"Grade scale not found for ID $grading. Not gonna update exam with it")
 
   private def notifyParticipantsAboutPrivateExamPublication(exam: Exam, sender: User): Unit =
-    val enrolments = exam.getExamEnrolments.asScala
-      .map(_.getUser)
+    val enrolments = exam.examEnrolments.asScala
+      .map(_.user)
       .filter(_ != null)
       .toSet
 
-    val preEnrolments = exam.getExamEnrolments.asScala
-      .map(_.getPreEnrolledUserEmail)
+    val preEnrolments = exam.examEnrolments.asScala
+      .map(_.preEnrolledUserEmail)
       .filter(_ != null)
       .map { email =>
         val user = new User()
-        user.setId(ThreadLocalRandom.current().nextLong()) // users are hashed based on id
-        user.setEmail(email)
+        user.id = ThreadLocalRandom.current().nextLong() // users are hashed based on id
+        user.email = email
         user
       }
       .toSet
@@ -437,6 +440,6 @@ class ExamUpdaterImpl @Inject() (
     emailComposer.scheduleEmail(1.second) {
       receivers.foreach { u =>
         emailComposer.composePrivateExamParticipantNotification(u, sender, exam)
-        logger.info(s"Exam participation notification email sent to ${u.getEmail}")
+        logger.info(s"Exam participation notification email sent to ${u.email}")
       }
     }

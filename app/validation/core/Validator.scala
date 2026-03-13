@@ -19,8 +19,8 @@ import scala.util.Try
   * Example usage:
   * {{{
   * val validator = Validator[User](parseUser)
-  *   .withRule(u => requireField("name", u.getName))
-  *   .withRule(u => requireField("email", u.getEmail))
+  *   .withRule(u => requireField("name", u.name))
+  *   .withRule(u => requireField("email", u.email))
   *   .withRule(validateEmailFormat)
   *
   * validator.validate(jsonNode) match

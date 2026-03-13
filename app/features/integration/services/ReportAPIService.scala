@@ -9,6 +9,7 @@ import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.enrolment.ExamEnrolment
 import models.exam.Exam
+import models.exam.ExamState
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, Interval}
 
@@ -59,7 +60,7 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
     val participations = query
       .where()
       .or()
-      .ne("exam.state", Exam.State.PUBLISHED)
+      .ne("exam.state", ExamState.PUBLISHED)
       .eq("noShow", true)
       .endOr()
       .or()
@@ -72,9 +73,9 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
 
     // Relations from exam to software exist on the parent exam. Therefore, fetch parent exam IDs separately
     val parentExamIds = participations.flatMap { participation =>
-      Option(participation.getExam)
-        .flatMap(exam => Option(exam.getParent))
-        .map(_.getId)
+      Option(participation.exam)
+        .flatMap(exam => Option(exam.parent))
+        .map(_.id)
     }.toSet
 
     val softwareByExam = DB
@@ -83,18 +84,17 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
       .where()
       .idIn(parentExamIds.map(id => Long.box(id)).asJava)
       .list
-      .map(exam => exam.getId -> exam.getSoftwareInfo.asScala.toList)
+      .map(exam => exam.id -> exam.softwares.asScala.toList)
       .toMap
 
     // Set software lists to child exams
     participations.foreach { participation =>
       for
-        exam     <- Option(participation.getExam)
-        parent   <- Option(exam.getParent)
-        software <- softwareByExam.get(parent.getId) if software.nonEmpty
-      do exam.setSoftwareInfo(software.asJava)
+        exam     <- Option(participation.exam)
+        parent   <- Option(exam.parent)
+        software <- softwareByExam.get(parent.id) if software.nonEmpty
+      do exam.softwares = software.asJava
     }
-
     (participations, pathProperties)
 
   private def filterByDate(
@@ -108,16 +108,16 @@ class ReportAPIService @Inject() () extends EbeanQueryExtensions:
     val endDate   = ISODateTimeFormat.dateTimeParser().parseDateTime(max)
     val range     = new Interval(startDate, endDate)
 
-    Option(enrolment.getReservation)
+    Option(enrolment.reservation)
       .map { reservation =>
-        val period = new Interval(reservation.getStartAt, reservation.getEndAt)
+        val period = new Interval(reservation.startAt, reservation.endAt)
         range.contains(period)
       }
       .orElse {
-        Option(enrolment.getExaminationEventConfiguration).map { config =>
-          val event    = config.getExaminationEvent
-          val duration = enrolment.getExam.getDuration
-          val period   = new Interval(event.getStart, event.getStart.plusMinutes(duration))
+        Option(enrolment.examinationEventConfiguration).map { config =>
+          val event    = config.examinationEvent
+          val duration = enrolment.exam.duration
+          val period   = new Interval(event.start, event.start.plusMinutes(duration))
           range.contains(period)
         }
       }

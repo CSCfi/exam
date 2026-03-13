@@ -15,13 +15,13 @@ class AccessibilityService @Inject() () extends EbeanQueryExtensions:
 
   def addAccessibility(name: String): Accessibility =
     val accessibility = new Accessibility()
-    accessibility.setName(name)
+    accessibility.name = name
     accessibility.save()
     accessibility
 
   def updateAccessibility(name: String): Accessibility =
     val accessibility = new Accessibility()
-    accessibility.setName(name)
+    accessibility.name = name
     accessibility.update()
     accessibility
 
@@ -34,7 +34,7 @@ class AccessibilityService @Inject() () extends EbeanQueryExtensions:
           .in("accessibilities", accessibility)
           .list
           .foreach { er =>
-            er.getAccessibilities.remove(accessibility)
+            er.accessibilities.remove(accessibility)
             er.update()
           }
         accessibility.delete()

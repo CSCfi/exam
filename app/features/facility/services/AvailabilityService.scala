@@ -61,7 +61,7 @@ class AvailabilityService @Inject() (
           .distinct
 
         val reservationMap = allSlots.map(i => i -> getReservationsDuring(reservations, i)).toMap
-        val machineCount   = room.getExamMachines.asScala.count(m => !m.getOutOfService)
+        val machineCount   = room.examMachines.asScala.count(m => !m.outOfService)
         val availability = reservationMap.map { case (interval, res) =>
           AvailabilityService.Availability(interval, machineCount, res.size)
         }.toSeq

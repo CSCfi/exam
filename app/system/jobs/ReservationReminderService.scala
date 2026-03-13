@@ -25,8 +25,8 @@ class ReservationReminderService @Inject() (
     with EbeanQueryExtensions:
 
   private def remind(r: Reservation): Unit =
-    emailComposer.composeReservationNotification(r.getUser, r, r.getEnrolment.getExam, true)
-    r.setReminderSent(true)
+    emailComposer.composeReservationNotification(r.user, r, r.enrolment.exam, true)
+    r.reminderSent = true
     r.update()
 
   private def runCheck(): IO[Unit] =

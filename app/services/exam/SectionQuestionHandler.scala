@@ -5,7 +5,8 @@
 package services.exam
 
 import io.ebean.DB
-import models.questions.MultipleChoiceOption.ClaimChoiceOptionType
+import models.questions.ClaimChoiceOptionType
+import models.questions.QuestionType
 import models.questions.{MultipleChoiceOption, Question}
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption, Sortable}
 import models.user.User
@@ -29,18 +30,18 @@ trait SectionQuestionHandler:
     else None
 
   def saveOption(option: MultipleChoiceOption, question: Question, user: User): Unit =
-    question.getOptions.add(option)
+    question.options.add(option)
     question.setModifierWithDate(user)
     question.save()
     option.save()
 
   def updateOptions(sectionQuestion: ExamSectionQuestion, question: Question): Unit =
-    sectionQuestion.getOptions.clear()
-    question.getOptions.asScala.foreach { option =>
+    sectionQuestion.options.clear()
+    question.options.asScala.foreach { option =>
       val esqo = new ExamSectionQuestionOption()
-      esqo.setOption(option)
-      esqo.setScore(option.getDefaultScore)
-      sectionQuestion.getOptions.add(esqo)
+      esqo.option = option
+      esqo.score = option.defaultScore
+      sectionQuestion.options.add(esqo)
     }
 
   def propagateOptionCreationToExamQuestions(
@@ -49,19 +50,19 @@ trait SectionQuestionHandler:
       option: MultipleChoiceOption
   ): Unit =
     // Need to add the new option to bound exam section questions as well
-    if question.getType == Question.Type.MultipleChoiceQuestion ||
-      question.getType == Question.Type.WeightedMultipleChoiceQuestion
+    if question.`type` == QuestionType.MultipleChoiceQuestion ||
+      question.`type` == QuestionType.WeightedMultipleChoiceQuestion
     then
-      question.getExamSectionQuestions.asScala.foreach { examQuestion =>
+      question.examSectionQuestions.asScala.foreach { examQuestion =>
         val esqo = new ExamSectionQuestionOption()
         // Preserve scores for the exam question that is under modification right now
         val preserveScore =
           modifiedExamQuestion != null && modifiedExamQuestion.equals(examQuestion)
         val unroundedScore =
-          if preserveScore then option.getDefaultScore
+          if preserveScore then option.defaultScore
           else calculateOptionScore(question, option, examQuestion)
-        esqo.setScore(if unroundedScore == null then null else round(unroundedScore))
-        esqo.setOption(option)
+        esqo.score = if unroundedScore == null then null else round(unroundedScore)
+        esqo.option = option
         examQuestion.addOption(esqo, preserveScore)
         examQuestion.update()
       }
@@ -82,7 +83,7 @@ trait SectionQuestionHandler:
       option: MultipleChoiceOption,
       esq: ExamSectionQuestion
   ): java.lang.Double =
-    val defaultScore = option.getDefaultScore
+    val defaultScore = option.defaultScore
     if defaultScore == null || defaultScore == 0 then defaultScore
     else
       val result =
@@ -105,15 +106,15 @@ trait SectionQuestionHandler:
       case None => ()
       case Some(id) =>
         Option(DB.find(classOf[MultipleChoiceOption], id)).foreach { option =>
-          PlayJsonHelper.parse[String]("option", node).foreach(option.setOption)
+          PlayJsonHelper.parse[String]("option", node).foreach(v => option.option = v)
           PlayJsonHelper
             .parseEnum("claimChoiceType", node, classOf[ClaimChoiceOptionType])
-            .foreach(option.setClaimChoiceType)
+            .foreach(v => option.claimChoiceType = v)
           if defaults == OptionUpdateOptions.HANDLE_DEFAULTS then
             PlayJsonHelper.parse[Double]("defaultScore", node).foreach { d =>
-              option.setDefaultScore(round(java.lang.Double.valueOf(d)))
+              option.defaultScore = round(java.lang.Double.valueOf(d))
             }
-          option.setCorrectOption(PlayJsonHelper.parseOrElse("correctOption", node, false))
+          option.correctOption = PlayJsonHelper.parseOrElse("correctOption", node, false)
           option.update()
         }
 
@@ -122,29 +123,29 @@ trait SectionQuestionHandler:
     else Math.round(src * 100) * (1.0 / 100)
 
   def deleteOption(option: MultipleChoiceOption): Unit =
-    val question = option.getQuestion
-    if question.getType == Question.Type.WeightedMultipleChoiceQuestion then
-      question.getExamSectionQuestions.asScala.foreach { esq =>
+    val question = option.question
+    if question.`type` == QuestionType.WeightedMultipleChoiceQuestion then
+      question.examSectionQuestions.asScala.foreach { esq =>
         esq.removeOption(option, false)
         esq.save()
       }
     option.delete()
 
   def updateExamQuestion(sectionQuestion: ExamSectionQuestion, question: Question): Unit =
-    sectionQuestion.setQuestion(question)
-    sectionQuestion.setMaxScore(question.getDefaultMaxScore)
-    val answerInstructions = question.getDefaultAnswerInstructions
-    sectionQuestion.setAnswerInstructions(
+    sectionQuestion.question = question
+    sectionQuestion.maxScore = question.defaultMaxScore
+    val answerInstructions = question.defaultAnswerInstructions
+    sectionQuestion.answerInstructions =
       if answerInstructions == null then null
       else Jsoup.clean(answerInstructions, Safelist.relaxed())
-    )
-    val evaluationCriteria = question.getDefaultEvaluationCriteria
-    sectionQuestion.setEvaluationCriteria(
+
+    val evaluationCriteria = question.defaultEvaluationCriteria
+    sectionQuestion.evaluationCriteria =
       if evaluationCriteria == null then null
       else Jsoup.clean(evaluationCriteria, Safelist.relaxed())
-    )
-    sectionQuestion.setEvaluationType(question.getDefaultEvaluationType)
-    sectionQuestion.setExpectedWordCount(question.getDefaultExpectedWordCount)
-    sectionQuestion.setNegativeScoreAllowed(question.isDefaultNegativeScoreAllowed)
-    sectionQuestion.setOptionShufflingOn(question.isDefaultOptionShufflingOn)
+
+    sectionQuestion.evaluationType = question.defaultEvaluationType
+    sectionQuestion.expectedWordCount = question.defaultExpectedWordCount
+    sectionQuestion.negativeScoreAllowed = question.defaultNegativeScoreAllowed
+    sectionQuestion.optionShufflingOn = question.defaultOptionShufflingOn
     updateOptions(sectionQuestion, question)

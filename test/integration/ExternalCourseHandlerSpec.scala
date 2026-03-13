@@ -80,7 +80,7 @@ class ExternalCourseHandlerSpec
     DB.find(classOf[User]).where().eq("eppn", "student@funet.fi").find match
       case Some(user) =>
         val org = code.flatMap(c => DB.find(classOf[Organisation]).where().eq("code", c).find)
-        user.setOrganisation(org.orNull)
+        user.organisation = org.orNull
         user.update()
       case None => fail("User not found")
 
@@ -100,21 +100,21 @@ class ExternalCourseHandlerSpec
         val courseId = (coursesJson.value.head \ "id").as[Long]
         val course = Option(DB.find(classOf[Course], courseId)) match
           case Some(course) =>
-            course.getCode must be("2121219_abcdefghijklmnop")
-            course.getGradeScale.getType must be(GradeScale.Type.OTHER)
-            course.getGradeScale.getDisplayName must be("0-5")
-            course.getGradeScale.getExternalRef must be("9")
-            course.getCreditsLanguage must be("fi")
+            course.code must be("2121219_abcdefghijklmnop")
+            course.gradeScale.getType must be(GradeScale.Type.OTHER)
+            course.gradeScale.displayName must be("0-5")
+            course.gradeScale.externalRef must be("9")
+            course.creditsLanguage must be("fi")
             course
           case None => fail("Course not found")
 
         val grades = DB
           .find(classOf[Grade])
           .where()
-          .eq("gradeScale.id", course.getGradeScale.getId)
+          .eq("gradeScale.id", course.gradeScale.id)
           .list
         grades must have size 7
-        grades.count(_.getMarksRejection) must be(1)
+        grades.count(_.marksRejection) must be(1)
 
         // Check that the imported course got into db
         val savedCourse =
@@ -135,11 +135,11 @@ class ExternalCourseHandlerSpec
         val courseId = (coursesJson.value.head \ "id").as[Long]
         Option(DB.find(classOf[Course], courseId)) match
           case Some(course) =>
-            course.getCode must be("2121219_abcdefghijklmnop")
-            course.getGradeScale.getType must be(GradeScale.Type.ZERO_TO_FIVE)
-            Option(course.getGradeScale.getDisplayName) must be(None)
-            Option(course.getGradeScale.getExternalRef) must be(None)
-            course.getCreditsLanguage must be("fi")
+            course.code must be("2121219_abcdefghijklmnop")
+            course.gradeScale.getType must be(GradeScale.Type.ZERO_TO_FIVE)
+            Option(course.gradeScale.displayName) must be(None)
+            Option(course.gradeScale.externalRef) must be(None)
+            course.creditsLanguage must be("fi")
           case None => fail("Course not found")
         // Check that the imported course got into db
         val savedCourse =
@@ -160,27 +160,27 @@ class ExternalCourseHandlerSpec
         val courseId = (coursesJson.value.head \ "id").as[Long]
         val course = Option(DB.find(classOf[Course], courseId)) match
           case Some(course) =>
-            course.getCode must be("MAT21014_hy-CUR-138798147")
-            course.getOrganisation.getName must be("Helsingin yliopisto")
-            course.getGradeScale.getType must be(GradeScale.Type.OTHER)
-            course.getGradeScale.getDisplayName must be("0-5")
-            course.getGradeScale.getExternalRef must be("sis-0-5")
-            course.getCreditsLanguage must be("en")
+            course.code must be("MAT21014_hy-CUR-138798147")
+            course.organisation.name must be("Helsingin yliopisto")
+            course.gradeScale.getType must be(GradeScale.Type.OTHER)
+            course.gradeScale.displayName must be("0-5")
+            course.gradeScale.externalRef must be("sis-0-5")
+            course.creditsLanguage must be("en")
             course
           case None => fail("Course not found")
         val grades = DB
           .find(classOf[Grade])
           .where()
-          .eq("gradeScale.id", course.getGradeScale.getId)
+          .eq("gradeScale.id", course.gradeScale.id)
           .list
         grades must have size 6
-        grades.count(_.getMarksRejection) must be(1)
+        grades.count(_.marksRejection) must be(1)
 
         // Check that the imported course got into db
         val savedCourse =
           DB.find(classOf[Course]).where().eq("code", "MAT21014_hy-CUR-138798147").find match
             case Some(sc) =>
-              sc.getGradeScale.getGrades must have size 6
+              sc.gradeScale.grades must have size 6
             case None => fail("Course not found")
 
     "updating courses" should:
@@ -199,8 +199,8 @@ class ExternalCourseHandlerSpec
 
         DB.find(classOf[Course]).where().eq("code", "2121219_abcdefghijklmnop").find match
           case Some(course) =>
-            course.getName must endWith("2")
-            course.getGradeScale.getDisplayName must be("1-2")
+            course.name must endWith("2")
+            course.gradeScale.displayName must be("1-2")
           case None => fail("Course not found")
 
     "searching for remote courses" should:
@@ -213,7 +213,7 @@ class ExternalCourseHandlerSpec
         setUserOrg(None)
 
         val localCourse = new Course()
-        localCourse.setCode("2121219_abcdefghijklmnopq")
+        localCourse.code = "2121219_abcdefghijklmnopq"
         localCourse.save()
 
         courseInfoServlet.setFile(new File("test/resources/courseUnitInfo.json"))
@@ -226,12 +226,12 @@ class ExternalCourseHandlerSpec
 
         val course1Id = (coursesJson.value(0) \ "id").as[Long]
         Option(DB.find(classOf[Course], course1Id)) match
-          case Some(course1) => course1.getCode must be("2121219_abcdefghijklmnop")
+          case Some(course1) => course1.code must be("2121219_abcdefghijklmnop")
           case None          => fail("Course 1 not found")
 
         val course2Id = (coursesJson.value(1) \ "id").as[Long]
         Option(DB.find(classOf[Course], course2Id)) match
-          case Some(course2) => course2.getCode must be("2121219_abcdefghijklmnopq")
+          case Some(course2) => course2.code must be("2121219_abcdefghijklmnopq")
           case None          => fail("Course 2 not found")
 
         // check that a remote course was added to the database
@@ -253,18 +253,18 @@ class ExternalCourseHandlerSpec
         val courseId = (coursesJson.value.head \ "id").as[Long]
         Option(DB.find(classOf[Course], courseId)) match
           case Some(course) =>
-            course.getCode must be("2121220")
-            course.getGradeScale.getType must be(GradeScale.Type.OTHER)
-            course.getGradeScale.getDisplayName must be("0-5")
-            course.getGradeScale.getExternalRef must be("9")
+            course.code must be("2121220")
+            course.gradeScale.getType must be(GradeScale.Type.OTHER)
+            course.gradeScale.displayName must be("0-5")
+            course.gradeScale.externalRef must be("9")
 
             val grades = DB
               .find(classOf[Grade])
               .where()
-              .eq("gradeScale.id", course.getGradeScale.getId)
+              .eq("gradeScale.id", course.gradeScale.id)
               .list
             grades must have size 7
-            grades.count(_.getMarksRejection) must be(1)
+            grades.count(_.marksRejection) must be(1)
           case None => fail("Course not found")
 
       "get multiple courses" in:
@@ -281,11 +281,11 @@ class ExternalCourseHandlerSpec
         val course7Id = (coursesJson.value(6) \ "id").as[Long]
         Option(DB.find(classOf[Course], course7Id)) match
           case Some(course7) =>
-            course7.getCode must be("T701203")
-            course7.getIdentifier must be("AAAWMhAALAAAmaRAAE")
-            course7.getCredits must be(3)
-            course7.getName must be("Ohjelmoinnin jatkokurssi")
-            course7.getOrganisation.getName must be("Oamk")
+            course7.code must be("T701203")
+            course7.identifier must be("AAAWMhAALAAAmaRAAE")
+            course7.credits must be(3)
+            course7.name must be("Ohjelmoinnin jatkokurssi")
+            course7.organisation.name must be("Oamk")
           case None => fail("Course 7 not found")
 
     "handling authorization" should:

@@ -11,7 +11,7 @@ import database.EbeanQueryExtensions
 import features.iop.collaboration.services.CollaborativeExamLoaderService
 import io.ebean.DB
 import models.enrolment.ExamParticipation
-import models.exam.Exam
+import models.exam.ExamState
 import play.api.Logging
 import security.BlockingIOExecutionContext
 
@@ -30,7 +30,7 @@ class CollaborativeAssessmentSenderService @Inject() (
   private val maxConcurrency = 10
 
   private def send(participation: ExamParticipation): IO[Unit] =
-    val ref = participation.getCollaborativeExam.getExternalRef
+    val ref = participation.collaborativeExam.externalRef
     logger.info(s"Sending collaborative assessment for exam $ref")
     IO.fromFuture(IO(collaborativeExamLoader.createAssessmentWithAttachments(participation)))
       .flatMap(success =>
@@ -51,7 +51,7 @@ class CollaborativeAssessmentSenderService @Inject() (
       pp.apply(query)
       query.where
         .isNotNull("collaborativeExam")
-        .in("exam.state", Exam.State.ABORTED, Exam.State.REVIEW)
+        .in("exam.state", ExamState.ABORTED, ExamState.REVIEW)
         .isNull("sentForReview")
         .isNotNull("started")
         .isNotNull("ended")

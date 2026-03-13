@@ -47,7 +47,7 @@ class ExternalAttachmentService @Inject() (
     finalQuery.find
 
   def getExam(externalExam: ExternalExam): Either[ExternalAttachmentError, Exam] =
-    Try(externalExam.deserialize()).toOption match
+    Try(externalExam.deserialize).toOption match
       case Some(exam) => Right(exam)
       case None =>
         logger.error("Can not deserialize external exam!")
@@ -63,7 +63,7 @@ class ExternalAttachmentService @Inject() (
         getExam(externalExam) match
           case Left(error) => Future.successful(Left(error))
           case Right(exam) =>
-            Option(exam.getAttachment) match
+            Option(exam.attachment) match
               case None => Future.successful(Left(ExternalAttachmentError.AttachmentNotFound))
               case Some(attachment) =>
                 downloadExternalAttachment(attachment).map(Right.apply)
@@ -79,12 +79,12 @@ class ExternalAttachmentService @Inject() (
         getExam(externalExam) match
           case Left(error) => Future.successful(Left(error))
           case Right(exam) =>
-            exam.getExamSections.asScala
-              .flatMap(_.getSectionQuestions.asScala)
-              .find(_.getId == qid) match
+            exam.examSections.asScala
+              .flatMap(_.sectionQuestions.asScala)
+              .find(_.id == qid) match
               case None => Future.successful(Left(ExternalAttachmentError.SectionQuestionNotFound))
               case Some(sq) =>
-                Option(sq.getQuestion.getAttachment) match
+                Option(sq.question.attachment) match
                   case None => Future.successful(Left(ExternalAttachmentError.AttachmentNotFound))
                   case Some(attachment) =>
                     downloadExternalAttachment(attachment).map(Right.apply)
@@ -108,14 +108,14 @@ class ExternalAttachmentService @Inject() (
                   case None =>
                     Future.successful(Left(ExternalAttachmentError.SectionQuestionNotFound))
                   case Some(sq) =>
-                    if Option(sq.getEssayAnswer).isEmpty then sq.setEssayAnswer(new EssayAnswer())
+                    if Option(sq.essayAnswer).isEmpty then sq.essayAnswer = new EssayAnswer()
                     val existingExternalId =
-                      Option(sq.getEssayAnswer.getAttachment).map(_.getExternalId)
+                      Option(sq.essayAnswer.attachment).map(_.externalId)
                     uploadAttachmentToExternalService(file, existingExternalId).flatMap {
                       case None =>
                         Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
                       case Some(attachment) =>
-                        sq.getEssayAnswer.setAttachment(attachment)
+                        sq.essayAnswer.attachment = attachment
                         Try(externalExam.serialize(exam)) match
                           case scala.util.Failure(e) =>
                             logger.error("Failed to serialize exam", e)
@@ -142,11 +142,11 @@ class ExternalAttachmentService @Inject() (
                   case None =>
                     Future.successful(Left(ExternalAttachmentError.QuestionAnswerNotFound))
                   case Some(ea) =>
-                    val attachment = ea.getAttachment
-                    Option(attachment.getExternalId).filter(_.nonEmpty) match
+                    val attachment = ea.attachment
+                    Option(attachment.externalId).filter(_.nonEmpty) match
                       case None =>
                         logger.warn(
-                          s"External id can not be found for attachment [id=${attachment.getId}]"
+                          s"External id can not be found for attachment [id=${attachment.id}]"
                         )
                         Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
                       case Some(externalId) =>
@@ -159,7 +159,7 @@ class ExternalAttachmentService @Inject() (
                               then
                                 Future.successful(Left(ExternalAttachmentError.ExternalIdNotFound))
                               else
-                                ea.setAttachment(null)
+                                ea.attachment = null
                                 Try(externalExam.serialize(exam)) match
                                   case scala.util.Failure(e) =>
                                     logger.error("Failed to serialize exam", e)
@@ -174,12 +174,12 @@ class ExternalAttachmentService @Inject() (
     Option(attachment) match
       case None => Future.successful(DownloadResponse.NotFound)
       case Some(att) =>
-        Option(att.getExternalId).filter(_.nonEmpty) match
+        Option(att.externalId).filter(_.nonEmpty) match
           case None =>
-            logger.warn(s"External id can not be found for attachment [id=${att.getId}]")
+            logger.warn(s"External id can not be found for attachment [id=${att.id}]")
             Future.successful(DownloadResponse.NotFound)
           case Some(externalId) =>
-            downloadAttachment(externalId, att.getMimeType, att.getFileName)
+            downloadAttachment(externalId, att.mimeType, att.fileName)
 
   private def downloadAttachment(
       id: String,
@@ -221,14 +221,14 @@ class ExternalAttachmentService @Inject() (
       case some => some
 
   private def findSectionQuestion(qid: Long, exam: Exam): Option[ExamSectionQuestion] =
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
-      .find(_.getId == qid)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
+      .find(_.id == qid)
 
   private def findEssayAnswerWithAttachment(sq: ExamSectionQuestion): Option[EssayAnswer] =
-    Option(sq.getEssayAnswer) match
+    Option(sq.essayAnswer) match
       case Some(ea)
-          if Option(ea.getAttachment).flatMap(a => Option(a.getExternalId)).exists(_.nonEmpty) =>
+          if Option(ea.attachment).flatMap(a => Option(a.externalId)).exists(_.nonEmpty) =>
         Some(ea)
       case _ => None
 
@@ -266,9 +266,9 @@ class ExternalAttachmentService @Inject() (
                 val mimeType     = (json \ "mimeType").as[String]
                 val displayName  = (json \ "displayName").as[String]
                 val attachment   = new Attachment()
-                attachment.setExternalId(attachmentId)
-                attachment.setMimeType(mimeType)
-                attachment.setFileName(displayName)
+                attachment.externalId = attachmentId
+                attachment.mimeType = mimeType
+                attachment.fileName = displayName
                 Some(attachment)
             }
       case _ =>
@@ -289,8 +289,8 @@ class ExternalAttachmentService @Inject() (
                 val mimeType    = (json \ "mimeType").as[String]
                 val displayName = (json \ "displayName").as[String]
                 val attachment  = new Attachment()
-                attachment.setExternalId(id)
-                attachment.setMimeType(mimeType)
-                attachment.setFileName(displayName)
+                attachment.externalId = id
+                attachment.mimeType = mimeType
+                attachment.fileName = displayName
                 Some(attachment)
             }

@@ -8,14 +8,13 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
-import models.exam.Exam
+import models.exam.{ExamImplementation, ExamState}
 import models.sections.ExamSection
 import models.user.User
-import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsValue
 import security.BlockingIOExecutionContext
-import services.datetime.{AppClock, CalendarHandler, CalendarHandlerError, DateTimeHandler}
+import services.datetime.*
 import services.mail.EmailComposer
 import validation.calendar.ReservationDTO
 
@@ -43,7 +42,7 @@ class CalendarService @Inject() (
       .fetch("reservation.machine")
       .fetch("reservation.machine.room")
       .where()
-      .eq("user.id", user.getId)
+      .eq("user.id", user.id)
       .eq("reservation.id", reservationId)
       .find
 
@@ -53,22 +52,22 @@ class CalendarService @Inject() (
         ))
       case Some(enrolment) =>
         // Removal is not permitted if the reservation is in the past or ongoing
-        val reservation = enrolment.getReservation
+        val reservation = enrolment.reservation
         val now         = dateTimeHandler.adjustDST(clock.now(), reservation)
         if reservation.toInterval.isBefore(now) || reservation.toInterval.contains(now) then
           Left(CalendarError.ReservationInEffect)
         else
-          enrolment.setReservation(null)
-          enrolment.setReservationCanceled(true)
+          enrolment.reservation = null
+          enrolment.reservationCanceled = true
           DB.save(enrolment)
           DB.delete(classOf[Reservation], reservationId)
 
           // send email asynchronously
-          val isStudentUser = user == enrolment.getUser
+          val isStudentUser = user == enrolment.user
 
           emailComposer.scheduleEmail(1.second) {
             emailComposer.composeReservationCancellationNotification(
-              enrolment.getUser,
+              enrolment.user,
               reservation,
               None,
               isStudentUser,
@@ -83,9 +82,9 @@ class CalendarService @Inject() (
     DB.find(classOf[ExamEnrolment])
       .fetch("optionalSections")
       .where()
-      .eq("user.id", user.getId)
+      .eq("user.id", user.id)
       .eq("exam.id", examId)
-      .eq("exam.state", Exam.State.PUBLISHED)
+      .eq("exam.state", ExamState.PUBLISHED)
       .gt("reservation.startAt", now.toDate)
       .find
 
@@ -103,7 +102,7 @@ class CalendarService @Inject() (
     // Start manual transaction
     Using(DB.beginTransaction()) { tx =>
       // Take pessimistic lock for user to prevent multiple reservations creating
-      DB.find(classOf[User]).forUpdate().where().eq("id", user.getId).findOne()
+      DB.find(classOf[User]).forUpdate().where().eq("id", user.id).findOne()
 
       val optionalEnrolment =
         DB.find(classOf[ExamEnrolment])
@@ -111,9 +110,9 @@ class CalendarService @Inject() (
           .fetch("exam.examSections")
           .fetch("exam.examSections.examMaterials")
           .where()
-          .eq("user.id", user.getId)
+          .eq("user.id", user.id)
           .eq("exam.id", examId)
-          .eq("exam.state", Exam.State.PUBLISHED)
+          .eq("exam.state", ExamState.PUBLISHED)
           .disjunction()
           .isNull("reservation")
           .gt("reservation.startAt", now.toDate)
@@ -126,27 +125,27 @@ class CalendarService @Inject() (
           calendarHandler.checkEnrolment(enrolment, user, sectionIds) match
             case Some(errorResult) => Future.successful(Left(CalendarError.Forbidden))
             case None =>
-              calendarHandler.getRandomMachine(room, enrolment.getExam, start, end, aids) match
+              calendarHandler.getRandomMachine(room, enrolment.exam, start, end, aids) match
                 case None          => Future.successful(Left(CalendarError.NoMachinesAvailable))
                 case Some(machine) =>
                   // Check that the proposed reservation is (still) doable
                   val proposedReservation = new Reservation()
-                  proposedReservation.setStartAt(start)
-                  proposedReservation.setEndAt(end)
-                  proposedReservation.setMachine(machine)
-                  proposedReservation.setUser(user)
-                  proposedReservation.setEnrolment(enrolment)
+                  proposedReservation.startAt = start
+                  proposedReservation.endAt = end
+                  proposedReservation.machine = machine
+                  proposedReservation.user = user
+                  proposedReservation.enrolment = enrolment
 
                   if !calendarHandler.isDoable(proposedReservation, aids) then
                     Future.successful(Left(CalendarError.NoMachinesAvailable))
                   else
                     // We are good to go :)
-                    val oldReservation = enrolment.getReservation
+                    val oldReservation = enrolment.reservation
                     val reservation = calendarHandler.createReservation(start, end, machine, user)
 
                     // Nuke the old reservation if any
                     val result = Option(oldReservation) match
-                      case Some(old) if Option(old.getExternalRef).isDefined =>
+                      case Some(old) if Option(old.externalRef).isDefined =>
                         externalReservationHandler
                           .removeReservation(old, user, "")
                           .flatMap { _ =>
@@ -155,7 +154,7 @@ class CalendarService @Inject() (
                               DB.find(classOf[ExamEnrolment])
                                 .fetch("exam.executionType")
                                 .where()
-                                .idEq(enrolment.getId)
+                                .idEq(enrolment.id)
                                 .find
 
                             updatedEnrolmentOpt match
@@ -164,7 +163,7 @@ class CalendarService @Inject() (
                                 makeNewReservation(updatedEnrolment, reservation, user, sectionIds)
                           }
                       case Some(old) =>
-                        enrolment.setReservation(null)
+                        enrolment.reservation = null
                         enrolment.update()
                         old.delete()
                         makeNewReservation(enrolment, reservation, user, sectionIds)
@@ -182,24 +181,24 @@ class CalendarService @Inject() (
       sectionIds: Seq[Long]
   ): Future[Either[CalendarError, Unit]] =
     DB.save(reservation)
-    enrolment.setReservation(reservation)
-    enrolment.setReservationCanceled(false)
-    enrolment.getOptionalSections.clear()
+    enrolment.reservation = reservation
+    enrolment.reservationCanceled = false
+    enrolment.optionalSections.clear()
     enrolment.update()
 
     if sectionIds.nonEmpty then
       val sections = DB.find(classOf[ExamSection]).where().idIn(sectionIds.asJava).distinct
-      enrolment.setOptionalSections(sections.asJava)
+      enrolment.optionalSections = sections.asJava
 
-    if enrolment.getExam.isPrivate then enrolment.setNoShow(false)
+    if enrolment.exam.isPrivate then enrolment.noShow = false
 
     DB.save(enrolment)
-    val exam = enrolment.getExam
+    val exam = enrolment.exam
 
     // Send some emails asynchronously
     emailComposer.scheduleEmail(1.second) {
       emailComposer.composeReservationNotification(user, reservation, exam, false)
-      logger.info(f"Reservation confirmation email sent to ${user.getEmail}")
+      logger.info(f"Reservation confirmation email sent to ${user.email}")
     }
 
     Future.successful(Right(()))
@@ -215,9 +214,9 @@ class CalendarService @Inject() (
     val accessibilityIds = aids.getOrElse(Seq.empty)
 
     // Sanity check so that we avoid accidentally getting reservations for SEB exams
-    if Option(ee).isEmpty || ee.getExam.getImplementation != Exam.Implementation.AQUARIUM then
+    if Option(ee).isEmpty || ee.exam.implementation != ExamImplementation.AQUARIUM then
       Left(CalendarError.EnrolmentNotFound)
     else
-      calendarHandler.getSlots(user, ee.getExam, roomId, day, accessibilityIds) match
+      calendarHandler.getSlots(user, ee.exam, roomId, day, accessibilityIds) match
         case Right(json)                                => Right(json)
         case Left(CalendarHandlerError.RoomNotFound(_)) => Left(CalendarError.EnrolmentNotFound)

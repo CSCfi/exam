@@ -9,19 +9,21 @@ import features.question.services.QuestionError.*
 import io.ebean.text.PathProperties
 import io.ebean.{DB, ExpressionList}
 import jakarta.persistence.PersistenceException
-import models.exam.Exam
+import models.exam.ExamState
 import models.questions.*
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Role, User}
+import org.apache.commons.lang3.math.NumberUtils
+import org.jsoup.Jsoup
 import play.api.Logging
-import play.api.libs.json.{JsArray, JsValue, Json}
+import play.api.libs.json.*
+import play.api.mvc.Results
 import services.exam.{OptionUpdateOptions, SectionQuestionHandler}
 import services.xml.{MoodleXmlExporter, MoodleXmlImporter}
 import validation.core.SanitizingHelper
 
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.*
 import scala.util.{Failure, Try}
 
 enum QuestionState:
@@ -34,6 +36,84 @@ class QuestionService @Inject() (
     with EbeanQueryExtensions
     with EbeanJsonExtensions
     with Logging:
+
+  def validate(question: Question, body: JsValue): Option[play.api.mvc.Result] =
+    def fieldExists(name: String) = (body \ name).toOption.exists(_ != JsNull)
+
+    def typeError: Option[String] =
+      question.`type` match
+        case QuestionType.EssayQuestion =>
+          if !fieldExists("defaultEvaluationType") then Some("no evaluation type defined")
+          else
+            val evalType =
+              QuestionEvaluationType.valueOf((body \ "defaultEvaluationType").as[String])
+            Option.when(
+              evalType == QuestionEvaluationType.Points && !fieldExists("defaultMaxScore")
+            )("no max score defined")
+        case QuestionType.MultipleChoiceQuestion =>
+          (body \ "options").asOpt[JsArray].filter(_.value.size >= 2) match
+            case None => Some("i18n_minimum_of_two_options_required")
+            case Some(options) =>
+              Option.when(options.value.forall(o => !(o \ "correctOption").as[Boolean]))(
+                "i18n_correct_option_required"
+              )
+        case QuestionType.WeightedMultipleChoiceQuestion =>
+          (body \ "options").asOpt[JsArray].filter(_.value.size >= 2) match
+            case None => Some("i18n_minimum_of_two_options_required")
+            case Some(options) =>
+              Option.when(options.value.forall(o => (o \ "defaultScore").as[Double] <= 0))(
+                "i18n_correct_option_required"
+              )
+        case QuestionType.ClozeTestQuestion =>
+          if !fieldExists("defaultMaxScore") then Some("no max score defined") else clozeError(body)
+        case QuestionType.ClaimChoiceQuestion =>
+          (body \ "options").asOpt[JsArray].filter(_.value.size == 3) match
+            case None => Some("i18n_three_answers_required_in_claim_question")
+            case Some(options) =>
+              Option.when(!claimChoiceOptionsValid(options))(
+                "i18n_incorrect_claim_question_options"
+              )
+        case null => Some("unknown question type")
+
+    val questionError =
+      if fieldExists("question") then typeError else Some("no question text defined")
+
+    val ownerError = Option.when((body \ "questionOwners").asOpt[JsArray].forall(_.value.isEmpty))(
+      "no owners defined"
+    )
+
+    ownerError.orElse(questionError).map(Results.BadRequest(_))
+
+  private def clozeError(body: JsValue): Option[String] =
+    val questionText = (body \ "question").as[String]
+    if !questionText.contains("cloze=\"true\"") then Some("no embedded answers")
+    else
+      val doc     = Jsoup.parse(questionText)
+      val answers = doc.select("span[cloze=true]")
+      val ids     = answers.asScala.map(_.attr("id")).toSet
+      if answers.size != ids.size then Some("duplicate ids found")
+      else if answers.asScala.exists(a => {
+          val p = a.attr("precision"); p.isEmpty || !NumberUtils.isParsable(p)
+        })
+      then Some("invalid precision found")
+      else if answers.asScala.filter(_.attr("numeric") == "true").exists(a =>
+          !NumberUtils.isParsable(a.text())
+        )
+      then Some("non-numeric correct answer for numeric question")
+      else None
+
+  private def claimChoiceOptionsValid(options: JsArray): Boolean =
+    options.value.filter { n =>
+      val cType   = SanitizingHelper.parseEnum("claimChoiceType", n, classOf[ClaimChoiceOptionType])
+      val score   = (n \ "defaultScore").as[Double]
+      val optText = (n \ "option").as[String]
+      cType.exists(ct =>
+        (ct == ClaimChoiceOptionType.CorrectOption && score > 0 && optText.nonEmpty) ||
+          (ct == ClaimChoiceOptionType.IncorrectOption && score <= 0 && optText.nonEmpty) ||
+          (ct == ClaimChoiceOptionType.SkipOption && score == 0 && optText.nonEmpty)
+      )
+    }.flatMap(n => SanitizingHelper.parseEnum("claimChoiceType", n, classOf[ClaimChoiceOptionType]))
+      .toSet.size == 3
 
   def getQuestions(
       user: User,
@@ -84,7 +164,7 @@ class QuestionService @Inject() (
       val baseQuestions = withSectionFilter.orderBy("created desc").distinct
       val questions =
         if user.hasRole(Role.Name.TEACHER) && ownerIds.nonEmpty then
-          baseQuestions.filter(_.getQuestionOwners.contains(user))
+          baseQuestions.filter(_.questionOwners.contains(user))
         else baseQuestions
 
       (questions.toList, pp)
@@ -119,9 +199,9 @@ class QuestionService @Inject() (
     val expr = query.where().idEq(id)
     getQuestionOfUser(expr, user) match
       case Some(q) =>
-        val sortedOptions = q.getOptions.asScala.toSeq.sorted
-        q.getOptions.clear()
-        q.getOptions.addAll(sortedOptions.asJava)
+        val sortedOptions = q.options.asScala.toSeq.sorted
+        q.options.clear()
+        q.options.addAll(sortedOptions.asJava)
         Right((q, pp))
       case None => Left(AccessForbidden)
 
@@ -134,20 +214,20 @@ class QuestionService @Inject() (
     query.find match
       case None => Left(AccessForbidden)
       case Some(question) =>
-        val sortedOptions = question.getOptions.asScala.toSeq.sorted
-        question.getOptions.clear()
-        question.getOptions.addAll(sortedOptions.asJava)
+        val sortedOptions = question.options.asScala.toSeq.sorted
+        question.options.clear()
+        question.options.addAll(sortedOptions.asJava)
         val copy = question.copy()
-        copy.setParent(null)
-        copy.setQuestion(s"<p>**COPY**</p>${question.getQuestion}")
+        copy.parent = null
+        copy.question = s"<p>**COPY**</p>${question.question}"
         copy.setCreatorWithDate(user)
         copy.setModifierWithDate(user)
         copy.save()
-        copy.getTags.addAll(question.getTags)
-        copy.getQuestionOwners.clear()
-        copy.getQuestionOwners.add(user)
+        copy.tags.addAll(question.tags)
+        copy.questionOwners.clear()
+        copy.questionOwners.add(user)
         copy.update()
-        DB.saveAll(copy.getOptions)
+        DB.saveAll(copy.options)
         Right(copy)
 
   // TODO: Move to sanitizer
@@ -166,7 +246,7 @@ class QuestionService @Inject() (
       (body \ "defaultExpectedWordCount").asOpt[Int].map(_.asInstanceOf[java.lang.Integer]).orNull
     val defaultEvaluationType = (body \ "defaultEvaluationType")
       .asOpt[String]
-      .flatMap(s => Try(Question.EvaluationType.valueOf(s)).toOption)
+      .flatMap(s => Try(QuestionEvaluationType.valueOf(s)).toOption)
       .orNull
     val defaultInstructions = (body \ "defaultAnswerInstructions").asOpt[String].orNull
     val defaultCriteria     = (body \ "defaultEvaluationCriteria").asOpt[String].orNull
@@ -176,34 +256,34 @@ class QuestionService @Inject() (
       (body \ "defaultOptionShufflingOn").asOpt[Boolean].getOrElse(true)
     val questionType = (body \ "type")
       .asOpt[String]
-      .flatMap(s => Try(Question.Type.valueOf(s)).toOption)
+      .flatMap(s => Try(QuestionType.valueOf(s)).toOption)
       .orNull
 
     val question = existing.getOrElse(new Question())
-    question.setType(questionType)
-    question.setQuestion(sanitizedQuestionText)
-    question.setDefaultMaxScore(defaultMaxScore)
-    question.setDefaultExpectedWordCount(defaultWordCount)
-    question.setDefaultEvaluationType(defaultEvaluationType)
-    question.setDefaultAnswerInstructions(defaultInstructions)
-    question.setDefaultEvaluationCriteria(defaultCriteria)
-    question.setDefaultNegativeScoreAllowed(defaultNegativeScoreAllowed)
-    question.setDefaultOptionShufflingOn(defaultOptionShufflingOn)
-    if !Option(question.getState).contains(QuestionState.DELETED.toString) then
-      question.setState(QuestionState.SAVED.toString)
-    if Option(question.getId).isEmpty then question.setCreatorWithDate(user)
+    question.`type` = questionType
+    question.question = sanitizedQuestionText
+    question.defaultMaxScore = defaultMaxScore
+    question.defaultExpectedWordCount = defaultWordCount
+    question.defaultEvaluationType = defaultEvaluationType
+    question.defaultAnswerInstructions = defaultInstructions
+    question.defaultEvaluationCriteria = defaultCriteria
+    question.defaultNegativeScoreAllowed = defaultNegativeScoreAllowed
+    question.defaultOptionShufflingOn = defaultOptionShufflingOn
+    if !Option(question.state).contains(QuestionState.DELETED.toString) then
+      question.state = QuestionState.SAVED.toString
+    if question.id == 0 then question.setCreatorWithDate(user)
     question.setModifierWithDate(user)
 
-    question.getQuestionOwners.clear()
+    question.questionOwners.clear()
     (body \ "questionOwners").asOpt[JsArray] match
       case Some(ownerArray) =>
         ownerArray.value.foreach { ownerNode =>
           (ownerNode \ "id").asOpt[Long].flatMap(id => Option(DB.find(classOf[User], id))) match
-            case Some(owner) => question.getQuestionOwners.add(owner)
+            case Some(owner) => question.questionOwners.add(owner)
             case None        => // Skip invalid owner
         }
       case None => // No owners specified
-    question.getTags.clear()
+    question.tags.clear()
     (body \ "tags").asOpt[JsArray] match
       case Some(tagArray) =>
         tagArray.value.foreach { tagNode =>
@@ -222,17 +302,17 @@ class QuestionService @Inject() (
                 case t @ Some(_) => t
                 case None =>
                   val newTag = new Tag()
-                  newTag.setName((tagNode \ "name").asOpt[String].getOrElse("").toLowerCase)
+                  newTag.name = (tagNode \ "name").asOpt[String].getOrElse("").toLowerCase
                   newTag.setCreatorWithDate(user)
-                  newTag.setModifier(user)
+                  newTag.modifier = user
                   Some(newTag)
-          tag.foreach(t => question.getTags.add(t))
+          tag.foreach(t => question.tags.add(t))
         }
       case None => // No tags specified
     question
 
   private def processOptions(question: Question, user: User, node: JsArray): Unit =
-    val persistedIds = question.getOptions.asScala.map(_.getId).toSet
+    val persistedIds = question.options.asScala.map(_.id).toSet
     val providedIds = node.value
       .flatMap(n => (n \ "id").asOpt[Long])
       .toSet
@@ -245,8 +325,8 @@ class QuestionService @Inject() (
         updateOption(o, OptionUpdateOptions.HANDLE_DEFAULTS)
       }
     // Removals
-    question.getOptions.asScala
-      .filter(o => !providedIds.contains(o.getId))
+    question.options.asScala
+      .filter(o => !providedIds.contains(o.id))
       .foreach(deleteOption)
     // Additions
     node.value
@@ -255,20 +335,20 @@ class QuestionService @Inject() (
 
   private def createOption(question: Question, node: JsValue, user: User): Unit =
     val option = new MultipleChoiceOption()
-    option.setOption(parseHtml("option", node).orNull)
+    option.option = parseHtml("option", node).orNull
     val scoreFieldName =
       if (node \ "defaultScore").asOpt[Double].isDefined then "defaultScore" else "score"
-    option.setDefaultScore(
+    option.defaultScore =
       (node \ scoreFieldName).asOpt[Double].map(_.asInstanceOf[java.lang.Double]).map(round).orNull
-    )
+
     val correctOption = (node \ "correctOption").asOpt[Boolean].getOrElse(false)
-    option.setCorrectOption(correctOption)
-    option.setClaimChoiceType(
+    option.correctOption = correctOption
+    option.claimChoiceType =
       (node \ "claimChoiceType")
         .asOpt[String]
-        .flatMap(s => Try(MultipleChoiceOption.ClaimChoiceOptionType.valueOf(s)).toOption)
+        .flatMap(s => Try(ClaimChoiceOptionType.valueOf(s)).toOption)
         .orNull
-    )
+
     saveOption(option, question, user)
     propagateOptionCreationToExamQuestions(question, null, option)
 
@@ -281,14 +361,11 @@ class QuestionService @Inject() (
       questionText: Option[String]
   ): Either[QuestionError, Question] =
     val question = parseFromBody(body, user, None, questionText)
-    question.getQuestionOwners.add(user)
-    question.getValidationResult(toJacksonJson(body)).toScala match
-      case Some(errorResult) =>
-        // The validation Result is a BadRequest with the validation message as the body
-        // We'll extract it in the controller, for now just return a generic validation error
-        Left(QuestionError.ValidationError)
+    question.questionOwners.add(user)
+    validate(question, body) match
+      case Some(_) => Left(QuestionError.ValidationError)
       case None =>
-        if question.getType != Question.Type.EssayQuestion then
+        if question.`type` != QuestionType.EssayQuestion then
           processOptions(question, user, (body \ "options").asOpt[JsArray].getOrElse(Json.arr()))
         question.save()
         Right(question)
@@ -313,13 +390,10 @@ class QuestionService @Inject() (
       case None => Left(AccessForbidden)
       case Some(question) =>
         val updatedQuestion = parseFromBody(body, user, Some(question), questionText)
-        question.getValidationResult(toJacksonJson(body)).toScala match
-          case Some(errorResult) =>
-            // The validation Result is a BadRequest with the validation message as the body
-            // We'll extract it in the controller, for now just return a generic validation error
-            Left(QuestionError.ValidationError)
+        validate(updatedQuestion, body) match
+          case Some(_) => Left(QuestionError.ValidationError)
           case None =>
-            if updatedQuestion.getType != Question.Type.EssayQuestion then
+            if updatedQuestion.`type` != QuestionType.EssayQuestion then
               processOptions(
                 updatedQuestion,
                 user,
@@ -338,17 +412,17 @@ class QuestionService @Inject() (
       case None           => Left(QuestionNotFound)
       case Some(question) =>
         // Not allowed to remove if used in active exams
-        if question.getExamSectionQuestions.asScala.exists { esq =>
-            val exam = esq.getExamSection.getExam
-            exam.getState == Exam.State.PUBLISHED && exam.getPeriodEnd.isAfterNow
+        if question.examSectionQuestions.asScala.exists { esq =>
+            val exam = esq.examSection.exam
+            exam.state == ExamState.PUBLISHED && exam.periodEnd.isAfterNow
           }
         then Left(QuestionInUse)
         else
-          question.getChildren.asScala.foreach { c =>
-            c.setParent(null)
+          question.children.asScala.foreach { c =>
+            c.parent = null
             c.update()
           }
-          question.getExamSectionQuestions.asScala.foreach(_.delete())
+          question.examSectionQuestions.asScala.foreach(_.delete())
           Try {
             question.delete()
           } match
@@ -356,7 +430,7 @@ class QuestionService @Inject() (
               logger.info(
                 "Shared question attachment reference found, can not delete the reference yet"
               )
-              question.setAttachment(null)
+              question.attachment = null
               question.delete()
             case _ => // Success
           Right(())
@@ -389,7 +463,7 @@ class QuestionService @Inject() (
 
   private def addOwnerToQuestion(question: Question, user: User, modifier: User): Unit =
     question.setModifierWithDate(modifier)
-    question.getQuestionOwners.add(user)
+    question.questionOwners.add(user)
     question.update()
 
   def exportQuestions(body: JsValue): String =
@@ -414,7 +488,7 @@ class QuestionService @Inject() (
       .idIn(ids.asJava)
       .list
       .filter(q =>
-        q.getType != Question.Type.ClaimChoiceQuestion && q.getType != Question.Type.ClozeTestQuestion
+        q.`type` != QuestionType.ClaimChoiceQuestion && q.`type` != QuestionType.ClozeTestQuestion
       )
       .toSeq
 
@@ -423,14 +497,14 @@ class QuestionService @Inject() (
     (successes, errors.flatMap(_.error))
 
   private def processPreview(esq: ExamSectionQuestion): JsValue =
-    if esq.getQuestion.getType == Question.Type.ClozeTestQuestion then
+    if esq.question.`type` == QuestionType.ClozeTestQuestion then
       val answer = new ClozeTestAnswer()
       answer.setQuestion(esq)
-      esq.setClozeTestAnswer(answer)
+      esq.clozeTestAnswer = answer
     esq.setDerivedMaxScore()
-    if esq.getQuestion.getType == Question.Type.ClaimChoiceQuestion then esq.setDerivedMinScore()
-    if esq.getQuestion.getType == Question.Type.ClozeTestQuestion then
-      esq.getQuestion.setQuestion(null)
+    if esq.question.`type` == QuestionType.ClaimChoiceQuestion then esq.setDerivedMinScore()
+    if esq.question.`type` == QuestionType.ClozeTestQuestion then
+      esq.question.question = null
     esq.asJson
 
   def getQuestionPreview(qid: Long, user: User): Either[QuestionError, JsValue] =
@@ -442,20 +516,20 @@ class QuestionService @Inject() (
       case None           => Left(QuestionNotFound)
       case Some(question) =>
         // Produce fake exam section question based on base question
-        val esqos = question.getOptions.asScala.map { o =>
+        val esqos = question.options.asScala.map { o =>
           val esqo = new ExamSectionQuestionOption()
-          esqo.setId(1L)
-          esqo.setOption(o)
-          esqo.setScore(o.getDefaultScore)
+          esqo.id = 1L
+          esqo.option = o
+          esqo.score = o.defaultScore
           esqo
         }.toSeq
         val esq = new ExamSectionQuestion()
-        esq.setOptions(esqos.asJava)
-        esq.setQuestion(question)
-        esq.setAnswerInstructions(question.getDefaultAnswerInstructions)
-        esq.setEvaluationCriteria(question.getDefaultEvaluationCriteria)
-        esq.setExpectedWordCount(question.getDefaultExpectedWordCount)
-        esq.setEvaluationType(question.getDefaultEvaluationType)
+        esq.options = esqos.asJava
+        esq.question = question
+        esq.answerInstructions = question.defaultAnswerInstructions
+        esq.evaluationCriteria = question.defaultEvaluationCriteria
+        esq.expectedWordCount = question.defaultExpectedWordCount
+        esq.evaluationType = question.defaultEvaluationType
         Right(processPreview(esq))
 
   def getExamSectionQuestionPreview(esqId: Long, user: User): Either[QuestionError, JsValue] =

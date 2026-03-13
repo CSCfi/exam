@@ -72,13 +72,13 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
 
     hours.foldLeft(List.empty[Interval]) { (exceptions, ewh) =>
       val isApplicable =
-        (restrictionType == RestrictionType.RESTRICTIVE && ewh.isOutOfService) ||
-          (restrictionType == RestrictionType.NON_RESTRICTIVE && !ewh.isOutOfService)
+        (restrictionType == RestrictionType.RESTRICTIVE && ewh.outOfService) ||
+          (restrictionType == RestrictionType.NON_RESTRICTIVE && !ewh.outOfService)
 
       if !isApplicable then exceptions
       else
-        val start     = new DateTime(ewh.getStartDate).plusMillis(ewh.getStartDateTimezoneOffset)
-        val end       = new DateTime(ewh.getEndDate).plusMillis(ewh.getEndDateTimezoneOffset)
+        val start     = new DateTime(ewh.startDate).plusMillis(ewh.startDateTimezoneOffset)
+        val end       = new DateTime(ewh.endDate).plusMillis(ewh.endDateTimezoneOffset)
         val exception = new Interval(start, end)
 
         // Exception covers this day fully - just reset to the whole day
@@ -130,12 +130,12 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
     doAdjustDST(dateTime, None)
 
   override def adjustDST(dateTime: DateTime, reservation: Reservation): DateTime =
-    Option(reservation.getExternalReservation) match
+    Option(reservation.externalReservation) match
       case Some(externalReservation) => adjustDST(dateTime, externalReservation)
-      case None => doAdjustDST(dateTime, Option(reservation.getMachine).map(_.getRoom))
+      case None => doAdjustDST(dateTime, Option(reservation.machine).map(_.room))
 
   override def adjustDST(dateTime: DateTime, externalReservation: ExternalReservation): DateTime =
-    val dtz = DateTimeZone.forID(externalReservation.getRoomTz)
+    val dtz = DateTimeZone.forID(externalReservation.roomTz)
     if !dtz.isStandardOffset(System.currentTimeMillis()) then dateTime.plusHours(1) else dateTime
 
   override def adjustDST(dateTime: DateTime, room: ExamRoom): DateTime =
@@ -143,14 +143,14 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
 
   private def doAdjustDST(dateTime: DateTime, roomOpt: Option[ExamRoom]): DateTime =
     val dtz = roomOpt match
-      case Some(room) => DateTimeZone.forID(room.getLocalTimezone)
+      case Some(room) => DateTimeZone.forID(room.localTimezone)
       case None       => configReader.getDefaultTimeZone
 
     if !dtz.isStandardOffset(System.currentTimeMillis()) then dateTime.plusHours(1) else dateTime
 
   override def normalize(dateTime: DateTime, reservation: Reservation): DateTime =
-    val dtz = Option(reservation.getMachine) match
-      case Some(machine) => DateTimeZone.forID(machine.getRoom.getLocalTimezone)
+    val dtz = Option(reservation.machine) match
+      case Some(machine) => DateTimeZone.forID(machine.room.localTimezone)
       case None          => configReader.getDefaultTimeZone
 
     if !dtz.isStandardOffset(dateTime.getMillis) then dateTime.minusHours(1) else dateTime
@@ -162,24 +162,24 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
     val day      = date.dayOfWeek().getAsText(Locale.ENGLISH)
     val midnight = date.toDateTimeAtStartOfDay
 
-    room.getDefaultWorkingHours.asScala
-      .filter(_.getWeekday.equalsIgnoreCase(day))
+    room.defaultWorkingHours.asScala
+      .filter(_.weekday.equalsIgnoreCase(day))
       .map { dwh =>
         val start = midnight.withMillisOfDay(
-          resolveStartWorkingHourMillis(new DateTime(dwh.getStartTime), dwh.getTimezoneOffset)
+          resolveStartWorkingHourMillis(new DateTime(dwh.startTime), dwh.timezoneOffset)
         )
         val end = midnight.withMillisOfDay(
-          resolveEndWorkingHourMillis(new DateTime(dwh.getEndTime), dwh.getTimezoneOffset)
+          resolveEndWorkingHourMillis(new DateTime(dwh.endTime), dwh.timezoneOffset)
         )
-        OpeningHours(new Interval(start, end), dwh.getTimezoneOffset)
+        OpeningHours(new Interval(start, end), dwh.timezoneOffset)
       }
       .toList
 
   override def getTimezoneOffset(date: LocalDate, room: ExamRoom): Int =
     val day = date.dayOfWeek().getAsText(Locale.ENGLISH)
-    room.getDefaultWorkingHours.asScala
-      .find(_.getWeekday.equalsIgnoreCase(day))
-      .map(_.getTimezoneOffset)
+    room.defaultWorkingHours.asScala
+      .find(_.weekday.equalsIgnoreCase(day))
+      .map(_.timezoneOffset)
       .getOrElse(0)
 
   override def getTimezoneOffset(date: DateTime): Int =
@@ -189,7 +189,7 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
     val workingHours = getDefaultWorkingHours(date, room)
     val extensionEvents = mergeSlots(
       getExceptionEvents(
-        room.getCalendarExceptionEvents.asScala.toList,
+        room.calendarExceptionEvents.asScala.toList,
         date,
         RestrictionType.NON_RESTRICTIVE
       )
@@ -197,7 +197,7 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
 
     val restrictionEvents = mergeSlots(
       getExceptionEvents(
-        room.getCalendarExceptionEvents.asScala.toList,
+        room.calendarExceptionEvents.asScala.toList,
         date,
         RestrictionType.RESTRICTIVE
       )
@@ -207,7 +207,7 @@ class DateTimeHandlerImpl @Inject() (configReader: ConfigReader) extends DateTim
       if extensionEvents.nonEmpty then
         val unifiedIntervals = mergeSlots(workingHours.map(_.hours) ++ extensionEvents)
         val offset =
-          DateTimeZone.forID(room.getLocalTimezone).getOffset(DateTime.now().withDayOfYear(1))
+          DateTimeZone.forID(room.localTimezone).getOffset(DateTime.now().withDayOfYear(1))
         unifiedIntervals.map(interval => OpeningHours(interval, offset))
       else workingHours
 

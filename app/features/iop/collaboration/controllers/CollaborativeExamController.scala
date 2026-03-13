@@ -8,6 +8,7 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.*
 import io.ebean.DB
 import models.exam.*
+import models.exam.GradeType
 import models.sections.ExamSection
 import models.user.{Language, Role, User}
 import org.joda.time.DateTime
@@ -58,32 +59,32 @@ class CollaborativeExamController @Inject() (
 
     val exam = new Exam()
     exam.generateHash()
-    exam.setState(Exam.State.DRAFT)
-    exam.setExecutionType(examExecutionType)
+    exam.state = ExamState.DRAFT
+    exam.executionType = examExecutionType
     CollaborativeExamProcessingService.cleanUser(user)
     exam.setCreatorWithDate(user)
 
     val examSection = new ExamSection()
     examSection.setCreatorWithDate(user)
-    examSection.setId(CollaborativeExamProcessingService.newId())
-    examSection.setExam(exam)
-    examSection.setExpanded(true)
-    examSection.setSequenceNumber(0)
+    examSection.id = CollaborativeExamProcessingService.newId()
+    examSection.exam = exam
+    examSection.expanded = true
+    examSection.sequenceNumber = 0
 
-    exam.getExamSections.add(examSection)
+    exam.examSections.add(examSection)
 
-    exam.getExamLanguages.add(DB.find(classOf[Language], "fi"))
-    exam.setExamType(DB.find(classOf[ExamType], 2)) // Final
-    exam.setGradeScale(DB.find(classOf[GradeScale]).list.head)
+    exam.examLanguages.add(DB.find(classOf[Language], "fi"))
+    exam.examType = DB.find(classOf[ExamType], 2) // Final
+    exam.gradeScale = DB.find(classOf[GradeScale]).list.head
 
     val start = DateTime.now().withTimeAtStartOfDay()
-    exam.setPeriodStart(start)
-    exam.setPeriodEnd(start.plusDays(1))
-    exam.setDuration(configReader.getExamDurationsJava.asScala.head)
+    exam.periodStart = start
+    exam.periodEnd = start.plusDays(1)
+    exam.duration = configReader.getExamDurations.head
 
-    exam.setTrialCount(1)
-    exam.setAnonymous(true)
-    exam.setGradingType(Grade.Type.GRADED)
+    exam.trialCount = 1
+    exam.anonymous = true
+    exam.gradingType = GradeType.GRADED
 
     exam
 
@@ -110,7 +111,7 @@ class CollaborativeExamController @Inject() (
                 // The external service uses _id (CouchDB style), but we need the local database id
                 val jsonObj = rev.as[JsObject]
                 // Ensure the local database id is set (overwrite any existing id field)
-                jsonObj + ("id" -> JsNumber(BigDecimal(ce.getId)))
+                jsonObj + ("id" -> JsNumber(BigDecimal(ce.id)))
               }
               .toSeq
 
@@ -136,7 +137,7 @@ class CollaborativeExamController @Inject() (
               postProcessor(exam)
               // Add local database ID to the JSON response
               val jsonObj    = root.as[JsObject]
-              val jsonWithId = jsonObj + ("id" -> JsNumber(BigDecimal(ce.getId)))
+              val jsonWithId = jsonObj + ("id" -> JsNumber(BigDecimal(ce.id)))
               Ok(jsonWithId)
         }
     }
@@ -182,7 +183,7 @@ class CollaborativeExamController @Inject() (
               val externalRef = (response.json \ "id").as[String]
               val revision    = (response.json \ "rev").as[String]
               collaborativeExamService.create(externalRef, revision, anonymous = true).map { ce =>
-                Created(Json.obj("id" -> JsNumber(BigDecimal(ce.getId))))
+                Created(Json.obj("id" -> JsNumber(BigDecimal(ce.id))))
               }
           }
     }
@@ -192,7 +193,7 @@ class CollaborativeExamController @Inject() (
       collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
         case Left(errorResult) => Future.successful(errorResult)
         case Right(ce)
-            if ce.getState != Exam.State.DRAFT && ce.getState != Exam.State.PRE_PUBLISHED =>
+            if ce.state != ExamState.DRAFT && ce.state != ExamState.PRE_PUBLISHED =>
           Future.successful(Forbidden("i18n_exam_removal_not_possible"))
         case Right(ce) =>
           examLoader.deleteExam(ce).flatMap { result =>
@@ -227,7 +228,7 @@ class CollaborativeExamController @Inject() (
                     ) =>
                   Future.successful(Forbidden("i18n_error_access_forbidden"))
                 case Some(exam) =>
-                  val previousState = exam.getState
+                  val previousState = exam.state
 
                   // Validate temporal fields and state
                   val error = Seq(
@@ -238,15 +239,15 @@ class CollaborativeExamController @Inject() (
                   error match
                     case Some(err) => Future.successful(err)
                     case None =>
-                      val nextState = exam.getState
+                      val nextState = exam.state
                       val isPrePublication =
-                        previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED
+                        previousState != ExamState.PRE_PUBLISHED && nextState == ExamState.PRE_PUBLISHED
 
-                      examUpdater.update(exam, payload, user.getLoginRole)
+                      examUpdater.update(exam, payload, user.loginRole)
 
                       examLoader.uploadExam(ce, exam, user).map { result =>
                         if result.header.status == Ok.header.status && isPrePublication then
-                          val receivers = exam.getExamOwners.asScala.map(_.getEmail).toSet
+                          val receivers = exam.examOwners.asScala.map(_.email).toSet
                           emailComposer.scheduleEmail(1.second) {
                             emailComposer.composeCollaborativeExamAnnouncement(
                               receivers,
@@ -295,7 +296,7 @@ class CollaborativeExamController @Inject() (
                     case None => Future.successful(NotFound("i18n_error_exam_not_found"))
                     case Some(exam) =>
                       val owner = createOwner(email)
-                      exam.getExamOwners.add(owner)
+                      exam.examOwners.add(owner)
                       examLoader.uploadExam(ce, exam, user, owner, null)
                   }
       }
@@ -311,8 +312,8 @@ class CollaborativeExamController @Inject() (
             case None => Future.successful(NotFound("i18n_error_exam_not_found"))
             case Some(exam) =>
               val owner = new User()
-              owner.setId(oid)
-              exam.getExamOwners.remove(owner)
+              owner.id = oid
+              exam.examOwners.remove(owner)
               examLoader.uploadExam(ce, exam, user)
           }
       }
@@ -320,6 +321,6 @@ class CollaborativeExamController @Inject() (
 
   private def createOwner(email: String): User =
     val user = new User()
-    user.setId(CollaborativeExamProcessingService.newId())
-    user.setEmail(email)
+    user.id = CollaborativeExamProcessingService.newId()
+    user.email = email
     user

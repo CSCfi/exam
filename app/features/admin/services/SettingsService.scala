@@ -57,12 +57,12 @@ class SettingsService @Inject() (
               .find match
               case None => Future.successful(Left("Enrolment not found"))
               case Some(enrolment) =>
-                Try(parseExternalUrl(enrolment.getReservation.getExternalRef)).toOption match
+                Try(parseExternalUrl(enrolment.reservation.externalRef)).toOption match
                   case None => Future.successful(Left("Invalid external URL"))
                   case Some(url) =>
                     wsClient
                       .url(url.toString)
-                      .addQueryStringParameters("lang" -> language.getCode)
+                      .addQueryStringParameters("lang" -> language.code)
                       .get()
                       .map { response =>
                         if response.status == 200 then Right(response.json)
@@ -139,7 +139,7 @@ class SettingsService @Inject() (
 
     val roles = JsObject(
       configReader.getRoleMapping.map { case (k, v) =>
-        k.getName -> JsArray(v.map(JsString(_)))
+        k.name -> JsArray(v.map(JsString(_)))
       }.toSeq
     )
 
@@ -154,9 +154,9 @@ class SettingsService @Inject() (
       "courseSearchIntegrationUrls"  -> courseIntegrationUrls,
       "examDurations"                -> configReader.getExamDurations,
       "roles"                        -> roles,
-      "eula"                         -> eula.getValue,
-      "reservationWindowSize"        -> reservationWindowSize.getValue.toInt,
-      "reviewDeadline"               -> reviewDeadline.getValue.toInt,
+      "eula"                         -> eula.value,
+      "reservationWindowSize"        -> reservationWindowSize.value.toInt,
+      "reviewDeadline"               -> reviewDeadline.value.toInt,
       "isExamVisitSupported"         -> configReader.isVisitingExaminationSupported,
       "isExamCollaborationSupported" -> configReader.isCollaborationExaminationSupported,
       "hasEnrolmentCheckIntegration" -> configReader.isEnrolmentPermissionCheckActive,

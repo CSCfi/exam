@@ -11,7 +11,6 @@ import models.facility.Organisation
 import models.user.User
 import org.apache.pekko.util.ByteString
 import org.joda.time.DateTime
-import org.springframework.beans.BeanUtils
 import play.api.Logging
 import play.api.libs.json.{JsResultException, JsValue, Json}
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -54,8 +53,8 @@ class ExternalCourseHandlerImpl @Inject (
     .orderBy("code")
     .distinct
     .filter(c =>
-      Option(c.getStartDate).isEmpty || configReader.getCourseValidityDate(
-        new DateTime(c.getStartDate)
+      Option(c.startDate).isEmpty || configReader.getCourseValidityDate(
+        new DateTime(c.startDate)
       ).isBeforeNow
     )
 
@@ -63,11 +62,11 @@ class ExternalCourseHandlerImpl @Inject (
     if !configReader.isCourseSearchActive then Future(getLocalCourses(code))
     // Hit the remote end for possible matches. Update local records with matching remote records.
     // Finally, return all matches (local and remote)
-    val url = parseUrl(user.getOrganisation, code)
+    val url = parseUrl(user.organisation, code)
     downloadCourses(url).map(externals =>
       externals.foreach(saveOrUpdate)
       TreeSet.empty[Course](
-        using (a, b) => a.getCode.compareTo(b.getCode)
+        using (a, b) => a.code.compareTo(b.code)
       ) ++ externals ++ getLocalCourses(code)
     )
 
@@ -100,15 +99,33 @@ class ExternalCourseHandlerImpl @Inject (
   private def saveOrUpdate(external: Course): Unit =
     DB.find(classOf[Course])
       .where
-      .eq("code", external.getCode)
+      .eq("code", external.code)
       .find match
       case Some(local) =>
         // Existing course
-        if Option(external.getCourseImplementation).nonEmpty then
+        if Option(external.courseImplementation).nonEmpty then
           // update only those courses that specify an implementation
-          BeanUtils.copyProperties(external, local, "id", "objectVersion")
+          local.code = external.code
+          local.name = external.name
+          local.level = external.level
+          local.credits = external.credits
+          local.courseUnitType = external.courseUnitType
+          local.identifier = external.identifier
+          local.startDate = external.startDate
+          local.endDate = external.endDate
+          local.courseImplementation = external.courseImplementation
+          local.creditsLanguage = external.creditsLanguage
+          local.gradeScale = external.gradeScale
+          local.lecturer = external.lecturer
+          local.lecturerResponsible = external.lecturerResponsible
+          local.institutionName = external.institutionName
+          local.department = external.department
+          local.degreeProgramme = external.degreeProgramme
+          local.campus = external.campus
+          local.courseMaterial = external.courseMaterial
+          local.organisation = external.organisation
           local.update()
-        external.setId(local.getId)
+        external.id = local.id
       case _ => external.save()
 
   private def parseResponseBody(response: WSResponse): Option[JsValue] =
@@ -163,32 +180,32 @@ class ExternalCourseHandlerImpl @Inject (
     (validateStart(cui.startDate), validateEnd(cui.endDate)) match
       case (Right(start), Right(end)) => // good to go
         val model = new Course
-        model.setStartDate(start.map(_.toDate).orNull)
-        model.setEndDate(end.map(_.toDate).orNull)
-        model.setIdentifier(cui.identifier)
-        model.setName(cui.title)
-        model.setCode(cui.code)
-        model.setCourseImplementation(cui.implementation.orElse(cui.altImplementation).orNull)
-        model.setLevel(cui.level.orNull)
-        model.setCourseUnitType(cui.`type`.orNull)
+        model.startDate = start.map(_.toDate).orNull
+        model.endDate = end.map(_.toDate).orNull
+        model.identifier = cui.identifier
+        model.name = cui.title
+        model.code = cui.code
+        model.courseImplementation = cui.implementation.orElse(cui.altImplementation).orNull
+        model.level = cui.level.orNull
+        model.courseUnitType = cui.`type`.orNull
         // This is interesting trying to pass an optional to Java's nullable number
-        model.setCredits(if cui.credits.nonEmpty then cui.credits.get else null)
+        model.credits = if cui.credits.nonEmpty then cui.credits.get else null
         val org = DB.find(classOf[Organisation]).where.ieq("name", cui.institutionName).find match
           case None =>
             val org2 = new Organisation
-            org2.setName(cui.institutionName)
+            org2.name = cui.institutionName
             org2.save()
             org2
           case Some(org) => org
 
-        model.setOrganisation(org)
-        model.setCampus(cui.campus.flatMap(_.headOption).map(_.name).orNull)
-        model.setDegreeProgramme(cui.programme.flatMap(_.headOption).map(_.name).orNull)
-        model.setDepartment(cui.department.flatMap(_.headOption).map(_.name).orNull)
-        model.setLecturerResponsible(cui.responsible.flatMap(_.headOption).map(_.name).orNull)
-        model.setLecturer(cui.lecturer.flatMap(_.headOption).map(_.name).orNull)
-        model.setCreditsLanguage(cui.language.flatMap(_.headOption).map(_.name).orNull)
-        model.setGradeScale(importScales(cui).headOption.orNull)
+        model.organisation = org
+        model.campus = cui.campus.flatMap(_.headOption).map(_.name).orNull
+        model.degreeProgramme = cui.programme.flatMap(_.headOption).map(_.name).orNull
+        model.department = cui.department.flatMap(_.headOption).map(_.name).orNull
+        model.lecturerResponsible = cui.responsible.flatMap(_.headOption).map(_.name).orNull
+        model.lecturer = cui.lecturer.flatMap(_.headOption).map(_.name).orNull
+        model.creditsLanguage = cui.language.flatMap(_.headOption).map(_.name).orNull
+        model.gradeScale = importScales(cui).headOption.orNull
         Some(model)
       case _ => None
 
@@ -203,24 +220,24 @@ class ExternalCourseHandlerImpl @Inject (
     case ExtGradeScale(Some(name), "OTHER", Some(code), Some(grades)) =>
       DB.find(classOf[GradeScale]).where.eq("externalRef", code).find.orElse {
         val model = new GradeScale
-        model.setDescription(GradeScale.Type.OTHER.toString)
-        model.setExternalRef(code)
-        model.setDisplayName(name)
+        model.description = GradeScale.Type.OTHER.toString
+        model.externalRef = code
+        model.displayName = name
         logger.info(s"saving scale $code")
         model.save()
-        model.setGrades(
+        model.grades =
           grades.values
             .map(g =>
               val g2 = new Grade
-              g2.setName(g.description)
-              g2.setMarksRejection(g.isFailed)
-              g2.setGradeScale(model)
+              g2.name = g.description
+              g2.marksRejection = g.isFailed
+              g2.gradeScale = model
               g2.save()
               g2
             )
             .toSet
             .asJava
-        )
+
         Some(model)
       }
     case _ => None
@@ -265,7 +282,7 @@ class ExternalCourseHandlerImpl @Inject (
     val urlConfigPrefix = "exam.integration.courseUnitInfo.url"
     val configPathForOrg =
       Option(organisation)
-        .flatMap(o => Option(o.getCode))
+        .flatMap(o => Option(o.code))
         .flatMap(c => Option(s"$urlConfigPrefix.$c").filter(configReader.hasPath))
     val configPath = configPathForOrg.orElse {
       val path = String.format("%s.%s", urlConfigPrefix, "default")
@@ -280,7 +297,7 @@ class ExternalCourseHandlerImpl @Inject (
 
   private def parseUrl(user: User) =
     if configReader.getPermissionCheckUserIdentifier == "userIdentifier" && Option(
-        user.getUserIdentifier
+        user.userIdentifier
       ).isEmpty
     then
       throw new MalformedURLException("User has no identifier number!")
@@ -293,11 +310,11 @@ class ExternalCourseHandlerImpl @Inject (
       case Some(url) =>
         val identifier = URLEncoder.encode(
           if (configReader.getPermissionCheckUserIdentifier == "userIdentifier")
-            user.getUserIdentifier
-          else user.getEppn,
+            user.userIdentifier
+          else user.eppn,
           StandardCharsets.UTF_8
         )
         val patched = url
           .replace(USER_ID_PLACEHOLDER, identifier)
-          .replace(USER_LANG_PLACEHOLDER, user.getLanguage.getCode)
+          .replace(USER_LANG_PLACEHOLDER, user.language.code)
         URI.create(patched).toURL

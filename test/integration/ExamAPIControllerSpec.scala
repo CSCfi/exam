@@ -7,7 +7,7 @@ package integration
 
 import base.BaseIntegrationSpec
 import io.ebean.DB
-import models.exam.{Exam, ExamExecutionType}
+import models.exam.{Exam, ExamExecutionType, ExamState}
 import org.joda.time.{DateTime, LocalDateTime}
 import play.api.http.Status
 import play.api.libs.json.JsArray
@@ -33,10 +33,10 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
 
     // Set all exams to start in future
     exams.foreach { exam =>
-      exam.setState(Exam.State.PUBLISHED)
-      exam.setPeriodStart(startDate.toDateTime)
-      exam.setPeriodEnd(endDate.toDateTime)
-      exam.setExecutionType(publicType)
+      exam.state = ExamState.PUBLISHED
+      exam.periodStart = startDate.toDateTime
+      exam.periodEnd = endDate.toDateTime
+      exam.executionType = publicType
       exam.save()
     }
 
@@ -44,7 +44,7 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
       types: List[ExamExecutionType],
       examType: ExamExecutionType.Type
   ): Option[ExamExecutionType] =
-    types.find(_.getType == examType.toString)
+    types.find(_.`type` == examType.toString)
 
   "ExamAPIController" when:
     "getting active exams" should:
@@ -56,23 +56,23 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
 
         // Pick first exam and set it already started but not yet ended (included)
         val first = exams.head
-        first.setPeriodStart(LocalDateTime.now().minusDays(1).toDateTime)
+        first.periodStart = LocalDateTime.now().minusDays(1).toDateTime
         first.save()
 
         // Set second exam already ended (excluded)
         val second = exams(1)
-        second.setPeriodStart(LocalDateTime.now().minusDays(2).toDateTime)
-        second.setPeriodEnd(LocalDateTime.now().minusDays(1).toDateTime)
+        second.periodStart = LocalDateTime.now().minusDays(2).toDateTime
+        second.periodEnd = LocalDateTime.now().minusDays(1).toDateTime
         second.save()
 
         // Set third exam as private (excluded)
         val third = exams(2)
-        third.setExecutionType(privateType)
+        third.executionType = privateType
         third.save()
 
         // Set fourth exam not published (excluded)
         val fourth = exams(3)
-        fourth.setState(Exam.State.DRAFT)
+        fourth.state = ExamState.DRAFT
         fourth.save()
 
         // Execute
@@ -82,7 +82,7 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
         val responseJson = contentAsJsonOf(result)
         responseJson.as[JsArray].value must have size (exams.size - 3)
 
-        val excludedIds = Set(second.getId, third.getId, fourth.getId)
+        val excludedIds = Set(second.id, third.id, fourth.id)
         responseJson.as[JsArray].value.foreach { examNode =>
           val examId = (examNode \ "id").as[Long]
           excludedIds must not contain examId
@@ -96,7 +96,7 @@ class ExamAPIControllerSpec extends BaseIntegrationSpec:
         val filteredJson = contentAsJsonOf(filteredResult)
         filteredJson.as[JsArray].value must have size (exams.size - 2)
 
-        val filteredExcludedIds = Set(third.getId, fourth.getId)
+        val filteredExcludedIds = Set(third.id, fourth.id)
         filteredJson.as[JsArray].value.foreach { examNode =>
           val examId = (examNode \ "id").as[Long]
           filteredExcludedIds must not contain examId

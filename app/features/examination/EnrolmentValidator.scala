@@ -34,11 +34,11 @@ trait EnrolmentValidator:
   ): Future[Option[Result]] =
     if Option(enrolment).isEmpty then
       Future.successful(Some(Forbidden("i18n_reservation_not_found")))
-    else if Option(enrolment.getReservation).isEmpty then
+    else if Option(enrolment.reservation).isEmpty then
       Future.successful(Some(Forbidden("i18n_reservation_not_found")))
-    else if Option(enrolment.getReservation.getMachine).isEmpty then
+    else if Option(enrolment.reservation.machine).isEmpty then
       Future.successful(Some(Forbidden("i18n_reservation_machine_not_found")))
     else if !skipIpCheck && environment.mode != Mode.Dev &&
-      !enrolment.getReservation.getMachine.getIpAddress.equals(requestData.remoteAddress)
+      !enrolment.reservation.machine.ipAddress.equals(requestData.remoteAddress)
     then Future.successful(Some(Forbidden("i18n_wrong_exam_machine")))
     else Future.successful(None)

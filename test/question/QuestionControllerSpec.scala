@@ -7,7 +7,7 @@ package question
 import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
-import models.questions.{MultipleChoiceOption, Question}
+import models.questions.{ClaimChoiceOptionType, Question, QuestionType}
 import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.User
 import play.api.http.Status
@@ -29,14 +29,14 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
 
         val section = DB.find(classOf[ExamSection], sectionId)
         section must not be null
-        val sectionQuestionCount = section.getSectionQuestions.size
+        val sectionQuestionCount = section.sectionQuestions.size
 
         val draft = Json.obj(
           "type"                  -> "EssayQuestion",
           "question"              -> "What is love?",
           "defaultMaxScore"       -> 2,
           "defaultEvaluationType" -> "Points",
-          "questionOwners"        -> Json.arr(Json.obj("id" -> JsNumber(BigDecimal(user.getId))))
+          "questionOwners"        -> Json.arr(Json.obj("id" -> JsNumber(BigDecimal(user.id))))
         )
 
         // Create draft
@@ -46,7 +46,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         val createJson      = contentAsJsonOf(createResult)
         val questionId      = (createJson \ "id").as[Long]
         val createdQuestion = DB.find(classOf[Question], questionId)
-        createdQuestion.getType must be(Question.Type.EssayQuestion)
+        createdQuestion.`type` must be(QuestionType.EssayQuestion)
 
         // Update it
         val update = Json.obj(
@@ -54,7 +54,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
           "question"              -> "What is love now?",
           "defaultMaxScore"       -> 3,
           "defaultEvaluationType" -> "Selection",
-          "questionOwners"        -> Json.arr(Json.obj("id" -> JsNumber(BigDecimal(user.getId))))
+          "questionOwners"        -> Json.arr(Json.obj("id" -> JsNumber(BigDecimal(user.id))))
         )
         val updateResult = runIO(put(s"/app/questions/$questionId", update, session = session))
         statusOf(updateResult).must(be(Status.OK))
@@ -86,7 +86,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
 
     "working with weighted multiple choice questions" should:
       "add option to weighted multiple choice question" in:
-        val q               = getQuestionWithOwnership()
+        val q               = getQuestionWithOwnership
         val (user, session) = runIO(loginAsTeacher())
         assertExamSectionQuestion(q, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
 
@@ -97,7 +97,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         assertExamSectionQuestion(updatedQuestion, 4, 4.0, Array(1.46, 1.46, -2.0, 1.08), -2.0)
 
       "add null score option to weighted multiple choice question" in:
-        val q               = getQuestionWithOwnership()
+        val q               = getQuestionWithOwnership
         val (user, session) = runIO(loginAsTeacher())
         assertExamSectionQuestion(q, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
 
@@ -108,7 +108,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         assertExamSectionQuestion(updatedQuestion, 4, 4.0, Array(2.0, 2.0, -2.0, Double.NaN), -2.0)
 
       "add negative option to weighted multiple choice question" in:
-        val q               = getQuestionWithOwnership()
+        val q               = getQuestionWithOwnership
         val (user, session) = runIO(loginAsTeacher())
         assertExamSectionQuestion(q, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
 
@@ -119,7 +119,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         assertExamSectionQuestion(updatedQuestion, 4, 4.0, Array(2.0, 2.0, -1.16, -0.84), -2.0)
 
       "delete option from weighted multiple choice question" in:
-        val q               = getQuestionWithOwnership()
+        val q               = getQuestionWithOwnership
         val (user, session) = runIO(loginAsTeacher())
         // Add new option to question and then delete it
         assertExamSectionQuestion(q, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
@@ -135,13 +135,13 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
 
         deleteAddedOption(questionWithNewOption, user, session)
 
-        val finalQuestion = DB.find(classOf[Question], questionWithNewOption.getId)
+        val finalQuestion = DB.find(classOf[Question], questionWithNewOption.id)
         finalQuestion must not be null
-        finalQuestion.getOptions.size must be(3)
+        finalQuestion.options.size must be(3)
         assertExamSectionQuestion(finalQuestion, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
 
       "delete negative option from weighted multiple choice question" in:
-        val q               = getQuestionWithOwnership()
+        val q               = getQuestionWithOwnership
         val (user, session) = runIO(loginAsTeacher())
         // Add new option to question and then delete it
         assertExamSectionQuestion(q, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
@@ -157,15 +157,15 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
 
         deleteAddedOption(questionWithNewOption, user, session)
 
-        val finalQuestion = DB.find(classOf[Question], questionWithNewOption.getId)
+        val finalQuestion = DB.find(classOf[Question], questionWithNewOption.id)
         finalQuestion must not be null
-        finalQuestion.getOptions.size must be(3)
+        finalQuestion.options.size must be(3)
         assertExamSectionQuestion(finalQuestion, 3, 4.0, Array(2.0, 2.0, -2.0), -2.0)
 
     "exporting questions" should:
       "export questions to Moodle format" in:
         val (user, session) = runIO(loginAsTeacher())
-        val questionIds     = DB.find(classOf[Question]).findList().asScala.map(_.getId)
+        val questionIds     = DB.find(classOf[Question]).findList().asScala.map(_.id)
         val idsArray        = JsArray(questionIds.map(id => JsNumber(BigDecimal(id))).toSeq)
         val params          = Json.obj("params" -> Json.obj("ids" -> idsArray))
 
@@ -183,30 +183,30 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         val skipOption = createClaimChoiceOptionJson("EOS", 0.0, correct = false, "SkipOption")
 
         val options = JsArray(Seq(correctOption, incorrectOption, skipOption))
-        val draft   = createClaimChoiceQuestionJson("<p>Testikysymys</p>", options, user.getId)
+        val draft   = createClaimChoiceQuestionJson("<p>Testikysymys</p>", options, user.id)
 
         val createResult =
           runIO(makeRequest(POST, "/app/questions", Some(draft), session = session))
         statusOf(createResult).must(be(Status.OK))
 
         val saved = parseQuestionFromResponse(createResult)
-        saved.getType must be(Question.Type.ClaimChoiceQuestion)
-        saved.getOptions.size must be(3)
+        saved.`type` must be(QuestionType.ClaimChoiceQuestion)
+        saved.options.size must be(3)
 
-        val hasCorrectAnswer = saved.getOptions.asScala.exists { o =>
-          o.getClaimChoiceType == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
-          o.getOption == "Oikea" &&
-          math.abs(o.getDefaultScore.doubleValue - 1.0) < 0.01
+        val hasCorrectAnswer = saved.options.asScala.exists { o =>
+          o.claimChoiceType == ClaimChoiceOptionType.CorrectOption &&
+          o.option == "Oikea" &&
+          math.abs(o.defaultScore.doubleValue - 1.0) < 0.01
         }
-        val hasIncorrectAnswer = saved.getOptions.asScala.exists { o =>
-          o.getClaimChoiceType == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
-          o.getOption == "Väärä" &&
-          math.abs(o.getDefaultScore.doubleValue - -1.0) < 0.01
+        val hasIncorrectAnswer = saved.options.asScala.exists { o =>
+          o.claimChoiceType == ClaimChoiceOptionType.IncorrectOption &&
+          o.option == "Väärä" &&
+          math.abs(o.defaultScore.doubleValue - -1.0) < 0.01
         }
-        val hasSkipAnswer = saved.getOptions.asScala.exists { o =>
-          o.getClaimChoiceType == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
-          o.getOption == "EOS" &&
-          math.abs(o.getDefaultScore.doubleValue - 0.0) < 0.01
+        val hasSkipAnswer = saved.options.asScala.exists { o =>
+          o.claimChoiceType == ClaimChoiceOptionType.SkipOption &&
+          o.option == "EOS" &&
+          math.abs(o.defaultScore.doubleValue - 0.0) < 0.01
         }
 
         (hasCorrectAnswer && hasIncorrectAnswer && hasSkipAnswer) must be(true)
@@ -219,28 +219,28 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
           createClaimChoiceQuestionJson(
             "<p>Testi väittämä-kysymys, muokattu</p>",
             modifiedOptions,
-            user.getId
+            user.id
           )
 
         val updateResult =
-          runIO(put(s"/app/questions/${saved.getId}", updatedQuestion, session = session))
+          runIO(put(s"/app/questions/${saved.id}", updatedQuestion, session = session))
         statusOf(updateResult).must(be(Status.OK))
 
         val updated = parseQuestionFromResponse(updateResult)
-        updated.getOptions.size must be(3)
-        updated.getQuestion must be("<p>Testi väittämä-kysymys, muokattu</p>")
+        updated.options.size must be(3)
+        updated.question must be("<p>Testi väittämä-kysymys, muokattu</p>")
 
-        val hasModifiedOption = updated.getOptions.asScala.exists { o =>
-          o.getOption == "Oikea, muokattu" &&
-          math.abs(o.getDefaultScore.doubleValue - 2.0) < 0.01 &&
-          o.getClaimChoiceType == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption
+        val hasModifiedOption = updated.options.asScala.exists { o =>
+          o.option == "Oikea, muokattu" &&
+          math.abs(o.defaultScore.doubleValue - 2.0) < 0.01 &&
+          o.claimChoiceType == ClaimChoiceOptionType.CorrectOption
         }
         hasModifiedOption must be(true)
 
       "reject empty claim choice question options" in:
         val (user, session) = runIO(loginAsTeacher())
         val options         = JsArray()
-        val draft           = createClaimChoiceQuestionJson("Testikysymys", options, user.getId)
+        val draft           = createClaimChoiceQuestionJson("Testikysymys", options, user.id)
 
         val result = runIO(makeRequest(POST, "/app/questions", Some(draft), session = session))
         statusOf(result).must(be(Status.BAD_REQUEST))
@@ -267,7 +267,7 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
         )
 
         val drafts = invalidOptionSets.map(options =>
-          createClaimChoiceQuestionJson("Virheellinen testikysymys", options, user.getId)
+          createClaimChoiceQuestionJson("Virheellinen testikysymys", options, user.id)
         )
 
         // Test that all sets of invalid options return bad request code
@@ -280,22 +280,22 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
   /** Fetch the test question fresh from DB and ensure teacher ownership is set up. This avoids test
     * isolation issues where question owners might be cleared between tests.
     */
-  private def getQuestionWithOwnership(): Question =
+  private def getQuestionWithOwnership: Question =
     ensureTestDataLoaded()
     val q = DB
       .find(classOf[Question])
       .fetch("questionOwners")
       .list
       .find(q =>
-        q.getQuestion.contains(
+        q.question.contains(
           "Kumpi vai kampi"
-        ) && q.getType == Question.Type.WeightedMultipleChoiceQuestion
+        ) && q.`type` == QuestionType.WeightedMultipleChoiceQuestion
       )
       .getOrElse(fail("Question not found"))
     DB.find(classOf[User]).where().eq("eppn", "teacher@funet.fi").find match
       case Some(teacher) =>
-        if !q.getQuestionOwners.contains(teacher) then
-          q.getQuestionOwners.add(teacher)
+        if !q.questionOwners.contains(teacher) then
+          q.questionOwners.add(teacher)
           q.update()
         q
       case None => fail("Teacher user not found")
@@ -305,34 +305,34 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
       user: User,
       session: play.api.mvc.Session
   ): Unit =
-    val options = question.getOptions.asScala.toList.sortBy(_.getId)
+    val options = question.options.asScala.toList.sortBy(_.id)
     val json = Json.obj(
-      "id"       -> JsNumber(BigDecimal(question.getId)),
+      "id"       -> JsNumber(BigDecimal(question.id)),
       "type"     -> "WeightedMultipleChoiceQuestion",
-      "question" -> question.getQuestion,
+      "question" -> question.question,
       "options" -> JsArray(
         Seq(
           Json.obj(
-            "id"           -> JsNumber(BigDecimal(options.head.getId)),
+            "id"           -> JsNumber(BigDecimal(options.head.id)),
             "defaultScore" -> 1.0,
             "option"       -> "Kumpi"
           ),
           Json.obj(
-            "id"           -> JsNumber(BigDecimal(options(1).getId)),
+            "id"           -> JsNumber(BigDecimal(options(1).id)),
             "defaultScore" -> 1.0,
             "option"       -> "Kampi"
           ),
           Json.obj(
-            "id"           -> JsNumber(BigDecimal(options(2).getId)),
+            "id"           -> JsNumber(BigDecimal(options(2).id)),
             "defaultScore" -> -1.0,
             "option"       -> "Molemmat"
           )
         )
       ),
-      "questionOwners" -> JsArray(Seq(Json.obj("id" -> JsNumber(BigDecimal(user.getId)))))
+      "questionOwners" -> JsArray(Seq(Json.obj("id" -> JsNumber(BigDecimal(user.id)))))
     )
 
-    val result = runIO(put(s"/app/questions/${question.getId}", json, session = session))
+    val result = runIO(put(s"/app/questions/${question.id}", json, session = session))
     statusOf(result).must(be(Status.OK))
 
   private def addNewOption(
@@ -343,49 +343,49 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
       user: User,
       session: play.api.mvc.Session
   ): Question =
-    val options = question.getOptions.asScala.toList.sortBy(_.getId)
+    val options = question.options.asScala.toList.sortBy(_.id)
 
     val newOptionJson = defaultScore match
       case Some(score) => Json.obj("defaultScore" -> score, "option" -> "Uusi")
       case None        => Json.obj("option" -> "Uusi") // No defaultScore field for null
 
     val json = Json.obj(
-      "id"                          -> JsNumber(question.getId.longValue()),
+      "id"                          -> JsNumber(question.id.longValue()),
       "type"                        -> "WeightedMultipleChoiceQuestion",
-      "question"                    -> question.getQuestion,
+      "question"                    -> question.question,
       "defaultNegativeScoreAllowed" -> true,
       "options" -> JsArray(
         Seq(
           Json.obj(
-            "id"           -> JsNumber(options.head.getId.longValue()),
+            "id"           -> JsNumber(options.head.id.longValue()),
             "defaultScore" -> 1.0,
             "option"       -> "Kumpi"
           ),
           Json.obj(
-            "id"           -> JsNumber(options(1).getId.longValue()),
+            "id"           -> JsNumber(options(1).id.longValue()),
             "defaultScore" -> 1.0,
             "option"       -> "Kampi"
           ),
           Json.obj(
-            "id"           -> JsNumber(options(2).getId.longValue()),
+            "id"           -> JsNumber(options(2).id.longValue()),
             "defaultScore" -> -1.0,
             "option"       -> "Molemmat"
           ),
           newOptionJson
         )
       ),
-      "questionOwners" -> JsArray(Seq(Json.obj("id" -> JsNumber(user.getId.longValue()))))
+      "questionOwners" -> JsArray(Seq(Json.obj("id" -> JsNumber(user.id.longValue()))))
     )
 
-    val result = runIO(put(s"/app/questions/${question.getId}", json, session = session))
+    val result = runIO(put(s"/app/questions/${question.id}", json, session = session))
     statusOf(result).must(be(Status.OK))
 
-    val saved = DB.find(classOf[Question], question.getId)
+    val saved = DB.find(classOf[Question], question.id)
     saved must not be null
-    saved.getOptions.size must be(4)
-    saved.getMinDefaultScore.doubleValue must be(minDefaultScore +- 0.01)
+    saved.options.size must be(4)
+    saved.getMinDefaultScore must be(minDefaultScore +- 0.01)
 
-    val defaultScores = saved.getOptions.asScala.toList.sortBy(_.getId).map(_.getDefaultScore)
+    val defaultScores = saved.options.asScala.toList.sortBy(_.id).map(_.defaultScore)
     // Handle NaN comparison specially
     expectedDefaultScores.zip(defaultScores).foreach { case (expected, actual) =>
       if (expected.isNaN) Option(actual).forall(_.isNaN) must be(true)
@@ -403,15 +403,15 @@ class QuestionControllerSpec extends BaseIntegrationSpec with EbeanQueryExtensio
       expectedScores: Array[Double],
       minScore: Double
   ): Unit =
-    val examSectionQuestions = question.getExamSectionQuestions
+    val examSectionQuestions = question.examSectionQuestions
     examSectionQuestions.size must be(1)
 
     val esq = examSectionQuestions.iterator().next()
-    esq.getOptions.size must be(optionSize)
+    esq.options.size must be(optionSize)
     esq.getMinScore.doubleValue must be(minScore +- 0.01)
     esq.getMaxAssessedScore.doubleValue must be(maxScore +- 0.01)
 
-    val scores = esq.getOptions.asScala.map(_.getScore).toArray
+    val scores = esq.options.asScala.map(_.score).toArray
     expectedScores.zip(scores).foreach { case (expected, actual) =>
       if (expected.isNaN) Option(actual).forall(_.isNaN) must be(true)
       else if (actual != null)

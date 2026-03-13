@@ -9,8 +9,10 @@ import io.ebean.DB
 import io.ebean.annotation.Transactional
 import models.assessment.{ExamRecord, ExamScore}
 import models.enrolment.ExamParticipation
-import models.exam.{Exam, Grade}
-import models.user.{Permission, Role, User}
+import models.exam.Exam
+import models.exam.ExamState
+import models.exam.GradeType
+import models.user.{PermissionType, Role, User}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.Logging
@@ -43,25 +45,25 @@ class ExamRecordService @Inject() (
       .idEq(examId)
       .find match
       case Some(exam) =>
-        val gradeRequired = exam.getGradingType == Grade.Type.GRADED
+        val gradeRequired = exam.gradingType == GradeType.GRADED
         validateExamState(exam, gradeRequired, user) match
           case Some(error) => Left(error)
           case None =>
-            exam.setState(Exam.State.GRADED_LOGGED)
+            exam.state = ExamState.GRADED_LOGGED
             exam.update()
             DB.find(classOf[ExamParticipation]).fetch("user").where.eq(
               "exam.id",
-              exam.getId
+              exam.id
             ).find match
               case Some(participation) =>
                 val record = createRecord(exam, participation, gradeRequired)
-                val score  = createScore(record, participation.getEnded)
+                val score  = createScore(record, participation.ended)
                 score.save()
-                record.setExamScore(score)
+                record.examScore = score
                 record.save()
                 emailComposer.scheduleEmail(1.seconds) {
-                  emailComposer.composeInspectionReady(exam.getCreator, Some(user), exam)
-                  logger.info(s"Inspection ready notification email sent to ${user.getEmail}")
+                  emailComposer.composeInspectionReady(exam.creator, Some(user), exam)
+                  logger.info(s"Inspection ready notification email sent to ${user.email}")
                 }
                 Right(())
               case None => Left(ExamRecordError.ParticipationNotFound)
@@ -79,9 +81,9 @@ class ExamRecordService @Inject() (
         validateExamState(exam, false, user) match
           case Some(error) => Left(error)
           case None =>
-            exam.setState(Exam.State.GRADED_LOGGED)
-            exam.setGrade(null)
-            exam.setGradingType(Grade.Type.NOT_GRADED)
+            exam.state = ExamState.GRADED_LOGGED
+            exam.grade = null
+            exam.gradingType = GradeType.NOT_GRADED
             exam.update()
             Right(())
       case None => Left(ExamRecordError.ExamNotFound)
@@ -108,78 +110,78 @@ class ExamRecordService @Inject() (
     if !isAllowedToRegister(exam, user) then Some(ExamRecordError.AccessForbidden)
     else
       // Side effect: Set graded-by-user if auto-graded
-      if Option(exam.getGradedByUser).isEmpty && Option(exam.getAutoEvaluationConfig).isEmpty then
-        exam.setGradedByUser(user)
+      if Option(exam.gradedByUser).isEmpty && Option(exam.autoEvaluationConfig).isEmpty then
+        exam.gradedByUser = user
 
       val missingRequiredFields =
-        (Option(exam.getGrade).isEmpty && gradeRequired) ||
-          Option(exam.getCreditType).isEmpty ||
-          Option(exam.getAnswerLanguage).isEmpty ||
-          Option(exam.getGradedByUser).isEmpty
+        (Option(exam.grade).isEmpty && gradeRequired) ||
+          Option(exam.creditType).isEmpty ||
+          Option(exam.answerLanguage).isEmpty ||
+          Option(exam.gradedByUser).isEmpty
 
       if missingRequiredFields then Some(ExamRecordError.NotYetGraded)
       else
         val invalidState =
-          exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
-            Option(exam.getExamRecord).nonEmpty
+          exam.hasState(ExamState.ABORTED, ExamState.GRADED_LOGGED, ExamState.ARCHIVED) ||
+            Option(exam.examRecord).nonEmpty
 
         if invalidState then Some(ExamRecordError.AlreadyGradedLogged)
         else None
 
   private def isAllowedToRegister(exam: Exam, user: User): Boolean =
-    exam.getParent.isOwnedOrCreatedBy(user) ||
+    exam.parent.isOwnedOrCreatedBy(user) ||
       user.hasRole(Role.Name.ADMIN, Role.Name.SUPPORT) ||
       isApprovedInLanguageInspection(exam, user)
 
   private def isApprovedInLanguageInspection(exam: Exam, user: User): Boolean =
-    Option(exam.getLanguageInspection).exists { li =>
-      li.getApproved &&
-      Option(li.getFinishedAt).isDefined &&
-      user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE)
+    Option(exam.languageInspection).exists { li =>
+      li.approved &&
+      Option(li.finishedAt).isDefined &&
+      user.hasPermission(PermissionType.CAN_INSPECT_LANGUAGE)
     }
 
   private def createRecord(exam: Exam, participation: ExamParticipation, releasable: Boolean) =
-    val student = participation.getUser
-    val teacher = exam.getGradedByUser
+    val student = participation.user
+    val teacher = exam.gradedByUser
     val record  = new ExamRecord
-    record.setExam(exam)
-    record.setStudent(student)
-    record.setTeacher(teacher)
-    record.setTimeStamp(DateTime.now)
-    record.setReleasable(releasable)
+    record.exam = exam
+    record.student = student
+    record.teacher = teacher
+    record.timeStamp = DateTime.now
+    record.releasable = releasable
     record
 
   private def createScore(record: ExamRecord, examDate: DateTime) =
-    val exam  = record.getExam
+    val exam  = record.exam
     val score = new ExamScore
-    score.setAdditionalInfo(exam.getAdditionalInfo)
-    score.setStudent(record.getStudent.getEppn)
-    score.setStudentId(record.getStudent.getUserIdentifier)
-    if Option(exam.getCustomCredit).isEmpty then
-      score.setCredits(exam.getCourse.getCredits.toString)
-    else score.setCredits(exam.getCustomCredit.toString)
-    score.setExamScore(exam.getTotalScore.toString)
-    score.setLecturer(record.getTeacher.getEppn)
-    score.setLecturerId(record.getTeacher.getUserIdentifier)
-    score.setLecturerEmployeeNumber(record.getTeacher.getEmployeeNumber)
-    score.setLecturerFirstName(record.getTeacher.getFirstName)
-    score.setLecturerLastName(record.getTeacher.getLastName)
+    score.additionalInfo = exam.additionalInfo
+    score.student = record.student.eppn
+    score.studentId = record.student.userIdentifier
+    if Option(exam.customCredit).isEmpty then
+      score.credits = exam.course.credits.toString
+    else score.credits = exam.customCredit.toString
+    score.examScore = exam.getTotalScore.toString
+    score.lecturer = record.teacher.eppn
+    score.lecturerId = record.teacher.userIdentifier
+    score.lecturerEmployeeNumber = record.teacher.employeeNumber
+    score.lecturerFirstName = record.teacher.firstName
+    score.lecturerLastName = record.teacher.lastName
     val dtf = DateTimeFormat.forPattern("yyyy-MM-dd")
     // Record transfer timestamp (date)
-    score.setRegistrationDate(dtf.print(DateTime.now))
-    score.setExamDate(dtf.print(examDate))
-    score.setCourseImplementation(exam.getCourse.getCourseImplementation)
-    score.setCourseUnitCode(exam.getCourse.getCode)
-    score.setCourseUnitLevel(exam.getCourse.getLevel)
-    score.setCourseUnitType(exam.getCourse.getCourseUnitType)
-    score.setCreditLanguage(exam.getAnswerLanguage)
-    score.setCreditType(exam.getCreditType.getType)
-    score.setIdentifier(exam.getCourse.getIdentifier)
-    val scale = Option(exam.getGradeScale).getOrElse(exam.getCourse.getGradeScale)
-    if Option(scale.getExternalRef).isDefined then score.setGradeScale(scale.getExternalRef)
-    else score.setGradeScale(scale.getDescription)
-    val grade = exam.getGrade
-    score.setStudentGrade(Option(grade).map(_.getName).getOrElse("POINT_GRADED"))
-    val organisation = exam.getCourse.getOrganisation
-    score.setInstitutionName(Option(organisation).map(_.getName).orNull)
+    score.registrationDate = dtf.print(DateTime.now)
+    score.examDate = dtf.print(examDate)
+    score.courseImplementation = exam.course.courseImplementation
+    score.courseUnitCode = exam.course.code
+    score.courseUnitLevel = exam.course.level
+    score.courseUnitType = exam.course.courseUnitType
+    score.creditLanguage = exam.answerLanguage
+    score.creditType = exam.creditType.`type`
+    score.identifier = exam.course.identifier
+    val scale = Option(exam.gradeScale).getOrElse(exam.course.gradeScale)
+    if Option(scale.externalRef).isDefined then score.gradeScale = scale.externalRef
+    else score.gradeScale = scale.description
+    val grade = exam.grade
+    score.studentGrade = Option(grade).map(_.name).getOrElse("POINT_GRADED")
+    val organisation = exam.course.organisation
+    score.institutionName = Option(organisation).map(_.name).orNull
     score

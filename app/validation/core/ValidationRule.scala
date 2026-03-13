@@ -10,12 +10,12 @@ package validation.core
   * {{{
   * // Scala
   * val rule: ValidationRule[Exam] = exam =>
-  *   if (exam.getName == null) ValidationResult.error("name", "Required")
+  *   if (exam.name == null) ValidationResult.error("name", "Required")
   *   else ValidationResult.ok()
   *
   * // Java
   * ValidationRule<Exam> rule = exam ->
-  *   exam.getName() == null
+  *   exam.name() == null
   *     ? ValidationResult.error("name", "Required")
   *     : ValidationResult.ok();
   * }}}

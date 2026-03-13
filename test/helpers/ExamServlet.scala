@@ -10,7 +10,7 @@ import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import models.exam.Exam
 import net.jodah.concurrentunit.Waiter
 import play.api.libs.json.Json
-import services.json.JsonDeserializer
+import services.json.{EbeanMapper, JsonDeserializer}
 
 import java.io.IOException
 import scala.compiletime.uninitialized
@@ -31,7 +31,8 @@ class ExamServlet extends BaseServlet:
     if exam == null then
       response.setStatus(HttpServletResponse.SC_NOT_FOUND)
     else
-      val json = play.libs.Json.toJson(exam).asInstanceOf[ObjectNode]
+      val mapper = EbeanMapper.create()
+      val json   = mapper.readTree(mapper.writeValueAsString(exam)).asInstanceOf[ObjectNode]
       json.put("_rev", 1)
       RemoteServerHelper.writeJsonResponse(
         response,

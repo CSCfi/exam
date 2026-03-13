@@ -15,9 +15,9 @@ import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import models.attachment.Attachment
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
-import models.exam.Exam
+import models.exam.{Exam, ExamState}
 import models.facility.ExamRoom
-import models.questions.Question
+import models.questions.QuestionType
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Language, User}
 import net.jodah.concurrentunit.Waiter
@@ -147,9 +147,9 @@ class ExternalExamControllerSpec
 
   private def createAttachment(fileName: String, filePath: String, mimeType: String): Attachment =
     val attachment = new Attachment()
-    attachment.setFileName(fileName)
-    attachment.setFilePath(filePath)
-    attachment.setMimeType(mimeType)
+    attachment.fileName = fileName
+    attachment.filePath = filePath
+    attachment.mimeType = mimeType
     attachment.save()
     attachment
 
@@ -172,30 +172,30 @@ class ExternalExamControllerSpec
       case None    => fail("Test exam not found")
 
     initExamSectionQuestions(exam)
-    exam.setPeriodStart(DateTime.now().minusDays(1))
-    exam.setPeriodEnd(DateTime.now().plusDays(1))
-    exam.setHash(HASH)
+    exam.periodStart = DateTime.now().minusDays(1)
+    exam.periodEnd = DateTime.now().plusDays(1)
+    exam.hash = HASH
 
     val owner = Option(DB.find(classOf[User], 2L)) match
       case Some(u) => u
       case None    => fail("Owner user not found")
-    exam.getExamOwners.add(owner)
+    exam.examOwners.add(owner)
     exam.update()
 
     // Setup user
     val user = Option(DB.find(classOf[User], 1L)) match
       case Some(u) => u
       case None    => fail("Test user not found")
-    user.setLanguage(DB.find(classOf[Language]).where().eq("code", "en").find.orNull)
+    user.language = DB.find(classOf[Language]).where().eq("code", "en").find.orNull
     user.update()
 
     // Setup room
     val room = Option(DB.find(classOf[ExamRoom], 1L)) match
       case Some(r) => r
       case None    => fail("Test room not found")
-    room.setExternalRef(ROOM_REF)
-    room.getExamMachines.get(0).setIpAddress("127.0.0.1")
-    room.getExamMachines.get(0).update()
+    room.externalRef = ROOM_REF
+    room.examMachines.get(0).ipAddress = "127.0.0.1"
+    room.examMachines.get(0).update()
     room.update()
 
     // Setup reservation (from onBeforeLogin equivalent)
@@ -203,23 +203,23 @@ class ExternalExamControllerSpec
       case Some(u) => u
       case None    => fail("Reservation user not found")
 
-    val machine = room.getExamMachines.get(0)
-    machine.setIpAddress("127.0.0.1") // so that the IP check won't fail
+    val machine = room.examMachines.get(0)
+    machine.ipAddress = "127.0.0.1" // so that the IP check won't fail
     machine.update()
 
     val reservation = new Reservation()
-    reservation.setMachine(machine)
-    reservation.setUser(reservationUser)
-    reservation.setStartAt(DateTime.now().plusMinutes(10))
-    reservation.setEndAt(DateTime.now().plusMinutes(70))
-    reservation.setExternalUserRef(reservationUser.getEppn)
-    reservation.setExternalRef(RESERVATION_REF)
+    reservation.machine = machine
+    reservation.user = reservationUser
+    reservation.startAt = DateTime.now().plusMinutes(10)
+    reservation.endAt = DateTime.now().plusMinutes(70)
+    reservation.externalUserRef = reservationUser.eppn
+    reservation.externalRef = RESERVATION_REF
     reservation.save()
 
     // Setup enrolment
     val enrolment = new ExamEnrolment()
-    enrolment.setExam(exam)
-    enrolment.setUser(user)
+    enrolment.exam = exam
+    enrolment.user = user
     enrolment.save()
 
     attachmentServlet.foreach(_.setWaiter(new Waiter()))
@@ -227,34 +227,34 @@ class ExternalExamControllerSpec
     (exam, enrolment, reservation)
 
   private def initExamSectionQuestions(exam: Exam): Unit =
-    exam.setExamSections(new java.util.TreeSet(exam.getExamSections))
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
+    exam.examSections = new java.util.TreeSet(exam.examSections)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
       .filter { esq =>
-        esq.getQuestion.getType == Question.Type.MultipleChoiceQuestion ||
-        esq.getQuestion.getType == Question.Type.WeightedMultipleChoiceQuestion
+        esq.question.`type` == QuestionType.MultipleChoiceQuestion ||
+        esq.question.`type` == QuestionType.WeightedMultipleChoiceQuestion
       }
       .foreach { esq =>
-        esq.getQuestion.getOptions.asScala.foreach { o =>
+        esq.question.options.asScala.foreach { o =>
           val esqo = new ExamSectionQuestionOption()
-          esqo.setOption(o)
-          esqo.setScore(o.getDefaultScore)
-          esq.getOptions.add(esqo)
+          esqo.option = o
+          esqo.score = o.defaultScore
+          esq.options.add(esqo)
         }
         esq.save()
       }
 
   private def getExamSectionQuestion(exam: Exam): ExamSectionQuestion =
-    exam.getExamSections.asScala
-      .flatMap(_.getSectionQuestions.asScala)
+    exam.examSections.asScala
+      .flatMap(_.sectionQuestions.asScala)
       .headOption
       .getOrElse(throw new Exception("No section question found"))
 
   private def assertAttachment(attachment: Attachment, json: JsonNode): Unit =
     json must not be null
-    json.get("fileName").asText.must(be(attachment.getFileName))
-    json.get("mimeType").asText.must(be(attachment.getMimeType))
-    json.get("filePath").asText.must(be(attachment.getFilePath))
+    json.get("fileName").asText.must(be(attachment.fileName))
+    json.get("mimeType").asText.must(be(attachment.mimeType))
+    json.get("filePath").asText.must(be(attachment.filePath))
     json.get("externalId").isNull.must(be(false))
 
   "ExternalExamController" when:
@@ -267,32 +267,32 @@ class ExternalExamControllerSpec
             .fetch("enrolment")
             .fetch("enrolment.externalExam")
             .where()
-            .idEq(reservation.getId)
+            .idEq(reservation.id)
             .findOne()
         ) match
           case Some(r) => r
           case None    => fail("External reservation not found")
 
-        external.getEnrolment must not be null
-        external.getEnrolment.getExternalExam must not be null
+        external.enrolment must not be null
+        external.enrolment.externalExam must not be null
 
         // Check that the lottery was taken in effect
-        val examData = external.getEnrolment.getExternalExam.deserialize()
-        val s1       = examData.getExamSections.asScala.find(_.isLotteryOn)
+        val examData = external.enrolment.externalExam.deserialize
+        val s1       = examData.examSections.asScala.find(_.lotteryOn)
         s1 must be(defined)
-        s1.get.getSectionQuestions must have size s1.get.getLotteryItemCount
+        s1.get.sectionQuestions must have size s1.get.lotteryItemCount
 
     "receiving exam attainment" should:
       "process exam attainment successfully" in:
         val (exam, enrolment, _) = setupTestData()
 
         val reservation = new Reservation()
-        reservation.setExternalRef(RESERVATION_REF)
-        reservation.setStartAt(DateTime.now().plusHours(2))
-        reservation.setEndAt(DateTime.now().plusHours(3))
+        reservation.externalRef = RESERVATION_REF
+        reservation.startAt = DateTime.now().plusHours(2)
+        reservation.endAt = DateTime.now().plusHours(3)
         reservation.save()
 
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val mapper = new ObjectMapper()
@@ -314,7 +314,7 @@ class ExternalExamControllerSpec
           case None    => fail("Attainment not found")
 
         // Auto-evaluation expected to occur so state should be GRADED
-        attainment.getState.must(be(Exam.State.GRADED))
+        attainment.state.must(be(ExamState.GRADED))
 
         attachmentServlet.foreach(_.getWaiter.await(10000, 3))
         val fileHandler = app.injector.instanceOf(classOf[FileHandler])
@@ -345,29 +345,29 @@ class ExternalExamControllerSpec
 
         // Check that we can review it
         val (user, session) = runIO(loginAsAdmin())
-        val reviewResult    = runIO(get(s"/app/review/${attainment.getId}", session = session))
+        val reviewResult    = runIO(get(s"/app/review/${attainment.id}", session = session))
         statusOf(reviewResult).must(be(Status.OK))
 
     "receiving no show" should:
       "process no show successfully" in:
         val (exam, enrolment, _) = setupTestData()
 
-        val reservation = new Reservation()
-        reservation.setExternalRef(RESERVATION_REF_2)
-        reservation.setStartAt(DateTime.now().minusHours(3))
-        reservation.setEndAt(DateTime.now().minusHours(2))
-        reservation.setUser(DB.find(classOf[User]).where().eq("firstName", "Sauli").find.orNull)
+        val reservation = new Reservation
+        reservation.externalRef = RESERVATION_REF_2
+        reservation.startAt = DateTime.now().minusHours(3)
+        reservation.endAt = DateTime.now().minusHours(2)
+        reservation.user = DB.find(classOf[User]).where().eq("firstName", "Sauli").find.orNull
 
         val er = new ExternalReservation()
-        er.setOrgRef("org1")
-        er.setRoomRef("room2")
-        er.setMachineName("machine3")
-        er.setRoomName("room named 4")
+        er.orgRef = "org1"
+        er.roomRef = "room2"
+        er.machineName = "machine3"
+        er.roomName = "room named 4"
         er.save()
-        reservation.setExternalReservation(er)
+        reservation.externalReservation = er
         reservation.save()
 
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.update()
 
         val result =
@@ -386,7 +386,7 @@ class ExternalExamControllerSpec
           case None      => fail("Reservation not found")
 
         r must not be null
-        r.getEnrolment.isNoShow must be(true)
+        r.enrolment.noShow must be(true)
 
     "providing enrolment with attachments" should:
       "handle attachments successfully" in:
@@ -398,15 +398,15 @@ class ExternalExamControllerSpec
         val questionAttachment =
           createAttachment("test_image.png", testImageFile.getAbsolutePath, "image/png")
 
-        exam.setAttachment(examAttachment)
+        exam.attachment = examAttachment
         exam.save()
 
-        enrolment.setReservation(reservation)
+        enrolment.reservation = reservation
         enrolment.save()
 
         val sectionQuestion = getExamSectionQuestion(exam)
-        val question        = sectionQuestion.getQuestion
-        question.setAttachment(questionAttachment)
+        val question        = sectionQuestion.question
+        question.attachment = questionAttachment
         question.save()
 
         val result = runIO(get(s"/integration/iop/reservations/$RESERVATION_REF"))
@@ -422,9 +422,9 @@ class ExternalExamControllerSpec
         val questionJson = StreamSupport
           .stream(jacksonNode.path("examSections").spliterator(), false)
           .flatMap(node => StreamSupport.stream(node.path("sectionQuestions").spliterator(), false))
-          .filter(node => node.get("id").asLong() == sectionQuestion.getId)
+          .filter(node => node.get("id").asLong() == sectionQuestion.id)
           .map(node => node.path("question"))
-          .filter(node => node.get("id").asLong() == question.getId)
+          .filter(node => node.get("id").asLong() == question.id)
           .findFirst()
           .orElseThrow(() => new Exception("Question not found!"))
 

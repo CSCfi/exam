@@ -8,6 +8,7 @@ import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
+import models.exam.ExamState
 import models.user.User
 
 import java.util.Date
@@ -17,9 +18,9 @@ class EnrolmentHandlerImpl @Inject() (noShowHandler: NoShowHandler) extends Enro
     with EbeanQueryExtensions:
 
   override def isAllowedToParticipate(exam: Exam, user: User): Boolean =
-    handleNoShow(user, exam.getId)
+    handleNoShow(user, exam.id)
 
-    Option(exam.getTrialCount) match
+    Option(exam.trialCount) match
       case None => true
       case Some(trialCount) =>
         val trials = DB
@@ -27,12 +28,12 @@ class EnrolmentHandlerImpl @Inject() (noShowHandler: NoShowHandler) extends Enro
           .fetch("exam")
           .where()
           .eq("user", user)
-          .eq("exam.parent.id", exam.getId)
-          .ne("exam.state", Exam.State.DELETED)
-          .ne("exam.state", Exam.State.INITIALIZED)
+          .eq("exam.parent.id", exam.id)
+          .ne("exam.state", ExamState.DELETED)
+          .ne("exam.state", ExamState.INITIALIZED)
           .ne("retrialPermitted", true)
           .list
-          .sortBy(-_.getId) // Descending order
+          .sortBy(-_.id) // Descending order
 
         if trials.size >= trialCount then trials.take(trialCount).exists(_.isProcessed)
         else true
@@ -54,7 +55,7 @@ class EnrolmentHandlerImpl @Inject() (noShowHandler: NoShowHandler) extends Enro
       .or()
       .and()
       .eq("exam.id", examId)
-      .eq("exam.state", Exam.State.PUBLISHED)
+      .eq("exam.state", ExamState.PUBLISHED)
       .endAnd()
       .and()
       .eq("collaborativeExam.id", examId)

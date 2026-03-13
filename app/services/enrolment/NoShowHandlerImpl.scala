@@ -8,9 +8,9 @@ import cats.effect.IO
 import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.effect.unsafe.implicits.global
 import database.EbeanQueryExtensions
-import org.joda.time.DateTime
 import models.enrolment.{ExamEnrolment, Reservation}
-import models.exam.Exam
+import models.exam.ExamState
+import org.joda.time.DateTime
 import play.api.Logging
 import play.api.http.Status.OK
 import play.api.libs.ws.WSClient
@@ -36,7 +36,7 @@ class NoShowHandlerImpl @Inject (
   private val maxConcurrency = 10
 
   private def sendEnrolmentNoShow(ee: ExamEnrolment): IO[Unit] =
-    val ref = ee.getReservation.getExternalRef
+    val ref = ee.reservation.externalRef
     logger.info(s"Sending no-show for enrolment with reservation $ref")
     IO.fromFuture(
       IO(
@@ -46,7 +46,7 @@ class NoShowHandlerImpl @Inject (
           .map(response =>
             if response.status != OK then logger.error(s"No success in sending no-show #$ref to XM")
             else
-              ee.setNoShow(true)
+              ee.noShow = true
               ee.update()
               logger.info(s"Successfully sent no-show #$ref to XM")
           )
@@ -57,7 +57,7 @@ class NoShowHandlerImpl @Inject (
     ).void
 
   private def sendReservationNoShow(r: Reservation): IO[Unit] =
-    val ref = r.getExternalRef
+    val ref = r.externalRef
     logger.info(s"Sending no-show for reservation $ref")
     IO.fromFuture(
       IO(
@@ -68,7 +68,7 @@ class NoShowHandlerImpl @Inject (
             if response.status != OK then
               logger.error(s"No success in sending no-show reservation #$ref to XM")
             else
-              r.setSentAsNoShow(true)
+              r.sentAsNoShow = true
               r.update()
               logger.info(s"Successfully sent no-show reservation #$ref to XM")
           )
@@ -81,23 +81,23 @@ class NoShowHandlerImpl @Inject (
   private def parseUrl(reservationRef: String) =
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/noshow").toURL
   private def isLocal(ee: ExamEnrolment) =
-    Option(ee.getExam).nonEmpty && ee.getExam.hasState(Exam.State.PUBLISHED, Exam.State.INITIALIZED)
+    Option(ee.exam).nonEmpty && ee.exam.hasState(ExamState.PUBLISHED, ExamState.INITIALIZED)
   private def isCollaborative(ee: ExamEnrolment) =
-    Option(ee.getCollaborativeExam).nonEmpty && Option(ee.getExam).isEmpty
+    Option(ee.collaborativeExam).nonEmpty && Option(ee.exam).isEmpty
   private def isNoShow(enrolment: ExamEnrolment) =
-    (Option(enrolment.getReservation).nonEmpty && Option(
-      enrolment.getReservation.getExternalRef
+    (Option(enrolment.reservation).nonEmpty && Option(
+      enrolment.reservation.externalRef
     ).isEmpty) ||
-      Option(enrolment.getExaminationEventConfiguration).nonEmpty
+      Option(enrolment.examinationEventConfiguration).nonEmpty
 
   override def handleNoShows(noShows: List[ExamEnrolment], reservations: List[Reservation]): Unit =
     val locals = noShows.filter(isNoShow).filter(ns => isLocal(ns) || isCollaborative(ns))
     locals.foreach(handleNoShowAndNotify)
     val externals = noShows.filter(ns =>
-      val ref = Option(ns.getReservation).flatMap(r => Option(r.getExternalRef))
-      ref.nonEmpty && !ns.getReservation.isSentAsNoShow &&
-      (Option(ns.getUser).isEmpty || Option(ns.getExternalExam).flatMap(e =>
-        Option(e.getStarted)
+      val ref = Option(ns.reservation).flatMap(r => Option(r.externalRef))
+      ref.nonEmpty && !ns.reservation.sentAsNoShow &&
+      (Option(ns.user).isEmpty || Option(ns.externalExam).flatMap(e =>
+        Option(e.started)
       ).isEmpty)
     )
 
@@ -125,35 +125,34 @@ class NoShowHandlerImpl @Inject (
     io.unsafeRunSync()
 
   override def handleNoShowAndNotify(enrolment: ExamEnrolment): Unit =
-    val exam = enrolment.getExam
+    val exam = enrolment.exam
     if Option(exam).exists(_.isPrivate) then
       // For no-shows with private examinations we automatically create a new enrolment so a student can re-reserve.
       createNewEnrolment(enrolment)
-    enrolment.setNoShow(true)
+    enrolment.noShow = true
     enrolment.update()
-    logger.info(s"Marked enrolment ${enrolment.getId} as no-show")
+    logger.info(s"Marked enrolment ${enrolment.id} as no-show")
     val (examName, courseCode) = Option(exam) match
-      case None    => (enrolment.getCollaborativeExam.getName, "")
-      case Some(e) => (e.getName, e.getCourse.getCode)
+      case None    => (enrolment.collaborativeExam.name, "")
+      case Some(e) => (e.name, e.course.code)
 
     // Notify student
-    composer.composeNoShowMessage(enrolment.getUser, examName, courseCode)
+    composer.composeNoShowMessage(enrolment.user, examName, courseCode)
     if Option(exam).exists(_.isPrivate) then
       // Notify teachers
-      (exam.getExamOwners.asScala ++ exam.getExamInspections.asScala.map(_.getUser)).foreach(
-        teacher =>
-          composer.composeNoShowMessage(teacher, enrolment.getUser, exam)
-          logger.info(s"Email sent to ${teacher.getEmail}")
+      (exam.examOwners.asScala ++ exam.examInspections.asScala.map(_.user)).foreach(teacher =>
+        composer.composeNoShowMessage(teacher, enrolment.user, exam)
+        logger.info(s"Email sent to ${teacher.email}")
       )
 
   private def createNewEnrolment(enrolment: ExamEnrolment) =
     val newEnrolment = new ExamEnrolment()
-    if Option(enrolment.getUser).nonEmpty then
-      newEnrolment.setUser(enrolment.getUser)
+    if Option(enrolment.user).nonEmpty then
+      newEnrolment.user = enrolment.user
     else
-      newEnrolment.setPreEnrolledUserEmail(enrolment.getPreEnrolledUserEmail)
-    newEnrolment.setExam(enrolment.getExam)
-    newEnrolment.setEnrolledOn(DateTime.now())
-    newEnrolment.setInformation(enrolment.getInformation)
+      newEnrolment.preEnrolledUserEmail = enrolment.preEnrolledUserEmail
+    newEnrolment.exam = enrolment.exam
+    newEnrolment.enrolledOn = DateTime.now()
+    newEnrolment.information = enrolment.information
     newEnrolment.setRandomDelay()
     newEnrolment.save()

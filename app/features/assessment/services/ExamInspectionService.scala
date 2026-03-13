@@ -8,6 +8,7 @@ import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import io.ebean.DB
 import models.assessment.{Comment, ExamInspection}
 import models.exam.Exam
+import models.exam.ExamState
 import models.user.User
 import services.mail.EmailComposer
 
@@ -31,7 +32,7 @@ class ExamInspectionService @Inject() (
       case None       => Left(ExamInspectionError.ExamNotFound)
 
   def isInspectorOf(user: User, exam: Exam): Boolean =
-    exam.getExamInspections.asScala.exists(_.getUser == user)
+    exam.examInspections.asScala.exists(_.user == user)
 
   def addInspection(
       exam: Exam,
@@ -40,16 +41,16 @@ class ExamInspectionService @Inject() (
       commentText: Option[String]
   ): ExamInspection =
     val inspection = new ExamInspection
-    inspection.setExam(exam)
-    inspection.setUser(recipient)
-    inspection.setAssignedBy(assignedBy)
+    inspection.exam = exam
+    inspection.user = recipient
+    inspection.assignedBy = assignedBy
 
     commentText match
       case Some(text) =>
         val c = new Comment
         c.setCreatorWithDate(assignedBy)
-        c.setComment(text)
-        inspection.setComment(c)
+        c.comment = text
+        inspection.comment = c
         c.save()
         emailComposer.scheduleEmail(1.seconds) {
           emailComposer.composeExamReviewRequest(recipient, assignedBy, exam, text)
@@ -59,16 +60,16 @@ class ExamInspectionService @Inject() (
     inspection.save()
 
     // Add also as inspector to ongoing child exams if not already there.
-    exam.getChildren.asScala
+    exam.children.asScala
       .filter(e =>
-        e.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED)
+        e.hasState(ExamState.REVIEW, ExamState.STUDENT_STARTED, ExamState.REVIEW_STARTED)
           && !isInspectorOf(recipient, e)
       )
       .foreach(e =>
         val i = new ExamInspection
-        i.setExam(e)
-        i.setUser(recipient)
-        i.setAssignedBy(assignedBy)
+        i.exam = e
+        i.user = recipient
+        i.assignedBy = assignedBy
         i.save()
       )
 
@@ -77,7 +78,7 @@ class ExamInspectionService @Inject() (
   def setOutcome(id: Long, ready: Boolean): Either[ExamInspectionError, ExamInspection] =
     Option(DB.find(classOf[ExamInspection], id)) match
       case Some(inspection) =>
-        inspection.setReady(ready)
+        inspection.ready = ready
         inspection.update()
         Right(inspection)
       case None => Left(ExamInspectionError.InspectionNotFound)
@@ -94,13 +95,13 @@ class ExamInspectionService @Inject() (
   def deleteInspection(id: Long): Either[ExamInspectionError, Unit] =
     Option(DB.find(classOf[ExamInspection], id)) match
       case Some(inspection) =>
-        inspection.getExam.getChildren.asScala
+        inspection.exam.children.asScala
           .filter(c =>
-            c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED)
+            c.hasState(ExamState.REVIEW, ExamState.STUDENT_STARTED, ExamState.REVIEW_STARTED)
           )
           .foreach(c =>
-            c.getExamInspections.asScala
-              .filter(ei => ei.getUser.equals(inspection.getUser))
+            c.examInspections.asScala
+              .filter(ei => ei.user.equals(inspection.user))
               .foreach(_.delete)
           )
         inspection.delete()

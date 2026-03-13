@@ -29,7 +29,7 @@ class TimeService @Inject() (
       .eq("exam.hash", hash)
       .eq("externalExam.hash", hash)
       .endJunction()
-      .eq("user.id", user.getId)
+      .eq("user.id", user.id)
       .find match
       case None => Left(EnrolmentNotFound)
       case Some(enrolment) =>
@@ -40,17 +40,17 @@ class TimeService @Inject() (
         Right(timeLeft.getSeconds)
 
   private def getStart(enrolment: ExamEnrolment): DateTime =
-    Option(enrolment.getExaminationEventConfiguration) match
-      case Some(config) => config.getExaminationEvent.getStart
-      case None         => enrolment.getReservation.getStartAt
+    Option(enrolment.examinationEventConfiguration) match
+      case Some(config) => config.examinationEvent.start
+      case None         => enrolment.reservation.startAt
 
   private def currentTime(enrolment: ExamEnrolment): DateTime =
-    Option(enrolment.getExaminationEventConfiguration) match
+    Option(enrolment.examinationEventConfiguration) match
       case Some(_) => clock.now()
-      case None    => dateTimeHandler.adjustDST(clock.now(), enrolment.getReservation)
+      case None    => dateTimeHandler.adjustDST(clock.now(), enrolment.reservation)
 
   private def getDuration(enrolment: ExamEnrolment): Int =
-    Option(enrolment.getExam) match
-      case Some(exam) => exam.getDuration.intValue()
+    Option(enrolment.exam) match
+      case Some(exam) => exam.duration.intValue()
       case None =>
-        Try(enrolment.getExternalExam.deserialize().getDuration.intValue()).getOrElse(0)
+        Try(enrolment.externalExam.deserialize.duration.intValue()).getOrElse(0)

@@ -17,7 +17,7 @@ class RoomControllerSpec extends BaseIntegrationSpec:
         val (user, session) = runIO(loginAsAdmin())
         // Setup
         val room = DB.find(classOf[ExamRoom], 1L)
-        room.getState must not be ExamRoom.State.INACTIVE.toString
+        room.state must not be ExamRoom.State.INACTIVE.toString
 
         // Execute
         val result = runIO(delete("/app/rooms/1", session = session))
@@ -29,14 +29,14 @@ class RoomControllerSpec extends BaseIntegrationSpec:
         deserializedState.must(be(ExamRoom.State.INACTIVE.toString))
 
         val updatedRoom = DB.find(classOf[ExamRoom], 1L)
-        updatedRoom.getState.must(be(ExamRoom.State.INACTIVE.toString))
+        updatedRoom.state.must(be(ExamRoom.State.INACTIVE.toString))
 
     "enabling a room" should:
       "set room state to ACTIVE" in:
         val (user, session) = runIO(loginAsAdmin())
         // Setup
         val room = DB.find(classOf[ExamRoom], 1L)
-        room.setState(ExamRoom.State.INACTIVE.toString)
+        room.state = ExamRoom.State.INACTIVE.toString
         room.update()
 
         // Execute
@@ -49,4 +49,4 @@ class RoomControllerSpec extends BaseIntegrationSpec:
         deserializedState must be(ExamRoom.State.ACTIVE.toString)
 
         val updatedRoom = DB.find(classOf[ExamRoom], 1L)
-        updatedRoom.getState must be(ExamRoom.State.ACTIVE.toString)
+        updatedRoom.state must be(ExamRoom.State.ACTIVE.toString)

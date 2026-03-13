@@ -9,7 +9,7 @@ import features.iop.transfer.services.ExternalReservationHandlerService
 import io.ebean.DB
 import models.calendar.MaintenancePeriod
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
-import models.exam.Exam
+import models.exam.{Exam, ExamImplementation, ExamState}
 import models.facility.*
 import models.sections.ExamSection
 import models.user.User
@@ -56,10 +56,10 @@ class CalendarHandlerImpl @Inject() (
         Left(CalendarHandlerError.RoomNotFound(roomId))
       case Some(room) =>
         val slots =
-          if !room.getOutOfService &&
-            room.getState != ExamRoom.State.INACTIVE.toString &&
+          if !room.outOfService &&
+            room.state != ExamRoom.State.INACTIVE.toString &&
             isRoomAccessibilitySatisfied(room, aids) &&
-            Option(exam.getDuration).isDefined
+            Option(exam.duration).isDefined
           then
             parseSearchDate(day, exam, Some(room)) match
               case None             => List.empty
@@ -74,7 +74,7 @@ class CalendarHandlerImpl @Inject() (
                   .list
 
                 // Resolve eligible machines
-                val machines = getEligibleMachines(room, aids, exam)
+                val machines = getEligibleMachines(room, exam)
 
                 // Maintenance periods
                 val periods = DB
@@ -84,12 +84,12 @@ class CalendarHandlerImpl @Inject() (
                   .list
                   .map(p =>
                     new Interval(
-                      normalizeMaintenanceTime(p.getStartsAt),
-                      normalizeMaintenanceTime(p.getEndsAt)
+                      normalizeMaintenanceTime(p.startsAt),
+                      normalizeMaintenanceTime(p.endsAt)
                     )
                   )
 
-                val endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getPeriodEnd))
+                val endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.periodEnd))
 
                 Iterator
                   .iterate(searchDate)(_.plusDays(1))
@@ -103,22 +103,22 @@ class CalendarHandlerImpl @Inject() (
         Right(Json.toJson(slots))
 
   override def isDoable(reservation: Reservation, aids: Seq[Long]): Boolean =
-    val dtz = DateTimeZone.forID(reservation.getMachine.getRoom.getLocalTimezone)
+    val dtz = DateTimeZone.forID(reservation.machine.room.localTimezone)
     val searchDate =
-      dateTimeHandler.normalize(reservation.getStartAt.withZone(dtz), dtz).toLocalDate
+      dateTimeHandler.normalize(reservation.startAt.withZone(dtz), dtz).toLocalDate
 
     // user's reservations starting from now
     val reservations = DB
       .find(classOf[Reservation])
       .fetch("enrolment.exam")
       .where()
-      .eq("user", reservation.getUser)
+      .eq("user", reservation.user)
       .ge("startAt", searchDate.toDate)
       .list
 
     // Resolve eligible machines
     val machines =
-      getEligibleMachines(reservation.getMachine.getRoom, aids, reservation.getEnrolment.getExam)
+      getEligibleMachines(reservation.machine.room, reservation.enrolment.exam)
 
     // Maintenance periods
     val periods = DB
@@ -127,13 +127,13 @@ class CalendarHandlerImpl @Inject() (
       .gt("endsAt", searchDate.toDate)
       .list
       .map(p =>
-        new Interval(normalizeMaintenanceTime(p.getStartsAt), normalizeMaintenanceTime(p.getEndsAt))
+        new Interval(normalizeMaintenanceTime(p.startsAt), normalizeMaintenanceTime(p.endsAt))
       )
 
     val slots = getExamSlots(
-      reservation.getUser,
-      reservation.getMachine.getRoom,
-      reservation.getEnrolment.getExam,
+      reservation.user,
+      reservation.machine.room,
+      reservation.enrolment.exam,
       searchDate,
       reservations,
       machines,
@@ -144,18 +144,18 @@ class CalendarHandlerImpl @Inject() (
 
   override def parseSearchDate(day: String, exam: Exam, room: Option[ExamRoom]): Option[LocalDate] =
     val windowSize = getReservationWindowSize
-    val dtz = room.map(r => DateTimeZone.forID(r.getLocalTimezone)).getOrElse(
+    val dtz = room.map(r => DateTimeZone.forID(r.localTimezone)).getOrElse(
       configReader.getDefaultTimeZone
     )
-    val startOffset           = dtz.getOffset(exam.getPeriodStart)
+    val startOffset           = dtz.getOffset(exam.periodStart)
     val offset                = dtz.getOffset(clock.now())
     val now                   = clock.now().plusMillis(offset).toLocalDate
     val reservationWindowDate = now.plusDays(windowSize)
 
-    val examEndDate = new DateTime(exam.getPeriodEnd).plusMillis(offset).toLocalDate
+    val examEndDate = new DateTime(exam.periodEnd).plusMillis(offset).toLocalDate
     val searchEndDate =
       if reservationWindowDate.isBefore(examEndDate) then reservationWindowDate else examEndDate
-    val examStartDate = new DateTime(exam.getPeriodStart).plusMillis(startOffset).toLocalDate
+    val examStartDate = new DateTime(exam.periodStart).plusMillis(startOffset).toLocalDate
 
     val initialDate =
       if day.isEmpty then now else ISODateTimeFormat.dateTimeParser().parseLocalDate(day)
@@ -171,14 +171,13 @@ class CalendarHandlerImpl @Inject() (
 
   private def getEligibleMachines(
       room: ExamRoom,
-      access: Seq[Long],
       exam: Exam
   ): List[ExamMachine] =
     val candidates = DB
       .find(classOf[ExamMachine])
       .fetch("room")
       .where()
-      .eq("room.id", room.getId)
+      .eq("room.id", room.id)
       .ne("outOfService", true)
       .ne("archived", true)
       .isNotNull("ipAddress")
@@ -186,9 +185,7 @@ class CalendarHandlerImpl @Inject() (
       .list
 
     candidates.filter { em =>
-      isMachineAccessibilitySatisfied(em, access) && (Option(
-        exam
-      ).isEmpty || em.hasRequiredSoftware(exam))
+      (Option(exam).isEmpty || em.hasRequiredSoftware(exam))
     }
 
   override def getRandomMachine(
@@ -198,7 +195,7 @@ class CalendarHandlerImpl @Inject() (
       end: DateTime,
       aids: Seq[Long]
   ): Option[ExamMachine] =
-    val machines   = getEligibleMachines(room, aids, exam)
+    val machines   = getEligibleMachines(room, exam)
     val wantedTime = new Interval(start, end)
     Random.shuffle(machines).find(!_.isReservedDuring(wantedTime))
 
@@ -209,13 +206,13 @@ class CalendarHandlerImpl @Inject() (
       user: User
   ): Reservation =
     val reservation = new Reservation()
-    reservation.setEndAt(end)
-    reservation.setStartAt(start)
-    reservation.setMachine(machine)
-    reservation.setUser(user)
+    reservation.endAt = end
+    reservation.startAt = start
+    reservation.machine = machine
+    reservation.user = user
 
     // If this is due in less than a day, make sure we won't send a reminder
-    if start.minusDays(1).isBeforeNow then reservation.setReminderSent(true)
+    if start.minusDays(1).isBeforeNow then reservation.reminderSent = true
 
     reservation
 
@@ -238,11 +235,11 @@ class CalendarHandlerImpl @Inject() (
     else Seq.empty
 
   private def isReservationForExam(r: Reservation, e: Exam): Boolean =
-    Option(r.getEnrolment.getExam) match
+    Option(r.enrolment.exam) match
       case Some(exam) => exam == e
       case None =>
-        Option(r.getEnrolment.getCollaborativeExam) match
-          case Some(ce) => ce.getHash == e.getHash
+        Option(r.enrolment.collaborativeExam) match
+          case Some(ce) => ce.hash == e.hash
           case None     => false
 
   override def handleReservations(
@@ -261,9 +258,9 @@ class CalendarHandlerImpl @Inject() (
         concernsAnotherExam match
           case Some(reservation) =>
             // User has a reservation to another exam
-            val conflictingExam = Option(reservation.getEnrolment.getExam)
-              .map(_.getName)
-              .getOrElse(reservation.getEnrolment.getCollaborativeExam.getName)
+            val conflictingExam = Option(reservation.enrolment.exam)
+              .map(_.name)
+              .getOrElse(reservation.enrolment.collaborativeExam.name)
             CalendarHandler.TimeSlot(reservation.toInterval, -1, conflictingExam)
           case None =>
             // User has an existing reservation to this exam
@@ -292,7 +289,7 @@ class CalendarHandlerImpl @Inject() (
       machines: Seq[ExamMachine],
       maintenancePeriods: Seq[Interval]
   ): Set[CalendarHandler.TimeSlot] =
-    val examDuration = exam.getDuration
+    val examDuration = exam.duration
     val examSlots = gatherSuitableSlots(room, date, examDuration)
       .filterNot(slot => maintenancePeriods.exists(_.overlaps(slot)))
     val map = examSlots.map(slot => slot -> None).toMap
@@ -304,12 +301,12 @@ class CalendarHandlerImpl @Inject() (
       room: ExamRoom,
       date: LocalDate
   ): List[Interval] =
-    val startingHours = room.getExamStartingHours.asScala.toList match
-      case Nil => createDefaultStartingHours(room.getLocalTimezone)
+    val startingHours = room.examStartingHours.asScala.toList match
+      case Nil => createDefaultStartingHours(room.localTimezone)
       case hs  => hs.sorted
 
     val now =
-      clock.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone).getOffset(clock.now()))
+      clock.now().plusMillis(DateTimeZone.forID(room.localTimezone).getOffset(clock.now()))
 
     openingHours.flatMap { oh =>
       val tzOffset = oh.timezoneOffset
@@ -340,7 +337,7 @@ class CalendarHandlerImpl @Inject() (
     }.toList
 
   override def getReservationWindowSize: Int =
-    Option(configReader.getOrCreateSettings("reservation_window_size", None, None).getValue)
+    Option(configReader.getOrCreateSettings("reservation_window_size", None, None).value)
       .map(_.toInt)
       .getOrElse(0)
 
@@ -386,8 +383,8 @@ class CalendarHandlerImpl @Inject() (
           .list
           .map(p =>
             new Interval(
-              normalizeMaintenanceTime(p.getStartsAt),
-              normalizeMaintenanceTime(p.getEndsAt)
+              normalizeMaintenanceTime(p.startsAt),
+              normalizeMaintenanceTime(p.endsAt)
             )
           )
 
@@ -408,60 +405,60 @@ class CalendarHandlerImpl @Inject() (
       roomRef: String,
       sectionIds: Seq[Long]
   ): Future[Option[Integer]] =
-    val oldReservation = enrolment.getReservation
+    val oldReservation = enrolment.reservation
     val reservation    = new Reservation()
-    reservation.setEndAt(end)
-    reservation.setStartAt(start)
-    reservation.setUser(user)
-    reservation.setExternalRef((node \ "id").as[String])
+    reservation.endAt = end
+    reservation.startAt = start
+    reservation.user = user
+    reservation.externalRef = (node \ "id").as[String]
 
     // If this is due in less than a day, make sure we won't send a reminder
-    if start.minusDays(1).isBeforeNow then reservation.setReminderSent(true)
+    if start.minusDays(1).isBeforeNow then reservation.reminderSent = true
 
     val external = new ExternalReservation()
-    external.setOrgRef(orgRef)
-    external.setRoomRef(roomRef)
-    external.setOrgName((node \ "orgName").asOpt[String].orNull)
-    external.setOrgCode((node \ "orgCode").asOpt[String].orNull)
+    external.orgRef = orgRef
+    external.roomRef = roomRef
+    external.orgName = (node \ "orgName").asOpt[String].orNull
+    external.orgCode = (node \ "orgCode").asOpt[String].orNull
 
     val machineNode = (node \ "machine").asOpt[JsValue].orNull
     val roomNode    = machineNode \ "room"
-    external.setMachineName((machineNode \ "name").as[String])
-    external.setRoomName((roomNode \ "name").as[String])
-    external.setRoomCode((roomNode \ "roomCode").as[String])
-    external.setRoomTz((roomNode \ "localTimezone").as[String])
-    external.setRoomInstruction((roomNode \ "roomInstruction").asOpt[String].orNull)
-    external.setRoomInstructionEN((roomNode \ "roomInstructionEN").asOpt[String].orNull)
-    external.setRoomInstructionSV((roomNode \ "roomInstructionSV").asOpt[String].orNull)
+    external.machineName = (machineNode \ "name").as[String]
+    external.roomName = (roomNode \ "name").as[String]
+    external.roomCode = (roomNode \ "roomCode").as[String]
+    external.roomTz = (roomNode \ "localTimezone").as[String]
+    external.roomInstruction = (roomNode \ "roomInstruction").asOpt[String].orNull
+    external.roomInstructionEN = (roomNode \ "roomInstructionEN").asOpt[String].orNull
+    external.roomInstructionSV = (roomNode \ "roomInstructionSV").asOpt[String].orNull
 
     (roomNode \ "mailAddress").asOpt[JsValue].foreach { addressNode =>
       val mailAddress = new MailAddress()
-      mailAddress.setStreet((addressNode \ "street").asOpt[String].orNull)
-      mailAddress.setCity((addressNode \ "city").asOpt[String].orNull)
-      mailAddress.setZip((addressNode \ "zip").asOpt[String].orNull)
-      external.setMailAddress(mailAddress)
+      mailAddress.street = (addressNode \ "street").asOpt[String].orNull
+      mailAddress.city = (addressNode \ "city").asOpt[String].orNull
+      mailAddress.zip = (addressNode \ "zip").asOpt[String].orNull
+      external.mailAddress = mailAddress
     }
 
-    external.setBuildingName((roomNode \ "buildingName").asOpt[String].orNull)
-    external.setCampus((roomNode \ "campus").asOpt[String].orNull)
+    external.buildingName = (roomNode \ "buildingName").asOpt[String].orNull
+    external.campus = (roomNode \ "campus").asOpt[String].orNull
     external.save()
-    reservation.setExternalReservation(external)
+    reservation.externalReservation = external
     DB.save(reservation)
-    enrolment.setReservation(reservation)
-    enrolment.setReservationCanceled(false)
+    enrolment.reservation = reservation
+    enrolment.reservationCanceled = false
 
     val sections: Set[ExamSection] =
       if sectionIds.isEmpty then Set.empty
       else DB.find(classOf[ExamSection]).where().idIn(sectionIds.map(Long.box).asJava).distinct
 
-    enrolment.getOptionalSections.clear()
+    enrolment.optionalSections.clear()
     enrolment.update()
-    enrolment.setOptionalSections(sections.asJava)
+    enrolment.optionalSections = sections.asJava
     DB.save(enrolment)
 
     // Finally, nuke the old reservation if any
     Option(oldReservation) match
-      case Some(old) if Option(old.getExternalReservation).isDefined =>
+      case Some(old) if Option(old.externalReservation).isDefined =>
         externalReservationHandler
           .removeExternalReservation(old)
           .map { errorOpt =>
@@ -487,14 +484,14 @@ class CalendarHandlerImpl @Inject() (
       user: User,
       sectionIds: Seq[Long]
   ): Option[Result] =
-    if enrolment.getExam.getImplementation != Exam.Implementation.AQUARIUM then
+    if enrolment.exam.implementation != ExamImplementation.AQUARIUM then
       Some(Forbidden("SEB exam does not take reservations"))
     else
-      val oldReservationOpt = Option(enrolment.getReservation)
-      val exam              = enrolment.getExam
+      val oldReservationOpt = Option(enrolment.reservation)
+      val exam              = enrolment.exam
 
       // Removal is not permitted if the old reservation is in the past or if exam is already started
-      if exam.getState == Exam.State.STUDENT_STARTED ||
+      if exam.state == ExamState.STUDENT_STARTED ||
         oldReservationOpt.exists(_.toInterval.isBefore(clock.now()))
       then Some(Forbidden("i18n_reservation_in_effect"))
 
@@ -504,9 +501,9 @@ class CalendarHandlerImpl @Inject() (
 
       // Check that at least one section will end up in the exam
       else
-        val sections = exam.getExamSections
-        if sections.stream().allMatch(_.isOptional) then
-          if !sections.stream().anyMatch(es => sectionIds.contains(es.getId)) then
+        val sections = exam.examSections
+        if sections.stream().allMatch(_.optional) then
+          if !sections.stream().anyMatch(es => sectionIds.contains(es.id)) then
             Some(Forbidden("No optional sections selected. At least one needed"))
           else checkExternalReservationAssessment(oldReservationOpt, enrolment)
         else checkExternalReservationAssessment(oldReservationOpt, enrolment)
@@ -517,10 +514,10 @@ class CalendarHandlerImpl @Inject() (
   ): Option[Result] =
     oldReservationOpt match
       case Some(oldRes)
-          if Option(oldRes.getExternalRef).isDefined &&
-            !oldRes.getStartAt.isAfter(dateTimeHandler.adjustDST(clock.now())) &&
-            !enrolment.isNoShow &&
-            enrolment.getExam.getState == Exam.State.PUBLISHED =>
+          if Option(oldRes.externalRef).isDefined &&
+            !oldRes.startAt.isAfter(dateTimeHandler.adjustDST(clock.now())) &&
+            !enrolment.noShow &&
+            enrolment.exam.state == ExamState.PUBLISHED =>
         // External reservation - assessment not returned yet
         Some(Forbidden("i18n_enrolment_assessment_not_received"))
       case _ => None
@@ -532,7 +529,7 @@ class CalendarHandlerImpl @Inject() (
       .where()
       .eq("user", user)
       .eq("exam.id", examId)
-      .eq("exam.state", Exam.State.PUBLISHED)
+      .eq("exam.state", ExamState.PUBLISHED)
       .disjunction()
       .isNull("reservation")
       .gt("reservation.startAt", now.toDate)
@@ -546,62 +543,53 @@ class CalendarHandlerImpl @Inject() (
       node: JsValue
   ): Unit =
     // Attach the external machine data just so that email can be generated
-    reservation.setMachine(parseExternalMachineData(node))
+    reservation.machine = parseExternalMachineData(node)
     // Send some emails asynchronously
     emailComposer.scheduleEmail(1.second) {
       emailComposer.composeReservationNotification(user, reservation, exam, false)
-      logger.info(s"Reservation confirmation email sent to ${user.getEmail}")
+      logger.info(s"Reservation confirmation email sent to ${user.email}")
     }
 
   private def parseExternalMachineData(machineNode: JsValue): ExamMachine =
     val machine = new ExamMachine()
-    machine.setName((machineNode \ "name").as[String])
+    machine.name = (machineNode \ "name").as[String]
 
     val roomNode = machineNode \ "room"
     val room     = new ExamRoom()
-    room.setName((roomNode \ "name").as[String])
-    room.setLocalTimezone((roomNode \ "localTimezone").as[String])
+    room.name = (roomNode \ "name").as[String]
+    room.localTimezone = (roomNode \ "localTimezone").as[String]
 
-    (roomNode \ "roomCode").asOpt[String].foreach(room.setRoomCode)
-    (roomNode \ "buildingName").asOpt[String].foreach(room.setBuildingName)
-    (roomNode \ "roomInstruction").asOpt[String].foreach(room.setRoomInstruction)
-    (roomNode \ "roomInstructionEN").asOpt[String].foreach(room.setRoomInstruction)
-    (roomNode \ "roomInstructionSV").asOpt[String].foreach(room.setRoomInstruction)
+    (roomNode \ "roomCode").asOpt[String].foreach(v => room.roomCode = v)
+    (roomNode \ "buildingName").asOpt[String].foreach(v => room.buildingName = v)
+    (roomNode \ "roomInstruction").asOpt[String].foreach(v => room.roomInstruction = v)
+    (roomNode \ "roomInstructionEN").asOpt[String].foreach(v => room.roomInstruction = v)
+    (roomNode \ "roomInstructionSV").asOpt[String].foreach(v => room.roomInstruction = v)
 
     (roomNode \ "mailAddress").asOpt[JsValue].foreach { addressNode =>
       val address = new MailAddress()
-      address.setStreet((addressNode \ "street").as[String])
-      address.setCity((addressNode \ "city").as[String])
-      address.setZip((addressNode \ "zip").as[String])
-      room.setMailAddress(address)
+      address.street = (addressNode \ "street").as[String]
+      address.city = (addressNode \ "city").as[String]
+      address.zip = (addressNode \ "zip").as[String]
+      room.mailAddress = address
     }
-    machine.setRoom(room)
+    machine.room = room
     machine
 
-  private def isMachineAccessibilitySatisfied(machine: ExamMachine, wanted: Seq[Long]): Boolean =
-    if machine.isAccessible then true
-    else
-      val machineAccessibility = machine.getAccessibilities.asScala
-        .map(_.getId.asInstanceOf[Long])
-        .toSet
-      val wantedSet = wanted.toSet
-      wantedSet.subsetOf(machineAccessibility)
-
   private def isRoomAccessibilitySatisfied(room: ExamRoom, wanted: Seq[Long]): Boolean =
-    val roomAccessibility = room.getAccessibilities.asScala.map(_.getId.longValue()).toSet
+    val roomAccessibility = room.accessibilities.asScala.map(_.id.longValue()).toSet
     wanted.toSet.subsetOf(roomAccessibility)
 
   private def isReservedByUser(reservation: Reservation, user: User): Boolean =
     val externallyReserved =
-      Option(reservation.getExternalUserRef).isDefined && reservation.getExternalRef == user.getEppn
-    externallyReserved || Option(reservation.getUser).contains(user)
+      Option(reservation.externalUserRef).isDefined && reservation.externalRef == user.eppn
+    externallyReserved || Option(reservation.user).contains(user)
 
   private def isReservedByOthersDuring(
       machine: ExamMachine,
       interval: Interval,
       user: User
   ): Boolean =
-    machine.getReservations.asScala
+    machine.reservations.asScala
       .filter(r => !isReservedByUser(r, user))
       .exists(r => interval.overlaps(r.toInterval))
 
@@ -618,7 +606,7 @@ class CalendarHandlerImpl @Inject() (
   ): DateTime =
     startingHours
       .map { sh =>
-        val timeMs = new LocalTime(sh.getStartingHour).plusMillis(offset).getMillisOfDay
+        val timeMs = new LocalTime(sh.startingHour).plusMillis(offset).getMillisOfDay
         instant.withMillisOfDay(timeMs)
       }
       .find(!_.isBefore(instant))
@@ -635,8 +623,8 @@ class CalendarHandlerImpl @Inject() (
       .takeWhile(!_.isAfter(ending))
       .map { dt =>
         val esh = new ExamStartingHour()
-        esh.setStartingHour(dt.toDate)
-        esh.setTimezoneOffset(zone.getOffset(dt))
+        esh.startingHour = dt.toDate
+        esh.timezoneOffset = zone.getOffset(dt)
         esh
       }
       .toList

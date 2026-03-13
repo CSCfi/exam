@@ -43,56 +43,56 @@ class ExternalExamExpirationService @Inject() (
       case Right(u) => Some(u)
 
   private def deleteAttachment(attachment: Attachment): IO[Unit] =
-    val url = parseUrl(attachment.getExternalId).map(_.toString).getOrElse("")
+    val url = parseUrl(attachment.externalId).map(_.toString).getOrElse("")
     if url.nonEmpty then
       IO.fromFuture(IO(wsClient.url(url).delete()))
         .void
         .handleErrorWith(e =>
-          IO(logger.error(s"Failed to delete attachment ${attachment.getExternalId}", e))
+          IO(logger.error(s"Failed to delete attachment ${attachment.externalId}", e))
         )
     else IO.unit
 
   private def processExternalExam(ee: ExternalExam): IO[Unit] =
     val attachments =
       try
-        ee.deserialize.getExamSections.asScala
-          .flatMap(_.getSectionQuestions.asScala)
-          .map(_.getEssayAnswer)
-          .flatMap(ea => Option(ea).flatMap(e => Option(e.getAttachment)))
+        ee.deserialize.examSections.asScala
+          .flatMap(_.sectionQuestions.asScala)
+          .map(_.essayAnswer)
+          .flatMap(ea => Option(ea).flatMap(e => Option(e.attachment)))
           .toList
       catch
         case e: Exception =>
-          logger.error(s"Failed to deserialize external exam ${ee.getId}", e)
+          logger.error(s"Failed to deserialize external exam ${ee.id}", e)
           List.empty[Attachment]
 
     if attachments.nonEmpty then
       val count = attachments.size
       logger.info(
-        s"Processing $count attachments for external exam ${ee.getId} with max concurrency of $maxConcurrency"
+        s"Processing $count attachments for external exam ${ee.id} with max concurrency of $maxConcurrency"
       )
       attachments
         .parTraverseN(maxConcurrency)(deleteAttachment)
         .handleErrorWith(e =>
-          IO(logger.error(s"Failed in deleting attachments for external exam ${ee.getId}", e))
+          IO(logger.error(s"Failed in deleting attachments for external exam ${ee.id}", e))
         )
         .flatMap(_ =>
-          if ee.getSent.plusMonths(
+          if ee.sent.plusMonths(
               ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION
             ).isBeforeNow
           then
             IO.blocking {
-              ee.setContent(Map.empty[String, Object].asJava)
+              ee.content = Map.empty[String, Object].asJava
               ee.update()
-              logger.info(s"Marked external exam ${ee.getId} as expired")
+              logger.info(s"Marked external exam ${ee.id} as expired")
             }
           else IO.unit
         )
-    else if ee.getSent.plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION).isBeforeNow
+    else if ee.sent.plusMonths(ExternalExamExpirationService.MONTHS_UNTIL_EXPIRATION).isBeforeNow
     then
       IO.blocking {
-        ee.setContent(Map.empty[String, Object].asJava)
+        ee.content = Map.empty[String, Object].asJava
         ee.update()
-        logger.info(s"Marked external exam ${ee.getId} as expired")
+        logger.info(s"Marked external exam ${ee.id} as expired")
       }
     else IO.unit
 
@@ -105,7 +105,7 @@ class ExternalExamExpirationService @Inject() (
         .isNotNull("sent")
         .jsonExists("content", "id")
         .list
-        .filter(ee => Option(ee.getSent).nonEmpty)
+        .filter(ee => Option(ee.sent).nonEmpty)
         .distinct
     }.flatMap(exams =>
       val count = exams.size

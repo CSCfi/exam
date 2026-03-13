@@ -6,9 +6,12 @@ package features.iop.collaboration.controllers
 
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
 import features.iop.collaboration.services.*
-import models.exam.{Exam, Grade}
+import models.exam.Exam
+import models.exam.ExamState
+import models.exam.GradeType
 import models.iop.CollaborativeExam
-import models.questions.{ClozeTestAnswer, Question}
+import models.questions.ClozeTestAnswer
+import models.questions.QuestionType
 import models.user.{Role, User}
 import org.apache.pekko.stream.scaladsl.StreamConverters
 import play.api.Logging
@@ -77,7 +80,7 @@ class CollaborativeReviewController @Inject() (
       val root     = response.json
       val examNode = (root \ "exam").get
       val blankAnswerText =
-        messagesApi("clozeTest.blank.answer")(using Lang(user.getLanguage.getCode))
+        messagesApi("clozeTest.blank.answer")(using Lang(user.language.code))
 
       // Manipulate cloze test answers for convenient display
       val examSections = (examNode \ "examSections").as[Seq[JsValue]]
@@ -85,7 +88,7 @@ class CollaborativeReviewController @Inject() (
         val sectionQuestions = (es \ "sectionQuestions").as[Seq[JsValue]]
         sectionQuestions.foreach { esq =>
           val questionType = (esq \ "question" \ "type").asOpt[String]
-          if questionType.contains(Question.Type.ClozeTestQuestion.toString) then
+          if questionType.contains(QuestionType.ClozeTestQuestion.toString) then
             // Process cloze test answer
             val clozeAnswer = (esq \ "clozeTestAnswer").asOpt[JsValue]
             val cta =
@@ -185,7 +188,7 @@ class CollaborativeReviewController @Inject() (
       collaborativeExamAuthorizationService.findCollaborativeExam(eid).flatMap {
         case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
-          parseUrl(ce.getExternalRef, null) match
+          parseUrl(ce.externalRef, null) match
             case None => Future.successful(InternalServerError("Invalid URL"))
             case Some(url) =>
               wsClient.url(url.toString).get().map { response =>
@@ -219,7 +222,7 @@ class CollaborativeReviewController @Inject() (
     val hasGradedBy     = (exam \ "gradedByUser").isDefined
     val hasCustomCredit = (exam \ "customCredit").isDefined
 
-    state.contains(Exam.State.GRADED_LOGGED.toString) &&
+    state.contains(ExamState.GRADED_LOGGED.toString) &&
     gradingType.contains("GRADED") &&
     hasGrade &&
     hasGradedBy &&
@@ -275,7 +278,7 @@ class CollaborativeReviewController @Inject() (
       collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
         case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
-          parseUrl(ce.getExternalRef, ref) match
+          parseUrl(ce.externalRef, ref) match
             case None => Future.successful(InternalServerError("Invalid URL"))
             case Some(url) =>
               val admin = user.hasRole(Role.Name.ADMIN)
@@ -358,13 +361,13 @@ class CollaborativeReviewController @Inject() (
                     if collaborativeExamAuthorizationService.isUnauthorizedToAssess(exam, user) then
                       Future.successful(Forbidden("You are not allowed to modify this object"))
                     else
-                      val recipients = exam.getExamInspections.asScala
-                        .map(_.getUser)
-                        .toSet ++ exam.getExamOwners.asScala
+                      val recipients = exam.examInspections.asScala
+                        .map(_.user)
+                        .toSet ++ exam.examOwners.asScala
 
                       emailComposer.scheduleEmail(1.second) {
                         recipients
-                          .filter(u => !u.getEmail.equalsIgnoreCase(user.getEmail))
+                          .filter(u => !u.email.equalsIgnoreCase(user.email))
                           .foreach(u =>
                             emailComposer.composeInspectionMessage(u, user, ce, exam, message)
                           )
@@ -382,7 +385,7 @@ class CollaborativeReviewController @Inject() (
       collaborativeExamService.findById(id).flatMap {
         case None => Future.successful(NotFound("i18n_error_exam_not_found"))
         case Some(ce) =>
-          parseUrl(ce.getExternalRef, ref) match
+          parseUrl(ce.externalRef, ref) match
             case None => Future.successful(InternalServerError("Invalid URL"))
             case Some(url) =>
               val scoreNode = request.body \ "forcedScore"
@@ -418,7 +421,7 @@ class CollaborativeReviewController @Inject() (
       collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
         case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
-          parseUrl(ce.getExternalRef, ref) match
+          parseUrl(ce.externalRef, ref) match
             case None => Future.successful(InternalServerError("Invalid URL"))
             case Some(url) =>
               val user = request.attrs(Auth.ATTR_USER)
@@ -439,10 +442,10 @@ class CollaborativeReviewController @Inject() (
                   if collaborativeExamAuthorizationService.isUnauthorizedToAssess(exam, user) then
                     Future.successful(Forbidden("You are not allowed to modify this object"))
                   else if exam.hasState(
-                      Exam.State.ABORTED,
-                      Exam.State.REJECTED,
-                      Exam.State.GRADED_LOGGED,
-                      Exam.State.ARCHIVED
+                      ExamState.ABORTED,
+                      ExamState.REJECTED,
+                      ExamState.GRADED_LOGGED,
+                      ExamState.ARCHIVED
                     )
                   then Future.successful(Forbidden("Not allowed to update grading of this exam"))
                   else
@@ -527,7 +530,7 @@ class CollaborativeReviewController @Inject() (
       collaborativeExamAuthorizationService.findCollaborativeExam(id).flatMap {
         case Left(errorResult) => Future.successful(errorResult)
         case Right(ce) =>
-          parseUrl(ce.getExternalRef, ref) match
+          parseUrl(ce.externalRef, ref) match
             case None => Future.successful(InternalServerError("Invalid URL"))
             case Some(url) =>
               val user     = request.attrs(Auth.ATTR_USER)
@@ -542,7 +545,7 @@ class CollaborativeReviewController @Inject() (
 
                     if collaborativeExamAuthorizationService.isUnauthorizedToAssess(exam, user) then
                       Future.successful(Forbidden("You are not allowed to modify this object"))
-                    else if !exam.hasState(Exam.State.GRADED_LOGGED) then
+                    else if !exam.hasState(ExamState.GRADED_LOGGED) then
                       Future.successful(Forbidden("Not allowed to update grading of this exam"))
                     else
                       // TODO: Update examNode with assessmentInfo
@@ -565,17 +568,17 @@ class CollaborativeReviewController @Inject() (
       case Some(e) =>
         if collaborativeExamAuthorizationService.isUnauthorizedToAssess(e, user) then
           Some(Future.successful(Forbidden("You are not allowed to modify this object")))
-        else if (Option(e.getGrade).isEmpty && gradeRequired) || Option(
-            e.getCreditType
+        else if (Option(e.grade).isEmpty && gradeRequired) || Option(
+            e.creditType
           ).isEmpty || Option(
-            e.getAnswerLanguage
-          ).isEmpty || Option(e.getGradedByUser).isEmpty
+            e.answerLanguage
+          ).isEmpty || Option(e.gradedByUser).isEmpty
         then Some(Future.successful(Forbidden("not yet graded by anyone!")))
         else if e.hasState(
-            Exam.State.ABORTED,
-            Exam.State.GRADED_LOGGED,
-            Exam.State.ARCHIVED
-          ) || Option(e.getExamRecord).isDefined
+            ExamState.ABORTED,
+            ExamState.GRADED_LOGGED,
+            ExamState.ARCHIVED
+          ) || Option(e.examRecord).isDefined
         then Some(Future.successful(Forbidden("i18n_error_exam_already_graded_logged")))
         else None
 
@@ -599,7 +602,7 @@ class CollaborativeReviewController @Inject() (
                   val gradingTypeStr =
                     (request.body \ "gradingType").asOpt[String].filter(_.nonEmpty)
                   val gradingTypeOpt =
-                    gradingTypeStr.flatMap(s => Try(Grade.Type.valueOf(s)).toOption)
+                    gradingTypeStr.flatMap(s => Try(GradeType.valueOf(s)).toOption)
                   if revision.isEmpty then Future.successful(BadRequest("Missing revision"))
                   else if gradingTypeStr.isEmpty then
                     Future.successful(BadRequest("gradingType is required"))
@@ -617,7 +620,7 @@ class CollaborativeReviewController @Inject() (
                           val exam =
                             JsonDeserializer.deserialize(classOf[Exam], toJacksonJson(examNode))
 
-                          validateExamState(exam, gradingType == Grade.Type.GRADED, user) match
+                          validateExamState(exam, gradingType == GradeType.GRADED, user) match
                             case Some(errorFuture) => errorFuture
                             case None              =>
                               // TODO: Update examNode with GRADED_LOGGED state, gradedByUser, etc.
@@ -637,11 +640,11 @@ class CollaborativeReviewController @Inject() (
     else Right(wsr)
 
   private def getURL(ce: CollaborativeExam, ref: String): Either[Future[Result], URL] =
-    parseUrl(ce.getExternalRef, ref) match
+    parseUrl(ce.externalRef, ref) match
       case Some(url) => Right(url)
       case None      => Left(Future.successful(InternalServerError("Invalid URL")))
 
   private def getRequest(ce: CollaborativeExam, ref: String): Either[Future[Result], WSRequest] =
-    parseUrl(ce.getExternalRef, ref) match
+    parseUrl(ce.externalRef, ref) match
       case Some(url) => Right(wsClient.url(url.toString))
       case None      => Left(Future.successful(InternalServerError("Invalid URL")))

@@ -8,7 +8,7 @@ import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
 import models.enrolment.{ExamEnrolment, ExternalReservation, Reservation}
-import models.exam.Exam
+import models.exam.{Exam, ExamState}
 import models.facility.ExamRoom
 import models.user.User
 import org.joda.time.DateTime
@@ -37,8 +37,8 @@ class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfte
   private def createEnrolment(examId: Long): ExamEnrolment =
     val exam = Option(DB.find(classOf[Exam], examId)) match
       case Some(e) =>
-        e.setPeriodEnd(DateTime.now().plusYears(1))
-        e.setState(Exam.State.PUBLISHED)
+        e.periodEnd = DateTime.now().plusYears(1)
+        e.state = ExamState.PUBLISHED
         e.save()
         e
       case None => fail(s"Exam with ID $examId not found")
@@ -51,34 +51,34 @@ class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfte
       case Some(r) => r
       case None    => fail("Test room not found")
 
-    val machine = room.getExamMachines.get(0)
-    machine.setIpAddress("127.0.0.1") // so that the IP check won't fail
+    val machine = room.examMachines.get(0)
+    machine.ipAddress = "127.0.0.1" // so that the IP check won't fail
     machine.update()
 
     val reservation = new Reservation()
-    reservation.setMachine(machine)
-    reservation.setUser(user)
-    reservation.setStartAt(DateTime.now().minusMinutes(10))
-    reservation.setEndAt(DateTime.now().plusMinutes(70))
+    reservation.machine = machine
+    reservation.user = user
+    reservation.startAt = DateTime.now().minusMinutes(10)
+    reservation.endAt = DateTime.now().plusMinutes(70)
     reservation.save()
 
     val enrolment = new ExamEnrolment()
-    enrolment.setExam(exam)
-    enrolment.setUser(user)
-    enrolment.setReservation(reservation)
+    enrolment.exam = exam
+    enrolment.user = user
+    enrolment.reservation = reservation
     enrolment.save()
     enrolment
 
   private def createExternalReservation(): ExternalReservation =
     val externalReservation = new ExternalReservation()
-    externalReservation.setRoomInstruction("Room instruction")
-    externalReservation.setRoomInstructionEN("Room instruction EN")
-    externalReservation.setRoomInstructionSV("Room instruction SV")
-    externalReservation.setMachineName("External machine")
-    externalReservation.setRoomRef("room1234")
-    externalReservation.setOrgRef("org1234")
-    externalReservation.setRoomName("External Room")
-    externalReservation.setRoomTz(TimeZone.getTimeZone("Europe/Helsinki").getID)
+    externalReservation.roomInstruction = "Room instruction"
+    externalReservation.roomInstructionEN = "Room instruction EN"
+    externalReservation.roomInstructionSV = "Room instruction SV"
+    externalReservation.machineName = "External machine"
+    externalReservation.roomRef = "room1234"
+    externalReservation.orgRef = "org1234"
+    externalReservation.roomName = "External Room"
+    externalReservation.roomTz = TimeZone.getTimeZone("Europe/Helsinki").getID
     externalReservation.save()
     externalReservation
 
@@ -90,9 +90,9 @@ class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfte
 
         createEnrolment(1L)
         val enrolment   = createEnrolment(2L)
-        val reservation = enrolment.getReservation
-        reservation.setMachine(null)
-        reservation.setExternalReservation(createExternalReservation())
+        val reservation = enrolment.reservation
+        reservation.machine = null
+        reservation.externalReservation = createExternalReservation()
         reservation.save()
 
         // Execute
@@ -110,12 +110,12 @@ class StudentActionControllerSpec extends BaseIntegrationSpec with BeforeAndAfte
           .getOrElse(fail("External enrolment not found"))
 
         val externalEnrolment = deserialize(classOf[ExamEnrolment], external)
-        val er                = externalEnrolment.getReservation.getExternalReservation
+        val er                = externalEnrolment.reservation.externalReservation
         er must not be null
-        er.getRoomName must be("External Room")
-        er.getMachineName must be("External machine")
-        er.getOrgRef must be("org1234")
-        er.getRoomRef must be("room1234")
-        er.getRoomInstruction must be("Room instruction")
-        er.getRoomInstructionEN must be("Room instruction EN")
-        er.getRoomInstructionSV must be("Room instruction SV")
+        er.roomName must be("External Room")
+        er.machineName must be("External machine")
+        er.orgRef must be("org1234")
+        er.roomRef must be("room1234")
+        er.roomInstruction must be("Room instruction")
+        er.roomInstructionEN must be("Room instruction EN")
+        er.roomInstructionSV must be("Room instruction SV")
