@@ -4,6 +4,10 @@
 
 package functional;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.running;
+
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
@@ -18,14 +22,11 @@ import models.sections.ExamSection;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
 import models.user.User;
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.running;
 
 /**
  * Functional tests for exam copy scenarios.
@@ -44,15 +45,13 @@ public class ExamCopyTest extends IntegrationTestCase {
     private static final String SOURCE_EXAM_NAME = "Johdatus alkeiden perusteisiin";
 
     private Exam loadSourceExam() {
-        return DB.find(Exam.class)
-            .where()
-            .eq("name", SOURCE_EXAM_NAME)
-            .eq("state", Exam.State.PUBLISHED)
-            .findOne();
+        return DB.find(Exam.class).where().eq("name", SOURCE_EXAM_NAME).eq("state", Exam.State.PUBLISHED).findOne();
     }
 
     private List<ExamSectionQuestion> allSectionQuestions(Exam exam) {
-        return exam.getExamSections().stream()
+        return exam
+            .getExamSections()
+            .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .toList();
     }
@@ -67,10 +66,12 @@ public class ExamCopyTest extends IntegrationTestCase {
             Exam source = loadSourceExam();
             Exam copy = source.createCopy(ExamCopyContext.forTeacherCopy(teacher).build());
 
-            Set<Long> sourceQids = allSectionQuestions(source).stream()
+            Set<Long> sourceQids = allSectionQuestions(source)
+                .stream()
                 .map(esq -> esq.getQuestion().getId())
                 .collect(Collectors.toSet());
-            Set<Long> copyQids = allSectionQuestions(copy).stream()
+            Set<Long> copyQids = allSectionQuestions(copy)
+                .stream()
                 .map(esq -> esq.getQuestion().getId())
                 .collect(Collectors.toSet());
 
@@ -101,11 +102,13 @@ public class ExamCopyTest extends IntegrationTestCase {
             Exam fresh = loadSourceExam();
             Exam copy = fresh.createCopy(ExamCopyContext.forTeacherCopy(teacher).build());
 
-            Set<Long> sourceOptionIds = allSectionQuestions(fresh).stream()
+            Set<Long> sourceOptionIds = allSectionQuestions(fresh)
+                .stream()
                 .flatMap(esq -> esq.getOptions().stream())
                 .map(ExamSectionQuestionOption::getId)
                 .collect(Collectors.toSet());
-            Set<Long> copyOptionIds = allSectionQuestions(copy).stream()
+            Set<Long> copyOptionIds = allSectionQuestions(copy)
+                .stream()
                 .flatMap(esq -> esq.getOptions().stream())
                 .map(ExamSectionQuestionOption::getId)
                 .collect(Collectors.toSet());
@@ -121,8 +124,9 @@ public class ExamCopyTest extends IntegrationTestCase {
         running(app, () -> {
             Exam source = loadSourceExam();
             // examinationType and type are read from form body by the controller
-            Http.RequestBuilder rb = getRequestBuilder(Helpers.POST, "/app/exams/" + source.getId())
-                .bodyForm(Map.of("examinationType", "AQUARIUM", "type", "PUBLIC"));
+            Http.RequestBuilder rb = getRequestBuilder(Helpers.POST, "/app/exams/" + source.getId()).bodyForm(
+                Map.of("examinationType", "AQUARIUM", "type", "PUBLIC")
+            );
             Result result = Helpers.route(app, rb);
             assertThat(result.status()).isEqualTo(Helpers.OK);
             Exam copy = deserialize(Exam.class, Json.parse(contentAsString(result)));
@@ -146,7 +150,8 @@ public class ExamCopyTest extends IntegrationTestCase {
             Exam fresh = loadSourceExam();
             Exam copy = fresh.createCopy(ExamCopyContext.forStudentExam(student).build());
 
-            Set<Long> sourceQids = allSectionQuestions(fresh).stream()
+            Set<Long> sourceQids = allSectionQuestions(fresh)
+                .stream()
                 .map(esq -> esq.getQuestion().getId())
                 .collect(Collectors.toSet());
             allSectionQuestions(copy).forEach(esq -> {
@@ -165,14 +170,18 @@ public class ExamCopyTest extends IntegrationTestCase {
             initExamSectionQuestions(source);
             Exam fresh = loadSourceExam();
 
-            Set<String> optionalNames = fresh.getExamSections().stream()
+            Set<String> optionalNames = fresh
+                .getExamSections()
+                .stream()
                 .filter(ExamSection::isOptional)
                 .map(ExamSection::getName)
                 .collect(Collectors.toSet());
             assertThat(optionalNames).isNotEmpty();
 
             Exam copy = fresh.createCopy(ExamCopyContext.forStudentExam(student).build());
-            Set<String> copiedNames = copy.getExamSections().stream()
+            Set<String> copiedNames = copy
+                .getExamSections()
+                .stream()
                 .map(ExamSection::getName)
                 .collect(Collectors.toSet());
 
@@ -189,20 +198,20 @@ public class ExamCopyTest extends IntegrationTestCase {
             initExamSectionQuestions(source);
             Exam fresh = loadSourceExam();
 
-            ExamSection optSection = fresh.getExamSections().stream()
+            ExamSection optSection = fresh
+                .getExamSections()
+                .stream()
                 .filter(ExamSection::isOptional)
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("No optional section in test data"));
 
             Exam copy = fresh.createCopy(
-                ExamCopyContext.forStudentExam(student)
-                    .withSelectedSections(Set.of(optSection.getId()))
-                    .build()
+                ExamCopyContext.forStudentExam(student).withSelectedSections(Set.of(optSection.getId())).build()
             );
 
-            assertThat(
-                copy.getExamSections().stream().map(ExamSection::getName).toList()
-            ).contains(optSection.getName());
+            assertThat(copy.getExamSections().stream().map(ExamSection::getName).toList()).contains(
+                optSection.getName()
+            );
         });
     }
 
@@ -231,7 +240,8 @@ public class ExamCopyTest extends IntegrationTestCase {
             Exam fresh = loadSourceExam();
             Exam copy = fresh.createCopy(ExamCopyContext.forCollaborativeExam(student).build());
 
-            Set<Long> sourceQids = allSectionQuestions(fresh).stream()
+            Set<Long> sourceQids = allSectionQuestions(fresh)
+                .stream()
                 .map(esq -> esq.getQuestion().getId())
                 .collect(Collectors.toSet());
             allSectionQuestions(copy).forEach(esq -> {
@@ -250,7 +260,9 @@ public class ExamCopyTest extends IntegrationTestCase {
             Exam source = loadSourceExam();
             initExamSectionQuestions(source);
             Exam fresh = loadSourceExam();
-            long nonOptionalCount = fresh.getExamSections().stream()
+            long nonOptionalCount = fresh
+                .getExamSections()
+                .stream()
                 .filter(es -> !es.isOptional())
                 .count();
             Exam copy = fresh.createCopy(ExamCopyContext.forCollaborativeExam(student).build());
@@ -270,7 +282,9 @@ public class ExamCopyTest extends IntegrationTestCase {
             initExamSectionQuestions(source);
             Exam fresh = loadSourceExam();
 
-            ExamSection section = fresh.getExamSections().stream()
+            ExamSection section = fresh
+                .getExamSections()
+                .stream()
                 .filter(s -> !s.isOptional() && s.getSectionQuestions().size() >= 3)
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Need a non-optional section with at least 3 questions"));
@@ -282,7 +296,9 @@ public class ExamCopyTest extends IntegrationTestCase {
 
             Exam copy = fresh.createCopy(ExamCopyContext.forStudentExam(student).build());
 
-            ExamSection copiedSection = copy.getExamSections().stream()
+            ExamSection copiedSection = copy
+                .getExamSections()
+                .stream()
                 .filter(s -> s.getName().equals(section.getName()))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Lottery section not found in copy"));
