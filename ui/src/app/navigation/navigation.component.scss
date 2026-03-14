@@ -12,6 +12,7 @@
     z-index: 2;
     padding: 0;
     position: fixed;
+    width: 17.125em;
 
     .hidden-mobile {
         display: block;
@@ -29,7 +30,18 @@
 
     @media (max-width: shared.$mobile-width) {
         position: relative;
+        width: 100%;
         z-index: 1;
+    }
+
+    .nav-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        @media (max-width: shared.$mobile-width) {
+            display: block;
+            height: auto;
+        }
     }
 
     i {
@@ -102,16 +114,10 @@
 
     .nav-header {
         background-color: #212121;
-        position: fixed;
-        top: 0;
-        left: 0;
-        display: block;
-        height: 162px;
-        width: 17.125em;
+        padding-bottom: 5em;
 
         @media (max-width: shared.$mobile-width) {
-            position: relative;
-            width: 100%;
+            padding-bottom: 0;
             height: 80px;
         }
 
@@ -127,11 +133,10 @@
     }
 
     .nav-body {
-        position: fixed;
+        flex: 1;
+        overflow-y: auto;
         background-color: #212121;
-        top: 162px;
-        bottom: 105px;
-        width: 17.125em;
+        padding-top: 4px;
 
         @media (max-width: shared.$mobile-width) {
             display: none;
@@ -148,9 +153,6 @@
 
     .nav-footer {
         background-color: shared.$exam-medium-green;
-        position: fixed;
-        bottom: 0;
-        width: 17.125em;
         &.button {
             height: 25px;
         }
@@ -191,14 +193,12 @@
     }
 
     .user {
-        bottom: 60px;
         color: white;
     }
 
     .user-name {
         background-color: #212121;
         padding: 1.5em 1em 1em;
-        left: 0;
         font-size: 1em;
         color: white;
         font-weight: 300;

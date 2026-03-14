@@ -26,7 +26,6 @@ libraryDependencies += "org.apache.commons"       % "commons-email"      % "1.6.
 libraryDependencies += "org.apache.poi"           % "poi"                % "5.5.1"
 libraryDependencies += "org.apache.poi"           % "poi-ooxml"          % "5.5.1"
 libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"          % "1.2.0"
-libraryDependencies += "org.springframework"      % "spring-beans"       % "7.0.5"
 libraryDependencies += "org.typelevel"           %% "cats-core"          % "2.13.0"
 libraryDependencies += "org.typelevel"           %% "cats-effect"        % "3.7.0"
 libraryDependencies += "joda-time"                % "joda-time"          % "2.14.1"

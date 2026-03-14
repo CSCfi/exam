@@ -20,7 +20,6 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
-import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ReservationDetailsComponent } from './reservation-details.component';
 import type { AnyReservation, ExamMachine, ExamRoom } from './reservation.model';
 import { ReservationService, Selection } from './reservation.service';
@@ -69,7 +68,6 @@ export class ReservationsComponent {
     private readonly http = inject(HttpClient);
     private readonly route = inject(ActivatedRoute);
     private readonly toast = inject(ToastrService);
-    private readonly orderPipe = inject(OrderByPipe);
     private readonly Session = inject(SessionService);
     private readonly Reservation = inject(ReservationService);
 
@@ -269,11 +267,11 @@ export class ReservationsComponent {
         if (this.isAdminView || this.isSupportView) {
             this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe({
                 next: (resp) => {
-                    const orderedRooms = this.orderPipe.transform(resp, 'name');
+                    const orderedRooms = resp.sort((a, b) => a.name.localeCompare(b.name));
                     this.rooms.set(orderedRooms);
                     this.roomOptions.set(orderedRooms.map((r) => ({ id: r.id, value: r, label: r.name })));
                     this.http.get<ExamMachine[]>('/app/machines').subscribe((resp) => {
-                        const orderedMachines = this.orderPipe.transform(resp, 'name');
+                        const orderedMachines = resp.sort((a, b) => a.name.localeCompare(b.name));
                         this.machines.set(orderedMachines);
                         this.machineOptions.set(this.machinesForRooms(orderedRooms, orderedMachines));
                     });

@@ -22,6 +22,12 @@
         url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff2') format('woff2'),
         url('./assets/fonts/arimo-v17-latin/arimo-v17-latin-regular.woff') format('woff');
 }
+html {
+    font-size: 13px;
+    @media (max-width: 920px) {
+        font-size: 15px;
+    }
+}
 * {
     font-family: Arimo, Helvetica-Neue, Helvetica;
 }
