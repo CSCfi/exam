@@ -15,7 +15,6 @@ import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletRespons
 import models.attachment.Attachment
 import models.questions.{Question, Tag}
 import models.user.User
-import net.jodah.concurrentunit.Waiter
 import org.eclipse.jetty.server.Server
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
@@ -25,6 +24,7 @@ import play.api.test.Helpers.*
 
 import java.io.{File, IOException}
 import java.util.Objects
+import java.util.concurrent.{CompletableFuture, TimeUnit}
 import scala.compiletime.uninitialized
 
 class DataTransferControllerSpec
@@ -47,16 +47,24 @@ class DataTransferControllerSpec
       RemoteServerHelper.writeJsonResponse(response, responseJson, HttpServletResponse.SC_CREATED)
 
   class DataTransferAttachmentServlet extends HttpServlet:
-    val waiter = new Waiter()
+    val waiter = new CompletableFuture[Unit]()
 
     @throws[ServletException]
     @throws[IOException]
     override def doPost(request: HttpServletRequest, response: HttpServletResponse): Unit =
       response.setStatus(HttpServletResponse.SC_CREATED)
       val filePart = request.getPart("file")
-      waiter.assertEquals(testImage.getName, filePart.getSubmittedFileName)
-      waiter.assertEquals("image/png", filePart.getContentType)
-      waiter.resume()
+      try
+        assert(
+          filePart.getSubmittedFileName == testImage.getName,
+          s"Expected ${testImage.getName} but got ${filePart.getSubmittedFileName}"
+        )
+        assert(
+          filePart.getContentType == "image/png",
+          s"Expected image/png but got ${filePart.getContentType}"
+        )
+        waiter.complete(())
+      catch case e: Throwable => waiter.completeExceptionally(e)
 
   private lazy val dataTransferServlet = new DataTransferServlet()
   private lazy val attachmentServlet   = new DataTransferAttachmentServlet()
@@ -142,7 +150,7 @@ class DataTransferControllerSpec
 
         val result = runIO(makeRequest(POST, "/app/iop/export", Some(body), session = session))
 
-        attachmentServlet.waiter.await(10000, 1)
+        attachmentServlet.waiter.get(10000, TimeUnit.MILLISECONDS)
         statusOf(result) must be(Status.CREATED)
 
     "importing questions" should:

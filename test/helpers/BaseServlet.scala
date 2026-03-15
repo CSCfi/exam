@@ -5,21 +5,21 @@
 package helpers
 
 import jakarta.servlet.http.HttpServlet
-import net.jodah.concurrentunit.Waiter
 
+import java.util.concurrent.Semaphore
 import scala.compiletime.uninitialized
 
 class BaseServlet extends HttpServlet:
 
-  protected var waiter: Waiter = uninitialized
+  protected var waiter: Semaphore = uninitialized
 
   def getLastCallMethod: String =
     val call = BaseServlet.calledMethod
     BaseServlet.calledMethod = null
     call
 
-  def setWaiter(waiter: Waiter): Unit = this.waiter = waiter
-  def getWaiter: Waiter               = waiter
+  def setWaiter(waiter: Semaphore): Unit = this.waiter = waiter
+  def getWaiter: Semaphore               = waiter
 
 object BaseServlet:
   var calledMethod: String = uninitialized

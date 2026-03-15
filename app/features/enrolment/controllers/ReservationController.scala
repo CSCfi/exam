@@ -6,6 +6,7 @@ package features.enrolment.controllers
 
 import database.EbeanJsonExtensions
 import features.enrolment.services.{ReservationError, ReservationService}
+import io.ebean.text.PathProperties
 import models.user.Role
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
@@ -14,7 +15,6 @@ import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 
 import javax.inject.Inject
-import io.ebean.text.PathProperties
 
 class ReservationController @Inject() (
     authenticated: AuthenticatedAction,

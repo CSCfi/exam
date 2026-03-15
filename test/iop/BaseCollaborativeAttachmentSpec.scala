@@ -13,7 +13,6 @@ import models.attachment.Attachment
 import models.exam.{Exam, ExamExecutionType}
 import models.questions.EssayAnswer
 import models.sections.ExamSectionQuestion
-import net.jodah.concurrentunit.Waiter
 import org.apache.commons.io.FileUtils
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.Materializer
@@ -27,6 +26,7 @@ import play.api.mvc.Result
 
 import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
+import java.util.concurrent.Semaphore
 import java.util.{Base64, Objects}
 import scala.concurrent.Await
 import scala.concurrent.duration.*
@@ -169,9 +169,9 @@ trait BaseCollaborativeAttachmentSpec[T]
       case e: IOException =>
         throw new RuntimeException(e)
 
-    attachmentServlet.setWaiter(new Waiter())
+    attachmentServlet.setWaiter(new Semaphore(0))
     examServlet.setExam(exam)
-    examServlet.setWaiter(new Waiter())
+    examServlet.setWaiter(new Semaphore(0))
 
     (exam, examSectionQuestion, externalExam)
 

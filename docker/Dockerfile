@@ -9,19 +9,21 @@ FROM node:24-alpine AS frontend-builder
 
 WORKDIR /app
 
+RUN corepack enable
+
 # Copy frontend dependencies
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 COPY angular.json .
 COPY tsconfig*.json ./
 
 # Install dependencies
-RUN npm ci --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy frontend source
 COPY ui ui
 
 # Build frontend for production
-RUN npm run build
+RUN pnpm run build
 
 # Stage 2: Build Backend
 FROM eclipse-temurin:25-jdk AS backend-builder
