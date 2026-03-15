@@ -8,18 +8,18 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import models.exam.Exam
-import net.jodah.concurrentunit.Waiter
 import play.api.libs.json.Json
 import services.json.{EbeanMapper, JsonDeserializer}
 
 import java.io.IOException
+import java.util.concurrent.Semaphore
 import scala.compiletime.uninitialized
 import scala.jdk.StreamConverters.*
 
 class ExamServlet extends BaseServlet:
 
   private var exam: Exam = uninitialized
-  waiter = new Waiter()
+  waiter = new Semaphore(0)
 
   @throws[ServletException]
   @throws[IOException]
@@ -39,7 +39,7 @@ class ExamServlet extends BaseServlet:
         Json.parse(json.toString),
         HttpServletResponse.SC_OK
       )
-      waiter.resume()
+      waiter.release()
 
   override protected def doPost(req: HttpServletRequest, resp: HttpServletResponse): Unit =
     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST)
@@ -49,7 +49,7 @@ class ExamServlet extends BaseServlet:
     val json = req.getReader.lines().toScala(LazyList).mkString
     exam = JsonDeserializer.deserialize(classOf[Exam], play.libs.Json.parse(json))
     resp.setStatus(200)
-    waiter.resume()
+    waiter.release()
 
   override protected def doDelete(req: HttpServletRequest, resp: HttpServletResponse): Unit =
     exam = null
@@ -60,10 +60,10 @@ class ExamServlet extends BaseServlet:
     ExamServlet.calledMethod = null
     call
 
-  override def setWaiter(waiter: Waiter): Unit =
+  override def setWaiter(waiter: Semaphore): Unit =
     this.waiter = waiter
 
-  override def getWaiter: Waiter = waiter
+  override def getWaiter: Semaphore = waiter
 
   def getExam: Exam = exam
 

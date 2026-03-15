@@ -6,11 +6,11 @@ package helpers
 
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
-import net.jodah.concurrentunit.Waiter
 import org.apache.commons.io.IOUtils
 
 import java.io.{File, FileInputStream, IOException}
 import java.util.Objects
+import java.util.concurrent.Semaphore
 import scala.util.Using
 
 class AttachmentServlet(private var testFile: File) extends BaseServlet:
@@ -20,7 +20,7 @@ class AttachmentServlet(private var testFile: File) extends BaseServlet:
       val classLoader = classOf[AttachmentServlet].getClassLoader
       new File(Objects.requireNonNull(classLoader.getResource("test_files/test_image.png")).getFile)
     })
-    waiter = new Waiter()
+    waiter = new Semaphore(0)
 
   @throws[ServletException]
   @throws[IOException]
@@ -44,7 +44,7 @@ class AttachmentServlet(private var testFile: File) extends BaseServlet:
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
       }
 
-    waiter.resume()
+    waiter.release()
 
   @throws[IOException]
   @throws[ServletException]
@@ -64,7 +64,7 @@ class AttachmentServlet(private var testFile: File) extends BaseServlet:
     val filePart = req.getPart("file")
     filePart.write(filePart.getSubmittedFileName)
     resp.setStatus(HttpServletResponse.SC_OK)
-    waiter.resume()
+    waiter.release()
 
   override protected def doDelete(req: HttpServletRequest, resp: HttpServletResponse): Unit =
     resp.setStatus(HttpServletResponse.SC_OK)

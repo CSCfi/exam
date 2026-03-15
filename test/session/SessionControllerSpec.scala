@@ -7,7 +7,7 @@ package session
 import base.BaseIntegrationSpec
 import database.EbeanQueryExtensions
 import io.ebean.DB
-import models.user.{Permission, PermissionType, Role, User}
+import models.user.*
 import play.api.http.Status
 
 import scala.jdk.CollectionConverters.*

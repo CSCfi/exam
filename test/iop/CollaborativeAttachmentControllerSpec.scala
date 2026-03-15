@@ -14,6 +14,8 @@ import play.api.mvc.{MultipartFormData, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{POST, route, writeableOf_AnyContentAsMultipartForm}
 
+import java.util.concurrent.TimeUnit
+
 class CollaborativeAttachmentControllerSpec
     extends BaseCollaborativeAttachmentSpec[CollaborativeExam]:
 
@@ -46,7 +48,7 @@ class CollaborativeAttachmentControllerSpec
           ),
           session
         )
-        examServlet.getWaiter.await(10000, 1)
+        examServlet.getWaiter.tryAcquire(1, 10000, TimeUnit.MILLISECONDS) must be(true)
         assertLastCall("PUT", examServlet)
         val exam = examServlet.getExam
         val sq   = getExamSectionQuestion(exam, Some(examSectionQuestion.id))
@@ -77,7 +79,7 @@ class CollaborativeAttachmentControllerSpec
           ),
           session
         )
-        examServlet.getWaiter.await(10000, 1)
+        examServlet.getWaiter.tryAcquire(1, 10000, TimeUnit.MILLISECONDS) must be(true)
         assertLastCall("PUT", examServlet)
         // Check the servlet's exam - it should have the EssayAnswer from the serialized exam
         val exam2                = examServlet.getExam
@@ -109,7 +111,7 @@ class CollaborativeAttachmentControllerSpec
         statusOf(result) must be(Status.OK)
         assertLastCall("DELETE", attachmentServlet)
 
-        examServlet.getWaiter.await(10000, 1)
+        examServlet.getWaiter.tryAcquire(1, 10000, TimeUnit.MILLISECONDS) must be(true)
         val eAfter  = examServlet.getExam
         val sqAfter = getExamSectionQuestion(eAfter, Some(examSectionQuestion.id))
         Option(sqAfter.essayAnswer).flatMap(ea => Option(ea.attachment)) must be(empty)

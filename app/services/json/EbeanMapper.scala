@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.{JsonIgnoreType, PropertyAccessor}
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ebean.bean.EntityBeanIntercept
 import org.slf4j.Logger
-import play.api.{Logger => PlayLogger}
+import play.api.Logger as PlayLogger
 
 @JsonIgnoreType private abstract class EbeanMapperIgnoreMixin
 
