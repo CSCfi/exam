@@ -20,7 +20,6 @@ import models.facility.ExamRoom
 import models.questions.QuestionType
 import models.sections.{ExamSectionQuestion, ExamSectionQuestionOption}
 import models.user.{Language, User}
-import net.jodah.concurrentunit.Waiter
 import org.apache.commons.io.{FileUtils, IOUtils}
 import org.eclipse.jetty.ee10.servlet.{ServletContextHandler, ServletHolder}
 import org.eclipse.jetty.server.Server
@@ -37,6 +36,7 @@ import java.io.{File, FileInputStream, IOException}
 import java.nio.file.{FileSystems, Files, Path}
 import java.util
 import java.util.UUID
+import java.util.concurrent.{Semaphore, TimeUnit}
 import java.util.stream.StreamSupport
 import scala.jdk.CollectionConverters.*
 
@@ -222,7 +222,7 @@ class ExternalExamControllerSpec
     enrolment.user = user
     enrolment.save()
 
-    attachmentServlet.foreach(_.setWaiter(new Waiter()))
+    attachmentServlet.foreach(_.setWaiter(new Semaphore(0)))
 
     (exam, enrolment, reservation)
 
@@ -316,7 +316,9 @@ class ExternalExamControllerSpec
         // Auto-evaluation expected to occur so state should be GRADED
         attainment.state.must(be(ExamState.GRADED))
 
-        attachmentServlet.foreach(_.getWaiter.await(10000, 3))
+        attachmentServlet.foreach(
+          _.getWaiter.tryAcquire(3, 10000, TimeUnit.MILLISECONDS) must be(true)
+        )
         val fileHandler = app.injector.instanceOf(classOf[FileHandler])
 
         val uploadPath = fileHandler.getAttachmentPath
@@ -429,7 +431,9 @@ class ExternalExamControllerSpec
           .orElseThrow(() => new Exception("Question not found!"))
 
         assertAttachment(questionAttachment, questionJson.path("attachment"))
-        attachmentServlet.foreach(_.getWaiter.await(10000, 2))
+        attachmentServlet.foreach(
+          _.getWaiter.tryAcquire(2, 10000, TimeUnit.MILLISECONDS) must be(true)
+        )
 
         testUpload.foreach { uploadPath =>
           new File(uploadPath.toString + "/" + "test.txt").exists() must be(true)

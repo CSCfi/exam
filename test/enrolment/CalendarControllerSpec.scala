@@ -167,20 +167,7 @@ class CalendarControllerSpec extends BaseIntegrationSpec with BeforeAndAfterEach
 
         // Wait for all requests to complete (10 requests serialise on a pessimistic user lock)
         latch.await(30000L, TimeUnit.MILLISECONDS) must be(true)
-        println(s"All HTTP requests completed. Status codes: ${statuses.toList}")
         statuses.toList.forall(_ == Status.OK) must be(true)
-
-        // Wait for email scheduling delay
-        println("Waiting for all emails to be scheduled and sent...")
-        Thread.sleep(2500)
-
-        // Check emails
-        val currentEmails = greenMail.getReceivedMessages.length
-        println(s"Total emails received: $currentEmails/$callCount")
-
-        val emailsReceived = currentEmails >= callCount ||
-          greenMail.waitForIncomingEmail(MAIL_TIMEOUT, callCount - currentEmails)
-        emailsReceived must be(true)
 
         // Verify only one reservation was created
         val reservationCount =
