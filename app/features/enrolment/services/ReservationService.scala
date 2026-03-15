@@ -68,8 +68,7 @@ class ReservationService @Inject() (
 
     el.list
 
-  def getExamRooms: List[ExamRoom] =
-    DB.find(classOf[ExamRoom]).select("id, name").fetch("examMachines", "id").list
+  def getExamRooms: List[ExamRoom] = DB.find(classOf[ExamRoom]).where().isNotNull("name").list
 
   private def asJsonUsers(users: Seq[User]): JsArray =
     JsArray(users.map { u =>

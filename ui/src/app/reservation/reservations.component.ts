@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -10,7 +9,7 @@ import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/n
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { combineLatest, Observable, of } from 'rxjs';
+import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import type { CollaborativeExam, Exam, ExamImpl } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
@@ -65,7 +64,6 @@ export class ReservationsComponent {
 
     private readonly isInteroperable$ = toObservable(this.isInteroperable);
 
-    private readonly http = inject(HttpClient);
     private readonly route = inject(ActivatedRoute);
     private readonly toast = inject(ToastrService);
     private readonly Session = inject(SessionService);
@@ -195,10 +193,10 @@ export class ReservationsComponent {
         const currentMachines = this.machines();
         if (event?.value === undefined) {
             this.selection.set(this.omitProperty(currentSelection, 'roomId'));
-            this.machineOptions.set(this.machinesForRooms(currentRooms, currentMachines));
+            this.machineOptions.set(this.Reservation.machinesForRooms(currentRooms, currentMachines));
         } else {
             this.selection.set({ ...currentSelection, roomId: event.value.id.toString() });
-            this.machineOptions.set(this.machinesForRoom(event.value, currentMachines));
+            this.machineOptions.set(this.Reservation.machinesForRoom(event.value, currentMachines));
         }
         this.query();
     }
@@ -260,47 +258,21 @@ export class ReservationsComponent {
     }
 
     private initOptions() {
-        this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit').subscribe((resp) => {
+        this.Reservation.getInteropSetting$().subscribe((resp) => {
             this.isInteroperable.set(resp.isExamVisitSupported);
         });
 
         if (this.isAdminView || this.isSupportView) {
-            this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe({
-                next: (resp) => {
-                    const orderedRooms = resp.sort((a, b) => a.name.localeCompare(b.name));
-                    this.rooms.set(orderedRooms);
-                    this.roomOptions.set(orderedRooms.map((r) => ({ id: r.id, value: r, label: r.name })));
-                    this.http.get<ExamMachine[]>('/app/machines').subscribe((resp) => {
-                        const orderedMachines = resp.sort((a, b) => a.name.localeCompare(b.name));
-                        this.machines.set(orderedMachines);
-                        this.machineOptions.set(this.machinesForRooms(orderedRooms, orderedMachines));
-                    });
+            forkJoin({ rooms: this.Reservation.getExamRooms$(), machines: this.Reservation.getMachines$() }).subscribe({
+                next: ({ rooms, machines }) => {
+                    this.rooms.set(rooms);
+                    this.machines.set(machines);
+                    this.roomOptions.set(rooms.map((r) => ({ id: r.id, value: r, label: r.name })));
+                    this.machineOptions.set(this.Reservation.machinesForRooms(rooms, machines));
                 },
                 error: (err) => this.toast.error(err),
             });
         }
-    }
-
-    private machinesForRoom(room: ExamRoom, machines: ExamMachine[]): Option<ExamMachine, number>[] {
-        if (room.examMachines.length < 1) {
-            return [];
-        }
-        const header: Option<ExamMachine, number> = {
-            id: undefined,
-            label: room.name,
-            isHeader: true,
-        };
-        const machineData: Option<ExamMachine, number>[] = machines
-            .filter((m) => room.examMachines.some((rem) => m.id === rem.id))
-            .map((m) => {
-                return { id: m.id, value: m, label: m.name === null ? '' : m.name };
-            });
-        machineData.unshift(header);
-        return machineData;
-    }
-
-    private machinesForRooms(rooms: ExamRoom[], machines: ExamMachine[]): Option<ExamMachine, number>[] {
-        return rooms.map((r) => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
     }
 
     private isSomethingSelected(params: Selection) {

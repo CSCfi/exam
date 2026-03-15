@@ -21,7 +21,7 @@ class ExamMachineService @Inject() () extends EbeanQueryExtensions:
     PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))")
 
   def getExamMachines: List[ExamMachine] =
-    DB.find(classOf[ExamMachine]).where().eq("archived", false).list
+    DB.find(classOf[ExamMachine]).where().eq("archived", false).isNotNull("name").list
 
   def getExamMachine(id: Long): Either[ExamMachineError, (ExamMachine, PathProperties)] =
     val pp    = defaultPathProperties

@@ -14,6 +14,7 @@ import security.{Auth, BlockingIOExecutionContext}
 import system.AuditedAction
 
 import javax.inject.Inject
+import io.ebean.text.PathProperties
 
 class ReservationController @Inject() (
     authenticated: AuthenticatedAction,
@@ -33,7 +34,8 @@ class ReservationController @Inject() (
 
   def getExamRooms: Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.SUPPORT))) { _ =>
-      Ok(reservationService.getExamRooms.asJson)
+      val pp = PathProperties.parse("(id, name, examMachines(id))")
+      Ok(reservationService.getExamRooms.asJson(pp))
     }
 
   def getStudents(filter: Option[String]): Action[AnyContent] =
