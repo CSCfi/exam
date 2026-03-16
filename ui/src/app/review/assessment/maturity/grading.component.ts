@@ -4,7 +4,16 @@
 
 import { UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    effect,
+    inject,
+    input,
+    output,
+    untracked,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -66,10 +75,13 @@ export class MaturityGradingComponent extends GradingBaseComponent {
         });
 
         effect(() => {
-            this.initGrades(true);
-            this.initCreditTypes();
-            this.initLanguages();
-            this.gradingForm.controls.customCredit.setValue(this.exam().customCredit ?? null, { emitEvent: false });
+            const exam = this.exam();
+            untracked(() => {
+                this.initGrades(true);
+                this.initCreditTypes();
+                this.initLanguages();
+                this.gradingForm.controls.customCredit.setValue(exam.customCredit ?? null, { emitEvent: false });
+            });
         });
 
         this.gradingForm.controls.customCredit.valueChanges

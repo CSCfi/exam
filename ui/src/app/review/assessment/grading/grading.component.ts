@@ -5,7 +5,17 @@
 import { DatePipe, LowerCasePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    effect,
+    inject,
+    input,
+    output,
+    signal,
+    untracked,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -86,10 +96,14 @@ export class GradingComponent extends GradingBaseComponent {
         });
 
         effect(() => {
-            this.initGrades(false, this.collaborative());
-            this.initCreditTypes();
-            this.initLanguages();
-            this.gradingForm.controls.customCredit.setValue(this.exam().customCredit ?? null, { emitEvent: false });
+            const exam = this.exam();
+            const collaborative = this.collaborative();
+            untracked(() => {
+                this.initGrades(false, collaborative);
+                this.initCreditTypes();
+                this.initLanguages();
+                this.gradingForm.controls.customCredit.setValue(exam.customCredit ?? null, { emitEvent: false });
+            });
         });
 
         this.gradingForm.controls.customCredit.valueChanges
