@@ -129,14 +129,13 @@ class QuestionService @Inject() (
     else
       val pp = PathProperties.parse(
         """(*,
-          |modifier(*),
-          |questionOwners(*),
+          |questionOwners(id, firstName, lastName, email),
           |attachment(*),
           |options(*),
-          |tags(*, creator(*)),
+          |tags(id, name, creator(id)),
           |examSectionQuestions(
           |  examSection(
-          |    exam(*, course(*))
+          |    exam(id, name, code, state, periodEnd, course(id, name, code))
           |  )
           |)
           |)""".stripMargin
@@ -184,13 +183,13 @@ class QuestionService @Inject() (
     val query = DB.find(classOf[Question])
     val pp = PathProperties.parse(
       """(*,
-        |questionOwners(*),
+        |questionOwners(id, firstName, lastName, email),
         |attachment(*),
         |options(*),
-        |tags(*, creator(*)),
-        |examSectionQuestions(*,
-        |  examSection(*,
-        |    exam(*)
+        |tags(id, name, creator(id)),
+        |examSectionQuestions(
+        |  examSection(
+        |    exam(id, name)
         |  )
         |)
         |)""".stripMargin
@@ -283,6 +282,10 @@ class QuestionService @Inject() (
             case None        => // Skip invalid owner
         }
       case None => // No owners specified
+    processTags(question, user, body)
+    question
+
+  def processTags(question: Question, user: User, body: JsValue): Unit =
     question.tags.clear()
     (body \ "tags").asOpt[JsArray] match
       case Some(tagArray) =>
@@ -302,15 +305,14 @@ class QuestionService @Inject() (
                 case t @ Some(_) => t
                 case None =>
                   val newTag = new Tag()
-                  newTag.name = (tagNode \ "name").asOpt[String].getOrElse("").toLowerCase
+                  newTag.name = tagName.toLowerCase
                   newTag.setCreatorWithDate(user)
                   newTag.modifier = user
+                  newTag.save()
                   Some(newTag)
           tag.foreach(t => question.tags.add(t))
         }
       case None => // No tags specified
-    question
-
   private def processOptions(question: Question, user: User, node: JsArray): Unit =
     val persistedIds = question.options.asScala.map(_.id).toSet
     val providedIds = node.value

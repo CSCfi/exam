@@ -100,7 +100,14 @@ class ExamRecordService @Inject() (
 
   /** Streams the exam records Excel to the given output stream. Caller must close the stream. */
   def streamSelectedExamRecordsAsExcel(examId: Long, ids: List[Long])(os: OutputStream): Unit =
-    excelBuilder.streamExamRecords(examId, ids)(os)
+    val records = DB
+      .find(classOf[ExamRecord])
+      .fetch("examScore")
+      .where()
+      .eq("exam.parent.id", examId)
+      .in("exam.id", ids)
+      .list
+    excelBuilder.streamExamRecords(records)(os)
 
   private def validateExamState(
       exam: Exam,

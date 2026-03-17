@@ -19,5 +19,5 @@ interface ExamName {
 export class ReportsService {
     private readonly http = inject(HttpClient);
 
-    examNames = () => this.http.get<ExamName[]>('/app/statistics/examnames');
+    examNames = () => this.http.get<ExamName[]>('/app/reports/examnames');
 }

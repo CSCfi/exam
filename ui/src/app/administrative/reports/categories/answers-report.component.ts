@@ -49,7 +49,7 @@ export class AnswersReportComponent {
     getExamAnswerReport() {
         const f = DateTime.fromJSDate(this.startDate() || new Date()).toFormat('dd.MM.yyyy');
         const t = DateTime.fromJSDate(this.endDate() || new Date()).toFormat('dd.MM.yyyy');
-        this.files.download(`/app/statistics/allexams/${f}/${t}`, `exam_answers_${f}_${t}.xlsx`);
+        this.files.download(`/app/reports/allexams/${f}/${t}`, `exam_answers_${f}_${t}.xlsx`);
     }
 
     startDateChanged(event: { date: Date | null }) {

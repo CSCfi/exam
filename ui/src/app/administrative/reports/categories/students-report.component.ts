@@ -67,7 +67,7 @@ export class StudentsReportComponent {
         if (currentStudent) {
             const f = DateTime.fromJSDate(this.startDate() || new Date()).toFormat('dd.MM.yyyy');
             const t = DateTime.fromJSDate(this.endDate() || new Date()).toFormat('dd.MM.yyyy');
-            this.files.download(`/app/statistics/student/${currentStudent}/${f}/${t}`, 'student_activity.xlsx');
+            this.files.download(`/app/reports/student/${currentStudent}/${f}/${t}`, 'student_activity.xlsx');
         } else {
             this.toast.error(this.translate.instant('i18n_choose_student'));
         }

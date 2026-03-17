@@ -83,8 +83,7 @@ export class BasicInfoComponent implements AfterViewInit {
     }
 
     get isQuestionTextInvalid(): boolean {
-        const questionTextControl = this.baseInformationForm.get('questionText');
-        return !!(questionTextControl?.invalid && questionTextControl?.touched);
+        return !!this.baseInformationForm.get('questionText')?.invalid;
     }
 
     ngAfterViewInit() {

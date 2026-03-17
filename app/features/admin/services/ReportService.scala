@@ -5,199 +5,201 @@
 package features.admin.services
 
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}
-import io.ebean.text.PathProperties
-import io.ebean.{DB, ExpressionList}
-import models.enrolment.{ExamEnrolment, Reservation}
+import io.ebean.DB
+import models.enrolment.{ExamEnrolment, ExamParticipation}
+import models.exam.Exam
 import models.exam.ExamState
-import models.exam.{Course, Exam}
-import models.facility.ExamRoom
+import models.user.User
 import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
-import play.api.libs.json.{Json, Writes}
+import org.joda.time.format.DateTimeFormat
+import play.api.Logging
 import services.excel.ExcelBuilder
 
+import java.io.OutputStream
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
 
-class ReportService @Inject() (
-    private val excelBuilder: ExcelBuilder
-) extends EbeanQueryExtensions
-    with EbeanJsonExtensions:
+class ReportService @Inject() (private val excelBuilder: ExcelBuilder)
+    extends EbeanQueryExtensions with EbeanJsonExtensions with Logging:
 
-  case class ExamInfo(name: String, participations: Int)
-  object ExamInfo:
-    implicit val writes: Writes[ExamInfo] = Json.writes[ExamInfo]
+  private val DTF = DateTimeFormat.forPattern("dd.MM.yyyy")
 
-  case class Participation(date: String)
-  object Participation:
-    def apply(dateTime: DateTime): Participation =
-      Participation(ISODateTimeFormat.dateTime.print(dateTime))
-    implicit val writes: Writes[Participation] = Json.writes[Participation]
-
-  def listDepartments: List[String] =
+  def getStudents: List[User] =
     DB
-      .find(classOf[Course])
+      .find(classOf[User])
+      .select("id, firstName, lastName")
       .where()
-      .isNotNull("department")
-      .distinct
-      .map(_.department)
-      .toList
+      .eq("roles.name", "STUDENT")
+      .list
 
-  def listParticipations(
-      dept: Option[String],
-      start: Option[String],
-      end: Option[String]
-  ): Map[String, Set[Participation]] =
-    val pp = PathProperties.parse(
-      """noShow,
-        |exam(created,
-        |  course(department)
-        |),
-        |externalExam(started),
-        |reservation(
-        |  machine(
-        |    room(id, name, outOfService)
-        |  )
-        |)
-        |)""".stripMargin
-    )
-    val enrolments = DB
-      .find(classOf[ExamEnrolment])
-      .where
-      .apply(pp)
-      .where()
-      .or()
-      .ne("exam.state", ExamState.PUBLISHED)
-      .isNotNull("externalExam.started")
-      .endOr()
-      .isNotNull("reservation.machine")
-      .ne("noShow", true)
-      .distinct
-    val roomMap = enrolments
-      .groupBy { enrolment =>
-        val room = enrolment.reservation.machine.room
-        s"${room.id}___${room.name}"
-      }
-      .view
-      .mapValues { enrolmentList =>
-        enrolmentList.map { enrolment =>
-          val examStart = Option(enrolment.externalExam)
-            .map(_.started)
-            .getOrElse(enrolment.exam.created)
-          Participation(examStart)
-        }.toSet
-      }
-      .toMap
-
-    // Fill in rooms with no participations
-    val allRooms = DB.find(classOf[ExamRoom]).where().eq("outOfService", false).list
-    allRooms.foldLeft(roomMap) { (map, room) =>
-      val key = s"${room.id}___${room.name}"
-      if map.contains(key) then map else map + (key -> Set.empty[Participation])
-    }
-
-  def listReservations(
-      dept: Option[String],
-      start: Option[String],
-      end: Option[String]
-  ): (Int, Int) =
-    val query = DB.find(classOf[ExamEnrolment]).where()
-    val enrolments =
-      withFilters(query, "exam.course", "reservation.startAt", dept, start, end).distinct
-    enrolments.partition(_.noShow) match
-      case (a, b) => (a.size, b.size)
-
-  def listIopReservations(
-      dept: Option[String],
-      start: Option[String],
-      end: Option[String]
-  ): List[Reservation] =
-    val pp =
-      PathProperties.parse("*, enrolment(noShow, externalExam(finished)), externalReservation(*)")
-    val query = DB.find(classOf[Reservation]).where().apply(pp)
-    val el    = query.where().isNotNull("externalRef")
-    withFilters(el, "enrolment.exam.course", "startAt", dept, start, end).distinct
-      .filter(r =>
-        Option(r.externalOrgName).isDefined || Option(r.externalReservation).isDefined
-      )
-      .toList
-
-  def listPublishedExams(
-      dept: Option[String],
-      start: Option[String],
-      end: Option[String]
-  ): List[ExamInfo] =
-    val query = DB
+  def examNames: List[Exam] =
+    DB
       .find(classOf[Exam])
-      .fetch("course", "code")
+      .select("id, name")
+      .fetch("course", "id, name, code")
       .where()
+      .isNotNull("name")
+      .isNotNull("course")
+      .isNull("parent") // only Exam prototypes
+      .list
+
+  def findExam(id: Long): Option[Exam] =
+    DB.find(classOf[Exam]).where().idEq(id).isNotNull("course").find
+
+  /** Streams the exam metadata sheet to the given output stream. Caller must close the stream. */
+  def streamExamAsExcel(exam: Exam)(os: OutputStream): Unit = excelBuilder.streamExam(exam)(os)
+
+  /** Streams the teacher's exams report. Caller must close the stream. */
+  def streamTeacherExamsByDateAsExcel(uid: Long, from: String, to: String)(os: OutputStream): Unit =
+    excelBuilder.streamTeacherExams(fetchTeacherExamsBetween(uid, from, to))(os)
+
+  private def fetchTeacherExamsBetween(uid: Long, from: String, to: String): List[Exam] =
+    val start = DateTime.parse(from, DTF)
+    val end   = DateTime.parse(to, DTF)
+    DB
+      .find(classOf[Exam])
+      .select("name, created, state, periodStart, periodEnd")
+      .fetch("examType", "type")
+      .fetch("course", "code, credits")
+      .fetch("children", "state")
+      .where()
+      .between("created", start, end)
       .isNull("parent")
       .isNotNull("course")
-      .in("state", ExamState.PUBLISHED, ExamState.DELETED, ExamState.ARCHIVED)
-    val exams = withFilters(query, "course", "created", dept, start, end).distinct
+      .eq("creator.id", uid)
+      .orderBy("created")
+      .list
 
-    def examFilter(exam: Exam) =
-      val created          = exam.created
-      val hasValidState    = exam.state.ordinal() > ExamState.PUBLISHED.ordinal()
-      val hasParticipation = Option(exam.examParticipation).isDefined
-      hasValidState &&
-      hasParticipation &&
-      start.forall(s => DateTime.parse(s, ISODateTimeFormat.dateTimeParser()).isBefore(created)) &&
-      end.forall(e =>
-        DateTime.parse(e, ISODateTimeFormat.dateTimeParser()).plusDays(1).isAfter(created)
-      )
+  /** Returns a stream writer if the exam exists; caller must close the stream after writing. */
+  def streamExamEnrolmentsAsExcel(id: Long): Option[OutputStream => Unit] =
+    DB.find(classOf[Exam])
+      .select("id")
+      .fetch("examEnrolments", "enrolledOn")
+      .fetch("examEnrolments.user", "firstName, lastName, identifier, eppn")
+      .fetch("examEnrolments.reservation", "startAt")
+      .where()
+      .eq("id", id)
+      .isNull("parent")
+      .find
+      .map(proto => (os: OutputStream) => excelBuilder.streamEnrolments(proto)(os))
 
-    exams.map(e =>
-      ExamInfo(s"[${e.course.code}] ${e.name}", e.children.asScala.count(examFilter))
-    ).toList
+  /** Streams the reviews report to the given output stream. Caller must close the stream. */
+  def streamReviewsByDateAsExcel(from: String, to: String)(os: OutputStream): Unit =
+    excelBuilder.streamReviews(fetchExamsGradedBetween(from, to))(os)
 
-  def listResponses(
-      dept: Option[String],
-      start: Option[String],
-      end: Option[String]
-  ): (Int, Int, Int) =
-    val query   = DB.find(classOf[Exam]).where().isNotNull("parent").isNotNull("course")
-    val exams   = withFilters(query, "course", "created", dept, start, end).distinct
-    val aborted = exams.count(_.state == ExamState.ABORTED)
-    val assessed = exams.count(_.hasState(
-      ExamState.GRADED,
-      ExamState.GRADED_LOGGED,
-      ExamState.ARCHIVED,
-      ExamState.REJECTED,
-      ExamState.DELETED
-    ))
-    val unassessed = exams.count(_.hasState(
-      ExamState.INITIALIZED,
-      ExamState.STUDENT_STARTED,
-      ExamState.REVIEW,
-      ExamState.REVIEW_STARTED
-    ))
-    (aborted, assessed, unassessed)
+  private def fetchExamsGradedBetween(from: String, to: String): List[Exam] =
+    val start = DateTime.parse(from, DTF)
+    val end   = DateTime.parse(to, DTF)
+    DB
+      .find(classOf[Exam])
+      .select("name, created, gradedTime, answerLanguage, state")
+      .fetch("creator", "firstName, lastName")
+      .fetch("gradedByUser", "firstName, lastName")
+      .fetch("course", "code, credits")
+      .fetch("grade", "name")
+      .fetch("creditType", "type")
+      .where()
+      .between("gradedTime", start, end)
+      .disjunction()
+      .eq("state", ExamState.GRADED)
+      .eq("state", ExamState.GRADED_LOGGED)
+      .endJunction()
+      .orderBy("creator.id")
+      .list
 
-  /** Streams the score Excel to the given output stream. Caller must close the stream. */
-  def streamExamQuestionScoresAsExcel(
-      examId: Long,
-      childIds: List[Long]
-  )(os: java.io.OutputStream): Unit =
-    excelBuilder.streamScores(examId, childIds)(os)
+  /** Streams the reservations report. Caller must close the stream. */
+  def streamReservationsForRoomByDateAsExcel(roomId: Long, from: String, to: String)(
+      os: OutputStream
+  ): Unit =
+    excelBuilder.streamReservations(fetchReservationsForRoomBetween(roomId, from, to))(os)
 
-  private def withFilters[T](
-      query: ExpressionList[T],
-      deptFieldPrefix: String,
-      dateField: String,
-      depts: Option[String],
-      start: Option[String],
-      end: Option[String]
-  ): ExpressionList[T] =
-    val withDept = depts.fold(query) { d =>
-      val deptList = d.split(",").toList
-      query.in(s"$deptFieldPrefix.department", deptList*)
+  private def fetchReservationsForRoomBetween(
+      roomId: Long,
+      from: String,
+      to: String
+  ): List[ExamEnrolment] =
+    val start = DateTime.parse(from, DTF)
+    val end   = DateTime.parse(to, DTF)
+    DB
+      .find(classOf[ExamEnrolment])
+      .select("enrolledOn")
+      .fetch("user", "id, firstName, lastName")
+      .fetch("exam", "id, name")
+      .fetch("reservation", "id, startAt, endAt")
+      .fetch("reservation.machine", "id, name, ipAddress")
+      .fetch("reservation.machine.room", "id, name, roomCode")
+      .where()
+      .gt("reservation.endAt", start)
+      .lt("reservation.startAt", end)
+      .eq("reservation.machine.room.id", roomId)
+      .isNotNull("exam")
+      .list
+
+  /** Streams the all-exams report to the given output stream. Caller must close the stream. */
+  def streamAllExamsAsExcel(from: String, to: String)(os: OutputStream): Unit =
+    val start = DateTime.parse(from, DTF)
+    val end   = DateTime.parse(to, DTF)
+    val participations = DB
+      .find(classOf[ExamParticipation])
+      .select("started, ended, duration")
+      .fetch("user", "id, firstName, lastName, email")
+      .fetch("exam", "id, name, duration, state, gradedTime")
+      .fetch("exam.gradedByUser", "id, firstName, lastName, email")
+      .fetch("exam.course", "name, code")
+      .fetch("exam.course.gradeScale", "description")
+      .fetch("exam.gradeScale", "description")
+      .fetch("exam.grade", "name")
+      .fetch("exam.creditType", "type")
+      .fetch("reservation", "id")
+      .fetch("reservation.machine", "id, name, ipAddress")
+      .fetch("reservation.machine.room", "id, name, roomCode")
+      .fetch("reservation.externalReservation", "roomName, roomCode, machineName")
+      .where()
+      .gt("started", start)
+      .lt("ended", end)
+      .or()
+      .eq("exam.state", ExamState.GRADED)
+      .eq("exam.state", ExamState.GRADED_LOGGED)
+      .eq("exam.state", ExamState.ARCHIVED)
+      .endOr()
+      .list
+    excelBuilder.streamAllExams(participations)(os)
+
+  /** Returns a stream writer if the student exists; caller must close the stream after writing. */
+  def streamStudentActivityAsExcel(
+      studentId: Long,
+      from: String,
+      to: String
+  ): Option[OutputStream => Unit] =
+    Option(DB.find(classOf[User], studentId)).map { student =>
+      val participations = fetchStudentParticipations(studentId, from, to)
+      (os: OutputStream) => excelBuilder.streamStudentActivity(student, participations)(os)
     }
-    val withStart = start.fold(withDept) { s =>
-      val startDate = DateTime.parse(s, ISODateTimeFormat.dateTimeParser())
-      withDept.ge(dateField, startDate.toDate)
-    }
-    end.fold(withStart) { e =>
-      val endDate = DateTime.parse(e, ISODateTimeFormat.dateTimeParser()).plusDays(1)
-      withStart.lt(dateField, endDate.toDate)
-    }
+
+  private def fetchStudentParticipations(
+      studentId: Long,
+      from: String,
+      to: String
+  ): List[ExamParticipation] =
+    val start = DateTime.parse(from, DTF)
+    val end   = DateTime.parse(to, DTF)
+    DB
+      .find(classOf[ExamParticipation])
+      .select("started, ended, duration")
+      .fetch("exam", "id, name, duration, state, gradedTime")
+      .fetch("exam.gradedByUser", "id, firstName, lastName, email")
+      .fetch("exam.course", "name, code")
+      .fetch("exam.course.gradeScale", "description")
+      .fetch("exam.gradeScale", "description")
+      .fetch("exam.grade", "name")
+      .fetch("exam.creditType", "type")
+      .fetch("reservation", "id")
+      .fetch("reservation.externalReservation", "roomName, roomCode, machineName")
+      .fetch("reservation.machine", "id, name, ipAddress")
+      .fetch("reservation.machine.room", "id, name, roomCode")
+      .where()
+      .gt("started", start)
+      .lt("ended", end)
+      .eq("user.id", studentId)
+      .isNotNull("reservation")
+      .list

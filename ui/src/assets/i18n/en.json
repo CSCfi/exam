@@ -675,6 +675,7 @@
     "i18n_save_changes": "Save changes",
     "i18n_new_exam_type": "Exam type",
     "i18n_new_question_type": "Question type",
+    "i18n_select_question_type": "Select question type",
     "i18n_library_choose": "Choose questions for the exam from the question bank",
     "i18n_exam_no_result": "No search results for exams",
     "i18n_approve_maturity": "Approve maturity test",

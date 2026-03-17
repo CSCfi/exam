@@ -12,13 +12,13 @@ import {
 } from '@angular/cdk/drag-drop';
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, tap } from 'rxjs/operators';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
-import type { Exam, ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
+import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -32,7 +32,7 @@ import { SectionComponent } from './section.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionsComponent {
-    readonly exam = signal<Exam>({} as Exam);
+    readonly exam = computed(() => this.Tabs.examSignal()!);
     readonly collaborative = signal(false);
     readonly materials = signal<ExamMaterial[]>([]);
 
@@ -46,8 +46,6 @@ export class SectionsComponent {
     private readonly Tabs = inject(ExamTabService);
 
     constructor() {
-        const examValue = this.Tabs.getExam();
-        this.exam.set(examValue);
         this.collaborative.set(this.Tabs.isCollaborative());
         this.Tabs.notifyTabChange(2);
         this.init();
@@ -69,7 +67,7 @@ export class SectionsComponent {
                         ...currentExam,
                         examSections: reordered.map((es, i) => ({ ...es, sequenceNumber: i })),
                     };
-                    this.exam.set(updated);
+                    this.Tabs.setExam(updated);
                     this.toast.info(this.translate.instant('i18n_sections_reordered'));
                 },
                 error: (err) => this.toast.error(err),
@@ -87,7 +85,7 @@ export class SectionsComponent {
                         ...currentExam,
                         examSections: [...currentExam.examSections, es],
                     };
-                    this.exam.set(updated);
+                    this.Tabs.setExam(updated);
                 }),
                 catchError(async (resp) => this.toast.error(resp)),
             )
@@ -125,7 +123,7 @@ export class SectionsComponent {
                         ...currentExam,
                         examSections: currentExam.examSections.filter((s) => s.id !== section.id),
                     };
-                    this.exam.set(updated);
+                    this.Tabs.setExam(updated);
                 },
                 error: (err) => this.toast.error(err),
             });
@@ -143,7 +141,7 @@ export class SectionsComponent {
                     ...currentExam.examSections.slice(index + 1),
                 ],
             };
-            this.exam.set(updated);
+            this.Tabs.setExam(updated);
         }
     }
 
@@ -175,7 +173,7 @@ export class SectionsComponent {
             ...currentExam,
             examSections: sorted,
         };
-        this.exam.set(updated);
+        this.Tabs.setExam(updated);
         this.loadMaterials();
     }
 }

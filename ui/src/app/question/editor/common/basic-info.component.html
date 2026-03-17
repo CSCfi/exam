@@ -27,6 +27,7 @@ SPDX-License-Identifier: EUPL-1.2
                 formControlName="questionType"
                 required
             >
+                <option value="" disabled>{{ 'i18n_select_question_type' | translate }}</option>
                 @for (type of questionTypes(); track type.name) {
                     <option value="{{ type.type }}">{{ type.name | translate }}</option>
                 }
@@ -65,7 +66,7 @@ SPDX-License-Identifier: EUPL-1.2
                     [enableClozeTest]="questionType === 'ClozeTestQuestion'"
                     [data]="questionText"
                     (dataChange)="onTextChange($event)"
-                    [required]="true"
+                    required
                 >
                 </xm-ckeditor>
                 @if (isQuestionTextInvalid) {

@@ -48,7 +48,7 @@ export class EnrolmentsReportComponent {
     getExamEnrolments() {
         const currentEnrolment = this.enrolment();
         if (currentEnrolment) {
-            this.files.download(`/app/statistics/examenrollments/${currentEnrolment}`, 'exam_enrolments.xlsx');
+            this.files.download(`/app/reports/examenrollments/${currentEnrolment}`, 'exam_enrolments.xlsx');
         } else {
             this.toast.error(this.translate.instant('i18n_choose_exam'));
         }

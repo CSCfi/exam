@@ -34,7 +34,9 @@ export class FeedbackComponent {
 
     readonly hideEditor = signal(true);
     readonly shouldHide = computed(() => this.hidden());
-    readonly attachment = computed(() => this.exam().examFeedback?.attachment);
+    readonly attachment = computed(() => this._localAttachment() ?? this.exam().examFeedback?.attachment);
+
+    private readonly _localAttachment = signal<Attachment | undefined>(undefined);
 
     private readonly id: number;
     private readonly ref: string;
@@ -126,11 +128,11 @@ export class FeedbackComponent {
                     ),
                 )
                 .subscribe((resp) => {
-                    examValue.examFeedback.attachment = resp;
                     if (participationValue) {
-                        participationValue._rev = examValue.examFeedback?.attachment?.rev;
-                        delete examValue.examFeedback?.attachment?.rev;
+                        participationValue._rev = resp.rev;
+                        delete resp.rev;
                     }
+                    this._localAttachment.set(resp);
                 });
         });
     };

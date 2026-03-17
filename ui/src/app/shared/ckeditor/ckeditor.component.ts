@@ -4,6 +4,7 @@
 
 import {
     AfterViewInit,
+    booleanAttribute,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
@@ -102,7 +103,7 @@ import { Math } from './plugins/math/plugin';
 })
 export class CKEditorComponent implements AfterViewInit, OnDestroy {
     readonly data = input('');
-    readonly required = input(false);
+    readonly required = input(false, { transform: booleanAttribute });
     readonly enableClozeTest = input(false);
     readonly id = input('word-count-id');
     readonly dataChange = output<string>();

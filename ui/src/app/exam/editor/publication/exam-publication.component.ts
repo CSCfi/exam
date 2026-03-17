@@ -4,7 +4,7 @@
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -44,7 +44,7 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamPublicationComponent {
-    readonly exam = signal<Exam>({} as Exam);
+    readonly exam = computed(() => this.Tabs.examSignal()!);
 
     readonly collaborative = signal(false);
     readonly examDurations = signal<number[]>([]);
@@ -63,7 +63,6 @@ export class ExamPublicationComponent {
 
     constructor() {
         this.isAdmin = this.Session.getUser().isAdmin;
-        this.exam.set(this.Tabs.getExam());
         this.collaborative.set(this.Tabs.isCollaborative());
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe({
             next: (data) => this.examDurations.set(data.examDurations),
@@ -85,31 +84,35 @@ export class ExamPublicationComponent {
                 .post<ExaminationDate>(`/app/exam/${currentExam.id}/examinationdate`, {
                     date: formattedDate,
                 })
-                .subscribe((date) => currentExam.examinationDates.push(date));
+                .subscribe((date) =>
+                    this.Tabs.setExam({
+                        ...this.exam(),
+                        examinationDates: [...this.exam().examinationDates, date],
+                    }),
+                );
         }
     }
 
     removeExaminationDate(date: ExaminationDate) {
         const currentExam = this.exam();
         this.http.delete(`/app/exam/${currentExam.id}/examinationdate/${date.id}`).subscribe(() => {
-            const i = currentExam.examinationDates.indexOf(date);
-            currentExam.examinationDates.splice(i, 1);
+            this.Tabs.setExam({
+                ...this.exam(),
+                examinationDates: this.exam().examinationDates.filter((d) => d.id !== date.id),
+            });
         });
     }
 
     startDateChanged(event: { date: Date | null }) {
-        const currentExam = this.exam();
-        currentExam.periodStart = event.date ? event.date.toISOString() : null;
+        this.Tabs.setExam({ ...this.exam(), periodStart: event.date ? event.date.toISOString() : null });
     }
 
     endDateChanged(event: { date: Date | null }) {
-        const currentExam = this.exam();
-        currentExam.periodEnd = event.date ? event.date.toISOString() : null;
+        this.Tabs.setExam({ ...this.exam(), periodEnd: event.date ? event.date.toISOString() : null });
     }
 
     autoEvaluationConfigChanged(event: { config: AutoEvaluationConfig }) {
-        const currentExam = this.exam();
-        currentExam.autoEvaluationConfig = event.config;
+        this.Tabs.setExam({ ...this.exam(), autoEvaluationConfig: event.config });
     }
 
     canBeAutoEvaluated() {
@@ -127,9 +130,8 @@ export class ExamPublicationComponent {
     }
 
     setExamDuration(hours: number, minutes: number) {
-        const currentExam = this.exam();
         const duration = hours * 60 + minutes;
-        currentExam.duration = duration;
+        this.Tabs.setExam({ ...this.exam(), duration });
         this.updateExam$().subscribe();
     }
 
@@ -142,8 +144,7 @@ export class ExamPublicationComponent {
     }
 
     setTrialCount(x: number | null) {
-        const currentExam = this.exam();
-        currentExam.trialCount = x;
+        this.Tabs.setExam({ ...this.exam(), trialCount: x });
         this.updateExam$().subscribe();
     }
 
@@ -202,13 +203,12 @@ export class ExamPublicationComponent {
 
     // TODO: how should this work when it comes to private exams?
     unpublishExam() {
-        const currentExam = this.exam();
         if (this.isAllowedToUnpublishOrRemove()) {
             this.modal.open$(PublicationRevocationDialogComponent).subscribe(() =>
                 this.updateExam$(true, { state: this.collaborative() ? 'PRE_PUBLISHED' : 'DRAFT' }).subscribe({
                     next: () => {
                         this.toast.success(this.translate.instant('i18n_exam_unpublished'));
-                        currentExam.state = 'DRAFT';
+                        this.Tabs.setExam({ ...this.exam(), state: 'DRAFT' });
                     },
                     error: (err) => this.toast.error(err),
                 }),

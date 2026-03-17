@@ -3,18 +3,16 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { LowerCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { NgbNavChangeEvent, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
-import type { UpdateProps } from './exam-tabs.service';
 import { ExamTabService } from './exam-tabs.service';
 
 @Component({
@@ -33,10 +31,12 @@ import { ExamTabService } from './exam-tabs.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExamTabsComponent {
-    readonly exam = signal<Exam | undefined>(undefined);
+    readonly exam = computed(() => this.Tabs.examSignal());
     readonly collaborative = signal(false);
-    readonly examInfo = signal<{ title: string | null }>({ title: null });
-    readonly activeTab = signal(1);
+    readonly examInfo = computed(() => ({
+        title: this.computeTitle(this.exam()?.course?.code ?? null, this.exam()?.name ?? null),
+    }));
+    readonly activeTab = linkedSignal(() => this.Tabs.tabChangeSignal()?.tab ?? 1);
     readonly user: User;
 
     private readonly route = inject(ActivatedRoute);
@@ -50,43 +50,10 @@ export class ExamTabsComponent {
         this.user = this.Session.getUser();
         this.collaborative.set(this.route.snapshot.queryParamMap.get('collaborative') === 'true');
         this.route.data.subscribe((data) => {
-            const examValue = data.exam as Exam;
-            this.exam.set(examValue);
-            this.updateTitle(!examValue.course ? null : examValue.course.code, examValue.name);
+            this.Tabs.setExam(data.exam);
             this.initGradeScale();
-            this.Tabs.setExam(examValue);
             this.Tabs.setCollaborative(this.collaborative());
         });
-
-        // React to tab changes using signals
-        effect(() => {
-            const change = this.Tabs.tabChangeSignal();
-            if (change) {
-                this.activeTab.set(change.tab);
-            }
-        });
-
-        // React to exam updates using signals
-        effect(() => {
-            const update = this.Tabs.examUpdateSignal();
-            if (update) {
-                this.examUpdated(update.props);
-            }
-        });
-    }
-
-    updateTitle(code: string | null, name: string | null) {
-        let title: string;
-        if (code && name) {
-            title = `${this.CourseCode.formatCode(code)} ${name}`;
-        } else if (code) {
-            title = `${this.CourseCode.formatCode(code)} ${this.translate.instant('i18n_no_name')}`;
-        } else if (name) {
-            title = name;
-        } else {
-            title = this.translate.instant('i18n_no_name');
-        }
-        this.examInfo.set({ title });
     }
 
     isOwner() {
@@ -106,24 +73,11 @@ export class ExamTabsComponent {
         });
     }
 
-    examUpdated(props: UpdateProps) {
-        this.updateTitle(props.code, props.name);
-        const currentExam = this.exam();
-        if (!currentExam) return;
-        if (props.scaleChange) {
-            const { autoEvaluationConfig: _autoEvaluationConfig, ...examWithoutAutoEval } = currentExam;
-            void _autoEvaluationConfig;
-            this.exam.set(examWithoutAutoEval as Exam);
-        }
-        if (props.initScale) {
-            this.exam.update((exam) => {
-                if (!exam) return exam;
-                return {
-                    ...exam,
-                    gradeScale: exam.course?.gradeScale,
-                } as Exam;
-            });
-        }
+    private computeTitle(code: string | null, name: string | null): string {
+        if (code && name) return `${this.CourseCode.formatCode(code)} ${name}`;
+        if (code) return `${this.CourseCode.formatCode(code)} ${this.translate.instant('i18n_no_name')}`;
+        if (name) return name;
+        return this.translate.instant('i18n_no_name');
     }
 
     private initGradeScale() {
@@ -131,13 +85,7 @@ export class ExamTabsComponent {
         const currentExam = this.exam();
         if (!currentExam) return;
         if (!currentExam.gradeScale && currentExam.course && currentExam.course.gradeScale) {
-            this.exam.update((exam) => {
-                if (!exam) return exam;
-                return {
-                    ...exam,
-                    gradeScale: exam.course?.gradeScale,
-                } as Exam;
-            });
+            this.Tabs.setExam({ ...currentExam, gradeScale: currentExam.course.gradeScale });
         }
     }
 }

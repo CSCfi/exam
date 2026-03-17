@@ -11,16 +11,16 @@ import { Reservation } from 'src/app/reservation/reservation.model';
 export class StatisticsService {
     private readonly http = inject(HttpClient);
 
-    listDepartments$ = () => this.http.get<{ departments: string[] }>('/app/reports/departments');
-    listExams$ = (params: QueryParams) => this.http.get<ExamInfo[]>('/app/reports/exams', { params: params });
+    listDepartments$ = () => this.http.get<{ departments: string[] }>('/app/statistics/departments');
+    listExams$ = (params: QueryParams) => this.http.get<ExamInfo[]>('/app/statistics/exams', { params: params });
     listReservations$ = (params: QueryParams) =>
-        this.http.get<{ noShows: number; appearances: number }>('/app/reports/reservations', { params: params });
+        this.http.get<{ noShows: number; appearances: number }>('/app/statistics/reservations', { params: params });
     listResponses$ = (params: QueryParams) =>
-        this.http.get<{ assessed: number; unAssessed: number; aborted: number }>('/app/reports/responses', {
+        this.http.get<{ assessed: number; unAssessed: number; aborted: number }>('/app/statistics/responses', {
             params: params,
         });
     listParticipations$ = (params: QueryParams) =>
-        this.http.get<Participations>('/app/reports/participations', { params: params });
+        this.http.get<Participations>('/app/statistics/participations', { params: params });
     listIopReservations$ = (params: QueryParams) =>
-        this.http.get<Reservation[]>('/app/reports/reservations/iop', { params: params });
+        this.http.get<Reservation[]>('/app/statistics/reservations/iop', { params: params });
 }
