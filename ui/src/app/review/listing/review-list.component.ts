@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -66,13 +66,37 @@ export class ReviewListComponent {
         this.ReviewList.filterByStateAndEnhance(['REJECTED'], this.reviews(), this.collaborative()),
     );
 
-    // Mutable arrays that can be modified by user actions (onArchive, onRegistration)
-    // These are synced from reviews() via effect() but can be modified by user actions
-    readonly gradedLoggedReviews = signal<Review[]>([]);
-    readonly archivedReviews = signal<Review[]>([]);
-    readonly gradedReviews = signal<Review[]>([]);
+    // Mutable arrays synced from reviews() but writable for user actions (onArchive, onRegistration).
+    // The { source, computation } form provides previous?.value so manually-moved items are preserved on re-sync.
+    readonly gradedLoggedReviews = linkedSignal({
+        source: () => ({ reviews: this.reviews(), collaborative: this.collaborative() }),
+        computation: ({ reviews, collaborative }, previous): Review[] =>
+            this.mergeAutoAndPreserved(
+                this.ReviewList.filterByStateAndEnhance(['GRADED_LOGGED'], reviews, collaborative),
+                previous?.value ?? [],
+            ),
+    });
+    readonly archivedReviews = linkedSignal({
+        source: () => ({ reviews: this.reviews(), collaborative: this.collaborative() }),
+        computation: ({ reviews, collaborative }, previous): Review[] =>
+            this.mergeAutoAndPreserved(
+                this.ReviewList.filterByStateAndEnhance(['ARCHIVED'], reviews, collaborative),
+                previous?.value ?? [],
+            ),
+    });
+    readonly gradedReviews = linkedSignal({
+        source: () => ({ reviews: this.reviews(), collaborative: this.collaborative() }),
+        computation: ({ reviews, collaborative }) =>
+            this.filterOutManuallyMoved(
+                this.ReviewList.filterByStateAndEnhance(
+                    ['GRADED'],
+                    reviews.filter((r) => !r.exam.languageInspection || r.exam.languageInspection.finishedAt),
+                    collaborative,
+                ),
+            ),
+    });
 
-    // Track manually moved review IDs to prevent effect() from overwriting them
+    // Track manually moved review IDs
     private manuallyMovedIds = new Set<number | string>();
 
     private readonly modal = inject(ModalService);
@@ -82,37 +106,6 @@ export class ReviewListComponent {
     private readonly Tabs = inject(ExamTabService);
 
     constructor() {
-        // Sync mutable arrays when reviews or collaborative changes
-        // Preserve manually moved reviews when syncing
-        effect(() => {
-            const allReviews = this.reviews();
-            const collaborative = this.collaborative();
-
-            // Get auto-synced reviews and merge with preserved manually moved reviews
-            this.gradedLoggedReviews.set(
-                this.mergeAutoAndPreserved(
-                    this.ReviewList.filterByStateAndEnhance(['GRADED_LOGGED'], allReviews, collaborative),
-                    untracked(() => this.gradedLoggedReviews()),
-                ),
-            );
-            this.archivedReviews.set(
-                this.mergeAutoAndPreserved(
-                    this.ReviewList.filterByStateAndEnhance(['ARCHIVED'], allReviews, collaborative),
-                    untracked(() => this.archivedReviews()),
-                ),
-            );
-
-            this.gradedReviews.set(
-                this.filterOutManuallyMoved(
-                    this.ReviewList.filterByStateAndEnhance(
-                        ['GRADED'],
-                        allReviews.filter((r) => !r.exam.languageInspection || r.exam.languageInspection.finishedAt),
-                        collaborative,
-                    ),
-                ),
-            );
-        });
-
         this.route.data.subscribe((data) => {
             this.reviews.set(data.reviews);
             const examValue = this.Tabs.getExam();

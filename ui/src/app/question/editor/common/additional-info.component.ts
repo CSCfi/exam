@@ -7,9 +7,9 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    effect,
     inject,
     input,
+    OnInit,
 } from '@angular/core';
 import { ControlContainer, FormControl, FormGroup, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -24,7 +24,7 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
     imports: [ReactiveFormsModule, TranslateModule, NgbPopover],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdditionalInfoComponent implements AfterViewInit {
+export class AdditionalInfoComponent implements OnInit, AfterViewInit {
     readonly question = input<ReverseQuestion | QuestionDraft>();
     readonly showWarning = input(false);
 
@@ -35,28 +35,27 @@ export class AdditionalInfoComponent implements AfterViewInit {
     private readonly cdr = inject(ChangeDetectorRef);
 
     constructor() {
-        // Create form group for additional info
         this.additionalInfoForm = new FormGroup({
             instructions: new FormControl<string>(''),
             evaluationCriteria: new FormControl<string>(''),
         });
-
-        // Sync form from question data when available
-        effect(() => {
-            const questionValue = this.question();
-            if (questionValue && this.additionalInfoForm.pristine) {
-                this.additionalInfoForm.patchValue(
-                    {
-                        instructions: questionValue.defaultAnswerInstructions || '',
-                        evaluationCriteria: questionValue.defaultEvaluationCriteria || '',
-                    },
-                    { emitEvent: false },
-                );
-            }
-        });
     }
+
     get showEvaluationCriteria(): boolean {
         return this.question()?.type === 'EssayQuestion';
+    }
+
+    ngOnInit() {
+        const questionValue = this.question();
+        if (questionValue) {
+            this.additionalInfoForm.patchValue(
+                {
+                    instructions: questionValue.defaultAnswerInstructions || '',
+                    evaluationCriteria: questionValue.defaultEvaluationCriteria || '',
+                },
+                { emitEvent: false },
+            );
+        }
     }
 
     selectFile() {

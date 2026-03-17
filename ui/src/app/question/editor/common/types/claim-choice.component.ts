@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlContainer,
     FormArray,
@@ -14,6 +15,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { skip } from 'rxjs';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
 import { MultipleChoiceOption } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
@@ -27,7 +29,7 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
     imports: [ReactiveFormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClaimChoiceComponent implements AfterViewInit {
+export class ClaimChoiceComponent implements OnInit, AfterViewInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();
     readonly lotteryOn = input(false);
     readonly showWarning = input(false);
@@ -40,41 +42,26 @@ export class ClaimChoiceComponent implements AfterViewInit {
     private readonly parentForm = inject(FormGroupDirective);
 
     constructor() {
-        // Create nested form group with FormArray for options
         this.claimChoiceForm = new FormGroup({
             options: new FormArray<FormGroup>([]),
         });
 
-        // Initialize options when question is new (no options or empty options array)
-        effect(() => {
-            const questionValue = this.question();
-            // Initialize default options if options array is empty or undefined
-            if (!questionValue.options || questionValue.options.length === 0) {
-                const { correct, wrong, skip } = this.defaultOptions;
-                questionValue.options = [correct, wrong, skip];
-            }
-            // Sync form with question options
-            this.updateFormArray(questionValue.options);
-        });
-
-        // Update disabled state when lotteryOn changes
-        effect(() => {
-            const optionsArray = this.claimChoiceForm.get('options') as FormArray;
-            optionsArray.controls.forEach((control) => {
-                const group = control as FormGroup;
-                const optionTextControl = group.get('optionText');
-                const scoreControl = group.get('score');
-                const isSkipOption = group.get('isSkipOption')?.value;
-
-                if (this.lotteryOn() || isSkipOption) {
-                    optionTextControl?.disable({ emitEvent: false });
-                    scoreControl?.disable({ emitEvent: false });
-                } else {
-                    optionTextControl?.enable({ emitEvent: false });
-                    scoreControl?.enable({ emitEvent: false });
-                }
+        toObservable(this.lotteryOn)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe((lotteryOn) => {
+                const optionsArray = this.claimChoiceForm.get('options') as FormArray;
+                optionsArray.controls.forEach((control) => {
+                    const group = control as FormGroup;
+                    const isSkipOption = group.get('isSkipOption')?.value;
+                    if (lotteryOn || isSkipOption) {
+                        group.get('optionText')?.disable({ emitEvent: false });
+                        group.get('score')?.disable({ emitEvent: false });
+                    } else {
+                        group.get('optionText')?.enable({ emitEvent: false });
+                        group.get('score')?.enable({ emitEvent: false });
+                    }
+                });
             });
-        });
     }
 
     get optionsFormArray(): FormArray {
@@ -102,6 +89,15 @@ export class ClaimChoiceComponent implements AfterViewInit {
                 claimChoiceType: 'SkipOption',
             },
         };
+    }
+
+    ngOnInit() {
+        const questionValue = this.question();
+        if (!questionValue.options || questionValue.options.length === 0) {
+            const { correct, wrong, skip: skipOpt } = this.defaultOptions;
+            questionValue.options = [correct, wrong, skipOpt];
+        }
+        this.updateFormArray(questionValue.options);
     }
 
     ngAfterViewInit() {

@@ -340,7 +340,17 @@ class ExamSectionService @Inject() (
                     // Process the options, this has an impact on the base question options as well as all the section questions
                     // using those.
                     processExamQuestionOptions(question, examSectionQuestion, optionsArray, user)
-                  Right(examSectionQuestion)
+                    // Re-fetch to get the up-to-date option state (e.g. correctOption) that was written
+                    // to the DB by processExamQuestionOptions but not reflected in the in-memory bean.
+                    DB.find(classOf[ExamSectionQuestion])
+                      .apply(pp)
+                      .where()
+                      .idEq(examSectionQuestion.id)
+                      .find
+                      .fold(Left(AccessForbidden): Either[ExamSectionError, ExamSectionQuestion])(
+                        Right(_)
+                      )
+                  else Right(examSectionQuestion)
 
   def updateUndistributedExamQuestion(
       examId: Long,

@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
@@ -38,14 +39,14 @@ export class ExaminationEssayQuestionComponent {
     private readonly Files = inject(FileService);
 
     constructor() {
-        // Initialize essayAnswer if missing and set answer status when sq input changes
-        effect(() => {
-            const currentSq = this.sq();
-            if (!currentSq.essayAnswer) {
-                Object.assign(currentSq, { essayAnswer: {} });
-            }
-            this.Examination.setAnswerStatus(currentSq);
-        });
+        toObservable(this.sq)
+            .pipe(takeUntilDestroyed())
+            .subscribe((sq) => {
+                if (!sq.essayAnswer) {
+                    Object.assign(sq, { essayAnswer: {} });
+                }
+                this.Examination.setAnswerStatus(sq);
+            });
     }
 
     answerChanged(event: string) {

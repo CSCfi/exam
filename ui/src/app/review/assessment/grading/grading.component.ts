@@ -5,8 +5,18 @@
 import { DatePipe, LowerCasePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    OnInit,
+    computed,
+    inject,
+    input,
+    output,
+    signal,
+} from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -45,7 +55,7 @@ import { ToolbarComponent } from './toolbar.component';
         TranslateModule,
     ],
 })
-export class GradingComponent extends GradingBaseComponent {
+export class GradingComponent extends GradingBaseComponent implements OnInit {
     readonly exam = input.required<Examination>();
     readonly participation = input.required<ExamParticipation>();
     readonly user = input.required<User>();
@@ -77,20 +87,15 @@ export class GradingComponent extends GradingBaseComponent {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
 
-        effect(() => {
-            if (this.isReadOnly() || !this.isOwnerOrAdmin()) {
-                this.gradingForm.disable({ emitEvent: false });
-            } else {
-                this.gradingForm.enable({ emitEvent: false });
-            }
-        });
-
-        effect(() => {
-            this.initGrades(false, this.collaborative());
-            this.initCreditTypes();
-            this.initLanguages();
-            this.gradingForm.controls.customCredit.setValue(this.exam().customCredit ?? null, { emitEvent: false });
-        });
+        toObservable(computed(() => this.isReadOnly() || !this.isOwnerOrAdmin()))
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((disabled) => {
+                if (disabled) {
+                    this.gradingForm.disable({ emitEvent: false });
+                } else {
+                    this.gradingForm.enable({ emitEvent: false });
+                }
+            });
 
         this.gradingForm.controls.customCredit.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
@@ -106,6 +111,13 @@ export class GradingComponent extends GradingBaseComponent {
                 gs.map((g) => ({ ...g, name: this.CommonExam.getExamGradeDisplayName(g.type) })),
             );
         });
+    }
+
+    ngOnInit() {
+        this.initGrades(false, this.collaborative());
+        this.initCreditTypes();
+        this.initLanguages();
+        this.gradingForm.controls.customCredit.setValue(this.exam().customCredit ?? null, { emitEvent: false });
     }
 
     getExam = () => this.exam();

@@ -4,11 +4,13 @@
 
 import { DatePipe, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { skip } from 'rxjs';
 import { LibraryService } from 'src/app/question/library/library.service';
 import { LibraryQuestion } from 'src/app/question/question.model';
 import type { User } from 'src/app/session/session.model';
@@ -48,10 +50,14 @@ export class LibraryResultsComponent {
     readonly copied = output<LibraryQuestion>();
 
     readonly allSelected = signal(false);
-    readonly currentPage = signal(0);
+    // FIXME: ugly cast, should resolve this better
+    readonly fixedQuestions = linkedSignal<SelectableQuestion[]>(() => this.questions() as SelectableQuestion[]);
+    readonly currentPage = linkedSignal<number>(() => {
+        void this.questions();
+        return 0;
+    });
     readonly questionsPredicate = signal('');
     readonly reverse = signal(false);
-    readonly fixedQuestions = signal<SelectableQuestion[]>([]); // Internal state
 
     readonly user: User;
     readonly pageSize = 25;
@@ -74,13 +80,9 @@ export class LibraryResultsComponent {
             this.reverse.set(storedData.filters.reverse);
         }
 
-        // Watch for questions changes
-        effect(() => {
-            const questionsValue = this.questions();
-            this.currentPage.set(0);
-            this.resetSelections();
-            this.fixedQuestions.set(questionsValue as SelectableQuestion[]); // FIXME: ugly cast, should resolve this better
-        });
+        toObservable(this.questions)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe(() => this.selected.emit([]));
     }
 
     onSelectAll = (event: Event) => {
@@ -236,10 +238,5 @@ export class LibraryResultsComponent {
             reverse: this.reverse(),
         };
         this.Library.storeFilters(filters, 'sorting');
-    };
-
-    private resetSelections = () => {
-        this.fixedQuestions().forEach((q) => (q.selected = false));
-        this.questionSelected();
     };
 }

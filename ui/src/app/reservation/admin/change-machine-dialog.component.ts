@@ -3,11 +3,12 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, ViewChild, effect, inject, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild, inject, model, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { map, take } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs';
 import type { ExamMachine, ExamRoom, Reservation } from 'src/app/reservation/reservation.model';
 import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
 import { Option } from 'src/app/shared/select/select.model';
@@ -76,29 +77,20 @@ export class ChangeMachineDialogComponent {
     private readonly toast = inject(ToastrService);
 
     constructor() {
-        effect(() => {
-            const currentReservation = this.reservation();
-            if (!currentReservation) return;
-
-            const room = currentReservation.machine.room;
-            this.room.set({ id: room.id, label: room.name, value: room });
-            this.http
-                .get<ExamRoom[]>('/app/rooms')
-                .pipe(
-                    take(1),
-                    map((rs) => rs.filter((r) => !r.outOfService)),
-                )
-                .subscribe((resp) =>
-                    this.availableRoomOptions.set(
-                        resp.map((o) => ({
-                            id: o.id,
-                            label: o.name,
-                            value: o,
-                        })),
-                    ),
-                );
-            this.setAvailableMachines();
-        });
+        toObservable(this.reservation)
+            .pipe(
+                filter(Boolean),
+                switchMap((reservation) => {
+                    const room = reservation.machine.room;
+                    this.room.set({ id: room.id, label: room.name, value: room });
+                    return this.http.get<ExamRoom[]>('/app/rooms').pipe(map((rs) => rs.filter((r) => !r.outOfService)));
+                }),
+                takeUntilDestroyed(),
+            )
+            .subscribe((resp) => {
+                this.availableRoomOptions.set(resp.map((o) => ({ id: o.id, label: o.name, value: o })));
+                this.setAvailableMachines();
+            });
     }
 
     machineChanged(event?: Option<ExamMachine, number>) {

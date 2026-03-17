@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, linkedSignal, model } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -64,26 +64,22 @@ import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.co
 })
 export class MaintenancePeriodDialogComponent {
     readonly period = model<MaintenancePeriod | undefined>(undefined);
-    readonly startsAt = signal(new Date(new Date().setMinutes(60)));
-    readonly endsAt = signal(new Date(new Date().setMinutes(60)));
-    readonly descriptionForm = form(signal({ description: '' }), (path) => {
-        required(path.description);
-    });
+    readonly startsAt = linkedSignal(() =>
+        this.period() ? new Date(this.period()!.startsAt) : new Date(new Date().setMinutes(60)),
+    );
+    readonly endsAt = linkedSignal(() =>
+        this.period() ? new Date(this.period()!.endsAt) : new Date(new Date().setMinutes(60)),
+    );
+    readonly descriptionForm = form(
+        linkedSignal(() => ({ description: this.period()?.description ?? '' })),
+        (path) => {
+            required(path.description);
+        },
+    );
 
     private readonly translate = inject(TranslateService);
     private readonly activeModal = inject(NgbActiveModal);
     private readonly toast = inject(ToastrService);
-
-    constructor() {
-        effect(() => {
-            const currentPeriod = this.period();
-            if (currentPeriod) {
-                this.startsAt.set(new Date(currentPeriod.startsAt));
-                this.endsAt.set(new Date(currentPeriod.endsAt));
-                this.descriptionForm.description().value.set(currentPeriod.description);
-            }
-        });
-    }
 
     ok() {
         if (this.endsAt() <= this.startsAt()) {

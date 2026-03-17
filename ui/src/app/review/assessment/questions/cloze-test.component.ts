@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -48,17 +48,19 @@ export class ClozeTestComponent {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
 
-        effect(() => {
-            if (this.isScorable()) {
-                this.scoreControl.enable({ emitEvent: false });
-            } else {
-                this.scoreControl.disable({ emitEvent: false });
-            }
-        });
+        toObservable(this.isScorable)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((scorable) => {
+                if (scorable) {
+                    this.scoreControl.enable({ emitEvent: false });
+                } else {
+                    this.scoreControl.disable({ emitEvent: false });
+                }
+            });
 
-        effect(() => {
-            this.scoreControl.setValue(this.sectionQuestion().forcedScore ?? null, { emitEvent: false });
-        });
+        toObservable(this.sectionQuestion)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((sq) => this.scoreControl.setValue(sq.forcedScore ?? null, { emitEvent: false }));
 
         this.scoreControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
             if (this.scoreControl.valid) {

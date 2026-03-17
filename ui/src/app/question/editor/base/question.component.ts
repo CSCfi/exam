@@ -6,10 +6,10 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    effect,
     inject,
     input,
     OnDestroy,
+    OnInit,
     output,
     signal,
 } from '@angular/core';
@@ -42,7 +42,7 @@ import { HistoryBackComponent } from 'src/app/shared/history/history-back.compon
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
+export class QuestionComponent implements CanComponentDeactivate, OnInit, OnDestroy {
     // Inputs - simplified API
     // question: if provided, use it (existing question with id, or draft with id: undefined)
     // questionId: if provided and no question, load from server
@@ -106,23 +106,9 @@ export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
     private readonly Question = inject(QuestionService);
     private readonly Session = inject(SessionService);
 
-    constructor() {
-        // Use effect to reactively load question when inputs change
-        // This is important for modal context where inputs are set after component creation
-        effect(() => {
-            // Track signals to trigger reload when they change
-            this.question();
-            this.questionId();
-            this.newQuestion();
-            this.routeQuestionId();
-
-            // Load question when inputs change
-            // Component instances are created fresh for routes and modals, so no need to track loaded state
-            this.loadQuestion();
-            window.addEventListener('beforeunload', (e) => {
-                if (this.questionForm.dirty) e.preventDefault();
-            });
-        });
+    ngOnInit() {
+        this.loadQuestion();
+        window.addEventListener('beforeunload', this.onBeforeUnload);
     }
 
     canDeactivate(): boolean {
@@ -166,10 +152,12 @@ export class QuestionComponent implements CanComponentDeactivate, OnDestroy {
     }
 
     ngOnDestroy() {
-        window.removeEventListener('beforeunload', (e) => {
-            if (this.questionForm.dirty) e.preventDefault();
-        });
+        window.removeEventListener('beforeunload', this.onBeforeUnload);
     }
+
+    private readonly onBeforeUnload = (e: BeforeUnloadEvent) => {
+        if (this.questionForm.dirty) e.preventDefault();
+    };
 
     private readFormData() {
         const formValue = this.questionForm.value as {

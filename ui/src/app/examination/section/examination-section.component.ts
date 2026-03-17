@@ -2,8 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, input, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnDestroy } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { combineLatest } from 'rxjs';
 import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 import { ExaminationQuestionComponent } from 'src/app/examination/question/examination-question.component';
@@ -92,15 +94,23 @@ export class ExaminationSectionComponent implements OnDestroy {
     private readonly Examination = inject(ExaminationService);
 
     constructor() {
-        // Set up autosaver when section and isPreview inputs are available
-        effect(() => {
-            // Access signals to track them
-            this.section();
-            this.isPreview();
-            this.exam();
-            // Reset autosaver when these inputs change
-            this.resetAutosaver();
-        });
+        combineLatest([toObservable(this.section), toObservable(this.isPreview), toObservable(this.exam)])
+            .pipe(takeUntilDestroyed())
+            .subscribe(([section, isPreview, exam]) => {
+                this.cancelAutosaver();
+                if (section && !isPreview) {
+                    this.autosaver = window.setInterval(
+                        () =>
+                            this.Examination.saveAllTextualAnswersOfSection$(section, exam.hash, {
+                                autosave: true,
+                                allowEmpty: false,
+                                canFail: false,
+                                external: exam.external,
+                            }).subscribe(),
+                        1000 * 60,
+                    );
+                }
+            });
     }
 
     ngOnDestroy() {
@@ -113,25 +123,6 @@ export class ExaminationSectionComponent implements OnDestroy {
 
     getAmountOfSelectionEvaluatedQuestions() {
         return this.section().sectionQuestions.filter((esq) => esq.evaluationType === 'Selection').length;
-    }
-
-    private resetAutosaver() {
-        this.cancelAutosaver();
-        const currentSection = this.section();
-        const currentIsPreview = this.isPreview();
-        if (currentSection && !currentIsPreview) {
-            const currentExam = this.exam();
-            this.autosaver = window.setInterval(
-                () =>
-                    this.Examination.saveAllTextualAnswersOfSection$(currentSection, currentExam.hash, {
-                        autosave: true,
-                        allowEmpty: false,
-                        canFail: false,
-                        external: currentExam.external,
-                    }).subscribe(),
-                1000 * 60,
-            );
-        }
     }
 
     private cancelAutosaver() {

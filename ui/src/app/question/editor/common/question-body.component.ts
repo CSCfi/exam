@@ -2,7 +2,18 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    DestroyRef,
+    inject,
+    input,
+    linkedSignal,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
     ControlContainer,
@@ -45,7 +56,7 @@ import { UsageComponent } from './usage.component';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionBodyComponent {
+export class QuestionBodyComponent implements OnInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();
     readonly currentOwners = input<User[]>([]);
     readonly lotteryOn = input(false);
@@ -56,8 +67,13 @@ export class QuestionBodyComponent {
     readonly currentOwnersChange = output<User[]>();
     readonly tagsChange = output<Tag[]>();
 
-    readonly examNames = signal<string[]>([]);
-    readonly questionType = signal<string | null>(null);
+    readonly examNames = computed(() => {
+        const q = this.question();
+        if (!q?.examSectionQuestions?.length) return [];
+        const names = q.examSectionQuestions.map((s) => s.examSection.exam.name).filter((n): n is string => n != null);
+        return names.filter((n, pos) => names.indexOf(n) === pos).sort();
+    });
+    readonly questionType = linkedSignal<string | null>(() => this.question().type || null);
     readonly multichoiceFeaturesOn = signal(false);
 
     readonly questionBodyForm: FormGroup;
@@ -79,32 +95,15 @@ export class QuestionBodyComponent {
 
         // Add to parent form
         this.parentForm.form.addControl('questionBody', this.questionBodyForm);
+    }
 
-        // Initialize form from question data when available
-        effect(() => {
-            const questionValue = this.question();
-            if (questionValue && this.questionBodyForm.pristine) {
-                this.questionBodyForm.patchValue(
-                    {
-                        defaultMaxScore: questionValue.defaultMaxScore || null,
-                    },
-                    { emitEvent: false },
-                );
-            }
-            const questionTypeValue = questionValue.type || null;
-            this.questionType.set(questionTypeValue);
-            this.updateDefaultMaxScoreValidators(questionTypeValue);
-
-            // Initialize exam names from question's exam section questions
-            if (questionValue?.examSectionQuestions?.length > 0) {
-                const examNames = questionValue.examSectionQuestions
-                    .map((s) => s.examSection.exam.name)
-                    .filter((n): n is string => n !== null && n !== undefined);
-                this.examNames.set(examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort());
-            } else {
-                this.examNames.set([]);
-            }
-        });
+    ngOnInit() {
+        const questionValue = this.question();
+        this.questionBodyForm.patchValue(
+            { defaultMaxScore: questionValue.defaultMaxScore || null },
+            { emitEvent: false },
+        );
+        this.updateDefaultMaxScoreValidators(questionValue.type || null);
     }
 
     onFormReady(form: FormGroup) {

@@ -6,9 +6,11 @@ import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { filter } from 'rxjs';
 import { ExaminationStatusService } from './examination/examination-status.service';
 import { NavigationComponent } from './navigation/navigation.component';
 import { DevLoginComponent } from './session/dev/dev-login.component';
@@ -63,7 +65,13 @@ import { SessionService } from './session/session.service';
     imports: [DevLoginComponent, NavigationComponent, RouterOutlet, TranslateModule],
 })
 export class AppComponent implements OnInit {
-    readonly hideNavBar = signal(false);
+    readonly hideNavBar = computed(() => {
+        const starting = this.ExaminationStatus.examinationStartingSignal();
+        const ending = this.ExaminationStatus.examinationEndingSignal();
+        if (starting === undefined) return false;
+        if (ending === undefined) return true;
+        return starting > ending;
+    });
     readonly devLoginRequired = signal(false);
     readonly initializing = signal(true);
     readonly user = signal<User | undefined>(undefined);
@@ -77,24 +85,12 @@ export class AppComponent implements OnInit {
         registerLocaleData(localeFi);
         registerLocaleData(localeEn);
 
-        // React to examination status changes using signals
-        effect(() => {
-            this.ExaminationStatus.examinationStartingSignal();
-            this.hideNavBar.set(true);
-        });
-
-        effect(() => {
-            this.ExaminationStatus.examinationEndingSignal();
-            this.hideNavBar.set(false);
-        });
-
-        // React to dev logout signal
-        effect(() => {
-            if (this.Session.devLogoutChange()) {
+        toObservable(this.Session.devLogoutChange)
+            .pipe(filter(Boolean), takeUntilDestroyed())
+            .subscribe(() => {
                 this.user.set(undefined);
                 this.router.navigate(['']);
-            }
-        });
+            });
     }
 
     ngOnInit() {

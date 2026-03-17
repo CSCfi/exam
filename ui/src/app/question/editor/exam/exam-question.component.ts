@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, effect, inject, input, model, OnDestroy, output, signal } from '@angular/core';
+import { Component, computed, inject, input, model, OnDestroy, OnInit, output, signal } from '@angular/core';
 import { FormGroup, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuestionBodyComponent } from 'src/app/question/editor/common/question-body.component';
@@ -39,7 +39,7 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
     viewProviders: [{ provide: FormGroupDirective, useExisting: FormGroupDirective }],
     imports: [ReactiveFormsModule, TranslateModule, QuestionBodyComponent],
 })
-export class ExamQuestionComponent implements OnDestroy {
+export class ExamQuestionComponent implements OnInit, OnDestroy {
     readonly examQuestion = model<ExamSectionQuestion | undefined>(undefined);
     readonly lotteryOn = input(false);
     readonly saved = output<{ question: Question; examQuestion: ExamSectionQuestion }>();
@@ -86,14 +86,10 @@ export class ExamQuestionComponent implements OnDestroy {
     private readonly modal = inject(ModalService);
     private readonly adapter = inject(QuestionAdapterService);
 
-    constructor() {
-        // Initialize question data when examQuestion becomes available
-        effect(() => {
-            const eq = this.examQuestion();
-            if (eq) {
-                this.init();
-            }
-        });
+    ngOnInit() {
+        if (this.examQuestion()) {
+            this.init();
+        }
     }
 
     ngOnDestroy() {

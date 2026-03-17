@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { FormField, form, max, min } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -82,47 +82,33 @@ export class StartingTimeComponent {
     readonly roomIds = input<number[]>([]);
     readonly startingHours = input<WorkingHour[]>([]);
 
-    readonly examStartingHours = signal<WorkingHour[]>([]);
-    readonly examStartingHourOffset = signal(0);
-    readonly unsavedProgress = signal(false);
-    readonly hourOffsetForm = form(signal<{ hourOffset: number | null }>({ hourOffset: 0 }), (path) => {
-        min(path.hourOffset, 0);
-        max(path.hourOffset, 59);
+    readonly examStartingHourOffset = linkedSignal<number>(() => {
+        const hours = this.startingHours();
+        if (!hours || hours.length === 0) return 0;
+        return DateTime.fromISO(hours[0].startingHour).minute;
     });
+    readonly examStartingHours = linkedSignal<WorkingHour[]>(() => {
+        const hours = this.startingHours();
+        const initialHours = [...Array(24)].map((_, i) => ({ startingHour: `${i}:00`, selected: true }));
+        if (!hours || hours.length === 0) return initialHours;
+        const startingHourDates = hours.map((h) => DateTime.fromISO(h.startingHour));
+        const offset = startingHourDates[0].minute;
+        const formattedStartingHours = startingHourDates.map((h) => h.toFormat('H:mm'));
+        return initialHours.map((hour) => {
+            const withOffset = hour.startingHour.split(':')[0] + ':' + this.zeropad(offset);
+            return { startingHour: withOffset, selected: formattedStartingHours.includes(withOffset) };
+        });
+    });
+    readonly unsavedProgress = signal(false);
+    readonly hourOffsetForm = form(
+        linkedSignal<{ hourOffset: number | null }>(() => ({ hourOffset: this.examStartingHourOffset() })),
+        (path) => {
+            min(path.hourOffset, 0);
+            max(path.hourOffset, 59);
+        },
+    );
 
     private readonly Room = inject(RoomService);
-
-    constructor() {
-        effect(() => {
-            const hours = this.startingHours();
-            const initialHours = [...Array(24)].map(function (_, i) {
-                return { startingHour: i + ':00', selected: true };
-            });
-
-            if (hours && hours.length > 0) {
-                const startingHourDates = hours.map((hour) => DateTime.fromISO(hour.startingHour));
-                const offset = startingHourDates[0].minute;
-                this.examStartingHourOffset.set(offset);
-                this.hourOffsetForm.hourOffset().value.set(offset);
-                const formattedStartingHours = startingHourDates.map((hour) => hour.toFormat('H:mm'));
-
-                // First update the hour format with offset
-                const hoursWithOffset = initialHours.map((hour) => ({
-                    ...hour,
-                    startingHour: hour.startingHour.split(':')[0] + ':' + this.zeropad(offset),
-                }));
-
-                // Then check which ones are selected by comparing formatted times
-                const updatedHours = hoursWithOffset.map((hour) => ({
-                    ...hour,
-                    selected: formattedStartingHours.indexOf(hour.startingHour) !== -1,
-                }));
-                this.examStartingHours.set(updatedHours);
-            } else {
-                this.examStartingHours.set(initialHours);
-            }
-        });
-    }
 
     updateStartingHours() {
         this.Room.updateStartingHours$(

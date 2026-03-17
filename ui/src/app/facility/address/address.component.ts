@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -91,24 +91,22 @@ import { RoomService } from 'src/app/facility/rooms/room.service';
 export class AddressComponent {
     readonly address = input.required<Address>();
 
-    readonly addressForm = form(signal({ street: '', zip: '', city: '' }), (path) => {
-        required(path.street);
-        required(path.zip);
-        required(path.city);
-    });
+    readonly addressForm = form(
+        linkedSignal(() => ({
+            street: this.address().street || '',
+            zip: this.address().zip || '',
+            city: this.address().city || '',
+        })),
+        (path) => {
+            required(path.street);
+            required(path.zip);
+            required(path.city);
+        },
+    );
 
     private readonly room = inject(RoomService);
     private readonly toast = inject(ToastrService);
     private readonly translate = inject(TranslateService);
-
-    constructor() {
-        effect(() => {
-            const currentAddress = this.address();
-            this.addressForm.street().value.set(currentAddress.street || '');
-            this.addressForm.zip().value.set(currentAddress.zip || '');
-            this.addressForm.city().value.set(currentAddress.city || '');
-        });
-    }
 
     validateAndUpdateAddress() {
         if (

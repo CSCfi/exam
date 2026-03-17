@@ -2,9 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgbCollapse, NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { skip } from 'rxjs';
 import type { Exam, ExamFeedbackConfig } from 'src/app/exam/exam.model';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 
@@ -22,7 +24,7 @@ type ExamFeedbackConfigTemplate = {
     imports: [NgbPopover, NgbCollapse, NgbDropdownModule, DatePickerComponent, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExamFeedbackConfigComponent {
+export class ExamFeedbackConfigComponent implements OnInit {
     readonly exam = input.required<Exam>();
     readonly modifiable = input<'everything' | 'nothing' | 'date'>('nothing');
     readonly enabled = output<void>();
@@ -31,34 +33,29 @@ export class ExamFeedbackConfigComponent {
 
     readonly config = signal<ExamFeedbackConfig | undefined>(undefined);
     readonly examFeedbackConfigDisplayVisible = signal(false);
-    readonly examFeedbackConfig: ExamFeedbackConfigTemplate;
-    private initialized = false;
+    readonly examFeedbackConfig: ExamFeedbackConfigTemplate = {
+        enabled: false,
+        releaseTypes: [
+            {
+                name: 'ONCE_LOCKED',
+                translation: 'i18n_release_type_once_locked',
+                filtered: true,
+            },
+            // CSCEXAM-1127
+            //{ name: 'GIVEN_DATE', translation: 'i18n_feedback_config_release_type_date' },
+        ],
+    };
 
     constructor() {
-        this.examFeedbackConfig = {
-            enabled: false,
-            releaseTypes: [
-                {
-                    name: 'ONCE_LOCKED',
-                    translation: 'i18n_release_type_once_locked',
-                    filtered: true,
-                },
-                // CSCEXAM-1127
-                //{ name: 'GIVEN_DATE', translation: 'i18n_feedback_config_release_type_date' },
-            ],
-        };
+        toObservable(this.exam)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe((exam) => {
+                this.examFeedbackConfig.enabled = !!exam.examFeedbackConfig;
+            });
+    }
 
-        effect(() => {
-            const currentExam = this.exam();
-            if (!currentExam) return;
-            if (!this.initialized) {
-                this.prepareExamFeedbackConfig();
-                this.initialized = true;
-            } else {
-                // Only sync enabled state, don't overwrite config
-                this.examFeedbackConfig.enabled = !!currentExam.examFeedbackConfig;
-            }
-        });
+    ngOnInit() {
+        this.prepareExamFeedbackConfig();
     }
 
     toggleDisplay() {

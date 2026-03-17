@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -32,7 +32,7 @@ export class FeedbackComponent {
     readonly participation = input<ExamParticipation>();
     readonly hidden = input(false);
 
-    readonly hideEditor = signal(true);
+    readonly hideEditor = linkedSignal(() => this.exam().executionType.type !== 'MATURITY');
     readonly shouldHide = computed(() => this.hidden());
     readonly attachment = computed(() => this._localAttachment() ?? this.exam().examFeedback?.attachment);
 
@@ -50,11 +50,6 @@ export class FeedbackComponent {
     constructor() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        effect(() => {
-            if (this.exam().executionType.type === 'MATURITY') {
-                this.hideEditor.set(false);
-            }
-        });
     }
 
     get fixPosition() {

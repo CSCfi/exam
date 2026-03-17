@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, OnInit, output } from '@angular/core';
 import {
     ControlContainer,
     FormControl,
@@ -23,7 +23,7 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
     imports: [ReactiveFormsModule, TranslateModule, CKEditorComponent, UpperCasePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BasicInfoComponent implements AfterViewInit {
+export class BasicInfoComponent implements OnInit, AfterViewInit {
     readonly question = input<ReverseQuestion | QuestionDraft>();
     readonly questionTypes = input<{ type: string; name: string }[]>([]);
     readonly questionId = input<number>();
@@ -39,30 +39,6 @@ export class BasicInfoComponent implements AfterViewInit {
         this.baseInformationForm = new FormGroup({
             questionType: this.questionTypeControl,
             questionText: new FormControl<string>('', [Validators.required]),
-        });
-
-        // Sync form from question data when available
-        effect(() => {
-            const questionValue = this.question();
-            if (questionValue && this.baseInformationForm.pristine) {
-                this.baseInformationForm.patchValue(
-                    {
-                        questionType: questionValue.type || '',
-                        questionText: questionValue.question || '',
-                    },
-                    { emitEvent: false },
-                );
-
-                // Set validators based on whether question has a type
-                if (questionValue.type) {
-                    // Existing question - type is set, no validator needed
-                    this.questionTypeControl.clearValidators();
-                } else {
-                    // New question - type is required
-                    this.questionTypeControl.setValidators([Validators.required]);
-                }
-                this.questionTypeControl.updateValueAndValidity({ emitEvent: false });
-            }
         });
     }
 
@@ -84,6 +60,22 @@ export class BasicInfoComponent implements AfterViewInit {
 
     get isQuestionTextInvalid(): boolean {
         return !!this.baseInformationForm.get('questionText')?.invalid;
+    }
+
+    ngOnInit() {
+        const questionValue = this.question();
+        if (questionValue) {
+            this.baseInformationForm.patchValue(
+                { questionType: questionValue.type || '', questionText: questionValue.question || '' },
+                { emitEvent: false },
+            );
+            if (questionValue.type) {
+                this.questionTypeControl.clearValidators();
+            } else {
+                this.questionTypeControl.setValidators([Validators.required]);
+            }
+            this.questionTypeControl.updateValueAndValidity({ emitEvent: false });
+        }
     }
 
     ngAfterViewInit() {

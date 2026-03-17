@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,7 +19,7 @@ import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
         </div>
         <div class="modal-body ms-2">
             <div class="row">
-                @if (exam()?.examFeedback !== null) {
+                @if (exam()) {
                     <div class="col-md-12 ps-0">
                         <xm-ckeditor
                             [data]="exam()?.examFeedback?.comment ?? ''"
@@ -47,17 +47,10 @@ export class SpeedReviewFeedbackComponent {
     private readonly modal = inject(NgbActiveModal);
     private readonly Assessment = inject(AssessmentService);
 
-    constructor() {
-        effect(() => {
-            const examValue = this.exam();
-            if (examValue && !examValue.examFeedback) {
-                examValue.examFeedback = { comment: '' };
-            }
-        });
-    }
-
     commentChanged(event: string) {
-        this.exam()!.examFeedback.comment = event;
+        const exam = this.exam()!;
+        exam.examFeedback ??= { comment: '' };
+        exam.examFeedback.comment = event;
     }
 
     ok() {

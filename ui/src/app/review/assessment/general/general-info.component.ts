@@ -4,7 +4,7 @@
 
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,7 +15,6 @@ import type { Exam } from 'src/app/exam/exam.model';
 import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
-import { DateTimeService } from 'src/app/shared/date/date.service';
 import { MathDirective } from 'src/app/shared/math/math.directive';
 import { NoShowComponent } from './no-show.component';
 import { ParticipationComponent } from './participation.component';
@@ -35,6 +34,11 @@ export class GeneralInfoComponent {
     readonly collaborative = input(false);
 
     readonly student = computed(() => this.participation().user as User | undefined);
+    readonly duration = computed(() =>
+        DateTime.fromISO(this.participation().duration as string)
+            .set({ second: 0, millisecond: 0 })
+            .toJSDate(),
+    );
     readonly studentName = computed(() => {
         const s = this.student();
         if (s) return `${s.lastName} ${s.firstName}`;
@@ -48,18 +52,9 @@ export class GeneralInfoComponent {
     private readonly http = inject(HttpClient);
     private readonly route = inject(ActivatedRoute);
     private readonly Attachment = inject(AttachmentService);
-    private readonly DateTime = inject(DateTimeService);
     private readonly destroyRef = inject(DestroyRef);
 
     constructor() {
-        effect(() => {
-            const participation = this.participation();
-            const duration = DateTime.fromISO(participation.duration as string)
-                .set({ second: 0, millisecond: 0 })
-                .toJSDate();
-            participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
-        });
-
         const id = this.route.snapshot.params.id;
         const ref = this.route.snapshot.params.ref;
         const url = this.collaborative()

@@ -2,9 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { combineLatest } from 'rxjs';
 import type { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
 
@@ -64,25 +66,22 @@ export class ExaminationMultiChoiceComponent {
     private readonly Examination = inject(ExaminationService);
 
     constructor() {
-        // Initialize options sorting and selectedOption when inputs change
-        effect(() => {
-            const currentSq = this.sq();
-            const currentOrderOptions = this.orderOptions();
-
-            if (currentSq.question.type === 'ClaimChoiceQuestion' && currentOrderOptions) {
-                currentSq.options.sort((a, b) => (a.option.id || 0) - (b.option.id || 0));
-            } else if (currentOrderOptions) {
-                currentSq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
-            }
-
-            const answered = currentSq.options.filter((o) => o.answered);
-            if (answered.length > 1) {
-                console.warn('several answered options for mcq');
-            }
-            if (answered.length === 1) {
-                currentSq.selectedOption = answered[0].id as number;
-            }
-        });
+        combineLatest([toObservable(this.sq), toObservable(this.orderOptions)])
+            .pipe(takeUntilDestroyed())
+            .subscribe(([sq, orderOptions]) => {
+                if (sq.question.type === 'ClaimChoiceQuestion' && orderOptions) {
+                    sq.options.sort((a, b) => (a.option.id || 0) - (b.option.id || 0));
+                } else if (orderOptions) {
+                    sq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
+                }
+                const answered = sq.options.filter((o) => o.answered);
+                if (answered.length > 1) {
+                    console.warn('several answered options for mcq');
+                }
+                if (answered.length === 1) {
+                    sq.selectedOption = answered[0].id as number;
+                }
+            });
     }
 
     saveOption() {

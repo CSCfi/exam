@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { UpperCasePipe } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, input, OnInit } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlContainer,
     FormArray,
@@ -15,6 +16,7 @@ import {
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { skip } from 'rxjs';
 import { multipleChoiceOptionsValidator } from 'src/app/question/editor/common/types/multiple-choice-validators';
 import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import type { QuestionDraft, ReverseQuestion } from 'src/app/question/question.model';
@@ -28,7 +30,7 @@ import { MultipleChoiceOption } from 'src/app/question/question.model';
     imports: [ReactiveFormsModule, UpperCasePipe, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultipleChoiceComponent implements AfterViewInit {
+export class MultipleChoiceComponent implements OnInit, AfterViewInit {
     readonly question = input.required<ReverseQuestion | QuestionDraft>();
     readonly lotteryOn = input(false);
     readonly showWarning = input(false);
@@ -41,66 +43,45 @@ export class MultipleChoiceComponent implements AfterViewInit {
     private readonly toast = inject(ToastrService);
     private readonly QuestionScore = inject(QuestionScoringService);
     private readonly parentForm = inject(FormGroupDirective);
-    private readonly formInitialized = signal(false);
 
     constructor() {
-        // Create nested form group with FormArray for options
         this.multipleChoiceForm = new FormGroup({
             defaultNegativeScoreAllowed: new FormControl(false),
             defaultOptionShufflingOn: new FormControl(false),
             options: new FormArray<FormGroup>([], [multipleChoiceOptionsValidator]),
         });
 
-        // Sync form with question values
-        effect(() => {
-            const questionValue = this.question();
-            if (!this.formInitialized()) {
-                // Use reset() during initialization to mark form as pristine
-                this.multipleChoiceForm.reset(
-                    {
-                        defaultNegativeScoreAllowed: questionValue.defaultNegativeScoreAllowed || false,
-                        defaultOptionShufflingOn: questionValue.defaultOptionShufflingOn || false,
-                    },
-                    { emitEvent: false },
-                );
-                this.updateFormArray(questionValue.options);
-                this.formInitialized.set(true);
-            } else {
-                // Only sync from question → form if form is pristine
-                if (this.multipleChoiceForm.pristine) {
-                    this.multipleChoiceForm.patchValue(
-                        {
-                            defaultNegativeScoreAllowed: questionValue.defaultNegativeScoreAllowed || false,
-                            defaultOptionShufflingOn: questionValue.defaultOptionShufflingOn || false,
-                        },
-                        { emitEvent: false },
-                    );
-                    this.updateFormArray(questionValue.options);
-                }
-            }
-        });
-
-        // Update disabled state when lotteryOn changes
-        effect(() => {
-            const optionsArray = this.multipleChoiceForm.get('options') as FormArray;
-            optionsArray.controls.forEach((control) => {
-                const group = control as FormGroup;
-                const optionTextControl = group.get('optionText');
-                const correctOptionControl = group.get('correctOption');
-
-                if (this.lotteryOn()) {
-                    optionTextControl?.disable({ emitEvent: false });
-                    correctOptionControl?.disable({ emitEvent: false });
-                } else {
-                    optionTextControl?.enable({ emitEvent: false });
-                    correctOptionControl?.enable({ emitEvent: false });
-                }
+        toObservable(this.lotteryOn)
+            .pipe(skip(1), takeUntilDestroyed())
+            .subscribe((lotteryOn) => {
+                const optionsArray = this.multipleChoiceForm.get('options') as FormArray;
+                optionsArray.controls.forEach((control) => {
+                    const group = control as FormGroup;
+                    if (lotteryOn) {
+                        group.get('optionText')?.disable({ emitEvent: false });
+                        group.get('correctOption')?.disable({ emitEvent: false });
+                    } else {
+                        group.get('optionText')?.enable({ emitEvent: false });
+                        group.get('correctOption')?.enable({ emitEvent: false });
+                    }
+                });
             });
-        });
     }
 
     get optionsFormArray(): FormArray {
         return this.multipleChoiceForm.get('options') as FormArray;
+    }
+
+    ngOnInit() {
+        const questionValue = this.question();
+        this.multipleChoiceForm.reset(
+            {
+                defaultNegativeScoreAllowed: questionValue.defaultNegativeScoreAllowed || false,
+                defaultOptionShufflingOn: questionValue.defaultOptionShufflingOn || false,
+            },
+            { emitEvent: false },
+        );
+        this.updateFormArray(questionValue.options);
     }
 
     ngAfterViewInit() {
