@@ -675,6 +675,7 @@
     "i18n_save_changes": "Spara förändringarna",
     "i18n_new_exam_type": "Tentamenstyp",
     "i18n_new_question_type": "Frågetyp",
+    "i18n_select_question_type": "Välj frågetyp",
     "i18n_library_choose": "Välj tentamensfrågor",
     "i18n_exam_no_result": "Sökningen gav inga tentamina",
     "i18n_approve_maturity": "Godkänn prestationen",

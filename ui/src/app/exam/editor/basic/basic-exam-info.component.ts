@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -11,12 +11,12 @@ import { ToastrService } from 'ngx-toastr';
 import { switchMap } from 'rxjs/operators';
 import { LanguageSelectorComponent } from 'src/app/exam/editor/common/language-picker.component';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
-import type { Exam, ExamLanguage, ExamType, GradeScale } from 'src/app/exam/exam.model';
+import type { Course, ExamLanguage, ExamType, GradeScale } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { Software } from 'src/app/facility/facility.model';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
-import { Attachment } from 'src/app/shared/attachment/attachment.model';
+import type { Attachment } from 'src/app/shared/attachment/attachment.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -42,7 +42,7 @@ import { SoftwareSelectorComponent } from './software-picker.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BasicExamInfoComponent {
-    readonly exam = signal<Exam>({} as Exam);
+    readonly exam = computed(() => this.ExamTabs.examSignal()!);
     readonly collaborative = signal(false);
     readonly byodExaminationSupported = signal(false);
     readonly anonymousReviewEnabled = signal(false);
@@ -62,12 +62,10 @@ export class BasicExamInfoComponent {
     private readonly Attachment = inject(AttachmentService);
     private readonly Files = inject(FileService);
     private readonly Session = inject(SessionService);
-    private readonly Tabs = inject(ExamTabService);
 
     constructor() {
         this.user = this.Session.getUser();
-        this.exam.set(this.Tabs.getExam());
-        this.collaborative.set(this.Tabs.isCollaborative());
+        this.collaborative.set(this.ExamTabs.isCollaborative());
         this.http
             .get<{ homeExaminationSupported: boolean; sebExaminationSupported: boolean }>('/app/settings/byod')
             .subscribe((setting) =>
@@ -79,7 +77,7 @@ export class BasicExamInfoComponent {
         this.http
             .get<{ anonymousReviewEnabled: boolean }>('/app/settings/anonymousReviewEnabled')
             .subscribe((setting) => this.anonymousReviewEnabled.set(setting.anonymousReviewEnabled));
-        this.Tabs.notifyTabChange(1);
+        this.ExamTabs.notifyTabChange(1);
     }
 
     onExamNameInput = (event: Event) => this.updateExamName((event.target as HTMLInputElement).value);
@@ -92,66 +90,58 @@ export class BasicExamInfoComponent {
     onInternalRefInput = (event: Event) => this.updateInternalRef((event.target as HTMLInputElement).value);
 
     updateExam(resetAutoEvaluationConfig: boolean) {
+        void resetAutoEvaluationConfig;
         const currentExam = this.exam();
         this.Exam.updateExam$(currentExam, {}, this.collaborative()).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('i18n_exam_saved'));
                 this.ExamTabs.setExam(currentExam);
-                const code = currentExam.course ? currentExam.course.code : null;
-                this.ExamTabs.notifyExamUpdate({
-                    name: currentExam.name,
-                    code: code,
-                    scaleChange: resetAutoEvaluationConfig,
-                    initScale: false,
-                });
             },
             error: (err) => this.toast.error(err),
         });
     }
 
-    onCourseChange() {
+    onCourseChange(course: Course) {
         const currentExam = this.exam();
-        const code = currentExam.course ? currentExam.course.code : null;
-        this.ExamTabs.notifyExamUpdate({
-            name: currentExam.name,
-            code: code,
-            scaleChange: !this.gradeScaleSetting().overridable,
-            initScale: !this.gradeScaleSetting().overridable && !this.collaborative(),
-        });
+        const gradeScale =
+            !this.gradeScaleSetting().overridable && !this.collaborative()
+                ? (course.gradeScale ?? currentExam.gradeScale)
+                : currentExam.gradeScale;
+        this.ExamTabs.setExam({ ...currentExam, course, gradeScale });
     }
 
     updateExamName(value: string) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, name: value });
+        this.ExamTabs.setExam({ ...currentExam, name: value });
         this.updateExam(false);
     }
 
     updateExamAnonymous(value: boolean) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, anonymous: value });
+        this.ExamTabs.setExam({ ...currentExam, anonymous: value });
         this.updateExam(false);
     }
 
     updateInternalRef(value: string) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, internalRef: value });
+        this.ExamTabs.setExam({ ...currentExam, internalRef: value });
         this.updateExam(false);
     }
 
     setSubjectToLanguageInspection(value: boolean) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, subjectToLanguageInspection: value });
+        this.ExamTabs.setExam({ ...currentExam, subjectToLanguageInspection: value });
         this.updateExam(false);
     }
 
     enrollInstructionsChanged(event: string) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, enrollInstruction: event });
+        this.ExamTabs.setExam({ ...currentExam, enrollInstruction: event });
     }
 
     instructionChanged(event: string) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, instruction: event });
+        this.ExamTabs.setExam({ ...currentExam, instruction: event });
     }
 
     getExecutionTypeTranslation() {
@@ -201,8 +191,7 @@ export class BasicExamInfoComponent {
                 }),
             )
             .subscribe((resp) => {
-                const currentExam = this.exam();
-                this.exam.set({ ...currentExam, attachment: resp });
+                this.ExamTabs.setExam({ ...this.exam(), attachment: resp });
             });
     }
 
@@ -215,7 +204,9 @@ export class BasicExamInfoComponent {
     }
 
     removeExamAttachment() {
-        this.Attachment.removeExamAttachment(this.exam(), this.collaborative());
+        this.Attachment.removeExamAttachment$(this.exam(), this.collaborative()).subscribe(() => {
+            this.ExamTabs.setExam({ ...this.exam(), attachment: undefined });
+        });
     }
 
     removeExam() {
@@ -223,7 +214,7 @@ export class BasicExamInfoComponent {
     }
 
     nextTab() {
-        this.Tabs.notifyTabChange(2);
+        this.ExamTabs.notifyTabChange(2);
         this.router.navigate(['..', '2'], { relativeTo: this.route });
     }
 
@@ -237,11 +228,11 @@ export class BasicExamInfoComponent {
 
     updateExamSoftwares(softwares: Software[]) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, softwares });
+        this.ExamTabs.setExam({ ...currentExam, softwares });
     }
 
     updateExamLanguages(examLanguages: ExamLanguage[]) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, examLanguages });
+        this.ExamTabs.setExam({ ...currentExam, examLanguages });
     }
 }

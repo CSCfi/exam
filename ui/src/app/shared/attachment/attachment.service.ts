@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import type { ExamParticipation, ReviewedExam } from 'src/app/enrolment/enrolment.model';
 import type { Exam } from 'src/app/exam/exam.model';
 import type { Examination } from 'src/app/examination/examination.model';
@@ -46,22 +46,29 @@ export class AttachmentService {
         this.removeAnswerAttachment(this.externalAnswerAttachmentApi(question.id, hash), question);
     }
 
-    removeExamAttachment = (exam: Exam, collaborative = false) =>
-        this.dialogs
-            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
-            .subscribe({
-                next: () => {
-                    const api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
-                    this.http.delete(api(exam.id)).subscribe({
-                        next: () => {
-                            this.toast.info(this.translate.instant('i18n_attachment_removed'));
-                            delete exam.attachment;
-                        },
-                        error: (err) => this.toast.error(err),
-                    });
-                },
-                error: (err) => this.toast.error(err),
-            });
+    removeExamAttachment$ = (exam: Exam, collaborative = false): Observable<void> => {
+        const api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
+        return new Observable((observer) => {
+            this.dialogs
+                .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_are_you_sure'))
+                .subscribe({
+                    next: () => {
+                        this.http.delete(api(exam.id)).subscribe({
+                            next: () => {
+                                this.toast.info(this.translate.instant('i18n_attachment_removed'));
+                                observer.next();
+                                observer.complete();
+                            },
+                            error: (err) => {
+                                this.toast.error(err);
+                                observer.error(err);
+                            },
+                        });
+                    },
+                    error: (err) => this.toast.error(err),
+                });
+        });
+    };
 
     removeFeedbackAttachment = (exam: Examination) =>
         this.dialogs

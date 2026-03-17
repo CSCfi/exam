@@ -58,12 +58,12 @@ import { FileService } from 'src/app/shared/file/file.service';
                 </div>
             </div>
         </div>
-        <div class="d-flex flex-row-reverse flex-align-r m-3">
-            <button class="btn btn-success " (click)="confirmed()" [disabled]="!fileObject()">
-                {{ 'i18n_button_save' | translate }}
-            </button>
-            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
+        <div class="modal-footer">
+            <button class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
                 {{ 'i18n_button_cancel' | translate }}
+            </button>
+            <button class="btn btn-success" (click)="confirmed()" [disabled]="!fileObject()">
+                {{ 'i18n_button_save' | translate }}
             </button>
         </div>
     `,

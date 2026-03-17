@@ -68,7 +68,7 @@ export class TeachersReportComponent {
         const currentTeacher = this.teacher();
         if (currentTeacher) {
             this.files.download(
-                `/app/statistics/teacherexamsbydate/${currentTeacher}/${f}/${t}`,
+                `/app/reports/teacherexamsbydate/${currentTeacher}/${f}/${t}`,
                 `teacherexams_${f}_${t}.xlsx`,
             );
         } else {

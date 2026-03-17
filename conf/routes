@@ -445,26 +445,26 @@ GET           /app/settings/byodmaxparticipants                                 
 GET           /app/settings/newMultichoiceSupport                                features.admin.controllers.SettingsController.areNewMultichoiceFeaturesEnabled
 
 
-################# Statistics interface ##################
-
-GET           /app/statistics/resbydate/:roomId/:from/:to                        features.admin.controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
-GET           /app/statistics/allexams/:from/:to                                 features.admin.controllers.StatisticsController.reportAllExams(from: String, to: String)
-GET           /app/statistics/reviewsbydate/:from/:to                            features.admin.controllers.StatisticsController.getReviewsByDate(from: String, to: String)
-GET           /app/statistics/teacherexamsbydate/:uid/:from/:to                  features.admin.controllers.StatisticsController.getTeacherExamsByDate(uid: Long, from: String, to: String)
-GET           /app/statistics/examnames                                          features.admin.controllers.StatisticsController.getExamNames
-GET           /app/statistics/examnames/:id/:reportType                          features.admin.controllers.StatisticsController.getExam(id: Long, reportType: String)
-GET           /app/statistics/examenrollments/:id                                features.admin.controllers.StatisticsController.getExamEnrolments(id: Long)
-GET           /app/statistics/student/:id/:from/:to                              features.admin.controllers.StatisticsController.reportStudentActivity(id: Long, from: String, to: String)
-
 ################# Reports interface ##################
 
-GET           /app/reports/participations                                         features.admin.controllers.ReportController.listParticipations(dept: Option[String], start: Option[String], end: Option[String])
-GET           /app/reports/departments                                            features.admin.controllers.ReportController.listDepartments
-GET           /app/reports/exams                                                  features.admin.controllers.ReportController.listPublishedExams(dept: Option[String], start: Option[String], end: Option[String])
-GET           /app/reports/reservations                                           features.admin.controllers.ReportController.listReservations(dept: Option[String], start: Option[String], end: Option[String])
-GET           /app/reports/reservations/iop                                       features.admin.controllers.ReportController.listIopReservations(dept: Option[String], start: Option[String], end: Option[String])
-GET           /app/reports/responses                                              features.admin.controllers.ReportController.listResponses(dept: Option[String], start: Option[String], end: Option[String])
-POST          /app/reports/questionreport/:id                                     features.admin.controllers.ReportController.exportExamQuestionScoresAsExcel(id: Long)
+GET           /app/reports/resbydate/:roomId/:from/:to                           features.admin.controllers.ReportController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
+GET           /app/reports/allexams/:from/:to                                    features.admin.controllers.ReportController.reportAllExams(from: String, to: String)
+GET           /app/reports/reviewsbydate/:from/:to                               features.admin.controllers.ReportController.getReviewsByDate(from: String, to: String)
+GET           /app/reports/teacherexamsbydate/:uid/:from/:to                     features.admin.controllers.ReportController.getTeacherExamsByDate(uid: Long, from: String, to: String)
+GET           /app/reports/examnames                                             features.admin.controllers.ReportController.getExamNames
+GET           /app/reports/examnames/:id/:reportType                             features.admin.controllers.ReportController.getExam(id: Long, reportType: String)
+GET           /app/reports/examenrollments/:id                                   features.admin.controllers.ReportController.getExamEnrolments(id: Long)
+GET           /app/reports/student/:id/:from/:to                                 features.admin.controllers.ReportController.reportStudentActivity(id: Long, from: String, to: String)
+
+################# Statistics interface ##################
+
+GET           /app/statistics/participations                                      features.admin.controllers.StatisticsController.listParticipations(dept: Option[String], start: Option[String], end: Option[String])
+GET           /app/statistics/departments                                         features.admin.controllers.StatisticsController.listDepartments
+GET           /app/statistics/exams                                               features.admin.controllers.StatisticsController.listPublishedExams(dept: Option[String], start: Option[String], end: Option[String])
+GET           /app/statistics/reservations                                        features.admin.controllers.StatisticsController.listReservations(dept: Option[String], start: Option[String], end: Option[String])
+GET           /app/statistics/reservations/iop                                    features.admin.controllers.StatisticsController.listIopReservations(dept: Option[String], start: Option[String], end: Option[String])
+GET           /app/statistics/responses                                           features.admin.controllers.StatisticsController.listResponses(dept: Option[String], start: Option[String], end: Option[String])
+POST          /app/statistics/questionreport/:id                                  features.admin.controllers.StatisticsController.exportExamQuestionScoresAsExcel(id: Long)
 
 ################# Maintenance period interface ##################
 GET           /app/maintenance                                                    features.facility.controllers.MaintenancePeriodController.listMaintenancePeriods

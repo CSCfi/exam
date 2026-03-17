@@ -18,7 +18,7 @@ SPDX-License-Identifier: EUPL-1.2
             <div class="col-md-12">
                 <!-- Course data -->
                 @if (!collaborative()) {
-                    <xm-exam-course [exam]="exam()" (updated)="onCourseChange()"></xm-exam-course>
+                    <xm-exam-course [exam]="exam()" (updated)="onCourseChange($event)"></xm-exam-course>
                 }
                 <!-- Exam name and language -->
                 <div class="row mt-3">

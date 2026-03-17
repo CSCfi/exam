@@ -9,7 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { QuestionBodyComponent } from 'src/app/question/editor/common/question-body.component';
 import { QuestionAdapterService } from 'src/app/question/editor/common/tools/question-adapter.service';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
-import type { ExamSectionQuestion, Question, ReverseQuestion } from 'src/app/question/question.model';
+import type { ExamSectionQuestion, Question, ReverseQuestion, Tag } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { ModalService } from 'src/app/shared/dialogs/modal.service';
 
@@ -28,6 +28,7 @@ import { ModalService } from 'src/app/shared/dialogs/modal.service';
                             [collaborative]="false"
                             [questionTypes]="[]"
                             [newQuestion]="false"
+                            (tagsChange)="onTagsChange($event)"
                         />
                     }
                 </form>
@@ -175,9 +176,11 @@ export class ExamQuestionComponent implements OnDestroy {
         }
 
         // Convert ReverseQuestion to Question for output (id is always defined for existing questions)
+        // Use attachment from adaptedQuestion since selectFile() mutates it in-place
         const questionForOutput: Question = {
             ...updatedBaseQuestion,
             id: updatedBaseQuestion.id!,
+            attachment: this.adaptedQuestion()?.attachment,
         };
 
         this.saved.emit({
@@ -187,6 +190,13 @@ export class ExamQuestionComponent implements OnDestroy {
     };
 
     cancel = () => this.cancelled.emit({ dirty: this.questionForm.dirty });
+
+    onTagsChange(tags: Tag[]) {
+        const base = this.baseQuestion();
+        if (base) {
+            this.baseQuestion.set({ ...base, tags });
+        }
+    }
 
     openPreview$ = () => {
         const modal = this.modal.openRef(QuestionPreviewDialogComponent, { size: 'lg' });

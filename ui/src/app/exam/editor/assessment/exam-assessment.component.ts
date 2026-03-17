@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -25,7 +25,7 @@ import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
 export class ExamAssessmentComponent {
     readonly autoEvaluationRef = viewChild<AutoEvaluationComponent>('autoEvaluationComponent');
 
-    readonly exam = signal<Exam>({} as Exam);
+    readonly exam = computed(() => this.Tabs.examSignal()!);
     readonly collaborative = signal(false);
     readonly examTypes = signal<(ExamType & { name: string })[]>([]);
     readonly gradeScaleSetting = signal({ overridable: false });
@@ -44,7 +44,6 @@ export class ExamAssessmentComponent {
     private readonly Exam = inject(ExamService);
 
     constructor() {
-        this.exam.set(this.Tabs.getExam());
         this.collaborative.set(this.Tabs.isCollaborative());
         const currentExam = this.exam();
         this.http
@@ -67,7 +66,7 @@ export class ExamAssessmentComponent {
 
     setExamType(type: string) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, examType: { ...currentExam.examType, type } });
+        this.Tabs.setExam({ ...currentExam, examType: { ...currentExam.examType, type } });
         this.updateExam(false);
     }
 
@@ -117,13 +116,6 @@ export class ExamAssessmentComponent {
                 next: () => {
                     this.toast.info(this.translate.instant('i18n_exam_saved'));
                     const savedExam = { ...examToUpdate };
-                    const code = savedExam.course ? savedExam.course.code : null;
-                    this.Tabs.notifyExamUpdate({
-                        name: savedExam.name,
-                        code: code,
-                        scaleChange: resetAutoEvaluationConfig,
-                        initScale: false,
-                    });
                     let finalExam: Exam = { ...savedExam };
                     if (!currentAutoEvaluation.enabled) {
                         finalExam = { ...finalExam, autoEvaluationConfig: undefined };
@@ -131,7 +123,7 @@ export class ExamAssessmentComponent {
                     if (!currentExamFeedbackConfig.enabled) {
                         finalExam = { ...finalExam, examFeedbackConfig: undefined };
                     }
-                    this.exam.set(finalExam);
+                    this.Tabs.setExam(finalExam);
                 },
                 error: (err) => this.toast.error(err),
             });
@@ -158,13 +150,6 @@ export class ExamAssessmentComponent {
             next: () => {
                 this.toast.info(this.translate.instant('i18n_exam_saved'));
                 const updatedExam = { ...examToUpdate };
-                const code = updatedExam.course ? updatedExam.course.code : null;
-                this.Tabs.notifyExamUpdate({
-                    name: updatedExam.name,
-                    code: code,
-                    scaleChange: resetAutoEvaluationConfig,
-                    initScale: false,
-                });
                 let finalExam: Exam = { ...updatedExam };
                 if (!currentAutoEvaluation.enabled) {
                     finalExam = { ...finalExam, autoEvaluationConfig: undefined };
@@ -172,7 +157,7 @@ export class ExamAssessmentComponent {
                 if (!currentExamFeedbackConfig.enabled) {
                     finalExam = { ...finalExam, examFeedbackConfig: undefined };
                 }
-                this.exam.set(finalExam);
+                this.Tabs.setExam(finalExam);
             },
             error: (err) => this.toast.error(err),
         });
@@ -188,7 +173,7 @@ export class ExamAssessmentComponent {
 
     setScale(grading: GradeScale) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, gradeScale: grading });
+        this.Tabs.setExam({ ...currentExam, gradeScale: grading });
         this.updateExam(true);
     }
 
@@ -231,13 +216,13 @@ export class ExamAssessmentComponent {
 
     autoEvaluationConfigChanged(event: { config: AutoEvaluationConfig }) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, autoEvaluationConfig: event.config });
+        this.Tabs.setExam({ ...currentExam, autoEvaluationConfig: event.config });
     }
 
     autoEvaluationDisabled() {
         const currentExam = this.exam();
         // Remove autoEvaluationConfig from exam immediately
-        this.exam.set({ ...currentExam, autoEvaluationConfig: undefined });
+        this.Tabs.setExam({ ...currentExam, autoEvaluationConfig: undefined });
         this.autoEvaluation.set({ enabled: false });
     }
 
@@ -247,13 +232,13 @@ export class ExamAssessmentComponent {
 
     feedbackConfigChanged(event: { config: ExamFeedbackConfig }) {
         const currentExam = this.exam();
-        this.exam.set({ ...currentExam, examFeedbackConfig: event.config });
+        this.Tabs.setExam({ ...currentExam, examFeedbackConfig: event.config });
     }
 
     feedbackConfigDisabled() {
         const currentExam = this.exam();
         // Remove examFeedbackConfig from exam immediately
-        this.exam.set({ ...currentExam, examFeedbackConfig: undefined });
+        this.Tabs.setExam({ ...currentExam, examFeedbackConfig: undefined });
         this.examFeedbackConfig.set({ enabled: false });
     }
 

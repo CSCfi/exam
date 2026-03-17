@@ -73,7 +73,7 @@ export class RoomsReportComponent {
         const t = DateTime.fromJSDate(this.endDate() || new Date()).toFormat('dd.MM.yyyy');
         const currentRoom = this.room();
         if (currentRoom) {
-            this.files.download(`/app/statistics/resbydate/${currentRoom}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
+            this.files.download(`/app/reports/resbydate/${currentRoom}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
         } else {
             this.toast.error(this.translate.instant('i18n_choose_room'));
         }

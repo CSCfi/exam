@@ -675,6 +675,7 @@
     "i18n_save_changes": "Tallenna muutokset",
     "i18n_new_exam_type": "Tentin tyyppi",
     "i18n_new_question_type": "Kysymyksen tyyppi",
+    "i18n_select_question_type": "Valitse kysymystyyppi",
     "i18n_library_choose": "Valitse tenttikysymykset",
     "i18n_exam_no_result": "Haku ei palauttanut tenttejä",
     "i18n_approve_maturity": "Hyväksy suoritus",

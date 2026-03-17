@@ -104,7 +104,7 @@ export class ExamSummaryComponent {
     printQuestionScoresReport = () => {
         const ids = this.reviews().map((r) => r.exam.id);
         if (ids.length > 0) {
-            const url = '/app/reports/questionreport/' + this.exam()!.id;
+            const url = '/app/statistics/questionreport/' + this.exam()!.id;
             this.Files.download(
                 url,
                 this.translate.instant('i18n_grading_info') + '_' + DateTime.now().toFormat('dd-MM-yyyy') + '.xlsx',

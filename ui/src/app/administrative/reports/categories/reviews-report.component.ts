@@ -48,7 +48,7 @@ export class ReviewsReportComponent {
     getReviewsByDate() {
         const f = DateTime.fromJSDate(this.startDate() || new Date()).toFormat('dd.MM.yyyy');
         const t = DateTime.fromJSDate(this.endDate() || new Date()).toFormat('dd.MM.yyyy');
-        this.files.download(`/app/statistics/reviewsbydate/${f}/${t}`, `reviews_${f}_${t}.xlsx`);
+        this.files.download(`/app/reports/reviewsbydate/${f}/${t}`, `reviews_${f}_${t}.xlsx`);
     }
 
     startDateChanged(event: { date: Date | null }) {

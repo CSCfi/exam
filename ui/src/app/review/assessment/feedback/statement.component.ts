@@ -28,8 +28,11 @@ export class StatementComponent {
 
     readonly hideEditor = signal(true);
     readonly shouldHide = computed(() => !!this.exam().languageInspection?.finishedAt);
-    readonly attachment = computed(() => this.exam().languageInspection?.statement?.attachment);
+    readonly attachment = computed(
+        () => this._localAttachment() ?? this.exam().languageInspection?.statement?.attachment,
+    );
 
+    private readonly _localAttachment = signal<Attachment | undefined>(undefined);
     private readonly Attachment = inject(AttachmentService);
     private readonly Files = inject(FileService);
     private readonly Maturity = inject(MaturityService);
@@ -82,6 +85,6 @@ export class StatementComponent {
                 }),
             )
             .subscribe((resp) => {
-                this.exam().languageInspection.statement.attachment = resp;
+                this._localAttachment.set(resp);
             });
 }

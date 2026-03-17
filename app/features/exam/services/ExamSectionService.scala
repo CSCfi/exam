@@ -6,6 +6,7 @@ package features.exam.services
 
 import database.EbeanQueryExtensions
 import features.exam.services.ExamSectionError.*
+import features.question.services.QuestionService
 import io.ebean.DB
 import io.ebean.text.PathProperties
 import models.exam.Exam
@@ -27,6 +28,7 @@ import scala.jdk.CollectionConverters.*
 
 class ExamSectionService @Inject() (
     private val examUpdater: ExamUpdater,
+    private val questionService: QuestionService,
     implicit private val ec: BlockingIOExecutionContext
 ) extends EbeanQueryExtensions
     with SectionQuestionHandler
@@ -325,8 +327,11 @@ class ExamSectionService @Inject() (
                   )
                 then Left(IncorrectClaimQuestionOptions)
                 else
-                  // Update question: text
+                  // Update question: text and tags
                   question.question = dto.getQuestionTextOrNull
+                  (body \ "question").asOpt[JsValue].foreach(questionNode =>
+                    questionService.processTags(question, user, questionNode)
+                  )
                   question.update()
                   updateExamQuestionFromJson(examSectionQuestion, body, dto)
                   examSectionQuestion.update()

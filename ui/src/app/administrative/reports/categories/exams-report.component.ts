@@ -55,7 +55,7 @@ export class ExamsReportComponent {
     getExams() {
         const currentExam = this.exam();
         if (currentExam) {
-            const url = `/app/statistics/examnames/${currentExam}/xlsx`;
+            const url = `/app/reports/examnames/${currentExam}/xlsx`;
             const fileName = 'exams.xlsx';
             this.files.download(url, fileName);
         } else {

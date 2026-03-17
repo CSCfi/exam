@@ -4,8 +4,8 @@
 
 package system.jobs
 
-import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.effect.{IO, Resource}
+import cats.effect.syntax.all.concurrentParTraverseOps
 import cats.syntax.all.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import database.{EbeanJsonExtensions, EbeanQueryExtensions}

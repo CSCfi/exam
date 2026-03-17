@@ -62,7 +62,7 @@ class AttachmentController @Inject() (
             case None => Future.successful(BadRequest("Missing questionId"))
             case Some(qid) =>
               attachmentService.addAttachmentToQuestion(qid, filePart).map {
-                case Right(question)  => Ok(question.asJson)
+                case Right(question)  => Ok(question.attachment.asJson)
                 case Left("NotFound") => NotFound
                 case Left(_)          => InternalServerError("i18n_error_creating_attachment")
               }
@@ -131,7 +131,7 @@ class AttachmentController @Inject() (
             case Some(eid) =>
               val user = request.attrs(Auth.ATTR_USER)
               attachmentService.addAttachmentToExam(eid, filePart, user).map {
-                case Right(exam)                         => Ok(exam.asJson)
+                case Right(exam)                         => Ok(exam.attachment.asJson)
                 case Left("i18n_error_access_forbidden") => Forbidden("i18n_error_access_forbidden")
                 case Left("NotFound")                    => NotFound
                 case Left(_) => InternalServerError("i18n_error_creating_attachment")
@@ -147,7 +147,7 @@ class AttachmentController @Inject() (
         case Some((filePart, _)) =>
           val user = request.attrs(Auth.ATTR_USER)
           attachmentService.addFeedbackAttachment(id, filePart, user).map {
-            case Right(comment)   => Ok(comment.asJson)
+            case Right(comment)   => Ok(comment.attachment.asJson)
             case Left("NotFound") => NotFound
             case Left(_)          => InternalServerError("i18n_error_creating_attachment")
           }
@@ -162,7 +162,7 @@ class AttachmentController @Inject() (
         case Some((filePart, _)) =>
           val user = request.attrs(Auth.ATTR_USER)
           attachmentService.addStatementAttachment(id, filePart, user).map {
-            case Right(comment)   => Ok(comment.asJson)
+            case Right(comment)   => Ok(comment.attachment.asJson)
             case Left("NotFound") => NotFound
             case Left(_)          => InternalServerError("i18n_error_creating_attachment")
           }

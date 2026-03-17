@@ -4,10 +4,9 @@
 
 package services.excel
 
-import database.EbeanQueryExtensions
-import io.ebean.DB
 import models.assessment
 import models.assessment.{ExamRecord, ExamScore}
+import models.enrolment.{ExamEnrolment, ExamParticipation}
 import models.exam.Exam
 import models.exam.ExamState
 import models.questions.QuestionEvaluationType
@@ -16,18 +15,25 @@ import models.sections.{ExamSection, ExamSectionQuestion}
 import models.user.User
 import org.apache.poi.common.usermodel.HyperlinkType
 import org.apache.poi.ss.usermodel.*
-import org.apache.poi.xssf.streaming.SXSSFWorkbook
+import org.apache.poi.xssf.streaming.{SXSSFSheet, SXSSFWorkbook}
+import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
+import play.api.Logging
 import play.i18n.{Lang, MessagesApi}
 import services.config.ConfigReader
 
 import java.io.OutputStream
+import java.util.concurrent.Semaphore
 import javax.inject.Inject
 import scala.jdk.CollectionConverters.*
+import scala.util.Try
 
 import ExcelBuilder.CellType
 
-class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuilder
-    with EbeanQueryExtensions:
+class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuilder with Logging:
+
+  // Limit the number of concurrent workbook builds to prevent memory exhaustion
+  private val buildSemaphore = new Semaphore(3)
 
   private val ScoreReportDefaultHeaders = Array(
     "studentInternalId",
@@ -40,21 +46,12 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     "submissionId"
   )
 
-  override def streamExamRecords(examId: Long, childIds: List[Long])(os: OutputStream): Unit =
-    val examRecords = fetchExamRecords(examId, childIds)
+  override def streamExamRecords(examRecords: List[ExamRecord])(os: OutputStream): Unit =
     streamTo(os)(wb => buildExamRecordsSheet(wb, examRecords))
 
-  private def fetchExamRecords(examId: Long, childIds: List[Long]): List[ExamRecord] =
-    DB
-      .find(classOf[ExamRecord])
-      .fetch("examScore")
-      .where()
-      .eq("exam.parent.id", examId)
-      .in("exam.id", childIds)
-      .list
-
   private def buildExamRecordsSheet(wb: Workbook, examRecords: List[ExamRecord]): Unit =
-    val sheet     = wb.createSheet("Exam records")
+    val sheet = wb.createSheet("Exam records").asInstanceOf[SXSSFSheet]
+    sheet.trackAllColumnsForAutoSizing()
     val headers   = ExamScore.getHeaders
     val headerRow = sheet.createRow(0)
     headers.indices.foreach(i => headerRow.createCell(i).setCellValue(headers(i)))
@@ -89,7 +86,8 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       .map(Lang.forCode)
       .getOrElse(Lang.forCode("en"))
 
-    val sheet          = wb.createSheet(messages.get(lang, "reports.scores"))
+    val sheet = wb.createSheet(messages.get(lang, "reports.scores")).asInstanceOf[SXSSFSheet]
+    sheet.trackAllColumnsForAutoSizing()
     val defaultHeaders = getStudentReportHeaderMap(student)
     val headerRow      = sheet.createRow(0)
     val valueRow       = sheet.createRow(sheet.getLastRowNum + 1)
@@ -133,11 +131,12 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
 
     autosizeColumns(headerRow, sheet)
 
-  override def streamScores(examId: Long, childIds: List[Long])(os: OutputStream): Unit =
-    streamTo(os)(wb => buildScoreSheetContent(wb, examId, childIds))
+  override def streamScores(parentExam: Exam, childExams: List[Exam])(os: OutputStream): Unit =
+    streamTo(os)(wb => buildScoreSheetContent(wb, parentExam, childExams))
 
-  private def buildScoreSheetContent(wb: Workbook, examId: Long, childIds: List[Long]): Unit =
-    val sheet    = wb.createSheet("Question scores")
+  private def buildScoreSheetContent(wb: Workbook, parentExam: Exam, childExams: List[Exam]): Unit =
+    val sheet = wb.createSheet("Question scores").asInstanceOf[SXSSFSheet]
+    sheet.trackAllColumnsForAutoSizing()
     val hostname = configReader.getHostName
 
     val linkStyle = wb.createCellStyle()
@@ -145,27 +144,6 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     linkFont.setColor(IndexedColors.BLUE.getIndex)
     linkFont.setUnderline(Font.U_SINGLE)
     linkStyle.setFont(linkFont)
-
-    val parentExam = Option(
-      DB.find(classOf[Exam])
-        .fetch("examSections.sectionQuestions.question")
-        .where()
-        .eq("id", examId)
-        .findOneOrEmpty()
-        .orElse(null)
-    ).getOrElse(throw new RuntimeException("parent exam not found"))
-
-    val childExams = DB
-      .find(classOf[Exam])
-      .fetch("examParticipation.user")
-      .fetch("examSections.sectionQuestions.question")
-      .fetch("examRecord.examScore")
-      .where()
-      .eq("parent.id", examId)
-      .in("id", childIds)
-      .findList()
-      .asScala
-      .toList
 
     val deletedQuestionIds = getDeletedQuestionIds(parentExam, childExams)
 
@@ -248,11 +226,15 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
     autosizeColumns(headerRow, sheet)
 
   override def streamTo(os: OutputStream, rowWindowSize: Int = 100)(build: Workbook => Unit): Unit =
+    // Use semaphore to limit the number of concurrent workbook builds
+    buildSemaphore.acquire()
     val wb = new SXSSFWorkbook(rowWindowSize)
     try
       build(wb)
       wb.write(os)
-    finally wb.close()
+    finally
+      wb.close()
+      buildSemaphore.release()
 
   // Private helper methods
 
@@ -336,5 +318,329 @@ class ExcelBuilderImpl @Inject() (configReader: ConfigReader) extends ExcelBuild
       .flatMap(q => Option(q.parent).map(p => !parentIds.contains(p.id.longValue())))
       .getOrElse(true)
 
-  private def autosizeColumns(header: Row, sheet: Sheet): Unit =
+  private def autosizeColumns(header: Row, sheet: SXSSFSheet): Unit =
     (0 until header.getLastCellNum).foreach(i => sheet.autoSizeColumn(i, true))
+
+  // --- Statistics / admin report implementations ---
+
+  override def streamExam(exam: Exam)(os: OutputStream): Unit =
+    streamTo(os)(wb => buildExamSheet(wb, exam))
+
+  override def streamTeacherExams(exams: List[Exam])(os: OutputStream): Unit =
+    streamTo(os)(wb => buildTeacherExamsSheet(wb, exams))
+
+  override def streamEnrolments(proto: Exam)(os: OutputStream): Unit =
+    streamTo(os)(wb => buildEnrolmentsSheet(wb, proto))
+
+  override def streamReviews(exams: List[Exam])(os: OutputStream): Unit =
+    streamTo(os)(wb => buildReviewsSheet(wb, exams))
+
+  override def streamReservations(enrolments: List[ExamEnrolment])(os: OutputStream): Unit =
+    streamTo(os)(wb => buildReservationsSheet(wb, enrolments))
+
+  override def streamAllExams(participations: List[ExamParticipation])(os: OutputStream): Unit =
+    streamTo(os)(wb => buildParticipationsSheet(wb, participations, includeStudentInfo = true))
+
+  override def streamStudentActivity(student: User, participations: List[ExamParticipation])(
+      os: OutputStream
+  ): Unit =
+    streamTo(os)(wb => buildStudentActivitySheets(wb, student, participations))
+
+  private def buildExamSheet(wb: Workbook, exam: Exam): Unit =
+    val values = Map(
+      "Creator ID"       -> exam.creator.id.toString,
+      "First name"       -> exam.creator.firstName,
+      "Last name"        -> exam.creator.lastName,
+      "Exam type"        -> exam.examType.`type`,
+      "Course code"      -> exam.course.code,
+      "Course name"      -> exam.course.name,
+      "Course credits"   -> exam.course.credits.toString,
+      "Course unit type" -> forceNotNull(exam.course.courseUnitType),
+      "Course level"     -> forceNotNull(exam.course.level),
+      "Created"          -> ISODateTimeFormat.date().print(new DateTime(exam.created)),
+      "Begins"           -> ISODateTimeFormat.date().print(new DateTime(exam.periodStart)),
+      "Ends"             -> ISODateTimeFormat.date().print(new DateTime(exam.periodEnd)),
+      "Duration"         -> Option(exam.duration).map(_.toString).getOrElse("N/A"),
+      "Grade scale"      -> Option(exam.gradeScale).map(_.description).getOrElse("N/A"),
+      "State"            -> exam.state.toString,
+      "Attachment" -> Option(exam.attachment).map(a => s"${a.filePath}${a.fileName}").getOrElse(""),
+      "Instructions" -> forceNotNull(exam.instruction),
+      "Shared"       -> exam.shared.toString
+    )
+    val sheet     = wb.createSheet(exam.name)
+    val headerRow = sheet.createRow(0)
+    values.keys.zipWithIndex.foreach { case (key, i) => headerRow.createCell(i).setCellValue(key) }
+    val dataRow = sheet.createRow(1)
+    values.values.zipWithIndex.foreach { case (value, i) =>
+      dataRow.createCell(i).setCellValue(value)
+    }
+
+  private def buildTeacherExamsSheet(wb: Workbook, exams: List[Exam]): Unit =
+    val sheet = wb.createSheet("teacher's exams").asInstanceOf[SXSSFSheet]
+    sheet.trackAllColumnsForAutoSizing()
+    addSheetHeader(
+      sheet,
+      Array(
+        "exam",
+        "created",
+        "state",
+        "course code",
+        "active during",
+        "credits",
+        "exam type",
+        "in review",
+        "graded",
+        "logged"
+      )
+    )
+    exams.zipWithIndex.foreach { case (parent, idx) =>
+      val (inReview, graded, logged) =
+        parent.children.asScala.foldLeft((0, 0, 0)) { case ((ir, g, l), child) =>
+          child.state match
+            case ExamState.REVIEW | ExamState.REVIEW_STARTED => (ir + 1, g, l)
+            case ExamState.GRADED                            => (ir, g + 1, l)
+            case ExamState.GRADED_LOGGED                     => (ir, g, l + 1)
+            case _                                           => (ir, g, l)
+        }
+      addSheetRow(
+        sheet,
+        Array(
+          parent.name,
+          ISODateTimeFormat.date().print(new DateTime(parent.created)),
+          parent.state.toString,
+          parent.course.code,
+          s"${ISODateTimeFormat.date().print(new DateTime(parent.periodStart))} - " +
+            ISODateTimeFormat.date().print(new DateTime(parent.periodEnd)),
+          Option(parent.course.credits).map(_.toString).getOrElse(""),
+          parent.examType.`type`,
+          inReview.toString,
+          graded.toString,
+          logged.toString
+        ),
+        idx + 1
+      )
+    }
+    (0 to 9).foreach(i => sheet.autoSizeColumn(i, true))
+
+  private def buildEnrolmentsSheet(wb: Workbook, proto: Exam): Unit =
+    val sheet = wb.createSheet("enrolments").asInstanceOf[SXSSFSheet]
+    sheet.trackAllColumnsForAutoSizing()
+    addSheetHeader(
+      sheet,
+      Array("student name", "student ID", "student EPPN", "reservation time", "enrolment time")
+    )
+    proto.examEnrolments.asScala.zipWithIndex.foreach { case (e, idx) =>
+      addSheetRow(
+        sheet,
+        Array(
+          s"${e.user.firstName} ${e.user.lastName}",
+          forceNotNull(e.user.identifier),
+          e.user.eppn,
+          Option(e.reservation)
+            .map(r => ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(r.startAt)))
+            .getOrElse(""),
+          ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.enrolledOn))
+        ),
+        idx + 1
+      )
+    }
+    (0 to 4).foreach(i => sheet.autoSizeColumn(i, true))
+
+  private def buildReviewsSheet(wb: Workbook, exams: List[Exam]): Unit =
+    val sheet = wb.createSheet("graded exams").asInstanceOf[SXSSFSheet]
+    sheet.trackAllColumnsForAutoSizing()
+    addSheetHeader(
+      sheet,
+      Array(
+        "student",
+        "exam",
+        "course",
+        "taken on",
+        "graded on",
+        "graded by",
+        "credits",
+        "grade",
+        "exam type",
+        "answer language"
+      )
+    )
+    exams.zipWithIndex.foreach { case (e, idx) =>
+      addSheetRow(
+        sheet,
+        Array(
+          s"${e.creator.firstName} ${e.creator.lastName}",
+          e.name,
+          e.course.code,
+          ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.created)),
+          ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.gradedTime)),
+          safeParse(() => s"${e.gradedByUser.firstName} ${e.gradedByUser.lastName}"),
+          Option(e.course.credits).map(_.toString).getOrElse(""),
+          safeParse(() => e.grade.name),
+          safeParse(() => e.creditType.`type`),
+          e.answerLanguage
+        ),
+        idx + 1
+      )
+    }
+    (0 to 9).foreach(i => sheet.autoSizeColumn(i, true))
+
+  private def buildReservationsSheet(wb: Workbook, enrolments: List[ExamEnrolment]): Unit =
+    val headers = Array(
+      "enrolment id",
+      "enrolled on",
+      "user id",
+      "user first name",
+      "user last name",
+      "exam id",
+      "exam name",
+      "reservation id",
+      "reservation begins",
+      "reservation ends",
+      "machine id",
+      "machine name",
+      "machine IP",
+      "room id",
+      "room name",
+      "room code"
+    )
+    val sheet = wb.createSheet("reservations").asInstanceOf[SXSSFSheet]
+    sheet.trackAllColumnsForAutoSizing()
+    addSheetHeader(sheet, headers)
+    enrolments.zipWithIndex.foreach { case (e, idx) =>
+      addSheetRow(
+        sheet,
+        Array(
+          e.id.toString,
+          ISODateTimeFormat.date().print(new DateTime(e.enrolledOn)),
+          e.user.id.toString,
+          e.user.firstName,
+          e.user.lastName,
+          e.exam.id.toString,
+          e.exam.name,
+          e.reservation.id.toString,
+          ISODateTimeFormat.dateTime().print(new DateTime(e.reservation.startAt)),
+          ISODateTimeFormat.dateTime().print(new DateTime(e.reservation.endAt)),
+          e.reservation.machine.id.toString,
+          e.reservation.machine.name,
+          e.reservation.machine.ipAddress,
+          e.reservation.machine.room.id.toString,
+          e.reservation.machine.room.name,
+          e.reservation.machine.room.roomCode
+        ),
+        idx + 1
+      )
+    }
+    headers.indices.foreach(i => sheet.autoSizeColumn(i, true))
+
+  private def buildStudentActivitySheets(
+      wb: Workbook,
+      student: User,
+      participations: List[ExamParticipation]
+  ): Unit =
+    val studentSheet = wb.createSheet("student")
+    addSheetHeader(studentSheet, Array("id", "first name", "last name", "email", "language"))
+    val dataRow = studentSheet.createRow(1)
+    dataRow.createCell(0).setCellValue(student.id.toDouble)
+    dataRow.createCell(1).setCellValue(student.firstName)
+    dataRow.createCell(2).setCellValue(student.lastName)
+    dataRow.createCell(3).setCellValue(student.email)
+    dataRow.createCell(4).setCellValue(student.language.code)
+    buildParticipationsSheet(wb, participations, includeStudentInfo = false)
+
+  private def buildParticipationsSheet(
+      wb: Workbook,
+      participations: List[ExamParticipation],
+      includeStudentInfo: Boolean
+  ): Unit =
+    val sheet = wb.createSheet("participations").asInstanceOf[SXSSFSheet]
+    sheet.trackAllColumnsForAutoSizing()
+    val headers =
+      (if includeStudentInfo then
+         List("student id", "student first name", "student last name", "student email")
+       else List.empty) ++
+        List(
+          "graded by teacher id",
+          "graded by teacher first name",
+          "graded by teacher last name",
+          "graded by teacher email",
+          "reservation id",
+          "exam started",
+          "exam ended",
+          "actual duration",
+          "room id",
+          "room name",
+          "room code",
+          "machine id",
+          "machine name",
+          "machine IP",
+          "course name",
+          "course code",
+          "exam id",
+          "exam name",
+          "exam duration",
+          "exam state",
+          "exam score",
+          "exam grade scale",
+          "exam grade",
+          "graded on",
+          "credit type"
+        )
+    addSheetHeader(sheet, headers.toArray)
+    participations.zipWithIndex.foreach { case (p, idx) =>
+      val studentInfo =
+        if includeStudentInfo then
+          List(p.user.id.toString, p.user.firstName, p.user.lastName, p.user.email)
+        else List.empty
+      val data = studentInfo ++ List(
+        Option(p.exam.gradedByUser).map(_.id.toString).getOrElse(""),
+        Option(p.exam.gradedByUser).map(_.firstName).getOrElse(""),
+        Option(p.exam.gradedByUser).map(_.lastName).getOrElse(""),
+        Option(p.exam.gradedByUser).map(_.email).getOrElse(""),
+        p.reservation.id.toString,
+        ISODateTimeFormat.dateTime().print(new DateTime(p.started)),
+        ISODateTimeFormat.dateTime().print(new DateTime(p.ended)),
+        ISODateTimeFormat.time().print(new DateTime(p.duration)),
+        Option(p.reservation.machine).map(_.room.id.toString).getOrElse("external"),
+        Option(p.reservation.machine).map(_.room.name)
+          .getOrElse(p.reservation.externalReservation.roomName),
+        Option(p.reservation.machine).map(_.room.roomCode)
+          .getOrElse(p.reservation.externalReservation.roomCode),
+        Option(p.reservation.machine).map(_.id.toString).getOrElse("external"),
+        Option(p.reservation.machine).map(_.name)
+          .getOrElse(p.reservation.externalReservation.machineName),
+        Option(p.reservation.machine).map(_.ipAddress).getOrElse("external"),
+        Option(p.exam.course).map(_.name).getOrElse(""),
+        Option(p.exam.course).map(_.code).getOrElse(""),
+        p.exam.id.toString,
+        p.exam.name,
+        p.exam.duration.toString,
+        p.exam.state.toString,
+        p.exam.getTotalScore.toString,
+        Option(p.exam.gradeScale).map(_.description)
+          .getOrElse(p.exam.course.gradeScale.description),
+        Option(p.exam.grade).map(_.name).getOrElse(""),
+        Option(p.exam.gradedTime)
+          .map(t => ISODateTimeFormat.dateTime().print(new DateTime(t))).getOrElse(""),
+        Option(p.exam.creditType).map(_.`type`).getOrElse("")
+      )
+      addSheetRow(sheet, data.toArray, idx + 1)
+    }
+    headers.indices.foreach(i => sheet.autoSizeColumn(i, true))
+
+  private def addSheetHeader(sheet: Sheet, headers: Array[String]): Unit =
+    val headerRow = sheet.createRow(0)
+    headers.zipWithIndex.foreach { case (header, i) =>
+      headerRow.createCell(i).setCellValue(header)
+    }
+
+  private def addSheetRow(sheet: Sheet, data: Array[String], rowIndex: Int): Unit =
+    val dataRow = sheet.createRow(rowIndex)
+    data.zipWithIndex.foreach { case (value, i) => dataRow.createCell(i).setCellValue(value) }
+
+  private def safeParse(supplier: () => String): String =
+    Try(supplier()).getOrElse {
+      logger.warn("Invalid review data, omitting field from report")
+      "N/A"
+    }
+
+  private def forceNotNull(src: String): String = Option(src).getOrElse("")
