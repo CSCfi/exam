@@ -260,6 +260,58 @@ describe('DropdownSelectComponent', () => {
         });
     });
 
+    describe('initial input reactivity', () => {
+        it('should update selected when initial input changes after initialization', async () => {
+            const first = mockOptions[0];
+            const second = mockOptions[1];
+            fixture.componentRef.setInput('options', mockOptions);
+            fixture.componentRef.setInput('initial', first);
+            fixture.detectChanges();
+            expect(component.selected()).toEqual(first);
+
+            fixture.componentRef.setInput('initial', second);
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(component.selected()).toEqual(second);
+        });
+
+        it('should override manual selection when initial input changes', async () => {
+            fixture.componentRef.setInput('options', mockOptions);
+            fixture.componentRef.setInput('initial', mockOptions[0]);
+            fixture.detectChanges();
+
+            component.selectOption(mockOptions[2]);
+            fixture.detectChanges();
+            expect(component.selected()).toEqual(mockOptions[2]);
+
+            fixture.componentRef.setInput('initial', mockOptions[1]);
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            // A new initial value always wins — the effect unconditionally syncs from initial
+            expect(component.selected()).toEqual(mockOptions[1]);
+        });
+
+        it('should preserve manual selection when initial input is set to the same reference', async () => {
+            fixture.componentRef.setInput('options', mockOptions);
+            fixture.componentRef.setInput('initial', mockOptions[0]);
+            fixture.detectChanges();
+
+            component.selectOption(mockOptions[2]);
+            fixture.detectChanges();
+            expect(component.selected()).toEqual(mockOptions[2]);
+
+            // Re-setting the exact same object reference: Angular's signal equality check
+            // deduplicates it, so the effect does NOT re-run — manual selection is preserved.
+            fixture.componentRef.setInput('initial', mockOptions[0]);
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(component.selected()).toEqual(mockOptions[2]);
+        });
+    });
+
     describe('filtering', () => {
         beforeEach(() => {
             fixture.componentRef.setInput('options', mockOptions);

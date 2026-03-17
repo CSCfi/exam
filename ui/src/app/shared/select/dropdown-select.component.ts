@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Option } from './select.model';
@@ -78,7 +78,7 @@ export class DropdownSelectComponent<V, I> {
 
     readonly menuTriggerId = `xm-dropdown-select-${++DropdownSelectComponent.instanceCount}`;
     readonly searchFilter = signal('');
-    readonly selected = signal<Option<V, I> | undefined>(undefined);
+    readonly selected = linkedSignal<Option<V, I> | undefined>(() => this.initial());
 
     readonly filteredOptions = computed(() => {
         const optionsValue = this.options();
@@ -95,15 +95,6 @@ export class DropdownSelectComponent<V, I> {
             return filtered.slice(0, limitToValue);
         }
     });
-
-    constructor() {
-        effect(() => {
-            const initial = this.initial();
-            if (initial !== undefined) {
-                this.selected.set(initial);
-            }
-        });
-    }
 
     onSearchFilterInput = (event: Event) => this.setSearchFilter((event.target as HTMLInputElement).value);
 
